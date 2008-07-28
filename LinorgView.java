@@ -115,6 +115,9 @@ public class LinorgView extends FrameView {
 
         mainPanel = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
+        jSplitPane2 = new javax.swing.JSplitPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -134,13 +137,25 @@ public class LinorgView extends FrameView {
 
         jSplitPane1.setName("jSplitPane1"); // NOI18N
 
+        jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane2.setName("jSplitPane2"); // NOI18N
+
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        jTextPane1.setName("jTextPane1"); // NOI18N
+        jScrollPane3.setViewportView(jTextPane1);
+
+        jSplitPane2.setLeftComponent(jScrollPane3);
+
         jScrollPane2.setName("jScrollPane2"); // NOI18N
 
         jTable1.setModel(tableModel);
         jTable1.setName("jTable1"); // NOI18N
         jScrollPane2.setViewportView(jTable1);
 
-        jSplitPane1.setRightComponent(jScrollPane2);
+        jSplitPane2.setRightComponent(jScrollPane2);
+
+        jSplitPane1.setRightComponent(jSplitPane2);
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
@@ -273,7 +288,7 @@ private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN
     } else // if there is only one node selected then clear the tree first to trigger the single mode view
     if (1 == jTree1.getSelectionCount()) {
         imdiHelper.removeAllFromGridData(tableModel);
-        imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) jTree1.getSelectionPath().getLastPathComponent());
+        imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) jTree1.getSelectionPath().getLastPathComponent(), jTextPane1);
     } else {
         // if there is more than one selected node then remove any deselected nodes before adding new ones
         for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
@@ -288,7 +303,7 @@ private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN
 //        System.out.println("added: " + selectedCount + ":" + evt.isAddedPath(selectedCount) + " path: " + evt.getPaths()[selectedCount]);
             if (evt.isAddedPath(selectedCount)) {
                 DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                imdiHelper.addToGridData(tableModel, parentNode);
+                imdiHelper.addToGridData(tableModel, parentNode, jTextPane1);
             //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
             }
         }
@@ -303,8 +318,11 @@ private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree jTree1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
