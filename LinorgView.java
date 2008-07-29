@@ -250,8 +250,8 @@ public class LinorgView extends JFrame {
 //        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
-        exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
+//        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
+//        exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
         exitMenuItem.setName("exitMenuItem"); // NOI18N
         fileMenu.add(exitMenuItem);
 
@@ -260,7 +260,7 @@ public class LinorgView extends JFrame {
 //        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
 
-        aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
+//        aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
         aboutMenuItem.setName("aboutMenuItem"); // NOI18N
         helpMenu.add(aboutMenuItem);
 

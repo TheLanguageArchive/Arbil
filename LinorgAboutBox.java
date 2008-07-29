@@ -42,8 +42,8 @@ public class LinorgAboutBox extends javax.swing.JDialog {
         setName("aboutBox"); // NOI18N
         setResizable(false);
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgAboutBox.class, this);
-        closeButton.setAction(actionMap.get("closeAboutBox")); // NOI18N
+//        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgAboutBox.class, this);
+//        closeButton.setAction(actionMap.get("closeAboutBox")); // NOI18N
         closeButton.setName("closeButton"); // NOI18N
 
         appTitleLabel.setFont(appTitleLabel.getFont().deriveFont(appTitleLabel.getFont().getStyle() | java.awt.Font.BOLD, appTitleLabel.getFont().getSize()+4));
