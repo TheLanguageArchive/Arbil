@@ -73,7 +73,7 @@ public class ImdiHelper {
         return treeNode;
     }
 
-    public void getImdiChildNodes(DefaultTreeModel treeModel, DefaultMutableTreeNode itemNode) {
+    public void getImdiChildNodes(/*DefaultTreeModel treeModel, */DefaultMutableTreeNode itemNode) {
         if (itemNode.getChildCount() == 0) {
             if (String.class != itemNode.getUserObject().getClass()) {
                 ImdiTreeNode itemImdiTreeNode = (ImdiTreeNode) itemNode.getUserObject();
@@ -85,12 +85,12 @@ public class ImdiHelper {
                         IMDILink[] links = api.getIMDILinks(itemImdiTreeNode.getNodeDom(), baseURL, WSNodeType.UNKNOWN);
                         if (links != null) {
                             for (int linkCount = 0; linkCount < links.length /*&& linkCount < 3*/; linkCount++) {
-                                treeModel.insertNodeInto(getImdiTreeNode(links[linkCount].getRawURL()), itemNode, itemNode.getChildCount());
+                                itemNode.add(getImdiTreeNode(links[linkCount].getRawURL()));
                             }
                         }
                     } catch (MalformedURLException mue) {
                         System.out.println("Invalid input file URL: " + mue);
-                        treeModel.insertNodeInto(new DefaultMutableTreeNode("Invalid input file from parent"), itemNode, itemNode.getChildCount());
+                        itemNode.add(new DefaultMutableTreeNode("Invalid input file from parent"));
                     }
                 }
             }

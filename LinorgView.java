@@ -23,16 +23,25 @@ import javax.swing.tree.DefaultTreeModel;
  */
 public class LinorgView extends FrameView {
 
-    private DefaultTreeModel treeModel;
-    private DefaultMutableTreeNode rootNode;
+    private DefaultTreeModel localCorpusTreeModel;
+    private DefaultTreeModel remoteCorpusTreeModel;
+    private DefaultMutableTreeNode localCorpusRootNode;
+    private DefaultMutableTreeNode remoteCorpusRootNode;
     private DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel();
     ImdiHelper imdiHelper = new ImdiHelper();
 
     public LinorgView(SingleFrameApplication app) {
         super(app);
 
-        rootNode = imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/Corpusstructure/MPI.imdi"); //"http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
-        treeModel = new DefaultTreeModel(rootNode, true);
+        //http://www.java2s.com/Code/Java/File-Input-Output/DisplayafilesysteminaJTreeview.htm
+        //  jTree2.add(null, new DefaultMutableTreeNode("file://data1/media-archive-copy"));
+
+        localCorpusRootNode = new DefaultMutableTreeNode("Local");
+        localCorpusRootNode.add(imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/Corpusstructure/MPI.imdi"));
+        remoteCorpusRootNode = new DefaultMutableTreeNode("Remote");
+        remoteCorpusRootNode.add(imdiHelper.getImdiTreeNode("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
+        localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
+        remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
 
         initComponents();
 
@@ -116,12 +125,18 @@ public class LinorgView extends FrameView {
         mainPanel = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jSplitPane2 = new javax.swing.JSplitPane();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
+        remoteCorpusTree = new javax.swing.JTree();
+        jSplitPane4 = new javax.swing.JSplitPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        localCorpusTree = new javax.swing.JTree();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        localDirectoryTree = new javax.swing.JTree();
+        jSplitPane3 = new javax.swing.JSplitPane();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -132,6 +147,8 @@ public class LinorgView extends FrameView {
         statusMessageLabel = new javax.swing.JLabel();
         statusAnimationLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTree2 = new javax.swing.JTree();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -140,42 +157,91 @@ public class LinorgView extends FrameView {
         jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane2.setName("jSplitPane2"); // NOI18N
 
-        jScrollPane3.setName("jScrollPane3"); // NOI18N
-
-        jTextPane1.setName("jTextPane1"); // NOI18N
-        jScrollPane3.setViewportView(jTextPane1);
-
-        jSplitPane2.setLeftComponent(jScrollPane3);
-
-        jScrollPane2.setName("jScrollPane2"); // NOI18N
-
-        jTable1.setModel(tableModel);
-        jTable1.setName("jTable1"); // NOI18N
-        jScrollPane2.setViewportView(jTable1);
-
-        jSplitPane2.setRightComponent(jScrollPane2);
-
-        jSplitPane1.setRightComponent(jSplitPane2);
-
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
-        jTree1.setModel(treeModel);
-        jTree1.setName("jTree1"); // NOI18N
-        jTree1.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
+        remoteCorpusTree.setModel(remoteCorpusTreeModel);
+        remoteCorpusTree.setName("remoteCorpusTree"); // NOI18N
+        remoteCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
             }
             public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                jTree1TreeWillExpand(evt);
+                jTreeTreeWillExpand(evt);
             }
         });
-        jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+        remoteCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                jTree1ValueChanged(evt);
+                jTreeValueChanged(evt);
             }
         });
-        jScrollPane1.setViewportView(jTree1);
+        jScrollPane1.setViewportView(remoteCorpusTree);
 
-        jSplitPane1.setLeftComponent(jScrollPane1);
+        jSplitPane2.setTopComponent(jScrollPane1);
+
+        jSplitPane4.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane4.setName("jSplitPane4"); // NOI18N
+
+        jScrollPane2.setName("jScrollPane2"); // NOI18N
+
+        localCorpusTree.setModel(localCorpusTreeModel);
+        localCorpusTree.setName("localCorpusTree"); // NOI18N
+        localCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
+            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+            }
+            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+                jTreeTreeWillExpand(evt);
+            }
+        });
+        localCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTreeValueChanged(evt);
+            }
+        });
+        jScrollPane2.setViewportView(localCorpusTree);
+
+        jSplitPane4.setTopComponent(jScrollPane2);
+
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        localDirectoryTree.setName("localDirectoryTree"); // NOI18N
+        localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
+            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+            }
+            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+                jTreeTreeWillExpand(evt);
+            }
+        });
+        localDirectoryTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTreeValueChanged(evt);
+            }
+        });
+        jScrollPane3.setViewportView(localDirectoryTree);
+
+        jSplitPane4.setRightComponent(jScrollPane3);
+
+        jSplitPane2.setRightComponent(jSplitPane4);
+
+        jSplitPane1.setLeftComponent(jSplitPane2);
+
+        jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane3.setName("jSplitPane3"); // NOI18N
+
+        jScrollPane5.setName("jScrollPane5"); // NOI18N
+
+        jTextPane1.setName("jTextPane1"); // NOI18N
+        jScrollPane5.setViewportView(jTextPane1);
+
+        jSplitPane3.setBottomComponent(jScrollPane5);
+
+        jScrollPane6.setName("jScrollPane6"); // NOI18N
+
+        jTable1.setModel(tableModel);
+        jTable1.setName("jTable1"); // NOI18N
+        jScrollPane6.setViewportView(jTable1);
+
+        jSplitPane3.setLeftComponent(jScrollPane6);
+
+        jSplitPane1.setRightComponent(jSplitPane3);
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -247,48 +313,57 @@ public class LinorgView extends FrameView {
                 .addGap(3, 3, 3))
         );
 
+        jScrollPane4.setName("jScrollPane4"); // NOI18N
+
+        jTree2.setName("jTree2"); // NOI18N
+        jScrollPane4.setViewportView(jTree2);
+
         setComponent(mainPanel);
         setMenuBar(menuBar);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
 
-private void jTree1TreeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_jTree1TreeWillExpand
+private void jTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_jTreeTreeWillExpand
 // TODO add your handling code here:
     statusMessageLabel.setText("Loading");
     System.out.println("jTree1TreeWillExpand");
     DefaultMutableTreeNode parentNode = null;
     if (evt.getPath() == null) {
-        //There is no selection. Default to the root node.
-        parentNode = rootNode;
+        //There is no selection.
+        statusMessageLabel.setText("No node selected");
     } else {
         parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
     }
     // check for imdi data
-    imdiHelper.getImdiChildNodes(treeModel, parentNode);
-    jTree1.scrollPathToVisible(evt.getPath());
+    imdiHelper.getImdiChildNodes(parentNode);
+    remoteCorpusTree.scrollPathToVisible(evt.getPath());
     statusMessageLabel.setText("");
-}//GEN-LAST:event_jTree1TreeWillExpand
+}//GEN-LAST:event_jTreeTreeWillExpand
 
-private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
+private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
 // TODO add your handling code here:
+
+    int selectedNoedsCount = remoteCorpusTree.getSelectionCount();
+    selectedNoedsCount += localCorpusTree.getSelectionCount();
+    selectedNoedsCount += localDirectoryTree.getSelectionCount();
+
     statusMessageLabel.setText("loading details");
-    System.out.println("jTree1ValueChanged");
-    System.out.println("getSelectionCount: " + jTree1.getSelectionCount());
+//    System.out.println("jTree1ValueChanged");
+//    System.out.println("getSelectionCount: " + selectedNoedsCount);
 
-
-//    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
-//    if (evt.isAddedPath()) {
-//        imdiHelper.addToGridData(tableModel, parentNode);
-//    } else {
-//        imdiHelper.removeFromGridData(tableModel, parentNode);
-//    }
-    // if there are no nodes selected then clear the grid
-    if (0 == jTree1.getSelectionCount()) {
+    // if there are no nodes selected then clear the grid or if there is only one node selected then clear the tree then add the node to trigger the single mode view
+    if (1 >= selectedNoedsCount) {
         imdiHelper.removeAllFromGridData(tableModel);
-    } else // if there is only one node selected then clear the tree first to trigger the single mode view
-    if (1 == jTree1.getSelectionCount()) {
-        imdiHelper.removeAllFromGridData(tableModel);
-        imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) jTree1.getSelectionPath().getLastPathComponent(), jTextPane1);
+        // there is only one tree node selected but we don't know on which tree so check each one and display the selected node
+        if (0 < remoteCorpusTree.getSelectionCount()) {
+            imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+        }
+        if (0 < localCorpusTree.getSelectionCount()) {
+            imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+        }
+        if (0 < localDirectoryTree.getSelectionCount()) {
+            imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+        }
     } else {
         // if there is more than one selected node then remove any deselected nodes before adding new ones
         for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
@@ -310,23 +385,27 @@ private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN
     }
     statusMessageLabel.setText("");
     System.out.println(evt.isAddedPath());
-//TreePath[] selectedNodes = evt.getPaths();
-
-//tableModel = imdiHelper.getGridData(selectedNodes);
-// jTable1.setModel(tableModel);
-}//GEN-LAST:event_jTree1ValueChanged
+}//GEN-LAST:event_jTreeValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
+    private javax.swing.JSplitPane jSplitPane3;
+    private javax.swing.JSplitPane jSplitPane4;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextPane jTextPane1;
-    private javax.swing.JTree jTree1;
+    private javax.swing.JTree jTree2;
+    private javax.swing.JTree localCorpusTree;
+    private javax.swing.JTree localDirectoryTree;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JProgressBar progressBar;
+    private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
