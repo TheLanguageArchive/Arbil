@@ -1,5 +1,5 @@
 /*
- * DesktopApplication1AboutBox.java
+ * LinorgAboutBox.java
  */
 
 package mpi.linorg;

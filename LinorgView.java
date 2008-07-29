@@ -1,5 +1,5 @@
 /*
- * DesktopApplication1View.java
+ * LinorgView.java
  */
 package mpi.linorg;
 
