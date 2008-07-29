@@ -3,16 +3,6 @@
  */
 package mpi.linorg;
 
-import org.jdesktop.application.Action;
-import org.jdesktop.application.ResourceMap;
-import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.application.FrameView;
-import org.jdesktop.application.TaskMonitor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.Timer;
-import javax.swing.Icon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -21,7 +11,7 @@ import javax.swing.tree.DefaultTreeModel;
 /**
  * The application's main frame.
  */
-public class LinorgView extends FrameView {
+public class LinorgView extends JFrame {
 
     private DefaultTreeModel localCorpusTreeModel;
     private DefaultTreeModel remoteCorpusTreeModel;
@@ -30,8 +20,7 @@ public class LinorgView extends FrameView {
     private DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel();
     ImdiHelper imdiHelper = new ImdiHelper();
 
-    public LinorgView(SingleFrameApplication app) {
-        super(app);
+    public LinorgView() {
 
         //http://www.java2s.com/Code/Java/File-Input-Output/DisplayafilesysteminaJTreeview.htm
         //  jTree2.add(null, new DefaultMutableTreeNode("file://data1/media-archive-copy"));
@@ -44,73 +33,75 @@ public class LinorgView extends FrameView {
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
 
         initComponents();
+        
+        add(mainPanel);
+        setVisible(true);
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
-        ResourceMap resourceMap = getResourceMap();
-        int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
-        messageTimer = new Timer(messageTimeout, new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                statusMessageLabel.setText("");
-            }
-        });
-        messageTimer.setRepeats(false);
-        int busyAnimationRate = resourceMap.getInteger("StatusBar.busyAnimationRate");
-        for (int i = 0; i < busyIcons.length; i++) {
-            busyIcons[i] = resourceMap.getIcon("StatusBar.busyIcons[" + i + "]");
-        }
-        busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
-                statusAnimationLabel.setIcon(busyIcons[busyIconIndex]);
-            }
-        });
-        idleIcon = resourceMap.getIcon("StatusBar.idleIcon");
-        statusAnimationLabel.setIcon(idleIcon);
-        progressBar.setVisible(false);
-
-        // connecting action tasks to status bar via TaskMonitor
-        TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
-        taskMonitor.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                String propertyName = evt.getPropertyName();
-                if ("started".equals(propertyName)) {
-                    if (!busyIconTimer.isRunning()) {
-                        statusAnimationLabel.setIcon(busyIcons[0]);
-                        busyIconIndex = 0;
-                        busyIconTimer.start();
-                    }
-                    progressBar.setVisible(true);
-                    progressBar.setIndeterminate(true);
-                } else if ("done".equals(propertyName)) {
-                    busyIconTimer.stop();
-                    statusAnimationLabel.setIcon(idleIcon);
-                    progressBar.setVisible(false);
-                    progressBar.setValue(0);
-                } else if ("message".equals(propertyName)) {
-                    String text = (String) (evt.getNewValue());
-                    statusMessageLabel.setText((text == null) ? "" : text);
-                    messageTimer.restart();
-                } else if ("progress".equals(propertyName)) {
-                    int value = (Integer) (evt.getNewValue());
-                    progressBar.setVisible(true);
-                    progressBar.setIndeterminate(false);
-                    progressBar.setValue(value);
-                }
-            }
-        });
+        //ResourceMap resourceMap = getResourceMap();
+        //int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
+        //messageTimer = new Timer(messageTimeout, new ActionListener() {
+//
+//            public void actionPerformed(ActionEvent e) {
+//                statusMessageLabel.setText("");
+//            }
+//        });
+//        messageTimer.setRepeats(false);
+//        int busyAnimationRate = resourceMap.getInteger("StatusBar.busyAnimationRate");
+//        for (int i = 0; i < busyIcons.length; i++) {
+//            busyIcons[i] = resourceMap.getIcon("StatusBar.busyIcons[" + i + "]");
+//        }
+//        busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
+//
+//            public void actionPerformed(ActionEvent e) {
+//                busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
+//                statusAnimationLabel.setIcon(busyIcons[busyIconIndex]);
+//            }
+//        });
+//        idleIcon = resourceMap.getIcon("StatusBar.idleIcon");
+//        statusAnimationLabel.setIcon(idleIcon);
+//        progressBar.setVisible(false);
+//
+//        // connecting action tasks to status bar via TaskMonitor
+//        TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
+//        taskMonitor.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+//
+//            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+//                String propertyName = evt.getPropertyName();
+//                if ("started".equals(propertyName)) {
+//                    if (!busyIconTimer.isRunning()) {
+//                        statusAnimationLabel.setIcon(busyIcons[0]);
+//                        busyIconIndex = 0;
+//                        busyIconTimer.start();
+//                    }
+//                    progressBar.setVisible(true);
+//                    progressBar.setIndeterminate(true);
+//                } else if ("done".equals(propertyName)) {
+//                    busyIconTimer.stop();
+//                    statusAnimationLabel.setIcon(idleIcon);
+//                    progressBar.setVisible(false);
+//                    progressBar.setValue(0);
+//                } else if ("message".equals(propertyName)) {
+//                    String text = (String) (evt.getNewValue());
+//                    statusMessageLabel.setText((text == null) ? "" : text);
+//                    messageTimer.restart();
+//                } else if ("progress".equals(propertyName)) {
+//                    int value = (Integer) (evt.getNewValue());
+//                    progressBar.setVisible(true);
+//                    progressBar.setIndeterminate(false);
+//                    progressBar.setValue(value);
+//                }
+//            }
+//        });
     }
 
-    @Action
     public void showAboutBox() {
-        if (aboutBox == null) {
-            JFrame mainFrame = Linorg.getApplication().getMainFrame();
-            aboutBox = new LinorgAboutBox(mainFrame);
-            aboutBox.setLocationRelativeTo(mainFrame);
-        }
-        Linorg.getApplication().show(aboutBox);
+//        if (aboutBox == null) {
+//            JFrame mainFrame = Linorg.getApplication().getMainFrame();
+//            aboutBox = new LinorgAboutBox(mainFrame);
+//            aboutBox.setLocationRelativeTo(mainFrame);
+//        }
+        //Linorg.getApplication().show(aboutBox);
     }
 
     /** This method is called from within the constructor to
@@ -118,7 +109,6 @@ public class LinorgView extends FrameView {
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -256,8 +246,8 @@ public class LinorgView extends FrameView {
 
         menuBar.setName("menuBar"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getResourceMap(LinorgView.class);
-        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
+//        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getResourceMap(LinorgView.class);
+//        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
@@ -267,7 +257,7 @@ public class LinorgView extends FrameView {
 
         menuBar.add(fileMenu);
 
-        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
+//        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
 
         aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
@@ -318,9 +308,9 @@ public class LinorgView extends FrameView {
         jTree2.setName("jTree2"); // NOI18N
         jScrollPane4.setViewportView(jTree2);
 
-        setComponent(mainPanel);
-        setMenuBar(menuBar);
-        setStatusBar(statusPanel);
+//        setComponent(mainPanel);
+//        setMenuBar(menuBar);
+//        setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
 
 private void jTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_jTreeTreeWillExpand
@@ -410,10 +400,10 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     // End of variables declaration//GEN-END:variables
-    private final Timer messageTimer;
-    private final Timer busyIconTimer;
-    private final Icon idleIcon;
-    private final Icon[] busyIcons = new Icon[15];
-    private int busyIconIndex = 0;
-    private JDialog aboutBox;
+//    private final Timer messageTimer;
+//    private final Timer busyIconTimer;
+//    private final Icon idleIcon;
+//    private final Icon[] busyIcons = new Icon[15];
+//    private int busyIconIndex = 0;
+//    private JDialog aboutBox;
 }

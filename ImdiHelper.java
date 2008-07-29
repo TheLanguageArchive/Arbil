@@ -11,7 +11,6 @@ import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
 import org.w3c.dom.Document;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import mpi.util.OurURL;
 import mpi.imdi.api.*;
 
@@ -159,7 +158,7 @@ public class ImdiHelper {
                         }
                     }
                 }
-                previousRowCells = currentRowCells.clone();
+                previousRowCells = (String[])currentRowCells.clone();
             }
             jTextPane1.setVisible(false);
         } else {
