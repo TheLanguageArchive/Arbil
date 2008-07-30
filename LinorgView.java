@@ -3,10 +3,14 @@
  */
 package mpi.linorg;
 
+import javax.swing.Timer;
+import javax.swing.Icon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+//import org.jdesktop.application.ResourceMap;
 
 /**
  * The application's main frame.
@@ -15,30 +19,35 @@ public class LinorgView extends JFrame {
 
     private DefaultTreeModel localCorpusTreeModel;
     private DefaultTreeModel remoteCorpusTreeModel;
+    private DefaultTreeModel localDirectoryTreeModel;
     private DefaultMutableTreeNode localCorpusRootNode;
     private DefaultMutableTreeNode remoteCorpusRootNode;
+    private DefaultMutableTreeNode localDirectoryRootNode;
     private DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel();
-    ImdiHelper imdiHelper = new ImdiHelper();
+    private GuiHelper imdiHelper = new GuiHelper();
 
     public LinorgView() {
 
         //http://www.java2s.com/Code/Java/File-Input-Output/DisplayafilesysteminaJTreeview.htm
         //  jTree2.add(null, new DefaultMutableTreeNode("file://data1/media-archive-copy"));
 
-        localCorpusRootNode = new DefaultMutableTreeNode("Local");
+        localCorpusRootNode = new DefaultMutableTreeNode("Local Corpus");
         localCorpusRootNode.add(imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/Corpusstructure/MPI.imdi"));
-        remoteCorpusRootNode = new DefaultMutableTreeNode("Remote");
+        remoteCorpusRootNode = new DefaultMutableTreeNode("Remote Corpus");
         remoteCorpusRootNode.add(imdiHelper.getImdiTreeNode("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
+        localDirectoryRootNode = new DefaultMutableTreeNode("Local File System");
+        localDirectoryRootNode.add(imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/TestWorkingDirectory/"));
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
+        localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
 
         initComponents();
-        
-        add(mainPanel);
+        initViewMenu();
+        this.getContentPane().add(mainPanel);
         setVisible(true);
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
-        //ResourceMap resourceMap = getResourceMap();
+//        ResourceMap resourceMap = getResourceMap();
         //int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
         //messageTimer = new Timer(messageTimeout, new ActionListener() {
 //
@@ -95,13 +104,47 @@ public class LinorgView extends JFrame {
 //        });
     }
 
+    private void initViewMenu() {
+        String[] viewLabels = imdiHelper.getFieldListLables();
+        for (int menuItemCount = 0; menuItemCount < viewLabels.length; menuItemCount++) {
+            javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
+            viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
+            viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
+            viewLabelRadioButtonMenuItem.setSelected(imdiHelper.getCurrentFieldListIndex() == menuItemCount);
+            viewLabelRadioButtonMenuItem.setText(viewLabels[menuItemCount]);
+            viewLabelRadioButtonMenuItem.setName("viewLabelRadioButtonMenuItem" + menuItemCount);
+            viewLabelRadioButtonMenuItem.addChangeListener(new javax.swing.event.ChangeListener() {
+
+                public void stateChanged(javax.swing.event.ChangeEvent evt) {
+//                    Enumeration<AbstractButton> checkboxItems = viewMenuButtonGroup.getElements();
+//                    int checkboxCounter = 0;
+//                    while (checkboxItems.hasMoreElements()) {
+//                        if (checkboxItems.nextElement().isSelected()) {
+//                            imdiHelper.setCurrentFieldListIndex(checkboxCounter);
+//                        }
+//                        checkboxCounter++;
+//                    }
+                }
+            });
+            viewMenu.add(viewLabelRadioButtonMenuItem);
+        }
+    }
+
+    public void showSettingsDialog() {
+        if (settingsjDialog == null) {
+            //JFrame mainFrame = Linorg.getApplication().getMainFrame();
+            settingsjDialog = new LinorgAboutBox(this);
+            settingsjDialog.setLocationRelativeTo(this);
+        }
+        settingsjDialog.show();
+    }
     public void showAboutBox() {
-//        if (aboutBox == null) {
-//            JFrame mainFrame = Linorg.getApplication().getMainFrame();
-//            aboutBox = new LinorgAboutBox(mainFrame);
-//            aboutBox.setLocationRelativeTo(mainFrame);
-//        }
-        //Linorg.getApplication().show(aboutBox);
+        if (aboutBox == null) {
+            JFrame mainFrame = this;
+            aboutBox = new LinorgAboutBox(this);
+            aboutBox.setLocationRelativeTo(this);
+        }
+        aboutBox.show();
     }
 
     /** This method is called from within the constructor to
@@ -129,7 +172,9 @@ public class LinorgView extends JFrame {
         jTable1 = new javax.swing.JTable();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        viewMenu = new javax.swing.JMenu();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
@@ -139,6 +184,13 @@ public class LinorgView extends JFrame {
         progressBar = new javax.swing.JProgressBar();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTree2 = new javax.swing.JTree();
+        settingsjDialog = new javax.swing.JDialog();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        jScrollPane8 = new javax.swing.JScrollPane();
+        jTable3 = new javax.swing.JTable();
+        viewMenuButtonGroup = new javax.swing.ButtonGroup();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -192,6 +244,7 @@ public class LinorgView extends JFrame {
 
         jScrollPane3.setName("jScrollPane3"); // NOI18N
 
+        localDirectoryTree.setModel(localDirectoryTreeModel);
         localDirectoryTree.setName("localDirectoryTree"); // NOI18N
         localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
@@ -233,16 +286,16 @@ public class LinorgView extends JFrame {
 
         jSplitPane1.setRightComponent(jSplitPane3);
 
-        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
-        mainPanel.setLayout(mainPanelLayout);
-        mainPanelLayout.setHorizontalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
-        );
-        mainPanelLayout.setVerticalGroup(
-            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE)
-        );
+//        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+//        mainPanel.setLayout(mainPanelLayout);
+//        mainPanelLayout.setHorizontalGroup(
+//            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
+//        );
+//        mainPanelLayout.setVerticalGroup(
+//            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE)
+//        );
 
         menuBar.setName("menuBar"); // NOI18N
 
@@ -250,7 +303,12 @@ public class LinorgView extends JFrame {
 //        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
 
-//        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
+        //javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
+        //jMenuItem1.setAction(actionMap.get("showSettingsDialog")); // NOI18N
+        //jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
+        //jMenuItem1.setToolTipText(resourceMap.getString("jMenuItem1.toolTipText")); // NOI18N
+        jMenuItem1.setName("jMenuItem1"); // NOI18N
+        fileMenu.add(jMenuItem1);
 //        exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
         exitMenuItem.setName("exitMenuItem"); // NOI18N
         fileMenu.add(exitMenuItem);
@@ -277,31 +335,31 @@ public class LinorgView extends JFrame {
 
         progressBar.setName("progressBar"); // NOI18N
 
-        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
-        statusPanel.setLayout(statusPanelLayout);
-        statusPanelLayout.setHorizontalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 557, Short.MAX_VALUE)
-                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusAnimationLabel)
-                .addContainerGap())
-        );
-        statusPanelLayout.setVerticalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(statusMessageLabel)
-                    .addComponent(statusAnimationLabel)
-                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3))
-        );
+//        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
+//        statusPanel.setLayout(statusPanelLayout);
+//        statusPanelLayout.setHorizontalGroup(
+//            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
+//            .addGroup(statusPanelLayout.createSequentialGroup()
+//                .addContainerGap()
+//                .addComponent(statusMessageLabel)
+//                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 557, Short.MAX_VALUE)
+//                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+//                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+//                .addComponent(statusAnimationLabel)
+//                .addContainerGap())
+//        );
+//        statusPanelLayout.setVerticalGroup(
+//            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//            .addGroup(statusPanelLayout.createSequentialGroup()
+//                .addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
+//                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+//                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+//                    .addComponent(statusMessageLabel)
+//                    .addComponent(statusAnimationLabel)
+//                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+//                .addGap(3, 3, 3))
+//        );
 
         jScrollPane4.setName("jScrollPane4"); // NOI18N
 
@@ -377,17 +435,23 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
     System.out.println(evt.isAddedPath());
 }//GEN-LAST:event_jTreeValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JScrollPane jScrollPane8;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JSplitPane jSplitPane3;
     private javax.swing.JSplitPane jSplitPane4;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
+    private javax.swing.JTable jTable3;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree jTree2;
     private javax.swing.JTree localCorpusTree;
@@ -396,14 +460,17 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JTree remoteCorpusTree;
+    private javax.swing.JDialog settingsjDialog;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
+    private javax.swing.JMenu viewMenu;
+    private javax.swing.ButtonGroup viewMenuButtonGroup;
     // End of variables declaration//GEN-END:variables
 //    private final Timer messageTimer;
 //    private final Timer busyIconTimer;
 //    private final Icon idleIcon;
 //    private final Icon[] busyIcons = new Icon[15];
 //    private int busyIconIndex = 0;
-//    private JDialog aboutBox;
+    private JDialog aboutBox;
 }

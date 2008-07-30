@@ -4,15 +4,11 @@
  */
 package mpi.linorg;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Vector;
-import javax.swing.JTextPane;
-import javax.swing.table.DefaultTableModel;
-import org.w3c.dom.Document;
-import javax.swing.tree.DefaultMutableTreeNode;
-import mpi.util.OurURL;
 import mpi.imdi.api.*;
+import mpi.util.OurURL;
+import org.w3c.dom.Document;
+import java.net.MalformedURLException;
+import java.io.File;
 
 /**
  *
@@ -20,40 +16,34 @@ import mpi.imdi.api.*;
  */
 public class ImdiHelper {
 
-    private static OurURL baseURL = null; // for link resolution
+    //private static OurURL baseURL = null; // for link resolution
     private static IMDIDom api = new IMDIDom();
-    //private Hashtable selectedNodeRows = new Hashtable();
-    private Vector selectedNodesList = new Vector();
 
-    public DefaultMutableTreeNode getImdiTreeNode(String urlString) {
+    public ImdiTreeObject getTreeNodeObject(String urlString) {
         OurURL inUrlLocal = null;
+        ImdiTreeObject imdiTreeObject;
         try {
             inUrlLocal = new OurURL(urlString);
+            imdiTreeObject = getImdiTreeNode(inUrlLocal);
         } catch (MalformedURLException mue) {
-            System.out.println("Invalid input file URL: " + mue);
-            return null;
+            System.out.println("Invalid input URL: " + mue);
+            imdiTreeObject = new ImdiTreeObject("Invalid input URL", null, urlString);
         }
-        return getImdiTreeNode(inUrlLocal);
+        return imdiTreeObject;
     }
 
-    public DefaultMutableTreeNode getImdiTreeNode(OurURL inUrlLocal) {
-        OurURL inURL = inUrlLocal;
-        if (baseURL == null) {
-            baseURL = inURL;
-        }
-        String fullUrlSting = inUrlLocal.getProtocol() + "://" + inUrlLocal.getHost() + inUrlLocal.getPath();
+    public ImdiTreeObject getImdiTreeNode(OurURL inUrl) {
+        ImdiTreeObject imdiTreeObject;
+        String fullUrlSting = inUrl.getProtocol() + "://" + inUrl.getHost() + inUrl.getPath();
         Document dom = null;
-        DefaultMutableTreeNode treeNode = null;
 
-        if (!inURL.getFile().endsWith(".imdi")) {
-            ImdiTreeNode imdiTreeNode = new ImdiTreeNode(inUrlLocal.getPath(), null, fullUrlSting);
-            treeNode = new DefaultMutableTreeNode(imdiTreeNode);
-            treeNode.setAllowsChildren(imdiTreeNode.isImdi());
+        if (!inUrl.getFile().endsWith(".imdi")) {
+            imdiTreeObject = new ImdiTreeObject(inUrl.getFile(), null, fullUrlSting);
         } else {
-            dom = api.loadIMDIDocument(inURL, false);
+            dom = api.loadIMDIDocument(inUrl, false);
 
             if (dom == null) {
-                treeNode = new DefaultMutableTreeNode("Could not load IMDI");
+                imdiTreeObject = new ImdiTreeObject("Could not load IMDI", null, fullUrlSting);
             } else {
                 String nodeName = "unknown";
                 IMDIElement ie = api.getIMDIElement(dom, "Session.Name");
@@ -65,159 +55,77 @@ public class ImdiHelper {
                         nodeName = "CN: " + corpusname.getValue();
                     }
                 }
-                ImdiTreeNode imdiTreeNode = new ImdiTreeNode(nodeName, dom, fullUrlSting);
-                treeNode = new DefaultMutableTreeNode(imdiTreeNode);
+                imdiTreeObject = new ImdiTreeObject(nodeName, dom, fullUrlSting);
             }
         }
-        return treeNode;
+        return imdiTreeObject;
     }
 
-    public void getImdiChildNodes(/*DefaultTreeModel treeModel, */DefaultMutableTreeNode itemNode) {
-        if (itemNode.getChildCount() == 0) {
-            if (String.class != itemNode.getUserObject().getClass()) {
-                ImdiTreeNode itemImdiTreeNode = (ImdiTreeNode) itemNode.getUserObject();
-                if (!itemImdiTreeNode.isImdi()) {
-                    System.out.println("file to be opened");
-                } else {
-                    try {
-                        baseURL = new OurURL(itemImdiTreeNode.getNodeDom().getDocumentURI());
-                        IMDILink[] links = api.getIMDILinks(itemImdiTreeNode.getNodeDom(), baseURL, WSNodeType.UNKNOWN);
-                        if (links != null) {
-                            for (int linkCount = 0; linkCount < links.length /*&& linkCount < 3*/; linkCount++) {
-                                itemNode.add(getImdiTreeNode(links[linkCount].getRawURL()));
-                            }
-                        }
-                    } catch (MalformedURLException mue) {
-                        System.out.println("Invalid input file URL: " + mue);
-                        itemNode.add(new DefaultMutableTreeNode("Invalid input file from parent"));
-                    }
-                }
-            }
-        }
-    }
-    private String[] previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
-
-    public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JTextPane jTextPane1) {
-        // check that it is an imdi file first
-        ImdiTreeNode itemImdiTreeNode = (ImdiTreeNode) itemNode.getUserObject();
-        if (itemImdiTreeNode.isImdi()) {
-            String[] rowNames = new String[]{"Name", "Session.Name", "Corpus.Name", "Session.Description", "Corpus.Description", "Session.Title", "Corpus.Title"};
-            boolean multipleRowMode = (0 < tableModel.getRowCount());
-            // if there is only one node to show then set up the table for single display
-            if (!multipleRowMode) {
-                // set the column titles only if not already set 
-                if (tableModel.getColumnCount() != 2) {
-                    tableModel.setColumnCount(2);
-                    tableModel.setColumnIdentifiers(new String[]{"Name", "Value"});
-                }
-                // clear the current rows
-                tableModel.setRowCount(0);
-            } else {
-                // set the column titles only if not already set
-                if (tableModel.getColumnCount() != rowNames.length) {
-                    tableModel.setColumnCount(rowNames.length);
-                    tableModel.setColumnIdentifiers(rowNames);
-                    // clear the current rows
-                    tableModel.setRowCount(0);
-                    tableModel.addRow(previousRowCells);
-                }
-            }
-
-            if (String.class != itemNode.getUserObject().getClass()) {
-                Document itemDom = itemImdiTreeNode.getNodeDom();
-                String[] currentRowCells = new String[rowNames.length]; // + 1 /* add one for the url which is not displayed but used to identify the row */];
-                for (int rowNameCounter = 0; rowNameCounter < rowNames.length; rowNameCounter++) {
-                    IMDIElement rowValue = api.getIMDIElement(itemDom, rowNames[rowNameCounter]);
-                    if (rowValue != null) {
-                        String cellValue = rowValue.getValue();
-                        if (!multipleRowMode) {
-                            tableModel.addRow(new Object[]{rowNames[rowNameCounter], cellValue});
-                        }
-                        currentRowCells[rowNameCounter] = cellValue;
-                    } else {
-                        currentRowCells[rowNameCounter] = "";
-                    }
-                }
-                String hashKey = itemImdiTreeNode.getUrl();
-                //currentRowCells[currentRowCells.length - 1] = hashKey;
-                System.out.println("Added node to rows hashtable: " + hashKey);
-                System.out.println("selectedRowCells: " + currentRowCells.toString());
-                if (multipleRowMode) {
-                    // add the current row
-                    tableModel.addRow(currentRowCells);
-                }
-                // store the row index 
-                selectedNodesList.add(hashKey);
-
-                if (!multipleRowMode) {
-                    // add the links
-                    IMDILink[] links = api.getIMDILinks(itemImdiTreeNode.getNodeDom(), baseURL, WSNodeType.UNKNOWN);
-                    if (links != null) {
-                        for (int linkCount = 0; linkCount < links.length /*&& linkCount < 3*/; linkCount++) {
-                            tableModel.addRow(new Object[]{"link:" + linkCount, links[linkCount].getRawURL()});
-                        }
-                    }
-                }
-                previousRowCells = (String[])currentRowCells.clone();
-            }
-            jTextPane1.setVisible(false);
+    public String getField(ImdiTreeObject imdiTreeObject, String fieldName) {
+        Document itemDom = imdiTreeObject.getNodeDom();
+        IMDIElement rowValue = api.getIMDIElement(itemDom, fieldName);
+        if (rowValue != null) {
+            return rowValue.getValue();
         } else {
-            //todo: display non imdi file
-            System.out.println("display non imdi file");
-            try {
-                jTextPane1.setPage(new URL(itemImdiTreeNode.getUrl()));
-                jTextPane1.setVisible(true);
-            } catch (Exception ex) {
-                // Not a valid URL
-                jTextPane1.setVisible(false);
-                //jTextPane1.setText("Could not load:" + itemImdiTreeNode.getUrl() + "\n" + "Error:" + ex.getMessage());
-            }
+            return null;
         }
     }
 
-    public DefaultTableModel removeAllFromGridData(DefaultTableModel tableModel) {
-        tableModel.setRowCount(0);
-        selectedNodesList.clear();
-        return tableModel;
-    }
-
-    public DefaultTableModel removeFromGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode) {
-        if (String.class != itemNode.getUserObject().getClass()) {
-            ImdiTreeNode itemImdiTreeNode = (ImdiTreeNode) itemNode.getUserObject();
-            String hashKey = itemImdiTreeNode.getUrl();
-//            System.out.println("hashKey: " + hashKey);
-//            for (int rowCounter = 0; rowCounter < tableModel.getRowCount(); rowCounter++) {
-//                System.out.println("Row element: " + tableModel.getValueAt(rowCounter, tableModel.getColumnCount()));
-//                //tableModel.
-//                if (tableModel.getValueAt(rowCounter, tableModel.getColumnCount()) == hashKey) {
-//                    tableModel.removeRow(rowCounter);
-//                }
-//            }
+    public String[] getLinks(ImdiTreeObject imdiTreeObject) {
+        String[] returnArray = null;
+        if (imdiTreeObject.isDirectory()) {
+            File nodeFile = new File(imdiTreeObject.urlString);            
+            //System.out.println("Listing: " + nodeFile.toURI());
+            returnArray = nodeFile.list();                     
+            //System.out.println("Listing: " + nodeFile.toURI() + ":" + returnArray);
+        } else {
             try {
-                tableModel.removeRow(selectedNodesList.indexOf(hashKey));
-                selectedNodesList.remove(hashKey);
-
-            // tableModel.
-            } catch (Exception ex) {
-                System.out.println("removeFromGridData failed: " + ex.toString());
+                OurURL baseURL = new OurURL(imdiTreeObject.getUrl());
+                IMDILink[] links = api.getIMDILinks(imdiTreeObject.getNodeDom(), baseURL, WSNodeType.UNKNOWN);
+                if (links != null) {
+                    returnArray = new String[links.length];
+                    for (int linkCount = 0; linkCount < links.length; linkCount++) {
+                        returnArray[linkCount] = links[linkCount].getRawURL().toString();
+                        System.out.println("link:" + returnArray[linkCount]);
+                    }
+                }
+            } catch (MalformedURLException mue) {
+                System.out.println("Error getting links: " + mue);
+                returnArray = new String[]{"Invalid input file from parent"};
             }
         }
-        return tableModel;
+        return returnArray;
     }
 
-    private class ImdiTreeNode {
+    public class ImdiTreeObject {
 
-        protected ImdiTreeNode(String localNodeText, Document localNodeDom, String localUrlString) {
+        protected ImdiTreeObject(String localNodeText, Document localNodeDom, String localUrlString) {
             this.nodeText = localNodeText;
             this.nodDom = localNodeDom;
             this.urlString = localUrlString;
-        //this.icon = //new ImageIcon(getClass().getResource(imageName)); 
+            //this.icon = //new ImageIcon(getClass().getResource(imageName)); 
+            this.IsDirectory = false;
+            if (!isImdi() && isLocal()) {
+                this.IsDirectory = true;
+                //this.fileObject = new File(localUrlString);
+//                File fileObject = new File(localUrlString);//.replace("////", "//")+"/"
+//                if (fileObject != null) {
+//                    this.IsDirectory = fileObject.isDirectory();
+//                    System.out.println("fileObject: " + fileObject.getPath());
+//                    System.out.println("fileObject: " + fileObject.isFile());
+//                    System.out.println("fileObject: " + fileObject.isDirectory());
+//                    System.out.println("fileObject: " + fileObject.exists());
+//                    File parentFile = new File(fileObject.getParent());
+//                    System.out.println("fileObject: " + parentFile.isDirectory());
+//                    System.out.println(localUrlString + ": " + this.IsDirectory);                    
+//                }
+            }
         }
         // Return text for display
         public String toString() {
             return nodeText;
         }
-        // Return the icon
+
         public Document getNodeDom() {
             return nodDom;
         }
@@ -226,8 +134,24 @@ public class ImdiHelper {
             return urlString;
         }
 
+        public boolean isDirectory() {
+            return IsDirectory;
+        }
+
         public boolean isImdi() {
-            return urlString.endsWith(".imdi");
+            if (urlString != null && nodDom != null) {
+                return urlString.endsWith(".imdi");
+            } else {
+                return false;
+            }
+        }
+
+        public boolean isLocal() {
+            if (urlString != null) {
+                return urlString.startsWith("file://");
+            } else {
+                return false;
+            }
         }
 //        // Return the icon
 //        public Icon getIcon() {
@@ -236,8 +160,7 @@ public class ImdiHelper {
         protected String nodeText;
         protected Document nodDom;
         protected String urlString;
+        protected boolean IsDirectory;
         //protected Icon icon;
     }
 }
-
-
