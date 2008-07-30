@@ -4,12 +4,11 @@
 package mpi.linorg;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -44,11 +43,11 @@ public class LinorgView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setVisible(true);
-        
-        // status bar initialization - message timeout, idle icon and busy animation, etc
-//        ResourceMap resourceMap = getResourceMap();
-        //int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
-        //messageTimer = new Timer(messageTimeout, new ActionListener() {
+
+    // status bar initialization - message timeout, idle icon and busy animation, etc
+    //ResourceMap resourceMap = getResourceMap();
+    //int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
+    //messageTimer = new Timer(messageTimeout, new ActionListener() {
 //
 //            public void actionPerformed(ActionEvent e) {
 //                statusMessageLabel.setText("");
@@ -115,14 +114,11 @@ public class LinorgView extends JFrame {
             viewLabelRadioButtonMenuItem.addChangeListener(new javax.swing.event.ChangeListener() {
 
                 public void stateChanged(javax.swing.event.ChangeEvent evt) {
-//                    Enumeration<AbstractButton> checkboxItems = viewMenuButtonGroup.getElements();
-//                    int checkboxCounter = 0;
-//                    while (checkboxItems.hasMoreElements()) {
-//                        if (checkboxItems.nextElement().isSelected()) {
-//                            imdiHelper.setCurrentFieldListIndex(checkboxCounter);
-//                        }
-//                        checkboxCounter++;
-//                    }
+                    for (int checkboxCounter = 0; checkboxCounter < viewMenu.getItemCount(); checkboxCounter++) {
+                        if (viewMenu.getItem(checkboxCounter).isSelected()) {
+                            imdiHelper.setCurrentFieldListIndex(checkboxCounter);
+                        }
+                    }
                 }
             });
             viewMenu.add(viewLabelRadioButtonMenuItem);
@@ -136,6 +132,7 @@ public class LinorgView extends JFrame {
         }
         settingsjDialog.show();
     }
+
     public void showAboutBox() {
         if (aboutBox == null) {
             aboutBox = new LinorgAboutBox(this);
@@ -201,13 +198,16 @@ public class LinorgView extends JFrame {
         remoteCorpusTree.setModel(remoteCorpusTreeModel);
         remoteCorpusTree.setName("remoteCorpusTree"); // NOI18N
         remoteCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
-            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+
+            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
             }
-            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+
+            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
                 jTreeTreeWillExpand(evt);
             }
         });
         remoteCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 jTreeValueChanged(evt);
             }
@@ -224,13 +224,16 @@ public class LinorgView extends JFrame {
         localCorpusTree.setModel(localCorpusTreeModel);
         localCorpusTree.setName("localCorpusTree"); // NOI18N
         localCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
-            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+
+            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
             }
-            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+
+            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
                 jTreeTreeWillExpand(evt);
             }
         });
         localCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 jTreeValueChanged(evt);
             }
@@ -244,13 +247,16 @@ public class LinorgView extends JFrame {
         localDirectoryTree.setModel(localDirectoryTreeModel);
         localDirectoryTree.setName("localDirectoryTree"); // NOI18N
         localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
-            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+
+            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
             }
-            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+
+            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
                 jTreeTreeWillExpand(evt);
             }
         });
         localDirectoryTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 jTreeValueChanged(evt);
             }
@@ -298,25 +304,51 @@ public class LinorgView extends JFrame {
 
 //        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getResourceMap(LinorgView.class);
 //        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
+        fileMenu.setText("File");
         fileMenu.setName("fileMenu"); // NOI18N
 
         //javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
         //jMenuItem1.setAction(actionMap.get("showSettingsDialog")); // NOI18N
         //jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
+        jMenuItem1.setAction(new AbstractAction() {
+
+            public void actionPerformed(ActionEvent e) {
+                showSettingsDialog();
+            }
+        });
+        jMenuItem1.setText("Settings");
         //jMenuItem1.setToolTipText(resourceMap.getString("jMenuItem1.toolTipText")); // NOI18N
         jMenuItem1.setName("jMenuItem1"); // NOI18N
         fileMenu.add(jMenuItem1);
 //        exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
+        exitMenuItem.setAction(new AbstractAction() {
+
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
         exitMenuItem.setName("exitMenuItem"); // NOI18N
+        exitMenuItem.setText("Exit");
         fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
 
+        viewMenu.setText("View");
+        viewMenu.setName("viewMenu"); // NOI18N
+        menuBar.add(viewMenu);
 //        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
+        helpMenu.setText("Help");
         helpMenu.setName("helpMenu"); // NOI18N
 
 //        aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
+        aboutMenuItem.setAction(
+                new AbstractAction() {
+
+                    public void actionPerformed(ActionEvent e) {
+                        showAboutBox();
+                    }
+                });
         aboutMenuItem.setName("aboutMenuItem"); // NOI18N
+        aboutMenuItem.setText("About");
         helpMenu.add(aboutMenuItem);
 
         menuBar.add(helpMenu);
@@ -366,72 +398,72 @@ public class LinorgView extends JFrame {
         //this.getContentPane().add(mainPanel);
         menuBar.setPreferredSize(new Dimension(200, 20));
         this.setJMenuBar(menuBar);
-        //this.getContentPane().add(statusPanel);
+    //this.getContentPane().add(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
 
-private void jTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_jTreeTreeWillExpand
+    private void jTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_jTreeTreeWillExpand
 // TODO add your handling code here:
-    statusMessageLabel.setText("Loading");
-    System.out.println("jTree1TreeWillExpand");
-    DefaultMutableTreeNode parentNode = null;
-    if (evt.getPath() == null) {
-        //There is no selection.
-        statusMessageLabel.setText("No node selected");
-    } else {
-        parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
-    }
-    // check for imdi data
-    imdiHelper.getImdiChildNodes(parentNode);
-    remoteCorpusTree.scrollPathToVisible(evt.getPath());
-    statusMessageLabel.setText("");
-}//GEN-LAST:event_jTreeTreeWillExpand
+        statusMessageLabel.setText("Loading");
+        System.out.println("jTree1TreeWillExpand");
+        DefaultMutableTreeNode parentNode = null;
+        if (evt.getPath() == null) {
+            //There is no selection.
+            statusMessageLabel.setText("No node selected");
+        } else {
+            parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
+        }
+        // check for imdi data
+        imdiHelper.getImdiChildNodes(parentNode);
+        remoteCorpusTree.scrollPathToVisible(evt.getPath());
+        statusMessageLabel.setText("");
+    }//GEN-LAST:event_jTreeTreeWillExpand
 
-private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
+    private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
 // TODO add your handling code here:
 
-    int selectedNoedsCount = remoteCorpusTree.getSelectionCount();
-    selectedNoedsCount += localCorpusTree.getSelectionCount();
-    selectedNoedsCount += localDirectoryTree.getSelectionCount();
+        int selectedNoedsCount = remoteCorpusTree.getSelectionCount();
+        selectedNoedsCount += localCorpusTree.getSelectionCount();
+        selectedNoedsCount += localDirectoryTree.getSelectionCount();
 
-    statusMessageLabel.setText("loading details");
+        statusMessageLabel.setText("loading details");
 //    System.out.println("jTree1ValueChanged");
 //    System.out.println("getSelectionCount: " + selectedNoedsCount);
 
-    // if there are no nodes selected then clear the grid or if there is only one node selected then clear the tree then add the node to trigger the single mode view
-    if (1 >= selectedNoedsCount) {
-        imdiHelper.removeAllFromGridData(tableModel);
-        // there is only one tree node selected but we don't know on which tree so check each one and display the selected node
-        if (0 < remoteCorpusTree.getSelectionCount()) {
-            imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
-        }
-        if (0 < localCorpusTree.getSelectionCount()) {
-            imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
-        }
-        if (0 < localDirectoryTree.getSelectionCount()) {
-            imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), jTextPane1);
-        }
-    } else {
-        // if there is more than one selected node then remove any deselected nodes before adding new ones
-        for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
-            if (!evt.isAddedPath(selectedCount)) {
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                imdiHelper.removeFromGridData(tableModel, parentNode);
+        // if there are no nodes selected then clear the grid or if there is only one node selected then clear the tree then add the node to trigger the single mode view
+        if (1 >= selectedNoedsCount) {
+            imdiHelper.removeAllFromGridData(tableModel);
+            // there is only one tree node selected but we don't know on which tree so check each one and display the selected node
+            if (0 < remoteCorpusTree.getSelectionCount()) {
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
             }
-        }
+            if (0 < localCorpusTree.getSelectionCount()) {
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+            }
+            if (0 < localDirectoryTree.getSelectionCount()) {
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+            }
+        } else {
+            // if there is more than one selected node then remove any deselected nodes before adding new ones
+            for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
+                if (!evt.isAddedPath(selectedCount)) {
+                    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
+                    imdiHelper.removeFromGridData(tableModel, parentNode);
+                }
+            }
 
-        // add any newly selected nodes
-        for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
+            // add any newly selected nodes
+            for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
 //        System.out.println("added: " + selectedCount + ":" + evt.isAddedPath(selectedCount) + " path: " + evt.getPaths()[selectedCount]);
-            if (evt.isAddedPath(selectedCount)) {
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                imdiHelper.addToGridData(tableModel, parentNode, jTextPane1);
-            //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
+                if (evt.isAddedPath(selectedCount)) {
+                    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
+                    imdiHelper.addToGridData(tableModel, parentNode, jTextPane1);
+                //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
+                }
             }
         }
-    }
-    statusMessageLabel.setText("");
-    System.out.println(evt.isAddedPath());
-}//GEN-LAST:event_jTreeValueChanged
+        statusMessageLabel.setText("");
+        System.out.println(evt.isAddedPath());
+    }//GEN-LAST:event_jTreeValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
