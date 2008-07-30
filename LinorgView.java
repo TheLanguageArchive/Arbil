@@ -3,14 +3,16 @@
  */
 package mpi.linorg;
 
-import javax.swing.Timer;
-import javax.swing.Icon;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-//import org.jdesktop.application.ResourceMap;
 
 /**
  * The application's main frame.
@@ -27,10 +29,6 @@ public class LinorgView extends JFrame {
     private GuiHelper imdiHelper = new GuiHelper();
 
     public LinorgView() {
-
-        //http://www.java2s.com/Code/Java/File-Input-Output/DisplayafilesysteminaJTreeview.htm
-        //  jTree2.add(null, new DefaultMutableTreeNode("file://data1/media-archive-copy"));
-
         localCorpusRootNode = new DefaultMutableTreeNode("Local Corpus");
         localCorpusRootNode.add(imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/Corpusstructure/MPI.imdi"));
         remoteCorpusRootNode = new DefaultMutableTreeNode("Remote Corpus");
@@ -43,9 +41,10 @@ public class LinorgView extends JFrame {
 
         initComponents();
         initViewMenu();
-        this.getContentPane().add(mainPanel);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
         setVisible(true);
-
+        
         // status bar initialization - message timeout, idle icon and busy animation, etc
 //        ResourceMap resourceMap = getResourceMap();
         //int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
@@ -132,7 +131,6 @@ public class LinorgView extends JFrame {
 
     public void showSettingsDialog() {
         if (settingsjDialog == null) {
-            //JFrame mainFrame = Linorg.getApplication().getMainFrame();
             settingsjDialog = new LinorgAboutBox(this);
             settingsjDialog.setLocationRelativeTo(this);
         }
@@ -140,7 +138,6 @@ public class LinorgView extends JFrame {
     }
     public void showAboutBox() {
         if (aboutBox == null) {
-            JFrame mainFrame = this;
             aboutBox = new LinorgAboutBox(this);
             aboutBox.setLocationRelativeTo(this);
         }
@@ -156,7 +153,7 @@ public class LinorgView extends JFrame {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        jSplitPane1 = new javax.swing.JSplitPane();
+        mainSplitPane = new javax.swing.JSplitPane();
         jSplitPane2 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         remoteCorpusTree = new javax.swing.JTree();
@@ -165,7 +162,7 @@ public class LinorgView extends JFrame {
         localCorpusTree = new javax.swing.JTree();
         jScrollPane3 = new javax.swing.JScrollPane();
         localDirectoryTree = new javax.swing.JTree();
-        jSplitPane3 = new javax.swing.JSplitPane();
+        rightSplitPane = new javax.swing.JSplitPane();
         jScrollPane5 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -194,7 +191,7 @@ public class LinorgView extends JFrame {
 
         mainPanel.setName("mainPanel"); // NOI18N
 
-        jSplitPane1.setName("jSplitPane1"); // NOI18N
+        mainSplitPane.setName("mainSplitPane"); // NOI18N
 
         jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane2.setName("jSplitPane2"); // NOI18N
@@ -264,17 +261,17 @@ public class LinorgView extends JFrame {
 
         jSplitPane2.setRightComponent(jSplitPane4);
 
-        jSplitPane1.setLeftComponent(jSplitPane2);
+        mainSplitPane.setLeftComponent(jSplitPane2);
 
-        jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        jSplitPane3.setName("jSplitPane3"); // NOI18N
+        rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        rightSplitPane.setName("rightSplitPane"); // NOI18N
 
         jScrollPane5.setName("jScrollPane5"); // NOI18N
 
         jTextPane1.setName("jTextPane1"); // NOI18N
         jScrollPane5.setViewportView(jTextPane1);
 
-        jSplitPane3.setBottomComponent(jScrollPane5);
+        rightSplitPane.setBottomComponent(jScrollPane5);
 
         jScrollPane6.setName("jScrollPane6"); // NOI18N
 
@@ -282,19 +279,19 @@ public class LinorgView extends JFrame {
         jTable1.setName("jTable1"); // NOI18N
         jScrollPane6.setViewportView(jTable1);
 
-        jSplitPane3.setLeftComponent(jScrollPane6);
+        rightSplitPane.setLeftComponent(jScrollPane6);
 
-        jSplitPane1.setRightComponent(jSplitPane3);
+        mainSplitPane.setRightComponent(rightSplitPane);
 
 //        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
 //        mainPanel.setLayout(mainPanelLayout);
 //        mainPanelLayout.setHorizontalGroup(
 //            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 741, Short.MAX_VALUE)
+        this.getContentPane().add(mainSplitPane, BorderLayout.CENTER);
 //        );
 //        mainPanelLayout.setVerticalGroup(
 //            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE)
+//            .addComponent(mainSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 519, Short.MAX_VALUE)
 //        );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -366,9 +363,10 @@ public class LinorgView extends JFrame {
         jTree2.setName("jTree2"); // NOI18N
         jScrollPane4.setViewportView(jTree2);
 
-//        setComponent(mainPanel);
-//        setMenuBar(menuBar);
-//        setStatusBar(statusPanel);
+        //this.getContentPane().add(mainPanel);
+        menuBar.setPreferredSize(new Dimension(200, 20));
+        this.setJMenuBar(menuBar);
+        //this.getContentPane().add(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
 
 private void jTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_jTreeTreeWillExpand
@@ -444,9 +442,7 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
-    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
-    private javax.swing.JSplitPane jSplitPane3;
     private javax.swing.JSplitPane jSplitPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
@@ -457,9 +453,11 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
     private javax.swing.JTree localCorpusTree;
     private javax.swing.JTree localDirectoryTree;
     private javax.swing.JPanel mainPanel;
+    private javax.swing.JSplitPane mainSplitPane;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JTree remoteCorpusTree;
+    private javax.swing.JSplitPane rightSplitPane;
     private javax.swing.JDialog settingsjDialog;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
