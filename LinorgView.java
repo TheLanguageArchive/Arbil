@@ -162,10 +162,13 @@ public class LinorgView extends JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         localDirectoryTree = new javax.swing.JTree();
         rightSplitPane = new javax.swing.JSplitPane();
-        jScrollPane5 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
         jScrollPane6 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        fileViewerTabbedPane = new javax.swing.JTabbedPane();
+        viewerScrollPane = new javax.swing.JScrollPane();
+        viewerTextPane = new javax.swing.JTextPane();
+        selectedFilesScrollPane = new javax.swing.JScrollPane();
+        selectedFilesPanel = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -277,13 +280,6 @@ public class LinorgView extends JFrame {
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         rightSplitPane.setName("rightSplitPane"); // NOI18N
 
-        jScrollPane5.setName("jScrollPane5"); // NOI18N
-
-        jTextPane1.setName("jTextPane1"); // NOI18N
-        jScrollPane5.setViewportView(jTextPane1);
-
-        rightSplitPane.setBottomComponent(jScrollPane5);
-
         jScrollPane6.setName("jScrollPane6"); // NOI18N
 
         jTable1.setModel(tableModel);
@@ -292,6 +288,19 @@ public class LinorgView extends JFrame {
 
         rightSplitPane.setLeftComponent(jScrollPane6);
 
+        fileViewerTabbedPane.setName("fileViewerTabbedPane"); // NOI18N
+
+        viewerScrollPane.setName("viewerScrollPane"); // NOI18N
+
+        viewerTextPane.setName("viewerTextPane"); // NOI18N
+        viewerScrollPane.setViewportView(viewerTextPane);
+        fileViewerTabbedPane.addTab("Viewer", viewerScrollPane); // NOI18N
+        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
+        selectedFilesPanel.setName("selectedFilesPanel"); // NOI18N
+        selectedFilesPanel.setLayout(new java.awt.FlowLayout());
+        fileViewerTabbedPane.addTab("Selected Files", selectedFilesScrollPane); // NOI18N
+
+        rightSplitPane.setBottomComponent(fileViewerTabbedPane);
         mainSplitPane.setRightComponent(rightSplitPane);
 
 //        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
@@ -476,7 +485,7 @@ public class LinorgView extends JFrame {
 //        System.out.println("added: " + selectedCount + ":" + evt.isAddedPath(selectedCount) + " path: " + evt.getPaths()[selectedCount]);
                 if (evt.isAddedPath(selectedCount)) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                    imdiHelper.addToGridData(tableModel, parentNode, jTextPane1);
+                imdiHelper.addToGridData(tableModel, parentNode, viewerTextPane);
                 //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
                 }
             }
@@ -485,12 +494,12 @@ public class LinorgView extends JFrame {
         System.out.println(evt.isAddedPath());
     }//GEN-LAST:event_jTreeValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTabbedPane fileViewerTabbedPane;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
@@ -510,12 +519,16 @@ public class LinorgView extends JFrame {
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JSplitPane rightSplitPane;
+    private javax.swing.JPanel selectedFilesPanel;
+    private javax.swing.JScrollPane selectedFilesScrollPane;
     private javax.swing.JDialog settingsjDialog;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     private javax.swing.JMenu viewMenu;
     private javax.swing.ButtonGroup viewMenuButtonGroup;
+    private javax.swing.JScrollPane viewerScrollPane;
+    private javax.swing.JTextPane viewerTextPane;
     // End of variables declaration//GEN-END:variables
 //    private final Timer messageTimer;
 //    private final Timer busyIconTimer;
