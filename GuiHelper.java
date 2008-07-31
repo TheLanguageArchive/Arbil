@@ -122,7 +122,7 @@ public class GuiHelper {
                 }
             } else {
                 //todo: display non imdi file
-                System.out.println("display non imdi file");
+                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
                 //try {
                 if (selectedFilesList.size() > 0) {
                     if (selectedFilesList.size() == 1) {
