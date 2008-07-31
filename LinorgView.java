@@ -164,10 +164,7 @@ public class LinorgView extends JFrame {
         rightSplitPane = new javax.swing.JSplitPane();
         jScrollPane6 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        fileViewerTabbedPane = new javax.swing.JTabbedPane();
-        viewerScrollPane = new javax.swing.JScrollPane();
-        viewerTextPane = new javax.swing.JTextPane();
-//        selectedFilesScrollPane = new javax.swing.JScrollPane();
+        selectedFilesScrollPane = new javax.swing.JScrollPane();
         selectedFilesPanel = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
@@ -287,21 +284,11 @@ public class LinorgView extends JFrame {
         jScrollPane6.setViewportView(jTable1);
 
         rightSplitPane.setLeftComponent(jScrollPane6);
-
-        fileViewerTabbedPane.setName("fileViewerTabbedPane"); // NOI18N
-
-        viewerScrollPane.setName("viewerScrollPane"); // NOI18N
-
-        viewerTextPane.setName("viewerTextPane"); // NOI18N
-        viewerScrollPane.setViewportView(viewerTextPane);
-        fileViewerTabbedPane.addTab("Viewer", viewerScrollPane); // NOI18N
-//        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
+        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
         selectedFilesPanel.setName("selectedFilesPanel"); // NOI18N
         selectedFilesPanel.setLayout(new java.awt.FlowLayout());
-//        selectedFilesScrollPane.add(selectedFilesPanel);
-        fileViewerTabbedPane.addTab("Selected Files", selectedFilesPanel); // NOI18N
-
-        rightSplitPane.setBottomComponent(fileViewerTabbedPane);
+        selectedFilesScrollPane.add(selectedFilesPanel);
+        rightSplitPane.setBottomComponent(selectedFilesPanel);
         mainSplitPane.setRightComponent(rightSplitPane);
 
 //        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
@@ -461,16 +448,16 @@ public class LinorgView extends JFrame {
 
         // if there are no nodes selected then clear the grid or if there is only one node selected then clear the tree then add the node to trigger the single mode view
         if (1 >= selectedNoedsCount) {
-            imdiHelper.removeAllFromGridData(tableModel, viewerTextPane, selectedFilesPanel);
+            imdiHelper.removeAllFromGridData(tableModel, selectedFilesPanel);
             // there is only one tree node selected but we don't know on which tree so check each one and display the selected node
             if (0 < remoteCorpusTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), viewerTextPane, selectedFilesPanel);
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
             }
             if (0 < localCorpusTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), viewerTextPane, selectedFilesPanel);
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
             }
             if (0 < localDirectoryTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), viewerTextPane, selectedFilesPanel);
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
             }
         } else {
             // if there is more than one selected node then remove any deselected nodes before adding new ones
@@ -486,7 +473,7 @@ public class LinorgView extends JFrame {
 //        System.out.println("added: " + selectedCount + ":" + evt.isAddedPath(selectedCount) + " path: " + evt.getPaths()[selectedCount]);
                 if (evt.isAddedPath(selectedCount)) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                imdiHelper.addToGridData(tableModel, parentNode, viewerTextPane, selectedFilesPanel);
+                    imdiHelper.addToGridData(tableModel, parentNode, selectedFilesPanel);
                 //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
                 }
             }
@@ -495,7 +482,6 @@ public class LinorgView extends JFrame {
         System.out.println(evt.isAddedPath());
     }//GEN-LAST:event_jTreeValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTabbedPane fileViewerTabbedPane;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -510,7 +496,6 @@ public class LinorgView extends JFrame {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable locationSettingsTable;
     private javax.swing.JTable imdiFieldSettingsTable;
-    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree jTree2;
     private javax.swing.JTree localCorpusTree;
     private javax.swing.JTree localDirectoryTree;
@@ -521,15 +506,13 @@ public class LinorgView extends JFrame {
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JSplitPane rightSplitPane;
     private javax.swing.JPanel selectedFilesPanel;
-//    private javax.swing.JScrollPane selectedFilesScrollPane;
+    private javax.swing.JScrollPane selectedFilesScrollPane;
     private javax.swing.JDialog settingsjDialog;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     private javax.swing.JMenu viewMenu;
     private javax.swing.ButtonGroup viewMenuButtonGroup;
-    private javax.swing.JScrollPane viewerScrollPane;
-    private javax.swing.JTextPane viewerTextPane;
     // End of variables declaration//GEN-END:variables
 //    private final Timer messageTimer;
 //    private final Timer busyIconTimer;

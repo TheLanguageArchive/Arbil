@@ -5,7 +5,6 @@
 package mpi.linorg;
 
 import java.awt.Button;
-import java.awt.FlowLayout;
 import java.net.URL;
 import java.util.Vector;
 import javax.swing.JPanel;
@@ -20,7 +19,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class GuiHelper {
 
     ImdiHelper imdiHelper = new ImdiHelper();
-    //private Hashtable selectedNodeRows = new Hashtable();
     private Vector selectedNodesList = new Vector();
     private Vector selectedFilesList = new Vector();
     int currentFieldListIndex = 1; // this variable sets the fields from the imdi file that are shown in the grid
@@ -57,7 +55,7 @@ public class GuiHelper {
     }
     private String[] previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
 
-    public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JTextPane viewerTextPane, JPanel selectedFilesPanel) {
+    public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JPanel selectedFilesPanel) {
         // check that it is an imdi file first
         try {
             ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
@@ -114,7 +112,6 @@ public class GuiHelper {
                     if (!multipleRowMode) {
                         // add the links
                         String[] linksArray = imdiHelper.getLinks(itemImdiTreeObject);
-                        //IMDILink[] links = api.getIMDILinks(itemImdiTreeObject.getNodeDom(), baseURL, WSNodeType.UNKNOWN);
                         if (linksArray != null) {
                             for (int linkCount = 0; linkCount < linksArray.length /*&& linkCount < 3*/; linkCount++) {
                                 tableModel.addRow(new Object[]{"link:" + linkCount, linksArray[linkCount]});
@@ -127,35 +124,32 @@ public class GuiHelper {
                 //todo: display non imdi file
                 System.out.println("display non imdi file");
                 //try {
-//                if (selectedFilesList.size() > 0) {
-//                    if (selectedFilesList.size() == 1) {
-//                        // the document is showing so remove it and add an icon for that node
-//                        selectedFilesPanel.removeAll();
-//                        Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
-//                        button.setSize(100, 100);
-//                        selectedFilesPanel.add(button);
-//                    }
+                if (selectedFilesList.size() > 0) {
+                    if (selectedFilesList.size() == 1) {
+                        // the document is showing so remove it and add an icon for that node
+                        selectedFilesPanel.removeAll();
+                        selectedFilesPanel.setLayout(new java.awt.FlowLayout());
+                        Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
+                        button.setSize(100, 100);
+                        selectedFilesPanel.add(button);
+                    }
                     // add the file to the files panel
                     Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
                     button.setSize(100, 100);
                     selectedFilesPanel.add(button);
                     System.out.println("added button");
-//                } else {
-//                    JTextPane fileViewerPane = new javax.swing.JTextPane();                    
-//                    javax.swing.JScrollPane viewerScrollPane = new javax.swing.JScrollPane();
-//                    viewerScrollPane.setName("viewerScrollPane");
-//                    viewerScrollPane.setViewportView(fileViewerPane);
-//                    fileViewerPane.setName("viewerTextPane");
-//                    fileViewerPane.setPage(new URL(itemImdiTreeObject.getUrl()));
-//                    selectedFilesPanel.add(viewerScrollPane);
-//                }
-                selectedFilesPanel.getParent().validate();
-                selectedFilesPanel.getParent().repaint();
-                
-                viewerTextPane.setPage(new URL(itemImdiTreeObject.getUrl()));
-                viewerTextPane.setVisible(true);                        
-                        
-                // store the row index 
+                } else {
+                    JTextPane fileViewerPane = new javax.swing.JTextPane();
+                    javax.swing.JScrollPane viewerScrollPane = new javax.swing.JScrollPane();
+                    viewerScrollPane.setName("viewerScrollPane");
+                    viewerScrollPane.setViewportView(fileViewerPane);
+                    fileViewerPane.setName("viewerTextPane");
+                    fileViewerPane.setPage(new URL(itemImdiTreeObject.getUrl()));
+                    selectedFilesPanel.setLayout(new java.awt.BorderLayout());
+                    selectedFilesPanel.add(viewerScrollPane);
+                }
+                selectedFilesPanel.validate();
+                selectedFilesPanel.repaint();
                 selectedFilesList.add(hashKey);
             }
         } catch (Exception ex2) {
@@ -163,8 +157,7 @@ public class GuiHelper {
         }
     }
 
-    public DefaultTableModel removeAllFromGridData(DefaultTableModel tableModel, JTextPane viewerTextPane, JPanel selectedFilesPanel) {
-        viewerTextPane.setVisible(false);
+    public DefaultTableModel removeAllFromGridData(DefaultTableModel tableModel, JPanel selectedFilesPanel) {
         selectedFilesPanel.removeAll();
         selectedFilesList.clear();
         tableModel.setRowCount(0);
@@ -176,21 +169,14 @@ public class GuiHelper {
         if (String.class != itemNode.getUserObject().getClass()) {
             ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
             String hashKey = itemImdiTreeObject.getUrl();
-//            System.out.println("hashKey: " + hashKey);
-//            for (int rowCounter = 0; rowCounter < tableModel.getRowCount(); rowCounter++) {
-//                System.out.println("Row element: " + tableModel.getValueAt(rowCounter, tableModel.getColumnCount()));
-//                //tableModel.
-//                if (tableModel.getValueAt(rowCounter, tableModel.getColumnCount()) == hashKey) {
-//                    tableModel.removeRow(rowCounter);
-//                }
-//            }
             try {
-                selectedFilesPanel.remove(selectedFilesList.indexOf(hashKey));
-                selectedFilesList.remove(hashKey);
-                tableModel.removeRow(selectedNodesList.indexOf(hashKey));
-                selectedNodesList.remove(hashKey);
-
-            // tableModel.
+                if (itemImdiTreeObject.isImdi()) {
+                    tableModel.removeRow(selectedNodesList.indexOf(hashKey));
+                    selectedNodesList.remove(hashKey);
+                } else {
+                    selectedFilesPanel.remove(selectedFilesList.indexOf(hashKey));
+                    selectedFilesList.remove(hashKey);
+                }
             } catch (Exception ex) {
                 System.out.println("removeFromGridData failed: " + ex.toString());
             }
@@ -231,9 +217,10 @@ public class GuiHelper {
 
     public javax.swing.table.DefaultTableModel getImdiFieldListsTableModel() {
 
-        javax.swing.table.DefaultTableModel returnTableModel = new  javax.swing.table.DefaultTableModel(
+        javax.swing.table.DefaultTableModel returnTableModel = new javax.swing.table.DefaultTableModel(
                 new Object[][]{
-                    {null, null, null}},
+                    {null, null, null}
+                },
                 new String[]{
                     "View Name", "Display Fields", "Display"
                 }) {
@@ -276,7 +263,7 @@ public class GuiHelper {
 //            returnTableModel.addRow((Object[])imdiFieldLists.get(fieldCount));
 //        }
 //        return returnTableModel;
-        return new  javax.swing.table.DefaultTableModel(
+        return new javax.swing.table.DefaultTableModel(
                 new Object[][]{
                     {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
                     {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
