@@ -122,7 +122,7 @@ public class LinorgView extends JFrame {
                 }
             });
             viewMenu.add(viewLabelRadioButtonMenuItem);
-        }
+        } 
     }
 
     public void showSettingsDialog() {
@@ -293,6 +293,8 @@ public class LinorgView extends JFrame {
 //        mainPanel.setLayout(mainPanelLayout);
 //        mainPanelLayout.setHorizontalGroup(
 //            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        mainSplitPane.setPreferredSize(new Dimension(800, 600));
+        mainSplitPane.setDividerLocation(200);
         this.getContentPane().add(mainSplitPane, BorderLayout.CENTER);
 //        );
 //        mainPanelLayout.setVerticalGroup(
@@ -395,8 +397,56 @@ public class LinorgView extends JFrame {
         jTree2.setName("jTree2"); // NOI18N
         jScrollPane4.setViewportView(jTree2);
 
-        //this.getContentPane().add(mainPanel);
+        settingsjDialog.setName("settingsjDialog"); // NOI18N
         menuBar.setPreferredSize(new Dimension(200, 20));
+        jTabbedPane1.setPreferredSize(new Dimension(400, 300));
+        settingsjDialog.getContentPane().add(jTabbedPane1, BorderLayout.CENTER);
+        settingsjDialog.pack();
+        jScrollPane7.setName("jScrollPane7"); // NOI18N
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
+                {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
+                {"Local Directory", "file://data1/media-archive-copy/TestWorkingDirectory/"}
+            },
+            new String [] {
+                "Tree", "Location"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jTable2.setName("jTable2"); // NOI18N
+        jScrollPane7.setViewportView(jTable2);
+        jTabbedPane1.addTab("Locations", jScrollPane7); // NOI18N
+        jScrollPane8.setName("jScrollPane8"); // NOI18N
+        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null},
+                {"Short Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description", null},
+                {null, null, null}
+            },
+            new String [] {
+                "View Name", "Display Fields", "Display"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jTable3.setName("jTable3"); // NOI18N
+        jScrollPane8.setViewportView(jTable3);
+        jTabbedPane1.addTab("Display Fields", jScrollPane8); // NOI18N
         this.setJMenuBar(menuBar);
     //this.getContentPane().add(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
