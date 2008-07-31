@@ -4,8 +4,11 @@
  */
 package mpi.linorg;
 
+import java.awt.Button;
+import java.awt.FlowLayout;
 import java.net.URL;
 import java.util.Vector;
+import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -19,13 +22,14 @@ public class GuiHelper {
     ImdiHelper imdiHelper = new ImdiHelper();
     //private Hashtable selectedNodeRows = new Hashtable();
     private Vector selectedNodesList = new Vector();
+    private Vector selectedFilesList = new Vector();
     int currentFieldListIndex = 1; // this variable sets the fields from the imdi file that are shown in the grid
     private Vector imdiFieldLists = new Vector();
-    
-    public GuiHelper(){
-            loadImdiFieldLists();
+
+    public GuiHelper() {
+        loadImdiFieldLists();
     }
-    
+
     public DefaultMutableTreeNode getImdiTreeNode(String urlString) {
         DefaultMutableTreeNode treeNode;
         ImdiHelper.ImdiTreeObject imdiTreeObject = imdiHelper.getTreeNodeObject(urlString);
@@ -53,10 +57,11 @@ public class GuiHelper {
     }
     private String[] previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
 
-    public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JTextPane jTextPane1) {
+    public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JTextPane viewerTextPane, JPanel selectedFilesPanel) {
         // check that it is an imdi file first
         try {
             ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
+            String hashKey = itemImdiTreeObject.getUrl();
             if (itemImdiTreeObject.isImdi()) {
                 String[] rowNames = getCurrentFieldList();
                 System.out.println("rowNames: " + rowNames.toString());
@@ -96,7 +101,6 @@ public class GuiHelper {
                             currentRowCells[rowNameCounter] = "";
                         }
                     }
-                    String hashKey = itemImdiTreeObject.getUrl();
                     //currentRowCells[currentRowCells.length - 1] = hashKey;
                     System.out.println("Added node to rows hashtable: " + hashKey);
                     System.out.println("selectedRowCells: " + currentRowCells.toString());
@@ -119,31 +123,56 @@ public class GuiHelper {
                     }
                     previousRowCells = (String[]) currentRowCells.clone();
                 }
-                jTextPane1.setVisible(false);
             } else {
                 //todo: display non imdi file
                 System.out.println("display non imdi file");
-                try {
-                    jTextPane1.setPage(new URL(itemImdiTreeObject.getUrl()));
-                    jTextPane1.setVisible(true);
-                } catch (Exception ex) {
-                    // Not a valid URL
-                    jTextPane1.setVisible(false);
-                //jTextPane1.setText("Could not load:" + itemImdiTreeNode.getUrl() + "\n" + "Error:" + ex.getMessage());
-                }
+                //try {
+//                if (selectedFilesList.size() > 0) {
+//                    if (selectedFilesList.size() == 1) {
+//                        // the document is showing so remove it and add an icon for that node
+//                        selectedFilesPanel.removeAll();
+//                        Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
+//                        button.setSize(100, 100);
+//                        selectedFilesPanel.add(button);
+//                    }
+                    // add the file to the files panel
+                    Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
+                    button.setSize(100, 100);
+                    selectedFilesPanel.add(button);
+                    System.out.println("added button");
+//                } else {
+//                    JTextPane fileViewerPane = new javax.swing.JTextPane();                    
+//                    javax.swing.JScrollPane viewerScrollPane = new javax.swing.JScrollPane();
+//                    viewerScrollPane.setName("viewerScrollPane");
+//                    viewerScrollPane.setViewportView(fileViewerPane);
+//                    fileViewerPane.setName("viewerTextPane");
+//                    fileViewerPane.setPage(new URL(itemImdiTreeObject.getUrl()));
+//                    selectedFilesPanel.add(viewerScrollPane);
+//                }
+                selectedFilesPanel.getParent().validate();
+                selectedFilesPanel.getParent().repaint();
+                
+                viewerTextPane.setPage(new URL(itemImdiTreeObject.getUrl()));
+                viewerTextPane.setVisible(true);                        
+                        
+                // store the row index 
+                selectedFilesList.add(hashKey);
             }
         } catch (Exception ex2) {
             System.out.println("Error not an ImdiTreeObject:" + ex2.getMessage());
         }
     }
 
-    public DefaultTableModel removeAllFromGridData(DefaultTableModel tableModel) {
+    public DefaultTableModel removeAllFromGridData(DefaultTableModel tableModel, JTextPane viewerTextPane, JPanel selectedFilesPanel) {
+        viewerTextPane.setVisible(false);
+        selectedFilesPanel.removeAll();
+        selectedFilesList.clear();
         tableModel.setRowCount(0);
         selectedNodesList.clear();
         return tableModel;
     }
 
-    public DefaultTableModel removeFromGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode) {
+    public DefaultTableModel removeFromGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JPanel selectedFilesPanel) {
         if (String.class != itemNode.getUserObject().getClass()) {
             ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
             String hashKey = itemImdiTreeObject.getUrl();
@@ -156,6 +185,8 @@ public class GuiHelper {
 //                }
 //            }
             try {
+                selectedFilesPanel.remove(selectedFilesList.indexOf(hashKey));
+                selectedFilesList.remove(hashKey);
                 tableModel.removeRow(selectedNodesList.indexOf(hashKey));
                 selectedNodesList.remove(hashKey);
 
@@ -169,14 +200,14 @@ public class GuiHelper {
 
     public String[] getFieldListLables() {
         String[] labelArray = new String[imdiFieldLists.size()];
-        for (int labelCount = 0; labelCount < imdiFieldLists.size(); labelCount++){
-            labelArray[labelCount] = ((Object[])imdiFieldLists.get(labelCount))[0].toString();
+        for (int labelCount = 0; labelCount < imdiFieldLists.size(); labelCount++) {
+            labelArray[labelCount] = ((Object[]) imdiFieldLists.get(labelCount))[0].toString();
         }
         return labelArray;
     }
 
     public String[] getCurrentFieldList() {
-        String fieldNamesString = ((Object[])imdiFieldLists.get(currentFieldListIndex))[1].toString();
+        String fieldNamesString = ((Object[]) imdiFieldLists.get(currentFieldListIndex))[1].toString();
         String[] returnArray = fieldNamesString.split(",");
         System.out.println("fieldNamesString: " + fieldNamesString);
         System.out.println("returnArray: " + returnArray.length);
@@ -185,46 +216,46 @@ public class GuiHelper {
 
     public void setCurrentFieldListIndex(int currentIndex) {
         currentFieldListIndex = currentIndex;
-        //System.out.println("currentFieldListIndex: " + currentFieldListIndex);
+    //System.out.println("currentFieldListIndex: " + currentFieldListIndex);
     }
 
     public int getCurrentFieldListIndex() {
         return currentFieldListIndex;
     }
-    
-    private void loadImdiFieldLists(){
+
+    private void loadImdiFieldLists() {
         imdiFieldLists.add(new Object[]{"Minimal", "Name,Session.Name,Corpus.Name", null});
         imdiFieldLists.add(new Object[]{"Normal", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null});
         imdiFieldLists.add(new Object[]{"Extra", "Name,History,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null});
     }
-    
-    public javax.swing.table.DefaultTableModel getImdiFieldListsTableModel(){
-              
-        javax.swing.table.DefaultTableModel returnTableModel =  new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                 {null, null, null}
-            },
-            new String [] {
-                "View Name", "Display Fields", "Display"
-            }
-        ){
-            Class[] types = new Class [] {
+
+    public javax.swing.table.DefaultTableModel getImdiFieldListsTableModel() {
+
+        javax.swing.table.DefaultTableModel returnTableModel = new  javax.swing.table.DefaultTableModel(
+                new Object[][]{
+                    {null, null, null}},
+                new String[]{
+                    "View Name", "Display Fields", "Display"
+                }) {
+
+            Class[] types = new Class[]{
                 java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
             };
 
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return types[columnIndex];
             }
         };
         returnTableModel.setRowCount(0);
-        for (int fieldCount = 0; fieldCount < imdiFieldLists.size(); fieldCount++){
-            returnTableModel.addRow((Object[])imdiFieldLists.get(fieldCount));
+        for (int fieldCount = 0; fieldCount < imdiFieldLists.size(); fieldCount++) {
+            returnTableModel.addRow((Object[]) imdiFieldLists.get(fieldCount));
         }
         returnTableModel.setValueAt(new Boolean(true), currentFieldListIndex, 2);
         return returnTableModel;
     }
-public javax.swing.table.DefaultTableModel getLocationsTableModel(){
-              
+
+    public javax.swing.table.DefaultTableModel getLocationsTableModel() {
+
 //        javax.swing.table.DefaultTableModel returnTableModel =  new javax.swing.table.DefaultTableModel(
 //            new Object [][] {
 //                new Object[imdiFieldLists.size()][2]
@@ -245,26 +276,25 @@ public javax.swing.table.DefaultTableModel getLocationsTableModel(){
 //            returnTableModel.addRow((Object[])imdiFieldLists.get(fieldCount));
 //        }
 //        return returnTableModel;
-    return new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
-                {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
-                {"Local Directory", "file://data1/media-archive-copy/TestWorkingDirectory/"}
-            },
-            new String [] {
-                "Tree", "Location"
-            }
-        ) {
-            Class[] types = new Class [] {
+        return new  javax.swing.table.DefaultTableModel(
+                new Object[][]{
+                    {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
+                    {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
+                    {"Local Directory", "file://data1/media-archive-copy/TestWorkingDirectory/"}
+                },
+                new String[]{
+                    "Tree", "Location"
+                }) {
+
+            Class[] types = new Class[]{
                 java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return types[columnIndex];
             }
         };
-    }    
-//    new javax.swing.table.DefaultTableModel(
+    }//    new javax.swing.table.DefaultTableModel(
 //            new Object [][] {
 //                {"Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null},
 //                {"Short Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description", null},
@@ -282,7 +312,6 @@ public javax.swing.table.DefaultTableModel getLocationsTableModel(){
 //                return types [columnIndex];
 //            }
 //        }
-    
 }
 
 

@@ -167,7 +167,7 @@ public class LinorgView extends JFrame {
         fileViewerTabbedPane = new javax.swing.JTabbedPane();
         viewerScrollPane = new javax.swing.JScrollPane();
         viewerTextPane = new javax.swing.JTextPane();
-        selectedFilesScrollPane = new javax.swing.JScrollPane();
+//        selectedFilesScrollPane = new javax.swing.JScrollPane();
         selectedFilesPanel = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
@@ -271,7 +271,7 @@ public class LinorgView extends JFrame {
         jSplitPane4.setRightComponent(jScrollPane3);
 
         jSplitPane2.setRightComponent(jSplitPane4);
-        
+
         jSplitPane4.setDividerLocation(200);
         jSplitPane2.setDividerLocation(150);
 
@@ -295,10 +295,11 @@ public class LinorgView extends JFrame {
         viewerTextPane.setName("viewerTextPane"); // NOI18N
         viewerScrollPane.setViewportView(viewerTextPane);
         fileViewerTabbedPane.addTab("Viewer", viewerScrollPane); // NOI18N
-        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
+//        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
         selectedFilesPanel.setName("selectedFilesPanel"); // NOI18N
         selectedFilesPanel.setLayout(new java.awt.FlowLayout());
-        fileViewerTabbedPane.addTab("Selected Files", selectedFilesScrollPane); // NOI18N
+//        selectedFilesScrollPane.add(selectedFilesPanel);
+        fileViewerTabbedPane.addTab("Selected Files", selectedFilesPanel); // NOI18N
 
         rightSplitPane.setBottomComponent(fileViewerTabbedPane);
         mainSplitPane.setRightComponent(rightSplitPane);
@@ -460,23 +461,23 @@ public class LinorgView extends JFrame {
 
         // if there are no nodes selected then clear the grid or if there is only one node selected then clear the tree then add the node to trigger the single mode view
         if (1 >= selectedNoedsCount) {
-            imdiHelper.removeAllFromGridData(tableModel);
+            imdiHelper.removeAllFromGridData(tableModel, viewerTextPane, selectedFilesPanel);
             // there is only one tree node selected but we don't know on which tree so check each one and display the selected node
             if (0 < remoteCorpusTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), viewerTextPane, selectedFilesPanel);
             }
             if (0 < localCorpusTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), viewerTextPane, selectedFilesPanel);
             }
             if (0 < localDirectoryTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), jTextPane1);
+                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), viewerTextPane, selectedFilesPanel);
             }
         } else {
             // if there is more than one selected node then remove any deselected nodes before adding new ones
             for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
                 if (!evt.isAddedPath(selectedCount)) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                    imdiHelper.removeFromGridData(tableModel, parentNode);
+                    imdiHelper.removeFromGridData(tableModel, parentNode, selectedFilesPanel);
                 }
             }
 
@@ -485,7 +486,7 @@ public class LinorgView extends JFrame {
 //        System.out.println("added: " + selectedCount + ":" + evt.isAddedPath(selectedCount) + " path: " + evt.getPaths()[selectedCount]);
                 if (evt.isAddedPath(selectedCount)) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                imdiHelper.addToGridData(tableModel, parentNode, viewerTextPane);
+                imdiHelper.addToGridData(tableModel, parentNode, viewerTextPane, selectedFilesPanel);
                 //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
                 }
             }
@@ -520,7 +521,7 @@ public class LinorgView extends JFrame {
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JSplitPane rightSplitPane;
     private javax.swing.JPanel selectedFilesPanel;
-    private javax.swing.JScrollPane selectedFilesScrollPane;
+//    private javax.swing.JScrollPane selectedFilesScrollPane;
     private javax.swing.JDialog settingsjDialog;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
