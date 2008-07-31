@@ -268,6 +268,9 @@ public class LinorgView extends JFrame {
         jSplitPane4.setRightComponent(jScrollPane3);
 
         jSplitPane2.setRightComponent(jSplitPane4);
+        
+        jSplitPane4.setDividerLocation(200);
+        jSplitPane2.setDividerLocation(150);
 
         mainSplitPane.setLeftComponent(jSplitPane2);
 
