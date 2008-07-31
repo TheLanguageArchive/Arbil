@@ -122,7 +122,7 @@ public class LinorgView extends JFrame {
                 }
             });
             viewMenu.add(viewLabelRadioButtonMenuItem);
-        } 
+        }
     }
 
     public void showSettingsDialog() {
@@ -130,6 +130,8 @@ public class LinorgView extends JFrame {
             settingsjDialog = new LinorgAboutBox(this);
             settingsjDialog.setLocationRelativeTo(this);
         }
+        locationSettingsTable.setModel(imdiHelper.getLocationsTableModel());
+        imdiFieldSettingsTable.setModel(imdiHelper.getImdiFieldListsTableModel());
         settingsjDialog.show();
     }
 
@@ -181,9 +183,9 @@ public class LinorgView extends JFrame {
         settingsjDialog = new javax.swing.JDialog();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane7 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        locationSettingsTable = new javax.swing.JTable();
         jScrollPane8 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
+        imdiFieldSettingsTable = new javax.swing.JTable();
         viewMenuButtonGroup = new javax.swing.ButtonGroup();
 
         mainPanel.setName("mainPanel"); // NOI18N
@@ -404,48 +406,13 @@ public class LinorgView extends JFrame {
         settingsjDialog.pack();
         jScrollPane7.setName("jScrollPane7"); // NOI18N
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
-                {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
-                {"Local Directory", "file://data1/media-archive-copy/TestWorkingDirectory/"}
-            },
-            new String [] {
-                "Tree", "Location"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
-            };
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jTable2.setName("jTable2"); // NOI18N
-        jScrollPane7.setViewportView(jTable2);
+        locationSettingsTable.setName("jTable2"); // NOI18N
+        jScrollPane7.setViewportView(locationSettingsTable);
         jTabbedPane1.addTab("Locations", jScrollPane7); // NOI18N
         jScrollPane8.setName("jScrollPane8"); // NOI18N
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null},
-                {"Short Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description", null},
-                {null, null, null}
-            },
-            new String [] {
-                "View Name", "Display Fields", "Display"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
-        jTable3.setName("jTable3"); // NOI18N
-        jScrollPane8.setViewportView(jTable3);
+        imdiFieldSettingsTable.setName("jTable3"); // NOI18N
+        jScrollPane8.setViewportView(imdiFieldSettingsTable);
         jTabbedPane1.addTab("Display Fields", jScrollPane8); // NOI18N
         this.setJMenuBar(menuBar);
     //this.getContentPane().add(statusPanel);
@@ -528,8 +495,8 @@ public class LinorgView extends JFrame {
     private javax.swing.JSplitPane jSplitPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
+    private javax.swing.JTable locationSettingsTable;
+    private javax.swing.JTable imdiFieldSettingsTable;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree jTree2;
     private javax.swing.JTree localCorpusTree;

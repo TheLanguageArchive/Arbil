@@ -20,10 +20,10 @@ public class GuiHelper {
     //private Hashtable selectedNodeRows = new Hashtable();
     private Vector selectedNodesList = new Vector();
     int currentFieldListIndex = 1; // this variable sets the fields from the imdi file that are shown in the grid
-    private Vector availableFieldLists = new Vector();
+    private Vector imdiFieldLists = new Vector();
     
     public GuiHelper(){
-            loadAvailableFieldLists();
+            loadImdiFieldLists();
     }
     
     public DefaultMutableTreeNode getImdiTreeNode(String urlString) {
@@ -168,15 +168,15 @@ public class GuiHelper {
     }
 
     public String[] getFieldListLables() {
-        String[] labelArray = new String[availableFieldLists.size()];
-        for (int labelCount = 0; labelCount < availableFieldLists.size(); labelCount++){
-            labelArray[labelCount] = ((Object[])availableFieldLists.get(labelCount))[0].toString();
+        String[] labelArray = new String[imdiFieldLists.size()];
+        for (int labelCount = 0; labelCount < imdiFieldLists.size(); labelCount++){
+            labelArray[labelCount] = ((Object[])imdiFieldLists.get(labelCount))[0].toString();
         }
         return labelArray;
     }
 
     public String[] getCurrentFieldList() {
-        String fieldNamesString = ((Object[])availableFieldLists.get(currentFieldListIndex))[1].toString();
+        String fieldNamesString = ((Object[])imdiFieldLists.get(currentFieldListIndex))[1].toString();
         String[] returnArray = fieldNamesString.split(",");
         System.out.println("fieldNamesString: " + fieldNamesString);
         System.out.println("returnArray: " + returnArray.length);
@@ -185,18 +185,104 @@ public class GuiHelper {
 
     public void setCurrentFieldListIndex(int currentIndex) {
         currentFieldListIndex = currentIndex;
-        System.out.println("currentFieldListIndex: " + currentFieldListIndex);
+        //System.out.println("currentFieldListIndex: " + currentFieldListIndex);
     }
 
     public int getCurrentFieldListIndex() {
         return currentFieldListIndex;
     }
     
-    private void loadAvailableFieldLists(){
-        availableFieldLists.add(new Object[]{"Minimal", "Name,Session.Name,Corpus.Name"});
-        availableFieldLists.add(new Object[]{"Normal", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title"});
-        availableFieldLists.add(new Object[]{"Extra", "Name,History,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title"});
+    private void loadImdiFieldLists(){
+        imdiFieldLists.add(new Object[]{"Minimal", "Name,Session.Name,Corpus.Name", null});
+        imdiFieldLists.add(new Object[]{"Normal", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null});
+        imdiFieldLists.add(new Object[]{"Extra", "Name,History,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null});
     }
+    
+    public javax.swing.table.DefaultTableModel getImdiFieldListsTableModel(){
+              
+        javax.swing.table.DefaultTableModel returnTableModel =  new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                 {null, null, null}
+            },
+            new String [] {
+                "View Name", "Display Fields", "Display"
+            }
+        ){
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        };
+        returnTableModel.setRowCount(0);
+        for (int fieldCount = 0; fieldCount < imdiFieldLists.size(); fieldCount++){
+            returnTableModel.addRow((Object[])imdiFieldLists.get(fieldCount));
+        }
+        returnTableModel.setValueAt(new Boolean(true), currentFieldListIndex, 2);
+        return returnTableModel;
+    }
+public javax.swing.table.DefaultTableModel getLocationsTableModel(){
+              
+//        javax.swing.table.DefaultTableModel returnTableModel =  new javax.swing.table.DefaultTableModel(
+//            new Object [][] {
+//                new Object[imdiFieldLists.size()][2]
+//            },
+//            new String [] {
+//                "Tree", "Location"
+//            }
+//        ){
+//            Class[] types = new Class [] {
+//                java.lang.String.class, java.lang.String.class
+//            };
+//
+//            public Class getColumnClass(int columnIndex) {
+//                return types [columnIndex];
+//            }
+//        };
+//        for (int fieldCount = 0; fieldCount < imdiFieldLists.size(); fieldCount++){
+//            returnTableModel.addRow((Object[])imdiFieldLists.get(fieldCount));
+//        }
+//        return returnTableModel;
+    return new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
+                {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
+                {"Local Directory", "file://data1/media-archive-copy/TestWorkingDirectory/"}
+            },
+            new String [] {
+                "Tree", "Location"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        };
+    }    
+//    new javax.swing.table.DefaultTableModel(
+//            new Object [][] {
+//                {"Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null},
+//                {"Short Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description", null},
+//                {null, null, null}
+//            },
+//            new String [] {
+//                "View Name", "Display Fields", "Display"
+//            }
+//        ) {
+//            Class[] types = new Class [] {
+//                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+//            };
+//
+//            public Class getColumnClass(int columnIndex) {
+//                return types [columnIndex];
+//            }
+//        }
+    
 }
 
 
