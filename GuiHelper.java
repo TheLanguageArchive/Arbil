@@ -129,12 +129,12 @@ public class GuiHelper {
                         // the document is showing so remove it and add an icon for that node
                         selectedFilesPanel.removeAll();
                         selectedFilesPanel.setLayout(new java.awt.FlowLayout());
-                        Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
+                        Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
                         button.setSize(100, 100);
                         selectedFilesPanel.add(button);
                     }
                     // add the file to the files panel
-                    Button button = new Button("Btn:" + selectedFilesPanel.getComponentCount());
+                    Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
                     button.setSize(100, 100);
                     selectedFilesPanel.add(button);
                     System.out.println("added button");

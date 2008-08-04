@@ -22,12 +22,16 @@ public class ImdiHelper {
     public ImdiTreeObject getTreeNodeObject(String urlString) {
         OurURL inUrlLocal = null;
         ImdiTreeObject imdiTreeObject;
-        try {
-            inUrlLocal = new OurURL(urlString);
-            imdiTreeObject = getImdiTreeNode(inUrlLocal);
-        } catch (MalformedURLException mue) {
-            System.out.println("Invalid input URL: " + mue);
-            imdiTreeObject = new ImdiTreeObject("Invalid input URL", null, urlString);
+        if (!urlString.endsWith(".imdi")) {
+            imdiTreeObject = new ImdiTreeObject(null, null, urlString);
+        } else {
+            try {
+                inUrlLocal = new OurURL(urlString);
+                imdiTreeObject = getImdiTreeNode(inUrlLocal);
+            } catch (MalformedURLException mue) {
+                System.out.println("Invalid input URL: " + mue);
+                imdiTreeObject = new ImdiTreeObject("Invalid input URL", null, urlString);
+            }
         }
         return imdiTreeObject;
     }
@@ -74,10 +78,13 @@ public class ImdiHelper {
     public String[] getLinks(ImdiTreeObject imdiTreeObject) {
         String[] returnArray = null;
         if (imdiTreeObject.isDirectory()) {
-            File nodeFile = new File(imdiTreeObject.urlString);            
+            File nodeFile = imdiTreeObject.getFile();
             //System.out.println("Listing: " + nodeFile.toURI());
-            returnArray = nodeFile.list();                     
-            //System.out.println("Listing: " + nodeFile.toURI() + ":" + returnArray);
+            returnArray = nodeFile.list();
+            for (int linkCount = 0; linkCount < returnArray.length; linkCount++) {
+                returnArray[linkCount] = imdiTreeObject.getUrl() + returnArray[linkCount];
+            }
+        //System.out.println("Listing: " + nodeFile.toURI() + ":" + returnArray);
         } else {
             try {
                 OurURL baseURL = new OurURL(imdiTreeObject.getUrl());
@@ -106,19 +113,14 @@ public class ImdiHelper {
             //this.icon = //new ImageIcon(getClass().getResource(imageName)); 
             this.IsDirectory = false;
             if (!isImdi() && isLocal()) {
-                this.IsDirectory = true;
-                //this.fileObject = new File(localUrlString);
-//                File fileObject = new File(localUrlString);//.replace("////", "//")+"/"
-//                if (fileObject != null) {
-//                    this.IsDirectory = fileObject.isDirectory();
-//                    System.out.println("fileObject: " + fileObject.getPath());
-//                    System.out.println("fileObject: " + fileObject.isFile());
-//                    System.out.println("fileObject: " + fileObject.isDirectory());
-//                    System.out.println("fileObject: " + fileObject.exists());
-//                    File parentFile = new File(fileObject.getParent());
-//                    System.out.println("fileObject: " + parentFile.isDirectory());
-//                    System.out.println(localUrlString + ": " + this.IsDirectory);                    
-//                }
+                File fileObject = getFile();
+                if (fileObject != null) {
+                    this.IsDirectory = fileObject.isDirectory();
+                }
+                nodeText = fileObject.getName();
+            }
+            if (nodeText == null){
+                nodeText = urlString;
             }
         }
         // Return text for display
@@ -152,6 +154,10 @@ public class ImdiHelper {
             } else {
                 return false;
             }
+        }
+
+        public File getFile() {
+            return new File(urlString.replaceFirst("file://", "/"));
         }
 //        // Return the icon
 //        public Icon getIcon() {
