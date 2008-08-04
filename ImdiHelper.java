@@ -40,27 +40,22 @@ public class ImdiHelper {
         ImdiTreeObject imdiTreeObject;
         String fullUrlSting = inUrl.getProtocol() + "://" + inUrl.getHost() + inUrl.getPath();
         Document dom = null;
+        dom = api.loadIMDIDocument(inUrl, false);
 
-        if (!inUrl.getFile().endsWith(".imdi")) {
-            imdiTreeObject = new ImdiTreeObject(inUrl.getFile(), null, fullUrlSting);
+        if (dom == null) {
+            imdiTreeObject = new ImdiTreeObject("Could not load IMDI", null, fullUrlSting);
         } else {
-            dom = api.loadIMDIDocument(inUrl, false);
-
-            if (dom == null) {
-                imdiTreeObject = new ImdiTreeObject("Could not load IMDI", null, fullUrlSting);
+            String nodeName = "unknown";
+            IMDIElement ie = api.getIMDIElement(dom, "Session.Name");
+            if (ie != null) {
+                nodeName = "SN: " + ie.getValue();
             } else {
-                String nodeName = "unknown";
-                IMDIElement ie = api.getIMDIElement(dom, "Session.Name");
-                if (ie != null) {
-                    nodeName = "SN: " + ie.getValue();
-                } else {
-                    IMDIElement corpusname = api.getIMDIElement(dom, "Corpus.Name");
-                    if (corpusname != null) {
-                        nodeName = "CN: " + corpusname.getValue();
-                    }
+                IMDIElement corpusname = api.getIMDIElement(dom, "Corpus.Name");
+                if (corpusname != null) {
+                    nodeName = "CN: " + corpusname.getValue();
                 }
-                imdiTreeObject = new ImdiTreeObject(nodeName, dom, fullUrlSting);
             }
+            imdiTreeObject = new ImdiTreeObject(nodeName, dom, fullUrlSting);
         }
         return imdiTreeObject;
     }
@@ -119,7 +114,7 @@ public class ImdiHelper {
                 }
                 nodeText = fileObject.getName();
             }
-            if (nodeText == null){
+            if (!isImdi() && nodeText == null) {
                 nodeText = urlString;
             }
         }
@@ -141,7 +136,7 @@ public class ImdiHelper {
         }
 
         public boolean isImdi() {
-            if (urlString != null && nodDom != null) {
+            if (urlString != null /* && nodDom != null*/) {
                 return urlString.endsWith(".imdi");
             } else {
                 return false;
