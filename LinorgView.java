@@ -33,7 +33,7 @@ public class LinorgView extends JFrame {
         remoteCorpusRootNode = new DefaultMutableTreeNode("Remote Corpus");
         remoteCorpusRootNode.add(imdiHelper.getImdiTreeNode("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
         localDirectoryRootNode = new DefaultMutableTreeNode("Local File System");
-        localDirectoryRootNode.add(imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/TestWorkingDirectory/"));
+        localDirectoryRootNode.add(imdiHelper.getImdiTreeNode("file:///data1/media-archive-copy/TestWorkingDirectory/"));
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
@@ -430,7 +430,7 @@ public class LinorgView extends JFrame {
             parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
         }
         // check for imdi data
-        imdiHelper.getImdiChildNodes(parentNode);
+        imdiHelper.getImdiChildNodes(parentNode, null);
         remoteCorpusTree.scrollPathToVisible(evt.getPath());
         statusMessageLabel.setText("");
     }//GEN-LAST:event_jTreeTreeWillExpand

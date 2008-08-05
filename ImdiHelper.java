@@ -9,6 +9,8 @@ import mpi.util.OurURL;
 import org.w3c.dom.Document;
 import java.net.MalformedURLException;
 import java.io.File;
+import javax.swing.Icon;
+import javax.swing.JLabel;
 
 /**
  *
@@ -27,35 +29,27 @@ public class ImdiHelper {
         } else {
             try {
                 inUrlLocal = new OurURL(urlString);
-                imdiTreeObject = getImdiTreeNode(inUrlLocal);
+                Document dom = null;
+                dom = api.loadIMDIDocument(inUrlLocal, false);
+                if (dom == null) {
+                    imdiTreeObject = new ImdiTreeObject("Could not load IMDI", null, urlString);
+                } else {
+                    String nodeName = "unknown";
+                    IMDIElement ie = api.getIMDIElement(dom, "Session.Name");
+                    if (ie != null) {
+                        nodeName = "SN: " + ie.getValue();
+                    } else {
+                        IMDIElement corpusname = api.getIMDIElement(dom, "Corpus.Name");
+                        if (corpusname != null) {
+                            nodeName = "CN: " + corpusname.getValue();
+                        }
+                    }
+                    imdiTreeObject = new ImdiTreeObject(nodeName, dom, urlString);
+                }
             } catch (MalformedURLException mue) {
                 System.out.println("Invalid input URL: " + mue);
                 imdiTreeObject = new ImdiTreeObject("Invalid input URL", null, urlString);
             }
-        }
-        return imdiTreeObject;
-    }
-
-    public ImdiTreeObject getImdiTreeNode(OurURL inUrl) {
-        ImdiTreeObject imdiTreeObject;
-        String fullUrlSting = inUrl.getProtocol() + "://" + inUrl.getHost() + inUrl.getPath();
-        Document dom = null;
-        dom = api.loadIMDIDocument(inUrl, false);
-
-        if (dom == null) {
-            imdiTreeObject = new ImdiTreeObject("Could not load IMDI", null, fullUrlSting);
-        } else {
-            String nodeName = "unknown";
-            IMDIElement ie = api.getIMDIElement(dom, "Session.Name");
-            if (ie != null) {
-                nodeName = "SN: " + ie.getValue();
-            } else {
-                IMDIElement corpusname = api.getIMDIElement(dom, "Corpus.Name");
-                if (corpusname != null) {
-                    nodeName = "CN: " + corpusname.getValue();
-                }
-            }
-            imdiTreeObject = new ImdiTreeObject(nodeName, dom, fullUrlSting);
         }
         return imdiTreeObject;
     }
@@ -158,10 +152,10 @@ public class ImdiHelper {
 //        public Icon getIcon() {
 //            return icon;
 //        }
-        protected String nodeText;
-        protected Document nodDom;
-        protected String urlString;
-        protected boolean IsDirectory;
+        private String nodeText;
+        private Document nodDom;
+        private String urlString;
+        private boolean IsDirectory;
         //protected Icon icon;
     }
 }
