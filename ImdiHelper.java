@@ -9,6 +9,7 @@ import mpi.util.OurURL;
 import org.w3c.dom.Document;
 import java.net.MalformedURLException;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -116,6 +117,7 @@ public class ImdiHelper {
 
         public ImdiTreeObject[] getChildren(String[] imdiFieldArray) {
             String[] linkArray = getLinks();
+            Hashtable nodesToAdd = new Hashtable();
             //ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[linkArray.length + imdiFieldArray.length];
             Vector tempImdiVector = new Vector();
             if (linkArray != null) {
@@ -140,12 +142,19 @@ public class ImdiHelper {
                         String cellValue =  this.getField(currentFieldName);// + splitFieldName[1]); // this does not check for short arrays nor for multiple (X)'s
                         valueFound = cellValue != null;
                         if (valueFound && cellValue.length() > 0) {
+                            if (!nodesToAdd.containsKey(currentFieldName.toString())) {
+                                nodesToAdd.put(currentFieldName.toString(), new ImdiTreeObject(currentFieldName, ""));
+                            }
                             //tempImdiVector.add(new ImdiTreeObject(cellValue, cellValue));
-                            tempImdiVector.add(new ImdiTreeObject(currentFieldName, null));
+//                            tempImdiVector.add(new ImdiTreeObject(currentFieldName, null));
                         }
                         itemValueCounter++;
                     }
                 }
+            }
+            Enumeration nodesToAddEnumeration = nodesToAdd.elements();
+            while (nodesToAddEnumeration.hasMoreElements()) {
+                tempImdiVector.add((ImdiTreeObject) nodesToAddEnumeration.nextElement());
             }
             ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[tempImdiVector.size()];
             tempImdiVector.toArray(returnImdiArray);
