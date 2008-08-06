@@ -25,15 +25,15 @@ public class LinorgView extends JFrame {
     private DefaultMutableTreeNode remoteCorpusRootNode;
     private DefaultMutableTreeNode localDirectoryRootNode;
     private DefaultTableModel tableModel = new javax.swing.table.DefaultTableModel();
-    private GuiHelper imdiHelper = new GuiHelper();
+    private GuiHelper guiHelper = new GuiHelper();
 
     public LinorgView() {
         localCorpusRootNode = new DefaultMutableTreeNode("Local Corpus");
-        localCorpusRootNode.add(imdiHelper.getImdiTreeNode("file://data1/media-archive-copy/Corpusstructure/MPI.imdi"));
+        localCorpusRootNode.add(guiHelper.getImdiTreeNode("file://data1/media-archive-copy/Corpusstructure/MPI.imdi"));
         remoteCorpusRootNode = new DefaultMutableTreeNode("Remote Corpus");
-        remoteCorpusRootNode.add(imdiHelper.getImdiTreeNode("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
+        remoteCorpusRootNode.add(guiHelper.getImdiTreeNode("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
         localDirectoryRootNode = new DefaultMutableTreeNode("Local File System");
-        localDirectoryRootNode.add(imdiHelper.getImdiTreeNode("file:///data1/media-archive-copy/TestWorkingDirectory/"));
+        localDirectoryRootNode.add(guiHelper.getImdiTreeNode("file:///data1/media-archive-copy/TestWorkingDirectory/"));
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
@@ -103,12 +103,12 @@ public class LinorgView extends JFrame {
     }
 
     private void initViewMenu() {
-        String[] viewLabels = imdiHelper.getFieldListLables();
+        String[] viewLabels = guiHelper.getFieldListLables();
         for (int menuItemCount = 0; menuItemCount < viewLabels.length; menuItemCount++) {
             javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
             viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
             viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
-            viewLabelRadioButtonMenuItem.setSelected(imdiHelper.getCurrentFieldListIndex() == menuItemCount);
+            viewLabelRadioButtonMenuItem.setSelected(guiHelper.getCurrentFieldListIndex() == menuItemCount);
             viewLabelRadioButtonMenuItem.setText(viewLabels[menuItemCount]);
             viewLabelRadioButtonMenuItem.setName("viewLabelRadioButtonMenuItem" + menuItemCount);
             viewLabelRadioButtonMenuItem.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -116,7 +116,7 @@ public class LinorgView extends JFrame {
                 public void stateChanged(javax.swing.event.ChangeEvent evt) {
                     for (int checkboxCounter = 0; checkboxCounter < viewMenu.getItemCount(); checkboxCounter++) {
                         if (viewMenu.getItem(checkboxCounter).isSelected()) {
-                            imdiHelper.setCurrentFieldListIndex(checkboxCounter);
+                            guiHelper.setCurrentFieldListIndex(checkboxCounter);
                         }
                     }
                 }
@@ -130,8 +130,8 @@ public class LinorgView extends JFrame {
             settingsjDialog = new LinorgAboutBox(this);
             settingsjDialog.setLocationRelativeTo(this);
         }
-        locationSettingsTable.setModel(imdiHelper.getLocationsTableModel());
-        imdiFieldSettingsTable.setModel(imdiHelper.getImdiFieldListsTableModel());
+        locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
+        imdiFieldSettingsTable.setModel(guiHelper.getImdiFieldListsTableModel());
         settingsjDialog.show();
     }
 
@@ -430,7 +430,7 @@ public class LinorgView extends JFrame {
             parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
         }
         // check for imdi data
-        imdiHelper.getImdiChildNodes(parentNode, null);
+        guiHelper.getImdiChildNodes(parentNode);
         remoteCorpusTree.scrollPathToVisible(evt.getPath());
         statusMessageLabel.setText("");
     }//GEN-LAST:event_jTreeTreeWillExpand
@@ -448,23 +448,23 @@ public class LinorgView extends JFrame {
 
         // if there are no nodes selected then clear the grid or if there is only one node selected then clear the tree then add the node to trigger the single mode view
         if (1 >= selectedNoedsCount) {
-            imdiHelper.removeAllFromGridData(tableModel, selectedFilesPanel);
+            guiHelper.removeAllFromGridData(tableModel, selectedFilesPanel);
             // there is only one tree node selected but we don't know on which tree so check each one and display the selected node
             if (0 < remoteCorpusTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
+                guiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
             }
             if (0 < localCorpusTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
+                guiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
             }
             if (0 < localDirectoryTree.getSelectionCount()) {
-                imdiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
+                guiHelper.addToGridData(tableModel, (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent(), selectedFilesPanel);
             }
         } else {
             // if there is more than one selected node then remove any deselected nodes before adding new ones
             for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
                 if (!evt.isAddedPath(selectedCount)) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                    imdiHelper.removeFromGridData(tableModel, parentNode, selectedFilesPanel);
+                    guiHelper.removeFromGridData(tableModel, parentNode, selectedFilesPanel);
                 }
             }
 
@@ -473,7 +473,7 @@ public class LinorgView extends JFrame {
 //        System.out.println("added: " + selectedCount + ":" + evt.isAddedPath(selectedCount) + " path: " + evt.getPaths()[selectedCount]);
                 if (evt.isAddedPath(selectedCount)) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                    imdiHelper.addToGridData(tableModel, parentNode, selectedFilesPanel);
+                    guiHelper.addToGridData(tableModel, parentNode, selectedFilesPanel);
                 //imdiHelper.addToGridData(tableModel, 0, (Document)((DefaultMutableTreeNode)evt.getPaths()[selectedCount].getLastPathComponent()).getUserObject());
                 }
             }
