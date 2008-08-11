@@ -32,21 +32,27 @@ public class ImdiHelper {
     }//    static Icon collapsedicon = new ImageIcon("/icons/Opener_open_black.png");
     public class ImdiTreeObject {
 
+        Hashtable fieldHashtable = new Hashtable();
+        Hashtable childrenHashtable = new Hashtable();
+        boolean imdiDataLoaded = false;
+
         protected ImdiTreeObject(String localNodeText, String localUrlString) {
             nodeText = localNodeText;
             nodDom = null;
             urlString = localUrlString;
             //icon = null;//idleIcon;//null;//new ImageIcon(getClass().getResource(imageName)); 
             isDirectory = false;
-            if (!isImdi() && isLocal()) {
-                File fileObject = getFile();
-                if (fileObject != null) {
-                    this.isDirectory = fileObject.isDirectory();
+            if (urlString != null) {
+                if (!isImdi() && isLocal()) {
+                    File fileObject = getFile();
+                    if (fileObject != null) {
+                        this.isDirectory = fileObject.isDirectory();
+                    }
+                    nodeText = fileObject.getName();
                 }
-                nodeText = fileObject.getName();
-            }
-            if (!isImdi() && nodeText == null) {
-                nodeText = urlString;
+                if (!isImdi() && nodeText == null) {
+                    nodeText = urlString;
+                }
             }
         }
 
@@ -76,8 +82,11 @@ public class ImdiHelper {
             }
         }
 
-        public String getField(String fieldName) {
+        private String getField(String fieldName) {
             Document itemDom = this.getNodeDom();
+            if (itemDom == null) {
+                return null;
+            }
             IMDIElement rowValue = api.getIMDIElement(itemDom, fieldName);
             if (rowValue != null) {
                 return rowValue.getValue();
@@ -115,44 +124,65 @@ public class ImdiHelper {
             return returnArray;
         }
 
-        public ImdiTreeObject[] getChildren(String[] imdiFieldArray) {
-            String[] linkArray = getLinks();
-            Hashtable nodesToAdd = new Hashtable();
-            //ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[linkArray.length + imdiFieldArray.length];
-            Vector tempImdiVector = new Vector();
-            if (linkArray != null) {
-                for (int linkCount = 0; linkCount < linkArray.length && linkCount < 10; linkCount++) {
-                    ImdiTreeObject currentImdi = new ImdiTreeObject(null, linkArray[linkCount]);
-                    tempImdiVector.add(currentImdi);
-                    if (linkArray[linkCount].endsWith(".imdi") && linkCount < 9) {
-                        currentImdi.loadImdiDom();
-                    }
-                }
-            }
-            for (int rowNameCounter = 0; rowNameCounter < imdiFieldArray.length; rowNameCounter++) {
-                if (-1 < imdiFieldArray[rowNameCounter].indexOf("(X)")) {
-                    int itemValueCounter = 1;
-                    boolean valueFound = true;
-                    while (valueFound) {
-                        String[] splitFieldName = imdiFieldArray[rowNameCounter].split("\\(X\\)");
-                        String currentFieldName = splitFieldName[0] + "(" + itemValueCounter + ")";
-                        System.out.println(imdiFieldArray[rowNameCounter] + " splitFieldName: " + splitFieldName.length);
-                        System.out.println("currentFieldName: " + currentFieldName);
-                        
-                        String cellValue =  this.getField(currentFieldName);// + splitFieldName[1]); // this does not check for short arrays nor for multiple (X)'s
+        private boolean populateChildFields(String fieldNameString) {
+            // this be called when loading children or loading fields
+            System.out.println("fieldNameString: " + fieldNameString);
+            boolean valueFound = false;
+            int counterFieldPosition = fieldNameString.indexOf("(X)");
+            if (-1 < counterFieldPosition) {
+                int itemValueCounter = 1;
+                valueFound = true;
+                String firstHalf = fieldNameString.substring(0, counterFieldPosition + 1);
+                String secondHalf = fieldNameString.substring(counterFieldPosition + 2);
+                while (valueFound) {
+                    fieldNameString = firstHalf + itemValueCounter + secondHalf;
+                    if (-1 < fieldNameString.indexOf("(X)")) {
+                        valueFound = populateChildFields(fieldNameString);
+                    } else {
+                        System.out.println("checking x value for: " + fieldNameString);
+                        String cellValue = this.getField(fieldNameString);
                         valueFound = cellValue != null;
                         if (valueFound && cellValue.length() > 0) {
-                            if (!nodesToAdd.containsKey(currentFieldName.toString())) {
-                                nodesToAdd.put(currentFieldName.toString(), new ImdiTreeObject(currentFieldName, ""));
-                            }
-                            //tempImdiVector.add(new ImdiTreeObject(cellValue, cellValue));
-//                            tempImdiVector.add(new ImdiTreeObject(currentFieldName, null));
+                            this.addField(fieldNameString, cellValue);
                         }
-                        itemValueCounter++;
                     }
+                    itemValueCounter++;
+                }
+            } else {
+                System.out.println("checking value for: " + fieldNameString);
+                String cellValue = this.getField(fieldNameString);
+                valueFound = cellValue != null;
+                if (valueFound && cellValue.length() > 0) {
+                    this.addField(fieldNameString, cellValue);
                 }
             }
-            Enumeration nodesToAddEnumeration = nodesToAdd.elements();
+            return valueFound;
+        }
+
+        public ImdiTreeObject[] getChildren(String[] imdiFieldArray) {
+            Vector tempImdiVector = new Vector();
+            if (!imdiDataLoaded) {
+                // if this node has been loaded then do not load again
+                // to refresh the node and its children the node should be nulled and recreated
+                imdiDataLoaded = true;
+                String[] linkArray = getLinks();
+                //Hashtable nodesToAdd = new Hashtable();
+                //ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[linkArray.length + imdiFieldArray.length];
+                if (linkArray != null) {
+                    for (int linkCount = 0; linkCount < linkArray.length && linkCount < 10; linkCount++) {
+                        System.out.println("linkArray: " + linkArray[linkCount]);
+                        ImdiTreeObject currentImdi = new ImdiTreeObject(null, linkArray[linkCount]);
+                        tempImdiVector.add(currentImdi);
+                        if (linkArray[linkCount].endsWith(".imdi") && linkCount < 9) {
+                            currentImdi.loadImdiDom();
+                        }
+                    }
+                }
+                for (int rowNameCounter = 0; rowNameCounter < imdiFieldArray.length; rowNameCounter++) {
+                    populateChildFields(imdiFieldArray[rowNameCounter]);
+                }
+            }
+            Enumeration nodesToAddEnumeration = childrenHashtable.elements();
             while (nodesToAddEnumeration.hasMoreElements()) {
                 tempImdiVector.add((ImdiTreeObject) nodesToAddEnumeration.nextElement());
             }
@@ -161,10 +191,35 @@ public class ImdiHelper {
             return returnImdiArray;
         }
 
+        public void addField(String fieldLabel, String fieldValue) {
+            if (isImdi()) {
+                if (fieldLabel.startsWith("Session.")) {
+                    fieldLabel = fieldLabel.substring(8);
+                } else if (fieldLabel.startsWith("Corpus.")) {
+                    fieldLabel = fieldLabel.substring(7);
+                }
+            }
+            int firstDotSeparator = fieldLabel.indexOf(".");
+            if (firstDotSeparator == -1) {
+                // add the label to this level node
+//                if (fieldLabel == null) fieldLabel = "oops null";
+//                if (fieldValue == null) fieldValue = "oops null";
+                System.out.println("fieldLabel: " + fieldLabel + " cellValue: " + fieldValue);
+                fieldHashtable.put(fieldLabel, fieldValue);
+            } else {
+                // pass the label to the child nodes
+                String childsName = fieldLabel.substring(0, firstDotSeparator);
+                if (!childrenHashtable.containsKey(childsName)) {
+                    childrenHashtable.put(childsName, new ImdiTreeObject(childsName, null));
+                }
+                ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldLabel.substring(firstDotSeparator + 1), fieldValue);
+            }
+        }
+
         public Hashtable getFields() {
             // store the Hastable for next call
             // if hastable is null then load from imdi
-            return new Hashtable();
+            return fieldHashtable;
         }
         // Return text for display
         public String toString() {
@@ -187,8 +242,12 @@ public class ImdiHelper {
             if (urlString != null /* && nodDom != null*/) {
                 return urlString.endsWith(".imdi");
             } else {
-                return false;
+                return isImdiChild();
             }
+        }
+
+        public boolean isImdiChild() {
+            return !fieldHashtable.isEmpty() || !childrenHashtable.isEmpty();
         }
 
         public boolean isSession() {
