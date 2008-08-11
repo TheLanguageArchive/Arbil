@@ -210,7 +210,7 @@ public class ImdiHelper {
                 // pass the label to the child nodes
                 String childsName = fieldLabel.substring(0, firstDotSeparator);
                 if (!childrenHashtable.containsKey(childsName)) {
-                    childrenHashtable.put(childsName, new ImdiTreeObject(childsName, null));
+                    childrenHashtable.put(childsName, new ImdiTreeObject(childsName, getUrl() + "#" + fieldLabel));
                 }
                 ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldLabel.substring(firstDotSeparator + 1), fieldValue);
             }
@@ -240,10 +240,13 @@ public class ImdiHelper {
 
         public boolean isImdi() {
             if (urlString != null /* && nodDom != null*/) {
-                return urlString.endsWith(".imdi");
-            } else {
-                return isImdiChild();
+                if (isImdiChild()) {
+                    return true;
+                } else {
+                    return urlString.endsWith(".imdi");
+                }
             }
+            return false;
         }
 
         public boolean isImdiChild() {

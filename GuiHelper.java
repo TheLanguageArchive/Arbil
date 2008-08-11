@@ -7,6 +7,7 @@ package mpi.linorg;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -57,15 +58,18 @@ public class GuiHelper {
             }
         }
     }
-    private String[] previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
+    private Hashtable previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
 
     public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JPanel selectedFilesPanel) {
         getImdiChildNodes(itemNode); // load the child nodes and the fields for each
         ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
         String hashKey = itemImdiTreeObject.getUrl();
+
+        System.out.println("hashkey: " + hashKey);
+
         if (itemImdiTreeObject.isImdi()) {
-            String[] rowNames = getCurrentFieldArray();
-            System.out.println("rowNames: " + rowNames.toString());
+            //String[] rowNames = itemImdiTreeObject.getFields().keys()//getCurrentFieldArray();
+            //System.out.println("rowNames: " + rowNames.toString());
             boolean multipleRowMode = (0 < tableModel.getRowCount());
             // if there is only one node to show then set up the table for single display
             if (!multipleRowMode) {
@@ -76,63 +80,47 @@ public class GuiHelper {
                 }
                 // clear the current rows
                 tableModel.setRowCount(0);
-            } else {
-                // set the column titles only if not already set
-                if (tableModel.getColumnCount() != rowNames.length) {
-                    tableModel.setColumnCount(rowNames.length);
-                    tableModel.setColumnIdentifiers(rowNames);
-                    // clear the current rows
-                    tableModel.setRowCount(0);
-                    tableModel.addRow(previousRowCells);
-                }
-            }
-
-            if (String.class != itemNode.getUserObject().getClass()) {
-
-//                String[] currentRowCells = new String[rowNames.length]; // + 1 /* add one for the url which is not displayed but used to identify the row */];
-//                for (int rowNameCounter = 0; rowNameCounter < rowNames.length; rowNameCounter++) {
-////                    String cellValue = imdiHelper.getField(itemImdiTreeObject, rowNames[rowNameCounter].replace("(X)", "(1)"));
-//                    if (!rowNames[rowNameCounter].contains("(X)")) {
-//                        String cellValue = null;// itemImdiTreeObject.getField(rowNames[rowNameCounter]);
-//                        if (cellValue != null && !cellValue.contentEquals("")) {
-//                            if (!multipleRowMode) {
-//                                tableModel.addRow(new Object[]{rowNames[rowNameCounter], cellValue});
-//                            }
-//                            currentRowCells[rowNameCounter] = cellValue;
-//                        } else {
-//                            currentRowCells[rowNameCounter] = "";
-//                        }
-//                    }
-//                }
-//                //currentRowCells[currentRowCells.length - 1] = hashKey;
-//                System.out.println("Added node to rows hashtable: " + hashKey);
-//                System.out.println("selectedRowCells: " + currentRowCells.toString());
-//                if (multipleRowMode) {
-//                    // add the current row
-//                    tableModel.addRow(currentRowCells);
-//                }
-                // store the row index 
-                selectedNodesList.add(hashKey);
-
-                // TODO: make this compatable with the other table data and views, maybe by using the getFields() and if blank then populate it with the imdi fields ergo using it as a cache 
-                // TODO: the getFields() hash could be used as a cache for all types including directory listings, however there must be an option to refresh the node and its children (ie remove the node and recreate allowing the children to be manualy opened)
+                // add the new data
                 Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
                 Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
-                
-                while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()){
+
+                while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
                     tableModel.addRow(new Object[]{fieldKeys.nextElement(), fieldValues.nextElement()});
                 }
-//                if (!multipleRowMode) {
-//                    // add the links
-//                    String[] linksArray = imdiHelper.getLinks(itemImdiTreeObject);
-//                    if (linksArray != null) {
-//                        for (int linkCount = 0; linkCount < linksArray.length /*&& linkCount < 3*/; linkCount++) {
-//                            tableModel.addRow(new Object[]{"link:" + linkCount, linksArray[linkCount]});
-//                        }
-//                    }
+                previousRowCells = itemImdiTreeObject.getFields();
+            } else {
+                // set the column titles only if not already set
+                if (previousRowCells != null) {
+                    tableModel.setColumnCount(previousRowCells.size());
+                    tableModel.setColumnIdentifiers(previousRowCells.keySet().toArray());
+                    // clear the current rows
+                    tableModel.setRowCount(0);
+                    // add the row values based on the order of columns being set correctly
+                    tableModel.addRow(previousRowCells.values().toArray());
+                    previousRowCells = null;
+                }
+
+                if (String.class != itemNode.getUserObject().getClass()) {
+                    tableModel.addRow(new Object[tableModel.getColumnCount()]);
+
+                    Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
+                    Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
+
+                    while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
+                        String currentColumn = fieldKeys.nextElement().toString();
+                        int currentColumnInt = tableModel.findColumn(currentColumn);
+                        if (currentColumnInt == -1) {
+                            tableModel.addColumn(currentColumn);
+                            currentColumnInt = tableModel.findColumn(currentColumn);
+                        }
+                        tableModel.setValueAt(fieldValues.nextElement(), tableModel.getRowCount() - 1, currentColumnInt);
+                    }
+                }
 //                }
 //                previousRowCells = (String[]) currentRowCells.clone();
             }
+            // store the row index 
+            selectedNodesList.add(hashKey);
         } else {
             // TODO: display non imdi file
             System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
