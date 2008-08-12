@@ -60,114 +60,156 @@ public class GuiHelper {
     }
     private Hashtable previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
 
+    public javax.swing.JInternalFrame floatCurrentGrid(DefaultTableModel tableModel) {
+        javax.swing.JInternalFrame gridViewInternalFrame = new javax.swing.JInternalFrame();
+        gridViewInternalFrame.setSize(300, 300);
+        gridViewInternalFrame.setClosable(true);
+        gridViewInternalFrame.setIconifiable(true);
+        gridViewInternalFrame.setResizable(true);
+        gridViewInternalFrame.setTitle("internal frame data grid copy");
+        gridViewInternalFrame.setToolTipText("toolTipText");
+        gridViewInternalFrame.setName("gridViewInternalFrame");
+        gridViewInternalFrame.setVisible(true);
+
+        javax.swing.JTable jTable1;
+        javax.swing.JScrollPane jScrollPane6;
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+
+        //jTable1.setAutoCreateRowSorter(true);
+
+        Vector columnNames = new Vector();
+
+        for (int columnCount = 0; columnCount < tableModel.getColumnCount(); columnCount++) {
+            columnNames.add(tableModel.getColumnName(columnCount));
+        }
+
+        jTable1.setModel(new DefaultTableModel(tableModel.getDataVector(), columnNames));
+        jTable1.setName("jTable1");
+
+        jScrollPane6.setViewportView(jTable1);
+
+        gridViewInternalFrame.add(jScrollPane6, BorderLayout.CENTER);
+
+//        javax.swing.GroupLayout gridViewInternalFrameLayout = new javax.swing.GroupLayout(gridViewInternalFrame.getContentPane());
+//        gridViewInternalFrame.getContentPane().setLayout(gridViewInternalFrameLayout);
+//        gridViewInternalFrameLayout.setHorizontalGroup(
+//                gridViewInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(0, 279, Short.MAX_VALUE));
+//        gridViewInternalFrameLayout.setVerticalGroup(
+//                gridViewInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(0, 182, Short.MAX_VALUE));
+        return gridViewInternalFrame;
+    }
+
     public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JPanel selectedFilesPanel) {
         getImdiChildNodes(itemNode); // load the child nodes and the fields for each
-        ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
-        String hashKey = itemImdiTreeObject.getUrl();
+        if (itemNode.getUserObject().getClass() == ImdiHelper.ImdiTreeObject.class) {
+            ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
+            String hashKey = itemImdiTreeObject.getUrl();
 
-        System.out.println("hashkey: " + hashKey);
+            System.out.println("hashkey: " + hashKey);
 
-        if (itemImdiTreeObject.isImdi()) {
-            //String[] rowNames = itemImdiTreeObject.getFields().keys()//getCurrentFieldArray();
-            //System.out.println("rowNames: " + rowNames.toString());
-            boolean multipleRowMode = (0 < tableModel.getRowCount());
-            // if there is only one node to show then set up the table for single display
-            if (!multipleRowMode) {
-                // set the column titles only if not already set 
-                if (tableModel.getColumnCount() != 2) {
-                    tableModel.setColumnCount(2);
-                    tableModel.setColumnIdentifiers(new String[]{"Name", "Value"});
-                }
-                // clear the current rows
-                tableModel.setRowCount(0);
-                // add the new data
-                Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
-                Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
-
-                while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
-                    tableModel.addRow(new Object[]{fieldKeys.nextElement(), fieldValues.nextElement()});
-                }
-                previousRowCells = itemImdiTreeObject.getFields();
-            } else {
-                // set the column titles only if not already set
-                if (previousRowCells != null) {
-                    tableModel.setColumnCount(previousRowCells.size());
-                    tableModel.setColumnIdentifiers(previousRowCells.keySet().toArray());
+            if (itemImdiTreeObject.isImdi()) {
+                //String[] rowNames = itemImdiTreeObject.getFields().keys()//getCurrentFieldArray();
+                //System.out.println("rowNames: " + rowNames.toString());
+                boolean multipleRowMode = (0 < tableModel.getRowCount());
+                // if there is only one node to show then set up the table for single display
+                if (!multipleRowMode) {
+                    // set the column titles only if not already set 
+                    if (tableModel.getColumnCount() != 2) {
+                        tableModel.setColumnCount(2);
+                        tableModel.setColumnIdentifiers(new String[]{"Name", "Value"});
+                    }
                     // clear the current rows
                     tableModel.setRowCount(0);
-                    // add the row values based on the order of columns being set correctly
-                    tableModel.addRow(previousRowCells.values().toArray());
-                    previousRowCells = null;
-                }
-
-                if (String.class != itemNode.getUserObject().getClass()) {
-                    tableModel.addRow(new Object[tableModel.getColumnCount()]);
-
+                    // add the new data
                     Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
                     Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
 
                     while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
-                        String currentColumn = fieldKeys.nextElement().toString();
-                        int currentColumnInt = tableModel.findColumn(currentColumn);
-                        if (currentColumnInt == -1) {
-                            tableModel.addColumn(currentColumn);
-                            currentColumnInt = tableModel.findColumn(currentColumn);
-                        }
-                        tableModel.setValueAt(fieldValues.nextElement(), tableModel.getRowCount() - 1, currentColumnInt);
+                        tableModel.addRow(new Object[]{fieldKeys.nextElement(), fieldValues.nextElement()});
                     }
-                }
-//                }
-//                previousRowCells = (String[]) currentRowCells.clone();
-            }
-            // store the row index 
-            selectedNodesList.add(hashKey);
-        } else {
-            // TODO: display non imdi file
-            System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
-            //try {
-            if (selectedFilesList.size() > 0) {
-                if (selectedFilesList.size() == 1) {
-                    // the document is showing so remove it and add an icon for that node
-                    selectedFilesPanel.removeAll();
-                    selectedFilesPanel.setLayout(new java.awt.FlowLayout());
-                    Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
-                    button.setSize(100, 100);
-                    selectedFilesPanel.add(button);
-                }
-                // add the file to the files panel
-                //Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
-                //button.setSize(100, 100);
-                //selectedFilesPanel.add(button);
-                selectedFilesPanel.add(new JLabel(new ImageIcon(itemImdiTreeObject.getUrl())), BorderLayout.CENTER);
-                System.out.println("added button");
-            } else {
-                javax.swing.JScrollPane viewerScrollPane = new javax.swing.JScrollPane();
-                viewerScrollPane.setName("viewerScrollPane");
-                try {
-                    if (itemImdiTreeObject.getUrl().endsWith(".gif") || itemImdiTreeObject.getUrl().endsWith(".jpg") || itemImdiTreeObject.getUrl().endsWith(".png")) {
-                        JPanel panel = new JPanel(new BorderLayout());
-                        panel.add(new JLabel("image", new ImageIcon(itemImdiTreeObject.getUrl()), SwingConstants.CENTER), BorderLayout.CENTER);
-                        viewerScrollPane.setViewportView(panel);
-                    } else if (itemImdiTreeObject.getUrl().endsWith(".pdf")) {
-                        JPanel panel = new JPanel(new BorderLayout());
-                        viewerScrollPane.setViewportView(panel);
-                        panel.add(new JLabel("PDF"), BorderLayout.NORTH);
-                    } else {
-                        JTextPane fileViewerPane = new javax.swing.JTextPane();
-                        viewerScrollPane.setViewportView(fileViewerPane);
-                        fileViewerPane.setName("viewerTextPane");
-                        fileViewerPane.setPage(itemImdiTreeObject.getUrl());
+                    previousRowCells = itemImdiTreeObject.getFields();
+                } else {
+                    // set the column titles only if not already set
+                    if (previousRowCells != null) {
+                        tableModel.setColumnCount(previousRowCells.size());
+                        tableModel.setColumnIdentifiers(previousRowCells.keySet().toArray());
+                        // clear the current rows
+                        tableModel.setRowCount(0);
+                        // add the row values based on the order of columns being set correctly
+                        tableModel.addRow(previousRowCells.values().toArray());
+                        previousRowCells = null;
                     }
 
-                } catch (Exception ex3) {
-                    System.out.println("Could not show page:" + ex3.getMessage());
+                    if (String.class != itemNode.getUserObject().getClass()) {
+                        tableModel.addRow(new Object[tableModel.getColumnCount()]);
+
+                        Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
+                        Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
+
+                        while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
+                            String currentColumn = fieldKeys.nextElement().toString();
+                            int currentColumnInt = tableModel.findColumn(currentColumn);
+                            if (currentColumnInt == -1) {
+                                tableModel.addColumn(currentColumn);
+                                currentColumnInt = tableModel.findColumn(currentColumn);
+                            }
+                            tableModel.setValueAt(fieldValues.nextElement(), tableModel.getRowCount() - 1, currentColumnInt);
+                        }
+                    }
+//                }
+//                previousRowCells = (String[]) currentRowCells.clone();
                 }
-                selectedFilesPanel.setLayout(new java.awt.BorderLayout());
-                selectedFilesPanel.add(viewerScrollPane);
+                // store the row index 
+                selectedNodesList.add(hashKey);
+            } else {
+                // TODO: display non imdi file
+                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
+                //try {
+                if (selectedFilesList.size() > 0) {
+                    if (selectedFilesList.size() == 1) {
+                        // the document is showing so remove it and add an icon for that node
+                        selectedFilesPanel.removeAll();
+                        selectedFilesPanel.setLayout(new java.awt.FlowLayout());
+                        Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
+                        button.setSize(100, 100);
+                        selectedFilesPanel.add(button);
+                    }
+// add the file to the files panel
+//Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
+//button.setSize(100, 100);
+//selectedFilesPanel.add(button);
+                    selectedFilesPanel.add(new JLabel(new ImageIcon(itemImdiTreeObject.getUrl())), BorderLayout.CENTER);
+                    System.out.println("added button");
+                } else {
+                    javax.swing.JScrollPane viewerScrollPane = new javax.swing.JScrollPane();
+                    viewerScrollPane.setName("viewerScrollPane");
+                    try {
+                        if (itemImdiTreeObject.getUrl().endsWith(".gif") || itemImdiTreeObject.getUrl().endsWith(".jpg") || itemImdiTreeObject.getUrl().endsWith(".png")) {
+                            JPanel panel = new JPanel(new BorderLayout());
+                            panel.add(new JLabel("image", new ImageIcon(itemImdiTreeObject.getUrl()), SwingConstants.CENTER), BorderLayout.CENTER);
+                            viewerScrollPane.setViewportView(panel);
+                        } else if (itemImdiTreeObject.getUrl().endsWith(".pdf")) {
+                            JPanel panel = new JPanel(new BorderLayout());
+                            viewerScrollPane.setViewportView(panel);
+                            panel.add(new JLabel("PDF"), BorderLayout.NORTH);
+                        } else {
+                            JTextPane fileViewerPane = new javax.swing.JTextPane();
+                            viewerScrollPane.setViewportView(fileViewerPane);
+                            fileViewerPane.setName("viewerTextPane");
+                            fileViewerPane.setPage(itemImdiTreeObject.getUrl());
+                        }
+
+                    } catch (Exception ex3) {
+                        System.out.println("Could not show page:" + ex3.getMessage());
+                    }
+                    selectedFilesPanel.setLayout(new java.awt.BorderLayout());
+                    selectedFilesPanel.add(viewerScrollPane);
+                }
+                selectedFilesPanel.validate();
+                selectedFilesPanel.repaint();
+                selectedFilesList.add(hashKey);
             }
-            selectedFilesPanel.validate();
-            selectedFilesPanel.repaint();
-            selectedFilesList.add(hashKey);
         }
     }
 
