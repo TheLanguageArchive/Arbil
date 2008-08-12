@@ -89,7 +89,7 @@ public class GuiHelper {
 
         jScrollPane6.setViewportView(jTable1);
 
-        gridViewInternalFrame.add(jScrollPane6, BorderLayout.CENTER);
+        gridViewInternalFrame.getContentPane().add(jScrollPane6, BorderLayout.CENTER);
 
 //        javax.swing.GroupLayout gridViewInternalFrameLayout = new javax.swing.GroupLayout(gridViewInternalFrame.getContentPane());
 //        gridViewInternalFrame.getContentPane().setLayout(gridViewInternalFrameLayout);

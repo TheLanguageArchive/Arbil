@@ -162,12 +162,15 @@ public class LinorgView extends JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         localDirectoryTree = new javax.swing.JTree();
         rightSplitPane = new javax.swing.JSplitPane();
+        jDesktopPane1 = new javax.swing.JDesktopPane();
+        jInternalFrame3 = new javax.swing.JInternalFrame();
         jScrollPane6 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        selectedFilesScrollPane = new javax.swing.JScrollPane();
+//        selectedFilesScrollPane = new javax.swing.JScrollPane();
         selectedFilesPanel = new javax.swing.JPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
+        javax.swing.JMenu windowMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
@@ -187,6 +190,11 @@ public class LinorgView extends JFrame {
         jScrollPane8 = new javax.swing.JScrollPane();
         imdiFieldSettingsTable = new javax.swing.JTable();
         viewMenuButtonGroup = new javax.swing.ButtonGroup();
+//        gridPopupMenu = new javax.swing.JPopupMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+//        treePopupMenu = new javax.swing.JPopupMenu();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -197,6 +205,7 @@ public class LinorgView extends JFrame {
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
+        //remoteCorpusTree.setComponentPopupMenu(treePopupMenu);
         remoteCorpusTree.setModel(remoteCorpusTreeModel);
         remoteCorpusTree.setName("remoteCorpusTree"); // NOI18N
         remoteCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
@@ -223,6 +232,7 @@ public class LinorgView extends JFrame {
 
         jScrollPane2.setName("jScrollPane2"); // NOI18N
 
+        //localCorpusTree.setComponentPopupMenu(treePopupMenu);
         localCorpusTree.setModel(localCorpusTreeModel);
         localCorpusTree.setName("localCorpusTree"); // NOI18N
         localCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
@@ -246,6 +256,7 @@ public class LinorgView extends JFrame {
 
         jScrollPane3.setName("jScrollPane3"); // NOI18N
 
+        //localDirectoryTree.setComponentPopupMenu(treePopupMenu);
         localDirectoryTree.setModel(localDirectoryTreeModel);
         localDirectoryTree.setName("localDirectoryTree"); // NOI18N
         localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
@@ -277,18 +288,39 @@ public class LinorgView extends JFrame {
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         rightSplitPane.setName("rightSplitPane"); // NOI18N
 
+        jDesktopPane1.setName("jDesktopPane1"); // NOI18N
+
+        jInternalFrame3.setClosable(true);
+        jInternalFrame3.setIconifiable(true);
+        jInternalFrame3.setMaximizable(true);
+        jInternalFrame3.setName("jInternalFrame3"); // NOI18N
+        jInternalFrame3.setRequestFocusEnabled(false);
+        jInternalFrame3.setVisible(true);
+
+        selectedFilesPanel.setName("selectedFilesPanel"); // NOI18N
+        jInternalFrame3.getContentPane().add(selectedFilesPanel, java.awt.BorderLayout.PAGE_START);
+
+        jInternalFrame3.setBounds(0, 0, 641, 256);
+        jDesktopPane1.add(jInternalFrame3, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        try {
+            jInternalFrame3.setMaximum(true);
+        } catch (java.beans.PropertyVetoException e1) {
+            e1.printStackTrace();
+        }
+        rightSplitPane.setRightComponent(jDesktopPane1);
         jScrollPane6.setName("jScrollPane6"); // NOI18N
 
         jTable1.setModel(tableModel);
+        //jTable1.setComponentPopupMenu(gridPopupMenu);
         jTable1.setName("jTable1"); // NOI18N
         jScrollPane6.setViewportView(jTable1);
 
         rightSplitPane.setLeftComponent(jScrollPane6);
-        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
+//        selectedFilesScrollPane.setName("selectedFilesScrollPane"); // NOI18N
         selectedFilesPanel.setName("selectedFilesPanel"); // NOI18N
         selectedFilesPanel.setLayout(new java.awt.FlowLayout());
-        selectedFilesScrollPane.add(selectedFilesPanel);
-        rightSplitPane.setBottomComponent(selectedFilesPanel);
+        //selectedFilesScrollPane.add(selectedFilesPanel);
+        //rightSplitPane.setBottomComponent(selectedFilesPanel);
         mainSplitPane.setRightComponent(rightSplitPane);
 
 //        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
@@ -310,6 +342,7 @@ public class LinorgView extends JFrame {
 //        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setText("File");
         fileMenu.setName("fileMenu"); // NOI18N
+        windowMenu.setText("Window");
 
         //javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(mpi.linorg.Linorg.class).getContext().getActionMap(LinorgView.class, this);
         //jMenuItem1.setAction(actionMap.get("showSettingsDialog")); // NOI18N
@@ -339,6 +372,7 @@ public class LinorgView extends JFrame {
         viewMenu.setText("View");
         viewMenu.setName("viewMenu"); // NOI18N
         menuBar.add(viewMenu);
+        menuBar.add(windowMenu);
 //        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setText("Help");
         helpMenu.setName("helpMenu"); // NOI18N
@@ -414,6 +448,29 @@ public class LinorgView extends JFrame {
         imdiFieldSettingsTable.setName("jTable3"); // NOI18N
         jScrollPane8.setViewportView(imdiFieldSettingsTable);
         jTabbedPane1.addTab("Display Fields", jScrollPane8); // NOI18N
+//        gridPopupMenu.setName("gridPopupMenu"); // NOI18N
+        jMenuItem2.setText("Float current selection"); // NOI18N
+        jMenuItem2.setName("jMenuItem2"); // NOI18N
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+//        gridPopupMenu.add(jMenuItem2);
+        windowMenu.add(jMenuItem2);
+        
+
+//        treePopupMenu.setName("treePopupMenu"); // NOI18N
+
+        jMenuItem3.setText("jMenuItem3"); // NOI18N
+        jMenuItem3.setName("jMenuItem3"); // NOI18N
+//        treePopupMenu.add(jMenuItem3);
+        windowMenu.add(jMenuItem3);
+
+        jMenuItem4.setText("jMenuItem4"); // NOI18N
+        jMenuItem4.setName("jMenuItem4"); // NOI18N
+//        treePopupMenu.add(jMenuItem4);
+        windowMenu.add(jMenuItem4);
         this.setJMenuBar(menuBar);
     //this.getContentPane().add(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
@@ -481,8 +538,27 @@ public class LinorgView extends JFrame {
         statusMessageLabel.setText("");
         System.out.println(evt.isAddedPath());
     }//GEN-LAST:event_jTreeValueChanged
+
+private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+// TODO add your handling code here:
+    //gridPopupMenu.setVisible(false);
+    //setComponent(mainPanel);
+    
+    javax.swing.JInternalFrame freshPane = guiHelper.floatCurrentGrid(tableModel);
+    freshPane.setSize(300, 300);
+    //freshPane.setLocation();
+    
+    jDesktopPane1.add(freshPane, 0);
+    
+}//GEN-LAST:event_jMenuItem2ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+//    private javax.swing.JPopupMenu gridPopupMenu;
+    private javax.swing.JDesktopPane jDesktopPane1;
+    private javax.swing.JInternalFrame jInternalFrame3;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -506,11 +582,12 @@ public class LinorgView extends JFrame {
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JSplitPane rightSplitPane;
     private javax.swing.JPanel selectedFilesPanel;
-    private javax.swing.JScrollPane selectedFilesScrollPane;
+//    private javax.swing.JScrollPane selectedFilesScrollPane;
     private javax.swing.JDialog settingsjDialog;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
+//    private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JMenu viewMenu;
     private javax.swing.ButtonGroup viewMenuButtonGroup;
     // End of variables declaration//GEN-END:variables
