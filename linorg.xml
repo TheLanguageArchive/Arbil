@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project name="Linorg" default="compile">
+    <property name="source_dir" value="../../../../src/java/"/>
+    <property name="lib_dir" value="../../../../webapps/lib/"/>    
+    
+    <target name="all" depends="clean, clobber, compile, jar, run" description="clean, build, jar and run"/>
+    
+    <target name="clean" description="remove intermediate files">
+        <delete dir="classes"/>
+    </target>
+    
+    <target name="clobber" depends="clean" description="remove all artifact files">
+        <delete file="linorg.jar"/>
+    </target>
+    
+    <target name="compile" description="compile the Java source code to class files">
+        <mkdir dir="classes"/>
+        <javac target="1.5" debug="on" includes="mpi/linorg/*" srcdir="${source_dir}" destdir="classes">
+            <classpath>
+                <fileset dir="${lib_dir}" includes="*.jar"/>
+            </classpath>
+        </javac>
+    </target>
+    
+    <target name="jar" depends="compile" description="create a Jar file">
+        <jar destfile="linorg.jar">
+            <fileset dir="classes" includes="**/*.class"/>
+            <zipfileset dir="${lib_dir}" includes="**/*.class"/>
+            <manifest>
+                <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <target name="run" description="run the application">
+        <java classname="mpi.linorg.Linorg">
+            <classpath>
+                <pathelement location="linorg.jar"/>
+                <fileset dir="${lib_dir}" includes="*.jar"/>
+            </classpath>
+        </java>
+    </target>  
+    
+</project>
+ 
