@@ -5,17 +5,44 @@
 package mpi.linorg;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
  *
@@ -23,14 +50,97 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class GuiHelper {
 
-    ImdiHelper imdiHelper = new ImdiHelper();
-    private Vector selectedNodesList = new Vector();
-    private Vector selectedFilesList = new Vector();
-    int currentFieldListIndex = 1; // this variable sets the fields from the imdi file that are shown in the grid
-    private Vector imdiFieldLists = new Vector();
+    private ImdiHelper imdiHelper;
+    public ImdiFieldViews imdiFieldViews; // TODO: decide if this should be private
+    private LinorgSessionStorage linorgSessionStorage;
+    private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
+    private Vector locationsList; // this is the list of locations seen in the tree and the location settings
+    private Hashtable locationTreeNodes = new Hashtable(); // this is used to find the location tree node when it is to be removed via the ulr
+//    MapView mapView;
+    JPanel selectedFilesPanel;
+    LinorgWindowManager linorgWindowManager;
+    // create a clip board owner for copy and paste actions
+    ClipboardOwner clipboardOwner = new ClipboardOwner() {
 
-    public GuiHelper() {
-        loadImdiFieldLists();
+        public void lostOwnership(Clipboard clipboard, Transferable contents) {
+            System.out.println("lost clipboard ownership");
+        //throw new UnsupportedOperationException("Not supported yet.");
+        }
+    };
+
+    public GuiHelper(LinorgSessionStorage tempLinorgSessionStorage) {
+        linorgSessionStorage = tempLinorgSessionStorage;
+        imdiHelper = new ImdiHelper(linorgSessionStorage);
+        imdiFieldViews = new ImdiFieldViews(linorgSessionStorage);
+        loadLocationsList();
+    }
+
+    public void setWindowManager(LinorgWindowManager localLinorgWindowManager) {
+        linorgWindowManager = localLinorgWindowManager;
+    }
+
+    public void saveState() {
+        imdiHelper.saveMd5sumIndex();
+        imdiFieldViews.saveViewsToFile();
+        try {
+            linorgSessionStorage.saveObject(locationsList, "locationsList");
+            System.out.println("saved locationsList");
+        } catch (Exception ex) {
+            System.out.println("save locationsList exception: " + ex.getMessage());
+        }
+    }
+
+    public int addDefaultCorpusLocations() {
+        int addedCount = 0;
+        if (addLocation("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi")) {
+            addedCount++;
+        }
+        return addedCount;
+    }
+
+    private void loadLocationsList() {
+        try {
+            locationsList = (Vector) linorgSessionStorage.loadObject("locationsList");
+        } catch (Exception ex) {
+            System.out.println("load locationsList exception: " + ex.getMessage());
+        }
+        if (locationsList == null) {
+            locationsList = new Vector();
+//            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
+//            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
+//            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
+//            locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
+//            //locationsList.add("http://lux16.mpi.nl/corpora/ac-ESF/Info/ladfc2.txt");
+//            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
+//            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Comprehension/Elizabeth_Johnson/Corpusstructure/1.imdi");
+//            //locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
+            addDefaultCorpusLocations();
+            System.out.println("created new locationsList");
+        }
+    }
+
+    public void initViewMenu(javax.swing.JMenu viewMenu) {
+        ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
+        //String[] viewLabels = guiHelper.imdiFieldViews.getSavedFieldViewLables();
+        for (Enumeration menuItemName = imdiFieldViews.getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
+            String currentMenuName = menuItemName.nextElement().toString();
+            javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
+            viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
+            viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
+            viewLabelRadioButtonMenuItem.setSelected(imdiFieldViews.getCurrentGlobalViewName().equals(currentMenuName));
+            viewLabelRadioButtonMenuItem.setText(currentMenuName);
+            viewLabelRadioButtonMenuItem.setName(currentMenuName);
+            viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    imdiFieldViews.setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+                }
+            });
+            viewMenu.add(viewLabelRadioButtonMenuItem);
+        }
     }
 
     public DefaultMutableTreeNode getImdiTreeNode(String urlString) {
@@ -40,15 +150,45 @@ public class GuiHelper {
         treeNode.setAllowsChildren(imdiTreeObject.isImdi() || imdiTreeObject.isDirectory());
         return treeNode;
     }
+// date filter code
+    public void updateDateSlider(JSlider dateSlider) {
+        if (imdiHelper.minNodeDate == null) {
+            System.out.println("global node date is null");
+            return;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(imdiHelper.minNodeDate);
+        int startYear = calendar.get(Calendar.YEAR);
+        dateSlider.setMinimum(startYear);
+        calendar.setTime(imdiHelper.maxNodeDate);
+        int endYear = calendar.get(Calendar.YEAR);
+        dateSlider.setMaximum(endYear);
+    }
 
+    public void filterByDate(DefaultMutableTreeNode itemNode, int sliderValue) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, sliderValue);
+        Enumeration childNodes = itemNode.children();
+        while (childNodes.hasMoreElements()) {
+            Object tempNodeObject = ((DefaultMutableTreeNode) childNodes.nextElement()).getUserObject();
+            System.out.println("filterByDate: " + tempNodeObject.toString());
+            if (imdiHelper.isImdiNode(tempNodeObject)) {
+                ((ImdiHelper.ImdiTreeObject) tempNodeObject).setMinDate(calendar.getTime());
+            } else {
+                System.out.println("not an imdi node: " + tempNodeObject.toString());
+            }
+        }
+    }
+// end date filter code
     public void getImdiChildNodes(DefaultMutableTreeNode itemNode) {
         if (itemNode.getChildCount() == 0) {
-            if (String.class != itemNode.getUserObject().getClass()) {
+            if (imdiHelper.isImdiNode(itemNode.getUserObject())) {
                 ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
                 if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
                     System.out.println("file to be opened");
                 } else {
-                    ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(getCurrentFieldArray());
+                    //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
+                    ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes();
                     for (int childCount = 0; childCount < childNodes.length; childCount++) {
                         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
                         treeNode.setAllowsChildren(childNodes[childCount].isImdi() || childNodes[childCount].isDirectory());
@@ -58,306 +198,714 @@ public class GuiHelper {
             }
         }
     }
-    private Hashtable previousRowCells; // this is used to add the first row when the table changes from single to multiple mode
 
-    public javax.swing.JInternalFrame floatCurrentGrid(DefaultTableModel tableModel) {
-        javax.swing.JInternalFrame gridViewInternalFrame = new javax.swing.JInternalFrame();
-        gridViewInternalFrame.setSize(300, 300);
-        gridViewInternalFrame.setClosable(true);
-        gridViewInternalFrame.setIconifiable(true);
-        gridViewInternalFrame.setResizable(true);
-        gridViewInternalFrame.setTitle("internal frame data grid copy");
-        gridViewInternalFrame.setToolTipText("toolTipText");
-        gridViewInternalFrame.setName("gridViewInternalFrame");
-        gridViewInternalFrame.setVisible(true);
+    public void copyBranchToCashe(JDesktopPane destinationComp, Object selectedNodeUserObject) {
+        String dialogTitle = "Copy Brach";
+        if (imdiHelper.isImdiNode(selectedNodeUserObject)) {
+            boolean moreToLoad = true;
+            while (moreToLoad) {
+                int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) selectedNodeUserObject).getChildCount();
+                System.out.println("children not loaded: " + tempChildCountArray[0] + " loaded:" + tempChildCountArray[1]);
+                moreToLoad = (tempChildCountArray[0] != 0);
+                if (moreToLoad) {
+                    if (0 != JOptionPane.showConfirmDialog(destinationComp, tempChildCountArray[0] + " out of " + (tempChildCountArray[0] + tempChildCountArray[1]) + "nodes are not loaded\ndo you want to continue?", "Loading Children", 0)) {
+                        return;
+                    }
+                    ((ImdiHelper.ImdiTreeObject) selectedNodeUserObject).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5);
+                }
+            }
+            //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
+            String destinationDirectory = linorgSessionStorage.storageDirectory + File.separatorChar + "imdicache";
+            File destinationFile = new File(destinationDirectory);
+            boolean cacheDirExists = destinationFile.exists();
+            if (!cacheDirExists) {
+                cacheDirExists = destinationFile.mkdir();
+            }
+            //destinationDirectory = destinationDirectory + File.separator + mirrorNameString;
+            //boolean brachDirCreated = (new File(destinationDirectory)).mkdir();
+            // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
+            if (cacheDirExists) {
+                destinationDirectory = destinationDirectory + File.separatorChar;
+                JOptionPane.showMessageDialog(destinationComp, "Saving to: " + destinationDirectory, dialogTitle, 0);
+                String newNodeLocation = ((ImdiHelper.ImdiTreeObject) selectedNodeUserObject).saveBrachToLocal(destinationDirectory);
+                if (newNodeLocation != null) {
+                    addLocation("file://" + newNodeLocation);
+                // TODO: create an imdinode to contain the name and point to the location
+                }
+            } else {
+                JOptionPane.showMessageDialog(destinationComp, "Could not create the local directory", dialogTitle, 0);
+            }
+        }
+    }
 
+    public void searchSelectedNodes(Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
+        int[] childCountArray = new int[]{0, 0};
+        int messageIconIndex = 0;
+        if (selectedNodes.size() == 0) {
+            JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", messageIconIndex);
+            return;
+        } else {
+            SearchDialog searchDialog = new SearchDialog(JOptionPane.getFrameForComponent(linorgWindowManager.desktopPane), selectedNodes, searchString);
+        //Hashtable foundNodes = searchDialog.getFoundNodes();
+//            if (foundNodes.size() > 0) {
+//                String frameTitle;
+//                if (selectedNodes.size() == 1) {
+//                    frameTitle = "Found: " + searchString + " x " + foundNodes.size() + " in " + selectedNodes.get(0).toString();
+//                } else {
+//                    frameTitle = "Found: " + searchString + " x " + foundNodes.size() + " in " + selectedNodes.size() + " nodes";
+//                }
+//                openFloatingTable(foundNodes.elements(), frameTitle, jPopupMenu);
+//            } else {
+//                JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "\"" + searchString + "\" not found", "Search", messageIconIndex);
+//            }
+        }
+
+    // count selected nodes and then their child node indicating unopened nodes
+    // iterate over allthe selected nodes in the localCorpusTree
+//        Enumeration selectedNodesEnum = selectedNodes.elements();
+//        while (selectedNodesEnum.hasMoreElements()) {
+//            Object currentElement = selectedNodesEnum.nextElement();
+//            if (imdiHelper.isImdiNode(currentElement)) {
+//                int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) currentElement).getChildCount();
+//                childCountArray[0] += tempChildCountArray[0];
+//                childCountArray[1] += tempChildCountArray[1];
+//                System.out.println("children not loaded: " + childCountArray[0] + " loaded:" + childCountArray[1]);
+//            }
+//        }
+
+//        if (childCountArray[0] > 0 || childCountArray[1] == 0) {
+//            if (selectedNodes.size() == 0) {
+//                JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", messageIconIndex);
+//                return;
+//            }
+//            if (childCountArray[1] == 0) {
+//                JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "Of the selected nodes none have been loaded", "Search", messageIconIndex);
+//                return;
+//            }
+//            if (childCountArray[0] > 0) {
+//                if (0 != JOptionPane.showConfirmDialog(linorgWindowManager.desktopPane, childCountArray[0] + " out of " + (childCountArray[0] + childCountArray[1]) + "nodes are not loaded\ndo you want to continue?", "Search", messageIconIndex)) {
+//                    return;
+//                }
+//            }
+//        }
+
+//        if (searchString == null) {
+//            searchString = JOptionPane.showInputDialog(linorgWindowManager.desktopPane, "Enter search term");
+//        }
+
+//        // iterate over all the selected nodes in the localCorpusTree
+//        Hashtable foundNodes = new Hashtable();
+//        selectedNodesEnum = selectedNodes.elements();
+//        // show a progress dialog
+////        int lengthOfTask = selectedNodes.size();
+////        int progressInTask = 0;
+////        ProgressMonitor progressMonitor = new ProgressMonitor(destinationComp, "Searching selected nodes and (loaded)subnodes", "", 0, lengthOfTask);
+//        while (selectedNodesEnum.hasMoreElements()) {
+//            Object currentElement = selectedNodesEnum.nextElement();
+//            if (imdiHelper.isImdiNode(currentElement)) {
+//                System.out.println("parentNode: " + currentElement);
+//                ((ImdiHelper.ImdiTreeObject) currentElement).searchNodes(foundNodes, searchString);
+//            // update the progress dialog
+////                String message = String.format("done " + progressInTask + " of " + lengthOfTask);//"Completed %d%%.\n", progressInTask);
+////                progressMonitor.setNote(message);
+////                progressMonitor.setProgress(progressInTask);
+////                progressInTask++;
+////                if (progressMonitor.isCanceled()) {
+////                    progressMonitor.close();
+////                    break;
+////                }
+////            JOptionPane.showMessageDialog(destinationComp, "done " + progressInTask + " of " + lengthOfTask);
+//            }
+//        }
+//        //progressMonitor.close();
+
+//        System.out.println("done");
+    }
+
+    public void openImdiXmlWindow(Object userObject) {
+        if (imdiHelper.isImdiNode(userObject)) {
+            String nodeUrl = ((ImdiHelper.ImdiTreeObject) (userObject)).getUrl();
+            String nodeName = ((ImdiHelper.ImdiTreeObject) (userObject)).toString();
+            linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+        }
+    }
+    private JTable targetTable = null; // this is used to track the originator of the table's menu actions, this method is not preferable however the menu event does not pass on the originator
+    //private int targetRow;
+    private int targetColumn;
+
+    public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle, final JPopupMenu jPopupMenu /* this final is not originally declared final and should be checked */) {
         javax.swing.JTable jTable1;
         javax.swing.JScrollPane jScrollPane6;
         jScrollPane6 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        jTable1 = new javax.swing.JTable() {
+
+//            public TableCellEditor getCellEditor(int row, int column) {
+//                if (column == 2) {
+//                    JComboBox comboBox = new JComboBox();
+//                    comboBox.addItem("Item 1");
+//                    comboBox.addItem("Item 2");
+//                    comboBox.addItem("Item 3");
+//                    comboBox.addItem("Item 4");
+//                    comboBox.addItem("Item 5");
+//                    comboBox.addItem("Item 6");
+//                    return new DefaultCellEditor(comboBox);
+//                }
+//                if (column == 3) {
+//                    //openFloatingTable(this, getImdiTableModel({new ImdiHelper.ImdiTreeObject("one", null), new ImdiHelper.ImdiTreeObject("one", null)}), frameTitle, jPopupMenu);
+//                }
+//                return super.getCellEditor(row, column);
+//            }
+            // this cell renderer may have caused redraw issues
+//            public TableCellRenderer getCellRenderer(int row, int column) {
+//                if (column == 3 && (row == 2 || row == 0)) {
+//                    TableCellRenderer listTableCellRenderer = new TableCellRenderer() {
+//
+//                        public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus, int row, int column) {
+//                            JList cellList;
+//                            if (row == 0) {
+//                                cellList = new JList(new Object[]{"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"});
+//                            } else {
+//                                cellList = new JList(new Object[]{"Item 1", "Item 2", "Item 5"});
+//                            }
+//                            //cellListHeight = cellList.getPreferredSize().height;
+//                            table.setRowHeight(row, cellList.getPreferredSize().height);
+//                            return cellList;
+//                        }
+//                    };
+////                    if (cellListHeight > super.getRowHeight()) {
+////                        super.setRowHeight(row, cellListHeight);
+////                    }
+////                        public Component getTableCellRendererComponent(JTable jTable,
+////                                Object obj, boolean isSelected, boolean hasFocus, int row,
+////                                int column) {
+////                            setText((String) obj);
+////                            int height_wanted = (int) getPreferredSize().getHeight();
+////                            if (height_wanted != jTable.getRowHeight(row)) {
+////                                jTable.setRowHeight(row, height_wanted);
+////                            }
+////                            return this;
+////                        }
+//                    return listTableCellRenderer;
+//                } //                if (row == 5) {
+//                //                    setBackground(Color.green);
+//                //                }
+//                return super.getCellRenderer(row, column);
+//            }
+            //Implement table cell tool tips.
+            public String getToolTipText(MouseEvent e) {
+                String tip = null;
+                java.awt.Point p = e.getPoint();
+                int rowIndex = rowAtPoint(p);
+                int colIndex = columnAtPoint(p);
+                int realColumnIndex = convertColumnIndexToModel(colIndex);
+                tip = getValueAt(rowIndex, colIndex).toString();
+                return tip;
+            }
+            //Implement table header tool tips.
+            protected JTableHeader createDefaultTableHeader() {
+                return new JTableHeader(columnModel) {
+
+                    public String getToolTipText(MouseEvent e) {
+                        String tip = null;
+                        java.awt.Point p = e.getPoint();
+                        int index = columnModel.getColumnIndexAtX(p.x);
+                        //int realIndex = columnModel.getColumn(index).getModelIndex();
+                        return "Description of how to use the " + getColumnName(index) + " colomn.";
+                    }
+                };
+            }
+        };
 
         //jTable1.setAutoCreateRowSorter(true);
 
-        Vector columnNames = new Vector();
-
-        for (int columnCount = 0; columnCount < tableModel.getColumnCount(); columnCount++) {
-            columnNames.add(tableModel.getColumnName(columnCount));
-        }
-
-        jTable1.setModel(new DefaultTableModel(tableModel.getDataVector(), columnNames));
+        ImdiHelper.ImdiTableModel imdiTableModel = imdiHelper.getImdiTableModel();
+        imdiTableModel.setShowIcons(true);
+        imdiTableModel.addImdiObjects(rowNodesEnum);
+        jTable1.setModel(imdiTableModel);
         jTable1.setName("jTable1");
+        //jTable1.doLayout();
+        //jTable1.getModel().
+        //jTable1.invalidate();
 
-        jScrollPane6.setViewportView(jTable1);
+        setColumnWidths(jTable1, imdiTableModel);
 
-        gridViewInternalFrame.getContentPane().add(jScrollPane6, BorderLayout.CENTER);
+        jTable1.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 
-//        javax.swing.GroupLayout gridViewInternalFrameLayout = new javax.swing.GroupLayout(gridViewInternalFrame.getContentPane());
-//        gridViewInternalFrame.getContentPane().setLayout(gridViewInternalFrameLayout);
-//        gridViewInternalFrameLayout.setHorizontalGroup(
-//                gridViewInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(0, 279, Short.MAX_VALUE));
-//        gridViewInternalFrameLayout.setVerticalGroup(
-//                gridViewInternalFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(0, 182, Short.MAX_VALUE));
-        return gridViewInternalFrame;
-    }
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                System.out.println("table header click");
+                targetColumn = ((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()));
+                targetTable = ((JTableHeader) evt.getComponent()).getTable();
+                if (evt.getButton() == MouseEvent.BUTTON1) {
+                    ((ImdiHelper.ImdiTableModel) targetTable.getModel()).sortByColumn(targetColumn);
+                }
+                System.out.println("columnIndex: " + targetColumn);
+                if (evt.getButton() == MouseEvent.BUTTON3) {
+                    targetTable = ((JTableHeader) evt.getComponent()).getTable();
+                    System.out.println("columnIndex: " + targetColumn);
 
-    public void addToGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JPanel selectedFilesPanel) {
-        getImdiChildNodes(itemNode); // load the child nodes and the fields for each
-        if (itemNode.getUserObject().getClass() == ImdiHelper.ImdiTreeObject.class) {
-            ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
-            String hashKey = itemImdiTreeObject.getUrl();
+                    JPopupMenu popupMenu = new JPopupMenu();
 
-            System.out.println("hashkey: " + hashKey);
+                    JMenuItem hideColumnMenuItem = new JMenuItem("Hide column: \"" + targetTable.getColumnName(targetColumn) + "\"");
+                    hideColumnMenuItem.addActionListener(new ActionListener() {
 
-            if (itemImdiTreeObject.isImdi()) {
-                //String[] rowNames = itemImdiTreeObject.getFields().keys()//getCurrentFieldArray();
-                //System.out.println("rowNames: " + rowNames.toString());
-                boolean multipleRowMode = (0 < tableModel.getRowCount());
-                // if there is only one node to show then set up the table for single display
-                if (!multipleRowMode) {
-                    // set the column titles only if not already set 
-                    if (tableModel.getColumnCount() != 2) {
-                        tableModel.setColumnCount(2);
-                        tableModel.setColumnIdentifiers(new String[]{"Name", "Value"});
-                    }
-                    // clear the current rows
-                    tableModel.setRowCount(0);
-                    // add the new data
-                    Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
-                    Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("hideColumnMenuItem: " + targetTable.toString());
+                            ((ImdiHelper.ImdiTableModel) targetTable.getModel()).hideColumn(targetColumn);
+                        }
+                    });
 
-                    while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
-                        tableModel.addRow(new Object[]{fieldKeys.nextElement(), fieldValues.nextElement()});
-                    }
-                    previousRowCells = itemImdiTreeObject.getFields();
-                } else {
-                    // set the column titles only if not already set
-                    if (previousRowCells != null) {
-                        tableModel.setColumnCount(previousRowCells.size());
-                        tableModel.setColumnIdentifiers(previousRowCells.keySet().toArray());
-                        // clear the current rows
-                        tableModel.setRowCount(0);
-                        // add the row values based on the order of columns being set correctly
-                        tableModel.addRow(previousRowCells.values().toArray());
-                        previousRowCells = null;
-                    }
+                    JMenuItem saveViewMenuItem = new JMenuItem("Save this view");
+                    saveViewMenuItem.addActionListener(new ActionListener() {
 
-                    if (String.class != itemNode.getUserObject().getClass()) {
-                        tableModel.addRow(new Object[tableModel.getColumnCount()]);
-
-                        Enumeration fieldValues = itemImdiTreeObject.getFields().elements();
-                        Enumeration fieldKeys = itemImdiTreeObject.getFields().keys();
-
-                        while (fieldKeys.hasMoreElements() && fieldValues.hasMoreElements()) {
-                            String currentColumn = fieldKeys.nextElement().toString();
-                            int currentColumnInt = tableModel.findColumn(currentColumn);
-                            if (currentColumnInt == -1) {
-                                tableModel.addColumn(currentColumn);
-                                currentColumnInt = tableModel.findColumn(currentColumn);
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("saveViewNenuItem: " + targetTable.toString());
+                            String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this view as", "Save View", JOptionPane.PLAIN_MESSAGE);
+                            // if the user did not cancel
+                            if (fieldViewName != null) {
+                                if (!imdiFieldViews.addImdiFieldView(fieldViewName, ((ImdiHelper.ImdiTableModel) targetTable.getModel()).getFieldView())) {
+                                    JOptionPane.showMessageDialog(null, "A View with the same name already exists, nothing saved");
+                                }
                             }
-                            tableModel.setValueAt(fieldValues.nextElement(), tableModel.getRowCount() - 1, currentColumnInt);
                         }
+                    });
+
+                    JMenuItem editViewMenuItem = new JMenuItem("Edit this view");
+                    editViewMenuItem.addActionListener(new ActionListener() {
+
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("editViewNenuItem: " + targetTable.toString());
+                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(linorgWindowManager.desktopPane), true);
+                            Container dialogcontainer = editViewsDialog.getContentPane();
+                            dialogcontainer.setLayout(new BorderLayout());
+                            editViewsDialog.setSize(600, 400);
+                            editViewsDialog.setBounds(50, 50, 600, 400);
+                            TableModel tableModel = imdiFieldViews.getImdiFieldViewTableModel(((ImdiHelper.ImdiTableModel) targetTable.getModel()).getFieldView());
+                            tableModel.addTableModelListener(new TableModelListener() {
+
+                                private JTable dilalogTargetTable = targetTable;
+
+                                public void tableChanged(TableModelEvent e) {
+                                    TableModel localTableModel = (TableModel) e.getSource();
+                                    String targetColumnName = localTableModel.getValueAt(e.getFirstRow(), 0).toString();
+                                    boolean booleanState = localTableModel.getValueAt(e.getFirstRow(), e.getColumn()).equals(true);
+//                                    System.out.println("name: " + targetColumnName);
+//                                    System.out.println("value: " + booleanState);
+//                                    System.out.println("pos: " + e.getColumn());
+                                    switch (e.getColumn()) {
+                                        case 2:
+                                            if (booleanState) {
+                                                ((ImdiHelper.ImdiTableModel) targetTable.getModel()).getFieldView().addShowOnlyColumn(targetColumnName);
+                                            } else {
+                                                ((ImdiHelper.ImdiTableModel) targetTable.getModel()).getFieldView().removeShowOnlyColumn(targetColumnName);
+                                            }
+                                        case 3:
+                                            if (booleanState) {
+                                                ((ImdiHelper.ImdiTableModel) targetTable.getModel()).getFieldView().addHiddenColumn(targetColumnName);
+                                            } else {
+                                                ((ImdiHelper.ImdiTableModel) targetTable.getModel()).getFieldView().removeHiddenColumn(targetColumnName);
+                                            }
+                                        case 4:
+                                    }
+                                    ((ImdiHelper.ImdiTableModel) targetTable.getModel()).reloadTableData();
+                                //                                  throw new UnsupportedOperationException("Not supported yet.");
+                                }
+                            });
+                            JTable ordertable = new JTable(tableModel);
+                            JScrollPane js = new JScrollPane(ordertable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                            js.setBounds(10, 10, 550, 350);
+                            dialogcontainer.add(js);
+                            editViewsDialog.add(js);
+                            editViewsDialog.setVisible(true);
+                        }
+                    });
+
+                    JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Show only the current columns");
+                    showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
+
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("saveViewNenuItem: " + targetTable.toString());
+                            ((ImdiHelper.ImdiTableModel) targetTable.getModel()).showOnlyCurrentColumns();
+                        }
+                    });
+
+                    popupMenu.add(showOnlyCurrentViewMenuItem);
+                    //popupMenu.add(applyViewNenuItem);
+                    //popupMenu.add(saveViewMenuItem);
+                    popupMenu.add(editViewMenuItem);
+                    popupMenu.add(saveViewMenuItem);
+                    popupMenu.add(hideColumnMenuItem);
+                    // create the views sub menu
+                    JMenu fieldViewsMenuItem = new JMenu("Apply Saved View");
+                    ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
+                    String currentGlobalViewLabel = imdiFieldViews.currentGlobalViewName;
+                    for (Enumeration savedViewsEnum = imdiFieldViews.getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
+                        String currentViewLabel = savedViewsEnum.nextElement().toString();
+                        javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
+                        viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
+                        viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
+                        viewLabelRadioButtonMenuItem.setSelected(currentGlobalViewLabel.equals(currentViewLabel));
+                        viewLabelRadioButtonMenuItem.setText(currentViewLabel);
+                        viewLabelRadioButtonMenuItem.setName(currentViewLabel);
+                        viewLabelRadioButtonMenuItem.addChangeListener(new javax.swing.event.ChangeListener() {
+
+                            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                                // TODO: this should change the data grid view
+                                //imdiFieldViews.setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+                            }
+                        });
+                        fieldViewsMenuItem.add(viewLabelRadioButtonMenuItem);
                     }
+                    popupMenu.add(fieldViewsMenuItem);
+                    popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                }
+            }
+        });
+
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3) {
+                    targetTable = (JTable) evt.getComponent();
+//                    System.out.println("set the current table");
+                    jPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                }
+            }
+        });
+        jScrollPane6.setViewportView(jTable1);
+        linorgWindowManager.createWindow(frameTitle, jScrollPane6);
+    }
+
+    private void setColumnWidths(JTable localTable, ImdiHelper.ImdiTableModel localImdiTableModel) {
+        int charPixWidth = 100; // this does not need to be accurate but must be more than the number of pixels used to render each character
+        for (int columnCount = 0; columnCount < localImdiTableModel.getColumnCount(); columnCount++) {
+            localTable.getColumnModel().getColumn(columnCount).setPreferredWidth(localImdiTableModel.getColumnLength(columnCount) * charPixWidth);
+            System.out.println("preferedWidth: " + localImdiTableModel.getColumnLength(columnCount));
+        }
+    }
+
+    // TODO: this could be merged witht the add row function
+    public AbstractTableModel getImdiTableModel(Hashtable rowNodes) {
+        ImdiHelper.ImdiTableModel searchTableModel = imdiHelper.getImdiTableModel();
+        searchTableModel.setShowIcons(true);
+        searchTableModel.addImdiObjects(rowNodes.elements());
+        //Enumeration rowNodeEnum = rowNodes.elements();
+        //while (rowNodeEnum.hasMoreElements()) {
+        //searchTableModel.addImdiObject((ImdiHelper.ImdiTreeObject) rowNodeEnum.nextElement());
+        //}
+        return searchTableModel;
+    }
+
+    public AbstractTableModel getImdiTableModel() {
+        ImdiHelper.ImdiTableModel tempModel = imdiHelper.getImdiTableModel();
+        tempModel.setShowIcons(true);
+        return tempModel;
+    }
+
+    public void showRowChildData(JDesktopPane destinationComp) {
+        Object[] possibilities = ((ImdiHelper.ImdiTableModel) targetTable.getModel()).getChildNames();
+        String selectionResult = (String) JOptionPane.showInputDialog(destinationComp, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+
+        if ((selectionResult != null) && (selectionResult.length() > 0)) {
+            ((ImdiHelper.ImdiTableModel) targetTable.getModel()).addChildTypeToDisplay(selectionResult);
+        }
+    }
+
+    public void addToGridData(TableModel tableModel, Vector nodesToAdd) {
+        for (Enumeration nodesToAddEnum = nodesToAdd.elements(); nodesToAddEnum.hasMoreElements();) {
+            // iterate over the and add supplied nodes
+            addToGridData(tableModel, nodesToAddEnum.nextElement());
+//            Object currentObject = nodesToAddEnum.nextElement();
+//            if (imdiHelper.isImdiNode(currentObject)) {
+//                String hashKey = ((ImdiHelper.ImdiTreeObject) currentObject).getUrl();
+//                if (selectedFilesList.containsKey(hashKey)) {
+//                    // remove any image nodes from the image window                
+//                    //System.out.println("removing from images");
+//                    selectedFilesPanel.remove((Component) selectedFilesList.remove(hashKey));
+//                    selectedFilesPanel.revalidate();
+//                    selectedFilesPanel.repaint();
+//                    // remove any map layers
+//                    if (mapView.isGisFile(hashKey)) {
+//                        mapView.removeLayer(hashKey);
+//                    }
 //                }
-//                previousRowCells = (String[]) currentRowCells.clone();
-                }
-                // store the row index 
-                selectedNodesList.add(hashKey);
-            } else {
-                // TODO: display non imdi file
-                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
-                //try {
-                if (selectedFilesList.size() > 0) {
-                    if (selectedFilesList.size() == 1) {
-                        // the document is showing so remove it and add an icon for that node
-                        selectedFilesPanel.removeAll();
-                        selectedFilesPanel.setLayout(new java.awt.FlowLayout());
-                        Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
-                        button.setSize(100, 100);
-                        selectedFilesPanel.add(button);
-                    }
-// add the file to the files panel
-//Button button = new Button("Icon:" + selectedFilesPanel.getComponentCount());
-//button.setSize(100, 100);
-//selectedFilesPanel.add(button);
-                    selectedFilesPanel.add(new JLabel(new ImageIcon(itemImdiTreeObject.getUrl())), BorderLayout.CENTER);
-                    System.out.println("added button");
-                } else {
-                    javax.swing.JScrollPane viewerScrollPane = new javax.swing.JScrollPane();
-                    viewerScrollPane.setName("viewerScrollPane");
-                    try {
-                        if (itemImdiTreeObject.getUrl().endsWith(".gif") || itemImdiTreeObject.getUrl().endsWith(".jpg") || itemImdiTreeObject.getUrl().endsWith(".png")) {
-                            JPanel panel = new JPanel(new BorderLayout());
-                            panel.add(new JLabel("image", new ImageIcon(itemImdiTreeObject.getUrl()), SwingConstants.CENTER), BorderLayout.CENTER);
-                            viewerScrollPane.setViewportView(panel);
-                        } else if (itemImdiTreeObject.getUrl().endsWith(".pdf")) {
-                            JPanel panel = new JPanel(new BorderLayout());
-                            viewerScrollPane.setViewportView(panel);
-                            panel.add(new JLabel("PDF"), BorderLayout.NORTH);
-                        } else {
-                            JTextPane fileViewerPane = new javax.swing.JTextPane();
-                            viewerScrollPane.setViewportView(fileViewerPane);
-                            fileViewerPane.setName("viewerTextPane");
-                            fileViewerPane.setPage(itemImdiTreeObject.getUrl());
-                        }
-
-                    } catch (Exception ex3) {
-                        System.out.println("Could not show page:" + ex3.getMessage());
-                    }
-                    selectedFilesPanel.setLayout(new java.awt.BorderLayout());
-                    selectedFilesPanel.add(viewerScrollPane);
-                }
-                selectedFilesPanel.validate();
-                selectedFilesPanel.repaint();
-                selectedFilesList.add(hashKey);
-            }
+//            }
         }
     }
 
-    public DefaultTableModel removeAllFromGridData(DefaultTableModel tableModel, JPanel selectedFilesPanel) {
-        selectedFilesPanel.removeAll();
-        selectedFilesList.clear();
-        tableModel.setRowCount(0);
-        selectedNodesList.clear();
-        return tableModel;
-    }
-
-    public DefaultTableModel removeFromGridData(DefaultTableModel tableModel, DefaultMutableTreeNode itemNode, JPanel selectedFilesPanel) {
-        if (String.class != itemNode.getUserObject().getClass()) {
-            ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
+    public void addToGridData(TableModel tableModel, Object itemNode) {
+        // there is no point loading the child nodes to display the parent node in a grid, however if the child nodes are requested for display then at that point they will need to be loaded but not at this point
+        //getImdiChildNodes(itemNode); // load the child nodes and the fields for each
+        if (imdiHelper.isImdiNode(itemNode)) {
+            ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode;
             String hashKey = itemImdiTreeObject.getUrl();
-            try {
-                if (itemImdiTreeObject.isImdi()) {
-                    tableModel.removeRow(selectedNodesList.indexOf(hashKey));
-                    selectedNodesList.remove(hashKey);
+            System.out.println("hashkey: " + hashKey);
+            if (itemImdiTreeObject.isImdi()) {
+                ((ImdiHelper.ImdiTableModel) tableModel).addSingleImdiObject(itemImdiTreeObject);
+            }
+            if (!itemImdiTreeObject.isImdi() || itemImdiTreeObject.getResource() != null) {
+                // TODO: display non imdi file
+                // TODO: move the display of resources and files into a separate class
+                // TODO: replace selectedFilesList but using the name propetry of the added component for the purpose of removing it later
+                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
+                String imageFileName;
+                if (itemImdiTreeObject.getResource() != null) {
+                    imageFileName = itemImdiTreeObject.getResource();
                 } else {
-                    selectedFilesPanel.remove(selectedFilesList.indexOf(hashKey));
-                    selectedFilesList.remove(hashKey);
+                    imageFileName = itemImdiTreeObject.getUrl();
                 }
-            } catch (Exception ex) {
-                System.out.println("removeFromGridData failed: " + ex.toString());
+                if (selectedFilesPanel == null) {
+                    selectedFilesPanel = new JPanel();
+                    selectedFilesPanel.setLayout(new java.awt.GridLayout(6, 6));
+                    linorgWindowManager.createWindow("Selected Files", selectedFilesPanel);
+                }
+                imageFileName = imageFileName.replace("file://", "");
+                ImageIcon nodeImage = new ImageIcon(imageFileName);
+                JLabel imageLabel = new JLabel(itemImdiTreeObject.toString(), nodeImage, JLabel.CENTER);
+                //Set the position of the text, relative to the icon:
+                imageLabel.setVerticalTextPosition(JLabel.BOTTOM);
+                imageLabel.setHorizontalTextPosition(JLabel.CENTER);
+                selectedFilesPanel.add(imageLabel);
+                selectedFilesList.put(hashKey, imageLabel);
+                selectedFilesPanel.revalidate();
+                selectedFilesPanel.repaint();
+//                if (mapView == null) {
+//                    mapView = new MapView();
+//                    linorgWindowManager.createWindow("GIS Viewer", mapView);
+//                }
+//                if (mapView.isGisFile(hashKey)) {
+//                    mapView.addLayer(hashKey, imageFileName);
+//                    mapView.setVisible(true);
+//                }
             }
         }
-        return tableModel;
     }
 
-    public String[] getFieldListLables() {
-        String[] labelArray = new String[imdiFieldLists.size()];
-        for (int labelCount = 0; labelCount < imdiFieldLists.size(); labelCount++) {
-            labelArray[labelCount] = ((Object[]) imdiFieldLists.get(labelCount))[0].toString();
+    public void removeAllFromGridData(TableModel tableModel) {
+        System.out.println("removing all images");
+        if (selectedFilesPanel != null) {
+            selectedFilesPanel.removeAll();
+            selectedFilesPanel.revalidate();
+            selectedFilesPanel.repaint();
         }
-        return labelArray;
+//        if (mapView != null) {
+//            mapView.removeAll();
+//        }
+        selectedFilesList.clear();
+        ((ImdiHelper.ImdiTableModel) tableModel).removeAllImdiRows();
     }
 
-    public String[] getCurrentFieldArray() {
-        String fieldNamesString = ((Object[]) imdiFieldLists.get(currentFieldListIndex))[1].toString();
-        String[] returnArray = fieldNamesString.split(",");
-        System.out.println("fieldNamesString: " + fieldNamesString);
-        System.out.println("returnArray: " + returnArray.length);
-        return (returnArray);
-    }
-
-    public void setCurrentFieldListIndex(int currentIndex) {
-        currentFieldListIndex = currentIndex;
-    //System.out.println("currentFieldListIndex: " + currentFieldListIndex);
-    }
-
-    public int getCurrentFieldListIndex() {
-        return currentFieldListIndex;
-    }
-
-    private void loadImdiFieldLists() {
-        imdiFieldLists.add(new Object[]{"Minimal", "Name,Session.Name,Corpus.Name", null});
-        imdiFieldLists.add(new Object[]{"Most things", "Lexicon.Name,Lexicon.Title,Lexicon.Date,Lexicon.Description,Lexicon.Project.Description,Lexicon.Languages.Description,Lexicon.Content.Description,Lexicon.Actors.Description,Lexicon.Actor.Description,Lexicon.Actor(X).Description,Lexicon.Actor.Languages.Description,Lexicon.Actor(X).Languages.Description,Lexicon.Actor.Languages.Language.Description,Lexicon.Actor(X).Languages.Language.Description,Lexicon.Actor.Languages.Language(X).Description,Lexicon.Actor(X).Languages.Language(X).Description,Lexicon.Resource.MetaLanguages.Description,Lexicon.Resource.Description,Lexicon.Anonyms.Access.Description,Lexicon.References.Description,Lexicon.Entry.HeadWordType,Lexicon.Entry.Orthography,Lexicon.Entry.Morphology,Lexicon.Entry.MorphoSyntax,Lexicon.Entry.Syntax,Lexicon.Entry.Phonology,Lexicon.Entry.Semantics,Lexicon.Entry.Etymology,Lexicon.Entry.Usage,Lexicon.Entry.Frequency,Lexicon.Resource.SubjectLanguages,Lexicon.Resource.SubjectLanguages(X),Lexicon.Resource.DocumentLanguages,Lexicon.Resource.DocumentLanguages(X),Session.Participant.Description,Session.Participant.Description(X),Session.Participant(X).Description,Session.Participant(X).Description(X),SelfHandle,Session.Name,Session.Title,Session.Date,Session.Description,Session.Description.LanguageId,Session.Description.Link,Session.Description.Name,Session.Description(X),Session.Description(X).LanguageId,Session.Description(X).Link,Session.Description(X).Name,Session.Location.Continent,Session.Location.Country,Session.Location.Region,Session.Location.Region(X),Session.Location.Address,Session.Location.ExternalResourceReference,Session.Location.ExternalResourceReference.Type,Session.Location.ExternalResourceReference.SubType,Session.Location.ExternalResourceReference.Format,Session.Location.ExternalResourceReference.Link,Session.Location.ExternalResourceReference(X),Session.Location.ExternalResourceReference(X).Type,Session.Location.ExternalResourceReference(X).SubType,Session.Location.ExternalResourceReference(X).Format,Session.Location.ExternalResourceReference(X).Link,Session.Location.Key,Session.Location.Key.Name,Session.Location.Key.Type,Session.Location.Key.Link,Session.Location.Key.DefaultLink,Session.Location.Key(X),Session.Location.Key(X).Name,Session.Location.Key(X).Type,Session.Location.Key(X).Link,Session.Location.Key(X).DefaultLink,Session.Project.Name,Session.Project.Title,Session.Project.Id,Session.Project.Contact.Name,Session.Project.Contact.Address,Session.Project.Contact.Email,Session.Project.Contact.Organisation,Session.Project.Description,Session.Project.Description.LanguageId,Session.Project.Description.Link,Session.Project.Description.Name,Session.Project.Description(X),Session.Project.Description(X).LanguageId,Session.Project.Description(X).Link,Session.Project.Description(X).Name,Session.Project(X).Name,Session.Project(X).Title,Session.Project(X).Id,Session.Project(X).Contact.Name,Session.Project(X).Contact.Address,Session.Project(X).Contact.Email,Session.Project(X).Contact.Organisation,Session.Project(X).Description,Session.Project(X).Description.LanguageId,Session.Project(X).Description.Link,Session.Project(X).Description.Name,Session.Project(X).Description(X),Session.Project(X).Description(X).LanguageId,Session.Project(X).Description(X).Link,Session.Project(X).Description(X).Name,Session.Content.Genre,Session.Content.SubGenre,Session.Content.Interactivity,Session.Content.PlanningType,Session.Content.Involvement,Session.Content.SocialContext,Session.Content.EventStructure,Session.Content.Channel,Session.Content.Task,Session.Content.Task(X),Session.Content.Modalities,Session.Content.Modalities(X),Session.Content.Subject,Session.Content.Subject.Type,Session.Content.Subject.DefaultLink,Session.Content.Subject.Link,Session.Content.Subject.Encoding,Session.Content.Subject(X),Session.Content.Subject(X).Type,Session.Content.Subject(X).DefaultLink,Session.Content.Subject(X).Link,Session.Content.Subject(X).Encoding,Session.Content.Languages.Description,Session.Content.Languages.Description.LanguageId,Session.Content.Languages.Description.Link,Session.Content.Languages.Description.Name,Session.Content.Languages.Description(X),Session.Content.Languages.Description(X).LanguageId,Session.Content.Languages.Description(X).Link,Session.Content.Languages.Description(X).Name,Session.Content.Languages.Language,Session.Content.Languages.Language.Id,Session.Content.Languages.Language.ResourceRef,Session.Content.Languages.Language.Name,Session.Content.Languages.Language.Name(X),Session.Content.Languages.Language.MotherTongue,Session.Content.Languages.Language.PrimaryLanguage,Session.Content.Languages.Language.Dominant,Session.Content.Languages.Language.Description,Session.Content.Languages.Language.Description.LanguageId,Session.Content.Languages.Language.Description.Link,Session.Content.Languages.Language.Description.Name,Session.Content.Languages.Language.Description(X),Session.Content.Languages.Language.Description(X).LanguageId,Session.Content.Languages.Language.Description(X).Link,Session.Content.Languages.Language.Description(X).Name,Session.Content.Languages.Language(X),Session.Content.Languages.Language(X).Id,Session.Content.Languages.Language(X).ResourceRef,Session.Content.Languages.Language(X).Name,Session.Content.Languages.Language(X).Name(X),Session.Content.Languages.Language(X).MotherTongue,Session.Content.Languages.Language(X).PrimaryLanguage,Session.Content.Languages.Language(X).Dominant,Session.Content.Languages.Language(X).Description,Session.Content.Languages.Language(X).Description.LanguageId,Session.Content.Languages.Language(X).Description.Link,Session.Content.Languages.Language(X).Description.Name,Session.Content.Languages.Language(X).Description(X),Session.Content.Languages.Language(X).Description(X).LanguageId,Session.Content.Languages.Language(X).Description(X).Link,Session.Content.Languages.Language(X).Description(X).Name,Session.Content.Description,Session.Content.Description.LanguageId,Session.Content.Description.Link,Session.Content.Description.Name,Session.Content.Description(X),Session.Content.Description(X).LanguageId,Session.Content.Description(X).Link,Session.Content.Description(X).Name,Session.Content.Key,Session.Content.Key.Name,Session.Content.Key.Type,Session.Content.Key.Link,Session.Content.Key.DefaultLink,Session.Content.Key(X),Session.Content.Key(X).Name,Session.Content.Key(X).Type,Session.Content.Key(X).Link,Session.Content.Key(X).DefaultLink,Session.Actors.Description,Session.Actors.Description.LanguageId,Session.Actors.Description.Link,Session.Actors.Description.Name,Session.Actors.Description(X),Session.Actors.Description(X).LanguageId,Session.Actors.Description(X).Link,Session.Actors.Description(X).Name,Session.Actor.ResourceRef,Session.Actor.Role,Session.Actor.FamilySocialRole,Session.Actor.Name,Session.Actor.Name(X),Session.Actor.FullName,Session.Actor.Code,Session.Actor.Languages.Description,Session.Actor.Languages.Description.LanguageId,Session.Actor.Languages.Description.Link,Session.Actor.Languages.Description.Name,Session.Actor.Languages.Description(X),Session.Actor.Languages.Description(X).LanguageId,Session.Actor.Languages.Description(X).Link,Session.Actor.Languages.Description(X).Name,Session.Actor.Language,Session.Actor.Language.Id,Session.Actor.Language.ResourceRef,Session.Actor.Language.Name,Session.Actor.Language.Name(X),Session.Actor.Language.MotherTongue,Session.Actor.Language.PrimaryLanguage,Session.Actor.Language.Dominant,Session.Actor.Language.Description,Session.Actor.Language.Description.LanguageId,Session.Actor.Language.Description.Link,Session.Actor.Language.Description.Name,Session.Actor.Language.Description(X),Session.Actor.Language.Description(X).LanguageId,Session.Actor.Language.Description(X).Link,Session.Actor.Language.Description(X).Name,Session.Actor.Language(X),Session.Actor.Language(X).Id,Session.Actor.Language(X).ResourceRef,Session.Actor.Language(X).Name,Session.Actor.Language(X).Name(X),Session.Actor.Language(X).MotherTongue,Session.Actor.Language(X).PrimaryLanguage,Session.Actor.Language(X).Dominant,Session.Actor.Language(X).Description,Session.Actor.Language(X).Description.LanguageId,Session.Actor.Language(X).Description.Link,Session.Actor.Language(X).Description.Name,Session.Actor.Language(X).Description(X),Session.Actor.Language(X).Description(X).LanguageId,Session.Actor.Language(X).Description(X).Link,Session.Actor.Language(X).Description(X).Name,Session.Actor.EthnicGroup,Session.Actor.Age,Session.Actor.Sex,Session.Actor.Education,Session.Actor.Anonymized,Session.Actor.Contact.Name,Session.Actor.Contact.Address,Session.Actor.Contact.Email,Session.Actor.Contact.Organisation,Session.Actor.Description,Session.Actor.Description.LanguageId,Session.Actor.Description.Link,Session.Actor.Description.Name,Session.Actor.Description(X),Session.Actor.Description(X).LanguageId,Session.Actor.Description(X).Link,Session.Actor.Description(X).Name,Session.Actor.Key,Session.Actor.Key.Name,Session.Actor.Key.Type,Session.Actor.Key.Link,Session.Actor.Key.DefaultLink,Session.Actor.Key(X),Session.Actor.Key(X).Name,Session.Actor.Key(X).Type,Session.Actor.Key(X).Link,Session.Actor.Key(X).DefaultLink,Session.Actor(X).ResourceRef,Session.Actor(X).Role,Session.Actor(X).FamilySocialRole,Session.Actor(X).Name,Session.Actor(X).Name(X),Session.Actor(X).FullName,Session.Actor(X).Code,Session.Actor(X).Languages.Description,Session.Actor(X).Languages.Description.LanguageId,Session.Actor(X).Languages.Description.Link,Session.Actor(X).Languages.Description.Name,Session.Actor(X).Language,Session.Actor(X).Language.Id,Session.Actor(X).Language.ResourceRef,Session.Actor(X).Language.Name,Session.Actor(X).Language.Name(X),Session.Actor(X).Language.MotherTongue,Session.Actor(X).Language.PrimaryLanguage,Session.Actor(X).Language.Dominant,Session.Actor(X).Language.Description,Session.Actor(X).Language.Description.LanguageId,Session.Actor(X).Language.Description.Link,Session.Actor(X).Language.Description.Name,Session.Actor(X).Language.Description(X),Session.Actor(X).Language.Description(X).LanguageId,Session.Actor(X).Language.Description(X).Link,Session.Actor(X).Language.Description(X).Name,Session.Actor(X).Language(X),Session.Actor(X).Language(X).Id,Session.Actor(X).Language(X).ResourceRef,Session.Actor(X).Language(X).Name,Session.Actor(X).Language(X).Name(X),Session.Actor(X).Language(X).MotherTongue,Session.Actor(X).Language(X).PrimaryLanguage,Session.Actor(X).Language(X).Dominant,Session.Actor(X).Language(X).Description,Session.Actor(X).Language(X).Description.LanguageId,Session.Actor(X).Language(X).Description.Link,Session.Actor(X).Language(X).Description.Name,Session.Actor(X).Language(X).Description(X),Session.Actor(X).Language(X).Description(X).LanguageId,Session.Actor(X).Language(X).Description(X).Link,Session.Actor(X).Language(X).Description(X).Name,Session.Actor(X).EthnicGroup,Session.Actor(X).Age,Session.Actor(X).Sex,Session.Actor(X).Education,Session.Actor(X).Anonymized,Session.Actor(X).Contact.Name,Session.Actor(X).Contact.Address,Session.Actor(X).Contact.Email,Session.Actor(X).Contact.Organisation,Session.Actor(X).Description,Session.Actor(X).Description.LanguageId,Session.Actor(X).Description.Link,Session.Actor(X).Description.Name,Session.Actor(X).Description(X),Session.Actor(X).Description(X).LanguageId,Session.Actor(X).Description(X).Link,Session.Actor(X).Description(X).Name,Session.Actor(X).Key,Session.Actor(X).Key.Name,Session.Actor(X).Key.Type,Session.Actor(X).Key.Link,Session.Actor(X).Key.DefaultLink,Session.Actor(X).Key(X),Session.Actor(X).Key(X).Name,Session.Actor(X).Key(X).Type,Session.Actor(X).Key(X).Link,Session.Actor(X).Key(X).DefaultLink,Session.MediaFile.ResourceId,Session.MediaFile.ResourceLink,Session.MediaFile.Type,Session.MediaFile.Size,Session.MediaFile.Format,Session.MediaFile.Quality,Session.MediaFile.RecordingConditions,Session.MediaFile.TimePosition.Start,Session.MediaFile.TimePosition.End,Session.MediaFile.Access.Availability,Session.MediaFile.Access.Description,Session.MediaFile.Access.Description.LanguageId,Session.MediaFile.Access.Description.Link,Session.MediaFile.Access.Description.Name,Session.MediaFile.Access.Description(X),Session.MediaFile.Access.Description(X).LanguageId,Session.MediaFile.Access.Description(X).Link,Session.MediaFile.Access.Description(X).Name,Session.MediaFile.Access.Date,Session.MediaFile.Access.Owner,Session.MediaFile.Access.Publisher,Session.MediaFile.Access.Contact.Name,Session.MediaFile.Access.Contact.Address,Session.MediaFile.Access.Contact.Email,Session.MediaFile.Access.Contact.Organisation,Session.MediaFile.Description,Session.MediaFile.Description.LanguageId,Session.MediaFile.Description.Link,Session.MediaFile.Description.Name,Session.MediaFile.Description(X),Session.MediaFile.Description(X).LanguageId,Session.MediaFile.Description(X).Link,Session.MediaFile.Description(X).Name,Session.MediaFile.Key,Session.MediaFile.Key.Name,Session.MediaFile.Key.Type,Session.MediaFile.Key.Link,Session.MediaFile.Key.DefaultLink,Session.MediaFile.Key(X),Session.MediaFile.Key(X).Name,Session.MediaFile.Key(X).Type,Session.MediaFile.Key(X).Link,Session.MediaFile.Key(X).DefaultLink,Session.MediaFile(X).ResourceId,Session.MediaFile(X).ResourceLink,Session.MediaFile(X).Type,Session.MediaFile(X).Size,Session.MediaFile(X).Format,Session.MediaFile(X).Quality,Session.MediaFile(X).RecordingConditions,Session.MediaFile(X).TimePosition.Start,Session.MediaFile(X).TimePosition.End,Session.MediaFile(X).Access.Availability,Session.MediaFile(X).Access.Description,Session.MediaFile(X).Access.Description.LanguageId,Session.MediaFile(X).Access.Description.Link,Session.MediaFile(X).Access.Description.Name,Session.MediaFile(X).Access.Description(X),Session.MediaFile(X).Access.Description(X).LanguageId,Session.MediaFile(X).Access.Description(X).Link,Session.MediaFile(X).Access.Description(X).Name,Session.MediaFile(X).Access.Date,Session.MediaFile(X).Access.Owner,Session.MediaFile(X).Access.Publisher,Session.MediaFile(X).Access.Contact.Name,Session.MediaFile(X).Access.Contact.Address,Session.MediaFile(X).Access.Contact.Email,Session.MediaFile(X).Access.Contact.Organisation,Session.MediaFile(X).Description,Session.MediaFile(X).Description.LanguageId,Session.MediaFile(X).Description.Link,Session.MediaFile(X).Description.Name,Session.MediaFile(X).Description(X),Session.MediaFile(X).Description(X).LanguageId,Session.MediaFile(X).Description(X).Link,Session.MediaFile(X).Description(X).Name,Session.MediaFile(X).Key,Session.MediaFile(X).Key.Name,Session.MediaFile(X).Key.Type,Session.MediaFile(X).Key.Link,Session.MediaFile(X).Key.DefaultLink,Session.MediaFile(X).Key(X),Session.MediaFile(X).Key(X).Name,Session.MediaFile(X).Key(X).Type,Session.MediaFile(X).Key(X).Link,Session.MediaFile(X).Key(X).DefaultLink,Session.WrittenResource,Session.WrittenResource.ResourceId,Session.WrittenResource.ResourceLink,Session.WrittenResource.MediaResourceLink,Session.WrittenResource.Date,Session.WrittenResource.Type,Session.WrittenResource.SubType,Session.WrittenResource.Size,Session.WrittenResource.Format,Session.WrittenResource.Derivation,Session.WrittenResource.ContentEncoding,Session.WrittenResource.CharacterEncoding,Session.WrittenResource.Validation.Type,Session.WrittenResource.Validation.Methodology,Session.WrittenResource.Validation.Level,Session.WrittenResource.Validation.Description,Session.WrittenResource.Validation.Description.LanguageId,Session.WrittenResource.Validation.Description.Link,Session.WrittenResource.Validation.Description.Name,Session.WrittenResource.Validation.Description(X),Session.WrittenResource.Validation.Description(X).LanguageId,Session.WrittenResource.Validation.Description(X).Link,Session.WrittenResource.Validation.Description(X).Name,Session.WrittenResource.LanguageId,Session.WrittenResource.Anonymized,Session.WrittenResource.Access.Availability,Session.WrittenResource.Access.Description,Session.WrittenResource.Access.Description.LanguageId,Session.WrittenResource.Access.Description.Link,Session.WrittenResource.Access.Description.Name,Session.WrittenResource.Access.Description(X),Session.WrittenResource.Access.Description(X).LanguageId,Session.WrittenResource.Access.Description(X).Link,Session.WrittenResource.Access.Description(X).Name,Session.WrittenResource.Access.Date,Session.WrittenResource.Access.Owner,Session.WrittenResource.Access.Publisher,Session.WrittenResource.Access.Contact.Name,Session.WrittenResource.Access.Contact.Address,Session.WrittenResource.Access.Contact.Email,Session.WrittenResource.Access.Contact.Organisation,Session.WrittenResource.Description,Session.WrittenResource.Description.LanguageId,Session.WrittenResource.Description.Link,Session.WrittenResource.Description.Name,Session.WrittenResource.Description(X),Session.WrittenResource.Description(X).LanguageId,Session.WrittenResource.Description(X).Link,Session.WrittenResource.Description(X).Name,Session.WrittenResource.Key,Session.WrittenResource.Key.Name,Session.WrittenResource.Key.Type,Session.WrittenResource.Key.Link,Session.WrittenResource.Key.DefaultLink,Session.WrittenResource.Key(X),Session.WrittenResource.Key(X).Name,Session.WrittenResource.Key(X).Type,Session.WrittenResource.Key(X).Link,Session.WrittenResource.Key(X).DefaultLink,Session.WrittenResource(X),Session.WrittenResource(X).ResourceId,Session.WrittenResource(X).ResourceLink,Session.WrittenResource(X).MediaResourceLink,Session.WrittenResource(X).Date,Session.WrittenResource(X).Type,Session.WrittenResource(X).SubType,Session.WrittenResource(X).Size,Session.WrittenResource(X).Format,Session.WrittenResource(X).Derivation,Session.WrittenResource(X).ContentEncoding,Session.WrittenResource(X).CharacterEncoding,Session.WrittenResource(X).Validation.Type,Session.WrittenResource(X).Validation.Methodology,Session.WrittenResource(X).Validation.Level,Session.WrittenResource(X).Validation.Description,Session.WrittenResource(X).Validation.Description.LanguageId,Session.WrittenResource(X).Validation.Description.Link,Session.WrittenResource(X).Validation.Description.Name,Session.WrittenResource(X).Validation.Description(X),Session.WrittenResource(X).Validation.Description(X).LanguageId,Session.WrittenResource(X).Validation.Description(X).Link,Session.WrittenResource(X).Validation.Description(X).Name,Session.WrittenResource(X).LanguageId,Session.WrittenResource(X).Anonymized,Session.WrittenResource(X).Access.Availability,Session.WrittenResource(X).Access.Description,Session.WrittenResource(X).Access.Description.LanguageId,Session.WrittenResource(X).Access.Description.Link,Session.WrittenResource(X).Access.Description.Name,Session.WrittenResource(X).Access.Description(X),Session.WrittenResource(X).Access.Description(X).LanguageId,Session.WrittenResource(X).Access.Description(X).Link,Session.WrittenResource(X).Access.Description(X).Name,Session.WrittenResource(X).Access.Date,Session.WrittenResource(X).Access.Owner,Session.WrittenResource(X).Access.Publisher,Session.WrittenResource(X).Access.Contact.Name,Session.WrittenResource(X).Access.Contact.Address,Session.WrittenResource(X).Access.Contact.Email,Session.WrittenResource(X).Access.Contact.Organisation,Session.WrittenResource(X).Description,Session.WrittenResource(X).Description.LanguageId,Session.WrittenResource(X).Description.Link,Session.WrittenResource(X).Description.Name,Session.WrittenResource(X).Description(X),Session.WrittenResource(X).Description(X).LanguageId,Session.WrittenResource(X).Description(X).Link,Session.WrittenResource(X).Description(X).Name,Session.WrittenResource(X).Key,Session.WrittenResource(X).Key.Name,Session.WrittenResource(X).Key.Type,Session.WrittenResource(X).Key.Link,Session.WrittenResource(X).Key.DefaultLink,Session.WrittenResource(X).Key(X),Session.WrittenResource(X).Key(X).Name,Session.WrittenResource(X).Key(X).Type,Session.WrittenResource(X).Key(X).Link,Session.WrittenResource(X).Key(X).DefaultLink,Session.LexiconResource,Session.LexiconResource.ResourceLink,Session.LexiconResource.Type,Session.LexiconResource.Format,Session.LexiconResource.Description,Session.LexiconResource.Description.LanguageId,Session.LexiconResource.Description.Link,Session.LexiconResource.Description.Name,Session.LexiconResource.Description(X),Session.LexiconResource.Description(X).LanguageId,Session.LexiconResource.Description(X).Link,Session.LexiconResource.Description(X).Name,Session.LexiconResource(X),Session.LexiconResource(X).ResourceLink,Session.LexiconResource(X).Type,Session.LexiconResource(X).Format,Session.LexiconResource(X).Description,Session.LexiconResource(X).Description.LanguageId,Session.LexiconResource(X).Description.Link,Session.LexiconResource(X).Description.Name,Session.LexiconResource(X).Description(X),Session.LexiconResource(X).Description(X).LanguageId,Session.LexiconResource(X).Description(X).Link,Session.LexiconResource(X).Description(X).Name,Session.Source,Session.Source.Id,Session.Source.ResourceRefs,Session.Source.Format,Session.Source.Quality,Session.Source.TimePosition.Start,Session.Source.TimePosition.End,Session.Source.CounterPosition.Start,Session.Source.CounterPosition.Start,Session.Source.Access.Availability,Session.Source.Access.Description,Session.Source.Access.Description.LanguageId,Session.Source.Access.Description.Link,Session.Source.Access.Description.Name,Session.Source.Access.Description(X),Session.Source.Access.Description(X).LanguageId,Session.Source.Access.Description(X).Link,Session.Source.Access.Description(X).Name,Session.Source.Access.Date,Session.Source.Access.Owner,Session.Source.Access.Publisher,Session.Source.Access.Contact.Name,Session.Source.Access.Contact.Address,Session.Source.Access.Contact.Email,Session.Source.Access.Contact.Organisation,Session.Source.Description,Session.Source.Description.LanguageId,Session.Source.Description.Link,Session.Source.Description.Name,Session.Source.Description(X),Session.Source.Description(X).LanguageId,Session.Source.Description(X).Link,Session.Source.Description(X).Name,Session.Source.Key,Session.Source.Key.Name,Session.Source.Key.Type,Session.Source.Key.Link,Session.Source.Key.DefaultLink,Session.Source.Key(X),Session.Source.Key(X).Name,Session.Source.Key(X).Type,Session.Source.Key(X).Link,Session.Source.Key(X).DefaultLink,Session.Source(X),Session.Source(X).Id,Session.Source(X).ResourceRefs,Session.Source(X).Format,Session.Source(X).Quality,Session.Source(X).TimePosition.Start,Session.Source(X).TimePosition.End,Session.Source(X).CounterPosition.Start,Session.Source(X).CounterPosition.Start,Session.Source(X).Access.Availability,Session.Source(X).Access.Description,Session.Source(X).Access.Description.LanguageId,Session.Source(X).Access.Description.Link,Session.Source(X).Access.Description.Name,Session.Source(X).Access.Description(X),Session.Source(X).Access.Description(X).LanguageId,Session.Source(X).Access.Description(X).Link,Session.Source(X).Access.Description(X).Name,Session.Source(X).Access.Date,Session.Source(X).Access.Owner,Session.Source(X).Access.Publisher,Session.Source(X).Access.Contact.Name,Session.Source(X).Access.Contact.Address,Session.Source(X).Access.Contact.Email,Session.Source(X).Access.Contact.Organisation,Session.Source(X).Description,Session.Source(X).Description.LanguageId,Session.Source(X).Description.Link,Session.Source(X).Description.Name,Session.Source(X).Description(X),Session.Source(X).Description(X).LanguageId,Session.Source(X).Description(X).Link,Session.Source(X).Description(X).Name,Session.Source(X).Key,Session.Source(X).Key.Name,Session.Source(X).Key.Type,Session.Source(X).Key.Link,Session.Source(X).Key.DefaultLink,Session.Source(X).Key(X),Session.Source(X).Key(X).Name,Session.Source(X).Key(X).Type,Session.Source(X).Key(X).Link,Session.Source(X).Key(X).DefaultLink,Session.Anonyms.ResourceLink,Session.Anonyms.Access.Availability,Session.Anonyms.Access.Description,Session.Anonyms.Access.Description.LanguageId,Session.Anonyms.Access.Description.Link,Session.Anonyms.Access.Description.Name,Session.Anonyms.Access.Description(X),Session.Anonyms.Access.Description(X).LanguageId,Session.Anonyms.Access.Description(X).Link,Session.Anonyms.Access.Description(X).Name,Session.Anonyms.Access.Date,Session.Anonyms.Access.Owner,Session.Anonyms.Access.Publisher,Session.Anonyms.Access.Contact.Name,Session.Anonyms.Access.Contact.Address,Session.Anonyms.Access.Contact.Email,Session.Anonyms.Access.Contact.Organisation,Session.References.Description,Session.References.Description.LanguageId,Session.References.Description.Link,Session.References.Description.Name,Session.References.Description(X),Session.References.Description(X).LanguageId,Session.References.Description(X).Link,Session.References.Description(X).Name,Corpus.Name,Corpus.Title,Corpus.Description,Corpus.Description.LanguageId,Corpus.Description.Link,Corpus.Description.Name,Corpus.Description(X),Corpus.Description(X).LanguageId,Corpus.Description(X).Link,Corpus.Description(X).Name,Corpus.Location.Continent,Corpus.Location.Country,Corpus.Location.Region,Corpus.Location.Region(X),Corpus.Location.Address,Corpus.Location.ExternalResourceReference,Corpus.Location.ExternalResourceReference.Type,Corpus.Location.ExternalResourceReference.SubType,Corpus.Location.ExternalResourceReference.Format,Corpus.Location.ExternalResourceReference.Link,Corpus.Location.ExternalResourceReference(X),Corpus.Location.ExternalResourceReference(X).Type,Corpus.Location.ExternalResourceReference(X).SubType,Corpus.Location.ExternalResourceReference(X).Format,Corpus.Location.ExternalResourceReference(X).Link,Corpus.Location.Key,Corpus.Location.Key.Name,Corpus.Location.Key.Type,Corpus.Location.Key.Link,Corpus.Location.Key.DefaultLink,Corpus.Location.Key(X),Corpus.Location.Key(X).Name,Corpus.Location.Key(X).Type,Corpus.Location.Key(X).Link,Corpus.Location.Key(X).DefaultLink,Corpus.Project,Corpus.Project.Name,Corpus.Project.Title,Corpus.Project.Id,Corpus.Project.Contact.Name,Corpus.Project.Contact.Address,Corpus.Project.Contact.Email,Corpus.Project.Contact.Organisation,Corpus.Project.Description,Corpus.Project.Description.LanguageId,Corpus.Project.Description.Link,Corpus.Project.Description.Name,Corpus.Project.Description(X),Corpus.Project.Description(X).LanguageId,Corpus.Project.Description(X).Link,Corpus.Project.Description(X).Name,Corpus.Project(X),Corpus.Project(X).Name,Corpus.Project(X).Title,Corpus.Project(X).Id,Corpus.Project(X).Contact.Name,Corpus.Project(X).Contact.Address,Corpus.Project(X).Contact.Email,Corpus.Project(X).Contact.Organisation,Corpus.Project(X).Description,Corpus.Project(X).Description.LanguageId,Corpus.Project(X).Description.Link,Corpus.Project(X).Description.Name,Corpus.Project(X).Description(X),Corpus.Project(X).Description(X).LanguageId,Corpus.Project(X).Description(X).Link,Corpus.Project(X).Description(X).Name,Corpus.Content.Genre,Corpus.Content.SubGenre,Corpus.Content.Interactivity,Corpus.Content.PlanningType,Corpus.Content.Involvement,Corpus.Content.SocialContext,Corpus.Content.EventStructure,Corpus.Content.Channel,Corpus.Content.Task,Corpus.Content.Task(X),Corpus.Content.Modalities,Corpus.Content.Modalities(X),Corpus.Content.Subject,Corpus.Content.Subject.Type,Corpus.Content.Subject.DefaultLink,Corpus.Content.Subject.Link,Corpus.Content.Subject.Encoding,Corpus.Content.Subject(X),Corpus.Content.Subject(X).Type,Corpus.Content.Subject(X).DefaultLink,Corpus.Content.Subject(X).Link,Corpus.Content.Subject(X).Encoding,Corpus.Content.Languages.Description,Corpus.Content.Languages.Description.LanguageId,Corpus.Content.Languages.Description.Link,Corpus.Content.Languages.Description.Name,Corpus.Content.Languages.Description(X),Corpus.Content.Languages.Description(X).LanguageId,Corpus.Content.Languages.Description(X).Link,Corpus.Content.Languages.Description(X).Name,Corpus.Content.Languages.Language,Corpus.Content.Languages.Language.Id,Corpus.Content.Languages.Language.ResourceRef,Corpus.Content.Languages.Language.Name,Corpus.Content.Languages.Language.Name(X),Corpus.Content.Languages.Language.MotherTongue,Corpus.Content.Languages.Language.PrimaryLanguage,Corpus.Content.Languages.Language.Dominant,Corpus.Content.Languages.Language.Description,Corpus.Content.Languages.Language.Description.LanguageId,Corpus.Content.Languages.Language.Description.Link,Corpus.Content.Languages.Language.Description.Name,Corpus.Content.Languages.Language.Description(X),Corpus.Content.Languages.Language.Description(X).LanguageId,Corpus.Content.Languages.Language.Description(X).Link,Corpus.Content.Languages.Language.Description(X).Name,Corpus.Content.Languages.Language(X),Corpus.Content.Languages.Language(X).Id,Corpus.Content.Languages.Language(X).ResourceRef,Corpus.Content.Languages.Language(X).Name,Corpus.Content.Languages.Language(X).Name(X),Corpus.Content.Languages.Language(X).MotherTongue,Corpus.Content.Languages.Language(X).PrimaryLanguage,Corpus.Content.Languages.Language(X).Dominant,Corpus.Content.Languages.Language(X).Description,Corpus.Content.Languages.Language(X).Description.LanguageId,Corpus.Content.Languages.Language(X).Description.Link,Corpus.Content.Languages.Language(X).Description.Name,Corpus.Content.Languages.Language(X).Description(X),Corpus.Content.Languages.Language(X).Description(X).LanguageId,Corpus.Content.Languages.Language(X).Description(X).Link,Corpus.Content.Languages.Language(X).Description(X).Name,Corpus.Content.Description,Corpus.Content.Description.LanguageId,Corpus.Content.Description.Link,Corpus.Content.Description.Name,Corpus.Content.Description(X),Corpus.Content.Description(X).LanguageId,Corpus.Content.Description(X).Link,Corpus.Content.Description(X).Name,Corpus.Content.Key,Corpus.Content.Key.Name,Corpus.Content.Key.Type,Corpus.Content.Key.Link,Corpus.Content.Key.DefaultLink,Corpus.Content.Key(X),Corpus.Content.Key(X).Name,Corpus.Content.Key(X).Type,Corpus.Content.Key(X).Link,Corpus.Content.Key(X).DefaultLink,Corpus.Actors.Description,Corpus.Actors.Description.LanguageId,Corpus.Actors.Description.Link,Corpus.Actors.Description.Name,Corpus.Actors.Description(X),Corpus.Actors.Description(X).LanguageId,Corpus.Actors.Description(X).Link,Corpus.Actors.Description(X).Name,Corpus.Actor,Corpus.Actor.ResourceRef,Corpus.Actor.Role,Corpus.Actor.FamilySocialRole,Corpus.Actor.Name,Corpus.Actor.Name(X),Corpus.Actor.FullName,Corpus.Actor.Code,Corpus.Actor.Language,Corpus.Actor.Language.Id,Corpus.Actor.Language.ResourceRef,Corpus.Actor.Language.Name,Corpus.Actor.Language.Name(X),Corpus.Actor.Language.MotherTongue,Corpus.Actor.Language.PrimaryLanguage,Corpus.Actor.Language.Dominant,Corpus.Actor.Language.Description,Corpus.Actor.Language.Description.LanguageId,Corpus.Actor.Language.Description.Link,Corpus.Actor.Language.Description.Name,Corpus.Actor.Language.Description(X),Corpus.Actor.Language.Description(X).LanguageId,Corpus.Actor.Language.Description(X).Link,Corpus.Actor.Language.Description(X).Name,Corpus.Actor.Language(X),Corpus.Actor.Language(X).Id,Corpus.Actor.Language(X).ResourceRef,Corpus.Actor.Language(X).Name,Corpus.Actor.Language(X).Name(X),Corpus.Actor.Language(X).MotherTongue,Corpus.Actor.Language(X).PrimaryLanguage,Corpus.Actor.Language(X).Dominant,Corpus.Actor.Language(X).Description,Corpus.Actor.Language(X).Description.LanguageId,Corpus.Actor.Language(X).Description.Link,Corpus.Actor.Language(X).Description.Name,Corpus.Actor.Language(X).Description(X),Corpus.Actor.Language(X).Description(X).LanguageId,Corpus.Actor.Language(X).Description(X).Link,Corpus.Actor.Language(X).Description(X).Name,Corpus.Actor.EthnicGroup,Corpus.Actor.Age,Corpus.Actor.Sex,Corpus.Actor.Education,Corpus.Actor.Anonymized,Corpus.Actor.Contact.Name,Corpus.Actor.Contact.Address,Corpus.Actor.Contact.Email,Corpus.Actor.Contact.Organisation,Corpus.Actor.Description,Corpus.Actor.Description.LanguageId,Corpus.Actor.Description.Link,Corpus.Actor.Description.Name,Corpus.Actor.Description(X),Corpus.Actor.Description(X).LanguageId,Corpus.Actor.Description(X).Link,Corpus.Actor.Description(X).Name,Corpus.Actor.Key,Corpus.Actor.Key.Name,Corpus.Actor.Key.Type,Corpus.Actor.Key.Link,Corpus.Actor.Key.DefaultLink,Corpus.Actor.Key(X),Corpus.Actor.Key(X).Name,Corpus.Actor.Key(X).Type,Corpus.Actor.Key(X).Link,Corpus.Actor.Key(X).DefaultLink,Corpus.Actor(X),Corpus.Actor(X).ResourceRef,Corpus.Actor(X).Role,Corpus.Actor(X).FamilySocialRole,Corpus.Actor(X).Name,Corpus.Actor(X).Name(X),Corpus.Actor(X).FullName,Corpus.Actor(X).Code,Corpus.Actor(X).Language.Id,Corpus.Actor(X).Language.ResourceRef,Corpus.Actor(X).Language.Name,Corpus.Actor(X).Language.Name(X),Corpus.Actor(X).Language.MotherTongue,Corpus.Actor(X).Language.PrimaryLanguage,Corpus.Actor(X).Language.Dominant,Corpus.Actor(X).Language.Description,Corpus.Actor(X).Language.Description.LanguageId,Corpus.Actor(X).Language.Description.Link,Corpus.Actor(X).Language.Description.Name,Corpus.Actor(X).Language.Description(X),Corpus.Actor(X).Language.Description(X).LanguageId,Corpus.Actor(X).Language.Description(X).Link,Corpus.Actor(X).Language.Description(X).Name,Corpus.Actor(X).Language(X),Corpus.Actor(X).Language(X).Id,Corpus.Actor(X).Language(X).ResourceRef,Corpus.Actor(X).Language(X).Name,Corpus.Actor(X).Language(X).Name(X),Corpus.Actor(X).Language(X).MotherTongue,Corpus.Actor(X).Language(X).PrimaryLanguage,Corpus.Actor(X).Language(X).Dominant,Corpus.Actor(X).Language(X).Description,Corpus.Actor(X).Language(X).Description.LanguageId,Corpus.Actor(X).Language(X).Description.Link,Corpus.Actor(X).Language(X).Description.Name,Corpus.Actor(X).Language(X).Description(X),Corpus.Actor(X).Language(X).Description(X).LanguageId,Corpus.Actor(X).Language(X).Description(X).Link,Corpus.Actor(X).Language(X).Description(X).Name,Corpus.Actor(X).EthnicGroup,Corpus.Actor(X).Age,Corpus.Actor(X).Sex,Corpus.Actor(X).Education,Corpus.Actor(X).Anonymized,Corpus.Actor(X).Contact.Name,Corpus.Actor(X).Contact.Address,Corpus.Actor(X).Contact.Email,Corpus.Actor(X).Contact.Organisation,Corpus.Actor(X).Description,Corpus.Actor(X).Description.LanguageId,Corpus.Actor(X).Description.Link,Corpus.Actor(X).Description.Name,Corpus.Actor(X).Description(X),Corpus.Actor(X).Description(X).LanguageId,Corpus.Actor(X).Description(X).Link,Corpus.Actor(X).Description(X).Name,Corpus.Actor(X).Key,Corpus.Actor(X).Key.Name,Corpus.Actor(X).Key.Type,Corpus.Actor(X).Key.Link,Corpus.Actor(X).Key.DefaultLink,Corpus.Actor(X).Key(X),Corpus.Actor(X).Key(X).Name,Corpus.Actor(X).Key(X).Type,Corpus.Actor(X).Key(X).Link,Corpus.Actor(X).Key(X).DefaultLink,Corpus.SearchService,Corpus.CorpusStructureService,Corpus.CatalogueLink", null});
-        imdiFieldLists.add(new Object[]{"Normal", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title,Session.Date,Session.MDGroup.Location.Continent,Session.MDGroup,Location.Continent,Session.Actors,Session.Actor(1).Name", null});
-        imdiFieldLists.add(new Object[]{"Just Nested Nodes", "Lexicon.Actor(X).Languages.Language(X).Description,Session.Participant(X).Description(X),Session.Project(X).Description(X),Session.Project(X).Description(X).LanguageId,Session.Project(X).Description(X).Link,Session.Project(X).Description(X).Name,Session.Content.Languages.Language(X).Name(X),Session.Content.Languages.Language(X).Description(X),Session.Content.Languages.Language(X).Description(X).LanguageId,Session.Content.Languages.Language(X).Description(X).Link,Session.Content.Languages.Language(X).Description(X).Name,Session.Actor.Language(X).Name(X),Session.Actor.Language(X).Description(X),Session.Actor.Language(X).Description(X).LanguageId,Session.Actor.Language(X).Description(X).Link,Session.Actor.Language(X).Description(X).Name,Session.Actor(X).Name(X),Session.Actor(X).Language.Name(X),", null});
-        imdiFieldLists.add(new Object[]{"Extra", "Name,History,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title,Session.Date,Session.Resources.MediaFile.ResourceLink,Session.MDGroup.Location.Continent", null});
-        imdiFieldLists.add(new Object[]{"Everything", "Lexicon.Name,Lexicon.Title,Lexicon.Date,Lexicon.Description,Lexicon.Project.Description,Lexicon.Languages.Description,Lexicon.Content.Description,Lexicon.Actors.Description,Lexicon.Actor.Description,Lexicon.Actor(X).Description,Lexicon.Actor.Languages.Description,Lexicon.Actor(X).Languages.Description,Lexicon.Actor.Languages.Language.Description,Lexicon.Actor(X).Languages.Language.Description,Lexicon.Actor.Languages.Language(X).Description,Lexicon.Actor(X).Languages.Language(X).Description,Lexicon.Resource.MetaLanguages.Description,Lexicon.Resource.Description,Lexicon.Anonyms.Access.Description,Lexicon.References.Description,Lexicon.Entry.HeadWordType,Lexicon.Entry.Orthography,Lexicon.Entry.Morphology,Lexicon.Entry.MorphoSyntax,Lexicon.Entry.Syntax,Lexicon.Entry.Phonology,Lexicon.Entry.Semantics,Lexicon.Entry.Etymology,Lexicon.Entry.Usage,Lexicon.Entry.Frequency,Lexicon.Resource.SubjectLanguages,Lexicon.Resource.SubjectLanguages(X),Lexicon.Resource.DocumentLanguages,Lexicon.Resource.DocumentLanguages(X),Session.Participant.Description,Session.Participant.Description(X),Session.Participant(X).Description,Session.Participant(X).Description(X),SelfHandle,Session,Session.History,Session.Name,Session.Title,Session.Date,Session.Description,Session.Description.LanguageId,Session.Description.Link,Session.Description.Name,Session.Description(X),Session.Description(X).LanguageId,Session.Description(X).Link,Session.Description(X).Name,Session.Location.Continent,Session.Location.Country,Session.Location.Region,Session.Location.Region(X),Session.Location.Address,Session.Location.ExternalResourceReference,Session.Location.ExternalResourceReference.Type,Session.Location.ExternalResourceReference.SubType,Session.Location.ExternalResourceReference.Format,Session.Location.ExternalResourceReference.Link,Session.Location.ExternalResourceReference(X),Session.Location.ExternalResourceReference(X).Type,Session.Location.ExternalResourceReference(X).SubType,Session.Location.ExternalResourceReference(X).Format,Session.Location.ExternalResourceReference(X).Link,Session.Location.Key,Session.Location.Key.Name,Session.Location.Key.Type,Session.Location.Key.Link,Session.Location.Key.DefaultLink,Session.Location.Key(X),Session.Location.Key(X).Name,Session.Location.Key(X).Type,Session.Location.Key(X).Link,Session.Location.Key(X).DefaultLink,Session.Project,Session.Project.Name,Session.Project.Title,Session.Project.Id,Session.Project.Contact.Name,Session.Project.Contact.Address,Session.Project.Contact.Email,Session.Project.Contact.Organisation,Session.Project.Description,Session.Project.Description.LanguageId,Session.Project.Description.Link,Session.Project.Description.Name,Session.Project.Description(X),Session.Project.Description(X).LanguageId,Session.Project.Description(X).Link,Session.Project.Description(X).Name,Session.Project(X),Session.Project(X).Name,Session.Project(X).Title,Session.Project(X).Id,Session.Project(X).Contact.Name,Session.Project(X).Contact.Address,Session.Project(X).Contact.Email,Session.Project(X).Contact.Organisation,Session.Project(X).Description,Session.Project(X).Description.LanguageId,Session.Project(X).Description.Link,Session.Project(X).Description.Name,Session.Project(X).Description(X),Session.Project(X).Description(X).LanguageId,Session.Project(X).Description(X).Link,Session.Project(X).Description(X).Name,Session.Content.Genre,Session.Content.SubGenre,Session.Content.Interactivity,Session.Content.PlanningType,Session.Content.Involvement,Session.Content.SocialContext,Session.Content.EventStructure,Session.Content.Channel,Session.Content.Task,Session.Content.Task(X),Session.Content.Modalities,Session.Content.Modalities(X),Session.Content.Subject,Session.Content.Subject.Type,Session.Content.Subject.DefaultLink,Session.Content.Subject.Link,Session.Content.Subject.Encoding,Session.Content.Subject(X),Session.Content.Subject(X).Type,Session.Content.Subject(X).DefaultLink,Session.Content.Subject(X).Link,Session.Content.Subject(X).Encoding,Session.Content.Languages.Description,Session.Content.Languages.Description.LanguageId,Session.Content.Languages.Description.Link,Session.Content.Languages.Description.Name,Session.Content.Languages.Description(X),Session.Content.Languages.Description(X).LanguageId,Session.Content.Languages.Description(X).Link,Session.Content.Languages.Description(X).Name,Session.Content.Languages.Language,Session.Content.Languages.Language.Id,Session.Content.Languages.Language.ResourceRef,Session.Content.Languages.Language.Name,Session.Content.Languages.Language.Name(X),Session.Content.Languages.Language.MotherTongue,Session.Content.Languages.Language.PrimaryLanguage,Session.Content.Languages.Language.Dominant,Session.Content.Languages.Language.Description,Session.Content.Languages.Language.Description.LanguageId,Session.Content.Languages.Language.Description.Link,Session.Content.Languages.Language.Description.Name,Session.Content.Languages.Language.Description(X),Session.Content.Languages.Language.Description(X).LanguageId,Session.Content.Languages.Language.Description(X).Link,Session.Content.Languages.Language.Description(X).Name,Session.Content.Languages.Language(X),Session.Content.Languages.Language(X).Id,Session.Content.Languages.Language(X).ResourceRef,Session.Content.Languages.Language(X).Name,Session.Content.Languages.Language(X).Name(X),Session.Content.Languages.Language(X).MotherTongue,Session.Content.Languages.Language(X).PrimaryLanguage,Session.Content.Languages.Language(X).Dominant,Session.Content.Languages.Language(X).Description,Session.Content.Languages.Language(X).Description.LanguageId,Session.Content.Languages.Language(X).Description.Link,Session.Content.Languages.Language(X).Description.Name,Session.Content.Languages.Language(X).Description(X),Session.Content.Languages.Language(X).Description(X).LanguageId,Session.Content.Languages.Language(X).Description(X).Link,Session.Content.Languages.Language(X).Description(X).Name,Session.Content.Description,Session.Content.Description.LanguageId,Session.Content.Description.Link,Session.Content.Description.Name,Session.Content.Description(X),Session.Content.Description(X).LanguageId,Session.Content.Description(X).Link,Session.Content.Description(X).Name,Session.Content.Key,Session.Content.Key.Name,Session.Content.Key.Type,Session.Content.Key.Link,Session.Content.Key.DefaultLink,Session.Content.Key(X),Session.Content.Key(X).Name,Session.Content.Key(X).Type,Session.Content.Key(X).Link,Session.Content.Key(X).DefaultLink,Session.Actors.Description,Session.Actors.Description.LanguageId,Session.Actors.Description.Link,Session.Actors.Description.Name,Session.Actors.Description(X),Session.Actors.Description(X).LanguageId,Session.Actors.Description(X).Link,Session.Actors.Description(X).Name,Session.Actor,Session.Actor.ResourceRef,Session.Actor.Role,Session.Actor.FamilySocialRole,Session.Actor.Name,Session.Actor.Name(X),Session.Actor.FullName,Session.Actor.Code,Session.Actor.Languages.Description,Session.Actor.Languages.Description.LanguageId,Session.Actor.Languages.Description.Link,Session.Actor.Languages.Description.Name,Session.Actor.Languages.Description(X),Session.Actor.Languages.Description(X).LanguageId,Session.Actor.Languages.Description(X).Link,Session.Actor.Languages.Description(X).Name,Session.Actor.Language,Session.Actor.Language.Id,Session.Actor.Language.ResourceRef,Session.Actor.Language.Name,Session.Actor.Language.Name(X),Session.Actor.Language.MotherTongue,Session.Actor.Language.PrimaryLanguage,Session.Actor.Language.Dominant,Session.Actor.Language.Description,Session.Actor.Language.Description.LanguageId,Session.Actor.Language.Description.Link,Session.Actor.Language.Description.Name,Session.Actor.Language.Description(X),Session.Actor.Language.Description(X).LanguageId,Session.Actor.Language.Description(X).Link,Session.Actor.Language.Description(X).Name,Session.Actor.Language(X),Session.Actor.Language(X).Id,Session.Actor.Language(X).ResourceRef,Session.Actor.Language(X).Name,Session.Actor.Language(X).Name(X),Session.Actor.Language(X).MotherTongue,Session.Actor.Language(X).PrimaryLanguage,Session.Actor.Language(X).Dominant,Session.Actor.Language(X).Description,Session.Actor.Language(X).Description.LanguageId,Session.Actor.Language(X).Description.Link,Session.Actor.Language(X).Description.Name,Session.Actor.Language(X).Description(X),Session.Actor.Language(X).Description(X).LanguageId,Session.Actor.Language(X).Description(X).Link,Session.Actor.Language(X).Description(X).Name,Session.Actor.EthnicGroup,Session.Actor.Age,Session.Actor.Sex,Session.Actor.Education,Session.Actor.Anonymized,Session.Actor.Contact.Name,Session.Actor.Contact.Address,Session.Actor.Contact.Email,Session.Actor.Contact.Organisation,Session.Actor.Description,Session.Actor.Description.LanguageId,Session.Actor.Description.Link,Session.Actor.Description.Name,Session.Actor.Description(X),Session.Actor.Description(X).LanguageId,Session.Actor.Description(X).Link,Session.Actor.Description(X).Name,Session.Actor.Key,Session.Actor.Key.Name,Session.Actor.Key.Type,Session.Actor.Key.Link,Session.Actor.Key.DefaultLink,Session.Actor.Key(X),Session.Actor.Key(X).Name,Session.Actor.Key(X).Type,Session.Actor.Key(X).Link,Session.Actor.Key(X).DefaultLink,Session.Actor(X),Session.Actor(X).ResourceRef,Session.Actor(X).Role,Session.Actor(X).FamilySocialRole,Session.Actor(X).Name,Session.Actor(X).Name(X),Session.Actor(X).FullName,Session.Actor(X).Code,Session.Actor(X).Languages.Description,Session.Actor(X).Languages.Description.LanguageId,Session.Actor(X).Languages.Description.Link,Session.Actor(X).Languages.Description.Name,Session.Actor(X).Language,Session.Actor(X).Language.Id,Session.Actor(X).Language.ResourceRef,Session.Actor(X).Language.Name,Session.Actor(X).Language.Name(X),Session.Actor(X).Language.MotherTongue,Session.Actor(X).Language.PrimaryLanguage,Session.Actor(X).Language.Dominant,Session.Actor(X).Language.Description,Session.Actor(X).Language.Description.LanguageId,Session.Actor(X).Language.Description.Link,Session.Actor(X).Language.Description.Name,Session.Actor(X).Language.Description(X),Session.Actor(X).Language.Description(X).LanguageId,Session.Actor(X).Language.Description(X).Link,Session.Actor(X).Language.Description(X).Name,Session.Actor(X).Language(X),Session.Actor(X).Language(X).Id,Session.Actor(X).Language(X).ResourceRef,Session.Actor(X).Language(X).Name,Session.Actor(X).Language(X).Name(X),Session.Actor(X).Language(X).MotherTongue,Session.Actor(X).Language(X).PrimaryLanguage,Session.Actor(X).Language(X).Dominant,Session.Actor(X).Language(X).Description,Session.Actor(X).Language(X).Description.LanguageId,Session.Actor(X).Language(X).Description.Link,Session.Actor(X).Language(X).Description.Name,Session.Actor(X).Language(X).Description(X),Session.Actor(X).Language(X).Description(X).LanguageId,Session.Actor(X).Language(X).Description(X).Link,Session.Actor(X).Language(X).Description(X).Name,Session.Actor(X).EthnicGroup,Session.Actor(X).Age,Session.Actor(X).Sex,Session.Actor(X).Education,Session.Actor(X).Anonymized,Session.Actor(X).Contact.Name,Session.Actor(X).Contact.Address,Session.Actor(X).Contact.Email,Session.Actor(X).Contact.Organisation,Session.Actor(X).Description,Session.Actor(X).Description.LanguageId,Session.Actor(X).Description.Link,Session.Actor(X).Description.Name,Session.Actor(X).Description(X),Session.Actor(X).Description(X).LanguageId,Session.Actor(X).Description(X).Link,Session.Actor(X).Description(X).Name,Session.Actor(X).Key,Session.Actor(X).Key.Name,Session.Actor(X).Key.Type,Session.Actor(X).Key.Link,Session.Actor(X).Key.DefaultLink,Session.Actor(X).Key(X),Session.Actor(X).Key(X).Name,Session.Actor(X).Key(X).Type,Session.Actor(X).Key(X).Link,Session.Actor(X).Key(X).DefaultLink,Session.MediaFile,Session.MediaFile.ResourceId,Session.MediaFile.ResourceLink,Session.MediaFile.Type,Session.MediaFile.Size,Session.MediaFile.Format,Session.MediaFile.Quality,Session.MediaFile.RecordingConditions,Session.MediaFile.TimePosition.Start,Session.MediaFile.TimePosition.End,Session.MediaFile.Access.Availability,Session.MediaFile.Access.Description,Session.MediaFile.Access.Description.LanguageId,Session.MediaFile.Access.Description.Link,Session.MediaFile.Access.Description.Name,Session.MediaFile.Access.Description(X),Session.MediaFile.Access.Description(X).LanguageId,Session.MediaFile.Access.Description(X).Link,Session.MediaFile.Access.Description(X).Name,Session.MediaFile.Access.Date,Session.MediaFile.Access.Owner,Session.MediaFile.Access.Publisher,Session.MediaFile.Access.Contact.Name,Session.MediaFile.Access.Contact.Address,Session.MediaFile.Access.Contact.Email,Session.MediaFile.Access.Contact.Organisation,Session.MediaFile.Description,Session.MediaFile.Description.LanguageId,Session.MediaFile.Description.Link,Session.MediaFile.Description.Name,Session.MediaFile.Description(X),Session.MediaFile.Description(X).LanguageId,Session.MediaFile.Description(X).Link,Session.MediaFile.Description(X).Name,Session.MediaFile.Key,Session.MediaFile.Key.Name,Session.MediaFile.Key.Type,Session.MediaFile.Key.Link,Session.MediaFile.Key.DefaultLink,Session.MediaFile.Key(X),Session.MediaFile.Key(X).Name,Session.MediaFile.Key(X).Type,Session.MediaFile.Key(X).Link,Session.MediaFile.Key(X).DefaultLink,Session.MediaFile(X),Session.MediaFile(X).ResourceId,Session.MediaFile(X).ResourceLink,Session.MediaFile(X).Type,Session.MediaFile(X).Size,Session.MediaFile(X).Format,Session.MediaFile(X).Quality,Session.MediaFile(X).RecordingConditions,Session.MediaFile(X).TimePosition.Start,Session.MediaFile(X).TimePosition.End,Session.MediaFile(X).Access.Availability,Session.MediaFile(X).Access.Description,Session.MediaFile(X).Access.Description.LanguageId,Session.MediaFile(X).Access.Description.Link,Session.MediaFile(X).Access.Description.Name,Session.MediaFile(X).Access.Description(X),Session.MediaFile(X).Access.Description(X).LanguageId,Session.MediaFile(X).Access.Description(X).Link,Session.MediaFile(X).Access.Description(X).Name,Session.MediaFile(X).Access.Date,Session.MediaFile(X).Access.Owner,Session.MediaFile(X).Access.Publisher,Session.MediaFile(X).Access.Contact.Name,Session.MediaFile(X).Access.Contact.Address,Session.MediaFile(X).Access.Contact.Email,Session.MediaFile(X).Access.Contact.Organisation,Session.MediaFile(X).Description,Session.MediaFile(X).Description.LanguageId,Session.MediaFile(X).Description.Link,Session.MediaFile(X).Description.Name,Session.MediaFile(X).Description(X),Session.MediaFile(X).Description(X).LanguageId,Session.MediaFile(X).Description(X).Link,Session.MediaFile(X).Description(X).Name,Session.MediaFile(X).Key,Session.MediaFile(X).Key.Name,Session.MediaFile(X).Key.Type,Session.MediaFile(X).Key.Link,Session.MediaFile(X).Key.DefaultLink,Session.MediaFile(X).Key(X),Session.MediaFile(X).Key(X).Name,Session.MediaFile(X).Key(X).Type,Session.MediaFile(X).Key(X).Link,Session.MediaFile(X).Key(X).DefaultLink,Session.WrittenResource,Session.WrittenResource.ResourceId,Session.WrittenResource.ResourceLink,Session.WrittenResource.MediaResourceLink,Session.WrittenResource.Date,Session.WrittenResource.Type,Session.WrittenResource.SubType,Session.WrittenResource.Size,Session.WrittenResource.Format,Session.WrittenResource.Derivation,Session.WrittenResource.ContentEncoding,Session.WrittenResource.CharacterEncoding,Session.WrittenResource.Validation.Type,Session.WrittenResource.Validation.Methodology,Session.WrittenResource.Validation.Level,Session.WrittenResource.Validation.Description,Session.WrittenResource.Validation.Description.LanguageId,Session.WrittenResource.Validation.Description.Link,Session.WrittenResource.Validation.Description.Name,Session.WrittenResource.Validation.Description(X),Session.WrittenResource.Validation.Description(X).LanguageId,Session.WrittenResource.Validation.Description(X).Link,Session.WrittenResource.Validation.Description(X).Name,Session.WrittenResource.LanguageId,Session.WrittenResource.Anonymized,Session.WrittenResource.Access.Availability,Session.WrittenResource.Access.Description,Session.WrittenResource.Access.Description.LanguageId,Session.WrittenResource.Access.Description.Link,Session.WrittenResource.Access.Description.Name,Session.WrittenResource.Access.Description(X),Session.WrittenResource.Access.Description(X).LanguageId,Session.WrittenResource.Access.Description(X).Link,Session.WrittenResource.Access.Description(X).Name,Session.WrittenResource.Access.Date,Session.WrittenResource.Access.Owner,Session.WrittenResource.Access.Publisher,Session.WrittenResource.Access.Contact.Name,Session.WrittenResource.Access.Contact.Address,Session.WrittenResource.Access.Contact.Email,Session.WrittenResource.Access.Contact.Organisation,Session.WrittenResource.Description,Session.WrittenResource.Description.LanguageId,Session.WrittenResource.Description.Link,Session.WrittenResource.Description.Name,Session.WrittenResource.Description(X),Session.WrittenResource.Description(X).LanguageId,Session.WrittenResource.Description(X).Link,Session.WrittenResource.Description(X).Name,Session.WrittenResource.Key,Session.WrittenResource.Key.Name,Session.WrittenResource.Key.Type,Session.WrittenResource.Key.Link,Session.WrittenResource.Key.DefaultLink,Session.WrittenResource.Key(X),Session.WrittenResource.Key(X).Name,Session.WrittenResource.Key(X).Type,Session.WrittenResource.Key(X).Link,Session.WrittenResource.Key(X).DefaultLink,Session.WrittenResource(X),Session.WrittenResource(X).ResourceId,Session.WrittenResource(X).ResourceLink,Session.WrittenResource(X).MediaResourceLink,Session.WrittenResource(X).Date,Session.WrittenResource(X).Type,Session.WrittenResource(X).SubType,Session.WrittenResource(X).Size,Session.WrittenResource(X).Format,Session.WrittenResource(X).Derivation,Session.WrittenResource(X).ContentEncoding,Session.WrittenResource(X).CharacterEncoding,Session.WrittenResource(X).Validation.Type,Session.WrittenResource(X).Validation.Methodology,Session.WrittenResource(X).Validation.Level,Session.WrittenResource(X).Validation.Description,Session.WrittenResource(X).Validation.Description.LanguageId,Session.WrittenResource(X).Validation.Description.Link,Session.WrittenResource(X).Validation.Description.Name,Session.WrittenResource(X).Validation.Description(X),Session.WrittenResource(X).Validation.Description(X).LanguageId,Session.WrittenResource(X).Validation.Description(X).Link,Session.WrittenResource(X).Validation.Description(X).Name,Session.WrittenResource(X).LanguageId,Session.WrittenResource(X).Anonymized,Session.WrittenResource(X).Access.Availability,Session.WrittenResource(X).Access.Description,Session.WrittenResource(X).Access.Description.LanguageId,Session.WrittenResource(X).Access.Description.Link,Session.WrittenResource(X).Access.Description.Name,Session.WrittenResource(X).Access.Description(X),Session.WrittenResource(X).Access.Description(X).LanguageId,Session.WrittenResource(X).Access.Description(X).Link,Session.WrittenResource(X).Access.Description(X).Name,Session.WrittenResource(X).Access.Date,Session.WrittenResource(X).Access.Owner,Session.WrittenResource(X).Access.Publisher,Session.WrittenResource(X).Access.Contact.Name,Session.WrittenResource(X).Access.Contact.Address,Session.WrittenResource(X).Access.Contact.Email,Session.WrittenResource(X).Access.Contact.Organisation,Session.WrittenResource(X).Description,Session.WrittenResource(X).Description.LanguageId,Session.WrittenResource(X).Description.Link,Session.WrittenResource(X).Description.Name,Session.WrittenResource(X).Description(X),Session.WrittenResource(X).Description(X).LanguageId,Session.WrittenResource(X).Description(X).Link,Session.WrittenResource(X).Description(X).Name,Session.WrittenResource(X).Key,Session.WrittenResource(X).Key.Name,Session.WrittenResource(X).Key.Type,Session.WrittenResource(X).Key.Link,Session.WrittenResource(X).Key.DefaultLink,Session.WrittenResource(X).Key(X),Session.WrittenResource(X).Key(X).Name,Session.WrittenResource(X).Key(X).Type,Session.WrittenResource(X).Key(X).Link,Session.WrittenResource(X).Key(X).DefaultLink,Session.LexiconResource,Session.LexiconResource.ResourceLink,Session.LexiconResource.Type,Session.LexiconResource.Format,Session.LexiconResource.Description,Session.LexiconResource.Description.LanguageId,Session.LexiconResource.Description.Link,Session.LexiconResource.Description.Name,Session.LexiconResource.Description(X),Session.LexiconResource.Description(X).LanguageId,Session.LexiconResource.Description(X).Link,Session.LexiconResource.Description(X).Name,Session.LexiconResource(X),Session.LexiconResource(X).ResourceLink,Session.LexiconResource(X).Type,Session.LexiconResource(X).Format,Session.LexiconResource(X).Description,Session.LexiconResource(X).Description.LanguageId,Session.LexiconResource(X).Description.Link,Session.LexiconResource(X).Description.Name,Session.LexiconResource(X).Description(X),Session.LexiconResource(X).Description(X).LanguageId,Session.LexiconResource(X).Description(X).Link,Session.LexiconResource(X).Description(X).Name,Session.Source,Session.Source.Id,Session.Source.ResourceRefs,Session.Source.Format,Session.Source.Quality,Session.Source.TimePosition.Start,Session.Source.TimePosition.End,Session.Source.CounterPosition.Start,Session.Source.CounterPosition.Start,Session.Source.Access.Availability,Session.Source.Access.Description,Session.Source.Access.Description.LanguageId,Session.Source.Access.Description.Link,Session.Source.Access.Description.Name,Session.Source.Access.Description(X),Session.Source.Access.Description(X).LanguageId,Session.Source.Access.Description(X).Link,Session.Source.Access.Description(X).Name,Session.Source.Access.Date,Session.Source.Access.Owner,Session.Source.Access.Publisher,Session.Source.Access.Contact.Name,Session.Source.Access.Contact.Address,Session.Source.Access.Contact.Email,Session.Source.Access.Contact.Organisation,Session.Source.Description,Session.Source.Description.LanguageId,Session.Source.Description.Link,Session.Source.Description.Name,Session.Source.Description(X),Session.Source.Description(X).LanguageId,Session.Source.Description(X).Link,Session.Source.Description(X).Name,Session.Source.Key,Session.Source.Key.Name,Session.Source.Key.Type,Session.Source.Key.Link,Session.Source.Key.DefaultLink,Session.Source.Key(X),Session.Source.Key(X).Name,Session.Source.Key(X).Type,Session.Source.Key(X).Link,Session.Source.Key(X).DefaultLink,Session.Source(X),Session.Source(X).Id,Session.Source(X).ResourceRefs,Session.Source(X).Format,Session.Source(X).Quality,Session.Source(X).TimePosition.Start,Session.Source(X).TimePosition.End,Session.Source(X).CounterPosition.Start,Session.Source(X).CounterPosition.Start,Session.Source(X).Access.Availability,Session.Source(X).Access.Description,Session.Source(X).Access.Description.LanguageId,Session.Source(X).Access.Description.Link,Session.Source(X).Access.Description.Name,Session.Source(X).Access.Description(X),Session.Source(X).Access.Description(X).LanguageId,Session.Source(X).Access.Description(X).Link,Session.Source(X).Access.Description(X).Name,Session.Source(X).Access.Date,Session.Source(X).Access.Owner,Session.Source(X).Access.Publisher,Session.Source(X).Access.Contact.Name,Session.Source(X).Access.Contact.Address,Session.Source(X).Access.Contact.Email,Session.Source(X).Access.Contact.Organisation,Session.Source(X).Description,Session.Source(X).Description.LanguageId,Session.Source(X).Description.Link,Session.Source(X).Description.Name,Session.Source(X).Description(X),Session.Source(X).Description(X).LanguageId,Session.Source(X).Description(X).Link,Session.Source(X).Description(X).Name,Session.Source(X).Key,Session.Source(X).Key.Name,Session.Source(X).Key.Type,Session.Source(X).Key.Link,Session.Source(X).Key.DefaultLink,Session.Source(X).Key(X),Session.Source(X).Key(X).Name,Session.Source(X).Key(X).Type,Session.Source(X).Key(X).Link,Session.Source(X).Key(X).DefaultLink,Session.Anonyms.ResourceLink,Session.Anonyms.Access.Availability,Session.Anonyms.Access.Description,Session.Anonyms.Access.Description.LanguageId,Session.Anonyms.Access.Description.Link,Session.Anonyms.Access.Description.Name,Session.Anonyms.Access.Description(X),Session.Anonyms.Access.Description(X).LanguageId,Session.Anonyms.Access.Description(X).Link,Session.Anonyms.Access.Description(X).Name,Session.Anonyms.Access.Date,Session.Anonyms.Access.Owner,Session.Anonyms.Access.Publisher,Session.Anonyms.Access.Contact.Name,Session.Anonyms.Access.Contact.Address,Session.Anonyms.Access.Contact.Email,Session.Anonyms.Access.Contact.Organisation,Session.References.Description,Session.References.Description.LanguageId,Session.References.Description.Link,Session.References.Description.Name,Session.References.Description(X),Session.References.Description(X).LanguageId,Session.References.Description(X).Link,Session.References.Description(X).Name,Corpus,Corpus.History,Corpus.Name,Corpus.Title,Corpus.Description,Corpus.Description.LanguageId,Corpus.Description.Link,Corpus.Description.Name,Corpus.Description(X),Corpus.Description(X).LanguageId,Corpus.Description(X).Link,Corpus.Description(X).Name,Corpus.Location.Continent,Corpus.Location.Country,Corpus.Location.Region,Corpus.Location.Region(X),Corpus.Location.Address,Corpus.Location.ExternalResourceReference,Corpus.Location.ExternalResourceReference.Type,Corpus.Location.ExternalResourceReference.SubType,Corpus.Location.ExternalResourceReference.Format,Corpus.Location.ExternalResourceReference.Link,Corpus.Location.ExternalResourceReference(X),Corpus.Location.ExternalResourceReference(X).Type,Corpus.Location.ExternalResourceReference(X).SubType,Corpus.Location.ExternalResourceReference(X).Format,Corpus.Location.ExternalResourceReference(X).Link,Corpus.Location.Key,Corpus.Location.Key.Name,Corpus.Location.Key.Type,Corpus.Location.Key.Link,Corpus.Location.Key.DefaultLink,Corpus.Location.Key(X),Corpus.Location.Key(X).Name,Corpus.Location.Key(X).Type,Corpus.Location.Key(X).Link,Corpus.Location.Key(X).DefaultLink,Corpus.Project,Corpus.Project.Name,Corpus.Project.Title,Corpus.Project.Id,Corpus.Project.Contact.Name,Corpus.Project.Contact.Address,Corpus.Project.Contact.Email,Corpus.Project.Contact.Organisation,Corpus.Project.Description,Corpus.Project.Description.LanguageId,Corpus.Project.Description.Link,Corpus.Project.Description.Name,Corpus.Project.Description(X),Corpus.Project.Description(X).LanguageId,Corpus.Project.Description(X).Link,Corpus.Project.Description(X).Name,Corpus.Project(X),Corpus.Project(X).Name,Corpus.Project(X).Title,Corpus.Project(X).Id,Corpus.Project(X).Contact.Name,Corpus.Project(X).Contact.Address,Corpus.Project(X).Contact.Email,Corpus.Project(X).Contact.Organisation,Corpus.Project(X).Description,Corpus.Project(X).Description.LanguageId,Corpus.Project(X).Description.Link,Corpus.Project(X).Description.Name,Corpus.Project(X).Description(X),Corpus.Project(X).Description(X).LanguageId,Corpus.Project(X).Description(X).Link,Corpus.Project(X).Description(X).Name,Corpus.Content.Genre,Corpus.Content.SubGenre,Corpus.Content.Interactivity,Corpus.Content.PlanningType,Corpus.Content.Involvement,Corpus.Content.SocialContext,Corpus.Content.EventStructure,Corpus.Content.Channel,Corpus.Content.Task,Corpus.Content.Task(X),Corpus.Content.Modalities,Corpus.Content.Modalities(X),Corpus.Content.Subject,Corpus.Content.Subject.Type,Corpus.Content.Subject.DefaultLink,Corpus.Content.Subject.Link,Corpus.Content.Subject.Encoding,Corpus.Content.Subject(X),Corpus.Content.Subject(X).Type,Corpus.Content.Subject(X).DefaultLink,Corpus.Content.Subject(X).Link,Corpus.Content.Subject(X).Encoding,Corpus.Content.Languages.Description,Corpus.Content.Languages.Description.LanguageId,Corpus.Content.Languages.Description.Link,Corpus.Content.Languages.Description.Name,Corpus.Content.Languages.Description(X),Corpus.Content.Languages.Description(X).LanguageId,Corpus.Content.Languages.Description(X).Link,Corpus.Content.Languages.Description(X).Name,Corpus.Content.Languages.Language,Corpus.Content.Languages.Language.Id,Corpus.Content.Languages.Language.ResourceRef,Corpus.Content.Languages.Language.Name,Corpus.Content.Languages.Language.Name(X),Corpus.Content.Languages.Language.MotherTongue,Corpus.Content.Languages.Language.PrimaryLanguage,Corpus.Content.Languages.Language.Dominant,Corpus.Content.Languages.Language.Description,Corpus.Content.Languages.Language.Description.LanguageId,Corpus.Content.Languages.Language.Description.Link,Corpus.Content.Languages.Language.Description.Name,Corpus.Content.Languages.Language.Description(X),Corpus.Content.Languages.Language.Description(X).LanguageId,Corpus.Content.Languages.Language.Description(X).Link,Corpus.Content.Languages.Language.Description(X).Name,Corpus.Content.Languages.Language(X),Corpus.Content.Languages.Language(X).Id,Corpus.Content.Languages.Language(X).ResourceRef,Corpus.Content.Languages.Language(X).Name,Corpus.Content.Languages.Language(X).Name(X),Corpus.Content.Languages.Language(X).MotherTongue,Corpus.Content.Languages.Language(X).PrimaryLanguage,Corpus.Content.Languages.Language(X).Dominant,Corpus.Content.Languages.Language(X).Description,Corpus.Content.Languages.Language(X).Description.LanguageId,Corpus.Content.Languages.Language(X).Description.Link,Corpus.Content.Languages.Language(X).Description.Name,Corpus.Content.Languages.Language(X).Description(X),Corpus.Content.Languages.Language(X).Description(X).LanguageId,Corpus.Content.Languages.Language(X).Description(X).Link,Corpus.Content.Languages.Language(X).Description(X).Name,Corpus.Content.Description,Corpus.Content.Description.LanguageId,Corpus.Content.Description.Link,Corpus.Content.Description.Name,Corpus.Content.Description(X),Corpus.Content.Description(X).LanguageId,Corpus.Content.Description(X).Link,Corpus.Content.Description(X).Name,Corpus.Content.Key,Corpus.Content.Key.Name,Corpus.Content.Key.Type,Corpus.Content.Key.Link,Corpus.Content.Key.DefaultLink,Corpus.Content.Key(X),Corpus.Content.Key(X).Name,Corpus.Content.Key(X).Type,Corpus.Content.Key(X).Link,Corpus.Content.Key(X).DefaultLink,Corpus.Actors.Description,Corpus.Actors.Description.LanguageId,Corpus.Actors.Description.Link,Corpus.Actors.Description.Name,Corpus.Actors.Description(X),Corpus.Actors.Description(X).LanguageId,Corpus.Actors.Description(X).Link,Corpus.Actors.Description(X).Name,Corpus.Actor,Corpus.Actor.ResourceRef,Corpus.Actor.Role,Corpus.Actor.FamilySocialRole,Corpus.Actor.Name,Corpus.Actor.Name(X),Corpus.Actor.FullName,Corpus.Actor.Code,Corpus.Actor.Language,Corpus.Actor.Language.Id,Corpus.Actor.Language.ResourceRef,Corpus.Actor.Language.Name,Corpus.Actor.Language.Name(X),Corpus.Actor.Language.MotherTongue,Corpus.Actor.Language.PrimaryLanguage,Corpus.Actor.Language.Dominant,Corpus.Actor.Language.Description,Corpus.Actor.Language.Description.LanguageId,Corpus.Actor.Language.Description.Link,Corpus.Actor.Language.Description.Name,Corpus.Actor.Language.Description(X),Corpus.Actor.Language.Description(X).LanguageId,Corpus.Actor.Language.Description(X).Link,Corpus.Actor.Language.Description(X).Name,Corpus.Actor.Language(X),Corpus.Actor.Language(X).Id,Corpus.Actor.Language(X).ResourceRef,Corpus.Actor.Language(X).Name,Corpus.Actor.Language(X).Name(X),Corpus.Actor.Language(X).MotherTongue,Corpus.Actor.Language(X).PrimaryLanguage,Corpus.Actor.Language(X).Dominant,Corpus.Actor.Language(X).Description,Corpus.Actor.Language(X).Description.LanguageId,Corpus.Actor.Language(X).Description.Link,Corpus.Actor.Language(X).Description.Name,Corpus.Actor.Language(X).Description(X),Corpus.Actor.Language(X).Description(X).LanguageId,Corpus.Actor.Language(X).Description(X).Link,Corpus.Actor.Language(X).Description(X).Name,Corpus.Actor.EthnicGroup,Corpus.Actor.Age,Corpus.Actor.Sex,Corpus.Actor.Education,Corpus.Actor.Anonymized,Corpus.Actor.Contact.Name,Corpus.Actor.Contact.Address,Corpus.Actor.Contact.Email,Corpus.Actor.Contact.Organisation,Corpus.Actor.Description,Corpus.Actor.Description.LanguageId,Corpus.Actor.Description.Link,Corpus.Actor.Description.Name,Corpus.Actor.Description(X),Corpus.Actor.Description(X).LanguageId,Corpus.Actor.Description(X).Link,Corpus.Actor.Description(X).Name,Corpus.Actor.Key,Corpus.Actor.Key.Name,Corpus.Actor.Key.Type,Corpus.Actor.Key.Link,Corpus.Actor.Key.DefaultLink,Corpus.Actor.Key(X),Corpus.Actor.Key(X).Name,Corpus.Actor.Key(X).Type,Corpus.Actor.Key(X).Link,Corpus.Actor.Key(X).DefaultLink,Corpus.Actor(X),Corpus.Actor(X).ResourceRef,Corpus.Actor(X).Role,Corpus.Actor(X).FamilySocialRole,Corpus.Actor(X).Name,Corpus.Actor(X).Name(X),Corpus.Actor(X).FullName,Corpus.Actor(X).Code,Corpus.Actor(X).Language.Id,Corpus.Actor(X).Language.ResourceRef,Corpus.Actor(X).Language.Name,Corpus.Actor(X).Language.Name(X),Corpus.Actor(X).Language.MotherTongue,Corpus.Actor(X).Language.PrimaryLanguage,Corpus.Actor(X).Language.Dominant,Corpus.Actor(X).Language.Description,Corpus.Actor(X).Language.Description.LanguageId,Corpus.Actor(X).Language.Description.Link,Corpus.Actor(X).Language.Description.Name,Corpus.Actor(X).Language.Description(X),Corpus.Actor(X).Language.Description(X).LanguageId,Corpus.Actor(X).Language.Description(X).Link,Corpus.Actor(X).Language.Description(X).Name,Corpus.Actor(X).Language(X),Corpus.Actor(X).Language(X).Id,Corpus.Actor(X).Language(X).ResourceRef,Corpus.Actor(X).Language(X).Name,Corpus.Actor(X).Language(X).Name(X),Corpus.Actor(X).Language(X).MotherTongue,Corpus.Actor(X).Language(X).PrimaryLanguage,Corpus.Actor(X).Language(X).Dominant,Corpus.Actor(X).Language(X).Description,Corpus.Actor(X).Language(X).Description.LanguageId,Corpus.Actor(X).Language(X).Description.Link,Corpus.Actor(X).Language(X).Description.Name,Corpus.Actor(X).Language(X).Description(X),Corpus.Actor(X).Language(X).Description(X).LanguageId,Corpus.Actor(X).Language(X).Description(X).Link,Corpus.Actor(X).Language(X).Description(X).Name,Corpus.Actor(X).EthnicGroup,Corpus.Actor(X).Age,Corpus.Actor(X).Sex,Corpus.Actor(X).Education,Corpus.Actor(X).Anonymized,Corpus.Actor(X).Contact.Name,Corpus.Actor(X).Contact.Address,Corpus.Actor(X).Contact.Email,Corpus.Actor(X).Contact.Organisation,Corpus.Actor(X).Description,Corpus.Actor(X).Description.LanguageId,Corpus.Actor(X).Description.Link,Corpus.Actor(X).Description.Name,Corpus.Actor(X).Description(X),Corpus.Actor(X).Description(X).LanguageId,Corpus.Actor(X).Description(X).Link,Corpus.Actor(X).Description(X).Name,Corpus.Actor(X).Key,Corpus.Actor(X).Key.Name,Corpus.Actor(X).Key.Type,Corpus.Actor(X).Key.Link,Corpus.Actor(X).Key.DefaultLink,Corpus.Actor(X).Key(X),Corpus.Actor(X).Key(X).Name,Corpus.Actor(X).Key(X).Type,Corpus.Actor(X).Key(X).Link,Corpus.Actor(X).Key(X).DefaultLink,Corpus.CorpusLink,Corpus.CorpusLink.Name,Corpus.CorpusLink(X),Corpus.CorpusLink(X).Name,Corpus.SearchService,Corpus.CorpusStructureService,Corpus.CatalogueLink", null});
-    }
-
-    public javax.swing.table.DefaultTableModel getImdiFieldListsTableModel() {
-
-        javax.swing.table.DefaultTableModel returnTableModel = new javax.swing.table.DefaultTableModel(
-                new Object[][]{
-                    {null, null, null}
-                },
-                new String[]{
-                    "View Name", "Display Fields", "Display"
-                }) {
-
-            Class[] types = new Class[]{
-                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
+    public void removeFromGridData(TableModel tableModel, Vector nodesToRemove) {
+        // remove the supplied nodes from the grid
+        ((ImdiHelper.ImdiTableModel) tableModel).removeImdiObjects(nodesToRemove.elements());
+        for (Enumeration nodesToRemoveEnum = nodesToRemove.elements(); nodesToRemoveEnum.hasMoreElements();) {
+            // iterate over the supplied nodes
+            Object currentObject = nodesToRemoveEnum.nextElement();
+            if (imdiHelper.isImdiNode(currentObject)) {
+                String hashKey = ((ImdiHelper.ImdiTreeObject) currentObject).getUrl();
+                if (selectedFilesList.containsKey(hashKey)) {
+                    // remove any image nodes from the image window                
+                    //System.out.println("removing from images");
+                    selectedFilesPanel.remove((Component) selectedFilesList.remove(hashKey));
+                    selectedFilesPanel.revalidate();
+                    selectedFilesPanel.repaint();
+                    // remove any map layers
+//                    if (mapView.isGisFile(hashKey)) {
+//                        mapView.removeLayer(hashKey);
+//                    }
+                }
             }
-        };
-        returnTableModel.setRowCount(0);
-        for (int fieldCount = 0; fieldCount < imdiFieldLists.size(); fieldCount++) {
-            returnTableModel.addRow((Object[]) imdiFieldLists.get(fieldCount));
         }
-        returnTableModel.setValueAt(new Boolean(true), currentFieldListIndex, 2);
-        return returnTableModel;
+    }
+
+    private void addNodeOnce(DefaultMutableTreeNode localDirectoryNode, String currentLocation) {
+        boolean nodeExists = false;
+        Enumeration localCorpusChildren = localDirectoryNode.children();
+        while (localCorpusChildren.hasMoreElements()) {
+            if (currentLocation.equals(((ImdiHelper.ImdiTreeObject) ((DefaultMutableTreeNode) localCorpusChildren.nextElement()).getUserObject()).getUrl())) {
+                nodeExists = true;
+            }
+        }
+        if (nodeExists) {
+            //localDirectoryNode.add(getImdiTreeNode("duplicate"));
+        } else {
+            DefaultMutableTreeNode currentTreeNode = getImdiTreeNode(currentLocation);
+            locationTreeNodes.put(currentLocation, currentTreeNode);
+            localDirectoryNode.add(currentTreeNode);
+        }
+    }
+
+    private void removeExtraneousNodes() {
+        Enumeration locationNodesEnum = locationTreeNodes.keys();
+        while (locationNodesEnum.hasMoreElements()) {
+            String currentLocation = (String) locationNodesEnum.nextElement();
+            if (!locationsList.contains(currentLocation)) {
+                System.out.println("removing location: " + currentLocation);
+                ((DefaultMutableTreeNode) locationTreeNodes.get(currentLocation)).removeFromParent();
+                locationTreeNodes.remove(currentLocation);
+            }
+        }
+    }
+
+    public void copyNodeUrlToClipboard(DefaultMutableTreeNode selectedNode) {
+        if (imdiHelper.isImdiNode(selectedNode.getUserObject())) {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection stringSelection = new StringSelection(((ImdiHelper.ImdiTreeObject) selectedNode.getUserObject()).getUrl());
+            clipboard.setContents(stringSelection, clipboardOwner);
+        }
+    }
+
+    public void copySelectedTableRowsToClipBoard(Component destinationComp) {
+        int[] selectedRows = targetTable.getSelectedRows();
+        // only copy if there is at lease one row selected
+        if (selectedRows.length > 0) {
+            ((ImdiHelper.ImdiTableModel) targetTable.getModel()).copyImdiRows(selectedRows, clipboardOwner);
+        } else {
+            JOptionPane.showMessageDialog(destinationComp, "Nothing to copy");
+        }
+    }
+
+    public void removeSelectedRowsFromTable() {
+        int[] selectedRows = targetTable.getSelectedRows();
+        ((ImdiHelper.ImdiTableModel) targetTable.getModel()).removeImdiRows(selectedRows);
+    }
+
+    public void highlightMatchingRows(Component destinationComp) {
+        int selectedRow = targetTable.getSelectedRow();
+        ImdiHelper.ImdiTableModel tempImdiTableModel = (ImdiHelper.ImdiTableModel) (targetTable.getModel());
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(destinationComp, "No rows have been selected");
+            return;
+        }
+        Vector foundRows = tempImdiTableModel.getMatchingRows(selectedRow);
+        targetTable.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        targetTable.getSelectionModel().clearSelection();
+        JOptionPane.showMessageDialog(destinationComp, "Found " + foundRows.size() + " matching rows");
+        for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
+            for (int coloumCount = 0; coloumCount < targetTable.getColumnCount(); coloumCount++) {
+                // TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
+                targetTable.getSelectionModel().addSelectionInterval((Integer) foundRows.get(foundCount), (Integer) foundRows.get(foundCount));
+            }
+        }
+    }
+
+    public void applyRootLocations(DefaultMutableTreeNode localDirectoryNode, DefaultMutableTreeNode localCorpusNode, DefaultMutableTreeNode remoteCorpusNode) {
+        Enumeration locationEnum = locationsList.elements();
+        while (locationEnum.hasMoreElements()) {
+            String currentLocation = locationEnum.nextElement().toString();
+            System.out.println("currentLocation: " + currentLocation);
+            if (imdiHelper.isStringLocal(currentLocation)) {
+                // is local
+                if (imdiHelper.isStringImdi(currentLocation)) {
+                    // is an imdi
+                    addNodeOnce(localCorpusNode, currentLocation);
+                } else {
+                    // not an imdi
+                    addNodeOnce(localDirectoryNode, currentLocation);
+                }
+            } else {
+                // is a remote file or imdi
+                addNodeOnce(remoteCorpusNode, currentLocation);
+            }
+        }
+        removeExtraneousNodes();
     }
 
     public javax.swing.table.DefaultTableModel getLocationsTableModel() {
-
-//        javax.swing.table.DefaultTableModel returnTableModel =  new javax.swing.table.DefaultTableModel(
-//            new Object [][] {
-//                new Object[imdiFieldLists.size()][2]
-//            },
-//            new String [] {
-//                "Tree", "Location"
-//            }
-//        ){
-//            Class[] types = new Class [] {
-//                java.lang.String.class, java.lang.String.class
-//            };
-//
-//            public Class getColumnClass(int columnIndex) {
-//                return types [columnIndex];
-//            }
-//        };
-//        for (int fieldCount = 0; fieldCount < imdiFieldLists.size(); fieldCount++){
-//            returnTableModel.addRow((Object[])imdiFieldLists.get(fieldCount));
-//        }
-//        return returnTableModel;
-        return new javax.swing.table.DefaultTableModel(
-                new Object[][]{
-                    {"Remote Corpus", "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"},
-                    {"Local Corpus", "file://data1/media-archive-copy/Corpusstructure/MPI.imdi"},
-                    {"Local Directory", "file://data1/media-archive-copy/TestWorkingDirectory/"}
-                },
-                new String[]{
-                    "Tree", "Location"
-                }) {
+        Object[][] tableObjectAray = new Object[locationsList.size()][2];
+        Enumeration locationEnum = locationsList.elements();
+        int rowCounter = 0;
+        while (locationEnum.hasMoreElements()) {
+            tableObjectAray[rowCounter][1] = locationEnum.nextElement();
+            if (imdiHelper.isStringImdi(tableObjectAray[rowCounter][1].toString())) {
+                // is an imdi
+                if (imdiHelper.isStringLocal(tableObjectAray[rowCounter][1].toString())) {
+                    tableObjectAray[rowCounter][0] = (Object) ImdiHelper.corpuslocalicon;
+                } else {
+                    tableObjectAray[rowCounter][0] = ImdiHelper.corpusservericon;
+                }
+            } else {
+                // is not an imdi
+                if (imdiHelper.isStringLocal(tableObjectAray[rowCounter][1].toString())) {
+                    tableObjectAray[rowCounter][0] = ImdiHelper.directoryIcon;
+                } else {
+                    tableObjectAray[rowCounter][0] = ImdiHelper.stopicon;
+                }
+            }
+            rowCounter++;
+        }
+        return new javax.swing.table.DefaultTableModel(tableObjectAray, new String[]{"", "Location"}) {
 
             Class[] types = new Class[]{
-                java.lang.String.class, java.lang.String.class
+                javax.swing.Icon.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types[columnIndex];
             }
         };
-    }//    new javax.swing.table.DefaultTableModel(
-//            new Object [][] {
-//                {"Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description,Session.Title,Corpus.Title", null},
-//                {"Short Display Fields", "Name,Session.Name,Corpus.Name,Session.Description,Corpus.Description", null},
-//                {null, null, null}
-//            },
-//            new String [] {
-//                "View Name", "Display Fields", "Display"
-//            }
-//        ) {
-//            Class[] types = new Class [] {
-//                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
-//            };
-//
-//            public Class getColumnClass(int columnIndex) {
-//                return types [columnIndex];
-//            }
+    }
+
+    public boolean addLocation(String addedLocation) {
+        System.out.println("addLocation" + addedLocation);
+        if (!locationsList.contains(addedLocation)) {
+            locationsList.add(addedLocation);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeLocation(Object removeObject) {
+        if (imdiHelper.isImdiNode(removeObject)) {
+            removeLocation(((ImdiHelper.ImdiTreeObject) removeObject).getUrl()); //.replace("file://", "")
+        }
+    }
+
+    public void removeLocation(String removeLocation) {
+        System.out.println("removeLocation: " + removeLocation);
+        locationsList.remove(removeLocation);
+    }
+
+//    public void updateLocationsFromModel(javax.swing.table.DefaultTableModel changedTableModel) {
+//        Vector updatedLocations = new Vector();
+//        for (int rowCounter = 0; rowCounter < changedTableModel.getRowCount(); rowCounter++) {
+//            updatedLocations.add(changedTableModel.getValueAt(rowCounter, 1));
 //        }
+//        locationsList = updatedLocations;
+//    }
+    public ImdiTreeRenderer getImdiTreeRenderer() {
+        return new ImdiTreeRenderer();
+    }
+
+    public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
+
+        public ImdiTreeRenderer() {
+        }
+
+        public Component getTreeCellRendererComponent(
+                JTree tree,
+                Object value,
+                boolean sel,
+                boolean expanded,
+                boolean leaf,
+                int row,
+                boolean hasFocus) {
+
+            super.getTreeCellRendererComponent(
+                    tree, value, sel,
+                    expanded, leaf, row,
+                    hasFocus);
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+            if (imdiHelper.isImdiNode(node.getUserObject())) {
+                ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) node.getUserObject();
+
+                setIcon(imdiTreeObject.getIcon());
+                setToolTipText(imdiTreeObject.toString());
+                setEnabled(imdiTreeObject.getNodeEnabled());
+            //setVisible(imdiTreeObject.getNodeEnabled());
+            }
+            return this;
+        }
+    }
 }
 
 
