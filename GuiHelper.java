@@ -43,8 +43,8 @@ public class GuiHelper {
     private Vector locationsList; // this is the list of locations seen in the tree and the location settings
     private Hashtable locationTreeNodes = new Hashtable(); // this is used to find the location tree node when it is to be removed via the ulr
 //    MapView mapView;
-    JPanel selectedFilesPanel;
-    LinorgWindowManager linorgWindowManager;
+    private JPanel selectedFilesPanel;
+    private LinorgWindowManager linorgWindowManager;
     // create a clip board owner for copy and paste actions
     static ClipboardOwner clipboardOwner = new ClipboardOwner() {
 

@@ -87,7 +87,20 @@ public class LinorgWindowManager {
         currentInternalFrame.add(contentsComponent);
         windowTitle = addWindowToList(windowTitle, currentInternalFrame);
 
-        currentInternalFrame.setSize(nextWindowWidth, nextWindowHeight);
+        // set the new window size to be fully visible
+        int tempWindowWidth, tempWindowHeight;
+        if (desktopPane.getWidth() > nextWindowWidth) {
+            tempWindowWidth = nextWindowWidth;
+        } else {
+            tempWindowWidth = desktopPane.getWidth() - 50;
+        }
+        if (desktopPane.getHeight() > nextWindowHeight) {
+            tempWindowHeight = nextWindowHeight;
+        } else {
+            tempWindowHeight = desktopPane.getHeight() - 50;
+        }
+        currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
+        
         currentInternalFrame.setClosable(true);
         currentInternalFrame.setIconifiable(true);
         currentInternalFrame.setMaximizable(true);
@@ -107,10 +120,10 @@ public class LinorgWindowManager {
         nextWindowX = nextWindowX + 10;
         nextWindowY = nextWindowY + 10;
         // TODO: it would be nice to use the JInternalFrame's title bar height to increment the position
-        if (nextWindowX + nextWindowWidth > desktopPane.getWidth()) {
+        if (nextWindowX + tempWindowWidth > desktopPane.getWidth()) {
             nextWindowX = 0;
         }
-        if (nextWindowY + nextWindowHeight > desktopPane.getHeight()) {
+        if (nextWindowY + tempWindowHeight > desktopPane.getHeight()) {
             nextWindowY = 0;
         }
         desktopPane.add(currentInternalFrame, 0);

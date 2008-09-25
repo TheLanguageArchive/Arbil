@@ -5,6 +5,7 @@
  */
 package mpi.linorg;
 
+import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -52,10 +53,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
 
         initComponents();
-        guiHelper.initViewMenu(viewMenu);
 
-        linorgWindowManager = new LinorgWindowManager(windowMenu, jDesktopPane1);
-        guiHelper.setWindowManager(linorgWindowManager);
         //Enable tool tips.
         ToolTipManager.sharedInstance().registerComponent(localDirectoryTree);
         ToolTipManager.sharedInstance().registerComponent(localCorpusTree);
@@ -73,12 +71,21 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         // set the default window dimensions
         // TODO: move this to the sessionstorage and load / save on exit
-        setSize(800, 600);
+
         mainSplitPane.setDividerLocation(0.25);
         // also set in showSelectionPreviewCheckBoxMenuItemActionPerformed
         rightSplitPane.setDividerLocation(0.1);
         leftSplitPane.setDividerLocation(0.15);
         leftLocalSplitPane.setDividerLocation(0.2);
+
+        setSize(800, 600);
+        //this.setExtendedState(Frame.MAXIMIZED_BOTH);
+        
+        setVisible(true);
+        
+        linorgWindowManager = new LinorgWindowManager(windowMenu, jDesktopPane1);
+        guiHelper.setWindowManager(linorgWindowManager);
+        guiHelper.initViewMenu(viewMenu);
     }
 
     private void addLocation(String addableLocation) {
@@ -117,7 +124,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         }
         return selectedNodes;
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -691,23 +698,23 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
 private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
     if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
-        // remove the right split split and show only the jdesktoppane
-        mainSplitPane.remove(rightSplitPane);
-        mainSplitPane.setRightComponent(jDesktopPane1);
-        // clear the grid to keep things tidy
-        guiHelper.removeAllFromGridData(previewTable.getModel());
-    } else {
-        // put the jdesktoppane and the preview grid back into the right split pane
-        mainSplitPane.remove(jDesktopPane1);
-        mainSplitPane.setRightComponent(rightSplitPane);
-        rightSplitPane.setTopComponent(jScrollPane1);
-        rightSplitPane.setBottomComponent(jDesktopPane1);
-        rightSplitPane.setDividerLocation(0.1);
-        // update the preview data grid
-        guiHelper.removeAllFromGridData(previewTable.getModel());
-        guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes());
+            // remove the right split split and show only the jdesktoppane
+            mainSplitPane.remove(rightSplitPane);
+            mainSplitPane.setRightComponent(jDesktopPane1);
+            // clear the grid to keep things tidy
+            guiHelper.removeAllFromGridData(previewTable.getModel());
+        } else {
+            // put the jdesktoppane and the preview grid back into the right split pane
+            mainSplitPane.remove(jDesktopPane1);
+            mainSplitPane.setRightComponent(rightSplitPane);
+            rightSplitPane.setTopComponent(jScrollPane1);
+            rightSplitPane.setBottomComponent(jDesktopPane1);
+            rightSplitPane.setDividerLocation(0.1);
+            // update the preview data grid
+            guiHelper.removeAllFromGridData(previewTable.getModel());
+            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes());
+        }
     }
-}
 
 private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
 // TODO add your handling code here:
@@ -715,12 +722,12 @@ private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent
 }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
     /**
-    * @param args the command line arguments
-    */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new LinorgFrame().setVisible(true);
+                new LinorgFrame();
             }
         });
     }

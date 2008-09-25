@@ -76,13 +76,18 @@ public class ImdiDragDrop {
             System.out.println("getSourceActions");
             if ((c instanceof JTree)) {
                 JTree jTree = (JTree) c;
-                System.out.println("getPathCount: " + jTree.getSelectionPath().getPathCount());
-                if (jTree.getSelectionPath().getPathCount() == 1) {
-                    System.out.println("not a jtree cannot import");
+                if (jTree.getSelectionCount() > 0) {
+                    System.out.println("getPathCount: " + jTree.getSelectionPath().getPathCount());
+                    if (jTree.getSelectionPath().getPathCount() == 1) {
+                        System.out.println("not a jtree cannot import");
+                        return TransferHandler.NONE;
+                    }
+                } else {
+                    // no selection (this will only occur on some java runtimes)
                     return TransferHandler.NONE;
                 }
             }
-            
+
             return TransferHandler.COPY;
         }
 

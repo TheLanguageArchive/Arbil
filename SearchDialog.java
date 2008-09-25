@@ -169,6 +169,7 @@ public class SearchDialog {
                         Object currentElement = selectedNodesEnum.nextElement();
                         int currentLoaded = 0;
                         if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
+                            appendToTaskOutput("loading sub corpus");
                             boolean moreToLoad = true;
                             while (moreToLoad && !stopSearch) {
                                 int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) currentElement).getChildCount();
