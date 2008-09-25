@@ -5,6 +5,7 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
@@ -129,5 +130,15 @@ public class LinorgWindowManager {
         jScrollPane6 = new javax.swing.JScrollPane();
         jScrollPane6.setViewportView(htmlDisplay);
         createWindow(frameTitle, jScrollPane6);
+    }
+
+    public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
+        javax.swing.JTable jTable1;
+        javax.swing.JScrollPane jScrollPane6;
+        jScrollPane6 = new javax.swing.JScrollPane();
+        ImdiTable imdiTable = new ImdiTable(GuiHelper.imdiFieldViews, GuiHelper.imdiHelper.getImdiTableModel(), rowNodesEnum, frameTitle);
+
+        jScrollPane6.setViewportView(imdiTable);
+        this.createWindow(frameTitle, jScrollPane6);
     }
 }

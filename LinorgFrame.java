@@ -70,11 +70,12 @@ public class LinorgFrame extends javax.swing.JFrame {
         imdiDragDrop.addDrag(remoteCorpusTree);
         imdiDragDrop.addDrag(localDirectoryTree);
         imdiDragDrop.addDrag(localCorpusTree);
-        
+
         // set the default window dimensions
         // TODO: move this to the sessionstorage and load / save on exit
         setSize(800, 600);
         mainSplitPane.setDividerLocation(0.25);
+        // also set in showSelectionPreviewCheckBoxMenuItemActionPerformed
         rightSplitPane.setDividerLocation(0.1);
         leftSplitPane.setDividerLocation(0.15);
         leftLocalSplitPane.setDividerLocation(0.2);
@@ -104,6 +105,19 @@ public class LinorgFrame extends javax.swing.JFrame {
         }
     }
 
+    private Vector getSelectedNodes() {
+        Vector selectedNodes = new Vector();
+        JTree[] treesToSearch = new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree};
+        // iterate over allthe selected nodes in the available trees
+        for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
+            for (int selectedCount = 0; selectedCount < treesToSearch[treeCount].getSelectionCount(); selectedCount++) {
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) treesToSearch[treeCount].getSelectionPaths()[selectedCount].getLastPathComponent();
+                selectedNodes.add(parentNode.getUserObject());
+            }
+        }
+        return selectedNodes;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -114,6 +128,7 @@ public class LinorgFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         treePopupMenu = new javax.swing.JPopupMenu();
+        viewSelectedNodesMenuItem = new javax.swing.JMenuItem();
         copyBranchMenuItem = new javax.swing.JMenuItem();
         actorsToGridMenuItem = new javax.swing.JMenuItem();
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
@@ -138,9 +153,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         remoteCorpusTree = new javax.swing.JTree();
         rightSplitPane = new javax.swing.JSplitPane();
-        jDesktopPane1 = new javax.swing.JDesktopPane();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        previewTable = new javax.swing.JTable();
+        jDesktopPane1 = new javax.swing.JDesktopPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         exitMenuItem = new javax.swing.JMenuItem();
@@ -149,10 +164,19 @@ public class LinorgFrame extends javax.swing.JFrame {
         editLocationsMenuItem = new javax.swing.JMenuItem();
         editFieldViewsMenuItem = new javax.swing.JMenuItem();
         saveWindowsCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
+        showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         viewMenu = new javax.swing.JMenu();
         windowMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         aboutMenuItem = new javax.swing.JMenuItem();
+
+        viewSelectedNodesMenuItem.setText("View Selected");
+        viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewSelectedNodesMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(viewSelectedNodesMenuItem);
 
         copyBranchMenuItem.setText("Copy Branch to Offline Cache");
         copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -271,6 +295,11 @@ public class LinorgFrame extends javax.swing.JFrame {
                 treeMousePressed(evt);
             }
         });
+        localDirectoryTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTreeValueChanged(evt);
+            }
+        });
         jScrollPane2.setViewportView(localDirectoryTree);
 
         leftLocalSplitPane.setBottomComponent(jScrollPane2);
@@ -286,6 +315,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         localCorpusTree.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 treeMousePressed(evt);
+            }
+        });
+        localCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTreeValueChanged(evt);
             }
         });
         jScrollPane4.setViewportView(localCorpusTree);
@@ -307,6 +341,11 @@ public class LinorgFrame extends javax.swing.JFrame {
                 treeMousePressed(evt);
             }
         });
+        remoteCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                jTreeValueChanged(evt);
+            }
+        });
         jScrollPane3.setViewportView(remoteCorpusTree);
 
         leftSplitPane.setLeftComponent(jScrollPane3);
@@ -315,22 +354,12 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         rightSplitPane.setDividerSize(5);
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        rightSplitPane.setBottomComponent(jDesktopPane1);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        previewTable.setModel(guiHelper.getImdiTableModel());
+        jScrollPane1.setViewportView(previewTable);
 
         rightSplitPane.setLeftComponent(jScrollPane1);
+        rightSplitPane.setBottomComponent(jDesktopPane1);
 
         mainSplitPane.setRightComponent(rightSplitPane);
 
@@ -362,6 +391,15 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveWindowsCheckBoxMenuItem.setSelected(true);
         saveWindowsCheckBoxMenuItem.setText("Save Windows on Exit");
         optionsMenu.add(saveWindowsCheckBoxMenuItem);
+
+        showSelectionPreviewCheckBoxMenuItem.setSelected(true);
+        showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
+        showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showSelectionPreviewCheckBoxMenuItemActionPerformed(evt);
+            }
+        });
+        optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
 
         jMenuBar1.add(optionsMenu);
 
@@ -402,99 +440,94 @@ private void remoteCorpusTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent
 
 private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMousePressed
 // TODO add your handling code here:
-    // TODO: if right click and node under mouse is not selected then clear the selection and select the node under the mouse
-    if (!evt.isControlDown() && evt.getButton() == 1 && !evt.isShiftDown()) {//GEN-LAST:event_treeMousePressed
-            if (evt.getSource() != remoteCorpusTree) {
-                remoteCorpusTree.clearSelection();
-            }
-            if (evt.getSource() != localCorpusTree) {
-                localCorpusTree.clearSelection();
-            }
-            if (evt.getSource() != localDirectoryTree) {
-                localDirectoryTree.clearSelection();
-            }
-            ((javax.swing.JTree) evt.getSource()).setSelectionPath(((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY()));
-        } else {
-            javax.swing.tree.TreePath clickedNodePath = ((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY());
-            if (((javax.swing.JTree) evt.getSource()).isPathSelected(clickedNodePath)) {
-                ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
-            } else {
-                ((javax.swing.JTree) evt.getSource()).removeSelectionPath(clickedNodePath);
-            }
+    // test if click was over a selected node
+    javax.swing.tree.TreePath clickedNodePath = ((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY());
+    boolean clickedPathIsSelected = (((javax.swing.JTree) evt.getSource()).isPathSelected(clickedNodePath));
+
+    if ((!evt.isControlDown() && evt.getButton() == 1 && !evt.isShiftDown()) || (evt.getButton() == 3 && !clickedPathIsSelected)) {
+        if (evt.getSource() != remoteCorpusTree) {
+            remoteCorpusTree.clearSelection();
         }
-        if (evt.getButton() == 3) {
-            boolean showContextMenu = true;
-            int selectionCount = ((javax.swing.JTree) evt.getSource()).getSelectionCount();
-            int nodeLevel = -1;
-            if (selectionCount > 0) {
-                nodeLevel = ((javax.swing.JTree) evt.getSource()).getSelectionPath().getPathCount();
-            }
-            boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
-            boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
-            //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
-            // set up the contect menu
-            removeCachedCopyMenuItem.setVisible(false);
-            removeLocalDirectoryMenuItem.setVisible(false);
-            addLocalDirectoryMenuItem.setVisible(false);
-            removeRemoteCorpusMenuItem.setVisible(false);
-            addRemoteCorpusMenuItem.setVisible(false);
-            copyBranchMenuItem.setVisible(false);
-            copyImdiUrlMenuItem.setVisible(false);
-            viewXmlMenuItem.setVisible(false);
-            searchSubnodesMenuItem.setVisible(false);
-            reloadSubnodesMenuItem.setVisible(false);
-            actorsToGridMenuItem.setVisible(false);
-            addDefaultLocationsMenuItem.setVisible(false);
-
-            if (evt.getSource() == remoteCorpusTree) {
-                removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
-                addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
-                copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
-            }
-            if (evt.getSource() == localCorpusTree) {
-                removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
-                searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                showContextMenu = nodeLevel != 1;
-            }
-            if (evt.getSource() == localDirectoryTree) {
-                removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
-                addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
-            } else {
-                copyImdiUrlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                viewXmlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            }
-            // hide show the separators
-            treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && evt.getSource() != localDirectoryTree);
-            treePopupMenuSeparator1.setVisible(nodeLevel != 1 && evt.getSource() != localDirectoryTree);
-
-            // show the context menu
-            if (showContextMenu) {
-                treePopupMenu.show((java.awt.Component) evt.getSource(), evt.getX(), evt.getY());
-            }
+        if (evt.getSource() != localCorpusTree) {
+            localCorpusTree.clearSelection();
+        }
+        if (evt.getSource() != localDirectoryTree) {
+            localDirectoryTree.clearSelection();
+        }
+        ((javax.swing.JTree) evt.getSource()).setSelectionPath(((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY()));
+    } else {
+        if (clickedPathIsSelected) {
+            ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
+        } else {
+            ((javax.swing.JTree) evt.getSource()).removeSelectionPath(clickedNodePath);
         }
     }
+    if (evt.getButton() == 3) {
+        boolean showContextMenu = true;
+        int selectionCount = ((javax.swing.JTree) evt.getSource()).getSelectionCount();
+        int nodeLevel = -1;
+        if (selectionCount > 0) {
+            nodeLevel = ((javax.swing.JTree) evt.getSource()).getSelectionPath().getPathCount();
+        }
+        boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
+        boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
+        //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
+        // set up the contect menu
+        removeCachedCopyMenuItem.setVisible(false);
+        removeLocalDirectoryMenuItem.setVisible(false);
+        addLocalDirectoryMenuItem.setVisible(false);
+        removeRemoteCorpusMenuItem.setVisible(false);
+        addRemoteCorpusMenuItem.setVisible(false);
+        copyBranchMenuItem.setVisible(false);
+        copyImdiUrlMenuItem.setVisible(false);
+        viewXmlMenuItem.setVisible(false);
+        searchSubnodesMenuItem.setVisible(false);
+        reloadSubnodesMenuItem.setVisible(false);
+        actorsToGridMenuItem.setVisible(false);
+        addDefaultLocationsMenuItem.setVisible(false);
+
+        if (evt.getSource() == remoteCorpusTree) {
+            removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
+            addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
+            copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
+        }
+        if (evt.getSource() == localCorpusTree) {
+            removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
+            searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            showContextMenu = nodeLevel != 1;
+        }
+        if (evt.getSource() == localDirectoryTree) {
+            removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
+            addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
+        } else {
+            copyImdiUrlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            viewXmlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+        }
+        // hide show the separators
+        treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && evt.getSource() != localDirectoryTree);
+        treePopupMenuSeparator1.setVisible(nodeLevel != 1 && evt.getSource() != localDirectoryTree);
+
+        // show the context menu
+        if (showContextMenu) {
+            treePopupMenu.show((java.awt.Component) evt.getSource(), evt.getX(), evt.getY());
+        }
+    }
+    }//GEN-LAST:event_treeMousePressed
 
 private void actorsToGridMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actorsToGridMenuItemActionPerformed
 // TODO add your handling code here:
-    String searchString = "Actor";//GEN-LAST:event_actorsToGridMenuItemActionPerformed
-        Vector selectedNodes = new Vector();
-        JTree[] treesToSearch = new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree};
-        // iterate over allthe selected nodes in the available trees
-        for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
-            for (int selectedCount = 0; selectedCount < treesToSearch[treeCount].getSelectionCount(); selectedCount++) {
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) treesToSearch[treeCount].getSelectionPaths()[selectedCount].getLastPathComponent();
-                selectedNodes.add(parentNode.getUserObject());
-            }
-        }
-        if (selectedNodes.size() == 0) {
-            JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", 0);
-        } else {
-            SearchDialog searchDialog = new SearchDialog(JOptionPane.getFrameForComponent(linorgWindowManager.desktopPane), selectedNodes, searchString);
-        }
+    String searchString = "Actor";
+    Vector selectedNodes = getSelectedNodes();
+
+    if (selectedNodes.size() == 0) {
+        JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", 0);
+    } else {
+        SearchDialog searchDialog = new SearchDialog(linorgWindowManager, selectedNodes, searchString);
     }
+    }//GEN-LAST:event_actorsToGridMenuItemActionPerformed
 
 private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
 // TODO add your handling code here:
@@ -615,21 +648,71 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    Vector selectedNodes = new Vector();
-    JTree[] treesToSearch = new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree};
-    // iterate over allthe selected nodes in the available trees
-    for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
-        for (int selectedCount = 0; selectedCount < treesToSearch[treeCount].getSelectionCount(); selectedCount++) {
-            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) treesToSearch[treeCount].getSelectionPaths()[selectedCount].getLastPathComponent();
-            selectedNodes.add(parentNode.getUserObject());
-        }
-    }
+    Vector selectedNodes = getSelectedNodes();
     if (selectedNodes.size() == 0) {
         JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", 0);
     } else {
-        SearchDialog searchDialog = new SearchDialog(JOptionPane.getFrameForComponent(linorgWindowManager.desktopPane), selectedNodes, null);
+        SearchDialog searchDialog = new SearchDialog(linorgWindowManager, selectedNodes, null);
     }
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
+
+private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
+// TODO add your handling code here:
+    if (showSelectionPreviewCheckBoxMenuItem.getState()) {
+        // count the total number of selected nodes across all trees
+        int selectedNodesCount = remoteCorpusTree.getSelectionCount();
+        selectedNodesCount += localCorpusTree.getSelectionCount();
+        selectedNodesCount += localDirectoryTree.getSelectionCount();
+
+        // if there are no nodes selected then clear the grid
+        if (0 == selectedNodesCount) {
+            guiHelper.removeAllFromGridData(previewTable.getModel());
+        } else {
+            Vector nodesToRemove = new Vector();
+            Vector nodesToAdd = new Vector();
+            // Make a list of nodes to be removed and a separate list of nodes to ba added
+            // this may not be the quickest way to do this but it will reduce redraws and make the other calls simpler
+            for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
+                if (evt.isAddedPath(selectedCount)) {
+                    System.out.println("adding: " + parentNode.getPath());
+                    nodesToAdd.add(parentNode.getUserObject());
+                } else {
+                    System.out.println("removing: " + parentNode.getPath());
+                    nodesToRemove.add(parentNode.getUserObject());
+                }
+            }
+            guiHelper.removeFromGridData(previewTable.getModel(), nodesToRemove);
+            guiHelper.addToGridData(previewTable.getModel(), nodesToAdd);
+        }
+    }
+}//GEN-LAST:event_jTreeValueChanged
+
+private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
+// TODO add your handling code here:
+    if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
+        // remove the right split split and show only the jdesktoppane
+        mainSplitPane.remove(rightSplitPane);
+        mainSplitPane.setRightComponent(jDesktopPane1);
+        // clear the grid to keep things tidy
+        guiHelper.removeAllFromGridData(previewTable.getModel());
+    } else {
+        // put the jdesktoppane and the preview grid back into the right split pane
+        mainSplitPane.remove(jDesktopPane1);
+        mainSplitPane.setRightComponent(rightSplitPane);
+        rightSplitPane.setTopComponent(jScrollPane1);
+        rightSplitPane.setBottomComponent(jDesktopPane1);
+        rightSplitPane.setDividerLocation(0.1);
+        // update the preview data grid
+        guiHelper.removeAllFromGridData(previewTable.getModel());
+        guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes());
+    }
+}
+
+private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
+// TODO add your handling code here:
+    linorgWindowManager.openFloatingTable(getSelectedNodes().elements(), "Selection");
+}//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
     /**
     * @param args the command line arguments
@@ -662,13 +745,13 @@ private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTable jTable1;
     private javax.swing.JSplitPane leftLocalSplitPane;
     private javax.swing.JSplitPane leftSplitPane;
     private javax.swing.JTree localCorpusTree;
     private javax.swing.JTree localDirectoryTree;
     private javax.swing.JSplitPane mainSplitPane;
     private javax.swing.JMenu optionsMenu;
+    private javax.swing.JTable previewTable;
     private javax.swing.JMenuItem reloadSubnodesMenuItem;
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JMenuItem removeCachedCopyMenuItem;
@@ -677,10 +760,12 @@ private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JSplitPane rightSplitPane;
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private javax.swing.JMenuItem searchSubnodesMenuItem;
+    private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JSeparator treePopupMenuSeparator1;
     private javax.swing.JSeparator treePopupMenuSeparator2;
     private javax.swing.JMenu viewMenu;
+    private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
     private javax.swing.JMenu windowMenu;
     // End of variables declaration//GEN-END:variables
