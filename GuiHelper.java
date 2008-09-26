@@ -10,25 +10,20 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.io.File;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
-import javax.swing.JTree;
-import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
  *
@@ -38,13 +33,12 @@ public class GuiHelper {
 
     static ImdiHelper imdiHelper;
     static ImdiFieldViews imdiFieldViews;
-    private LinorgSessionStorage linorgSessionStorage;
+    static TreeHelper treeHelper = new TreeHelper();
+    static LinorgSessionStorage linorgSessionStorage;
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
-    private Vector locationsList; // this is the list of locations seen in the tree and the location settings
-    private Hashtable locationTreeNodes = new Hashtable(); // this is used to find the location tree node when it is to be removed via the ulr
-//    MapView mapView;
+    //private MapView mapView;
     private JPanel selectedFilesPanel;
-    private LinorgWindowManager linorgWindowManager;
+    static LinorgWindowManager linorgWindowManager;
     // create a clip board owner for copy and paste actions
     static ClipboardOwner clipboardOwner = new ClipboardOwner() {
 
@@ -58,7 +52,7 @@ public class GuiHelper {
         linorgSessionStorage = tempLinorgSessionStorage;
         imdiHelper = new ImdiHelper(linorgSessionStorage);
         imdiFieldViews = new ImdiFieldViews(linorgSessionStorage);
-        loadLocationsList();
+        treeHelper.loadLocationsList();
     }
 
     public void setWindowManager(LinorgWindowManager localLinorgWindowManager) {
@@ -68,44 +62,7 @@ public class GuiHelper {
     public void saveState() {
         imdiHelper.saveMd5sumIndex();
         imdiFieldViews.saveViewsToFile();
-        try {
-            linorgSessionStorage.saveObject(locationsList, "locationsList");
-            System.out.println("saved locationsList");
-        } catch (Exception ex) {
-            System.out.println("save locationsList exception: " + ex.getMessage());
-        }
-    }
-
-    public int addDefaultCorpusLocations() {
-        int addedCount = 0;
-        if (addLocation("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi")) {
-            addedCount++;
-        }
-        return addedCount;
-    }
-
-    private void loadLocationsList() {
-        try {
-            locationsList = (Vector) linorgSessionStorage.loadObject("locationsList");
-        } catch (Exception ex) {
-            System.out.println("load locationsList exception: " + ex.getMessage());
-        }
-        if (locationsList == null) {
-            locationsList = new Vector();
-//            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
-//            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
-//            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
-//            locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
-//            //locationsList.add("http://lux16.mpi.nl/corpora/ac-ESF/Info/ladfc2.txt");
-//            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
-//            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Comprehension/Elizabeth_Johnson/Corpusstructure/1.imdi");
-//            //locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
-            addDefaultCorpusLocations();
-            System.out.println("created new locationsList");
-        }
+        treeHelper.saveLocations();
     }
 
     public void initViewMenu(javax.swing.JMenu viewMenu) {
@@ -127,14 +84,6 @@ public class GuiHelper {
             });
             viewMenu.add(viewLabelRadioButtonMenuItem);
         }
-    }
-
-    public DefaultMutableTreeNode getImdiTreeNode(String urlString) {
-        DefaultMutableTreeNode treeNode;
-        ImdiHelper.ImdiTreeObject imdiTreeObject = imdiHelper.getTreeNodeObject(urlString);
-        treeNode = new DefaultMutableTreeNode(imdiTreeObject);
-        treeNode.setAllowsChildren(imdiTreeObject.isImdi() || imdiTreeObject.isDirectory());
-        return treeNode;
     }
 // date filter code
     public void updateDateSlider(JSlider dateSlider) {
@@ -185,53 +134,15 @@ public class GuiHelper {
         }
     }
 
-    public void copyBranchToCashe(JDesktopPane destinationComp, Object selectedNodeUserObject) {
-        String dialogTitle = "Copy Brach";
-        if (imdiHelper.isImdiNode(selectedNodeUserObject)) {
-            boolean moreToLoad = true;
-            while (moreToLoad) {
-                int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) selectedNodeUserObject).getChildCount();
-                System.out.println("children not loaded: " + tempChildCountArray[0] + " loaded:" + tempChildCountArray[1]);
-                moreToLoad = (tempChildCountArray[0] != 0);
-                if (moreToLoad) {
-                    if (0 != JOptionPane.showConfirmDialog(destinationComp, tempChildCountArray[0] + " out of " + (tempChildCountArray[0] + tempChildCountArray[1]) + "nodes are not loaded\ndo you want to continue?", "Loading Children", 0)) {
-                        return;
-                    }
-                    ((ImdiHelper.ImdiTreeObject) selectedNodeUserObject).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5);
-                }
-            }
-            //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
-            String destinationDirectory = linorgSessionStorage.storageDirectory + File.separatorChar + "imdicache";
-            File destinationFile = new File(destinationDirectory);
-            boolean cacheDirExists = destinationFile.exists();
-            if (!cacheDirExists) {
-                cacheDirExists = destinationFile.mkdir();
-            }
-            //destinationDirectory = destinationDirectory + File.separator + mirrorNameString;
-            //boolean brachDirCreated = (new File(destinationDirectory)).mkdir();
-            // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
-            if (cacheDirExists) {
-                destinationDirectory = destinationDirectory + File.separatorChar;
-                JOptionPane.showMessageDialog(destinationComp, "Saving to: " + destinationDirectory, dialogTitle, 0);
-                String newNodeLocation = ((ImdiHelper.ImdiTreeObject) selectedNodeUserObject).saveBrachToLocal(destinationDirectory);
-                if (newNodeLocation != null) {
-                    addLocation("file://" + newNodeLocation);
-                // TODO: create an imdinode to contain the name and point to the location
-                }
-            } else {
-                JOptionPane.showMessageDialog(destinationComp, "Could not create the local directory", dialogTitle, 0);
-            }
-        }
-    }
-
     public void searchSelectedNodes(Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
-        int[] childCountArray = new int[]{0, 0};
+        //int[] childCountArray = new int[]{0, 0};
         int messageIconIndex = 0;
         if (selectedNodes.size() == 0) {
             JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", messageIconIndex);
             return;
         } else {
-            SearchDialog searchDialog = new SearchDialog(linorgWindowManager, selectedNodes, searchString);
+            ThreadedDialog threadedDialog = new ThreadedDialog();
+            threadedDialog.searchNodes(selectedNodes, searchString);
         //Hashtable foundNodes = searchDialog.getFoundNodes();
 //            if (foundNodes.size() > 0) {
 //                String frameTitle;
@@ -432,40 +343,11 @@ public class GuiHelper {
                     selectedFilesPanel.remove((Component) selectedFilesList.remove(hashKey));
                     selectedFilesPanel.revalidate();
                     selectedFilesPanel.repaint();
-                    // remove any map layers
+                // remove any map layers
 //                    if (mapView.isGisFile(hashKey)) {
 //                        mapView.removeLayer(hashKey);
 //                    }
                 }
-            }
-        }
-    }
-
-    private void addNodeOnce(DefaultMutableTreeNode localDirectoryNode, String currentLocation) {
-        boolean nodeExists = false;
-        Enumeration localCorpusChildren = localDirectoryNode.children();
-        while (localCorpusChildren.hasMoreElements()) {
-            if (currentLocation.equals(((ImdiHelper.ImdiTreeObject) ((DefaultMutableTreeNode) localCorpusChildren.nextElement()).getUserObject()).getUrl())) {
-                nodeExists = true;
-            }
-        }
-        if (nodeExists) {
-            //localDirectoryNode.add(getImdiTreeNode("duplicate"));
-        } else {
-            DefaultMutableTreeNode currentTreeNode = getImdiTreeNode(currentLocation);
-            locationTreeNodes.put(currentLocation, currentTreeNode);
-            localDirectoryNode.add(currentTreeNode);
-        }
-    }
-
-    private void removeExtraneousNodes() {
-        Enumeration locationNodesEnum = locationTreeNodes.keys();
-        while (locationNodesEnum.hasMoreElements()) {
-            String currentLocation = (String) locationNodesEnum.nextElement();
-            if (!locationsList.contains(currentLocation)) {
-                System.out.println("removing location: " + currentLocation);
-                ((DefaultMutableTreeNode) locationTreeNodes.get(currentLocation)).removeFromParent();
-                locationTreeNodes.remove(currentLocation);
             }
         }
     }
@@ -475,125 +357,6 @@ public class GuiHelper {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection stringSelection = new StringSelection(((ImdiHelper.ImdiTreeObject) selectedNode.getUserObject()).getUrl());
             clipboard.setContents(stringSelection, clipboardOwner);
-        }
-    }
-
-    public void applyRootLocations(DefaultMutableTreeNode localDirectoryNode, DefaultMutableTreeNode localCorpusNode, DefaultMutableTreeNode remoteCorpusNode) {
-        Enumeration locationEnum = locationsList.elements();
-        while (locationEnum.hasMoreElements()) {
-            String currentLocation = locationEnum.nextElement().toString();
-            System.out.println("currentLocation: " + currentLocation);
-            if (imdiHelper.isStringLocal(currentLocation)) {
-                // is local
-                if (imdiHelper.isStringImdi(currentLocation)) {
-                    // is an imdi
-                    addNodeOnce(localCorpusNode, currentLocation);
-                } else {
-                    // not an imdi
-                    addNodeOnce(localDirectoryNode, currentLocation);
-                }
-            } else {
-                // is a remote file or imdi
-                addNodeOnce(remoteCorpusNode, currentLocation);
-            }
-        }
-        removeExtraneousNodes();
-    }
-
-    public javax.swing.table.DefaultTableModel getLocationsTableModel() {
-        Object[][] tableObjectAray = new Object[locationsList.size()][2];
-        Enumeration locationEnum = locationsList.elements();
-        int rowCounter = 0;
-        while (locationEnum.hasMoreElements()) {
-            tableObjectAray[rowCounter][1] = locationEnum.nextElement();
-            if (imdiHelper.isStringImdi(tableObjectAray[rowCounter][1].toString())) {
-                // is an imdi
-                if (imdiHelper.isStringLocal(tableObjectAray[rowCounter][1].toString())) {
-                    tableObjectAray[rowCounter][0] = (Object) ImdiHelper.corpuslocalicon;
-                } else {
-                    tableObjectAray[rowCounter][0] = ImdiHelper.corpusservericon;
-                }
-            } else {
-                // is not an imdi
-                if (imdiHelper.isStringLocal(tableObjectAray[rowCounter][1].toString())) {
-                    tableObjectAray[rowCounter][0] = ImdiHelper.directoryIcon;
-                } else {
-                    tableObjectAray[rowCounter][0] = ImdiHelper.stopicon;
-                }
-            }
-            rowCounter++;
-        }
-        return new javax.swing.table.DefaultTableModel(tableObjectAray, new String[]{"", "Location"}) {
-
-            Class[] types = new Class[]{
-                javax.swing.Icon.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
-            }
-        };
-    }
-
-    public boolean addLocation(String addedLocation) {
-        System.out.println("addLocation" + addedLocation);
-        if (!locationsList.contains(addedLocation)) {
-            locationsList.add(addedLocation);
-            return true;
-        }
-        return false;
-    }
-
-    public void removeLocation(Object removeObject) {
-        if (imdiHelper.isImdiNode(removeObject)) {
-            removeLocation(((ImdiHelper.ImdiTreeObject) removeObject).getUrl()); //.replace("file://", "")
-        }
-    }
-
-    public void removeLocation(String removeLocation) {
-        System.out.println("removeLocation: " + removeLocation);
-        locationsList.remove(removeLocation);
-    }
-
-//    public void updateLocationsFromModel(javax.swing.table.DefaultTableModel changedTableModel) {
-//        Vector updatedLocations = new Vector();
-//        for (int rowCounter = 0; rowCounter < changedTableModel.getRowCount(); rowCounter++) {
-//            updatedLocations.add(changedTableModel.getValueAt(rowCounter, 1));
-//        }
-//        locationsList = updatedLocations;
-//    }
-    public ImdiTreeRenderer getImdiTreeRenderer() {
-        return new ImdiTreeRenderer();
-    }
-
-    public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
-
-        public ImdiTreeRenderer() {
-        }
-
-        public Component getTreeCellRendererComponent(
-                JTree tree,
-                Object value,
-                boolean sel,
-                boolean expanded,
-                boolean leaf,
-                int row,
-                boolean hasFocus) {
-
-            super.getTreeCellRendererComponent(
-                    tree, value, sel,
-                    expanded, leaf, row,
-                    hasFocus);
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-            if (imdiHelper.isImdiNode(node.getUserObject())) {
-                ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) node.getUserObject();
-
-                setIcon(imdiTreeObject.getIcon());
-                setToolTipText(imdiTreeObject.toString());
-                setEnabled(imdiTreeObject.getNodeEnabled());
-            //setVisible(imdiTreeObject.getNodeEnabled());
-            }
-            return this;
         }
     }
 }
