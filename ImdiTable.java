@@ -95,7 +95,7 @@ public class ImdiTable extends JTable {
 
                         public void actionPerformed(ActionEvent e) {
                             //System.out.println("editViewNenuItem: " + targetTable.toString());
-                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent((Component)e.getSource()), true);
+                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane), true);
                             Container dialogcontainer = editViewsDialog.getContentPane();
                             dialogcontainer.setLayout(new BorderLayout());
                             editViewsDialog.setSize(600, 400);

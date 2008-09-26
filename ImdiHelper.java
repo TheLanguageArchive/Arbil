@@ -543,6 +543,21 @@ public class ImdiHelper {
             }
         }
 
+        public String getSaveLocation(String destinationDirectory) {
+            if (this.isImdi() && !this.isImdiChild()) {
+                //this file name must be set from the imdi url by removing the servername but keeping the path  and appending it to the destination directory
+                String fileName = this.getUrl();
+//                if (fileName.toLowerCase().startsWith("http://")) {
+//                    fileName = fileName.substring("http://".length());
+//                } else {
+//                    // there may be ftp or other archive types that need different methods
+//                    throw new UnsupportedOperationException("Not supported yet.");
+//                }
+                return destinationDirectory + fileName.replace("://", "/");
+            }
+            return null;
+        }
+
         // before this is called it is recomended to confirm that the destinationDirectory path already exist and is correct, otherwise inintended directories maybe created
         public String saveBrachToLocal(String destinationDirectory) {
             System.out.println("saveBrachToLocal: " + this.toString());
@@ -550,15 +565,8 @@ public class ImdiHelper {
                 if (nodDom != null) {
                     //System.out.println("saveBrachToLocal: " + this.getUrl());
                     //System.out.println("saveBrachToLocal: " + this.nodDom.);
-                    //this file name must be set from the imdi url by removing the servername but keeping the path  and appending it to the destination directory
-                    String fileName = this.getUrl();
-                    if (fileName.toLowerCase().startsWith("http://")) {
-                        fileName = fileName.substring("http://".length());
-                    } else {
-                        // there may be ftp or other archive types that need different methods
-                        throw new UnsupportedOperationException("Not supported yet.");
-                    }
-                    String destinationPath = destinationDirectory + fileName;
+
+                    String destinationPath = getSaveLocation(destinationDirectory);
                     System.out.println("destinationPath: " + destinationPath);
                     File tempFile = new File(destinationPath);
                     if (!tempFile.getParentFile().exists()) {

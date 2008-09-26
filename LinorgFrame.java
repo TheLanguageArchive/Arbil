@@ -5,7 +5,6 @@
  */
 package mpi.linorg;
 
-import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -46,7 +45,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         localCorpusRootNode = new DefaultMutableTreeNode("Local Corpus Cache");
         remoteCorpusRootNode = new DefaultMutableTreeNode("Remote Corpus");
         localDirectoryRootNode = new DefaultMutableTreeNode("Local File System");
-        guiHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
+        GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
 
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
@@ -59,9 +58,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         ToolTipManager.sharedInstance().registerComponent(localCorpusTree);
         ToolTipManager.sharedInstance().registerComponent(remoteCorpusTree);
         // Enable the tree icons
-        localCorpusTree.setCellRenderer(guiHelper.getImdiTreeRenderer());
-        remoteCorpusTree.setCellRenderer(guiHelper.getImdiTreeRenderer());
-        localDirectoryTree.setCellRenderer(guiHelper.getImdiTreeRenderer());
+        localCorpusTree.setCellRenderer(GuiHelper.treeHelper.getImdiTreeRenderer());
+        remoteCorpusTree.setCellRenderer(GuiHelper.treeHelper.getImdiTreeRenderer());
+        localDirectoryTree.setCellRenderer(GuiHelper.treeHelper.getImdiTreeRenderer());
 
         imdiDragDrop.addDrop(localCorpusTree);
 
@@ -80,20 +79,20 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         setSize(800, 600);
         //this.setExtendedState(Frame.MAXIMIZED_BOTH);
-        
+
         setVisible(true);
-        
+
         linorgWindowManager = new LinorgWindowManager(windowMenu, jDesktopPane1);
         guiHelper.setWindowManager(linorgWindowManager);
         guiHelper.initViewMenu(viewMenu);
     }
 
     private void addLocation(String addableLocation) {
-        if (!guiHelper.addLocation(addableLocation)) {
+        if (!GuiHelper.treeHelper.addLocation(addableLocation)) {
             // alert the user when the node already exists and cannot be added again
             JOptionPane.showMessageDialog(this, "The location already exists and cannot be added again", "Add location", JOptionPane.INFORMATION_MESSAGE);
         }
-        guiHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
+        GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
         //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
         localDirectoryTreeModel.reload();
         localCorpusTreeModel.reload();
@@ -104,17 +103,16 @@ public class LinorgFrame extends javax.swing.JFrame {
         if (selectedTreeNode == null) {
             JOptionPane.showMessageDialog(jDesktopPane1, "No node selected", "", 0);
         } else {
-            guiHelper.removeLocation(selectedTreeNode.getUserObject());
-            guiHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
+            GuiHelper.treeHelper.removeLocation(selectedTreeNode.getUserObject());
+            GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
             localDirectoryTreeModel.reload();
             localCorpusTreeModel.reload();
             remoteCorpusTreeModel.reload();
         }
     }
 
-    private Vector getSelectedNodes() {
+    private Vector getSelectedNodes(JTree[] treesToSearch) {
         Vector selectedNodes = new Vector();
-        JTree[] treesToSearch = new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree};
         // iterate over allthe selected nodes in the available trees
         for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
             for (int selectedCount = 0; selectedCount < treesToSearch[treeCount].getSelectionCount(); selectedCount++) {
@@ -522,31 +520,23 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             treePopupMenu.show((java.awt.Component) evt.getSource(), evt.getX(), evt.getY());
         }
     }
-    }//GEN-LAST:event_treeMousePressed
+}//GEN-LAST:event_treeMousePressed
 
 private void actorsToGridMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actorsToGridMenuItemActionPerformed
 // TODO add your handling code here:
-    String searchString = "Actor";
-    Vector selectedNodes = getSelectedNodes();
-
-    if (selectedNodes.size() == 0) {
-        JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", 0);
-    } else {
-        SearchDialog searchDialog = new SearchDialog(linorgWindowManager, selectedNodes, searchString);
-    }
-    }//GEN-LAST:event_actorsToGridMenuItemActionPerformed
+    ThreadedDialog threadedDialog = new ThreadedDialog();
+    threadedDialog.searchNodes(getSelectedNodes(new JTree[]{localCorpusTree}), "Actor");
+}//GEN-LAST:event_actorsToGridMenuItemActionPerformed
 
 private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
 // TODO add your handling code here:
-    if (remoteCorpusTree.getLeadSelectionPath() == null) {
-        JOptionPane.showMessageDialog(jDesktopPane1, "No node selected", "", 0);
-    } else {
-        guiHelper.copyBranchToCashe(jDesktopPane1, ((DefaultMutableTreeNode) remoteCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject());
-        guiHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
-        localDirectoryTreeModel.reload();
-        localCorpusTreeModel.reload();
-        remoteCorpusTreeModel.reload();
-    }
+    ThreadedDialog threadedDialog = new ThreadedDialog();
+    threadedDialog.copyToCache(getSelectedNodes(new JTree[]{remoteCorpusTree}));
+    // update the tree and reload the ui
+    GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
+    localDirectoryTreeModel.reload();
+    localCorpusTreeModel.reload();
+    remoteCorpusTreeModel.reload();
 }//GEN-LAST:event_copyBranchMenuItemActionPerformed
 
 private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLocalDirectoryMenuItemActionPerformed
@@ -615,8 +605,8 @@ private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent e
 
 private void addDefaultLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDefaultLocationsMenuItemActionPerformed
 // TODO add your handling code here:
-    if (0 < guiHelper.addDefaultCorpusLocations()) {
-        guiHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
+    if (0 < GuiHelper.treeHelper.addDefaultCorpusLocations()) {
+        GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
         localDirectoryTreeModel.reload();
         localCorpusTreeModel.reload();
         remoteCorpusTreeModel.reload();
@@ -655,12 +645,8 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    Vector selectedNodes = getSelectedNodes();
-    if (selectedNodes.size() == 0) {
-        JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", 0);
-    } else {
-        SearchDialog searchDialog = new SearchDialog(linorgWindowManager, selectedNodes, null);
-    }
+    ThreadedDialog threadedDialog = new ThreadedDialog();
+    threadedDialog.searchNodes(getSelectedNodes(new JTree[]{localCorpusTree}), null);
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
 private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
@@ -712,13 +698,13 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
             rightSplitPane.setDividerLocation(0.1);
             // update the preview data grid
             guiHelper.removeAllFromGridData(previewTable.getModel());
-            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes());
+            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }
     }
 
 private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
 // TODO add your handling code here:
-    linorgWindowManager.openFloatingTable(getSelectedNodes().elements(), "Selection");
+    linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}).elements(), "Selection");
 }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
     /**
