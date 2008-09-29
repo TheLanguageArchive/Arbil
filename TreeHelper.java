@@ -8,6 +8,9 @@ import java.awt.Component;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -139,6 +142,20 @@ public class TreeHelper {
             }
         }
         removeExtraneousNodes();
+    }
+
+    public void showLocationsDialog() {
+        // TODO: it would be preferable to move all dialog creation and management into the linorgwindowmanager
+        JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane));
+        settingsjDialog.setLocationRelativeTo(GuiHelper.linorgWindowManager.desktopPane);
+        JTable locationSettingsTable = new JTable(GuiHelper.treeHelper.getLocationsTableModel());
+        // set the icon column width
+        locationSettingsTable.getColumnModel().getColumn(0).setPreferredWidth(1);
+        locationSettingsTable.getColumnModel().getColumn(1).setPreferredWidth(1000);
+        javax.swing.JScrollPane scrollPane = new javax.swing.JScrollPane(locationSettingsTable);
+        settingsjDialog.add(scrollPane);
+        settingsjDialog.setSize(400, 300);
+        settingsjDialog.setVisible(true);
     }
 
     public javax.swing.table.DefaultTableModel getLocationsTableModel() {

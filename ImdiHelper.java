@@ -4,10 +4,6 @@
  */
 package mpi.linorg;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
-import java.awt.datatransfer.StringSelection;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
 import org.w3c.dom.Document;
@@ -25,7 +21,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.table.AbstractTableModel;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -118,6 +113,13 @@ public class ImdiHelper {
         linorgSessionStorage = tempLinorgSessionStorage;
         loadMd5sumIndex();
     }
+    boolean debugOn = false;
+
+    private void debugOut(String messageString) {
+        if (debugOn) {
+            System.out.println(messageString);
+        }
+    }
 
     private void loadMd5sumIndex() {
         try {
@@ -191,7 +193,7 @@ public class ImdiHelper {
         boolean nodeEnabled = true;
 
         protected ImdiTreeObject(String localNodeText, String localUrlString) {
-            System.out.println("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
+            debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
             nodeText = localNodeText;
             nodDom = null;
             urlString = localUrlString;
@@ -266,14 +268,14 @@ public class ImdiHelper {
                 try {
                     if (this.getNodeDom() != null) {
                         OurURL baseURL = new OurURL(this.getUrl());
-                        System.out.println("getIMDILinks");
+                        debugOut("getIMDILinks");
                         IMDILink[] links = api.getIMDILinks(this.getNodeDom(), baseURL, WSNodeType.CORPUS);
-                        System.out.println("links.length: " + links.length);
+                        debugOut("links.length: " + links.length);
                         if (links != null) {
                             returnArray = new String[links.length];
                             for (int linkCount = 0; linkCount < links.length; linkCount++) {
                                 returnArray[linkCount] = links[linkCount].getRawURL().toString();
-                                System.out.println("link:" + returnArray[linkCount]);
+                                debugOut("link:" + returnArray[linkCount]);
                             }
                         }
                     }
@@ -352,7 +354,7 @@ public class ImdiHelper {
 //                        }
                     } else {
                         for (int linkCount = 0; linkCount < linkArray.length && linkCount < 10; linkCount++) {
-                            System.out.println("linkArray: " + linkArray[linkCount]);
+                            debugOut("linkArray: " + linkArray[linkCount]);
                             ImdiTreeObject currentImdi = new ImdiTreeObject(null, linkArray[linkCount]);
 //                        tempImdiVector.add(currentImdi);
                             childrenHashtable.put(currentImdi.getUrl(), currentImdi);
@@ -415,7 +417,7 @@ public class ImdiHelper {
                 if (localName != null) {
                     if (childNames.contains(localName)) {
                         childrenWithSiblings.put(localName, 1);
-                        System.out.println("childrenWithSiblings: " + localName);
+                        debugOut("childrenWithSiblings: " + localName);
                     } else {
                         childNames.add(localName);
                     }
@@ -441,7 +443,7 @@ public class ImdiHelper {
 //                }
                 if (!nodePath.contains("CorpusLink")) {
                     if (nodeValue != null && nodeValue.trim().length() > 0) {
-                        System.out.println("nextChild: " + nodePath + siblingSpacer + " : " + nodeValue);
+                        debugOut("nextChild: " + nodePath + siblingSpacer + " : " + nodeValue);
                         this.addField(translateFieldName(nodePath + siblingSpacer), 0, nodeValue);
                     // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
                     }
@@ -462,10 +464,10 @@ public class ImdiHelper {
 
         public void searchNodes(Hashtable foundNodes, String searchString) {
             if (!foundNodes.containsKey(this.getUrl())) {
-//                System.out.println("searching: " + this.getUrl());
+//                debugOut("searching: " + this.getUrl());
                 if (this.getUrl().contains(searchString)) {
                     foundNodes.put(this.getUrl(), this);
-                    System.out.println("found: " + this.getUrl());
+                    debugOut("found: " + this.getUrl());
                 }
             }
             Enumeration nodesToAddEnumeration = childrenHashtable.elements();
@@ -503,7 +505,7 @@ public class ImdiHelper {
         }
 
         public int[] getChildCount() {
-            System.out.println("getChildCount: " + this.toString());
+            debugOut("getChildCount: " + this.toString());
             int[] returnArray = new int[2];
             returnArray[0] = 0;
             returnArray[1] = 0;
@@ -525,7 +527,7 @@ public class ImdiHelper {
         }
 
         public void loadNextLevelOfChildren(long stopTime) {
-            System.out.println("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
+            debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
             if (System.currentTimeMillis() > stopTime) {
                 return;
             }
@@ -567,7 +569,7 @@ public class ImdiHelper {
                     //System.out.println("saveBrachToLocal: " + this.nodDom.);
 
                     String destinationPath = getSaveLocation(destinationDirectory);
-                    System.out.println("destinationPath: " + destinationPath);
+                    debugOut("destinationPath: " + destinationPath);
                     File tempFile = new File(destinationPath);
                     if (!tempFile.getParentFile().exists()) {
                         tempFile.getParentFile().mkdirs();
@@ -605,7 +607,7 @@ public class ImdiHelper {
 //            }
             //fieldUrl.substring(firstSeparator + 1)
             int nextChildLevel = fieldUrl.replace(")", "(").indexOf("(", childLevel);
-            System.out.println("fieldLabel: " + fieldUrl + " cellValue: " + fieldValue + " childLevel: " + childLevel + " nextChildLevel: " + nextChildLevel);
+            debugOut("fieldLabel: " + fieldUrl + " cellValue: " + fieldValue + " childLevel: " + childLevel + " nextChildLevel: " + nextChildLevel);
             if (nextChildLevel == -1) {
                 // add the label to this level node
 //                if (fieldLabel == null) fieldLabel = "oops null";
@@ -647,7 +649,7 @@ public class ImdiHelper {
                 // pass the label to the child nodes
                 String childsName = fieldUrl.substring(childLevel, nextChildLevel);
                 //String parentName = fieldLabel.substring(0, firstSeparator);
-                System.out.println("childsName: " + childsName);
+                debugOut("childsName: " + childsName);
                 if (!childrenHashtable.containsKey(childsName)) {
                     ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldUrl);
                     tempImdiTreeObject.imdiDataLoaded = true;
@@ -694,7 +696,7 @@ public class ImdiHelper {
 
         public String getHash(File targetFile, String nodeLocation) {
             if (hashString == null && targetFile.canRead() && !this.isDirectory()/* && !this.isImdiChild()*/) {
-                System.out.println("getHash: " + targetFile + " : " + nodeLocation);
+                debugOut("getHash: " + targetFile + " : " + nodeLocation);
                 // TODO: add hashes for session links 
                 // TODO: organise a way to get the md5 sum of files on the server
                 try {
@@ -712,9 +714,9 @@ public class ImdiHelper {
                         hexString.append(Integer.toHexString(0x0100 + (md5sum[i] & 0x00FF)).substring(1));
                     }
                     hashString = hexString.toString();
-//                    System.out.println("file: " + this.getFile().getAbsolutePath());
-//                    System.out.println("location: " + getUrl());
-//                    System.out.println("digest: " + digest.toString());                    
+//                    debugOut("file: " + this.getFile().getAbsolutePath());
+//                    debugOut("location: " + getUrl());
+//                    debugOut("digest: " + digest.toString());                    
                 } catch (Exception ex) {
                     System.out.println("failed to created hash: " + ex.getMessage());
                 }
@@ -732,7 +734,7 @@ public class ImdiHelper {
                                 Object currentElement = otherNodesEnum.nextElement();
                                 Object currentNode = urlToNodeHashtable.get(currentElement);
                                 if (isImdiNode(currentNode)) {
-                                    //System.out.println("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
+                                    //debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
                                     // clear the icon of the other copies so that they will be updated to indicate the commonality
                                     ((ImdiTreeObject) currentNode).clearIcon();
                                 }
@@ -922,370 +924,6 @@ public class ImdiHelper {
 //            }                        
             }
             return icon;
-        }
-    }
-
-// TODO: remove this when testing done
-    public ImdiTableModel getImdiTableModel() {
-        return new ImdiTableModel();
-    }
-
-    public class ImdiTableModel extends AbstractTableModel {
-
-        private boolean showIcons = false;
-        private Hashtable imdiObjectHash = new Hashtable();
-        private Hashtable columnNameHash = new Hashtable();
-        FieldView tableFieldView = new FieldView();
-        private int[] maxColumnWidths;
-        int sortColumn = -1;
-
-        public Enumeration getImdiNodes() {
-            return imdiObjectHash.elements();
-        }
-
-        public void setShowIcons(boolean localShowIcons) {
-            showIcons = localShowIcons;
-            columnNameHash.put("<rowicon>", 2);
-        }
-
-        public void addImdiObjects(Enumeration nodesToAdd) {
-            while (nodesToAdd.hasMoreElements()) {
-                addImdiObject((ImdiTreeObject) nodesToAdd.nextElement());
-            }
-            reloadTableData();
-        }
-
-        public void addSingleImdiObject(ImdiTreeObject imdiTreeObject) {
-            addImdiObject(imdiTreeObject);
-            reloadTableData();
-        }
-
-        private void addImdiObject(ImdiTreeObject imdiTreeObject) {
-            imdiObjectHash.put(imdiTreeObject.getUrl(), imdiTreeObject);
-            Enumeration fieldNames = imdiTreeObject.getFields().keys();
-            while (fieldNames.hasMoreElements()) {
-                String currentColumnName = fieldNames.nextElement().toString();
-                // keep track of the number of times that columns are used by updating the column use count hashtable
-                Object currentColumnUse = columnNameHash.get(currentColumnName);
-                int currentColumnUseCount = 0;
-                if (currentColumnUse == null) {
-                    currentColumnUseCount = 1;
-                    tableFieldView.addKnownColumn(currentColumnName);
-                } else {
-                    currentColumnUseCount = ((Integer) currentColumnUse) + 1;
-                }
-                columnNameHash.put(currentColumnName, currentColumnUseCount);
-            }
-
-//            Enumeration tempColoumnEnum = columnNameHash.keys();
-//            while (tempColoumnEnum.hasMoreElements()) {
-//                System.out.println("column: " + tempColoumnEnum.nextElement());
-//            }
-
-//            Vector vecSort = new Vector(columnNameHash.keySet());
-//            Collections.sort(vecSort, Collections.reverseOrder());
-//            Iterator it = vecSort.iterator();
-//            while (it.hasNext()) {
-//                String element = (String) it.next();
-//                System.out.println(element);
-//            }
-        }
-
-        public void removeAllImdiRows() {
-            imdiObjectHash.clear();
-            columnNameHash.clear();
-            columnNames = new String[0];
-            data = new Object[0][0];
-            // add the icon column if icons are to be displayed
-            setShowIcons(showIcons);
-            reloadTableData();
-        }
-
-        // each row contains its relevant imdinodeobject in the last cell which is not displayed
-        public void removeImdiRows(int[] selectedRows) {
-            Vector nodesToRemove = new Vector();
-            int columnContainingImdiNode = columnNames.length;
-            for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-                System.out.println("removing: " + selectedRowCounter);
-                nodesToRemove.add(data[selectedRows[selectedRowCounter]][columnContainingImdiNode]);
-            }
-
-            removeImdiObjects(nodesToRemove.elements());
-        }
-
-        public void copyImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
-            String copiedString = "";
-            int firstColumn = 0;
-            if (showIcons) {
-                firstColumn = 1;
-            }
-            // add the headers
-            for (int selectedColCounter = firstColumn; selectedColCounter < getColumnCount(); selectedColCounter++) {
-                copiedString = copiedString + getColumnName(selectedColCounter) + ",";
-            }
-            copiedString = copiedString + "\n";
-            // add the cell data
-            for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-                System.out.println("copying row: " + selectedRowCounter);
-                for (int selectedColCounter = firstColumn; selectedColCounter < getColumnCount(); selectedColCounter++) {
-                    copiedString = copiedString + "\"" + data[selectedRows[selectedRowCounter]][selectedColCounter].toString().replace("\"", "\"\"") + "\",";
-                }
-                copiedString = copiedString + "\n";
-            }
-            System.out.println("copiedString: " + copiedString);
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            StringSelection stringSelection = new StringSelection(copiedString);
-            clipboard.setContents(stringSelection, clipBoardOwner);
-        }
-
-        public void removeImdiObjects(Enumeration nodesToRemove) {
-            while (nodesToRemove.hasMoreElements()) {
-                Object currentObject = nodesToRemove.nextElement();
-                if (isImdiNode(currentObject)) {
-                    ImdiTreeObject imdiTreeObject = (ImdiTreeObject) currentObject;
-                    System.out.println("removing: " + imdiTreeObject.toString());
-                    // remove the node
-                    imdiObjectHash.remove(imdiTreeObject.getUrl());
-                    // update the used columns
-                    Enumeration fieldNames = imdiTreeObject.getFields().keys();
-                    while (fieldNames.hasMoreElements()) {
-                        String currentColumnName = fieldNames.nextElement().toString();
-                        //System.out.println("currentColumnName: " + currentColumnName);
-                        int currentColumnUse = (Integer) columnNameHash.get(currentColumnName);
-                        currentColumnUse--;
-                        if (currentColumnUse == 0) {
-                            columnNameHash.remove(currentColumnName);
-                        } else {
-                            columnNameHash.put(currentColumnName, currentColumnUse);
-                        }
-                    }
-                    columnNames = (String[]) columnNameHash.keySet().toArray(new String[columnNameHash.size()]);
-                }
-            }
-            // refresh the table data
-            reloadTableData();
-        }
-
-        public void reloadTableData() {
-            if (imdiObjectHash.size() > 1) {
-                // display the grid view
-
-                // calculate which of the available columns to show
-                Enumeration columnNameEnum = columnNameHash.keys();
-                Vector currentColumnNames = new Vector();
-                while (columnNameEnum.hasMoreElements()) {
-                    String currentColumnString = (String) columnNameEnum.nextElement();
-                    if (tableFieldView.viewShowsColumn(currentColumnString)) {
-                        currentColumnNames.add(currentColumnString);
-                    }
-                }
-                columnNames = (String[]) currentColumnNames.toArray(new String[currentColumnNames.size()]);
-                // end calculate which of the available columns to show
-
-                //columnNames = (String[]) columnNameHash.keySet().toArray(new String[columnNameHash.size()]);
-                //hiddenColumns
-
-                // sort the coloumn names so that the icon is first
-                // this will probably be required for the other column names, so maybe the hashtable should be replaced by two ordered lists
-                for (int colomnCounter = 0; colomnCounter < columnNames.length; colomnCounter++) {
-                    if (columnNames[colomnCounter].toString().contains("<rowicon>")) {
-                        String tempColName = columnNames[0];
-                        //columnNames[0] = columnNames[colomnCounter];
-                        // in this case we want the column taxt blank
-                        columnNames[0] = "";
-                        columnNames[colomnCounter] = tempColName;
-                    }
-                }
-
-
-
-
-
-                maxColumnWidths = new int[columnNameHash.size()];
-                int firstFreeColumn = 0;
-                if (showIcons) {
-                    System.out.println("showing icon");
-                    // this assumes that the icon will always be in the leftmost column
-                    firstFreeColumn = 1;
-                }
-                data = new Object[imdiObjectHash.size()][columnNameHash.size() + 1]; // adding an extra column to contain the imdinode
-                Enumeration imdiRowsEnum = imdiObjectHash.elements();
-                int rowCounter = 0;
-                while (imdiRowsEnum.hasMoreElements()) {
-                    ImdiTreeObject currentNode = (ImdiTreeObject) imdiRowsEnum.nextElement();
-                    Hashtable fieldsHash = currentNode.getFields();
-                    if (showIcons) {
-                        data[rowCounter][0] = currentNode.getIcon();
-                        maxColumnWidths[0] = 1;
-                    }
-                    data[rowCounter][columnNames.length] = currentNode; // add the imdi node to the last cell whic will not be displayed
-                    for (int columnCounter = firstFreeColumn; columnCounter < columnNames.length; columnCounter++) {
-                        Object currentValue = fieldsHash.get(columnNames[columnCounter]);
-                        if (currentValue != null) {
-                            data[rowCounter][columnCounter] = currentValue.toString();
-                        } else {
-                            data[rowCounter][columnCounter] = "";
-                        }
-
-                        //record the column string lengths 
-                        int currentLength = ((String) data[rowCounter][columnCounter]).length();
-                        if (maxColumnWidths[columnCounter] < currentLength) {
-                            maxColumnWidths[columnCounter] = currentLength;
-                        }
-                    }
-                    rowCounter++;
-                }
-//            // display the column names use count for testing only
-//            Enumeration tempEnum = columnNameHash.elements();
-//            int tempColCount = 0;
-//            while (tempEnum.hasMoreElements()){
-//                data[0][tempColCount] = tempEnum.nextElement().toString();
-//                tempColCount++;
-//            }
-            } else {
-                // display the single node view
-                maxColumnWidths = new int[2];
-                columnNames = new String[]{"Name", "Value"};
-                if (imdiObjectHash.size() == 0) {
-                    data = new Object[0][2];
-                } else {
-                    Enumeration imdiRowsEnum = imdiObjectHash.elements();
-                    if (imdiRowsEnum.hasMoreElements()) {
-                        Hashtable fieldsHash = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getFields();
-                        data = new Object[fieldsHash.size()][2];
-                        Enumeration labelsEnum = fieldsHash.keys();
-                        Enumeration valuesEnum = fieldsHash.elements();
-                        int rowCounter = 0;
-                        while (labelsEnum.hasMoreElements() && valuesEnum.hasMoreElements()) {
-                            data[rowCounter][0] = labelsEnum.nextElement();
-                            data[rowCounter][1] = valuesEnum.nextElement();
-
-                            //record the column string lengths 
-                            int currentLength = ((String) data[rowCounter][0]).length();
-                            if (maxColumnWidths[0] < currentLength) {
-                                maxColumnWidths[0] = currentLength;
-                            }
-                            currentLength = ((String) data[rowCounter][1]).length();
-                            if (maxColumnWidths[1] < currentLength) {
-                                maxColumnWidths[1] = currentLength;
-                            }
-
-                            rowCounter++;
-                        }
-                    }
-                }
-            }
-            // update the table model, note that this could be more specific, ie. just row or all it the columns have changed
-            //fireTableDataChanged();
-            fireTableStructureChanged();
-        }
-        private String[] columnNames = new String[0];
-        private Object[][] data = new Object[0][0];
-
-        public int getColumnCount() {
-            return columnNames.length;
-        }
-
-        public int getRowCount() {
-            return data.length;
-        }
-
-        public String getColumnName(int col) {
-            return columnNames[col];
-        }
-
-        public int getColumnLength(int col) {
-            return maxColumnWidths[col];
-        }
-
-        public Object getValueAt(int row, int col) {
-            return data[row][col];
-        }
-
-        // JTable uses this method to determine the default renderer
-        public Class getColumnClass(int c) {
-            return getValueAt(0, c).getClass();
-        }
-
-        public boolean isCellEditable(int row, int col) {
-            //Note that the data/cell address is constant,
-            //no matter where the cell appears onscreen.
-            if (col < 2) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
-        public void setValueAt(Object value, int row, int col) {
-            data[row][col] = value;
-            fireTableCellUpdated(row, col);
-        }
-
-        public void sortByColumn(int columnIndex) {
-            // TODO: sort columns
-            System.out.println("sortByColumn: " + columnIndex);
-            sortColumn = columnIndex;
-        //fireTableStructureChanged();
-        }
-
-        public void hideColumn(int columnIndex) {
-            System.out.println("hideColumn: " + columnIndex);
-            // TODO: hide column
-            System.out.println("hideColumn: " + getColumnName(columnIndex));
-            tableFieldView.addHiddenColumn(getColumnName(columnIndex));
-            reloadTableData();
-        }
-
-        public void showOnlyCurrentColumns() {
-            tableFieldView.setShowOnlyColumns(columnNames);
-        }
-
-        public FieldView getFieldView() {
-            return tableFieldView;
-        }
-
-        public void addChildTypeToDisplay(String childType) {
-            System.out.println("addChildTypeToDisplay: " + childType);
-        // TODO: add child type as column
-        }
-
-        public Object[] getChildNames() {
-            Vector childNames = new Vector();
-            Enumeration imdiRowsEnum = imdiObjectHash.elements();
-            while (imdiRowsEnum.hasMoreElements()) {
-                Enumeration childEnum = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getChildEnum();
-                while (childEnum.hasMoreElements()) {
-                    // TODO: maybe check the children for children before adding them to this list
-                    String currentChildName = childEnum.nextElement().toString();
-                    if (!childNames.contains(currentChildName)) {
-                        childNames.add(currentChildName);
-                    }
-                }
-            }
-            return childNames.toArray();
-        }
-
-        public Vector getMatchingRows(int sampleRowNumber) {
-            System.out.println("MatchingRows for: " + sampleRowNumber);
-            Vector matchedRows = new Vector();
-            if (sampleRowNumber > -1 && sampleRowNumber < getRowCount()) {
-                for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
-                    boolean rowMatches = true;
-                    for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
-                        if (!getValueAt(rowCounter, colCounter).toString().equals(getValueAt(sampleRowNumber, colCounter).toString())) {
-                            rowMatches = false;
-                            break;
-                        }
-                    }
-                    //System.out.println("Checking: " + getValueAt(sampleRowNumber, 0) + " : " + getValueAt(rowCounter, 0));
-                    if (rowMatches) {
-                        //System.out.println("Matched: " + rowCounter + " : " + getValueAt(rowCounter, 0));
-                        matchedRows.add(rowCounter);
-                    }
-                }
-            }
-            return matchedRows;
         }
     }
 }

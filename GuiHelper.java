@@ -85,6 +85,7 @@ public class GuiHelper {
             viewMenu.add(viewLabelRadioButtonMenuItem);
         }
     }
+    
 // date filter code
     public void updateDateSlider(JSlider dateSlider) {
         if (imdiHelper.minNodeDate == null) {
@@ -229,7 +230,7 @@ public class GuiHelper {
 
     // TODO: this could be merged witht the add row function
     public AbstractTableModel getImdiTableModel(Hashtable rowNodes) {
-        ImdiHelper.ImdiTableModel searchTableModel = imdiHelper.getImdiTableModel();
+        ImdiTableModel searchTableModel = new ImdiTableModel();
         searchTableModel.setShowIcons(true);
         searchTableModel.addImdiObjects(rowNodes.elements());
         //Enumeration rowNodeEnum = rowNodes.elements();
@@ -240,7 +241,7 @@ public class GuiHelper {
     }
 
     public AbstractTableModel getImdiTableModel() {
-        ImdiHelper.ImdiTableModel tempModel = imdiHelper.getImdiTableModel();
+        ImdiTableModel tempModel = new ImdiTableModel();
         tempModel.setShowIcons(true);
         return tempModel;
     }
@@ -275,7 +276,7 @@ public class GuiHelper {
             String hashKey = itemImdiTreeObject.getUrl();
             System.out.println("hashkey: " + hashKey);
             if (itemImdiTreeObject.isImdi()) {
-                ((ImdiHelper.ImdiTableModel) tableModel).addSingleImdiObject(itemImdiTreeObject);
+                ((ImdiTableModel) tableModel).addSingleImdiObject(itemImdiTreeObject);
             }
             if (!itemImdiTreeObject.isImdi() || itemImdiTreeObject.getResource() != null) {
                 // TODO: display non imdi file
@@ -326,12 +327,12 @@ public class GuiHelper {
 //            mapView.removeAll();
 //        }
         selectedFilesList.clear();
-        ((ImdiHelper.ImdiTableModel) tableModel).removeAllImdiRows();
+        ((ImdiTableModel) tableModel).removeAllImdiRows();
     }
 
     public void removeFromGridData(TableModel tableModel, Vector nodesToRemove) {
         // remove the supplied nodes from the grid
-        ((ImdiHelper.ImdiTableModel) tableModel).removeImdiObjects(nodesToRemove.elements());
+        ((ImdiTableModel) tableModel).removeImdiObjects(nodesToRemove.elements());
         for (Enumeration nodesToRemoveEnum = nodesToRemove.elements(); nodesToRemoveEnum.hasMoreElements();) {
             // iterate over the supplied nodes
             Object currentObject = nodesToRemoveEnum.nextElement();

@@ -158,18 +158,11 @@ public class ThreadedDialog {
         searchPanel.add(searchButton);
         panel.add(progressBar);
         panel.add(stopButton);
-        searchPanel.add(showResultsButton);
+        panel.add(showResultsButton);
 
         searchDialog.getContentPane().add(panel, BorderLayout.PAGE_END);
 
         searchDialog.pack();
-
-//        super(new BorderLayout());
-//
-//        
-//
-//        add(panel, BorderLayout.PAGE_START);
-//        add(new JScrollPane(taskOutput), BorderLayout.CENTER);
 
         showResultsButton.addActionListener(new ActionListener() {
 
@@ -275,6 +268,7 @@ public class ThreadedDialog {
         appendToTaskOutput("performCopy");
         setUItoRunningState();
         searchPanel.setVisible(false);
+        showResultsButton.setVisible(false);
         threadARunning = true;
         new Thread() {
 
@@ -305,7 +299,7 @@ public class ThreadedDialog {
                                 //appendToTaskOutput("would save location when done: " + newNodeLocation);
                                 //guiHelper.addLocation("file://" + newNodeLocation);
                                 // TODO: create an imdinode to contain the name and point to the location
-                                if (!GuiHelper.treeHelper.addLocation(newNodeLocation)) {
+                                if (!GuiHelper.treeHelper.addLocation("file://" + newNodeLocation)) {
                                     // alert the user when the node already exists and cannot be added again
                                     appendToTaskOutput("The location already exists and cannot be added again");
                                 }

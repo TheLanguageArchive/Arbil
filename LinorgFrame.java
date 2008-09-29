@@ -383,6 +383,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         optionsMenu.setText("Options");
 
         editLocationsMenuItem.setText("Locations");
+        editLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editLocationsMenuItemActionPerformed(evt);
+            }
+        });
         optionsMenu.add(editLocationsMenuItem);
 
         editFieldViewsMenuItem.setText("Field Views");
@@ -706,6 +711,11 @@ private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent
 // TODO add your handling code here:
     linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}).elements(), "Selection");
 }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
+
+private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLocationsMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.treeHelper.showLocationsDialog();
+}//GEN-LAST:event_editLocationsMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
