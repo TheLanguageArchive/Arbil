@@ -23,9 +23,18 @@ public class ImdiTableModel extends AbstractTableModel {
     private boolean showIcons = false;
     private Hashtable imdiObjectHash = new Hashtable();
     private Hashtable allColumnNames = new Hashtable();
-    FieldView tableFieldView = new FieldView();
+    FieldView tableFieldView;
     private int[] maxColumnWidths;
     int sortColumn = -1;
+
+    public ImdiTableModel() {
+        tableFieldView = GuiHelper.imdiFieldViews.getCurrentGlobalView().clone();
+    }
+
+    public void setCurrentView(FieldView localFieldView) {
+        tableFieldView = localFieldView.clone();
+        reloadTableData();
+    }
 
     public Enumeration getImdiNodes() {
         return imdiObjectHash.elements();
@@ -178,7 +187,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // create and populate the colomn names array and prepend the icon and append the imdinode
             columnNames = new String[displayedColumnNames.size() + firstFreeColumn];
             int columnPopulateCounter = firstFreeColumn;
-            columnNames[0] = ""; // make sure the if the icon column is shown its string is not null
+            columnNames[0] = " "; // make sure the if the icon column is shown its string is not null
             for (Enumeration currentColumnEnum = displayedColumnNames.elements(); currentColumnEnum.hasMoreElements();) {
                 System.out.println("columnPopulateCounter: " + columnPopulateCounter);
                 columnNames[columnPopulateCounter] = currentColumnEnum.nextElement().toString();

@@ -149,7 +149,7 @@ public class LinorgWindowManager {
         javax.swing.JTable jTable1;
         javax.swing.JScrollPane jScrollPane6;
         jScrollPane6 = new javax.swing.JScrollPane();
-        ImdiTable imdiTable = new ImdiTable(GuiHelper.imdiFieldViews, new ImdiTableModel(), rowNodesEnum, frameTitle);
+        ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
 
         jScrollPane6.setViewportView(imdiTable);
         this.createWindow(frameTitle, jScrollPane6);

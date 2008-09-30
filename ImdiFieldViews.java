@@ -18,7 +18,7 @@ public class ImdiFieldViews {
 
     LinorgSessionStorage linorgSessionStorage;
     private Hashtable savedFieldViews;
-    String currentGlobalViewName = "";
+    private String currentGlobalViewName = "";
     //FieldView currentGlobalView;    //private Vector imdiFieldLists = new Vector(); // this is the list of available imdi field views that are displayed in the data grid
     //int currentFieldListIndex = 3; // this variable sets the fields from the imdi file that are shown in the grid
     private String[] masterImdiFieldNames; // string arrays of the available imdi fields
@@ -29,6 +29,16 @@ public class ImdiFieldViews {
     public ImdiFieldViews(LinorgSessionStorage tempLinorgSessionStorage) {
         linorgSessionStorage = tempLinorgSessionStorage;
         loadImdiFieldViews();
+    }
+
+    public FieldView getView(String viewName) {
+        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
+        return ((FieldView) savedFieldViews.get(viewName));
+    }
+
+    public FieldView getCurrentGlobalView() {
+        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
+        return ((FieldView) savedFieldViews.get(currentGlobalViewName));
     }
 
     public String getCurrentGlobalViewName() {
@@ -44,12 +54,14 @@ public class ImdiFieldViews {
         return savedFieldViews.keys();
     }
 
+    // return the table model used to edit the field view
     public DefaultTableModel getImdiFieldViewTableModel(String viewLabel) {
         Object currentView = savedFieldViews.get(viewLabel);
         // we want a table model even if it has no rows
         return getImdiFieldViewTableModel((FieldView) currentView);
     }
 
+    // return the table model used to edit the field view
     public DefaultTableModel getImdiFieldViewTableModel(Object currentView) {
         //System.out.println("setting to: " + viewLabel);
         javax.swing.table.DefaultTableModel returnTableModel = new javax.swing.table.DefaultTableModel(
@@ -172,22 +184,31 @@ class FieldView implements Serializable {
     Vector knownColumns = new Vector();
     Vector alwaysShowColumns = new Vector();
 
-    //http://twit88.com/blog/2008/08/03/design-of-a-java-application-framework-part-i-the-model-layer/
-//    @Override
-//    public String toString() {
-//        return "string  output";
-//    }
-//
-//    @Override
-//    public boolean equals(Object obj) {
-//        return this == obj;
-////        return super.equals(obj);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return super.hashCode();
-//    }
+    public void setAlwaysShowColumns(Vector alwaysShowColumns) {
+        this.alwaysShowColumns = alwaysShowColumns;
+    }
+
+    public void setHiddenColumns(Vector hiddenColumns) {
+        this.hiddenColumns = hiddenColumns;
+    }
+
+    public void setKnownColumns(Vector knownColumns) {
+        this.knownColumns = knownColumns;
+    }
+
+    public void setShowOnlyColumns(Vector showOnlyColumns) {
+        this.showOnlyColumns = showOnlyColumns;
+    }
+
+    public FieldView clone() {
+        FieldView returnFieldView = new FieldView();
+        returnFieldView.setAlwaysShowColumns((Vector) alwaysShowColumns.clone());
+        returnFieldView.setHiddenColumns((Vector) hiddenColumns.clone());
+        returnFieldView.setKnownColumns((Vector) knownColumns.clone());
+        returnFieldView.setShowOnlyColumns((Vector) showOnlyColumns.clone());
+        return returnFieldView;
+    }
+
     public void addKnownColumn(String columnName) {
         if (!knownColumns.contains(columnName)) {
             knownColumns.add(columnName);
@@ -226,11 +247,21 @@ class FieldView implements Serializable {
     }
 
     public boolean viewShowsColumn(String currentColumnString) {
-        if (showOnlyColumns.size() == 0) {
-            return !hiddenColumns.contains(currentColumnString);
-        } else {
-            return showOnlyColumns.contains(currentColumnString);
+        boolean showColumn = true;
+//    hiddenColumns, showOnlyColumns, knownColumns, alwaysShowColumns
+        if (showOnlyColumns.size() > 0) {
+            // set to true if it is in the show only list
+            showColumn = showOnlyColumns.contains(currentColumnString);
         }
+        if (showColumn) {
+            // set to false if in the hidden list
+            showColumn = !hiddenColumns.contains(currentColumnString);
+        }
+        if (!showColumn) {
+            // set to true if in the always show list
+            showColumn = alwaysShowColumns.contains(currentColumnString);
+        }
+        return showColumn;
     }
 
     public Enumeration getKnownColumns() {

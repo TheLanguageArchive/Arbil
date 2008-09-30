@@ -34,11 +34,9 @@ import javax.swing.table.TableModel;
  */
 public class ImdiTable extends JTable {
 
-    private ImdiHelper.ImdiTableModel imdiTableModel;
-    private ImdiFieldViews imdiFieldViews;
+    private ImdiTableModel imdiTableModel;
 
-    public ImdiTable(ImdiFieldViews localImdiFieldViews, ImdiHelper.ImdiTableModel localImdiTableModel, Enumeration rowNodesEnum, String frameTitle) {
-        imdiFieldViews = localImdiFieldViews;
+    public ImdiTable(ImdiTableModel localImdiTableModel, Enumeration rowNodesEnum, String frameTitle) {
         imdiTableModel = localImdiTableModel;
         imdiTableModel.setShowIcons(true);
         imdiTableModel.addImdiObjects(rowNodesEnum);
@@ -51,7 +49,7 @@ public class ImdiTable extends JTable {
         setColumnWidths();
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
-
+//            public void mousePressed(java.awt.event.MouseEvent evt) {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 System.out.println("table header click");
                 targetColumn = ((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()));
@@ -83,8 +81,8 @@ public class ImdiTable extends JTable {
                             String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this view as", "Save View", JOptionPane.PLAIN_MESSAGE);
                             // if the user did not cancel
                             if (fieldViewName != null) {
-                                if (!imdiFieldViews.addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
-                                    JOptionPane.showMessageDialog(null, "A View with the same name already exists, nothing saved");
+                                if (!GuiHelper.imdiFieldViews.addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "A View with the same name already exists, nothing saved");
                                 }
                             }
                         }
@@ -100,7 +98,7 @@ public class ImdiTable extends JTable {
                             dialogcontainer.setLayout(new BorderLayout());
                             editViewsDialog.setSize(600, 400);
                             editViewsDialog.setBounds(50, 50, 600, 400);
-                            TableModel tableModel = imdiFieldViews.getImdiFieldViewTableModel(imdiTableModel.getFieldView());
+                            TableModel tableModel = GuiHelper.imdiFieldViews.getImdiFieldViewTableModel(imdiTableModel.getFieldView());
                             tableModel.addTableModelListener(new TableModelListener() {
 
                                 //private JTable dilalogTargetTable = targetTable;
@@ -148,32 +146,32 @@ public class ImdiTable extends JTable {
                         }
                     });
 
-                    popupMenu.add(showOnlyCurrentViewMenuItem);
+                    
                     //popupMenu.add(applyViewNenuItem);
                     //popupMenu.add(saveViewMenuItem);
                     popupMenu.add(editViewMenuItem);
+                    popupMenu.add(showOnlyCurrentViewMenuItem);
                     popupMenu.add(saveViewMenuItem);
                     popupMenu.add(hideColumnMenuItem);
                     // create the views sub menu
                     JMenu fieldViewsMenuItem = new JMenu("Apply Saved View");
                     ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
-                    String currentGlobalViewLabel = imdiFieldViews.currentGlobalViewName;
-                    for (Enumeration savedViewsEnum = imdiFieldViews.getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
+                    //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
+                    for (Enumeration savedViewsEnum = GuiHelper.imdiFieldViews.getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
                         String currentViewLabel = savedViewsEnum.nextElement().toString();
-                        javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
-                        viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
-                        viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
-                        viewLabelRadioButtonMenuItem.setSelected(currentGlobalViewLabel.equals(currentViewLabel));
-                        viewLabelRadioButtonMenuItem.setText(currentViewLabel);
-                        viewLabelRadioButtonMenuItem.setName(currentViewLabel);
-                        viewLabelRadioButtonMenuItem.addChangeListener(new javax.swing.event.ChangeListener() {
+                        javax.swing.JMenuItem viewLabelMenuItem;
+                        viewLabelMenuItem = new javax.swing.JMenuItem();
+                        viewMenuButtonGroup.add(viewLabelMenuItem);
+                        //  viewLabelMenuItem.setSelected(currentGlobalViewLabel.equals(currentViewLabel));
+                        viewLabelMenuItem.setText(currentViewLabel);
+                        viewLabelMenuItem.setName(currentViewLabel);
+                        viewLabelMenuItem.addActionListener(new ActionListener() {
 
-                            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                                // TODO: this should change the data grid view
-                                //imdiFieldViews.setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+                            public void actionPerformed(ActionEvent evt) {
+                                imdiTableModel.setCurrentView(GuiHelper.imdiFieldViews.getView(((Component) evt.getSource()).getName()));
                             }
                         });
-                        fieldViewsMenuItem.add(viewLabelRadioButtonMenuItem);
+                        fieldViewsMenuItem.add(viewLabelMenuItem);
                     }
                     popupMenu.add(fieldViewsMenuItem);
                     popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
@@ -181,32 +179,77 @@ public class ImdiTable extends JTable {
             }
         });
 
-//        this.addMouseListener(new java.awt.event.MouseAdapter() {
-//
-//            public void mouseClicked(java.awt.event.MouseEvent evt) {
-//                if (evt.getButton() == MouseEvent.BUTTON3) {
-////                    targetTable = (JTable) evt.getComponent();
-////                    System.out.println("set the current table");
-//                //jPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-//                }
-//            }
-//        });
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3) {
+//                    targetTable = (JTable) evt.getComponent();
+//                    System.out.println("set the current table");
+                    JPopupMenu windowedTablePopupMenu;
+                    windowedTablePopupMenu = new javax.swing.JPopupMenu();
+                    windowedTablePopupMenu.setName("windowedTablePopupMenu");
+
+                    JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
+                    JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+                    JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                    JMenuItem copySelectedRowsMenuItem = new javax.swing.JMenuItem();
+
+                    matchingRowsMenuItem.setText("Highlight matching rows"); // NOI18N
+                    matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            highlightMatchingRows();
+                        }
+                    });
+                    windowedTablePopupMenu.add(matchingRowsMenuItem);
+
+                    showChildNodesMenuItem.setText("Show child nodes"); // NOI18N
+                    showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            showRowChildData();
+                        }
+                    });
+                    windowedTablePopupMenu.add(showChildNodesMenuItem);
+
+                    removeSelectedRowsMenuItem.setText("Remove Selected Rows");
+                    removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            removeSelectedRowsFromTable();
+                        }
+                    });
+                    windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
+
+                    copySelectedRowsMenuItem.setText("Copy Selected Rows");
+                    copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            copySelectedTableRowsToClipBoard();
+                        }
+                    });
+                    windowedTablePopupMenu.add(copySelectedRowsMenuItem);
+
+                    windowedTablePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                }
+            }
+        });
     }
 
-    public void showRowChildData(JDesktopPane destinationComp) {
-        Object[] possibilities = ((ImdiHelper.ImdiTableModel) this.getModel()).getChildNames();
-        String selectionResult = (String) JOptionPane.showInputDialog(destinationComp, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+    public void showRowChildData() {
+        Object[] possibilities = ((ImdiTableModel) this.getModel()).getChildNames();
+        String selectionResult = (String) JOptionPane.showInputDialog(GuiHelper.linorgWindowManager.desktopPane, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 
         if ((selectionResult != null) && (selectionResult.length() > 0)) {
-            ((ImdiHelper.ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
+            ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
         }
     }
 
     private void setColumnWidths() {
         int charPixWidth = 100; // this does not need to be accurate but must be more than the number of pixels used to render each character
         for (int columnCount = 0; columnCount < this.getModel().getColumnCount(); columnCount++) {
-            this.getColumnModel().getColumn(columnCount).setPreferredWidth(((ImdiHelper.ImdiTableModel) this.getModel()).getColumnLength(columnCount) * charPixWidth);
-            System.out.println("preferedWidth: " + ((ImdiHelper.ImdiTableModel) this.getModel()).getColumnLength(columnCount));
+            this.getColumnModel().getColumn(columnCount).setPreferredWidth(((ImdiTableModel) this.getModel()).getColumnLength(columnCount) * charPixWidth);
+            System.out.println("preferedWidth: " + ((ImdiTableModel) this.getModel()).getColumnLength(columnCount));
         }
     }
 //    private JTable targetTable = null; // this is used to track the originator of the table's menu actions, this method is not preferable however the menu event does not pass on the originator
@@ -283,11 +326,9 @@ public class ImdiTable extends JTable {
     }
     //Implement table header tool tips.
     protected JTableHeader createDefaultTableHeader() {
-        return new JTableHeader 
+        return new JTableHeader(columnModel) {
 
-              (columnModel ) {
-
-                   public String getToolTipText(MouseEvent e) {
+            public String getToolTipText(MouseEvent e) {
                 String tip = null;
                 java.awt.Point p = e.getPoint();
                 int index = columnModel.getColumnIndexAtX(p.x);
@@ -296,15 +337,14 @@ public class ImdiTable extends JTable {
             }
         };
     }
-    
-    
-    public void copySelectedTableRowsToClipBoard(Component destinationComp) {
+
+    public void copySelectedTableRowsToClipBoard() {
         int[] selectedRows = this.getSelectedRows();
         // only copy if there is at lease one row selected
         if (selectedRows.length > 0) {
             imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
         } else {
-            JOptionPane.showMessageDialog(destinationComp, "Nothing to copy");
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "Nothing to copy");
         }
     }
 
@@ -313,17 +353,17 @@ public class ImdiTable extends JTable {
         imdiTableModel.removeImdiRows(selectedRows);
     }
 
-    public void highlightMatchingRows(Component destinationComp) {
+    public void highlightMatchingRows() {
         int selectedRow = this.getSelectedRow();
         //ImdiHelper.ImdiTableModel tempImdiTableModel = (ImdiHelper.ImdiTableModel) (targetTable.getModel());
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(destinationComp, "No rows have been selected");
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "No rows have been selected");
             return;
         }
         Vector foundRows = imdiTableModel.getMatchingRows(selectedRow);
         this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.getSelectionModel().clearSelection();
-        JOptionPane.showMessageDialog(destinationComp, "Found " + foundRows.size() + " matching rows");
+        JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "Found " + foundRows.size() + " matching rows");
         for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
             for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
                 // TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)

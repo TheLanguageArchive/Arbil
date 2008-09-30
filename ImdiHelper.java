@@ -42,6 +42,7 @@ public class ImdiHelper {
     static Icon fileIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/file16x16.png");
     static Icon fileTickIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/filetick16x16.png");
     static Icon fileCrossIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/filecross16x16.png");
+    static Icon fileUnknown = new ImageIcon("build/classes/mpi/linorg/resources/icons/fileunknown16x16.png");
     static Icon fileServerIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/fileserver16x16.png");
     static Icon fileLocalIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/filelocal16x16.png");
     static Icon fileServerLocalIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/fileserverlocal16x16.png");
@@ -107,7 +108,10 @@ public class ImdiHelper {
     private Hashtable nodeSumsHashtable = null; // this is a table of md5sums each containing a vector of all matching files. This is saved and reloaded each time the application is started
     private Hashtable urlToNodeHashtable = new Hashtable(); // this is a table of urls that links to the imdiobject for each url
     private LinorgSessionStorage linorgSessionStorage;
-    Date minNodeDate, maxNodeDate;
+    Date minNodeDate, maxNodeDate;    
+    // used to check the file type
+    private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType();
+    private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
 
     public ImdiHelper(LinorgSessionStorage tempLinorgSessionStorage) {
         linorgSessionStorage = tempLinorgSessionStorage;
@@ -212,7 +216,18 @@ public class ImdiHelper {
                 }
             }
             if (!isImdiChild()) {
-                getHash(this.getFile(), this.getUrl());
+                if (!isImdi()) {
+                    // if we get here then the node should be a file not an imdi
+                    // so get its mime type
+                    getMimeType();
+                    if (mpiMimeType != null) {
+                        // if the file is an archivable type then get its md5sum, this saves time time by avoiding unnecessary md5sum creation
+                        getHash(this.getFile(), this.getUrl());
+                    }
+                } else {
+                    // if it is an imdi then get the md5sum
+                    getHash(this.getFile(), this.getUrl());
+                }
             }
         }
 
@@ -452,7 +467,8 @@ public class ImdiHelper {
                         for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                             String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                             String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                            if (attributeValue != null && attributeValue.trim().length() > 0) {
+                            // if the attribute is not the id and has string contents then add it ass a field
+                            if (attributeValue != null && attributeValue.trim().length() > 0 && !attributeName.equals("id")) {
                                 this.addField(translateFieldName(nodePath + "." + localName + siblingSpacer + ":" + attributeName), 0, attributeValue);
                             }
                         }
@@ -639,8 +655,11 @@ public class ImdiHelper {
                         // resolve the relative location of the file
                         File resourceFile = new File(this.getFile().getParent(), fieldValue);
                         resourceUrlString = resourceFile.getCanonicalPath();
-                        getHash(resourceFile, fieldUrl);//resourceUrlString
-                    //hashString = resourceUrlString;
+                        getMimeType();
+                        if (mpiMimeType != null) {
+                            getHash(resourceFile, fieldUrl);//resourceUrlString
+                        //hashString = resourceUrlString;
+                        }
                     } catch (Exception ex) {
                         System.err.println(ex.getMessage());
                     }
@@ -828,6 +847,21 @@ public class ImdiHelper {
         // Return the icon
         public Icon getIcon() {
             if (icon == null) {
+                if (mpiMimeType != null) {
+                    //nodeText = "isImdiChildWithType";
+                    //String mediaTypeString = typeObject.toString();
+                    //nodeText = mediaTypeString;
+                    if (mpiMimeType.contains("audio")) {
+                        icon = audiofileicon;
+                    } else if (mpiMimeType.contains("video")) {
+                        icon = videofileicon;
+                    } else if (mpiMimeType.contains("image")) {// ?????
+                        icon = picturefileicon;
+                    } else {
+                        icon = fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
+                        nodeText = mpiMimeType + " : " + nodeText;
+                    }
+                }
 //                if (!nodeEnabled) {
 //                    return stopicon;
 //                }
@@ -843,24 +877,13 @@ public class ImdiHelper {
                         if (resourceUrlString != null && hashString == null) {
                             icon = fileCrossIcon;
                         } else {
-                            Object typeObject = fieldHashtable.get(".Type");
-                            if (typeObject != null) {
-                                //nodeText = "isImdiChildWithType";
-                                String mediaTypeString = typeObject.toString();
-                                //nodeText = mediaTypeString;
-                                if (mediaTypeString.contentEquals("audio")) {
-                                    icon = audiofileicon;
-                                } else if (mediaTypeString.contentEquals("video")) {
-                                    icon = videofileicon;
-                                } else if (mediaTypeString.contentEquals("image")) {// ?????
-                                    icon = picturefileicon;
-                                }
-                            } else {
-                                icon = dataicon;
+//                            Object typeObject = fieldHashtable.get(".Type");
+//                            if (typeObject != null) {
+                            icon = dataicon;
 //                        } else {
 //                            icon = unknownnodeicon;
 //                        }
-                            }
+//                            }
                         }
                     } else if (isSession()) {
                         if (isLocal()) {
@@ -899,11 +922,17 @@ public class ImdiHelper {
                     icon = directoryIcon;
                 } else {
                     if (isLocal()) {
-                        if (matchesLocalResource > 0) {
-                            icon = fileTickIcon;
-                        } else /*if (matchesRemote == 0)*/ {
-                            icon = fileIcon;
-                        }
+
+//                        if (mpiMimeType != null) {
+//                            nodeText = "[" + mpiMimeType + "]" + nodeText;
+//                            icon = mediafileicon;
+//                        } else {
+//                            if (matchesLocalResource > 0) {
+//                                icon = fileTickIcon;
+//                            } else /*if (matchesRemote == 0)*/ {
+                        icon = fileIcon;
+//                            }
+//                        }
 //                        else {
 //                            icon = fileServerLocalIcon;
 //                        }
@@ -924,6 +953,34 @@ public class ImdiHelper {
 //            }                        
             }
             return icon;
+        }
+        String mpiMimeType = null;
+
+        public void getMimeType() {
+            // here we also want to check the magic number but the mpi api has a function similar to that so we
+            // use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
+            mpiMimeType = "not found via the api";
+            boolean deep = true;
+
+            OurURL url = null;
+            try {
+                url = new OurURL("file://" + this.getUrl());
+            } catch (MalformedURLException e) {
+            }
+            if (url == null) {
+                System.out.println("Invalid URL: " + this.getUrl());
+                System.exit(1);
+            }
+            try {
+                if (deep) {
+                    mpiMimeType = deepFileType.checkStream(url.openStream(), this.getUrl());
+                } else {
+                    mpiMimeType = fileType.checkStream(url.openStream(), this.getUrl());
+                }
+            } catch (IOException ioe) {
+                System.out.println("Cannot read file at URL: " + url);
+            }
+            mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
         }
     }
 }
