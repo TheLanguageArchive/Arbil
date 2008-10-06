@@ -36,12 +36,28 @@ public class ImdiTableModel extends AbstractTableModel {
         reloadTableData();
     }
 
+    public ImdiHelper.ImdiTreeObject[] getSelectedImdiNodes(int[] selectedRows) {
+        ImdiHelper.ImdiTreeObject[] selectedNodesArray = new ImdiHelper.ImdiTreeObject[selectedRows.length];
+        int columnContainingImdiNode = columnNames.length;
+        for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
+            selectedNodesArray[selectedRowCounter] = (ImdiHelper.ImdiTreeObject) data[selectedRows[selectedRowCounter]][columnContainingImdiNode];
+        }
+        return selectedNodesArray;
+    }
+
     public Enumeration getImdiNodes() {
         return imdiObjectHash.elements();
     }
 
     public void setShowIcons(boolean localShowIcons) {
         showIcons = localShowIcons;
+    }
+
+    public void addImdiObjects(ImdiTreeObject[] nodesToAdd) {
+        for (int draggedCounter = 0; draggedCounter < nodesToAdd.length; draggedCounter++) {
+            addImdiObject(nodesToAdd[draggedCounter]);
+        }
+        reloadTableData();
     }
 
     public void addImdiObjects(Enumeration nodesToAdd) {
@@ -213,13 +229,13 @@ public class ImdiTableModel extends AbstractTableModel {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
                     Object currentValue = fieldsHash.get(columnNames[columnCounter]);
                     if (currentValue != null) {
-                        data[rowCounter][columnCounter] = currentValue.toString();
+                        data[rowCounter][columnCounter] = currentValue;
                     } else {
                         data[rowCounter][columnCounter] = "";
                     }
 
                     //record the column string lengths 
-                    int currentLength = ((String) data[rowCounter][columnCounter]).length();
+                    int currentLength = (data[rowCounter][columnCounter].toString()).length();
                     if (maxColumnWidths[columnCounter] < currentLength) {
                         maxColumnWidths[columnCounter] = currentLength;
                     }
@@ -252,15 +268,14 @@ public class ImdiTableModel extends AbstractTableModel {
                         data[rowCounter][1] = valuesEnum.nextElement();
 
                         //record the column string lengths 
-                        int currentLength = ((String) data[rowCounter][0]).length();
+                        int currentLength = (data[rowCounter][0].toString()).length();
                         if (maxColumnWidths[0] < currentLength) {
                             maxColumnWidths[0] = currentLength;
                         }
-                        currentLength = ((String) data[rowCounter][1]).length();
+                        currentLength = (data[rowCounter][1].toString()).length();
                         if (maxColumnWidths[1] < currentLength) {
                             maxColumnWidths[1] = currentLength;
                         }
-
                         rowCounter++;
                     }
                 }
@@ -301,15 +316,18 @@ public class ImdiTableModel extends AbstractTableModel {
     public boolean isCellEditable(int row, int col) {
         //Note that the data/cell address is constant,
         //no matter where the cell appears onscreen.
-        if (col < 2) {
-            return false;
-        } else {
-            return true;
-        }
+        boolean returnValue = data[row][col] instanceof ImdiHelper.ImdiField;
+        System.out.println("Cell is ImdiField: " + returnValue);
+//        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
+        return (returnValue);
     }
 
     public void setValueAt(Object value, int row, int col) {
-        data[row][col] = value;
+        if (data[row][col] instanceof ImdiHelper.ImdiField) {
+            ((ImdiHelper.ImdiField) data[row][col]).fieldValue = value.toString();
+        } else {
+            data[row][col] = value;
+        }
         fireTableCellUpdated(row, col);
     }
 

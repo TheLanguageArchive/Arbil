@@ -14,7 +14,8 @@ import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
-import javax.swing.JDesktopPane;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -22,10 +23,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 
 /**
@@ -146,7 +149,7 @@ public class ImdiTable extends JTable {
                         }
                     });
 
-                    
+
                     //popupMenu.add(applyViewNenuItem);
                     //popupMenu.add(saveViewMenuItem);
                     popupMenu.add(editViewMenuItem);
@@ -234,6 +237,29 @@ public class ImdiTable extends JTable {
                 }
             }
         });
+    }
+
+    @Override
+    public TableCellEditor getCellEditor(int row, int column) {
+        Object cellField = getModel().getValueAt(row, column);
+        if (cellField instanceof ImdiHelper.ImdiField) {
+            System.out.println("getCellEditor: " + cellField.toString());
+            if (((ImdiHelper.ImdiField) cellField).hasVocabulary()) {
+                System.out.println("Has Vocabulary");
+                JComboBox comboBox = new JComboBox();
+                comboBox.addItem(cellField.toString());
+                comboBox.setEditable(((ImdiHelper.ImdiField) cellField).vocabularyIsOpen);
+                for (Enumeration vocabularyList = ((ImdiHelper.ImdiField) cellField).getVocabularyList(); vocabularyList.hasMoreElements();) {
+                    comboBox.addItem(vocabularyList.nextElement());
+                }
+                if (((ImdiHelper.ImdiField) cellField).vocabularyIsOpen){
+                    comboBox.addItem("OpenVocabularyList");
+                }
+                return new DefaultCellEditor(comboBox);
+            }
+            else return new DefaultCellEditor(new JTextField());
+        }
+        return super.getCellEditor(row, column);
     }
 
     public void showRowChildData() {
@@ -346,6 +372,11 @@ public class ImdiTable extends JTable {
         } else {
             JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "Nothing to copy");
         }
+    }
+
+    public ImdiHelper.ImdiTreeObject[] getSelectedRowsFromTable() {
+        int[] selectedRows = this.getSelectedRows();
+        return imdiTableModel.getSelectedImdiNodes(selectedRows);
     }
 
     public void removeSelectedRowsFromTable() {

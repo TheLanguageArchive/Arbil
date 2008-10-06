@@ -35,6 +35,7 @@ public class GuiHelper {
     static ImdiFieldViews imdiFieldViews;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage;
+    static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
     //private MapView mapView;
     private JPanel selectedFilesPanel;

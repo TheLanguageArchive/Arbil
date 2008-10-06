@@ -30,7 +30,6 @@ public class LinorgFrame extends javax.swing.JFrame {
     private DefaultMutableTreeNode localDirectoryRootNode;
     private LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
     private GuiHelper guiHelper = new GuiHelper(linorgSessionStorage);
-    private ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
     private LinorgWindowManager linorgWindowManager;
 
     public LinorgFrame() {
@@ -62,11 +61,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         remoteCorpusTree.setCellRenderer(GuiHelper.treeHelper.getImdiTreeRenderer());
         localDirectoryTree.setCellRenderer(GuiHelper.treeHelper.getImdiTreeRenderer());
 
-        imdiDragDrop.addDrop(localCorpusTree);
+//        imdiDragDrop.addDrop(localCorpusTree);
 
-        imdiDragDrop.addDrag(remoteCorpusTree);
-        imdiDragDrop.addDrag(localDirectoryTree);
-        imdiDragDrop.addDrag(localCorpusTree);
+        GuiHelper.imdiDragDrop.addDrag(remoteCorpusTree);
+        GuiHelper.imdiDragDrop.addDrag(localDirectoryTree);
+        GuiHelper.imdiDragDrop.addDrag(localCorpusTree);
 
         // set the default window dimensions
         // TODO: move this to the sessionstorage and load / save on exit

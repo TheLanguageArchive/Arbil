@@ -146,11 +146,10 @@ public class LinorgWindowManager {
     }
 
     public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
-        javax.swing.JTable jTable1;
         javax.swing.JScrollPane jScrollPane6;
         jScrollPane6 = new javax.swing.JScrollPane();
         ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
-
+        GuiHelper.imdiDragDrop.addDrag(imdiTable);
         jScrollPane6.setViewportView(imdiTable);
         this.createWindow(frameTitle, jScrollPane6);
     }

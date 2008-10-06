@@ -28,6 +28,8 @@ import org.w3c.dom.NamedNodeMap;
  * @author petwit
  */
 public class ImdiHelper {
+
+    Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing
     //    static Icon collapsedicon = new ImageIcon("/icons/Opener_open_black.png");
 //    static Icon expandedicon = new ImageIcon("/icons/Opener_closed_black.png");
     // TODO: move these icons to the gui section of code, maybe load durring the gui creation and pass to here
@@ -108,7 +110,8 @@ public class ImdiHelper {
     private Hashtable nodeSumsHashtable = null; // this is a table of md5sums each containing a vector of all matching files. This is saved and reloaded each time the application is started
     private Hashtable urlToNodeHashtable = new Hashtable(); // this is a table of urls that links to the imdiobject for each url
     private LinorgSessionStorage linorgSessionStorage;
-    Date minNodeDate, maxNodeDate;    
+    Date minNodeDate, maxNodeDate;
+    
     // used to check the file type
     private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType();
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
@@ -195,7 +198,7 @@ public class ImdiHelper {
         private Icon icon;
         Date nodeDate;
         boolean nodeEnabled = true;
-
+        // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
         protected ImdiTreeObject(String localNodeText, String localUrlString) {
             debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
             nodeText = localNodeText;
@@ -302,54 +305,53 @@ public class ImdiHelper {
             return returnArray;
         }
 
-        private boolean populateChildFields(String fieldNameString, boolean alwaysShow) {
-            // this is called when loading children and when loading fields
-            //System.out.println("fieldNameString: " + fieldNameString);
-            boolean valueFound = false;
-            int counterFieldPosition = fieldNameString.indexOf("(X)");
-            if (-1 < counterFieldPosition) {
-                int itemValueCounter = 1;
-                valueFound = true;
-                String firstHalf = fieldNameString.substring(0, counterFieldPosition + 1);
-                String secondHalf = fieldNameString.substring(counterFieldPosition + 2);
-                while (valueFound) {
-                    fieldNameString = firstHalf + itemValueCounter + secondHalf;
-                    if (-1 < fieldNameString.indexOf("(X)")) {
-                        valueFound = populateChildFields(fieldNameString, alwaysShow);
-                    } else {
-                        boolean isWrongFieldType = false;
-                        if (isImdi()) {
-                            if (isSession() && fieldNameString.startsWith("Corpus.")) {
-                                // TODO: we could speed things up by not asking the imdi.api for the value of this field, however if there is data so show (presumably erroneous data) it should still be shown
-                                isWrongFieldType = true;
-                            } else if (fieldNameString.startsWith("Session.")) {
-                                isWrongFieldType = true;
-                            }
-                        }
-                        //System.out.println("checking x value for: " + fieldNameString);
-                        String cellValue = this.getField(fieldNameString);
-                        valueFound = cellValue != null;
-                        if (valueFound && cellValue.length() > 0) {
-                            this.addField(fieldNameString, 0, cellValue);
-                        } else if (alwaysShow) {
-                            if (!isWrongFieldType) {
-                                this.addField(fieldNameString, 0, "");
-                            }
-                        }
-                    }
-                    itemValueCounter++;
-                }
-            } else {
-                //System.out.println("checking value for: " + fieldNameString);
-                String cellValue = this.getField(fieldNameString);
-                valueFound = cellValue != null;
-                if (valueFound && cellValue.length() > 0) {
-                    this.addField(fieldNameString, 0, cellValue);
-                }
-            }
-            return valueFound;
-        }
-
+//        private boolean populateChildFields(String fieldNameString, boolean alwaysShow) {
+//            // this is called when loading children and when loading fields
+//            //System.out.println("fieldNameString: " + fieldNameString);
+//            boolean valueFound = false;
+//            int counterFieldPosition = fieldNameString.indexOf("(X)");
+//            if (-1 < counterFieldPosition) {
+//                int itemValueCounter = 1;
+//                valueFound = true;
+//                String firstHalf = fieldNameString.substring(0, counterFieldPosition + 1);
+//                String secondHalf = fieldNameString.substring(counterFieldPosition + 2);
+//                while (valueFound) {
+//                    fieldNameString = firstHalf + itemValueCounter + secondHalf;
+//                    if (-1 < fieldNameString.indexOf("(X)")) {
+//                        valueFound = populateChildFields(fieldNameString, alwaysShow);
+//                    } else {
+//                        boolean isWrongFieldType = false;
+//                        if (isImdi()) {
+//                            if (isSession() && fieldNameString.startsWith("Corpus.")) {
+//                                // TODO: we could speed things up by not asking the imdi.api for the value of this field, however if there is data so show (presumably erroneous data) it should still be shown
+//                                isWrongFieldType = true;
+//                            } else if (fieldNameString.startsWith("Session.")) {
+//                                isWrongFieldType = true;
+//                            }
+//                        }
+//                        //System.out.println("checking x value for: " + fieldNameString);
+//                        String cellValue = this.getField(fieldNameString);
+//                        valueFound = cellValue != null;
+//                        if (valueFound && cellValue.length() > 0) {
+//                            this.addField(fieldNameString, 0, cellValue);
+//                        } else if (alwaysShow) {
+//                            if (!isWrongFieldType) {
+//                                this.addField(fieldNameString, 0, "");
+//                            }
+//                        }
+//                    }
+//                    itemValueCounter++;
+//                }
+//            } else {
+//                //System.out.println("checking value for: " + fieldNameString);
+//                String cellValue = this.getField(fieldNameString);
+//                valueFound = cellValue != null;
+//                if (valueFound && cellValue.length() > 0) {
+//                    this.addField(fieldNameString, 0, cellValue);
+//                }
+//            }
+//            return valueFound;
+//        }
         public Enumeration getChildEnum() {
             return childrenHashtable.elements();
         }
@@ -410,18 +412,6 @@ public class ImdiHelper {
             return returnImdiArray;
         }
 
-        private String translateFieldName(String fieldName) {
-            // replace the xml paths with user friendly node names
-            fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.WrittenResource", "WrittenResource");
-            fieldName = fieldName.replace(".METATRANSCRIPT.Session.MDGroup.Actors.Actor", "Actors");
-            fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.Anonyms", "Anonyms");
-            fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.MediaFile", "MediaFiles");
-            fieldName = fieldName.replace(".METATRANSCRIPT.Session.MDGroup", "");
-            fieldName = fieldName.replace(".METATRANSCRIPT.Session", "Session");
-            fieldName = fieldName.replace(".METATRANSCRIPT.Corpus", "Corpus");
-            return fieldName;
-        }
-
         private void iterateChildNodes(Node startNode, String nodePath) {
             int siblingCounter = 0;
             String siblingSpacer = "";
@@ -449,31 +439,40 @@ public class ImdiHelper {
                 } else {
                     siblingSpacer = "";
                 }
-                String nodeValue = childNode.getNodeValue();
-//                if (nodeValue == null) {
-//                    nodeValue = "null";
-//                }
-//                if (nodeValue.equals("")) {
-//                    nodeValue = "emptystring";
-//                }
-                if (!nodePath.contains("CorpusLink")) {
-                    if (nodeValue != null && nodeValue.trim().length() > 0) {
-                        debugOut("nextChild: " + nodePath + siblingSpacer + " : " + nodeValue);
-                        this.addField(translateFieldName(nodePath + siblingSpacer), 0, nodeValue);
+                ImdiField fieldToAdd = new ImdiField(nodePath, childNode.getNodeValue());
+                if (fieldToAdd.isDisplayable()) {
+                    debugOut("nextChild: " + fieldToAdd.fullPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
+                    fieldToAdd.translateFieldName(nodePath + siblingSpacer);
+                    this.addField(fieldToAdd, 0);
                     // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
-                    }
-                    NamedNodeMap namedNodeMap = childNode.getAttributes();
-                    if (namedNodeMap != null && !localName.equals("CorpusLink")) {
+                    // TODO: note that this method does not use any attributes without a node value
+                    NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
+                    if (namedNodeMap != null) {
                         for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                             String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                             String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                            // if the attribute is not the id and has string contents then add it ass a field
-                            if (attributeValue != null && attributeValue.trim().length() > 0 && !attributeName.equals("id")) {
-                                this.addField(translateFieldName(nodePath + "." + localName + siblingSpacer + ":" + attributeName), 0, attributeValue);
+                            if (attributeValue != null && attributeValue.length() > 0) {
+                                // only add attributes if they contain a value
+                                fieldToAdd.addAttribute(attributeName, attributeValue);
+                            }
+                        }
+                    }
+                } else if (debugOn && !fieldToAdd.fullPath.contains("CorpusLink")) {
+                    // the corpus link nodes are used but via the api.getlinks so dont log them here
+                    NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
+                    if (namedNodeMap != null) {
+                        for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
+                            String attributeName = fieldToAdd.fullPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
+                            // add all attributes even if they contain no value
+                            if (!listDiscardedOfAttributes.contains(attributeName) && !attributeName.endsWith(":id")) {
+                                // also ignore any id attributes that would have been attached to blank fields
+                                listDiscardedOfAttributes.add(attributeName);
                             }
                         }
                     }
                 }
+
+
                 iterateChildNodes(childNode.getFirstChild(), nodePath + "." + localName + siblingSpacer);
             }
         }
@@ -559,6 +558,7 @@ public class ImdiHelper {
                     loadChildNodes();
                 }
             }
+            debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
         }
 
         public String getSaveLocation(String destinationDirectory) {
@@ -612,7 +612,7 @@ public class ImdiHelper {
             return null;
         }
 
-        public void addField(String fieldUrl, int childLevel, String fieldValue) {
+        private void addField(ImdiField fieldToAdd, int childLevel) {
             // TODO: modify this so that each child node gets the full filename and full xml path
 //            if (isImdi()) {
 //                if (fieldLabel.startsWith("Session.")) {
@@ -622,19 +622,19 @@ public class ImdiHelper {
 //                }
 //            }
             //fieldUrl.substring(firstSeparator + 1)
-            int nextChildLevel = fieldUrl.replace(")", "(").indexOf("(", childLevel);
-            debugOut("fieldLabel: " + fieldUrl + " cellValue: " + fieldValue + " childLevel: " + childLevel + " nextChildLevel: " + nextChildLevel);
+            int nextChildLevel = fieldToAdd.translatedPath.replace(")", "(").indexOf("(", childLevel);
+            debugOut("fieldLabel: " + fieldToAdd.translatedPath + " cellValue: " + fieldToAdd.fieldValue + " childLevel: " + childLevel + " nextChildLevel: " + nextChildLevel);
             if (nextChildLevel == -1) {
                 // add the label to this level node
 //                if (fieldLabel == null) fieldLabel = "oops null";
 //                if (fieldValue == null) fieldValue = "oops null";
-                String childsLabel = fieldUrl.substring(childLevel);
-                fieldHashtable.put(childsLabel, fieldValue);
+                String childsLabel = fieldToAdd.translatedPath.substring(childLevel);
+                fieldHashtable.put(childsLabel, fieldToAdd);
 
                 if (childsLabel.endsWith(".Date")) {
                     DateFormat df = new SimpleDateFormat("yyyy-MM-DD");
                     try {
-                        nodeDate = df.parse(fieldValue);
+                        nodeDate = df.parse(fieldToAdd.fieldValue);
                         if (minNodeDate == null) {
                             minNodeDate = nodeDate;
                             maxNodeDate = nodeDate;
@@ -653,11 +653,11 @@ public class ImdiHelper {
                 if (childsLabel.equals(".ResourceLink")) {
                     try {
                         // resolve the relative location of the file
-                        File resourceFile = new File(this.getFile().getParent(), fieldValue);
+                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
                         resourceUrlString = resourceFile.getCanonicalPath();
                         getMimeType();
                         if (mpiMimeType != null) {
-                            getHash(resourceFile, fieldUrl);//resourceUrlString
+                            getHash(resourceFile, fieldToAdd.fullPath);//resourceUrlString
                         //hashString = resourceUrlString;
                         }
                     } catch (Exception ex) {
@@ -666,15 +666,15 @@ public class ImdiHelper {
                 }
             } else {
                 // pass the label to the child nodes
-                String childsName = fieldUrl.substring(childLevel, nextChildLevel);
+                String childsName = fieldToAdd.translatedPath.substring(childLevel, nextChildLevel);
                 //String parentName = fieldLabel.substring(0, firstSeparator);
                 debugOut("childsName: " + childsName);
                 if (!childrenHashtable.containsKey(childsName)) {
-                    ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldUrl);
+                    ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldToAdd.fullPath);
                     tempImdiTreeObject.imdiDataLoaded = true;
                     childrenHashtable.put(childsName, tempImdiTreeObject);
                 }
-                ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldUrl, nextChildLevel + 1, fieldValue);
+                ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1);
             }
         }
 
@@ -982,5 +982,125 @@ public class ImdiHelper {
             }
             mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
         }
+    }
+    Hashtable vocabulariesTable = new Hashtable();
+
+    private Vector loadVocabulary(String vocabularyLocation) {
+        Vector vocabularyList;
+        if (vocabulariesTable.containsKey(vocabularyLocation)) {
+            return (Vector) vocabulariesTable.get(vocabularyLocation);
+        } else {
+            vocabularyList = new Vector();
+            vocabularyList.add("time: " + System.currentTimeMillis());
+            vocabularyList.add("time: " + System.currentTimeMillis());
+            vocabularyList.add("time: " + System.currentTimeMillis());
+            vocabularyList.add("time: " + System.currentTimeMillis());
+            vocabularyList.add("time: " + System.currentTimeMillis());
+            vocabularyList.add("time: " + System.currentTimeMillis());
+            vocabulariesTable.put(vocabularyLocation, vocabularyList);
+        }
+        return vocabularyList;
+    }
+
+    class ImdiField {
+
+        public String fullPath;
+        public String translatedPath;
+//        public String nodeName;
+        public String fieldValue;
+        public String fieldID;
+        private Vector vocabularyList;
+        public boolean vocabularyIsOpen;
+        private Hashtable fieldAttributes = new Hashtable();
+
+        public ImdiField(String tempPath, String tempValue) {
+            fieldValue = tempValue;
+            fullPath = tempPath;
+        //translatedPath = translateFieldName(tempPath + siblingSpacer);
+        }
+
+        public boolean hasVocabulary() {
+            return (vocabularyList != null);
+        }
+
+        public Enumeration getVocabularyList() {
+            if (vocabularyList == null) {
+                return null;
+            }
+            return vocabularyList.elements();
+        }
+
+        public boolean isDisplayable() {
+            return (fieldValue != null && fieldValue.trim().length() > 0 && !fullPath.contains("CorpusLink"));
+        }
+
+        public void addAttribute(String attributeName, String attributeValue) {
+            System.out.println("attributeName: " + attributeName);
+            System.out.println("attributeValue: " + attributeValue);
+            // set up the vocabularies
+            if (attributeName.equals("Link")) {
+                System.out.println("loadVocabulary");
+                vocabularyList = loadVocabulary(attributeValue);
+            }
+            if (attributeName.equals("Type")) {
+                System.out.println("setVocabularyType");
+                vocabularyIsOpen = attributeValue.equals("OpenVocabularyList");
+            }
+            // end set up the vocabularies
+
+            fieldAttributes.put(attributeName, attributeValue);
+        }
+
+        public String toString() {
+//            System.out.println("ImdiField: " + fieldValue);
+//            if (!isDisplayable()) {
+//                return "check attributes";// fieldAttributes.keys().toString();
+//            }
+            return fieldValue;
+        }
+
+        private void translateFieldName(String fieldName) {
+            // replace the xml paths with user friendly node names
+            fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.WrittenResource", "WrittenResource");
+            fieldName = fieldName.replace(".METATRANSCRIPT.Session.MDGroup.Actors.Actor", "Actors");
+            fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.Anonyms", "Anonyms");
+            fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.MediaFile", "MediaFiles");
+            fieldName = fieldName.replace(".METATRANSCRIPT.Session.MDGroup", "");
+            fieldName = fieldName.replace(".METATRANSCRIPT.Session", "Session");
+            fieldName = fieldName.replace(".METATRANSCRIPT.Corpus", "Corpus");
+            translatedPath = fieldName;
+        }//        xmlns="http://www.mpi.nl/IMDI/Schema/IMDI"
+//                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+//                ArchiveHandle="hdl:1839/00-0000-0000-0007-EF3F-A"
+//                Date="2007-03-28"
+//                FormatId="IMDI 3.0"
+//                Originator="Editor - Profile:local/SESSION.Profile.xml"
+//                Type="SESSION"
+//                Version="15"
+//                id="i245"
+//                xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+//        listOfAttributes: 
+//            [
+////                    ArchiveHandle, 
+////                    Date, 
+////                    FormatId, 
+////                    Originator, 
+////                    Type, 
+////                    Version, 
+//                    id, 
+////                    xmlns, 
+////                    xmlns:xsi, 
+////                            xsi:schemaLocation, 
+//                                    CorpusStructureService, 
+//                                    LanguageId, 
+//                                    Link, 
+//                                    Name, 
+//                                    SearchService, 
+//                                    ResourceRef, 
+//                                    ResourceId, 
+//                                    DefaultLink, 
+//                                    ResourceRefs, 
+//                                    name
+//                                    ]
     }
 }
