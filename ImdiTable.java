@@ -247,14 +247,11 @@ public class ImdiTable extends JTable {
             if (((ImdiHelper.ImdiField) cellField).hasVocabulary()) {
                 System.out.println("Has Vocabulary");
                 JComboBox comboBox = new JComboBox();
-                comboBox.addItem(cellField.toString());
                 comboBox.setEditable(((ImdiHelper.ImdiField) cellField).vocabularyIsOpen);
                 for (Enumeration vocabularyList = ((ImdiHelper.ImdiField) cellField).getVocabularyList(); vocabularyList.hasMoreElements();) {
                     comboBox.addItem(vocabularyList.nextElement());
                 }
-                if (((ImdiHelper.ImdiField) cellField).vocabularyIsOpen){
-                    comboBox.addItem("OpenVocabularyList");
-                }
+                comboBox.setSelectedItem(cellField.toString());                
                 return new DefaultCellEditor(comboBox);
             }
             else return new DefaultCellEditor(new JTextField());

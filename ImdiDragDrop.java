@@ -69,7 +69,7 @@ public class ImdiDragDrop {
 //////            }
 ////        });
 //    }
-
+//
     class ImdiObjectSelection extends TransferHandler implements Transferable {
 
         DataFlavor flavors[] = {imdiObjectFlavour};

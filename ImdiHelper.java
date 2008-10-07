@@ -29,6 +29,7 @@ import org.w3c.dom.NamedNodeMap;
  */
 public class ImdiHelper {
 
+    ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
     Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing
     //    static Icon collapsedicon = new ImageIcon("/icons/Opener_open_black.png");
 //    static Icon expandedicon = new ImageIcon("/icons/Opener_closed_black.png");
@@ -983,24 +984,6 @@ public class ImdiHelper {
             mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
         }
     }
-    Hashtable vocabulariesTable = new Hashtable();
-
-    private Vector loadVocabulary(String vocabularyLocation) {
-        Vector vocabularyList;
-        if (vocabulariesTable.containsKey(vocabularyLocation)) {
-            return (Vector) vocabulariesTable.get(vocabularyLocation);
-        } else {
-            vocabularyList = new Vector();
-            vocabularyList.add("time: " + System.currentTimeMillis());
-            vocabularyList.add("time: " + System.currentTimeMillis());
-            vocabularyList.add("time: " + System.currentTimeMillis());
-            vocabularyList.add("time: " + System.currentTimeMillis());
-            vocabularyList.add("time: " + System.currentTimeMillis());
-            vocabularyList.add("time: " + System.currentTimeMillis());
-            vocabulariesTable.put(vocabularyLocation, vocabularyList);
-        }
-        return vocabularyList;
-    }
 
     class ImdiField {
 
@@ -1009,8 +992,9 @@ public class ImdiHelper {
 //        public String nodeName;
         public String fieldValue;
         public String fieldID;
-        private Vector vocabularyList;
+        private String vocabularyKey;
         public boolean vocabularyIsOpen;
+        public boolean vocabularyIsList;
         private Hashtable fieldAttributes = new Hashtable();
 
         public ImdiField(String tempPath, String tempValue) {
@@ -1020,14 +1004,18 @@ public class ImdiHelper {
         }
 
         public boolean hasVocabulary() {
-            return (vocabularyList != null);
+            return (vocabularyKey != null);
         }
 
         public Enumeration getVocabularyList() {
-            if (vocabularyList == null) {
+            if (vocabularyKey == null) {
                 return null;
             }
-            return vocabularyList.elements();
+            // make sure that the current value is in the list if it is an open vocabulary (this could be done in a better place ie on first load whe all the values are available)
+            if (vocabularyIsOpen) {
+                imdiVocabularies.addVocabularyEntry(vocabularyKey, fieldValue);
+            }
+            return imdiVocabularies.getVocabulary(vocabularyKey);
         }
 
         public boolean isDisplayable() {
@@ -1040,11 +1028,27 @@ public class ImdiHelper {
             // set up the vocabularies
             if (attributeName.equals("Link")) {
                 System.out.println("loadVocabulary");
-                vocabularyList = loadVocabulary(attributeValue);
+                vocabularyKey = attributeValue;
+                imdiVocabularies.getVocabulary(vocabularyKey);
             }
             if (attributeName.equals("Type")) {
                 System.out.println("setVocabularyType");
                 vocabularyIsOpen = attributeValue.equals("OpenVocabularyList");
+
+
+//    /** Defines a closed vocabulary. */
+//    public static String CLOSED_VOCABULARY = "ClosedVocabulary";
+//
+//    /** Defines a closed vocabulary list. */
+//    public static String CLOSED_VOCABULARY_LIST = "ClosedVocabularyList";
+//
+//    /** Defines an opm vocabulary. */
+//    public static String OPEN_VOCABULARY = "OpenVocabulary";
+//
+//    /** Defines an open vocabulary list. */
+//    public static String OPEN_VOCABULARY_LIST = "OpenVocabularyList";                
+
+
             }
             // end set up the vocabularies
 
@@ -1069,38 +1073,6 @@ public class ImdiHelper {
             fieldName = fieldName.replace(".METATRANSCRIPT.Session", "Session");
             fieldName = fieldName.replace(".METATRANSCRIPT.Corpus", "Corpus");
             translatedPath = fieldName;
-        }//        xmlns="http://www.mpi.nl/IMDI/Schema/IMDI"
-//                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-//                ArchiveHandle="hdl:1839/00-0000-0000-0007-EF3F-A"
-//                Date="2007-03-28"
-//                FormatId="IMDI 3.0"
-//                Originator="Editor - Profile:local/SESSION.Profile.xml"
-//                Type="SESSION"
-//                Version="15"
-//                id="i245"
-//                xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
-//        listOfAttributes: 
-//            [
-////                    ArchiveHandle, 
-////                    Date, 
-////                    FormatId, 
-////                    Originator, 
-////                    Type, 
-////                    Version, 
-//                    id, 
-////                    xmlns, 
-////                    xmlns:xsi, 
-////                            xsi:schemaLocation, 
-//                                    CorpusStructureService, 
-//                                    LanguageId, 
-//                                    Link, 
-//                                    Name, 
-//                                    SearchService, 
-//                                    ResourceRef, 
-//                                    ResourceId, 
-//                                    DefaultLink, 
-//                                    ResourceRefs, 
-//                                    name
-//                                    ]
+        }
     }
 }
