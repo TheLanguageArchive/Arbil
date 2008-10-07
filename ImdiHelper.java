@@ -472,8 +472,7 @@ public class ImdiHelper {
                         }
                     }
                 }
-
-
+                fieldToAdd.finishLoading();
                 iterateChildNodes(childNode.getFirstChild(), nodePath + "." + localName + siblingSpacer);
             }
         }
@@ -746,9 +745,9 @@ public class ImdiHelper {
                 if (hashString != null) {
                     Object matchingNodes = nodeSumsHashtable.get(hashString);
                     if (matchingNodes != null) {
-                        System.out.println("checking vector for: " + hashString);
+                        debugOut("checking vector for: " + hashString);
                         if (!((Vector) matchingNodes).contains(nodeLocation)) {
-                            System.out.println("adding to vector: " + hashString);
+                            debugOut("adding to vector: " + hashString);
                             Enumeration otherNodesEnum = ((Vector) matchingNodes).elements();
                             while (otherNodesEnum.hasMoreElements()) {
                                 Object currentElement = otherNodesEnum.nextElement();
@@ -769,7 +768,7 @@ public class ImdiHelper {
                     }
                 }
             }
-            System.out.println("hashString: " + hashString);
+            debugOut("hashString: " + hashString);
             return hashString;
         }
 
@@ -993,6 +992,7 @@ public class ImdiHelper {
         public String fieldValue;
         public String fieldID;
         private String vocabularyKey;
+        private boolean hasVocabularyType = false;
         public boolean vocabularyIsOpen;
         public boolean vocabularyIsList;
         private Hashtable fieldAttributes = new Hashtable();
@@ -1007,7 +1007,7 @@ public class ImdiHelper {
             return (vocabularyKey != null);
         }
 
-        public Enumeration getVocabularyList() {
+        public Enumeration getVocabulary() {
             if (vocabularyKey == null) {
                 return null;
             }
@@ -1022,36 +1022,41 @@ public class ImdiHelper {
             return (fieldValue != null && fieldValue.trim().length() > 0 && !fullPath.contains("CorpusLink"));
         }
 
-        public void addAttribute(String attributeName, String attributeValue) {
-            System.out.println("attributeName: " + attributeName);
-            System.out.println("attributeValue: " + attributeValue);
+        public void finishLoading() {
             // set up the vocabularies
-            if (attributeName.equals("Link")) {
-                System.out.println("loadVocabulary");
-                vocabularyKey = attributeValue;
-                imdiVocabularies.getVocabulary(vocabularyKey);
-            }
-            if (attributeName.equals("Type")) {
-                System.out.println("setVocabularyType");
-                vocabularyIsOpen = attributeValue.equals("OpenVocabularyList");
-
-
-//    /** Defines a closed vocabulary. */
-//    public static String CLOSED_VOCABULARY = "ClosedVocabulary";
-//
-//    /** Defines a closed vocabulary list. */
-//    public static String CLOSED_VOCABULARY_LIST = "ClosedVocabularyList";
-//
-//    /** Defines an opm vocabulary. */
-//    public static String OPEN_VOCABULARY = "OpenVocabulary";
-//
-//    /** Defines an open vocabulary list. */
-//    public static String OPEN_VOCABULARY_LIST = "OpenVocabularyList";                
-
-
+            if (hasVocabularyType) {
+                Object linkAttribute = fieldAttributes.get("Link");
+                if (linkAttribute != null) {
+                    vocabularyKey = linkAttribute.toString();
+                    imdiVocabularies.getVocabulary(vocabularyKey);
+                }
             }
             // end set up the vocabularies
+        }
 
+        public void addAttribute(String attributeName, String attributeValue) {
+            debugOut("attributeName: " + attributeName);
+            debugOut("attributeValue: " + attributeValue);
+            // look for the vocabulary type
+            if (attributeName.equals("Type")) {
+                System.out.println("setVocabularyType");
+                hasVocabularyType = true;
+                if (attributeValue.equals("OpenVocabularyList")) {
+                    vocabularyIsList = true;
+                    vocabularyIsOpen = true;
+                } else if (attributeValue.equals("OpenVocabulary")) {
+                    vocabularyIsList = false;
+                    vocabularyIsOpen = true;
+                } else if (attributeValue.equals("ClosedVocabularyList")) {
+                    vocabularyIsList = true;
+                    vocabularyIsOpen = false;
+                } else if (attributeValue.equals("ClosedVocabulary")) {
+                    vocabularyIsList = false;
+                    vocabularyIsOpen = false;
+                } else {
+                    hasVocabularyType = false;
+                }
+            }
             fieldAttributes.put(attributeName, attributeValue);
         }
 

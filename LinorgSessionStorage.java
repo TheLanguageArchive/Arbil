@@ -19,7 +19,7 @@ import java.io.Serializable;
 public class LinorgSessionStorage {
     public String storageDirectory = "";
     public LinorgSessionStorage() {
-        storageDirectory = System.getProperty("user.home") + File.separatorChar + "Linorg" + File.separatorChar;
+        storageDirectory = System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar;
 
         File storageFile = new File(storageDirectory);
         if (!storageFile.exists()) {

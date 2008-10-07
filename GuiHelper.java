@@ -136,14 +136,14 @@ public class GuiHelper {
         }
     }
 
-    public void searchSelectedNodes(Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
+    public void searchSelectedNodes(Component targetComponent, Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
         //int[] childCountArray = new int[]{0, 0};
         int messageIconIndex = 0;
         if (selectedNodes.size() == 0) {
             JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", messageIconIndex);
             return;
         } else {
-            ThreadedDialog threadedDialog = new ThreadedDialog();
+            ThreadedDialog threadedDialog = new ThreadedDialog(targetComponent);
             threadedDialog.searchNodes(selectedNodes, searchString);
         //Hashtable foundNodes = searchDialog.getFoundNodes();
 //            if (foundNodes.size() > 0) {

@@ -5,6 +5,7 @@
 package mpi.linorg;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Insets;
@@ -103,7 +104,7 @@ public class ThreadedDialog {
         return false;
     }
 
-    public ThreadedDialog() {
+    public ThreadedDialog(Component targetComponent) {
         searchDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane), true);
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {
@@ -163,6 +164,8 @@ public class ThreadedDialog {
         searchDialog.getContentPane().add(panel, BorderLayout.PAGE_END);
 
         searchDialog.pack();
+
+        searchDialog.setLocationRelativeTo(targetComponent);
 
         showResultsButton.addActionListener(new ActionListener() {
 
@@ -295,7 +298,7 @@ public class ThreadedDialog {
                                     appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
                                 }
                             } // else appendToTaskOutput("Unable to process: " + currentElement);                            
-                            if (newNodeLocation != null) {
+                            if (newNodeLocation != null && !stopSearch) { // make sure we dont add an incomplete location
                                 //appendToTaskOutput("would save location when done: " + newNodeLocation);
                                 //guiHelper.addLocation("file://" + newNodeLocation);
                                 // TODO: create an imdinode to contain the name and point to the location

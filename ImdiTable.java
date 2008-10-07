@@ -248,9 +248,10 @@ public class ImdiTable extends JTable {
                 System.out.println("Has Vocabulary");
                 JComboBox comboBox = new JComboBox();
                 comboBox.setEditable(((ImdiHelper.ImdiField) cellField).vocabularyIsOpen);
-                for (Enumeration vocabularyList = ((ImdiHelper.ImdiField) cellField).getVocabularyList(); vocabularyList.hasMoreElements();) {
+                for (Enumeration vocabularyList = ((ImdiHelper.ImdiField) cellField).getVocabulary(); vocabularyList.hasMoreElements();) {
                     comboBox.addItem(vocabularyList.nextElement());
                 }
+                // TODO: enable multiple selection for vocabulary lists
                 comboBox.setSelectedItem(cellField.toString());                
                 return new DefaultCellEditor(comboBox);
             }

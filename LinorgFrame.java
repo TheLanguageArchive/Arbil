@@ -528,13 +528,13 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
 
 private void actorsToGridMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actorsToGridMenuItemActionPerformed
 // TODO add your handling code here:
-    ThreadedDialog threadedDialog = new ThreadedDialog();
+    ThreadedDialog threadedDialog = new ThreadedDialog(localCorpusTree);
     threadedDialog.searchNodes(getSelectedNodes(new JTree[]{localCorpusTree}), "Actor");
 }//GEN-LAST:event_actorsToGridMenuItemActionPerformed
 
 private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
 // TODO add your handling code here:
-    ThreadedDialog threadedDialog = new ThreadedDialog();
+    ThreadedDialog threadedDialog = new ThreadedDialog(remoteCorpusTree);
     threadedDialog.copyToCache(getSelectedNodes(new JTree[]{remoteCorpusTree}));
     // update the tree and reload the ui
     GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
@@ -649,7 +649,7 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    ThreadedDialog threadedDialog = new ThreadedDialog();
+    ThreadedDialog threadedDialog = new ThreadedDialog(localCorpusTree);
     threadedDialog.searchNodes(getSelectedNodes(new JTree[]{localCorpusTree}), null);
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
