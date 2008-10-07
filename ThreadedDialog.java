@@ -154,6 +154,7 @@ public class ThreadedDialog {
         progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
+        progressBar.setString("");
         //searchDialog.getContentPane().add(progressBar);
         JPanel panel = new JPanel();
         searchPanel.add(searchButton);
@@ -164,7 +165,7 @@ public class ThreadedDialog {
         searchDialog.getContentPane().add(panel, BorderLayout.PAGE_END);
 
         searchDialog.pack();
-
+        
         searchDialog.setLocationRelativeTo(targetComponent);
 
         showResultsButton.addActionListener(new ActionListener() {
@@ -210,7 +211,7 @@ public class ThreadedDialog {
         searchLabel.setCursor(null);
         taskOutput.setCursor(null);
         searchDialog.setCursor(null); //turn off the wait cursor
-        appendToTaskOutput("Done!");
+        //appendToTaskOutput("Done!");
         progressBar.setIndeterminate(false);
         searchButton.setEnabled(true);
         stopButton.setEnabled(false);
@@ -251,6 +252,7 @@ public class ThreadedDialog {
         while (moreToLoad && !stopSearch) {
             int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) currentElement).getChildCount();
             appendToTaskOutput("total loaded: " + (totalLoaded + tempChildCountArray[1]) + " (" + currentElement.toString() + " loaded: " + tempChildCountArray[1] + " unknown: " + tempChildCountArray[0] + ")");
+            progressBar.setString("" + (totalLoaded + tempChildCountArray[1]));
             moreToLoad = (tempChildCountArray[0] != 0);
             if (moreToLoad) {
                 ((ImdiHelper.ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5);
@@ -289,14 +291,16 @@ public class ThreadedDialog {
                         if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
                             String newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).getSaveLocation(destinationDirectory);
                             if (newNodeLocation != null) {
-                                if (!new File(newNodeLocation).exists()) {
+//                                if (!new File(newNodeLocation).exists()) {// this would allow incomplete copies to be added
                                     totalLoaded += loadSomeChildren(currentElement, totalLoaded);
-                                    // perform the copy
-                                    appendToTaskOutput("Saving to: " + newNodeLocation);
-                                    newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBrachToLocal(destinationDirectory);
-                                } else {
-                                    appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
-                                }
+                                    if (!stopSearch) {
+                                        // perform the copy
+                                        appendToTaskOutput("Saving to: " + newNodeLocation);
+                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBrachToLocal(destinationDirectory);
+                                    }
+    //                             } else {
+    //                                 appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
+    //                             }
                             } // else appendToTaskOutput("Unable to process: " + currentElement);                            
                             if (newNodeLocation != null && !stopSearch) { // make sure we dont add an incomplete location
                                 //appendToTaskOutput("would save location when done: " + newNodeLocation);
@@ -304,7 +308,8 @@ public class ThreadedDialog {
                                 // TODO: create an imdinode to contain the name and point to the location
                                 if (!GuiHelper.treeHelper.addLocation("file://" + newNodeLocation)) {
                                     // alert the user when the node already exists and cannot be added again
-                                    appendToTaskOutput("The location already exists and cannot be added again");
+                                    progressBar.setIndeterminate(false);
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "The location already exists and cannot be added again", searchDialog.getTitle(), 0);
                                 }
                             }
                         }
