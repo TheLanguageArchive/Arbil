@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <project name="Linorg" default="compile">
-    <property name="SRCDIR" value="../../../../src/java/"/>
-    <property name="BUILDDIR" value="classes"/>
-    <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
-    
-    <target name="all" depends="clean, clobber, compile, jar, run" description="clean, build, jar and run">        
+    <target name="setproperties">
+        <property name="SRCDIR" value="../../../../src/java/"/>
+        <property name="BUILDDIR" value="classes"/>
+        <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
+    </target>
+    <target name="all" depends="setproperties, clean, clobber, compile, jar, run" description="clean, build, jar and run">        
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
     <target name="clean" description="remove intermediate files">
