@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.UIManager;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -28,40 +29,41 @@ import org.w3c.dom.NamedNodeMap;
  * @author petwit
  */
 public class ImdiHelper {
-
     ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
     Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing
     //    static Icon collapsedicon = new ImageIcon("/icons/Opener_open_black.png");
 //    static Icon expandedicon = new ImageIcon("/icons/Opener_closed_black.png");
     // TODO: move these icons to the gui section of code, maybe load durring the gui creation and pass to here
-    static Icon corpusicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/corpusnode_color.png");
-    static Icon corpuslocalicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/corpuslocal16x16c.png");
-    static Icon corpuslocalservericon = new ImageIcon("build/classes/mpi/linorg/resources/icons/corpusserverlocal16x16c.png");
-    static Icon corpusservericon = new ImageIcon("build/classes/mpi/linorg/resources/icons/corpusserver16x16c.png");//    corpusserverlocal16x16c.png corpusserver16x16c.png 
+    //static Object GuiHelper.linorgSessionStorage;
+    static Icon corpusicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
+    static Icon corpuslocalicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/corpuslocal16x16c.png"));
+    static Icon corpuslocalservericon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/corpusserverlocal16x16c.png"));
+    static Icon corpusservericon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/corpusserver16x16c.png"));//    corpusserverlocal16x16c.png corpusserver16x16c.png 
 //            corpuslocal16x16c.png
 //            file16x16.png
 //            fileticka16x16.png
-    static Icon directoryIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/directory16x16.png");
-    static Icon fileIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/file16x16.png");
-    static Icon fileTickIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/filetick16x16.png");
-    static Icon fileCrossIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/filecross16x16.png");
-    static Icon fileUnknown = new ImageIcon("build/classes/mpi/linorg/resources/icons/fileunknown16x16.png");
-    static Icon fileServerIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/fileserver16x16.png");
-    static Icon fileLocalIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/filelocal16x16.png");
-    static Icon fileServerLocalIcon = new ImageIcon("build/classes/mpi/linorg/resources/icons/fileserverlocal16x16.png");
-    static Icon sessionicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/session_color.png");
-    static Icon sessionlocalservericon = new ImageIcon("build/classes/mpi/linorg/resources/icons/session_color-serverlocal.png");
-    static Icon sessionlocalicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/session_color-local.png");
-    static Icon sessionservericon = new ImageIcon("build/classes/mpi/linorg/resources/icons/session_color-server.png");
-    static Icon writtenresicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/writtenresource.png");
-    static Icon mediafileicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/mediafile.png");
-    static Icon videofileicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/video.png");
-    static Icon audiofileicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/audio.png");
-    static Icon picturefileicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/pictures.png");
-    static Icon infofileicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/infofile.png");
-    static Icon unknownnodeicon = new ImageIcon("build/classes/mpi/linorg/resources/icons/file.png");
-    static Icon dataicon = new ImageIcon("build/classes/mpi/linorg/resources/imdi_icons/data.png");
-    static Icon stopicon = new ImageIcon("build/classes/mpi/linorg/resources/imdi_icons/stop.png");    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
+    static Icon serverIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/server16x16.png"));
+    static Icon directoryIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/directory16x16.png"));
+    static Icon fileIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/file16x16.png"));
+    static Icon fileTickIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/filetick16x16.png"));
+    static Icon fileCrossIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/filecross16x16.png"));
+    static Icon fileUnknown = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/fileunknown16x16.png"));
+    static Icon fileServerIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/fileserver16x16.png"));
+    static Icon fileLocalIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/filelocal16x16.png"));
+    static Icon fileServerLocalIcon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/fileserverlocal16x16.png"));
+    static Icon sessionicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/session_color.png"));
+    static Icon sessionlocalservericon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/session_color-serverlocal.png"));
+    static Icon sessionlocalicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/session_color-local.png"));
+    static Icon sessionservericon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/session_color-server.png"));
+    static Icon writtenresicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/writtenresource.png"));
+    static Icon mediafileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/mediafile.png"));
+    static Icon videofileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/video.png"));
+    static Icon audiofileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/audio.png"));
+    static Icon picturefileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/pictures.png"));
+    static Icon infofileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/infofile.png"));
+    static Icon unknownnodeicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/file.png"));
+    static Icon dataicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/data.png"));
+    static Icon stopicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/stop.png"));    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
 //    static Icon fileIcon = UIManager.getIcon("FileView.fileIcon");
     //                        UIManager.getIcon("FileView.directoryIcon");
 //                        UIManager.getIcon("FileView.fileIcon");
@@ -110,15 +112,13 @@ public class ImdiHelper {
     private static IMDIDom api = new IMDIDom();
     private Hashtable nodeSumsHashtable = null; // this is a table of md5sums each containing a vector of all matching files. This is saved and reloaded each time the application is started
     private Hashtable urlToNodeHashtable = new Hashtable(); // this is a table of urls that links to the imdiobject for each url
-    private LinorgSessionStorage linorgSessionStorage;
     Date minNodeDate, maxNodeDate;
     
     // used to check the file type
     private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType();
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
 
-    public ImdiHelper(LinorgSessionStorage tempLinorgSessionStorage) {
-        linorgSessionStorage = tempLinorgSessionStorage;
+    public ImdiHelper() {
         loadMd5sumIndex();
     }
     boolean debugOn = false;
@@ -131,7 +131,7 @@ public class ImdiHelper {
 
     private void loadMd5sumIndex() {
         try {
-            nodeSumsHashtable = (Hashtable) linorgSessionStorage.loadObject("md5sumIndex");
+            nodeSumsHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("md5sumIndex");
         } catch (Exception ex) {
             System.out.println("loadMap exception: " + ex.getMessage());
         }
@@ -146,7 +146,7 @@ public class ImdiHelper {
 //    }
     public void saveMd5sumIndex() {
         try {
-            linorgSessionStorage.saveObject(nodeSumsHashtable, "md5sumIndex");
+            GuiHelper.linorgSessionStorage.saveObject(nodeSumsHashtable, "md5sumIndex");
             System.out.println("savedMap");
         } catch (IOException ex) {
             System.out.println("saveMap exception: " + ex.getMessage());
@@ -170,7 +170,7 @@ public class ImdiHelper {
     }
 
     public boolean isStringLocal(String urlString) {
-        return (urlString.startsWith("/") || urlString.startsWith("file://"));
+        return (!urlString.startsWith("http://"));
     }
 
     public boolean isStringImdi(String urlString) {
@@ -199,6 +199,8 @@ public class ImdiHelper {
         private Icon icon;
         Date nodeDate;
         boolean nodeEnabled = true;
+        String[] imdiLinkArray; // an array of links found in the imdi or the listing of the directory depending on the object
+
         // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
         protected ImdiTreeObject(String localNodeText, String localUrlString) {
             debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
@@ -260,48 +262,52 @@ public class ImdiHelper {
                 System.out.println("Invalid input URL: " + mue);
                 nodeText = "Invalid input URL";
             }
+            imdiLinkArray = getImdiLinks(); // get the links from the imdi before we dispose of the dom (this will also get a directory listing if this is not an imdi)
+//             we are now done with the dom so free the memory
+            nodDom = null;
         }
 
-        private String getField(String fieldName) {
-            Document itemDom = this.getNodeDom();
-            if (itemDom == null) {
-                return null;
-            }
-            IMDIElement rowValue = api.getIMDIElement(itemDom, fieldName);
-            if (rowValue != null) {
-                return rowValue.getValue();
-            } else {
-                return null;
-            }
-        }
-
-        private String[] getLinks() {
+//        private String getField(String fieldName) {
+//            Document itemDom = this.getNodeDom();
+//            if (itemDom == null) {
+//                return null;
+//            }
+//            IMDIElement rowValue = api.getIMDIElement(itemDom, fieldName);
+//            if (rowValue != null) {
+//                return rowValue.getValue();
+//            } else {
+//                return null;
+//            }
+//        }
+        private String[] getDirectoryLinks() {
             String[] returnArray = null;
-            if (this.isDirectory()) {
-                File nodeFile = this.getFile();
-                returnArray = nodeFile.list();
-                for (int linkCount = 0; linkCount < returnArray.length; linkCount++) {
-                    returnArray[linkCount] = this.getUrl() + "/" + returnArray[linkCount];
-                }
-            } else {
-                try {
-                    if (this.getNodeDom() != null) {
-                        OurURL baseURL = new OurURL(this.getUrl());
-                        debugOut("getIMDILinks");
-                        IMDILink[] links = api.getIMDILinks(this.getNodeDom(), baseURL, WSNodeType.CORPUS);
-                        debugOut("links.length: " + links.length);
-                        if (links != null) {
-                            returnArray = new String[links.length];
-                            for (int linkCount = 0; linkCount < links.length; linkCount++) {
-                                returnArray[linkCount] = links[linkCount].getRawURL().toString();
-                                debugOut("link:" + returnArray[linkCount]);
-                            }
+            File nodeFile = this.getFile();
+            returnArray = nodeFile.list();
+            for (int linkCount = 0; linkCount < returnArray.length; linkCount++) {
+                returnArray[linkCount] = this.getUrl() + "/" + returnArray[linkCount];
+            }
+            return returnArray;
+        }
+
+        private String[] getImdiLinks() {
+            String[] returnArray = null;
+            try {
+                if (this.getNodeDom() != null) {
+                    OurURL baseURL = new OurURL(this.getUrl());
+                    debugOut("getIMDILinks");
+                    IMDILink[] links = api.getIMDILinks(this.getNodeDom(), baseURL, WSNodeType.CORPUS);
+                    debugOut("links.length: " + links.length);
+                    if (links != null) {
+                        returnArray = new String[links.length];
+                        for (int linkCount = 0; linkCount < links.length; linkCount++) {
+                            returnArray[linkCount] = links[linkCount].getRawURL().toString();
+                            debugOut("link:" + returnArray[linkCount]);
                         }
                     }
-                } catch (MalformedURLException mue) {
-                    System.out.println("Error getting links: " + mue);
-                    returnArray = new String[]{"Invalid input file from parent"};
                 }
+            } catch (MalformedURLException mue) {
+                System.out.println("Error getting links: " + mue);
+                returnArray = new String[]{"Invalid input file from parent"};
             }
             return returnArray;
         }
@@ -357,13 +363,36 @@ public class ImdiHelper {
             return childrenHashtable.elements();
         }
 
+        public ImdiTreeObject addChildNode(String nodeType) {
+            ImdiTreeObject addableImdiChild = new ImdiTreeObject("new child", this.getUrl() + "/imdichildtesting.imdi");
+            // begin temp test
+//            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
+//            fieldToAdd1.translateFieldName("test.field.translated");
+//            addableImdiChild.addField(fieldToAdd1, 0);
+            // end temp test
+            //for (Enumeration fieldsToAdd = GuiHelper.imdiFieldViews.getCurrentGlobalView().getAlwaysShowColumns(); fieldsToAdd.hasMoreElements();) {
+            for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(nodeType); fieldsToAdd.hasMoreElements();){
+                String currentFieldName = fieldsToAdd.nextElement().toString();
+                ImdiField fieldToAdd = new ImdiField(addableImdiChild, currentFieldName, "unset");
+                //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
+                fieldToAdd.translateFieldName(currentFieldName);
+                if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrl(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
+                    addableImdiChild.addField(fieldToAdd, 0);
+                }
+            }
+            childrenHashtable.put(addableImdiChild.getUrl(), addableImdiChild);
+            return addableImdiChild;
+        }
+
         public ImdiTreeObject[] loadChildNodes() {
             if (!imdiDataLoaded) {
                 // if this node has been loaded then do not load again
                 // to refresh the node and its children the node should be nulled and recreated
                 imdiDataLoaded = true;
-                String[] linkArray = getLinks(); // this will return both directory files and session files
-                if (linkArray != null) {
+                if (this.isDirectory()) {
+                    imdiLinkArray = getDirectoryLinks();// put the directory listing into an array
+                }
+                if (imdiLinkArray != null) {
                     if (this.isSession()) {
 //                        for (int linkCount = 0; linkCount < linkArray.length && linkCount < 10; linkCount++) {
 //                            //this fails because the imdi.api.getlinks returns more link types than media files
@@ -371,12 +400,12 @@ public class ImdiHelper {
 //                            //getHash(new File(linkArray[linkCount]), urlString);
 //                        }
                     } else {
-                        for (int linkCount = 0; linkCount < linkArray.length && linkCount < 10; linkCount++) {
-                            debugOut("linkArray: " + linkArray[linkCount]);
-                            ImdiTreeObject currentImdi = new ImdiTreeObject(null, linkArray[linkCount]);
+                        for (int linkCount = 0; linkCount < imdiLinkArray.length && linkCount < 10; linkCount++) {
+                            debugOut("linkArray: " + imdiLinkArray[linkCount]);
+                            ImdiTreeObject currentImdi = new ImdiTreeObject(null, imdiLinkArray[linkCount]);
 //                        tempImdiVector.add(currentImdi);
                             childrenHashtable.put(currentImdi.getUrl(), currentImdi);
-                            if (isStringImdi(linkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
+                            if (isStringImdi(imdiLinkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
                                 currentImdi.loadImdiDom();
                             }
                         }
@@ -440,9 +469,9 @@ public class ImdiHelper {
                 } else {
                     siblingSpacer = "";
                 }
-                ImdiField fieldToAdd = new ImdiField(nodePath, childNode.getNodeValue());
+                ImdiField fieldToAdd = new ImdiField(this, nodePath, childNode.getNodeValue());
                 if (fieldToAdd.isDisplayable()) {
-                    debugOut("nextChild: " + fieldToAdd.fullPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
+                    debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
                     fieldToAdd.translateFieldName(nodePath + siblingSpacer);
                     this.addField(fieldToAdd, 0);
                     // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
@@ -458,13 +487,14 @@ public class ImdiHelper {
                             }
                         }
                     }
-                } else if (debugOn && !fieldToAdd.fullPath.contains("CorpusLink")) {
+                } else if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
                     // the corpus link nodes are used but via the api.getlinks so dont log them here
                     NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
                     if (namedNodeMap != null) {
                         for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
-                            String attributeName = fieldToAdd.fullPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
+                            String attributeName = fieldToAdd.xmlPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
                             // add all attributes even if they contain no value
+                            // TODO: check if this should be removed yet
                             if (!listDiscardedOfAttributes.contains(attributeName) && !attributeName.endsWith(":id")) {
                                 // also ignore any id attributes that would have been attached to blank fields
                                 listDiscardedOfAttributes.add(attributeName);
@@ -657,7 +687,7 @@ public class ImdiHelper {
                         resourceUrlString = resourceFile.getCanonicalPath();
                         getMimeType();
                         if (mpiMimeType != null) {
-                            getHash(resourceFile, fieldToAdd.fullPath);//resourceUrlString
+                            getHash(resourceFile, fieldToAdd.xmlPath);//resourceUrlString
                         //hashString = resourceUrlString;
                         }
                     } catch (Exception ex) {
@@ -670,7 +700,7 @@ public class ImdiHelper {
                 //String parentName = fieldLabel.substring(0, firstSeparator);
                 debugOut("childsName: " + childsName);
                 if (!childrenHashtable.containsKey(childsName)) {
-                    ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldToAdd.fullPath);
+                    ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldToAdd.xmlPath);
                     tempImdiTreeObject.imdiDataLoaded = true;
                     childrenHashtable.put(childsName, tempImdiTreeObject);
                 }
@@ -919,7 +949,7 @@ public class ImdiHelper {
             if (icon == null) {
 //                        icon = mediafileicon;
                 if (this.isDirectory) {
-                    icon = directoryIcon;
+                    icon = UIManager.getIcon("FileView.directoryIcon");
                 } else {
                     if (isLocal()) {
 
@@ -986,7 +1016,8 @@ public class ImdiHelper {
 
     class ImdiField {
 
-        public String fullPath;
+        public ImdiTreeObject parentImdi;
+        public String xmlPath;
         public String translatedPath;
 //        public String nodeName;
         public String fieldValue;
@@ -997,9 +1028,10 @@ public class ImdiHelper {
         public boolean vocabularyIsList;
         private Hashtable fieldAttributes = new Hashtable();
 
-        public ImdiField(String tempPath, String tempValue) {
+        public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
+            parentImdi = localParentImdi;
             fieldValue = tempValue;
-            fullPath = tempPath;
+            xmlPath = tempPath;
         //translatedPath = translateFieldName(tempPath + siblingSpacer);
         }
 
@@ -1019,7 +1051,7 @@ public class ImdiHelper {
         }
 
         public boolean isDisplayable() {
-            return (fieldValue != null && fieldValue.trim().length() > 0 && !fullPath.contains("CorpusLink"));
+            return (fieldValue != null && fieldValue.trim().length() > 0 && !xmlPath.contains("CorpusLink"));
         }
 
         public void finishLoading() {
@@ -1031,7 +1063,7 @@ public class ImdiHelper {
                     imdiVocabularies.getVocabulary(vocabularyKey);
                 }
             }
-            // end set up the vocabularies
+        // end set up the vocabularies
         }
 
         public void addAttribute(String attributeName, String attributeValue) {
@@ -1039,7 +1071,7 @@ public class ImdiHelper {
             debugOut("attributeValue: " + attributeValue);
             // look for the vocabulary type
             if (attributeName.equals("Type")) {
-                System.out.println("setVocabularyType");
+                //System.out.println("setVocabularyType");
                 hasVocabularyType = true;
                 if (attributeValue.equals("OpenVocabularyList")) {
                     vocabularyIsList = true;

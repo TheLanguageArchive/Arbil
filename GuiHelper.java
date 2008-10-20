@@ -34,12 +34,14 @@ public class GuiHelper {
     static ImdiHelper imdiHelper;
     static ImdiFieldViews imdiFieldViews;
     static TreeHelper treeHelper = new TreeHelper();
-    static LinorgSessionStorage linorgSessionStorage;
+    static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
+    static LinorgJournal linorgJournal = new LinorgJournal();
+    static ImdiSchema imdiSchema = new ImdiSchema();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
     //private MapView mapView;
     private JPanel selectedFilesPanel;
-    static LinorgWindowManager linorgWindowManager;
+    static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
     static ClipboardOwner clipboardOwner = new ClipboardOwner() {
 
@@ -49,15 +51,10 @@ public class GuiHelper {
         }
     };
 
-    public GuiHelper(LinorgSessionStorage tempLinorgSessionStorage) {
-        linorgSessionStorage = tempLinorgSessionStorage;
-        imdiHelper = new ImdiHelper(linorgSessionStorage);
-        imdiFieldViews = new ImdiFieldViews(linorgSessionStorage);
+    public GuiHelper() {
+        imdiHelper = new ImdiHelper();
+        imdiFieldViews = new ImdiFieldViews();
         treeHelper.loadLocationsList();
-    }
-
-    public void setWindowManager(LinorgWindowManager localLinorgWindowManager) {
-        linorgWindowManager = localLinorgWindowManager;
     }
 
     public void saveState() {
@@ -66,7 +63,40 @@ public class GuiHelper {
         treeHelper.saveLocations();
     }
 
+    public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
+        addMenu.removeAll();
+        if (targetNodeUserObject instanceof ImdiHelper.ImdiTreeObject) {
+            System.out.println("initAddMenu: " + targetNodeUserObject);
+            for (Enumeration menuItemName = imdiSchema.listTypesFor((ImdiHelper.ImdiTreeObject) targetNodeUserObject); menuItemName.hasMoreElements();) {
+                String currentMenuName = menuItemName.nextElement().toString();
+                javax.swing.JMenuItem addMenuItem;
+                addMenuItem = new javax.swing.JMenuItem();
+                addMenuItem.setText(currentMenuName);
+                addMenuItem.setName(currentMenuName);
+                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        DefaultMutableTreeNode targetNode = treeHelper.getLeadLocalCorpusTreeSelection();
+                        treeHelper.getImdiChildNodes(targetNode);
+                        treeHelper.addImdiChildNode(targetNode, ((Component)evt.getSource()).getName());
+                        treeHelper.reloadLocalCorpusTree();
+                    }
+                });
+                addMenu.add(addMenuItem);
+            }
+//            if (addMenu.getComponentCount() == 0){
+//                javax.swing.JMenuItem addMenuItem = new javax.swing.JMenuItem();
+//                String emptyMenuName = "cannot add here";
+//                addMenuItem.setText(emptyMenuName);
+//                addMenuItem.setName(emptyMenuName);
+//                addMenuItem.setEnabled(false);
+//                addMenu.add(addMenuItem);
+//            }
+        }
+    }
+
     public void initViewMenu(javax.swing.JMenu viewMenu) {
+        viewMenu.removeAll();
         ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
         //String[] viewLabels = guiHelper.imdiFieldViews.getSavedFieldViewLables();
         for (Enumeration menuItemName = imdiFieldViews.getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
@@ -117,25 +147,7 @@ public class GuiHelper {
         }
     }
 // end date filter code
-    public void getImdiChildNodes(DefaultMutableTreeNode itemNode) {
-        if (itemNode.getChildCount() == 0) {
-            if (imdiHelper.isImdiNode(itemNode.getUserObject())) {
-                ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
-                if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
-                    System.out.println("file to be opened");
-                } else {
-                    //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
-                    ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes();
-                    for (int childCount = 0; childCount < childNodes.length; childCount++) {
-                        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
-                        treeNode.setAllowsChildren(childNodes[childCount].isImdi() || childNodes[childCount].isDirectory());
-                        itemNode.add(treeNode);
-                    }
-                }
-            }
-        }
-    }
-
+    
     public void searchSelectedNodes(Component targetComponent, Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
         //int[] childCountArray = new int[]{0, 0};
         int messageIconIndex = 0;
@@ -221,14 +233,28 @@ public class GuiHelper {
 //        System.out.println("done");
     }
 
-    public void openImdiXmlWindow(Object userObject) {
-        if (imdiHelper.isImdiNode(userObject)) {
+    public void openImdiXmlWindow(Object userObject, boolean formatXml) {                      
+        if (userObject instanceof ImdiHelper.ImdiTreeObject) {
             String nodeUrl = ((ImdiHelper.ImdiTreeObject) (userObject)).getUrl();
             String nodeName = ((ImdiHelper.ImdiTreeObject) (userObject)).toString();
-            linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+            if (formatXml) {
+                try {
+                    // 1. Instantiate a TransformerFactory.
+                    javax.xml.transform.TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
+                    // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
+                    javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(this.getClass().getResource("/mpi/linorg/resources/imdixsl/IMDI_3_0_TO_WEB.xsl").toString()));
+                    // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
+                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeUrl), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeUrl.replace("file:/", "/") + ".html")));
+                    linorgWindowManager.openUrlWindow(nodeName + "-transformed", nodeUrl + ".html");
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                    //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+                }
+            } else {
+                linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+            }
         }
     }
-
     // TODO: this could be merged witht the add row function
     public AbstractTableModel getImdiTableModel(Hashtable rowNodes) {
         ImdiTableModel searchTableModel = new ImdiTableModel();

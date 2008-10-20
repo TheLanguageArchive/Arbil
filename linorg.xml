@@ -27,6 +27,8 @@
     <target name="jar" depends="compile" description="create a Jar file">
         <jar destfile="linorg.jar">
             <fileset dir="classes" includes="**/*.class"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/Introduction.html"/>            
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
             </manifest>

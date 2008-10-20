@@ -5,6 +5,7 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.JDesktopPane;
@@ -30,12 +31,14 @@ public class LinorgWindowManager {
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
 
-    public LinorgWindowManager(JMenu jMenu, JDesktopPane jDesktopPane) {
+    public void setComponents(JMenu jMenu, JDesktopPane jDesktopPane){
         windowMenu = jMenu;
         desktopPane = jDesktopPane;
+        
         // open the introduction page
         // always get this page from the server if available, but also save it for off line use
-        openUrlWindow("Introduction", "file:///data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/html/Introduction.html");
+        URL url = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
+        openUrlWindow("Introduction", url.toString());
     }
 
     private String addWindowToList(String windowName, JInternalFrame windowFrame) {

@@ -23,12 +23,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 /**
@@ -119,13 +120,21 @@ public class ImdiTable extends JTable {
                                             } else {
                                                 imdiTableModel.getFieldView().removeShowOnlyColumn(targetColumnName);
                                             }
+                                            break;
                                         case 3:
                                             if (booleanState) {
                                                 imdiTableModel.getFieldView().addHiddenColumn(targetColumnName);
                                             } else {
                                                 imdiTableModel.getFieldView().removeHiddenColumn(targetColumnName);
                                             }
+                                            break;
                                         case 4:
+                                            if (booleanState) {
+                                                imdiTableModel.getFieldView().addAlwaysShowColumn(targetColumnName);
+                                            } else {
+                                                imdiTableModel.getFieldView().removeAlwaysShowColumn(targetColumnName);
+                                            }
+                                            break;
                                     }
                                     imdiTableModel.reloadTableData();
                                 //                                  throw new UnsupportedOperationException("Not supported yet.");
@@ -252,12 +261,26 @@ public class ImdiTable extends JTable {
                     comboBox.addItem(vocabularyList.nextElement());
                 }
                 // TODO: enable multiple selection for vocabulary lists
-                comboBox.setSelectedItem(cellField.toString());                
+                comboBox.setSelectedItem(cellField.toString());
                 return new DefaultCellEditor(comboBox);
+            } else {
+                return super.getCellEditor(row, column);
+                        //new DefaultCellEditor(new JTextField());
             }
-            else return new DefaultCellEditor(new JTextField());
         }
         return super.getCellEditor(row, column);
+    }
+
+    @Override
+    public TableCellRenderer getCellRenderer(int row, int column) {
+        Object cellField = getModel().getValueAt(row, column);
+        if (cellField instanceof ImdiHelper.ImdiTreeObject) {
+            DefaultTableCellRenderer iconLabelRenderer = new DefaultTableCellRenderer();
+            iconLabelRenderer.setIcon(((ImdiHelper.ImdiTreeObject) cellField).getIcon());
+            iconLabelRenderer.setText(((ImdiHelper.ImdiTreeObject) cellField).toString());
+            return iconLabelRenderer;
+        }
+        return super.getCellRenderer(row, column);
     }
 
     public void showRowChildData() {

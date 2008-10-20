@@ -38,9 +38,8 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public ImdiHelper.ImdiTreeObject[] getSelectedImdiNodes(int[] selectedRows) {
         ImdiHelper.ImdiTreeObject[] selectedNodesArray = new ImdiHelper.ImdiTreeObject[selectedRows.length];
-        int columnContainingImdiNode = columnNames.length;
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-            selectedNodesArray[selectedRowCounter] = (ImdiHelper.ImdiTreeObject) data[selectedRows[selectedRowCounter]][columnContainingImdiNode];
+            selectedNodesArray[selectedRowCounter] = (ImdiHelper.ImdiTreeObject) ((ImdiHelper.ImdiField)data[selectedRows[selectedRowCounter]][columnNames.length-1]).parentImdi;
         }
         return selectedNodesArray;
     }
@@ -116,12 +115,10 @@ public class ImdiTableModel extends AbstractTableModel {
     // each row contains its relevant imdinodeobject in the last cell which is not displayed
     public void removeImdiRows(int[] selectedRows) {
         Vector nodesToRemove = new Vector();
-        int columnContainingImdiNode = columnNames.length;
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
             System.out.println("removing: " + selectedRowCounter);
-            nodesToRemove.add(data[selectedRows[selectedRowCounter]][columnContainingImdiNode]);
+            nodesToRemove.add(((ImdiHelper.ImdiField)data[selectedRows[selectedRowCounter]][columnNames.length-1]).parentImdi);
         }
-
         removeImdiObjects(nodesToRemove.elements());
     }
 
@@ -203,7 +200,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // create and populate the colomn names array and prepend the icon and append the imdinode
             columnNames = new String[displayedColumnNames.size() + firstFreeColumn];
             int columnPopulateCounter = firstFreeColumn;
-            columnNames[0] = " "; // make sure the if the icon column is shown its string is not null
+            columnNames[0] = " "; // make sure the the icon column is shown its string is not null
             for (Enumeration currentColumnEnum = displayedColumnNames.elements(); currentColumnEnum.hasMoreElements();) {
                 System.out.println("columnPopulateCounter: " + columnPopulateCounter);
                 columnNames[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
@@ -213,7 +210,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
             maxColumnWidths = new int[columnNames.length];
 
-            data = new Object[imdiObjectHash.size()][columnNames.length + 1]; // adding an extra column to contain the imdinode
+            data = new Object[imdiObjectHash.size()][columnNames.length];
             Enumeration imdiRowsEnum = imdiObjectHash.elements();
             int rowCounter = 0;
             while (imdiRowsEnum.hasMoreElements()) {
@@ -221,10 +218,10 @@ public class ImdiTableModel extends AbstractTableModel {
                 System.out.println("currentNode: " + currentNode.toString());
                 Hashtable fieldsHash = currentNode.getFields();
                 if (showIcons) {
-                    data[rowCounter][0] = currentNode.getIcon();
-                    maxColumnWidths[0] = 1;
+                    //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
+                    data[rowCounter][0] = currentNode;
+                    maxColumnWidths[0] = currentNode.toString().length();
                 }
-                data[rowCounter][columnNames.length] = currentNode; // add the imdi node to the last cell whic will not be displayed
                 for (int columnCounter = firstFreeColumn; columnCounter < columnNames.length; columnCounter++) {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
                     Object currentValue = fieldsHash.get(columnNames[columnCounter]);
@@ -316,7 +313,10 @@ public class ImdiTableModel extends AbstractTableModel {
     public boolean isCellEditable(int row, int col) {
         //Note that the data/cell address is constant,
         //no matter where the cell appears onscreen.
-        boolean returnValue = data[row][col] instanceof ImdiHelper.ImdiField;
+        boolean returnValue = false;
+        if(data[row][col] instanceof ImdiHelper.ImdiField){
+            returnValue = ((ImdiHelper.ImdiField)data[row][col]).parentImdi.isLocal();
+        }
         System.out.println("Cell is ImdiField: " + returnValue);
 //        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
         return (returnValue);
@@ -324,7 +324,10 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void setValueAt(Object value, int row, int col) {
         if (data[row][col] instanceof ImdiHelper.ImdiField) {
-            ((ImdiHelper.ImdiField) data[row][col]).fieldValue = value.toString();
+            ImdiHelper.ImdiField currentField = ((ImdiHelper.ImdiField) data[row][col]);
+            if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrl(), currentField.xmlPath, currentField.fieldValue, value.toString())) {
+                currentField.fieldValue = value.toString();
+            }
         } else {
             data[row][col] = value;
         }

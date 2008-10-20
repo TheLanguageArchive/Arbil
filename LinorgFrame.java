@@ -7,6 +7,7 @@ package mpi.linorg;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 import javax.swing.JFileChooser;
@@ -14,7 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -22,15 +22,7 @@ import javax.swing.tree.DefaultTreeModel;
  */
 public class LinorgFrame extends javax.swing.JFrame {
 
-    private DefaultTreeModel localCorpusTreeModel;
-    private DefaultTreeModel remoteCorpusTreeModel;
-    private DefaultTreeModel localDirectoryTreeModel;
-    private DefaultMutableTreeNode localCorpusRootNode;
-    private DefaultMutableTreeNode remoteCorpusRootNode;
-    private DefaultMutableTreeNode localDirectoryRootNode;
-    private LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
-    private GuiHelper guiHelper = new GuiHelper(linorgSessionStorage);
-    private LinorgWindowManager linorgWindowManager;
+    private GuiHelper guiHelper = new GuiHelper();
 
     public LinorgFrame() {
         this.addWindowListener(new WindowAdapter() {
@@ -41,16 +33,10 @@ public class LinorgFrame extends javax.swing.JFrame {
                 super.windowClosing(e);
             }
         });
-        localCorpusRootNode = new DefaultMutableTreeNode("Local Corpus Cache");
-        remoteCorpusRootNode = new DefaultMutableTreeNode("Remote Corpus");
-        localDirectoryRootNode = new DefaultMutableTreeNode("Local File System");
-        GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
-
-        localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
-        remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
-        localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
 
         initComponents();
+
+        GuiHelper.treeHelper.setTrees(remoteCorpusTree, localCorpusTree, localDirectoryTree);
 
         //Enable tool tips.
         ToolTipManager.sharedInstance().registerComponent(localDirectoryTree);
@@ -81,9 +67,8 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         setVisible(true);
 
-        linorgWindowManager = new LinorgWindowManager(windowMenu, jDesktopPane1);
-        guiHelper.setWindowManager(linorgWindowManager);
-        guiHelper.initViewMenu(viewMenu);
+        GuiHelper.linorgWindowManager.setComponents(windowMenu, jDesktopPane1);
+        //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
     }
 
     private void addLocation(String addableLocation) {
@@ -91,11 +76,8 @@ public class LinorgFrame extends javax.swing.JFrame {
             // alert the user when the node already exists and cannot be added again
             JOptionPane.showMessageDialog(this, "The location already exists and cannot be added again", "Add location", JOptionPane.INFORMATION_MESSAGE);
         }
-        GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
+        GuiHelper.treeHelper.applyRootLocations();
         //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
-        localDirectoryTreeModel.reload();
-        localCorpusTreeModel.reload();
-        remoteCorpusTreeModel.reload();
     }
 
     private void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
@@ -103,10 +85,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(jDesktopPane1, "No node selected", "", 0);
         } else {
             GuiHelper.treeHelper.removeLocation(selectedTreeNode.getUserObject());
-            GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
-            localDirectoryTreeModel.reload();
-            localCorpusTreeModel.reload();
-            remoteCorpusTreeModel.reload();
+            GuiHelper.treeHelper.applyRootLocations();
         }
     }
 
@@ -137,9 +116,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         actorsToGridMenuItem = new javax.swing.JMenuItem();
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
+        addMenu = new javax.swing.JMenu();
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         copyImdiUrlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItem = new javax.swing.JMenuItem();
+        viewXmlMenuItem1 = new javax.swing.JMenuItem();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
         addRemoteCorpusMenuItem = new javax.swing.JMenuItem();
         addDefaultLocationsMenuItem = new javax.swing.JMenuItem();
@@ -208,6 +189,18 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         reloadSubnodesMenuItem.setText("Reload");
         treePopupMenu.add(reloadSubnodesMenuItem);
+
+        addMenu.setText("Add");
+        addMenu.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                addMenuMenuSelected(evt);
+            }
+        });
+        treePopupMenu.add(addMenu);
         treePopupMenu.add(treePopupMenuSeparator1);
 
         copyImdiUrlMenuItem.setText("Copy Location to Clipboard");
@@ -225,6 +218,14 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(viewXmlMenuItem);
+
+        viewXmlMenuItem1.setText("View IMDI Formatted");
+        viewXmlMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewXmlXslMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(viewXmlMenuItem1);
         treePopupMenu.add(treePopupMenuSeparator2);
 
         addRemoteCorpusMenuItem.setText("Add Remote Location");
@@ -286,7 +287,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         leftLocalSplitPane.setDividerSize(5);
         leftLocalSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-        localDirectoryTree.setModel(localDirectoryTreeModel);
+        localDirectoryTree.setModel(GuiHelper.treeHelper.localDirectoryTreeModel);
         localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
             }
@@ -308,7 +309,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         leftLocalSplitPane.setBottomComponent(jScrollPane2);
 
-        localCorpusTree.setModel(localCorpusTreeModel);
+        localCorpusTree.setModel(GuiHelper.treeHelper.localCorpusTreeModel);
         localCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
             }
@@ -332,7 +333,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         leftSplitPane.setBottomComponent(leftLocalSplitPane);
 
-        remoteCorpusTree.setModel(remoteCorpusTreeModel);
+        remoteCorpusTree.setModel(GuiHelper.treeHelper.remoteCorpusTreeModel);
         remoteCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
             }
@@ -413,6 +414,15 @@ public class LinorgFrame extends javax.swing.JFrame {
         jMenuBar1.add(optionsMenu);
 
         viewMenu.setText("View");
+        viewMenu.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                viewMenuMenuSelected(evt);
+            }
+        });
         jMenuBar1.add(viewMenu);
 
         windowMenu.setText("Window");
@@ -443,7 +453,7 @@ private void remoteCorpusTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent
         parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
     }
     // load imdi data if not already loaded
-    guiHelper.getImdiChildNodes(parentNode);
+    GuiHelper.treeHelper.getImdiChildNodes(parentNode);
 //remoteCorpusTree.scrollPathToVisible(evt.getPath());
 }//GEN-LAST:event_remoteCorpusTreeTreeWillExpand
 
@@ -489,11 +499,12 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         addRemoteCorpusMenuItem.setVisible(false);
         copyBranchMenuItem.setVisible(false);
         copyImdiUrlMenuItem.setVisible(false);
-        viewXmlMenuItem.setVisible(false);
+        viewXmlMenuItem.setVisible(false); 
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
         actorsToGridMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
+        addMenu.setVisible(false);
 
         if (evt.getSource() == remoteCorpusTree) {
             removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
@@ -505,6 +516,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            addMenu.setVisible(selectionCount > 0 && nodeLevel > 1 && localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
             showContextMenu = nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {
@@ -512,7 +524,8 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
         } else {
             copyImdiUrlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            viewXmlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            viewXmlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);// this should only show if only one tree has selected nodes or just one node is selected
+            viewXmlMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1 && localCorpusTree.getSelectionCount() > 0); // only show if it is the local corpus tree that has selected nodes
             reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         }
         // hide show the separators
@@ -537,10 +550,7 @@ private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
     ThreadedDialog threadedDialog = new ThreadedDialog(remoteCorpusTree);
     threadedDialog.copyToCache(getSelectedNodes(new JTree[]{remoteCorpusTree}));
     // update the tree and reload the ui
-    GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
-    localDirectoryTreeModel.reload();
-    localCorpusTreeModel.reload();
-    remoteCorpusTreeModel.reload();
+    GuiHelper.treeHelper.applyRootLocations();
 }//GEN-LAST:event_copyBranchMenuItemActionPerformed
 
 private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLocalDirectoryMenuItemActionPerformed
@@ -561,19 +571,7 @@ private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent
 
 private void viewXmlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlMenuItemActionPerformed
 // TODO add your handling code here:
-    DefaultMutableTreeNode selectedTreeNode = null;
-    if (remoteCorpusTree.getLeadSelectionPath() == null) {
-        if (localCorpusTree.getLeadSelectionPath() != null) {
-            System.out.println("copying local directory location");
-            selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
-        }
-    } else {
-        //System.out.println("copying remote url");
-        selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getLeadSelectionPath().getLastPathComponent();
-    }
-    if (selectedTreeNode != null) {
-        guiHelper.openImdiXmlWindow(selectedTreeNode.getUserObject());
-    }
+    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(), false);
 }//GEN-LAST:event_viewXmlMenuItemActionPerformed
 
 private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
@@ -610,10 +608,7 @@ private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent e
 private void addDefaultLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDefaultLocationsMenuItemActionPerformed
 // TODO add your handling code here:
     if (0 < GuiHelper.treeHelper.addDefaultCorpusLocations()) {
-        GuiHelper.treeHelper.applyRootLocations(localDirectoryRootNode, localCorpusRootNode, remoteCorpusRootNode);
-        localDirectoryTreeModel.reload();
-        localCorpusTreeModel.reload();
-        remoteCorpusTreeModel.reload();
+        GuiHelper.treeHelper.applyRootLocations();
     } else {
         // alert the user when the node already exists and cannot be added again
         JOptionPane.showMessageDialog(this, "The defalut locations already exists and cannot be added again", "Add default locations", JOptionPane.INFORMATION_MESSAGE);
@@ -708,13 +703,30 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
 
 private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
 // TODO add your handling code here:
-    linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}).elements(), "Selection");
+    GuiHelper.linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}).elements(), "Selection");
 }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
 private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLocationsMenuItemActionPerformed
 // TODO add your handling code here:
     GuiHelper.treeHelper.showLocationsDialog();
 }//GEN-LAST:event_editLocationsMenuItemActionPerformed
+
+private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_viewMenuMenuSelected
+// TODO add your handling code here:
+    guiHelper.initViewMenu(viewMenu);
+}//GEN-LAST:event_viewMenuMenuSelected
+
+private void addMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addMenuMenuSelected
+// TODO add your handling code here:
+    if (localCorpusTree.getLeadSelectionPath() != null) {
+        guiHelper.initAddMenu(addMenu, ((DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject());
+    }
+}//GEN-LAST:event_addMenuMenuSelected
+
+private void viewXmlXslMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlXslMenuItemActionPerformed
+// TODO add your handling code here:
+        guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(), true);
+}//GEN-LAST:event_viewXmlXslMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -732,6 +744,7 @@ private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JMenuItem actorsToGridMenuItem;
     private javax.swing.JMenuItem addDefaultLocationsMenuItem;
     private javax.swing.JMenuItem addLocalDirectoryMenuItem;
+    private javax.swing.JMenu addMenu;
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
     private javax.swing.JMenuItem copyBranchMenuItem;
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
@@ -769,6 +782,7 @@ private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JMenu viewMenu;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
+    private javax.swing.JMenuItem viewXmlMenuItem1;
     private javax.swing.JMenu windowMenu;
     // End of variables declaration//GEN-END:variables
 
