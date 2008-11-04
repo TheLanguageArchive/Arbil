@@ -28,14 +28,14 @@ public class ImdiFieldViews {
         loadImdiFieldViews();
     }
 
-    public FieldView getView(String viewName) {
+    public LinorgFieldView getView(String viewName) {
         System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
-        return ((FieldView) savedFieldViews.get(viewName));
+        return ((LinorgFieldView) savedFieldViews.get(viewName));
     }
 
-    public FieldView getCurrentGlobalView() {
+    public LinorgFieldView getCurrentGlobalView() {
         System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
-        return ((FieldView) savedFieldViews.get(currentGlobalViewName));
+        return ((LinorgFieldView) savedFieldViews.get(currentGlobalViewName));
     }
 
     public String getCurrentGlobalViewName() {
@@ -55,7 +55,7 @@ public class ImdiFieldViews {
     public DefaultTableModel getImdiFieldViewTableModel(String viewLabel) {
         Object currentView = savedFieldViews.get(viewLabel);
         // we want a table model even if it has no rows
-        return getImdiFieldViewTableModel((FieldView) currentView);
+        return getImdiFieldViewTableModel((LinorgFieldView) currentView);
     }
 
     // return the table model used to edit the field view
@@ -81,15 +81,15 @@ public class ImdiFieldViews {
         // we want a table model even if it has no rows
         if (currentView != null) {
             // loop the known columns
-            for (Enumeration knownColumnNames = ((FieldView) currentView).getKnownColumns(); knownColumnNames.hasMoreElements();) {
+            for (Enumeration knownColumnNames = ((LinorgFieldView) currentView).getKnownColumns(); knownColumnNames.hasMoreElements();) {
                 String currentFieldName = knownColumnNames.nextElement().toString();
                 returnTableModel.addRow(new Object[]{currentFieldName, getMasterImdiFieldDescription(currentFieldName),
                             // set the show only fields
-                            ((FieldView) currentView).isShowOnlyColumn(currentFieldName),
+                            ((LinorgFieldView) currentView).isShowOnlyColumn(currentFieldName),
                             // set the hidden fields
-                            ((FieldView) currentView).isHiddenColumn(currentFieldName),
+                            ((LinorgFieldView) currentView).isHiddenColumn(currentFieldName),
                             // set alays show fields
-                            ((FieldView) currentView).isAlwaysShowColumn(currentFieldName)
+                            ((LinorgFieldView) currentView).isAlwaysShowColumn(currentFieldName)
                         });
             }
         }
@@ -108,15 +108,15 @@ public class ImdiFieldViews {
         if (savedFieldViews == null) {
             savedFieldViews = new Hashtable();
 
-            FieldView currentGlobalView = new FieldView();
+            LinorgFieldView currentGlobalView = new LinorgFieldView();
             addImdiFieldView("All", currentGlobalView);
             currentGlobalViewName = "All";
 
-            FieldView fewFieldView = new FieldView();
+            LinorgFieldView fewFieldView = new LinorgFieldView();
             fewFieldView.setShowOnlyColumns(new String[]{".name", ".description", ".title", ".date", ".language"});
             addImdiFieldView("Few", fewFieldView);
 
-            FieldView otherFieldView = new FieldView();
+            LinorgFieldView otherFieldView = new LinorgFieldView();
             otherFieldView.addHiddenColumn(".name");
             otherFieldView.addHiddenColumn(".description");
             otherFieldView.addHiddenColumn(".title");
@@ -142,7 +142,7 @@ public class ImdiFieldViews {
         }
     }
 
-    public boolean addImdiFieldView(String viewLabel, FieldView fieldView) {
+    public boolean addImdiFieldView(String viewLabel, LinorgFieldView fieldView) {
         if (!savedFieldViews.containsKey(viewLabel)) {
             savedFieldViews.put(viewLabel, fieldView);
             saveViewsToFile();
@@ -170,7 +170,7 @@ public class ImdiFieldViews {
     }
 }
 
-class FieldView implements Serializable {
+class LinorgFieldView implements Serializable {
 
     private Vector hiddenColumns = new Vector();
     private Vector showOnlyColumns = new Vector();
@@ -204,8 +204,8 @@ class FieldView implements Serializable {
         this.showOnlyColumns = showOnlyColumns;
     }
 
-    public FieldView clone() {
-        FieldView returnFieldView = new FieldView();
+    public LinorgFieldView clone() {
+        LinorgFieldView returnFieldView = new LinorgFieldView();
         returnFieldView.setAlwaysShowColumns((Vector) alwaysShowColumns.clone());
         returnFieldView.setHiddenColumns((Vector) hiddenColumns.clone());
         returnFieldView.setKnownColumns((Vector) knownColumns.clone());
