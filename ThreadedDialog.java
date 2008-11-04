@@ -43,7 +43,7 @@ public class ThreadedDialog {
     private JTextField searchLabel;
     private Hashtable foundNodes = new Hashtable();
     // variables used by the copy thread
-    String destinationDirectory;
+    
     // variables used by all threads
     private boolean stopSearch = false;
     private boolean threadARunning = false;
@@ -75,18 +75,11 @@ public class ThreadedDialog {
             return;
         }
         //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
-        destinationDirectory = GuiHelper.linorgSessionStorage.storageDirectory + File.separatorChar + "imdicache";
-        File destinationFile = new File(destinationDirectory);
-        boolean cacheDirExists = destinationFile.exists();
-        if (!cacheDirExists) {
-            cacheDirExists = destinationFile.mkdir();
-        }
-        appendToTaskOutput("destination directory:" + destinationDirectory);
+
         //destinationDirectory = destinationDirectory + File.separator + mirrorNameString;
         //boolean brachDirCreated = (new File(destinationDirectory)).mkdir();
         // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
-        if (cacheDirExists) {
-            destinationDirectory = destinationDirectory + File.separatorChar;
+        if (GuiHelper.linorgSessionStorage.cacheDirExists()) {
             performCopy();
             searchDialog.setVisible(true);
         } else {
@@ -245,7 +238,7 @@ public class ThreadedDialog {
         return (new int[]{childrenToLoad, loadedChildren});
     }
     // load all childeren
-    private int loadSomeChildren(Object currentElement, int totalLoaded) {
+    private int loadSomeChildren(Object currentElement, int totalLoaded, boolean saveToCache) {
         int currentLoaded = 0;
         appendToTaskOutput("loading sub corpus");
         boolean moreToLoad = true;
@@ -255,7 +248,7 @@ public class ThreadedDialog {
             progressBar.setString("" + (totalLoaded + tempChildCountArray[1]));
             moreToLoad = (tempChildCountArray[0] != 0);
             if (moreToLoad) {
-                ((ImdiHelper.ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5);
+                ((ImdiHelper.ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5, saveToCache);
             }
             currentLoaded = tempChildCountArray[1];
 //            progressBar.setNote(currentLoaded);
@@ -279,6 +272,7 @@ public class ThreadedDialog {
 
             public void run() {
                 try {
+                    boolean saveToCache = true;
                     waitTillVisible();
                     appendToTaskOutput("Copying");
                     progressBar.setIndeterminate(true);
@@ -289,15 +283,17 @@ public class ThreadedDialog {
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
-                            String newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).getSaveLocation(destinationDirectory);
+                            // TODO: newNodeLocation is not used to good effect, it would be better to truely verify that the branch has been saved to the cache
+                            String newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).getSaveLocation();
+                            ((ImdiHelper.ImdiTreeObject) currentElement).loadImdiDom(saveToCache); // save the first node which will not be saved by loadSomeChildren
                             if (newNodeLocation != null) {
 //                                if (!new File(newNodeLocation).exists()) {// this would allow incomplete copies to be added
-                                    totalLoaded += loadSomeChildren(currentElement, totalLoaded);
-                                    if (!stopSearch) {
-                                        // perform the copy
-                                        appendToTaskOutput("Saving to: " + newNodeLocation);
-                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBrachToLocal(destinationDirectory);
-                                    }
+                                    totalLoaded += loadSomeChildren(currentElement, totalLoaded, saveToCache);
+//                                    if (!stopSearch) {
+//                                        // perform the copy
+//                                        appendToTaskOutput("Saving to: " + newNodeLocation);
+//                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBrachToLocal();
+//                                    }
     //                             } else {
     //                                 appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
     //                             }
@@ -353,7 +349,7 @@ public class ThreadedDialog {
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
-                            totalLoaded += loadSomeChildren(currentElement, totalLoaded);
+                            totalLoaded += loadSomeChildren(currentElement, totalLoaded, false);
                             // perform the search        
                             appendToTaskOutput("searching");
                             ((ImdiHelper.ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
