@@ -11,10 +11,13 @@ import org.w3c.dom.Node;
 import java.net.MalformedURLException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -62,8 +65,8 @@ public class ImdiHelper {
     static Icon picturefileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/pictures.png"));
     static Icon infofileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/infofile.png"));
     static Icon unknownnodeicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/file.png"));
-    static Icon dataicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/data.png"));
-    static Icon stopicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/stop.png"));    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
+    static Icon dataicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/imdi_icons/data.png"));
+    static Icon stopicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/imdi_icons/stop.png"));    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
 //    static Icon fileIcon = UIManager.getIcon("FileView.fileIcon");
     //                        UIManager.getIcon("FileView.directoryIcon");
 //                        UIManager.getIcon("FileView.fileIcon");
@@ -112,9 +115,8 @@ public class ImdiHelper {
     private static IMDIDom api = new IMDIDom();
     private Hashtable nodeSumsHashtable = null; // this is a table of md5sums each containing a vector of all matching files. This is saved and reloaded each time the application is started
     private Hashtable urlToNodeHashtable = new Hashtable(); // this is a table of urls that links to the imdiobject for each url
-    Date minNodeDate, maxNodeDate;
     
-    // used to check the file type
+//  used to check the file type
     private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType();
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
 
@@ -141,9 +143,11 @@ public class ImdiHelper {
         }
     }
 
-//    protected void finalize() throws Throwable {
-//        saveMd5sumIndex();
-//    }
+    @Override
+    protected void finalize() throws Throwable {
+        saveMd5sumIndex();
+    }
+
     public void saveMd5sumIndex() {
         try {
             GuiHelper.linorgSessionStorage.saveObject(nodeSumsHashtable, "md5sumIndex");
@@ -157,7 +161,7 @@ public class ImdiHelper {
         ImdiTreeObject imdiTreeObject;
         imdiTreeObject = new ImdiTreeObject(null, urlString);
         if (isStringImdi(urlString)) {
-            imdiTreeObject.loadImdiDom();
+            imdiTreeObject.loadImdiDom(false);
         }
         return imdiTreeObject;
     }
@@ -181,17 +185,18 @@ public class ImdiHelper {
         return urlString.contains(".imdi#");
     }
 
-    public class ImdiTreeObject {
+    public class ImdiTreeObject implements Comparable {
 
         Hashtable fieldHashtable = new Hashtable();
         Hashtable childrenHashtable = new Hashtable();
         boolean imdiDataLoaded = false;
-        String hashString = null;
+        String hashString = null;        
+        String mpiMimeType = null;
         int matchesLocal = 0;
         int matchesRemote = 0;
         int matchesLocalResource = 0;
+        int imdiChildCounter = 0; // used to keep the imdi child nodes unique when they are added
         private String nodeText;
-        private Document nodDom;
         private String urlString;
         private String resourceUrlString;
         private boolean isDirectory;
@@ -205,7 +210,6 @@ public class ImdiHelper {
         protected ImdiTreeObject(String localNodeText, String localUrlString) {
             debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
             nodeText = localNodeText;
-            nodDom = null;
             urlString = localUrlString;
             icon = null;//idleIcon;//null;//new ImageIcon(getClass().getResource(imageName)); 
             isDirectory = false;
@@ -222,10 +226,10 @@ public class ImdiHelper {
                 }
             }
             if (!isImdiChild()) {
-                if (!isImdi()) {
+                if (!isImdi() && !isDirectory()) {
                     // if we get here then the node should be a file not an imdi
                     // so get its mime type
-                    getMimeType();
+                    getMimeType(this.getUrl());
                     if (mpiMimeType != null) {
                         // if the file is an archivable type then get its md5sum, this saves time time by avoiding unnecessary md5sum creation
                         getHash(this.getFile(), this.getUrl());
@@ -237,7 +241,8 @@ public class ImdiHelper {
             }
         }
 
-        public void loadImdiDom() {
+        public void loadImdiDom(boolean useCache) {
+            Document nodDom;
             try {
                 OurURL inUrlLocal = null;
                 String tempUrlString;
@@ -254,16 +259,21 @@ public class ImdiHelper {
                     //set the string name to unknown, it will be updated in the tostring function
                     nodeText = "unknown";
                     // load the fields from the imdi file
-                    iterateChildNodes(nodDom.getFirstChild(), "");
+                    iterateChildNodes(nodDom.getFirstChild(), "", useCache);
                     // test if this node is a session
                     isSession = fieldHashtable.containsKey("Session.Name");
+                }
+                // get the links from the imdi before we dispose of the dom
+                imdiLinkArray = getImdiLinks(nodDom);
+                // save this to the cache before deleting the dom
+                if (useCache) {
+                    saveNodeToCache(nodDom);
                 }
             } catch (MalformedURLException mue) {
                 System.out.println("Invalid input URL: " + mue);
                 nodeText = "Invalid input URL";
             }
-            imdiLinkArray = getImdiLinks(); // get the links from the imdi before we dispose of the dom (this will also get a directory listing if this is not an imdi)
-//             we are now done with the dom so free the memory
+            //we are now done with the dom so free the memory
             nodDom = null;
         }
 
@@ -289,13 +299,13 @@ public class ImdiHelper {
             return returnArray;
         }
 
-        private String[] getImdiLinks() {
+        private String[] getImdiLinks(Document nodDom) {
             String[] returnArray = null;
             try {
-                if (this.getNodeDom() != null) {
+                if (nodDom != null) {
                     OurURL baseURL = new OurURL(this.getUrl());
                     debugOut("getIMDILinks");
-                    IMDILink[] links = api.getIMDILinks(this.getNodeDom(), baseURL, WSNodeType.CORPUS);
+                    IMDILink[] links = api.getIMDILinks(nodDom, baseURL, WSNodeType.CORPUS);
                     debugOut("links.length: " + links.length);
                     if (links != null) {
                         returnArray = new String[links.length];
@@ -363,28 +373,37 @@ public class ImdiHelper {
             return childrenHashtable.elements();
         }
 
-        public ImdiTreeObject addChildNode(String nodeType) {
-            ImdiTreeObject addableImdiChild = new ImdiTreeObject("new child", this.getUrl() + "/imdichildtesting.imdi");
+        public Vector addChildNode(String nodeType) {
+            Vector addedImdiNodes = new Vector();
+            ImdiTreeObject destinationNode;
+            if (GuiHelper.imdiSchema.isImdiChildType(nodeType)) {
+                destinationNode = this;
+            } else {
+                destinationNode = new ImdiTreeObject("new child", this.getUrl() + "/imdichildtesting.imdi");
+                addedImdiNodes.add(destinationNode);
+            }
             // begin temp test
 //            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
 //            fieldToAdd1.translateFieldName("test.field.translated");
 //            addableImdiChild.addField(fieldToAdd1, 0);
             // end temp test
             //for (Enumeration fieldsToAdd = GuiHelper.imdiFieldViews.getCurrentGlobalView().getAlwaysShowColumns(); fieldsToAdd.hasMoreElements();) {
-            for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(nodeType); fieldsToAdd.hasMoreElements();){
+            for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(nodeType, getNextImdiChildIdentifier()); fieldsToAdd.hasMoreElements();) {
                 String currentFieldName = fieldsToAdd.nextElement().toString();
-                ImdiField fieldToAdd = new ImdiField(addableImdiChild, currentFieldName, "unset");
+                ImdiField fieldToAdd = new ImdiField(destinationNode, currentFieldName, "unset");
                 //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
                 fieldToAdd.translateFieldName(currentFieldName);
                 if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrl(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
-                    addableImdiChild.addField(fieldToAdd, 0);
+                    destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
                 }
             }
-            childrenHashtable.put(addableImdiChild.getUrl(), addableImdiChild);
-            return addableImdiChild;
+            if (destinationNode != this) {
+                childrenHashtable.put(destinationNode.getUrl(), destinationNode);
+            }
+            return addedImdiNodes;
         }
 
-        public ImdiTreeObject[] loadChildNodes() {
+        public ImdiTreeObject[] loadChildNodes(boolean saveToCache) {
             if (!imdiDataLoaded) {
                 // if this node has been loaded then do not load again
                 // to refresh the node and its children the node should be nulled and recreated
@@ -400,13 +419,13 @@ public class ImdiHelper {
 //                            //getHash(new File(linkArray[linkCount]), urlString);
 //                        }
                     } else {
-                        for (int linkCount = 0; linkCount < imdiLinkArray.length && linkCount < 10; linkCount++) {
+                        for (int linkCount = 0; linkCount < imdiLinkArray.length /*&& linkCount < 10*/; linkCount++) {
                             debugOut("linkArray: " + imdiLinkArray[linkCount]);
                             ImdiTreeObject currentImdi = new ImdiTreeObject(null, imdiLinkArray[linkCount]);
 //                        tempImdiVector.add(currentImdi);
                             childrenHashtable.put(currentImdi.getUrl(), currentImdi);
                             if (isStringImdi(imdiLinkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
-                                currentImdi.loadImdiDom();
+                                currentImdi.loadImdiDom(saveToCache);
                             }
                         }
                     }
@@ -442,30 +461,31 @@ public class ImdiHelper {
             return returnImdiArray;
         }
 
-        private void iterateChildNodes(Node startNode, String nodePath) {
-            int siblingCounter = 0;
+        private void iterateChildNodes(Node startNode, String nodePath, boolean useCache) {
             String siblingSpacer = "";
             Vector childNames = new Vector();
             Hashtable childrenWithSiblings = new Hashtable();
+            // loop through all the child nodes to find any that have more than one of the same name and therefore should be in a imdichildnode
             for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
                 String localName = childNode.getLocalName();
                 if (localName != null) {
                     if (childNames.contains(localName)) {
+//                        if (childNode.getChildNodes().getLength() > 1) /* this is to prevent nodes with only text and no sub nodes getting imdichilds node all to themselves */ {
                         childrenWithSiblings.put(localName, 1);
-                        debugOut("childrenWithSiblings: " + localName);
+                        System.out.println("childrenWithSiblings: " + localName);
+//                        }
                     } else {
                         childNames.add(localName);
                     }
                 }
             }
+            // add the fields and nodes 
             for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
                 String localName = childNode.getLocalName();
-                //if (localName != null) {
+                //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
                 if (localName != null && childrenWithSiblings.containsKey(localName)) {
-                    siblingCounter = (Integer) childrenWithSiblings.get(localName);
                     // add brackets to conform with the imdi api notation
-                    siblingSpacer = "(" + siblingCounter + ")";
-                    childrenWithSiblings.put(localName, siblingCounter + 1);
+                    siblingSpacer = "(" + getNextImdiChildIdentifier() + ")";
                 } else {
                     siblingSpacer = "";
                 }
@@ -473,7 +493,7 @@ public class ImdiHelper {
                 if (fieldToAdd.isDisplayable()) {
                     debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
                     fieldToAdd.translateFieldName(nodePath + siblingSpacer);
-                    this.addField(fieldToAdd, 0);
+                    this.addField(fieldToAdd, 0, null, useCache);
                     // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
                     // TODO: note that this method does not use any attributes without a node value
                     NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
@@ -503,7 +523,7 @@ public class ImdiHelper {
                     }
                 }
                 fieldToAdd.finishLoading();
-                iterateChildNodes(childNode.getFirstChild(), nodePath + "." + localName + siblingSpacer);
+                iterateChildNodes(childNode.getFirstChild(), nodePath + "." + localName + siblingSpacer, useCache);
             }
         }
 
@@ -571,7 +591,7 @@ public class ImdiHelper {
             return returnArray;
         }
 
-        public void loadNextLevelOfChildren(long stopTime) {
+        public void loadNextLevelOfChildren(long stopTime, boolean saveToCache) {
             debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
             if (System.currentTimeMillis() > stopTime) {
                 return;
@@ -581,17 +601,17 @@ public class ImdiHelper {
                     Enumeration nodesToAddEnumeration = childrenHashtable.elements();
                     while (nodesToAddEnumeration.hasMoreElements()) {
                         // load one level of child nodes
-                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime);
+                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime, saveToCache);
                     //((ImdiTreeObject) nodesToAddEnumeration.nextElement()).();
                     }
                 } else {
-                    loadChildNodes();
+                    loadChildNodes(saveToCache);
                 }
             }
             debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
         }
 
-        public String getSaveLocation(String destinationDirectory) {
+        public String getSaveLocation() {
             if (this.isImdi() && !this.isImdiChild()) {
                 //this file name must be set from the imdi url by removing the servername but keeping the path  and appending it to the destination directory
                 String fileName = this.getUrl();
@@ -601,48 +621,111 @@ public class ImdiHelper {
 //                    // there may be ftp or other archive types that need different methods
 //                    throw new UnsupportedOperationException("Not supported yet.");
 //                }
-                return destinationDirectory + fileName.replace("://", "/");
+                return getSaveLocation(fileName);
             }
             return null;
         }
 
-        // before this is called it is recomended to confirm that the destinationDirectory path already exist and is correct, otherwise inintended directories maybe created
-        public String saveBrachToLocal(String destinationDirectory) {
-            System.out.println("saveBrachToLocal: " + this.toString());
+        // converts a String path to the cache path
+        public String getSaveLocation(String pathString) {
+            String cachePath = GuiHelper.linorgSessionStorage.destinationDirectory + pathString.replace("://", "/");
+            File tempFile = new File(cachePath);
+            if (!tempFile.getParentFile().exists()) {
+                tempFile.getParentFile().mkdirs();
+            }
+            return cachePath;
+        }
+
+//        private String getCachePath() {
+//        }
+        private String getFullRecourcePath() {
+            String targetUrlString = resourceUrlString;
+            if (targetUrlString.startsWith(".")) {
+                String parentUrl = this.urlString.split("#")[0];
+                targetUrlString = parentUrl.substring(0, parentUrl.lastIndexOf("/")) + "/" + targetUrlString;
+            }
+            return targetUrlString;
+        }
+
+        private void saveRemoteResource() {
+            String targetUrlString = getFullRecourcePath();
+            System.out.println("saveRemoteResource: " + targetUrlString);
+            String destinationPath = getSaveLocation(targetUrlString);
+            File tempFile = new File(destinationPath);
+            if (tempFile.exists()) {
+                System.out.println("this resource is already in the cache");
+            } else {
+                try {
+                    URL u = new URL(targetUrlString);
+                    URLConnection yc = u.openConnection();
+                    HttpURLConnection h = (HttpURLConnection) yc;
+                    //h.setFollowRedirects(false);
+
+                    System.out.println("Code: " + h.getResponseCode() + ", Message: " + h.getResponseMessage());
+                    if (h.getResponseCode() != 200) {
+                        System.out.println("non 200 response, skipping file");
+                    } else {
+                        int bufferLength = 1024 * 4;
+                        FileOutputStream fout = new FileOutputStream(destinationPath); //targetUrlString
+                        System.out.println("getting file");
+                        InputStream stream = yc.getInputStream();
+                        byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
+                        int bytesread = 0;
+                        int totalRead = 0;
+                        while (bytesread >= 0) {
+                            bytesread = stream.read(buffer);
+                            totalRead += bytesread;
+//                        System.out.println("bytesread: " + bytesread);
+//                        System.out.println("Mbs totalRead: " + totalRead / 1048576);
+                            if (bytesread == -1) {
+                                break;
+                            }
+                            fout.write(buffer, 0, bytesread);
+                        }
+                        System.out.println("Downloaded: " + totalRead / 1048576 + " Mbs");
+                    }
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        }
+        // before this is called it is recomended to confirm that the destinationDirectory path already exist and is correct, otherwise unintended directories maybe created
+        public void saveNodeToCache(Document nodDom) {
+            debugOut("saveBrachToLocal: " + this.toString());
             if (this.isImdi() && !this.isImdiChild()) {
                 if (nodDom != null) {
                     //System.out.println("saveBrachToLocal: " + this.getUrl());
                     //System.out.println("saveBrachToLocal: " + this.nodDom.);
 
-                    String destinationPath = getSaveLocation(destinationDirectory);
+                    String destinationPath = getSaveLocation();
                     debugOut("destinationPath: " + destinationPath);
                     File tempFile = new File(destinationPath);
-                    if (!tempFile.getParentFile().exists()) {
-                        tempFile.getParentFile().mkdirs();
-                    }
                     // only save the file if it does not exist, otherwise local changes would be lost and it would be pointless anyway
-                    if (!tempFile.exists()) {
+                    if (tempFile.exists()) {
+                        System.out.println("this imdi is already in the cache");
+                    } else {
                         // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
-                        api.writeDOM(this.getNodeDom(), new File(destinationPath), false);
+                        api.writeDOM(nodDom, new File(destinationPath), false);
                         // at this point the file should exist and not have been modified by the user
                         // create hash index with server url but basedon the saved file
                         // note that if the imdi.api has changed this file then it will not be detected
                         // TODO: it will be best to change this to use the server api get mb5 sum when it is written
                         // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
-                        getHash(tempFile, this.getUrl());
+                        //getHash(tempFile, this.getUrl());
+                        System.out.println("imdi should be saved in cache now");
                     }
-                    Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-                    while (nodesToAddEnumeration.hasMoreElements()) {
-                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBrachToLocal(destinationDirectory);
-                    }
-                    return destinationPath;
+                // no point iterating child nodes which have not been loaded, it is better to do the outside this function
+//                    Enumeration nodesToAddEnumeration = childrenHashtable.elements();
+//                    while (nodesToAddEnumeration.hasMoreElements()) {
+////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBrachToLocal(destinationDirectory);
+//                    }
+
                 }
             }
-            return null;
         }
 
-        private void addField(ImdiField fieldToAdd, int childLevel) {
+        private void addField(ImdiField fieldToAdd, int childLevel, Vector addedImdiNodes, boolean useCache) {
             // TODO: modify this so that each child node gets the full filename and full xml path
 //            if (isImdi()) {
 //                if (fieldLabel.startsWith("Session.")) {
@@ -661,33 +744,42 @@ public class ImdiHelper {
                 String childsLabel = fieldToAdd.translatedPath.substring(childLevel);
                 fieldHashtable.put(childsLabel, fieldToAdd);
 
-                if (childsLabel.endsWith(".Date")) {
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-DD");
-                    try {
-                        nodeDate = df.parse(fieldToAdd.fieldValue);
-                        if (minNodeDate == null) {
-                            minNodeDate = nodeDate;
-                            maxNodeDate = nodeDate;
-                        }
-                        if (nodeDate.before(minNodeDate)) {
-                            minNodeDate = nodeDate;
-                        }
-                        if (nodeDate.after(maxNodeDate)) {
-                            maxNodeDate = nodeDate;
-                        }
-                    } catch (Exception ex) {
-                        System.err.println(ex.getMessage());
-                    }
-                }
+//                if (childsLabel.endsWith(".Date")) {
+//                    DateFormat df = new SimpleDateFormat("yyyy-MM-DD");
+//                    try {
+//                        nodeDate = df.parse(fieldToAdd.fieldValue);
+//                        if (minNodeDate == null) {
+//                            minNodeDate = nodeDate;
+//                            maxNodeDate = nodeDate;
+//                        }
+//                        if (nodeDate.before(minNodeDate)) {
+//                            minNodeDate = nodeDate;
+//                        }
+//                        if (nodeDate.after(maxNodeDate)) {
+//                            maxNodeDate = nodeDate;
+//                        }
+//                    } catch (Exception ex) {
+//                        System.err.println(ex.getMessage());
+//                    }
+//                }
                 // if the node contains a ResourceLink then save the location in resourceUrlString and create a hash for the file
                 if (childsLabel.equals(".ResourceLink")) {
                     try {
                         // resolve the relative location of the file
-                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
-                        resourceUrlString = resourceFile.getCanonicalPath();
-                        getMimeType();
+//                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
+//                        resourceUrlString = resourceFile.getCanonicalPath();
+                        resourceUrlString = fieldToAdd.fieldValue;
+                        if (useCache) {
+                            saveRemoteResource();
+                        }
+                        String filePath = getFullRecourcePath();
+                        getMimeType(filePath);
+                        System.out.println("addField-mpiMimeType: " + mpiMimeType);
                         if (mpiMimeType != null) {
-                            getHash(resourceFile, fieldToAdd.xmlPath);//resourceUrlString
+                            //getSaveLocation(
+                            System.out.println("addField-getHash");
+                            getHash(new File(filePath.replaceFirst("file://", "/")), fieldToAdd.xmlPath);//resourceUrlString
+                            System.out.println("addField-getHash-done");
                         //hashString = resourceUrlString;
                         }
                     } catch (Exception ex) {
@@ -701,10 +793,13 @@ public class ImdiHelper {
                 debugOut("childsName: " + childsName);
                 if (!childrenHashtable.containsKey(childsName)) {
                     ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldToAdd.xmlPath);
+                    if (addedImdiNodes != null) {
+                        addedImdiNodes.add(tempImdiTreeObject);
+                    }
                     tempImdiTreeObject.imdiDataLoaded = true;
                     childrenHashtable.put(childsName, tempImdiTreeObject);
                 }
-                ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1);
+                ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1, addedImdiNodes, useCache);
             }
         }
 
@@ -713,7 +808,15 @@ public class ImdiHelper {
             // if hashtable is null then load from imdi
             return fieldHashtable;
         }
+
+        public int compareTo(Object o) throws ClassCastException {
+            if (!(o instanceof ImdiTreeObject)) {
+                throw new ClassCastException("ImdiTreeObject expected.");
+            }
+            return this.toString().compareTo(((ImdiTreeObject) o).toString());
+        }
         // Return text for display
+        @Override
         public String toString() {
             if (fieldHashtable.containsKey("Session.Name")) {
                 nodeText = fieldHashtable.get("Session.Name").toString();
@@ -723,16 +826,22 @@ public class ImdiHelper {
 
             String nameText = "";
             if (fieldHashtable.containsKey(".Name")) {
-                nameText = ") " + fieldHashtable.get(".Name").toString();
+                nodeText = "";
+                nameText = /*") " +*/ fieldHashtable.get(".Name").toString();
             } else if (fieldHashtable.containsKey(".ResourceLink")) {
-                nameText = ") " + fieldHashtable.get(".ResourceLink").toString();
+                nodeText = "";
+                nameText = /*") " +*/ fieldHashtable.get(".ResourceLink").toString();
             }
             //return nodeText + " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + " : " + hashString + ":" + resourceUrlString;
             return nodeText + nameText;
         }
 
-        public Document getNodeDom() {
-            return nodDom;
+        public boolean isArchivableFile() {
+            return mpiMimeType != null;
+        }
+
+        public boolean hasResource() {
+            return resourceUrlString != null;
         }
 
         public String getResource() {
@@ -744,8 +853,9 @@ public class ImdiHelper {
         }
 
         public String getHash(File targetFile, String nodeLocation) {
+            System.out.println("hashString: " + hashString + " canRead: " + targetFile.canRead() + " isDirectory: " + this.isDirectory());
             if (hashString == null && targetFile.canRead() && !this.isDirectory()/* && !this.isImdiChild()*/) {
-                debugOut("getHash: " + targetFile + " : " + nodeLocation);
+                System.out.println("getHash: " + targetFile + " : " + nodeLocation);
                 // TODO: add hashes for session links 
                 // TODO: organise a way to get the md5 sum of files on the server
                 try {
@@ -836,6 +946,10 @@ public class ImdiHelper {
             }
         }
 
+        public int getNextImdiChildIdentifier() {
+            return imdiChildCounter++;
+        }
+
         public boolean isDirectory() {
             return isDirectory;
         }
@@ -887,6 +1001,8 @@ public class ImdiHelper {
                         icon = videofileicon;
                     } else if (mpiMimeType.contains("image")) {// ?????
                         icon = picturefileicon;
+                    } else if (mpiMimeType.contains("text")) {
+                        icon = writtenresicon;
                     } else {
                         icon = fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
                         nodeText = mpiMimeType + " : " + nodeText;
@@ -984,9 +1100,9 @@ public class ImdiHelper {
             }
             return icon;
         }
-        String mpiMimeType = null;
 
-        public void getMimeType() {
+        public void getMimeType(String filePath) {
+            System.out.println("getMimeType: " + filePath);
             // here we also want to check the magic number but the mpi api has a function similar to that so we
             // use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
             mpiMimeType = "not found via the api";
@@ -994,22 +1110,32 @@ public class ImdiHelper {
 
             OurURL url = null;
             try {
-                url = new OurURL("file://" + this.getUrl());
+                // only test local files so it is not critical to overly verify the path
+                if (!filePath.startsWith("file://")) {
+                    url = new OurURL("file://" + filePath);
+                } else {
+                    url = new OurURL(filePath);
+                }
             } catch (MalformedURLException e) {
+                System.out.println(e.getMessage());
             }
             if (url == null) {
-                System.out.println("Invalid URL: " + this.getUrl());
+                System.out.println("Invalid URL: " + filePath);
                 System.exit(1);
             }
             try {
-                if (deep) {
-                    mpiMimeType = deepFileType.checkStream(url.openStream(), this.getUrl());
-                } else {
-                    mpiMimeType = fileType.checkStream(url.openStream(), this.getUrl());
+                InputStream inputStream = url.openStream();
+                if (inputStream != null) {
+                    if (deep) {
+                        mpiMimeType = deepFileType.checkStream(inputStream, filePath);
+                    } else {
+                        mpiMimeType = fileType.checkStream(inputStream, filePath);
+                    }
                 }
             } catch (IOException ioe) {
                 System.out.println("Cannot read file at URL: " + url);
             }
+            System.out.println(mpiMimeType);
             mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
         }
     }
@@ -1092,6 +1218,7 @@ public class ImdiHelper {
             fieldAttributes.put(attributeName, attributeValue);
         }
 
+        @Override
         public String toString() {
 //            System.out.println("ImdiField: " + fieldValue);
 //            if (!isDisplayable()) {
