@@ -52,20 +52,23 @@ public class ImdiSchema {
      * @param parentToBe is the imdi node that will receive the new child
      * @return an enumeration of Strings for the available child types, one of which will be passed to listFieldsFor().
      */
-    public Enumeration listTypesFor(ImdiHelper.ImdiTreeObject parentToBe) {
+    public Enumeration listTypesFor(Object targetNodeUserObject) {
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
-        if (parentToBe.isSession()) {
-            childTypes.add("Actor");
-            childTypes.add("WrittenResource");
-            childTypes.add("Anonym");
-            childTypes.add("MediaFile");
-        } else if (!parentToBe.isImdiChild()) {
-            childTypes.add("Corpus");
-            childTypes.add("Session");
+        // corpus can be added to the root node
+        childTypes.add("Corpus");
+        if (targetNodeUserObject instanceof ImdiHelper.ImdiTreeObject) {
+            if (((ImdiHelper.ImdiTreeObject) targetNodeUserObject).isSession()) {
+                childTypes.add("Actor");
+                childTypes.add("WrittenResource");
+                childTypes.add("Anonym");
+                childTypes.add("MediaFile");
+            } else if (!((ImdiHelper.ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
+                childTypes.add("Session");
+            }
+            System.out.println("childTypes: " + childTypes);
         }
-        System.out.println("childTypes: " + childTypes);
         return childTypes.elements();
     }
 
@@ -74,22 +77,22 @@ public class ImdiSchema {
      * @param childType is the chosen child type
      * @return enumeration of potential fields for this child type
      */
-    public Enumeration listFieldsFor(String childType) {
+    public Enumeration listFieldsFor(String childType, int imdiChildIdentifier) {
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector fieldTypes = new Vector();
         String xmlPrePath = "";
         if (childType.equals("Actor")) {
-            xmlPrePath = ".METATRANSCRIPT.Session.MDGroup.Actors.Actor";
-            fieldTypes.add(xmlPrePath + ".Actor");
+            xmlPrePath = ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(" + imdiChildIdentifier + ")"; // TODO resolve what method to use for imdichildren
+            //fieldTypes.add(xmlPrePath + ".Actor");
         } else if (childType.equals("WrittenResource")) {
-            xmlPrePath = ".METATRANSCRIPT.Session.Resources.WrittenResource";
+            xmlPrePath = ".METATRANSCRIPT.Session.Resources.WrittenResource(" + imdiChildIdentifier + ")";
             fieldTypes.add(xmlPrePath + ".WrittenResource");
         } else if (childType.equals("Anonym")) {
-            xmlPrePath = ".METATRANSCRIPT.Session.Resources.Anonyms";
+            xmlPrePath = ".METATRANSCRIPT.Session.Resources.Anonyms(" + imdiChildIdentifier + ")";
             fieldTypes.add(xmlPrePath + ".Anonyms");
         } else if (childType.equals("MediaFile")) {
-            xmlPrePath = ".METATRANSCRIPT.Session.Resources.MediaFile";
+            xmlPrePath = ".METATRANSCRIPT.Session.Resources.MediaFile(" + imdiChildIdentifier + ")";
             fieldTypes.add(xmlPrePath + ".MediaFile");
         } else if (childType.equals("Corpus")) {
             xmlPrePath = ".METATRANSCRIPT.Corpus";
@@ -104,4 +107,18 @@ public class ImdiSchema {
         System.out.println("childType: " + childType + " fieldTypes: " + fieldTypes);
         return fieldTypes.elements();
     }
+
+    public boolean isImdiChildType(String childType) {
+        return !childType.equals("Session") && !childType.equals("Corpus");
+    }
+//    public boolean nodesChildrenCanHaveSiblings(String xmlPath) {
+//        System.out.println("xmlPath: " + xmlPath);
+//        return (xmlPath.equals(".METATRANSCRIPT.Session.MDGroup.Actors"));
+//    }
+//
+//    public String[] convertXmlPathToUiPath(String xmlPath) {
+//        // TODO write this method
+//        // why put in the (x) when it is not representative of the data???
+//        return new String[]{"actors", "actor(1)", "name"};
+//    }
 }
