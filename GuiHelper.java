@@ -347,7 +347,6 @@ public class GuiHelper {
 //            selectedFilesPanel.revalidate();
 //            selectedFilesPanel.repaint();
 //        }
-        }
 //        if (mapView != null) {
 //            mapView.removeAll();
 //        }

@@ -65,8 +65,8 @@ public class ImdiHelper {
     static Icon picturefileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/pictures.png"));
     static Icon infofileicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/infofile.png"));
     static Icon unknownnodeicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/file.png"));
-    static Icon dataicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/imdi_icons/data.png"));
-    static Icon stopicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/imdi_icons/stop.png"));    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
+    static Icon dataicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/data.png"));
+    static Icon stopicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/stop.png"));    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
 //    static Icon fileIcon = UIManager.getIcon("FileView.fileIcon");
     //                        UIManager.getIcon("FileView.directoryIcon");
 //                        UIManager.getIcon("FileView.fileIcon");
