@@ -4,9 +4,11 @@
  */
 package mpi.linorg;
 
+import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -29,6 +31,16 @@ public class ImdiDragDrop {
     public void addDrag(JTree treeSource) {
         treeSource.setDragEnabled(true);
         treeSource.setTransferHandler(imdiObjectSelection);
+    }
+
+    public void addDrag(JList listSource) {
+        listSource.setDragEnabled(true);
+        listSource.setTransferHandler(imdiObjectSelection);
+    }
+
+    public void addTransferHandler(JComponent targetComponent) {
+        //targetComponent.setDragEnabled(true);
+        targetComponent.setTransferHandler(imdiObjectSelection);
     }
 
 //    public void addDrop(JTree treeTarget) {
@@ -74,7 +86,17 @@ public class ImdiDragDrop {
 
         DataFlavor flavors[] = {imdiObjectFlavour};
         ImdiHelper.ImdiTreeObject[] draggedImdiObjects;
+        public boolean selectionContainsArchivableLocalFile = false;
+        public boolean selectionContainsLocalFile = false;
+        public boolean selectionContainsLocalDirectory = false;
+        public boolean selectionContainsImdiResource = false;
+        public boolean selectionContainsImdiCorpus = false;
+        public boolean selectionContainsImdiSession = false;
+        public boolean selectionContainsImdiChild = false;
+        public boolean selectionContainsLocal = false;
+        public boolean selectionContainsRemote = false;
 
+        @Override
         public int getSourceActions(JComponent c) {
             System.out.println("getSourceActions");
             if ((c instanceof JTree)) {
@@ -86,41 +108,137 @@ public class ImdiDragDrop {
                 }
             } else if (c instanceof JTable) {
                 return TransferHandler.COPY;
+            } else if (c instanceof JList) {
+                return TransferHandler.COPY;
             }
             return TransferHandler.NONE;
         }
 
         public boolean canImport(JComponent comp, DataFlavor flavor[]) {
-            System.out.println("canImport");
+            System.out.println("canImport: " + comp);
             if (comp instanceof JTree) {
-                JTree jTree = (JTree) comp;
-                System.out.println("JTree: " + jTree.getName());
-                System.out.println("canImport true");
-                return true;
-            } else if (comp instanceof JTable) {
-                JTable jTable = (JTable) comp;
-                System.out.println("JTable: " + jTable.getName());
-                System.out.println("canImport true");
-                return true;
+                if (!GuiHelper.treeHelper.componentIsTheLocalCorpusTree(comp)) {
+                    System.out.println("not the localcorpustree so cannot drop here");
+                    return false;
+                }
+                System.out.println("target is the localcorpustree");
+                System.out.println("selectionContainsArchivableLocalFile: " + selectionContainsArchivableLocalFile);
+                System.out.println("selectionContainsLocalFile: " + selectionContainsLocalFile);
+                System.out.println("selectionContainsLocalDirectory: " + selectionContainsLocalDirectory);
+                System.out.println("selectionContainsImdiResource: " + selectionContainsImdiResource);
+                System.out.println("selectionContainsImdiCorpus: " + selectionContainsImdiCorpus);
+                System.out.println("selectionContainsImdiSession: " + selectionContainsImdiSession);
+                System.out.println("selectionContainsImdiChild: " + selectionContainsImdiChild);
+                System.out.println("selectionContainsLocal: " + selectionContainsLocal);
+                System.out.println("selectionContainsRemote: " + selectionContainsRemote);
+                if (selectionContainsLocalFile && selectionContainsArchivableLocalFile && // local files can be dropped to a tree
+                        //but nothing else
+                        !selectionContainsLocalDirectory &&
+                        !selectionContainsImdiResource &&
+                        !selectionContainsImdiCorpus &&
+                        !selectionContainsImdiSession &&
+                        !selectionContainsImdiChild &&
+                        selectionContainsLocal &&
+                        !selectionContainsRemote) {
+
+                    return true;
+//                    JTree jTree = (JTree) comp;
+//                    DefaultMutableTreeNode targetTreeNode = (DefaultMutableTreeNode) jTree.getLastSelectedPathComponent();
+//                    if (targetTreeNode != null) {
+//                        Object userObject = targetTreeNode.getUserObject();
+//                        if (userObject instanceof ImdiHelper.ImdiTreeObject) {
+////                        if (!((ImdiHelper.ImdiTreeObject) userObject).isLocal()) {
+////                            System.out.println("cannot drop to remote imdi");
+////                            return false;
+////                        }
+////                        if (!((ImdiHelper.ImdiTreeObject) userObject).isImdi()) {
+////                            System.out.println("cannot drop to non imdi");
+////                            return false;
+////                        }
+//                            if (((ImdiHelper.ImdiTreeObject) userObject).isSession()) {
+//                                System.out.println("can drop files to sessions");
+//                                return true;
+//                            }
+//                        }
+//                    }
+//                    System.out.println("JTree: " + jTree.getName());
+//                    System.out.println("cannot drop to non ImdiTreeObject");
+//                    return false;
+                }
+            //} else if ((comp instanceof JTable)|| (comp instanceof JList)|| (comp instanceof JScrollPane)||(comp instanceof LinorgWindowManager.ImdiSplitPanel)) {
+            //} else if ((comp.getParent().getParent().getParent() instanceof LinorgWindowManager.ImdiSplitPanel) ||(comp.getParent().getParent() instanceof LinorgWindowManager.ImdiSplitPanel) ||(comp.getParent() instanceof LinorgWindowManager.ImdiSplitPanel) ||(comp instanceof LinorgWindowManager.ImdiSplitPanel)) {
+            } else {
+                // search through al the parent nodes to see if we can find a drop target
+                return (null != findImdiSplitPanel(comp));
+
             }
             System.out.println("canImport false");
             return false;
         }
 
+        private Container findImdiSplitPanel(Container tempCom) {
+            while (tempCom != null) {
+                if (tempCom instanceof LinorgWindowManager.ImdiSplitPanel) {
+                    System.out.println("canImport true");
+                    return tempCom;
+                }
+                tempCom = tempCom.getParent();
+//                LinorgWindowManager.ImdiSplitPanel targetPanel = (LinorgWindowManager.ImdiSplitPanel) comp;
+//                JTable jTable = targetPanel.imdiTable;
+//                System.out.println("JTable: " + jTable.getName());
+            }
+            return null;
+        }
+
+        @Override
         public Transferable createTransferable(JComponent comp) {
             draggedImdiObjects = null;
+            selectionContainsArchivableLocalFile = false;
+            selectionContainsLocalFile = false;
+            selectionContainsLocalDirectory = false;
+            selectionContainsImdiResource = false;
+            selectionContainsImdiCorpus = false;
+            selectionContainsImdiSession = false;
+            selectionContainsImdiChild = false;
+            selectionContainsLocal = false;
+            selectionContainsRemote = false;
             System.out.println("createTransferable: " + comp.toString());
             if (comp instanceof JTree) {
                 JTree draggedTree = (JTree) comp;
-                System.out.println("selectedCount: " + draggedTree.getSelectionCount());
+                //System.out.println("selectedCount: " + draggedTree.getSelectionCount());
                 //TreePath draggedPath[] = draggedTree.getSelectionPaths();
                 draggedImdiObjects = new ImdiHelper.ImdiTreeObject[draggedTree.getSelectionCount()];
                 for (int selectedCount = 0; selectedCount < draggedTree.getSelectionCount(); selectedCount++) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) draggedTree.getSelectionPaths()[selectedCount].getLastPathComponent();
-                    System.out.println("parentNode: " + parentNode.toString());
+                    //System.out.println("parentNode: " + parentNode.toString());
                     if (parentNode.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
-                        System.out.println("DraggedImdi: " + parentNode.getUserObject().toString());
+                        //System.out.println("DraggedImdi: " + parentNode.getUserObject().toString());
                         draggedImdiObjects[selectedCount] = (ImdiHelper.ImdiTreeObject) (parentNode.getUserObject());
+                        // classify the draggable bundle to help matching drop targets
+                        selectionContainsArchivableLocalFile = draggedImdiObjects[selectedCount].isArchivableFile();
+                        if (draggedImdiObjects[selectedCount].isLocal()) {
+                            selectionContainsLocal = true;
+                            if (draggedImdiObjects[selectedCount].isDirectory()) {
+                                selectionContainsLocalDirectory = true;
+                            } else {
+                                selectionContainsLocalFile = true;
+                            }
+                        } else {
+                            selectionContainsRemote = true;
+                        }
+                        if (draggedImdiObjects[selectedCount].isImdi()) {
+                            if (draggedImdiObjects[selectedCount].isImdiChild()) {
+                                selectionContainsImdiChild = true;
+                                // only an imdichild will contain a resource
+                                if (draggedImdiObjects[selectedCount].hasResource()) {
+                                    selectionContainsImdiResource = true;
+                                }
+                            } else if (draggedImdiObjects[selectedCount].isSession()) {
+                                selectionContainsImdiSession = true;
+                            } else {
+                                selectionContainsImdiCorpus = true;
+                            }
+                        }
                     } else {
                         draggedImdiObjects[selectedCount] = null;
                     }
@@ -130,27 +248,43 @@ public class ImdiDragDrop {
 
                 draggedImdiObjects = ((ImdiTable) comp).getSelectedRowsFromTable();
                 return this;
+            } else if (comp instanceof JList) {
+                Object[] selectedValues = ((JList) comp).getSelectedValues();
+                //System.out.println("selectedValues: " + selectedValues);
+                draggedImdiObjects = new ImdiHelper.ImdiTreeObject[selectedValues.length];
+                for (int selectedNodeCounter = 0; selectedNodeCounter < selectedValues.length; selectedNodeCounter++) {
+                    if (selectedValues[selectedNodeCounter] instanceof ImdiHelper.ImdiTreeObject) {
+                        draggedImdiObjects[selectedNodeCounter] = (ImdiHelper.ImdiTreeObject) selectedValues[selectedNodeCounter];
+                    }
+                }
+                return this;
             }
-            System.out.println("createTransferable false");
+            //System.out.println("createTransferable false");
             return null;
         }
 
         public boolean importData(JComponent comp, Transferable t) {
-            System.out.println("importData: " + comp.toString());
-            if (comp instanceof JTree) {
-                System.out.println("comp: " + comp.getName());
-                for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
-                    System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
+            //System.out.println("importData: " + comp.toString());
+            //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
+            if (draggedImdiObjects != null) {
+                if (comp instanceof JTree) {
+                    System.out.println("comp: " + comp.getName());
+                    for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
+                        System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
+                    }
+                    JTree dropTree = (JTree) comp;
+                    for (int selectedCount = 0; selectedCount < dropTree.getSelectionCount(); selectedCount++) {
+                        System.out.println("to: " + ((DefaultMutableTreeNode) dropTree.getSelectionPaths()[selectedCount].getLastPathComponent()).getUserObject().toString());
+                    }
+                } else {
+                    Container imdiSplitPanel = findImdiSplitPanel(comp);
+                    if (imdiSplitPanel instanceof LinorgWindowManager.ImdiSplitPanel) {
+                        LinorgWindowManager.ImdiSplitPanel targetPanel = (LinorgWindowManager.ImdiSplitPanel) imdiSplitPanel;
+                        ImdiTableModel dropTableModel = (ImdiTableModel) targetPanel.imdiTable.getModel();
+                        dropTableModel.addImdiObjects(draggedImdiObjects);
+                    }
                 }
-                JTree dropTree = (JTree) comp;
-                for (int selectedCount = 0; selectedCount < dropTree.getSelectionCount(); selectedCount++) {
-                    System.out.println("to: " + ((DefaultMutableTreeNode) dropTree.getSelectionPaths()[selectedCount].getLastPathComponent()).getUserObject().toString());
-                }
-            } else if (comp instanceof JTable) {
-                ImdiTableModel dropTableModel = (ImdiTableModel) ((JTable) comp).getModel();
-                dropTableModel.addImdiObjects(draggedImdiObjects);
             }
-            System.out.println("importData false");
             return false;
         }
 
