@@ -5,15 +5,25 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -31,10 +41,10 @@ public class LinorgWindowManager {
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
 
-    public void setComponents(JMenu jMenu, JDesktopPane jDesktopPane){
+    public void setComponents(JMenu jMenu, JDesktopPane jDesktopPane) {
         windowMenu = jMenu;
         desktopPane = jDesktopPane;
-        
+
         // open the introduction page
         // always get this page from the server if available, but also save it for off line use
         URL url = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
@@ -103,7 +113,7 @@ public class LinorgWindowManager {
             tempWindowHeight = desktopPane.getHeight() - 50;
         }
         currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
-        
+
         currentInternalFrame.setClosable(true);
         currentInternalFrame.setIconifiable(true);
         currentInternalFrame.setMaximizable(true);
@@ -149,11 +159,90 @@ public class LinorgWindowManager {
     }
 
     public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
-        javax.swing.JScrollPane jScrollPane6;
-        jScrollPane6 = new javax.swing.JScrollPane();
         ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
-        GuiHelper.imdiDragDrop.addDrag(imdiTable);
-        jScrollPane6.setViewportView(imdiTable);
-        this.createWindow(frameTitle, jScrollPane6);
+        ImdiSplitPanel imdiSplitPanel = new ImdiSplitPanel(imdiTable);
+        this.createWindow(frameTitle, imdiSplitPanel);
+    }
+
+    public class ImdiSplitPanel extends JSplitPane {
+        private JList fileList;
+        public ImdiTable imdiTable;
+
+        public ImdiSplitPanel(ImdiTable localImdiTable) {
+            imdiTable = localImdiTable;
+            fileList = new JList(((ImdiTableModel) localImdiTable.getModel()).getListModel());
+            fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+            fileList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+            fileList.setVisibleRowCount(-1);
+
+            JScrollPane listScroller = new JScrollPane(fileList);
+            listScroller.setPreferredSize(new Dimension(250, 80));
+
+            ImageBoxRenderer renderer = new ImageBoxRenderer();
+            fileList.setCellRenderer(renderer);
+            setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+            setDividerSize(5);
+            setBottomComponent(listScroller);
+            JScrollPane jScrollPane = new JScrollPane(imdiTable);
+            setTopComponent(jScrollPane);
+            GuiHelper.imdiDragDrop.addDrag(imdiTable);
+            GuiHelper.imdiDragDrop.addDrag(fileList);
+            GuiHelper.imdiDragDrop.addTransferHandler(jScrollPane);
+            GuiHelper.imdiDragDrop.addTransferHandler(this);
+        }
+        }
+    class ImageBoxRenderer extends JLabel implements ListCellRenderer {
+
+        int outputWidth = 200;
+        int outputHeight = 130;
+
+        public ImageBoxRenderer() {
+            setOpaque(true);
+            setHorizontalAlignment(CENTER);
+            setVerticalAlignment(CENTER);
+            setVerticalTextPosition(JLabel.BOTTOM);
+            setHorizontalTextPosition(JLabel.CENTER);
+            setPreferredSize(new Dimension(outputWidth + 10, outputHeight + 50));
+        }
+
+        /*
+         * This method finds the image and text corresponding
+         * to the selected value and returns the label, set up
+         * to display the text and image.
+         */
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+
+            //Set the icon and text.  If icon was null, say so.
+            if (value instanceof ImdiHelper.ImdiTreeObject) {
+                ImdiHelper.ImdiTreeObject imdiObject = (ImdiHelper.ImdiTreeObject) value;
+                setText(imdiObject.toString());
+                if (imdiObject.isArchivableFile()) {
+                    ImageIcon icon = new ImageIcon(imdiObject.getUrl().replace("file://", ""));
+                    if (icon != null) {
+                        BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D g2 = resizedImg.createGraphics();
+                        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        g2.drawImage(icon.getImage(), 0, 0, outputWidth, outputHeight, null);
+                        g2.dispose();
+                        ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
+                        setIcon(thumbnailIcon);
+                    }
+                } else if (imdiObject.hasResource()) {
+                    setIcon(new ImageIcon(imdiObject.getResource()));
+                }
+                setFont(list.getFont());
+            } else {
+                setText(value.toString() + " (no image available)");
+            }
+            return this;
+        }
     }
 }
