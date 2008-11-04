@@ -5,6 +5,8 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -14,6 +16,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -34,7 +38,6 @@ public class TreeHelper {
     private javax.swing.JTree localDirectoryTree;
     private javax.swing.JTree remoteCorpusTree;
     private Vector locationsList; // this is the list of locations seen in the tree and the location settings
-    private Hashtable locationTreeNodes = new Hashtable(); // this is used to find the location tree node when it is to be removed via the ulr
 
     public TreeHelper() {
         localCorpusRootNode = new DefaultMutableTreeNode();
@@ -46,6 +49,11 @@ public class TreeHelper {
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
     }
 
+    public boolean componentIsTheLocalCorpusTree(Component componentToTest) {
+        return componentToTest.equals(localCorpusTree);
+    //return localCorpusTree.getName().equals(componentToTest.getName());
+    }
+
     public void setTrees(JTree tempRemoteCorpusTree, JTree tempLocalCorpusTree, JTree tempLocalDirectoryTree) {
         remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiHelper.serverIcon, JLabel.LEFT));
         localCorpusRootNode.setUserObject(new JLabel("Local Corpus Cache", ImdiHelper.directoryIcon, JLabel.LEFT));
@@ -54,6 +62,11 @@ public class TreeHelper {
         remoteCorpusTree = tempRemoteCorpusTree;
         localCorpusTree = tempLocalCorpusTree;
         localDirectoryTree = tempLocalDirectoryTree;
+
+        remoteCorpusTree.setName("RemoteCorpusTree");
+        localCorpusTree.setName("LocalCorpusTree");
+        localDirectoryTree.setName("LocalDirectoryTree");
+
         applyRootLocations();
     }
 
@@ -119,62 +132,26 @@ public class TreeHelper {
         System.out.println("removeLocation: " + removeLocation);
         locationsList.remove(removeLocation);
     }
-//    public void updateLocationsFromModel(javax.swing.table.DefaultTableModel changedTableModel) {
-//        Vector updatedLocations = new Vector();
-//        for (int rowCounter = 0; rowCounter < changedTableModel.getRowCount(); rowCounter++) {
-//            updatedLocations.add(changedTableModel.getValueAt(rowCounter, 1));
-//        }
-//        locationsList = updatedLocations;
-//    }
-    private void addNodeOnce(DefaultMutableTreeNode localDirectoryNode, String currentLocation) {
-        boolean nodeExists = false;
-        Enumeration localCorpusChildren = localDirectoryNode.children();
-        while (localCorpusChildren.hasMoreElements()) {
-            if (currentLocation.equals(((ImdiHelper.ImdiTreeObject) ((DefaultMutableTreeNode) localCorpusChildren.nextElement()).getUserObject()).getUrl())) {
-                nodeExists = true;
-            }
-        }
-        if (nodeExists) {
-            //localDirectoryNode.add(getImdiTreeNode("duplicate"));
-        } else {
-            DefaultMutableTreeNode currentTreeNode = getImdiTreeNode(currentLocation);
-            locationTreeNodes.put(currentLocation, currentTreeNode);
-            localDirectoryNode.add(currentTreeNode);
-        }
-    }
-
-    private void removeExtraneousNodes() {
-        Enumeration locationNodesEnum = locationTreeNodes.keys();
-        while (locationNodesEnum.hasMoreElements()) {
-            String currentLocation = (String) locationNodesEnum.nextElement();
-            if (!locationsList.contains(currentLocation)) {
-                System.out.println("removing location: " + currentLocation);
-                ((DefaultMutableTreeNode) locationTreeNodes.get(currentLocation)).removeFromParent();
-                locationTreeNodes.remove(currentLocation);
-            }
-        }
-    }
 
     public void applyRootLocations() {
-        Enumeration locationEnum = locationsList.elements();
-        while (locationEnum.hasMoreElements()) {
-            String currentLocation = locationEnum.nextElement().toString();
-            System.out.println("currentLocation: " + currentLocation);
-            if (GuiHelper.imdiHelper.isStringLocal(currentLocation)) {
-                // is local
-                if (GuiHelper.imdiHelper.isStringImdi(currentLocation)) {
-                    // is an imdi
-                    addNodeOnce(localCorpusRootNode, currentLocation);
-                } else {
-                    // not an imdi
-                    addNodeOnce(localDirectoryRootNode, currentLocation);
-                }
+        remoteCorpusRootNode.removeAllChildren();
+        localCorpusRootNode.removeAllChildren();
+        localDirectoryRootNode.removeAllChildren();
+        Vector locationImdiNodes = new Vector();
+        for (Enumeration locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
+            locationImdiNodes.add(GuiHelper.imdiHelper.getTreeNodeObject(locationEnum.nextElement().toString()));
+        }
+        Collections.sort(locationImdiNodes);
+        for (Enumeration<ImdiHelper.ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
+            ImdiHelper.ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
+            if (!currentImdiObject.isLocal()) {
+                remoteCorpusRootNode.add(new DefaultMutableTreeNode(currentImdiObject));
+            } else if (currentImdiObject.isImdi()) {
+                localCorpusRootNode.add(new DefaultMutableTreeNode(currentImdiObject));
             } else {
-                // is a remote file or imdi
-                addNodeOnce(remoteCorpusRootNode, currentLocation);
+                localDirectoryRootNode.add(new DefaultMutableTreeNode(currentImdiObject));
             }
         }
-        removeExtraneousNodes();
         localDirectoryTreeModel.reload();
         localCorpusTreeModel.reload();
         remoteCorpusTreeModel.reload();
@@ -190,25 +167,24 @@ public class TreeHelper {
         System.out.println("localCorpusTree: " + localCorpusTree);
         return (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
     }
-//    public void addChild(String childType) {
-//        // TODO: use the xsd at http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd or aa later version to create the new xml document
-////        if (remoteCorpusTree.getLeadSelectionPath() == null) {
-//            if (localCorpusTree.getLeadSelectionPath() != null) {
-//                DefaultMutableTreeNode targetNode = (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
-//                GuiHelper.treeHelper.getImdiChildNodes(targetNode);
-//                DefaultMutableTreeNode addedNode = GuiHelper.treeHelper.addImdiChildNode(targetNode);
-//                localCorpusTreeModel.reload();
-//                localCorpusTree.expandPath(currentSelection);
-//            //localCorpusTree.scrollPathToVisible(addedNode);
-//            //localCorpusTree.setSelectionPaths(currentSelection);
-//            }
-//  //      }
-//    }
+    
     public void showLocationsDialog() {
         // TODO: it would be preferable to move all dialog creation and management into the linorgwindowmanager
         JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane));
         settingsjDialog.setLocationRelativeTo(GuiHelper.linorgWindowManager.desktopPane);
-        JTable locationSettingsTable = new JTable(GuiHelper.treeHelper.getLocationsTableModel());
+        JTable locationSettingsTable = new JTable(getLocationsTableModel()) {
+
+            public TableCellRenderer getCellRenderer(int row, int column) {
+                if (column == 0) {
+                    ImdiHelper.ImdiTreeObject imdiObject = (ImdiHelper.ImdiTreeObject) getModel().getValueAt(row, column);
+                    DefaultTableCellRenderer iconLabelRenderer = new DefaultTableCellRenderer();
+                    iconLabelRenderer.setIcon(imdiObject.getIcon());
+                    iconLabelRenderer.setText(imdiObject.toString());
+                    return iconLabelRenderer;
+                }
+                return super.getCellRenderer(row, column);
+            }
+        };
         // set the icon column width
         locationSettingsTable.getColumnModel().getColumn(0).setPreferredWidth(1);
         locationSettingsTable.getColumnModel().getColumn(1).setPreferredWidth(1000);
@@ -220,31 +196,18 @@ public class TreeHelper {
 
     public javax.swing.table.DefaultTableModel getLocationsTableModel() {
         Object[][] tableObjectAray = new Object[locationsList.size()][2];
+        Collections.sort(locationsList);
         Enumeration locationEnum = locationsList.elements();
         int rowCounter = 0;
         while (locationEnum.hasMoreElements()) {
             tableObjectAray[rowCounter][1] = locationEnum.nextElement();
-            if (GuiHelper.imdiHelper.isStringImdi(tableObjectAray[rowCounter][1].toString())) {
-                // is an imdi
-                if (GuiHelper.imdiHelper.isStringLocal(tableObjectAray[rowCounter][1].toString())) {
-                    tableObjectAray[rowCounter][0] = (Object) ImdiHelper.corpuslocalicon;
-                } else {
-                    tableObjectAray[rowCounter][0] = ImdiHelper.corpusservericon;
-                }
-            } else {
-                // is not an imdi
-                if (GuiHelper.imdiHelper.isStringLocal(tableObjectAray[rowCounter][1].toString())) {
-                    tableObjectAray[rowCounter][0] = ImdiHelper.directoryIcon;
-                } else {
-                    tableObjectAray[rowCounter][0] = ImdiHelper.stopicon;
-                }
-            }
+            tableObjectAray[rowCounter][0] = GuiHelper.imdiHelper.getTreeNodeObject(tableObjectAray[rowCounter][1].toString());
             rowCounter++;
         }
         return new javax.swing.table.DefaultTableModel(tableObjectAray, new String[]{"", "Location"}) {
 
             Class[] types = new Class[]{
-                javax.swing.Icon.class, java.lang.String.class
+                ImdiHelper.ImdiTreeObject.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -253,27 +216,24 @@ public class TreeHelper {
         };
     }
 
-    public DefaultMutableTreeNode getImdiTreeNode(String urlString) {
-        DefaultMutableTreeNode treeNode;
-        ImdiHelper.ImdiTreeObject imdiTreeObject = GuiHelper.imdiHelper.getTreeNodeObject(urlString);
-        treeNode = new DefaultMutableTreeNode(imdiTreeObject);
-        treeNode.setAllowsChildren(imdiTreeObject.isImdi() || imdiTreeObject.isDirectory());
-        return treeNode;
-    }
-
     public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType) {
         System.out.println("adding a new node to: " + itemNode);
         if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
             ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
                 System.out.println("its an imdi so start adding");
-                ImdiHelper.ImdiTreeObject childImdiNode = imdiTreeObject.addChildNode(nodeType);
-                DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childImdiNode);
-                itemNode.add(treeNode);
-                Vector tempVector = new Vector();
-                tempVector.add(childImdiNode);
+                Vector tempVector = imdiTreeObject.addChildNode(nodeType);
+                itemNode.removeAllChildren();
+                getImdiChildNodes(itemNode);
+//                DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childImdiNode);
+//                itemNode.add(treeNode);
+
+//                tempVector.add(childImdiNode);
                 GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new node");
             }
+        } else {
+            // TODO: implement adding to the root node
+            System.out.println("TODO: implement adding to the root node");
         }
     }
 
@@ -285,7 +245,8 @@ public class TreeHelper {
                     System.out.println("file to be opened");
                 } else {
                     //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
-                    ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes();
+                    ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes(false);
+                    Arrays.sort(childNodes);
                     for (int childCount = 0; childCount < childNodes.length; childCount++) {
                         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
                         treeNode.setAllowsChildren(childNodes[childCount].isImdi() || childNodes[childCount].isDirectory());
@@ -300,12 +261,12 @@ public class TreeHelper {
         // TODO: this is not preferable because two nodes could be selected and be confusing to the user
         DefaultMutableTreeNode selectedTreeNode = null;
         Object returnObject = null;
-        
+
         if (remoteCorpusTree.getSelectionCount() > 0 && localCorpusTree.getSelectionCount() > 0) {
             // if two trees have nodes selected then fail rather than confusing the user with an unexpected node
             return null;
         }
-        
+
         if (remoteCorpusTree.getLeadSelectionPath() == null) {
             if (localCorpusTree.getLeadSelectionPath() != null) {
                 selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
@@ -350,8 +311,8 @@ public class TreeHelper {
                 setEnabled(imdiTreeObject.getNodeEnabled());
             //setVisible(imdiTreeObject.getNodeEnabled());
             } else if (node.getUserObject() instanceof JLabel) {
-                setIcon(((JLabel)node.getUserObject()).getIcon());
-                setText(((JLabel)node.getUserObject()).getText());
+                setIcon(((JLabel) node.getUserObject()).getIcon());
+                setText(((JLabel) node.getUserObject()).getText());
             }
             return this;
         }
