@@ -10,7 +10,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -18,9 +17,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JSlider;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -40,7 +37,7 @@ public class GuiHelper {
     static ImdiSchema imdiSchema = new ImdiSchema();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
     //private MapView mapView;
-    private JPanel selectedFilesPanel;
+//    private JPanel selectedFilesPanel;
     static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
     static ClipboardOwner clipboardOwner = new ClipboardOwner() {
@@ -65,9 +62,9 @@ public class GuiHelper {
 
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
-        if (targetNodeUserObject instanceof ImdiHelper.ImdiTreeObject) {
+        
             System.out.println("initAddMenu: " + targetNodeUserObject);
-            for (Enumeration menuItemName = imdiSchema.listTypesFor((ImdiHelper.ImdiTreeObject) targetNodeUserObject); menuItemName.hasMoreElements();) {
+            for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
                 String currentMenuName = menuItemName.nextElement().toString();
                 javax.swing.JMenuItem addMenuItem;
                 addMenuItem = new javax.swing.JMenuItem();
@@ -92,7 +89,7 @@ public class GuiHelper {
 //                addMenuItem.setEnabled(false);
 //                addMenu.add(addMenuItem);
 //            }
-        }
+
     }
 
     public void initViewMenu(javax.swing.JMenu viewMenu) {
@@ -117,36 +114,36 @@ public class GuiHelper {
         }
     }
     
-// date filter code
-    public void updateDateSlider(JSlider dateSlider) {
-        if (imdiHelper.minNodeDate == null) {
-            System.out.println("global node date is null");
-            return;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(imdiHelper.minNodeDate);
-        int startYear = calendar.get(Calendar.YEAR);
-        dateSlider.setMinimum(startYear);
-        calendar.setTime(imdiHelper.maxNodeDate);
-        int endYear = calendar.get(Calendar.YEAR);
-        dateSlider.setMaximum(endYear);
-    }
-
-    public void filterByDate(DefaultMutableTreeNode itemNode, int sliderValue) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, sliderValue);
-        Enumeration childNodes = itemNode.children();
-        while (childNodes.hasMoreElements()) {
-            Object tempNodeObject = ((DefaultMutableTreeNode) childNodes.nextElement()).getUserObject();
-            System.out.println("filterByDate: " + tempNodeObject.toString());
-            if (imdiHelper.isImdiNode(tempNodeObject)) {
-                ((ImdiHelper.ImdiTreeObject) tempNodeObject).setMinDate(calendar.getTime());
-            } else {
-                System.out.println("not an imdi node: " + tempNodeObject.toString());
-            }
-        }
-    }
-// end date filter code
+//// date filter code
+//    public void updateDateSlider(JSlider dateSlider) {
+//        if (imdiHelper.minNodeDate == null) {
+//            System.out.println("global node date is null");
+//            return;
+//        }
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTime(imdiHelper.minNodeDate);
+//        int startYear = calendar.get(Calendar.YEAR);
+//        dateSlider.setMinimum(startYear);
+//        calendar.setTime(imdiHelper.maxNodeDate);
+//        int endYear = calendar.get(Calendar.YEAR);
+//        dateSlider.setMaximum(endYear);
+//    }
+//
+//    public void filterByDate(DefaultMutableTreeNode itemNode, int sliderValue) {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(Calendar.YEAR, sliderValue);
+//        Enumeration childNodes = itemNode.children();
+//        while (childNodes.hasMoreElements()) {
+//            Object tempNodeObject = ((DefaultMutableTreeNode) childNodes.nextElement()).getUserObject();
+//            System.out.println("filterByDate: " + tempNodeObject.toString());
+//            if (imdiHelper.isImdiNode(tempNodeObject)) {
+//                ((ImdiHelper.ImdiTreeObject) tempNodeObject).setMinDate(calendar.getTime());
+//            } else {
+//                System.out.println("not an imdi node: " + tempNodeObject.toString());
+//            }
+//        }
+//    }
+//// end date filter code
     
     public void searchSelectedNodes(Component targetComponent, Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
         //int[] childCountArray = new int[]{0, 0};
@@ -316,21 +313,21 @@ public class GuiHelper {
                 } else {
                     imageFileName = itemImdiTreeObject.getUrl();
                 }
-                if (selectedFilesPanel == null) {
-                    selectedFilesPanel = new JPanel();
-                    selectedFilesPanel.setLayout(new java.awt.GridLayout(6, 6));
-                    linorgWindowManager.createWindow("Selected Files", selectedFilesPanel);
-                }
+//                if (selectedFilesPanel == null) {
+//                    selectedFilesPanel = new JPanel();
+//                    selectedFilesPanel.setLayout(new java.awt.GridLayout(6, 6));
+//                    linorgWindowManager.createWindow("Selected Files", selectedFilesPanel);
+//                }
                 imageFileName = imageFileName.replace("file://", "");
                 ImageIcon nodeImage = new ImageIcon(imageFileName);
                 JLabel imageLabel = new JLabel(itemImdiTreeObject.toString(), nodeImage, JLabel.CENTER);
                 //Set the position of the text, relative to the icon:
                 imageLabel.setVerticalTextPosition(JLabel.BOTTOM);
                 imageLabel.setHorizontalTextPosition(JLabel.CENTER);
-                selectedFilesPanel.add(imageLabel);
-                selectedFilesList.put(hashKey, imageLabel);
-                selectedFilesPanel.revalidate();
-                selectedFilesPanel.repaint();
+//                selectedFilesPanel.add(imageLabel);
+//                selectedFilesList.put(hashKey, imageLabel);
+//                selectedFilesPanel.revalidate();
+//                selectedFilesPanel.repaint();
 //                if (mapView == null) {
 //                    mapView = new MapView();
 //                    linorgWindowManager.createWindow("GIS Viewer", mapView);
@@ -345,10 +342,11 @@ public class GuiHelper {
 
     public void removeAllFromGridData(TableModel tableModel) {
         System.out.println("removing all images");
-        if (selectedFilesPanel != null) {
-            selectedFilesPanel.removeAll();
-            selectedFilesPanel.revalidate();
-            selectedFilesPanel.repaint();
+//        if (selectedFilesPanel != null) {
+//            selectedFilesPanel.removeAll();
+//            selectedFilesPanel.revalidate();
+//            selectedFilesPanel.repaint();
+//        }
         }
 //        if (mapView != null) {
 //            mapView.removeAll();
@@ -368,9 +366,9 @@ public class GuiHelper {
                 if (selectedFilesList.containsKey(hashKey)) {
                     // remove any image nodes from the image window                
                     //System.out.println("removing from images");
-                    selectedFilesPanel.remove((Component) selectedFilesList.remove(hashKey));
-                    selectedFilesPanel.revalidate();
-                    selectedFilesPanel.repaint();
+//                    selectedFilesPanel.remove((Component) selectedFilesList.remove(hashKey));
+//                    selectedFilesPanel.revalidate();
+//                    selectedFilesPanel.repaint();
                 // remove any map layers
 //                    if (mapView.isGisFile(hashKey)) {
 //                        mapView.removeLayer(hashKey);
