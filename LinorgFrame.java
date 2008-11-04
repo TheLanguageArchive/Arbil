@@ -68,7 +68,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         setVisible(true);
 
         GuiHelper.linorgWindowManager.setComponents(windowMenu, jDesktopPane1);
-        //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
+    //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
     }
 
     private void addLocation(String addableLocation) {
@@ -77,7 +77,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "The location already exists and cannot be added again", "Add location", JOptionPane.INFORMATION_MESSAGE);
         }
         GuiHelper.treeHelper.applyRootLocations();
-        //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
+    //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
     }
 
     private void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
@@ -499,12 +499,14 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         addRemoteCorpusMenuItem.setVisible(false);
         copyBranchMenuItem.setVisible(false);
         copyImdiUrlMenuItem.setVisible(false);
-        viewXmlMenuItem.setVisible(false); 
+        viewXmlMenuItem.setVisible(false);
+        viewXmlMenuItem1.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
         actorsToGridMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
         addMenu.setVisible(false);
+        viewSelectedNodesMenuItem.setVisible(false);
 
         if (evt.getSource() == remoteCorpusTree) {
             removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
@@ -516,8 +518,9 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            addMenu.setVisible(selectionCount > 0 && nodeLevel > 1 && localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
-            showContextMenu = nodeLevel != 1;
+            // a corpus can be added even at the root node
+            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
+            showContextMenu = true; //nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {
             removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
@@ -528,6 +531,8 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             viewXmlMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1 && localCorpusTree.getSelectionCount() > 0); // only show if it is the local corpus tree that has selected nodes
             reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         }
+        viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
+
         // hide show the separators
         treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && evt.getSource() != localDirectoryTree);
         treePopupMenuSeparator1.setVisible(nodeLevel != 1 && evt.getSource() != localDirectoryTree);
@@ -666,12 +671,17 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
             // this may not be the quickest way to do this but it will reduce redraws and make the other calls simpler
             for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
                 DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                if (evt.isAddedPath(selectedCount)) {
-                    System.out.println("adding: " + parentNode.getPath());
-                    nodesToAdd.add(parentNode.getUserObject());
-                } else {
-                    System.out.println("removing: " + parentNode.getPath());
-                    nodesToRemove.add(parentNode.getUserObject());
+                // only preview imdi nodes
+                if (parentNode.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
+                    if (((ImdiHelper.ImdiTreeObject) parentNode.getUserObject()).isImdi()) {
+                        if (evt.isAddedPath(selectedCount)) {
+                            System.out.println("adding: " + parentNode.getPath());
+                            nodesToAdd.add(parentNode.getUserObject());
+                        } else {
+                            System.out.println("removing: " + parentNode.getPath());
+                            nodesToRemove.add(parentNode.getUserObject());
+                        }
+                    }
                 }
             }
             guiHelper.removeFromGridData(previewTable.getModel(), nodesToRemove);
@@ -725,7 +735,7 @@ private void addMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:e
 
 private void viewXmlXslMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlXslMenuItemActionPerformed
 // TODO add your handling code here:
-        guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(), true);
+    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(), true);
 }//GEN-LAST:event_viewXmlXslMenuItemActionPerformed
 
     /**
