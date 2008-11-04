@@ -17,7 +17,10 @@ import java.io.Serializable;
  * @author petwit
  */
 public class LinorgSessionStorage {
+
     public String storageDirectory = "";
+    public String destinationDirectory;
+
     public LinorgSessionStorage() {
         storageDirectory = System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar;
 
@@ -46,6 +49,16 @@ public class LinorgSessionStorage {
 //        }
     }
 
+    public boolean cacheDirExists() {
+        destinationDirectory = storageDirectory + "imdicache" + File.separatorChar; // storageDirectory already has the file separator appended
+        File destinationFile = new File(destinationDirectory);
+        boolean cacheDirExists = destinationFile.exists();
+        if (!cacheDirExists) {
+            cacheDirExists = destinationFile.mkdir();
+        }
+        return cacheDirExists;
+    }
+
     public void saveObject(Serializable object, String filename) throws IOException {
         System.out.println("saveObject: " + filename);
         ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(storageDirectory + filename));
@@ -60,7 +73,7 @@ public class LinorgSessionStorage {
         objstream.close();
         return object;
     }
-
+    
 //    class ObjectToSerialize implements Serializable {
 //
 //        static private final long serialVersionUID = 42L;
