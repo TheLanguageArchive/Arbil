@@ -36,7 +36,6 @@ public class GuiHelper {
     static LinorgJournal linorgJournal = new LinorgJournal();
     static ImdiSchema imdiSchema = new ImdiSchema();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
-    //private MapView mapView;
 //    private JPanel selectedFilesPanel;
     static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
@@ -55,7 +54,7 @@ public class GuiHelper {
     }
 
     public void saveState() {
-        imdiHelper.saveMd5sumIndex();
+        imdiHelper.mimeHashQueue.saveMd5sumIndex();
         imdiFieldViews.saveViewsToFile();
         treeHelper.saveLocations();
     }
@@ -328,14 +327,6 @@ public class GuiHelper {
 //                selectedFilesList.put(hashKey, imageLabel);
 //                selectedFilesPanel.revalidate();
 //                selectedFilesPanel.repaint();
-//                if (mapView == null) {
-//                    mapView = new MapView();
-//                    linorgWindowManager.createWindow("GIS Viewer", mapView);
-//                }
-//                if (mapView.isGisFile(hashKey)) {
-//                    mapView.addLayer(hashKey, imageFileName);
-//                    mapView.setVisible(true);
-//                }
             }
         }
     }
@@ -346,9 +337,6 @@ public class GuiHelper {
 //            selectedFilesPanel.removeAll();
 //            selectedFilesPanel.revalidate();
 //            selectedFilesPanel.repaint();
-//        }
-//        if (mapView != null) {
-//            mapView.removeAll();
 //        }
         selectedFilesList.clear();
         ((ImdiTableModel) tableModel).removeAllImdiRows();
@@ -368,10 +356,6 @@ public class GuiHelper {
 //                    selectedFilesPanel.remove((Component) selectedFilesList.remove(hashKey));
 //                    selectedFilesPanel.revalidate();
 //                    selectedFilesPanel.repaint();
-                // remove any map layers
-//                    if (mapView.isGisFile(hashKey)) {
-//                        mapView.removeLayer(hashKey);
-//                    }
                 }
             }
         }
