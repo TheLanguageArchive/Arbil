@@ -1,6 +1,6 @@
 /*
  * To change this template, choose Tools | Templates
- * and open the template in the editor.  
+ * and open the template in the editor.
  */
 package mpi.linorg;
 
@@ -775,7 +775,7 @@ public class ImdiHelper {
 //            if (mpiMimeType != null) {
 //            return " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + nodeText + " : " + hashString + ":" + mpiMimeType + ":" + resourceUrlString;
 //            } else {
-                return nodeText + nameText;
+            return nodeText + nameText;
 //            }
         }
 
@@ -932,8 +932,7 @@ public class ImdiHelper {
                         icon = fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
                         nodeText = mpiMimeType + " : " + nodeText;
                     }
-                } else 
-                if (isImdi()) {
+                } else if (isImdi()) {
                     if (isImdiChild()) {
                         if (resourceUrlString != null && hashString == null) {
                             icon = fileCrossIcon;

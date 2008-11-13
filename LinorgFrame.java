@@ -3,7 +3,7 @@
  * This version uses only a JFrame and does not require additional dependencies
  * Created on 23 September 2008, 17:23
  */
-package mpi.linorg; 
+package mpi.linorg;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

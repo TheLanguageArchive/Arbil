@@ -2,7 +2,7 @@
  * LinorgSessionStorage 
  * use to save and load objects from disk
  */
-package mpi.linorg; 
+package mpi.linorg;
 
 import java.io.File;
 import java.io.FileInputStream;

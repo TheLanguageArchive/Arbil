@@ -4,7 +4,7 @@
  */
 package mpi.linorg;
 
-import java.awt.BorderLayout; 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -208,12 +208,12 @@ public class LinorgWindowManager {
                 splitPane.setBottomComponent(listScroller);
                 GuiHelper.imdiDragDrop.addDrag(fileList);
                 GuiHelper.imdiDragDrop.addTransferHandler(tableScrollPane);
-                GuiHelper.imdiDragDrop.addTransferHandler(this);
                 this.add(splitPane);
                 this.doLayout();
                 splitPane.setDividerLocation(0.5);
             }
             GuiHelper.imdiDragDrop.addDrag(imdiTable);
+            GuiHelper.imdiDragDrop.addTransferHandler(this);
             this.doLayout();
         }
     }

@@ -55,7 +55,7 @@ public class TreeHelper {
 
     public void setTrees(JTree tempRemoteCorpusTree, JTree tempLocalCorpusTree, JTree tempLocalDirectoryTree) {
         remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiHelper.serverIcon, JLabel.LEFT));
-        localCorpusRootNode.setUserObject(new JLabel("Local Corpus Cache", ImdiHelper.directoryIcon, JLabel.LEFT));
+        localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ImdiHelper.directoryIcon, JLabel.LEFT));
         localDirectoryRootNode.setUserObject(new JLabel("Working Directories", UIManager.getIcon("FileView.computerIcon"), JLabel.LEFT));
 
         remoteCorpusTree = tempRemoteCorpusTree;
@@ -83,6 +83,22 @@ public class TreeHelper {
         if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi")) {
             addedCount++;
         }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi")) {
+            addedCount++;
+        }
+
         return addedCount;
     }
 
@@ -258,7 +274,7 @@ public class TreeHelper {
                 System.out.println("its an imdi so start adding");
                 Vector tempVector = imdiTreeObject.addChildNode(nodeType, null);
                 refreshChildNodes(itemNode);
-                GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new node");
+                GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " in " + itemNode);
             }
         } else {
             // TODO: implement adding to the root node

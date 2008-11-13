@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mpi.linorg; 
+package mpi.linorg;
 
 import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
@@ -297,7 +297,7 @@ public class ImdiDragDrop {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                                     Vector tempVector = ((ImdiHelper.ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
                                     GuiHelper.treeHelper.refreshChildNodes(targetNode);
-                                    GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new node");
+                                    GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new Resource(s) in " + dropTargetUserObject);
                                 }
                             }
                         }

@@ -1,11 +1,18 @@
 /*
  * ImdiSchema is used to read the imdi schema 
- * and provide a list of valid fields and field constraints 
+ * and provide a list of valid fields and field constraints
  */
 package mpi.linorg;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
+import javax.imageio.*;
+import javax.imageio.metadata.*;
+import org.w3c.dom.*;
 
 /**
  *
@@ -74,7 +81,7 @@ public class ImdiSchema {
         return childTypes.elements();
     }
 
-    /**
+    /** 
      * This function is only a place holder and will be replaced 
      * @param childType is the chosen child type
      * @return enumeration of potential fields for this child type
@@ -101,6 +108,12 @@ public class ImdiSchema {
             xmlPrePath = ".METATRANSCRIPT.Session.Resources.MediaFile(" + imdiChildIdentifier + ")";
             if (resourcePath == null) {
                 resourcePath = "null string";
+            } else {
+                Hashtable exifTags = getExifMetadata(resourcePath);
+                for (Enumeration exifRows = exifTags.keys(); exifRows.hasMoreElements();) {
+                    Object currentKey = exifRows.nextElement();
+                    fieldTypes.add(new String[]{xmlPrePath + ".exif" + currentKey.toString(), exifTags.get(currentKey).toString()});
+                }
             }
             fieldTypes.add(new String[]{xmlPrePath + ".Type", "unset"});
             fieldTypes.add(new String[]{xmlPrePath + ".TimePosition.Start", "unset"});
@@ -124,6 +137,54 @@ public class ImdiSchema {
         System.out.println("childType: " + childType + " fieldTypes: " + fieldTypes);
         return fieldTypes.elements();
     }
+
+    // functions to extract the exif data from images
+    // this will probably need to be moved to a more appropriate class
+    public Hashtable getExifMetadata(String resourcePath) {
+        Hashtable exifTags = new Hashtable();
+        System.out.println("tempGetExif: " + resourcePath);
+        try {
+            File tempFile = new File(resourcePath);
+            URL url = tempFile.toURL();
+            Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
+            ImageReader reader = (ImageReader) readers.next();
+            reader.setInput(ImageIO.createImageInputStream(url.openStream()));
+            IIOMetadata metadata = reader.getImageMetadata(0);
+            String[] names = metadata.getMetadataFormatNames();
+            for (int i = 0; i < names.length; ++i) {
+                System.out.println();
+                System.out.println("METADATA FOR FORMAT: " + names[i]);
+                decendExifTree(metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTags);
+            }
+        } catch (Exception ex) {
+            System.out.println("Exception: " + ex.getMessage());
+        }
+        System.out.println("end tempGetExif");
+        return exifTags;
+    }
+
+    public static void decendExifTree(Node node, String prefixString, Hashtable exifTags) {
+        if (prefixString == null) {
+            prefixString = ""; // skip the first node name    
+        } else {
+            prefixString = prefixString + "." + node.getNodeName();
+        }
+        NamedNodeMap namedNodeMap = node.getAttributes();
+        if (namedNodeMap != null) {
+            for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
+                String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
+                String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
+                exifTags.put(prefixString + "." + attributeName, attributeValue);
+            }
+        }
+        if (node.hasChildNodes()) {
+            NodeList children = node.getChildNodes();
+            for (int i = 0, ub = children.getLength(); i < ub; ++i) {
+                decendExifTree(children.item(i), prefixString, exifTags);
+            }
+        }
+    }
+    // end functions to extract the exif data from images
 
     public boolean isImdiChildType(String childType) {
         return !childType.equals("Session") && !childType.equals("Corpus");
