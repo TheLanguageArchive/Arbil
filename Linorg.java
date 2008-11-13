@@ -1,7 +1,7 @@
 /*
  * Linorg.java
  */
-package mpi.linorg;
+package mpi.linorg; 
 
 /**
  * The main class of the application.

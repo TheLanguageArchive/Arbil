@@ -4,6 +4,7 @@
  */
 package mpi.linorg;
 
+import java.awt.BorderLayout; 
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -20,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListCellRenderer;
@@ -97,6 +99,7 @@ public class LinorgWindowManager {
 
     public void createWindow(String windowTitle, Component contentsComponent) {
         JInternalFrame currentInternalFrame = new javax.swing.JInternalFrame();
+//        GuiHelper.imdiDragDrop.addTransferHandler(currentInternalFrame);
         currentInternalFrame.add(contentsComponent);
         windowTitle = addWindowToList(windowTitle, currentInternalFrame);
 
@@ -162,35 +165,59 @@ public class LinorgWindowManager {
         ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
         ImdiSplitPanel imdiSplitPanel = new ImdiSplitPanel(imdiTable);
         this.createWindow(frameTitle, imdiSplitPanel);
+        imdiSplitPanel.setSplitDisplay();
     }
 
-    public class ImdiSplitPanel extends JSplitPane {
+    public class ImdiSplitPanel extends JPanel {
+
         private JList fileList;
         public ImdiTable imdiTable;
+        private JScrollPane tableScrollPane;
+        private JScrollPane listScroller;
+        private JSplitPane splitPane;
 
         public ImdiSplitPanel(ImdiTable localImdiTable) {
+//            setBackground(new Color(0xFF00FF));
+            this.setLayout(new BorderLayout());
+
             imdiTable = localImdiTable;
-            fileList = new JList(((ImdiTableModel) localImdiTable.getModel()).getListModel());
+            splitPane = new JSplitPane();
+
+            fileList = new JList(((ImdiTableModel) localImdiTable.getModel()).getListModel(this));
             fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
             fileList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
             fileList.setVisibleRowCount(-1);
 
-            JScrollPane listScroller = new JScrollPane(fileList);
+            listScroller = new JScrollPane(fileList);
             listScroller.setPreferredSize(new Dimension(250, 80));
 
             ImageBoxRenderer renderer = new ImageBoxRenderer();
             fileList.setCellRenderer(renderer);
-            setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-            setDividerSize(5);
-            setBottomComponent(listScroller);
-            JScrollPane jScrollPane = new JScrollPane(imdiTable);
-            setTopComponent(jScrollPane);
+            splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+            splitPane.setDividerSize(5);
+            tableScrollPane = new JScrollPane(imdiTable);
+        }
+
+        public void setSplitDisplay() {
+            this.removeAll();
+            if (fileList.getModel().getSize() == 0) {
+                this.add(tableScrollPane);
+            } else {
+                splitPane.setTopComponent(tableScrollPane);
+                splitPane.setTopComponent(tableScrollPane);
+                splitPane.setBottomComponent(listScroller);
+                GuiHelper.imdiDragDrop.addDrag(fileList);
+                GuiHelper.imdiDragDrop.addTransferHandler(tableScrollPane);
+                GuiHelper.imdiDragDrop.addTransferHandler(this);
+                this.add(splitPane);
+                this.doLayout();
+                splitPane.setDividerLocation(0.5);
+            }
             GuiHelper.imdiDragDrop.addDrag(imdiTable);
-            GuiHelper.imdiDragDrop.addDrag(fileList);
-            GuiHelper.imdiDragDrop.addTransferHandler(jScrollPane);
-            GuiHelper.imdiDragDrop.addTransferHandler(this);
+            this.doLayout();
         }
-        }
+    }
+
     class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
         int outputWidth = 200;
@@ -224,20 +251,28 @@ public class LinorgWindowManager {
             if (value instanceof ImdiHelper.ImdiTreeObject) {
                 ImdiHelper.ImdiTreeObject imdiObject = (ImdiHelper.ImdiTreeObject) value;
                 setText(imdiObject.toString());
-                if (imdiObject.isArchivableFile()) {
-                    ImageIcon icon = new ImageIcon(imdiObject.getUrl().replace("file://", ""));
-                    if (icon != null) {
-                        BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
-                        Graphics2D g2 = resizedImg.createGraphics();
-                        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                        g2.drawImage(icon.getImage(), 0, 0, outputWidth, outputHeight, null);
-                        g2.dispose();
-                        ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
-                        setIcon(thumbnailIcon);
-                    }
-                } else if (imdiObject.hasResource()) {
-                    setIcon(new ImageIcon(imdiObject.getResource()));
+                String targetFile = "";
+                if (imdiObject.hasResource()) {
+                    targetFile = imdiObject.getResource();
+                } else if (imdiObject.isArchivableFile()) {
+                    targetFile = imdiObject.getUrl();
                 }
+
+                ImageIcon icon = new ImageIcon(targetFile.replace("file://", ""));
+                if (icon != null) {
+//                        int outputWidth = 32;
+//                        int outputHeight = 32;
+//                        int outputWidth = getPreferredSize().width;
+//                        int outputHeight = getPreferredSize().height - 100;
+                    BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
+                    Graphics2D g2 = resizedImg.createGraphics();
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g2.drawImage(icon.getImage(), 0, 0, outputWidth, outputHeight, null);
+                    g2.dispose();
+                    ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
+                    setIcon(thumbnailIcon);
+                }
+
                 setFont(list.getFont());
             } else {
                 setText(value.toString() + " (no image available)");

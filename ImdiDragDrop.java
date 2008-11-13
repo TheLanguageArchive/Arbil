@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mpi.linorg;
+package mpi.linorg; 
 
 import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JTable;
@@ -114,6 +115,7 @@ public class ImdiDragDrop {
             return TransferHandler.NONE;
         }
 
+        @Override
         public boolean canImport(JComponent comp, DataFlavor flavor[]) {
             System.out.println("canImport: " + comp);
             if (comp instanceof JTree) {
@@ -263,6 +265,7 @@ public class ImdiDragDrop {
             return null;
         }
 
+        @Override
         public boolean importData(JComponent comp, Transferable t) {
             //System.out.println("importData: " + comp.toString());
             //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
@@ -273,9 +276,34 @@ public class ImdiDragDrop {
                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                     }
                     JTree dropTree = (JTree) comp;
-                    for (int selectedCount = 0; selectedCount < dropTree.getSelectionCount(); selectedCount++) {
-                        System.out.println("to: " + ((DefaultMutableTreeNode) dropTree.getSelectionPaths()[selectedCount].getLastPathComponent()).getUserObject().toString());
+                    DefaultMutableTreeNode targetNode = GuiHelper.treeHelper.getLeadLocalCorpusTreeSelection();
+                    // TODO: getImdiChildNodes really shouldnt be called here, instead it would be better for the targetNode to get its childeren before adding anything
+                    GuiHelper.treeHelper.getImdiChildNodes(targetNode);
+                    Object dropTargetUserObject = targetNode.getUserObject();
+                    System.out.println("to: " + dropTargetUserObject.toString());
+                    if (dropTargetUserObject instanceof ImdiHelper.ImdiTreeObject) {
+                        if (((ImdiHelper.ImdiTreeObject) dropTargetUserObject).isSession()) {
+                            if (selectionContainsArchivableLocalFile == true &&
+                                    selectionContainsLocalFile == true &&
+                                    selectionContainsLocalDirectory == false &&
+                                    selectionContainsImdiResource == false &&
+                                    selectionContainsImdiCorpus == false &&
+                                    selectionContainsImdiSession == false &&
+                                    selectionContainsImdiChild == false &&
+                                    selectionContainsLocal == true &&
+                                    selectionContainsRemote == false) {
+                                System.out.println("ok to add local file");
+                                for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
+                                    System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
+                                    Vector tempVector = ((ImdiHelper.ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
+                                    GuiHelper.treeHelper.refreshChildNodes(targetNode);
+                                    GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new node");
+                                }
+                            }
+                        }
+                        GuiHelper.treeHelper.reloadLocalCorpusTree();
                     }
+//                    }
                 } else {
                     Container imdiSplitPanel = findImdiSplitPanel(comp);
                     if (imdiSplitPanel instanceof LinorgWindowManager.ImdiSplitPanel) {

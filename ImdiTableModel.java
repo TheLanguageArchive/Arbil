@@ -1,7 +1,7 @@
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
- */
+ */ 
 package mpi.linorg;
 
 import java.awt.Color;
@@ -9,10 +9,14 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
 import mpi.linorg.ImdiHelper.ImdiTreeObject;
 
@@ -27,17 +31,49 @@ public class ImdiTableModel extends AbstractTableModel {
     private Hashtable allColumnNames = new Hashtable();
     LinorgFieldView tableFieldView;
     private int[] maxColumnWidths;
-    int sortColumn = -1;
+    int sortColumn = 0;
+    boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
+    Color currentHighlightColur = new Color(0xFFFFFF);
 
     public ImdiTableModel() {
         tableFieldView = GuiHelper.imdiFieldViews.getCurrentGlobalView().clone();
     }
+    
+    // code related to the list display of resources and loose files
+    class ImdiListDataListener implements ListDataListener {
 
-    public DefaultListModel getListModel() {
-        //listModel = new DefaultListModel();        
+        private LinorgWindowManager.ImdiSplitPanel imdiSplitPanel;
+
+        public ImdiListDataListener(LinorgWindowManager.ImdiSplitPanel localImdiSplitPanel) {
+            imdiSplitPanel = localImdiSplitPanel;
+        }
+
+        public void contentsChanged(ListDataEvent e) {
+            if (imdiSplitPanel != null) {
+                imdiSplitPanel.setSplitDisplay();
+            }
+        }
+
+        public void intervalAdded(ListDataEvent e) {
+            if (imdiSplitPanel != null) {
+                imdiSplitPanel.setSplitDisplay();
+            }
+        }
+
+        public void intervalRemoved(ListDataEvent e) {
+            if (imdiSplitPanel != null) {
+                imdiSplitPanel.setSplitDisplay();
+            }
+        }
+    }
+
+    public DefaultListModel getListModel(LinorgWindowManager.ImdiSplitPanel imdiSplitPanel) {
+        ImdiListDataListener listDataListener = new ImdiListDataListener(imdiSplitPanel);
+        listModel.addListDataListener(listDataListener);
         return listModel;
     }
+    // end code related to the list display of resources and loose files
 
     public void setCurrentView(LinorgFieldView localFieldView) {
         LinorgFieldView tempFieldView = localFieldView.clone();
@@ -213,7 +249,7 @@ public class ImdiTableModel extends AbstractTableModel {
         reloadTableData();
     }
 
-    private void clearColours() {
+    public void clearCellColours() {
 //        for (int rowCounter = 0; rowCounter < cellColour.length; rowCounter++) {
 //            for (int colCounter = 0; colCounter < cellColour[rowCounter].length; colCounter++) {
         for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
@@ -221,12 +257,47 @@ public class ImdiTableModel extends AbstractTableModel {
                 cellColour[rowCounter][colCounter] = new Color(0xFFFFFF);
             }
         }
+        currentHighlightColur = new Color(0xFFFFFF);
+        fireTableDataChanged();
     }
 
     private void allocateCellData(int rows, int cols) {
         data = new Object[rows][cols];
         cellColour = new Color[rows][cols];
-        clearColours();
+        clearCellColours();
+    }
+
+    public class TableRowComparator implements Comparator {
+
+        int sortColumn = 0;
+        boolean sortReverse = false;
+
+        public TableRowComparator(int tempSortColumn, boolean tempSortReverse) {
+            sortColumn = tempSortColumn;
+            sortReverse = tempSortReverse;
+            System.out.println("TableRowComparator: " + sortColumn + ":" + sortReverse);
+        }
+
+        public int compare(Object firstRowArray, Object secondRowArray) {
+            String baseValueA = ((Object[]) firstRowArray)[sortColumn].toString();
+            String comparedValueA = ((Object[]) secondRowArray)[sortColumn].toString();
+            // TODO: add the second or more sort column
+//            if (!(baseValueA.equals(comparedValueA))) {
+//                return baseValueB.compareTo(comparedValueB);
+//            } else {
+//                return baseValueA.compareTo(comparedValueA);
+//            }
+            int returnValue = baseValueA.compareTo(comparedValueA);
+            if (!sortReverse) {
+                returnValue = 1 - returnValue;
+            }
+            return returnValue;
+        }
+    }
+
+    private void sortTableRows() {
+        System.out.println("sortTableRows");
+        Arrays.sort(data, new TableRowComparator(sortColumn, sortReverse));
     }
 
     public void reloadTableData() {
@@ -252,7 +323,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 firstFreeColumn = 1;
             }
 
-            // create and populate the colomn names array and prepend the icon and append the imdinode
+            // create and populate the column names array and prepend the icon and append the imdinode
             columnNames = new String[displayedColumnNames.size() + firstFreeColumn];
             int columnPopulateCounter = firstFreeColumn;
             columnNames[0] = " "; // make sure the the icon column is shown its string is not null
@@ -261,7 +332,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 columnNames[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
                 columnPopulateCounter++;
             }
-            // end create the colomn names array and prepend the icon and append the imdinode
+            // end create the column names array and prepend the icon and append the imdinode
 
             maxColumnWidths = new int[columnNames.length];
 
@@ -336,6 +407,7 @@ public class ImdiTableModel extends AbstractTableModel {
         }
         // update the table model, note that this could be more specific, ie. just row or all it the columns have changed
         //fireTableDataChanged();
+        sortTableRows();
         fireTableStructureChanged();
     }
     private String[] columnNames = new String[0];
@@ -384,10 +456,11 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void setValueAt(Object value, int row, int col) {
+        System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
         if (data[row][col] instanceof ImdiHelper.ImdiField) {
             ImdiHelper.ImdiField currentField = ((ImdiHelper.ImdiField) data[row][col]);
-            if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrl(), currentField.xmlPath, currentField.fieldValue, value.toString())) {
-                currentField.fieldValue = value.toString();
+            if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrl(), currentField.xmlPath, currentField.getFieldValue(), value.toString())) {
+                currentField.setFieldValue(value.toString());
             }
         } else {
             data[row][col] = value;
@@ -398,8 +471,16 @@ public class ImdiTableModel extends AbstractTableModel {
     public void sortByColumn(int columnIndex) {
         // TODO: sort columns
         System.out.println("sortByColumn: " + columnIndex);
+        // set the reverse sort flag
+        if (sortColumn == columnIndex) {
+            sortReverse = !sortReverse;
+        } else {
+            sortReverse = false;
+        }
+        //set the current sort column
         sortColumn = columnIndex;
-    //fireTableStructureChanged();
+        //fireTableStructureChanged();
+        reloadTableData();
     }
 
     public void hideColumn(int columnIndex) {
@@ -441,29 +522,35 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void copyCellToColumn(int row, int col) {
         // if the col or row provided here is invalid then we want to know about it so don't try to prevent such an error
-//        if (row == -1 || col == -1) {
-//            return;
-//        }
+        //        if (row == -1 || col == -1) {
+        //            return;
+        //        }
         System.out.println("copyCellToColumn for row: " + row + " col: " + col);
         for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
             if (rowCounter != row) {
-                setValueAt(data[row][col].toString(), row, col);
+                setValueAt(data[row][col].toString(), rowCounter, col);
                 fireTableCellUpdated(rowCounter, col);
             }
         }
     }
 
     public void highlightMatchingCells(int row, int col) {
-        clearColours();
+        //clearColours();
         // if the col or row provided here is invalid then we want to know about it so don't try to prevent such an error
 //        if (row == -1 || col == -1) {
 //            return;
 //        }
+
+        // rotate the next colour
+        currentHighlightColur = new Color(currentHighlightColur.getGreen() - 40, currentHighlightColur.getRed(), currentHighlightColur.getBlue());
+
         System.out.println("highlightMatchingCells for row: " + row + " col: " + col);
         for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
             for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
                 if (data[row][col].toString().equals(data[rowCounter][colCounter].toString())) {
-                    cellColour[rowCounter][colCounter] = new Color(0xFFFF33);
+                    cellColour[rowCounter][colCounter] = currentHighlightColur;
+
+                //currentHighlightColur = new Color(0xFFFFFF);
                 }
             }
         }

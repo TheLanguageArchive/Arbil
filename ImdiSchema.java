@@ -1,6 +1,6 @@
 /*
  * ImdiSchema is used to read the imdi schema 
- * and provide a list of valid fields and field constraints
+ * and provide a list of valid fields and field constraints 
  */
 package mpi.linorg;
 
@@ -56,8 +56,6 @@ public class ImdiSchema {
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
-        // corpus can be added to the root node
-        childTypes.add("Corpus");
         if (targetNodeUserObject instanceof ImdiHelper.ImdiTreeObject) {
             if (((ImdiHelper.ImdiTreeObject) targetNodeUserObject).isSession()) {
                 childTypes.add("Actor");
@@ -65,9 +63,13 @@ public class ImdiSchema {
                 childTypes.add("Anonym");
                 childTypes.add("MediaFile");
             } else if (!((ImdiHelper.ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
+                childTypes.add("Corpus");
                 childTypes.add("Session");
             }
             System.out.println("childTypes: " + childTypes);
+        } else {
+            // corpus can be added to the root node
+            childTypes.add("Corpus");
         }
         return childTypes.elements();
     }
@@ -77,33 +79,48 @@ public class ImdiSchema {
      * @param childType is the chosen child type
      * @return enumeration of potential fields for this child type
      */
-    public Enumeration listFieldsFor(String childType, int imdiChildIdentifier) {
+    public Enumeration listFieldsFor(String childType, int imdiChildIdentifier, String resourcePath) {
+        System.out.println("listFieldsFor: " + childType);
+        if (childType.contains("image")) {
+            childType = "MediaFile";
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
+        }
         Vector fieldTypes = new Vector();
         String xmlPrePath = "";
         if (childType.equals("Actor")) {
             xmlPrePath = ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(" + imdiChildIdentifier + ")"; // TODO resolve what method to use for imdichildren
-            //fieldTypes.add(xmlPrePath + ".Actor");
+        //fieldTypes.add(xmlPrePath + ".Actor");
         } else if (childType.equals("WrittenResource")) {
             xmlPrePath = ".METATRANSCRIPT.Session.Resources.WrittenResource(" + imdiChildIdentifier + ")";
-            fieldTypes.add(xmlPrePath + ".WrittenResource");
+            fieldTypes.add(new String[]{xmlPrePath + ".WrittenResource", "unset"});
         } else if (childType.equals("Anonym")) {
             xmlPrePath = ".METATRANSCRIPT.Session.Resources.Anonyms(" + imdiChildIdentifier + ")";
-            fieldTypes.add(xmlPrePath + ".Anonyms");
+            fieldTypes.add(new String[]{xmlPrePath + ".Anonyms", "unset"});
         } else if (childType.equals("MediaFile")) {
             xmlPrePath = ".METATRANSCRIPT.Session.Resources.MediaFile(" + imdiChildIdentifier + ")";
-            fieldTypes.add(xmlPrePath + ".MediaFile");
+            if (resourcePath == null) {
+                resourcePath = "null string";
+            }
+            fieldTypes.add(new String[]{xmlPrePath + ".Type", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".TimePosition.Start", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".TimePosition.End", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".Quality", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".AccessDate", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".ResourceLink", resourcePath});
+            fieldTypes.add(new String[]{xmlPrePath + ".Format", childType});
         } else if (childType.equals("Corpus")) {
             xmlPrePath = ".METATRANSCRIPT.Corpus";
-            fieldTypes.add(xmlPrePath + ".Corpus");
+            fieldTypes.add(new String[]{xmlPrePath + ".Corpus", "unset"});
         } else if (childType.equals("Session")) {
             xmlPrePath = ".METATRANSCRIPT.Session";
-            fieldTypes.add(xmlPrePath + ".Session");
+            fieldTypes.add(new String[]{xmlPrePath + ".Session", "unset"});
         }
-        fieldTypes.add(xmlPrePath + ".Name");
-        fieldTypes.add(xmlPrePath + ".Description");
-        fieldTypes.add(xmlPrePath + ".Title");
+        if (!childType.equals("MediaFile")) {
+            fieldTypes.add(new String[]{xmlPrePath + ".Name", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".Description", "unset"});
+            fieldTypes.add(new String[]{xmlPrePath + ".Title", "unset"});
+        }
         System.out.println("childType: " + childType + " fieldTypes: " + fieldTypes);
         return fieldTypes.elements();
     }
@@ -121,4 +138,7 @@ public class ImdiSchema {
 //        // why put in the (x) when it is not representative of the data???
 //        return new String[]{"actors", "actor(1)", "name"};
 //    }
+    public String getHelpForField(String fieldName) {
+        return "Usage description for: " + fieldName;
+    }
 }

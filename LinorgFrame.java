@@ -3,7 +3,7 @@
  * This version uses only a JFrame and does not require additional dependencies
  * Created on 23 September 2008, 17:23
  */
-package mpi.linorg;
+package mpi.linorg; 
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -68,7 +68,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         setVisible(true);
 
         GuiHelper.linorgWindowManager.setComponents(windowMenu, jDesktopPane1);
-    //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
+        //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
     }
 
     private void addLocation(String addableLocation) {
@@ -520,6 +520,8 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
             addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
+            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
+//            addMenu.setToolTipText("test balloon on dissabled menu item");
             showContextMenu = true; //nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {

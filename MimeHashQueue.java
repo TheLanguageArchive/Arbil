@@ -9,7 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URL; 
 import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -24,39 +24,40 @@ public class MimeHashQueue {
 
     private Hashtable imdiObjectQueue = new Hashtable();
     private Hashtable processedImdiObjects = new Hashtable();
-    private Hashtable knownMimeTypes = new Hashtable();
-    private Hashtable md5SumToDuplicates = new Hashtable();
-    private Hashtable pathToMd5Sums = new Hashtable();
+    private Hashtable knownMimeTypes;
+    private Hashtable md5SumToDuplicates;
+    private Hashtable pathToMd5Sums;
     private boolean continueThread = false;//  used to check the file type
     private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType();
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
 
     public MimeHashQueue() {
-        // load from disk
-        loadMd5sumIndex();
         continueThread = true;
         new Thread() {
 
             public void run() {
+                // load from disk
+                loadMd5sumIndex();
                 while (continueThread) {
                     try {
-                        Thread.currentThread().sleep(100);//sleep for 100 ms
+                        Thread.currentThread().sleep(500);//sleep for 100 ms
                     } catch (InterruptedException ie) {
                         System.err.println("run MimeHashQueue: " + ie.getMessage());
                     }
                     for (Enumeration nodesToCheck = imdiObjectQueue.keys(); nodesToCheck.hasMoreElements();) {
                         String currentNodeURL = nodesToCheck.nextElement().toString();
                         System.out.println("run MimeHashQueue processing: " + currentNodeURL);
-                        // also check that the file has not been done already
-                        if (!processedImdiObjects.containsKey(currentNodeURL)) {
-                            ImdiHelper.ImdiTreeObject currentImdiObject = ((ImdiHelper.ImdiTreeObject) imdiObjectQueue.get(currentNodeURL));
+                        ImdiHelper.ImdiTreeObject currentImdiObject = ((ImdiHelper.ImdiTreeObject) imdiObjectQueue.get(currentNodeURL));
+                        // check that the file has not been done already
+                        // TODO: chang this to use an additional hastable of mtimes for each file and if the mtime does not match then rescan the file
+                        if (!knownMimeTypes.containsKey(currentNodeURL)) {
                             // this couldbe optimised by not mime checking imdi files, but for easy reading it is done
                             if (/*currentNodeURL.endsWith(".imdi") ||*/getMimeType(currentNodeURL)) {
                                 getHash(currentNodeURL);
                             }
-                            processedImdiObjects.put(currentNodeURL, currentImdiObject);
                             currentImdiObject.clearIcon();
                         }
+                        processedImdiObjects.put(currentNodeURL, currentImdiObject);
                         imdiObjectQueue.remove(currentNodeURL);
                     }
                 // TODO: add check for url in list with different hash which would indicate a modified file and require a red x on the icon
@@ -77,12 +78,14 @@ public class MimeHashQueue {
 
     private void loadMd5sumIndex() {
         try {
-            processedImdiObjects = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("processedImdiObjects");
             knownMimeTypes = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("knownMimeTypes");
             md5SumToDuplicates = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("knownMd5Sums");
             pathToMd5Sums = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("pathToMd5Sums");
             System.out.println("loaded md5 and mime from disk");
         } catch (Exception ex) {
+            knownMimeTypes = new Hashtable();
+            md5SumToDuplicates = new Hashtable();
+            pathToMd5Sums = new Hashtable();
             System.out.println("loadMap exception: " + ex.getMessage());
         }
     }
@@ -90,11 +93,10 @@ public class MimeHashQueue {
     public void saveMd5sumIndex() {
         // this is called by guihelper
         try {
-            GuiHelper.linorgSessionStorage.saveObject(processedImdiObjects, "processedImdiObjects");
             GuiHelper.linorgSessionStorage.saveObject(knownMimeTypes, "knownMimeTypes");
             GuiHelper.linorgSessionStorage.saveObject(md5SumToDuplicates, "knownMd5Sums");
             GuiHelper.linorgSessionStorage.saveObject(pathToMd5Sums, "pathToMd5Sums");
-            System.out.println("savedMap");
+            System.out.println("saveMd5sumIndex");
         } catch (IOException ex) {
             System.out.println("saveMap exception: " + ex.getMessage());
         }
@@ -105,18 +107,16 @@ public class MimeHashQueue {
         String mpiMimeType;
         // here we also want to check the magic number but the mpi api has a function similar to that so we
         // use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
-        mpiMimeType = "unreadable";
+        // because the api uses null to indicate non archivable we cant return other strings
+        mpiMimeType = null;//"unreadable";
         boolean deep = true;
 
         URL url = null;
         try {
-            //filePath = java.net.URLEncoder.encode(filePath, "UTF-8");
-            // only test local files so it is not critical to overly verify the path
-            if (!filePath.startsWith("file://")) {
-                url = new URL("file://" + filePath);
-            } else {
-                url = new URL(filePath);
-            }
+            // Create a file object
+            File file = new File(filePath.replace("file://", ""));
+            // convert to a url object
+            url = file.toURL();
         } catch (MalformedURLException e) {
             System.out.println(e.getMessage());
         }
@@ -144,7 +144,8 @@ public class MimeHashQueue {
         if (mpiMimeType != null) {
             knownMimeTypes.put(filePath, mpiMimeType);
         } else {
-            knownMimeTypes.put(filePath, "nonarchivable");
+            // because the api uses null to indicate non archivable we cant return other strings
+            //knownMimeTypes.put(filePath, "nonarchivable");
         }
         return (mpiMimeType != null);
     }
@@ -193,6 +194,7 @@ public class MimeHashQueue {
                         if (currentNode instanceof ImdiHelper.ImdiTreeObject) {
                             //debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
                             // clear the icon of the other copies so that they will be updated to indicate the commonality
+                            System.out.println("Clearing icon for other node: " + currentNode.toString());
                             ((ImdiTreeObject) currentNode).clearIcon();
                         }
                     }
@@ -219,8 +221,8 @@ public class MimeHashQueue {
     }
 
     public void addToQueue(ImdiHelper.ImdiTreeObject imdiObject) {
-        if (!imdiObject.isDirectory()) {
-            System.out.println("addToQueue: " + imdiObject.toString());
+        if (!imdiObject.isDirectory() && imdiObject.isLocal() && (!imdiObject.isImdiChild() || imdiObject.hasResource())) {
+            System.out.println("addToQueue: " + getFilePath(imdiObject));
             // here also check that the destination file exists and is readable
             imdiObjectQueue.put(getFilePath(imdiObject), imdiObject);
         }

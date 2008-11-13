@@ -8,7 +8,6 @@ import java.awt.Component;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -57,7 +56,7 @@ public class TreeHelper {
     public void setTrees(JTree tempRemoteCorpusTree, JTree tempLocalCorpusTree, JTree tempLocalDirectoryTree) {
         remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiHelper.serverIcon, JLabel.LEFT));
         localCorpusRootNode.setUserObject(new JLabel("Local Corpus Cache", ImdiHelper.directoryIcon, JLabel.LEFT));
-        localDirectoryRootNode.setUserObject(new JLabel("Local File System", UIManager.getIcon("FileView.computerIcon"), JLabel.LEFT));
+        localDirectoryRootNode.setUserObject(new JLabel("Working Directories", UIManager.getIcon("FileView.computerIcon"), JLabel.LEFT));
 
         remoteCorpusTree = tempRemoteCorpusTree;
         localCorpusTree = tempLocalCorpusTree;
@@ -76,6 +75,12 @@ public class TreeHelper {
             addedCount++;
         }
         if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi")) {
+            addedCount++;
+        }
+        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi")) {
             addedCount++;
         }
         return addedCount;
@@ -133,10 +138,37 @@ public class TreeHelper {
         locationsList.remove(removeLocation);
     }
 
+    public void refreshChildNodes(DefaultMutableTreeNode itemNode) {
+        System.out.println("refreshChildNodes: " + itemNode);
+        removeChildNodes(itemNode);
+        getImdiChildNodes(itemNode);
+    }
+
+    private void removeChildNodes(DefaultMutableTreeNode parentNode) {
+        // this function replaces the use of removeAllChildren et. al. from the tree nodes
+        // its purpose is to deregister the tree node from the imdinode before removing the node from the tree
+        // loop child nodes
+        for (Enumeration childNodesEnum = parentNode.children(); childNodesEnum.hasMoreElements();) {
+            DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) childNodesEnum.nextElement();
+            // remove recursively
+            removeChildNodes(childNode);
+            System.out.println("removeChildNode: " + childNode);
+            Object childUserObject = childNode.getUserObject();
+            // get the imdi node
+            if (childUserObject instanceof ImdiHelper.ImdiTreeObject) {
+                //deregister the tree node in the imdinode
+                ((ImdiHelper.ImdiTreeObject) childUserObject).removeContainer(childUserObject);
+            }
+        }
+        //remove the node from the parent               
+        parentNode.removeAllChildren();
+    }
+
     public void applyRootLocations() {
-        remoteCorpusRootNode.removeAllChildren();
-        localCorpusRootNode.removeAllChildren();
-        localDirectoryRootNode.removeAllChildren();
+        // TODO: remove the containers registered with the imdi objects via: currentImdiObject.registerContainer(currentTreeNode);
+        removeChildNodes(remoteCorpusRootNode);
+        removeChildNodes(localCorpusRootNode);
+        removeChildNodes(localDirectoryRootNode);
         Vector locationImdiNodes = new Vector();
         for (Enumeration locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
             locationImdiNodes.add(GuiHelper.imdiHelper.getTreeNodeObject(locationEnum.nextElement().toString()));
@@ -144,12 +176,14 @@ public class TreeHelper {
         Collections.sort(locationImdiNodes);
         for (Enumeration<ImdiHelper.ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
             ImdiHelper.ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
+            DefaultMutableTreeNode currentTreeNode = new DefaultMutableTreeNode(currentImdiObject);
+            currentImdiObject.registerContainer(currentTreeNode);
             if (!currentImdiObject.isLocal()) {
-                remoteCorpusRootNode.add(new DefaultMutableTreeNode(currentImdiObject));
+                remoteCorpusRootNode.add(currentTreeNode);
             } else if (currentImdiObject.isImdi()) {
-                localCorpusRootNode.add(new DefaultMutableTreeNode(currentImdiObject));
+                localCorpusRootNode.add(currentTreeNode);
             } else {
-                localDirectoryRootNode.add(new DefaultMutableTreeNode(currentImdiObject));
+                localDirectoryRootNode.add(currentTreeNode);
             }
         }
         localDirectoryTreeModel.reload();
@@ -167,7 +201,7 @@ public class TreeHelper {
         System.out.println("localCorpusTree: " + localCorpusTree);
         return (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
     }
-    
+
     public void showLocationsDialog() {
         // TODO: it would be preferable to move all dialog creation and management into the linorgwindowmanager
         JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane));
@@ -222,13 +256,8 @@ public class TreeHelper {
             ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
                 System.out.println("its an imdi so start adding");
-                Vector tempVector = imdiTreeObject.addChildNode(nodeType);
-                itemNode.removeAllChildren();
-                getImdiChildNodes(itemNode);
-//                DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childImdiNode);
-//                itemNode.add(treeNode);
-
-//                tempVector.add(childImdiNode);
+                Vector tempVector = imdiTreeObject.addChildNode(nodeType, null);
+                refreshChildNodes(itemNode);
                 GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new node");
             }
         } else {
@@ -239,6 +268,8 @@ public class TreeHelper {
 
     public void getImdiChildNodes(DefaultMutableTreeNode itemNode) {
         if (itemNode.getChildCount() == 0) {
+            // add "loading" node
+            itemNode.add(new DefaultMutableTreeNode(new JLabel("loading...", ImdiHelper.fileUnknown, JLabel.CENTER)));
             if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
                 ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
                 if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
@@ -247,9 +278,12 @@ public class TreeHelper {
                     //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
                     ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes(false);
                     Arrays.sort(childNodes);
+                    // remove the loading node
+                    removeChildNodes(itemNode);
                     for (int childCount = 0; childCount < childNodes.length; childCount++) {
                         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
                         treeNode.setAllowsChildren(childNodes[childCount].isImdi() || childNodes[childCount].isDirectory());
+                        childNodes[childCount].registerContainer(treeNode);
                         itemNode.add(treeNode);
                     }
                 }
