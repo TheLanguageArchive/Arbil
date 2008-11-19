@@ -7,14 +7,18 @@ package mpi.linorg;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -46,7 +50,9 @@ public class ImdiTable extends JTable {
     public ImdiTable(ImdiTableModel localImdiTableModel, Enumeration rowNodesEnum, String frameTitle) {
         imdiTableModel = localImdiTableModel;
         imdiTableModel.setShowIcons(true);
-        imdiTableModel.addImdiObjects(rowNodesEnum);
+        if (rowNodesEnum != null) {
+            imdiTableModel.addImdiObjects(rowNodesEnum);
+        }
         this.setModel(imdiTableModel);
         this.setName(frameTitle);
         //jTable1.doLayout();
@@ -54,6 +60,7 @@ public class ImdiTable extends JTable {
         //jTable1.invalidate();
 
         setColumnWidths();
+        setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 //            public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -89,7 +96,7 @@ public class ImdiTable extends JTable {
                             // if the user did not cancel
                             if (fieldViewName != null) {
                                 if (!GuiHelper.imdiFieldViews.addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
-                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "A View with the same name already exists, nothing saved");
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "A View with the same name already exists, nothing saved");
                                 }
                             }
                         }
@@ -100,7 +107,7 @@ public class ImdiTable extends JTable {
 
                         public void actionPerformed(ActionEvent e) {
                             //System.out.println("editViewNenuItem: " + targetTable.toString());
-                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane), true);
+                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
                             Container dialogcontainer = editViewsDialog.getContentPane();
                             dialogcontainer.setLayout(new BorderLayout());
                             editViewsDialog.setSize(600, 400);
@@ -160,8 +167,6 @@ public class ImdiTable extends JTable {
                             imdiTableModel.showOnlyCurrentColumns();
                         }
                     });
-
-
                     //popupMenu.add(applyViewNenuItem);
                     //popupMenu.add(saveViewMenuItem);
                     popupMenu.add(editViewMenuItem);
@@ -216,6 +221,23 @@ public class ImdiTable extends JTable {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getButton() == MouseEvent.BUTTON3) {
+                    // set the clicked cell selected
+                    java.awt.Point p = evt.getPoint();
+                    int rowIndex = rowAtPoint(p);
+                    int colIndex = columnAtPoint(p);
+                    if (!evt.isShiftDown() && !evt.isControlDown()) {
+                        // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
+                        getSelectionModel().clearSelection();
+                        // make sure the clicked cell is selected
+                        getSelectionModel().addSelectionInterval(rowIndex, rowIndex);
+                        getColumnModel().getSelectionModel().addSelectionInterval(colIndex, colIndex);
+                    // make sure the clicked cell is the lead selection
+//                    getSelectionModel().setLeadSelectionIndex(rowIndex);
+//                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
+                    }
+                }
+
                 if (evt.getButton() == MouseEvent.BUTTON3) {
 //                    targetTable = (JTable) evt.getComponent();
 //                    System.out.println("set the current table");
@@ -276,7 +298,7 @@ public class ImdiTable extends JTable {
 
                             public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-                                if (0 == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.desktopPane, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
+                                if (0 == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
                                     imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
                                 }
                             }
@@ -331,6 +353,14 @@ public class ImdiTable extends JTable {
                 //return super.getCellEditor(row, modelcolumn);
                 return new DefaultCellEditor(new JTextField());
             }
+        } else if (cellField instanceof Object[]) {
+            Object[] childArray = (Object[]) cellField;
+            JComboBox comboBox = new JComboBox();
+            for (int childCounter = 0; childCounter < childArray.length; childCounter++) {
+//                comboBox.addItem(new JLabel(((ImdiHelper.ImdiTreeObject) childImdiObject).toString(), ((ImdiHelper.ImdiTreeObject) childImdiObject).getIcon(), JLabel.CENTER));
+                comboBox.addItem(((ImdiHelper.ImdiTreeObject) childArray[childCounter]));
+            }
+            return new DefaultCellEditor(comboBox);
         }
         return super.getCellEditor(row, modelcolumn);
     }
@@ -344,8 +374,31 @@ public class ImdiTable extends JTable {
             iconLabelRenderer.setIcon(((ImdiHelper.ImdiTreeObject) cellField).getIcon());
             iconLabelRenderer.setText(((ImdiHelper.ImdiTreeObject) cellField).toString());
             return iconLabelRenderer;
-        } else {
-//        add cell background colour
+        } else if (cellField instanceof Object[]) {
+            System.out.println("adding child nodes to cell");
+            DefaultTableCellRenderer multiIconLabelRenderer = new DefaultTableCellRenderer();
+            int currentIconXPosition = 0;
+
+            int width = ImdiHelper.corpusicon.getIconWidth() * ((Object[]) cellField).length;
+            int height = ImdiHelper.corpusicon.getIconHeight();
+            if (width == 0) { // make sure that zero length child cells have a width
+                width = ImdiHelper.corpusicon.getIconWidth();
+            }
+            BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
+
+            Object[] childArray = (Object[]) cellField;
+            for (Object childImdiObject : childArray) {
+                Icon currentIcon = ((ImdiHelper.ImdiTreeObject) childImdiObject).getIcon();
+                currentIcon.paintIcon(multiIconLabelRenderer, g2d, currentIconXPosition, 0);
+                currentIconXPosition += currentIcon.getIconWidth();
+            }
+            g2d.dispose();
+            multiIconLabelRenderer.setIcon(new ImageIcon(bufferedImage));
+            multiIconLabelRenderer.setText(""); 
+            return multiIconLabelRenderer;
+        } else { //        add cell background colour
             DefaultTableCellRenderer fieldLabelRenderer = new DefaultTableCellRenderer();
             fieldLabelRenderer.setText(cellField.toString());
             fieldLabelRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
@@ -356,7 +409,7 @@ public class ImdiTable extends JTable {
 
     public void showRowChildData() {
         Object[] possibilities = ((ImdiTableModel) this.getModel()).getChildNames();
-        String selectionResult = (String) JOptionPane.showInputDialog(GuiHelper.linorgWindowManager.desktopPane, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+        String selectionResult = (String) JOptionPane.showInputDialog(GuiHelper.linorgWindowManager.linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 
         if ((selectionResult != null) && (selectionResult.length() > 0)) {
             ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
@@ -464,7 +517,7 @@ public class ImdiTable extends JTable {
         if (selectedRows.length > 0) {
             imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
         } else {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "Nothing to copy");
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Nothing to copy");
         }
     }
 
@@ -482,13 +535,13 @@ public class ImdiTable extends JTable {
         int selectedRow = this.getSelectedRow();
         //ImdiHelper.ImdiTableModel tempImdiTableModel = (ImdiHelper.ImdiTableModel) (targetTable.getModel());
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "No rows have been selected");
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No rows have been selected");
             return;
         }
         Vector foundRows = imdiTableModel.getMatchingRows(selectedRow);
         this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.getSelectionModel().clearSelection();
-        JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "Found " + foundRows.size() + " matching rows");
+        JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Found " + foundRows.size() + " matching rows");
         for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
             for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
                 // TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
