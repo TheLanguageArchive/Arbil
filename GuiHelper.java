@@ -148,7 +148,7 @@ public class GuiHelper {
         //int[] childCountArray = new int[]{0, 0};
         int messageIconIndex = 0;
         if (selectedNodes.size() == 0) {
-            JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", messageIconIndex);
+            JOptionPane.showMessageDialog(linorgWindowManager.linorgFrame, "No nodes are selected", "Search", messageIconIndex);
             return;
         } else {
             ThreadedDialog threadedDialog = new ThreadedDialog(targetComponent);
