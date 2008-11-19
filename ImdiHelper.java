@@ -16,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -328,8 +329,26 @@ public class ImdiHelper {
 //            }
 //            return valueFound;
 //        }
+        
+        // used to populate the child list in the show child popup in the table
         public Enumeration getChildEnum() {
             return childrenHashtable.elements();
+        }
+        
+        // used to populate the child nodes in the table cell
+        public Collection getChildCollection() {
+            return childrenHashtable.values();
+        }
+
+        // used to populate the child nodes in the table cell
+        public Object[] getChildNodesArray(String childType) {
+            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
+                ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
+                if (currentNode.toString().equals(childType)) {
+                    return currentNode.getChildCollection().toArray();
+                }
+            }
+            return null;
         }
 
         public Vector addChildNode(ImdiTreeObject nodeToAdd) {
@@ -521,6 +540,10 @@ public class ImdiHelper {
 //       ---      TODO: here we could look through all the fields in this node against the current filed view, if node are showing then return false 
 //       ---      when the global field view is changed then set all nodeEnabled blaaaa
             return nodeEnabled;
+        }
+        
+        public boolean canHaveChildren(){
+            return childrenHashtable.size() > 0;
         }
 
         public int[] getChildCount() {
