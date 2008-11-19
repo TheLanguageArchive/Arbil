@@ -32,7 +32,7 @@ public class LinorgSessionStorage {
             }
         }
         System.out.println("storageDirectory: " + storageDirectory);
-
+        System.out.println("cacheDirExists: " + cacheDirExists());
 //        ObjectToSerialize o = new ObjectToSerialize("Object", 42);
 //        System.out.println(o);
 //        try {
