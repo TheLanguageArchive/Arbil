@@ -29,12 +29,13 @@ public class ImdiTableModel extends AbstractTableModel {
     private boolean showIcons = false;
     private Hashtable imdiObjectHash = new Hashtable();
     private Hashtable allColumnNames = new Hashtable();
+    Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
     private int[] maxColumnWidths;
     int sortColumn = 0;
     boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
-    Color currentHighlightColur = new Color(0xFFFFFF);
+    Vector highlightCells = new Vector();
 
     public ImdiTableModel() {
         tableFieldView = GuiHelper.imdiFieldViews.getCurrentGlobalView().clone();
@@ -74,7 +75,6 @@ public class ImdiTableModel extends AbstractTableModel {
         return listModel;
     }
     // end code related to the list display of resources and loose files
-
     public void setCurrentView(LinorgFieldView localFieldView) {
         LinorgFieldView tempFieldView = localFieldView.clone();
         for (Enumeration oldKnowenColoumns = tableFieldView.getKnownColumns(); oldKnowenColoumns.hasMoreElements();) {
@@ -250,21 +250,42 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void clearCellColours() {
-//        for (int rowCounter = 0; rowCounter < cellColour.length; rowCounter++) {
-//            for (int colCounter = 0; colCounter < cellColour[rowCounter].length; colCounter++) {
-        for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
-            for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
+        highlightCells.clear();
+        for (int rowCounter = 0; rowCounter < cellColour.length; rowCounter++) {
+            for (int colCounter = 0; colCounter < cellColour[rowCounter].length; colCounter++) {
                 cellColour[rowCounter][colCounter] = new Color(0xFFFFFF);
             }
         }
-        currentHighlightColur = new Color(0xFFFFFF);
         fireTableDataChanged();
     }
 
-    private void allocateCellData(int rows, int cols) {
-        data = new Object[rows][cols];
-        cellColour = new Color[rows][cols];
-        clearCellColours();
+    private Color[][] setCellColours(Object[][] dataTemp) {
+        Color[][] cellColourTemp;
+        if (dataTemp.length == 0) {
+            cellColourTemp = new Color[0][0];
+        } else {
+            cellColourTemp = new Color[dataTemp.length][dataTemp[0].length];
+            Color currentHighlightColur = new Color(0xFFFFFF);
+            for (Enumeration currentHighlight = highlightCells.elements(); currentHighlight.hasMoreElements();) {
+                // rotate the next colour
+                currentHighlightColur = new Color(currentHighlightColur.getGreen() - 40, currentHighlightColur.getRed(), currentHighlightColur.getBlue());
+                String currentText = currentHighlight.nextElement().toString();
+                // search the table for matching cells
+                for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
+                    for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
+                        if (dataTemp[rowCounter][colCounter].toString().equals(currentText)) {
+                            cellColourTemp[rowCounter][colCounter] = currentHighlightColur;
+                        }
+                    }
+                }
+            }
+        }
+        return cellColourTemp;
+    }
+
+    private Object[][] allocateCellData(int rows, int cols) {
+        Object[][] dataTemp = new Object[rows][cols];
+        return dataTemp;
     }
 
     public class TableRowComparator implements Comparator {
@@ -295,12 +316,17 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
-    private void sortTableRows() {
+    private void sortTableRows(String[] columnNamesTemp, Object[][] dataTemp) {
         System.out.println("sortTableRows");
-        Arrays.sort(data, new TableRowComparator(sortColumn, sortReverse));
+        if (sortColumn < columnNamesTemp.length) {
+            Arrays.sort(dataTemp, new TableRowComparator(sortColumn, sortReverse));
+        }
     }
 
     public void reloadTableData() {
+        String[] columnNamesTemp = new String[0];
+        Object[][] dataTemp = new Object[0][0];
+
         if (imdiObjectHash.size() > 1) {
             // display the grid view
 
@@ -324,19 +350,25 @@ public class ImdiTableModel extends AbstractTableModel {
             }
 
             // create and populate the column names array and prepend the icon and append the imdinode
-            columnNames = new String[displayedColumnNames.size() + firstFreeColumn];
+            columnNamesTemp = new String[displayedColumnNames.size() + firstFreeColumn + childColumnNames.size()];
             int columnPopulateCounter = firstFreeColumn;
-            columnNames[0] = " "; // make sure the the icon column is shown its string is not null
+            columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
             for (Enumeration currentColumnEnum = displayedColumnNames.elements(); currentColumnEnum.hasMoreElements();) {
                 System.out.println("columnPopulateCounter: " + columnPopulateCounter);
-                columnNames[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
+                columnNamesTemp[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
                 columnPopulateCounter++;
             }
+            // populate the child node columns
+            for (Enumeration childColEnum = childColumnNames.elements(); childColEnum.hasMoreElements();) {
+                columnNamesTemp[columnPopulateCounter] = childColEnum.nextElement().toString();
+                columnPopulateCounter++;
+            }
+
             // end create the column names array and prepend the icon and append the imdinode
 
-            maxColumnWidths = new int[columnNames.length];
+            maxColumnWidths = new int[columnNamesTemp.length];
 
-            allocateCellData(imdiObjectHash.size(), columnNames.length);
+            dataTemp = allocateCellData(imdiObjectHash.size(), columnNamesTemp.length);
 
             Enumeration imdiRowsEnum = imdiObjectHash.elements();
             int rowCounter = 0;
@@ -346,20 +378,28 @@ public class ImdiTableModel extends AbstractTableModel {
                 Hashtable fieldsHash = currentNode.getFields();
                 if (showIcons) {
                     //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
-                    data[rowCounter][0] = currentNode;
+                    dataTemp[rowCounter][0] = currentNode;
                     maxColumnWidths[0] = currentNode.toString().length();
                 }
-                for (int columnCounter = firstFreeColumn; columnCounter < columnNames.length; columnCounter++) {
+                for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
-                    Object currentValue = fieldsHash.get(columnNames[columnCounter]);
-                    if (currentValue != null) {
-                        data[rowCounter][columnCounter] = currentValue;
+                    if (columnCounter < columnNamesTemp.length - childColumnNames.size()) {
+                        Object currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
+                        if (currentValue != null) {
+                            dataTemp[rowCounter][columnCounter] = currentValue;
+                        } else {
+                            dataTemp[rowCounter][columnCounter] = "";
+                        }
                     } else {
-                        data[rowCounter][columnCounter] = "";
+                        dataTemp[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
+                        // prevent null values
+                        if (dataTemp[rowCounter][columnCounter] == null) {
+                            dataTemp[rowCounter][columnCounter] = "";
+                        }
                     }
 
                     //record the column string lengths 
-                    int currentLength = (data[rowCounter][columnCounter].toString()).length();
+                    int currentLength = (dataTemp[rowCounter][columnCounter].toString()).length();
                     if (maxColumnWidths[columnCounter] < currentLength) {
                         maxColumnWidths[columnCounter] = currentLength;
                     }
@@ -376,27 +416,27 @@ public class ImdiTableModel extends AbstractTableModel {
         } else {
             // display the single node view
             maxColumnWidths = new int[2];
-            columnNames = new String[]{"Name", "Value"};
+            columnNamesTemp = new String[]{"Name", "Value"};
             if (imdiObjectHash.size() == 0) {
-                allocateCellData(0, 2);
+                dataTemp = allocateCellData(0, 2);
             } else {
                 Enumeration imdiRowsEnum = imdiObjectHash.elements();
                 if (imdiRowsEnum.hasMoreElements()) {
                     Hashtable fieldsHash = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getFields();
-                    allocateCellData(fieldsHash.size(), 2);
+                    dataTemp = allocateCellData(fieldsHash.size(), 2);
                     Enumeration labelsEnum = fieldsHash.keys();
                     Enumeration valuesEnum = fieldsHash.elements();
                     int rowCounter = 0;
                     while (labelsEnum.hasMoreElements() && valuesEnum.hasMoreElements()) {
-                        data[rowCounter][0] = labelsEnum.nextElement();
-                        data[rowCounter][1] = valuesEnum.nextElement();
+                        dataTemp[rowCounter][0] = labelsEnum.nextElement();
+                        dataTemp[rowCounter][1] = valuesEnum.nextElement();
 
                         //record the column string lengths 
-                        int currentLength = (data[rowCounter][0].toString()).length();
+                        int currentLength = (dataTemp[rowCounter][0].toString()).length();
                         if (maxColumnWidths[0] < currentLength) {
                             maxColumnWidths[0] = currentLength;
                         }
-                        currentLength = (data[rowCounter][1].toString()).length();
+                        currentLength = (dataTemp[rowCounter][1].toString()).length();
                         if (maxColumnWidths[1] < currentLength) {
                             maxColumnWidths[1] = currentLength;
                         }
@@ -407,7 +447,10 @@ public class ImdiTableModel extends AbstractTableModel {
         }
         // update the table model, note that this could be more specific, ie. just row or all it the columns have changed
         //fireTableDataChanged();
-        sortTableRows();
+        sortTableRows(columnNamesTemp, dataTemp);
+        cellColour = setCellColours(dataTemp);
+        columnNames = columnNamesTemp;
+        data = dataTemp;
         fireTableStructureChanged();
     }
     private String[] columnNames = new String[0];
@@ -431,7 +474,11 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
-        return data[row][col];
+        if (row > -1 && col > -1) {
+            return data[row][col];
+        } else {
+            return null;
+        }
     }
 
     public Color getCellColour(int row, int col) {
@@ -452,6 +499,12 @@ public class ImdiTableModel extends AbstractTableModel {
         }
         System.out.println("Cell is ImdiField: " + returnValue);
 //        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
+        if (returnValue == false) {
+            if (data[row][col] instanceof Object[]) {
+                System.out.println("Cell is a list of child nodes");
+                returnValue = true;
+            }
+        }
         return (returnValue);
     }
 
@@ -462,8 +515,12 @@ public class ImdiTableModel extends AbstractTableModel {
             if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrl(), currentField.xmlPath, currentField.getFieldValue(), value.toString())) {
                 currentField.setFieldValue(value.toString());
             }
+            fireTableCellUpdated(row, col);
+        } else if (data[row][col] instanceof Object[]) {
+            System.out.println("cell is a child list so do not edit");
         } else {
             data[row][col] = value;
+            fireTableCellUpdated(row, col);
         }
         fireTableCellUpdated(row, col);
     }
@@ -487,7 +544,9 @@ public class ImdiTableModel extends AbstractTableModel {
         System.out.println("hideColumn: " + columnIndex);
         // TODO: hide column
         System.out.println("hideColumn: " + getColumnName(columnIndex));
-        tableFieldView.addHiddenColumn(getColumnName(columnIndex));
+        if (!childColumnNames.remove(getColumnName(columnIndex))) {
+            tableFieldView.addHiddenColumn(getColumnName(columnIndex));
+        }
         reloadTableData();
     }
 
@@ -501,7 +560,8 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void addChildTypeToDisplay(String childType) {
         System.out.println("addChildTypeToDisplay: " + childType);
-    // TODO: add child type as column
+        childColumnNames.add(childType);
+        reloadTableData();
     }
 
     public Object[] getChildNames() {
@@ -535,25 +595,8 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void highlightMatchingCells(int row, int col) {
-        //clearColours();
-        // if the col or row provided here is invalid then we want to know about it so don't try to prevent such an error
-//        if (row == -1 || col == -1) {
-//            return;
-//        }
-
-        // rotate the next colour
-        currentHighlightColur = new Color(currentHighlightColur.getGreen() - 40, currentHighlightColur.getRed(), currentHighlightColur.getBlue());
-
-        System.out.println("highlightMatchingCells for row: " + row + " col: " + col);
-        for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
-            for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
-                if (data[row][col].toString().equals(data[rowCounter][colCounter].toString())) {
-                    cellColour[rowCounter][colCounter] = currentHighlightColur;
-
-                //currentHighlightColur = new Color(0xFFFFFF);
-                }
-            }
-        }
+        highlightCells.add(data[row][col].toString());
+        cellColour = setCellColours(data);
         fireTableDataChanged();
     }
 
