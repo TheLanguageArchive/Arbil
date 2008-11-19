@@ -4,11 +4,15 @@
  */
 package mpi.linorg;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Enumeration;
@@ -16,6 +20,7 @@ import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -37,20 +42,24 @@ public class LinorgWindowManager {
 
     Hashtable windowList = new Hashtable();
     JMenu windowMenu;
-    public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
+    private JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
+    public JFrame linorgFrame;
     int nextWindowX = 0;
     int nextWindowY = 0;
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
 
-    public void setComponents(JMenu jMenu, JDesktopPane jDesktopPane) {
+    public void setComponents(JMenu jMenu, JFrame linorgFrameLocal, JDesktopPane jDesktopPane) {
         windowMenu = jMenu;
+        linorgFrame = linorgFrameLocal;
         desktopPane = jDesktopPane;
+        //linorgFrame.getLayeredPane().add(desktopPane);
 
         // open the introduction page
         // always get this page from the server if available, but also save it for off line use
         URL url = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
         openUrlWindow("Introduction", url.toString());
+        startKeyListener();
     }
 
     private String addWindowToList(String windowName, JInternalFrame windowFrame) {
@@ -95,6 +104,70 @@ public class LinorgWindowManager {
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    private void startKeyListener() {
+
+//        desktopPane.addKeyListener(new KeyAdapter() {
+//
+//            @Override
+//            public void keyPressed(KeyEvent e) {
+//                System.out.println("keyPressed");
+//                if (e.VK_W == e.getKeyCode()){
+//                    System.out.println("VK_W");
+//                }
+//                super.keyPressed(e);
+//            }
+//        
+//        });
+
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+
+            public void eventDispatched(AWTEvent e) {
+                System.out.println("keyPressed");
+                if (e instanceof KeyEvent) {
+                    System.out.println("is KeyEvent");
+                    if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
+                        System.out.println("VK_W");
+                        if (((KeyEvent) e).isControlDown()) {
+                            System.out.println("ControlDown");
+                            JInternalFrame focusedWindow = desktopPane.getSelectedFrame();
+                            if (focusedWindow != null) {
+                                String windowName = focusedWindow.getName();
+                                Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+                                windowMenu.remove(windowAndMenu[1]);
+                                windowList.remove(windowName);
+                                desktopPane.remove(focusedWindow);
+                                try {
+                                    JInternalFrame topMostWindow = desktopPane.getAllFrames()[0];
+                                    if (topMostWindow != null) {
+                                        System.out.println("topMostWindow: " + topMostWindow);
+                                        topMostWindow.setSelected(true);
+                                    }
+                                } catch (Exception ex) {
+                                    System.out.println(ex.getMessage());
+                                }
+                                desktopPane.repaint();
+                            }
+                        }
+                    }
+                    if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown()) {
+                        try {
+                            JInternalFrame[] allWindows = desktopPane.getAllFrames();
+                            int targetLayerInt;
+                            if (((KeyEvent) e).isShiftDown()) {
+                                targetLayerInt = 1;
+                            } else {
+                                targetLayerInt = allWindows.length - 1;
+                            }
+                            allWindows[targetLayerInt].setSelected(true);
+                        } catch (Exception ex) {
+                            System.out.println(ex.getMessage());
+                        }
+                    }
+                }
+            }
+        }, AWTEvent.KEY_EVENT_MASK);
     }
 
     public void createWindow(String windowTitle, Component contentsComponent) {
