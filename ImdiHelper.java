@@ -541,9 +541,14 @@ public class ImdiHelper {
 //       ---      when the global field view is changed then set all nodeEnabled blaaaa
             return nodeEnabled;
         }
-        
-        public boolean canHaveChildren(){
-            return childrenHashtable.size() > 0;
+
+        public boolean canHaveChildren() {
+            boolean returnValue = false;
+            if (imdiLinkArray != null) {
+                returnValue = imdiLinkArray.length > 0;
+            }
+            returnValue = returnValue || childrenHashtable.size() > 0;
+            return returnValue;
         }
 
         public int[] getChildCount() {
