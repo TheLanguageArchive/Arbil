@@ -98,7 +98,6 @@ public class TreeHelper {
         if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi")) {
             addedCount++;
         }
-
         return addedCount;
     }
 
@@ -220,8 +219,8 @@ public class TreeHelper {
 
     public void showLocationsDialog() {
         // TODO: it would be preferable to move all dialog creation and management into the linorgwindowmanager
-        JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane));
-        settingsjDialog.setLocationRelativeTo(GuiHelper.linorgWindowManager.desktopPane);
+        JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame));
+        settingsjDialog.setLocationRelativeTo(GuiHelper.linorgWindowManager.linorgFrame);
         JTable locationSettingsTable = new JTable(getLocationsTableModel()) {
 
             public TableCellRenderer getCellRenderer(int row, int column) {
@@ -298,7 +297,7 @@ public class TreeHelper {
                     removeChildNodes(itemNode);
                     for (int childCount = 0; childCount < childNodes.length; childCount++) {
                         DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
-                        treeNode.setAllowsChildren(childNodes[childCount].isImdi() || childNodes[childCount].isDirectory());
+                        treeNode.setAllowsChildren(childNodes[childCount].canHaveChildren() || childNodes[childCount].isDirectory());
                         childNodes[childCount].registerContainer(treeNode);
                         itemNode.add(treeNode);
                     }

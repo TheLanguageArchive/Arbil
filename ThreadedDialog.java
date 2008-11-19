@@ -57,7 +57,7 @@ public class ThreadedDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Search");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "No relevant nodes are selected", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
             return;
         }
         if (searchString != null) {
@@ -71,7 +71,7 @@ public class ThreadedDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Copy Brach");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "No relevant nodes are selected", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
             return;
         }
         //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
@@ -83,7 +83,7 @@ public class ThreadedDialog {
             performCopy();
             searchDialog.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "Could not create the local directory", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
         }
     }
 
@@ -98,7 +98,7 @@ public class ThreadedDialog {
     }
 
     public ThreadedDialog(Component targetComponent) {
-        searchDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.desktopPane), true);
+        searchDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {
 
@@ -305,7 +305,7 @@ public class ThreadedDialog {
                                 if (!GuiHelper.treeHelper.addLocation("file://" + newNodeLocation)) {
                                     // alert the user when the node already exists and cannot be added again
                                     progressBar.setIndeterminate(false);
-                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.desktopPane, "The location already exists and cannot be added again", searchDialog.getTitle(), 0);
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "The location already exists and cannot be added again", searchDialog.getTitle(), 0);
                                 }
                             }
                         }
