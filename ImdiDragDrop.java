@@ -22,7 +22,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class ImdiDragDrop {
 
     public DataFlavor imdiObjectFlavour = new DataFlavor(ImdiHelper.ImdiTreeObject.class, "ImdiTreeObject");
-    private ImdiObjectSelection imdiObjectSelection = new ImdiObjectSelection();
+    public ImdiObjectSelection imdiObjectSelection = new ImdiObjectSelection();
 
     public void addDrag(JTable tableSource) {
         tableSource.setDragEnabled(true);
@@ -83,7 +83,7 @@ public class ImdiDragDrop {
 ////        });
 //    }
 //
-    class ImdiObjectSelection extends TransferHandler implements Transferable {
+    public class ImdiObjectSelection extends TransferHandler implements Transferable {
 
         DataFlavor flavors[] = {imdiObjectFlavour};
         ImdiHelper.ImdiTreeObject[] draggedImdiObjects;
