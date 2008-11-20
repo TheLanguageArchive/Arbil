@@ -14,8 +14,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
+import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
@@ -428,13 +430,7 @@ public class ImdiTable extends JTable {
                 return new DefaultCellEditor(new JTextField());
             }
         } else if (cellField instanceof Object[]) {
-            Object[] childArray = (Object[]) cellField;
-            JComboBox comboBox = new JComboBox();
-            for (int childCounter = 0; childCounter < childArray.length; childCounter++) {
-//                comboBox.addItem(new JLabel(((ImdiHelper.ImdiTreeObject) childImdiObject).toString(), ((ImdiHelper.ImdiTreeObject) childImdiObject).getIcon(), JLabel.CENTER));
-                comboBox.addItem(((ImdiHelper.ImdiTreeObject) childArray[childCounter]));
-            }
-            return new DefaultCellEditor(comboBox);
+            return new imdiChildEditor();
         }
         return super.getCellEditor(row, modelcolumn);
     }
@@ -627,4 +623,38 @@ public class ImdiTable extends JTable {
         }
     }
     //jTable1.setAutoCreateRowSorter(true);
+    class imdiChildEditor extends AbstractCellEditor implements TableCellEditor {
+
+        JLabel button;
+        Object cellValue;
+        String columnName;
+        Object rowImdi;
+
+        public imdiChildEditor() {
+            button = new JLabel("...");
+            button.addMouseListener(new java.awt.event.MouseAdapter() {
+
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    if (evt.getClickCount() > 1) {
+                        GuiHelper.linorgWindowManager.openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
+                    }
+                }
+            });
+        }
+
+        public Object getCellEditorValue() {
+            return cellValue;
+        }
+
+        public Component getTableCellEditorComponent(JTable table,
+                Object value,
+                boolean isSelected,
+                int row,
+                int column) {
+            columnName = getColumnName(column);
+            rowImdi = getValueAt(row, 0);
+            cellValue = value;
+            return button;
+        }
+    }
 }

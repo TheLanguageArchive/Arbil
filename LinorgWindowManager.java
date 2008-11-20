@@ -124,31 +124,32 @@ public class LinorgWindowManager {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 
             public void eventDispatched(AWTEvent e) {
-                System.out.println("keyPressed");
+//                System.out.println("keyPressed: "+e.paramString());
                 if (e instanceof KeyEvent) {
-                    System.out.println("is KeyEvent");
-                    if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
-                        System.out.println("VK_W");
-                        if (((KeyEvent) e).isControlDown()) {
-                            System.out.println("ControlDown");
-                            JInternalFrame focusedWindow = desktopPane.getSelectedFrame();
-                            if (focusedWindow != null) {
-                                String windowName = focusedWindow.getName();
-                                Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+//                    System.out.println("ControlDown");
+//                    System.out.println("is KeyEvent");
+//                    System.out.println("KeyEvent.getID: " + ((KeyEvent) e).getID());
+                    if (((KeyEvent) e).isControlDown() && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
+//                        System.out.println("VK_W");
+                        JInternalFrame focusedWindow = desktopPane.getSelectedFrame();
+                        if (focusedWindow != null) {
+                            String windowName = focusedWindow.getName();
+                            Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+                            if (windowAndMenu != null) {
                                 windowMenu.remove(windowAndMenu[1]);
-                                windowList.remove(windowName);
-                                desktopPane.remove(focusedWindow);
-                                try {
-                                    JInternalFrame topMostWindow = desktopPane.getAllFrames()[0];
-                                    if (topMostWindow != null) {
-                                        System.out.println("topMostWindow: " + topMostWindow);
-                                        topMostWindow.setSelected(true);
-                                    }
-                                } catch (Exception ex) {
-                                    System.out.println(ex.getMessage());
-                                }
-                                desktopPane.repaint();
                             }
+                            windowList.remove(windowName);
+                            desktopPane.remove(focusedWindow);
+                            try {
+                                JInternalFrame topMostWindow = desktopPane.getAllFrames()[0];
+                                if (topMostWindow != null) {
+                                    System.out.println("topMostWindow: " + topMostWindow);
+                                    topMostWindow.setSelected(true);
+                                }
+                            } catch (Exception ex) {
+                                System.out.println(ex.getMessage());
+                            }
+                            desktopPane.repaint();
                         }
                     }
                     if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown()) {
