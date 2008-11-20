@@ -7,6 +7,7 @@ package mpi.linorg;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
 import java.util.Vector;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
@@ -22,14 +24,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -45,7 +51,8 @@ import javax.swing.table.TableModel;
  */
 public class ImdiTable extends JTable {
 
-    private ImdiTableModel imdiTableModel;
+    private ImdiTableModel imdiTableModel;    
+    JListToolTip listToolTip = new JListToolTip();
 
     public ImdiTable(ImdiTableModel localImdiTableModel, Enumeration rowNodesEnum, String frameTitle) {
         imdiTableModel = localImdiTableModel;
@@ -333,6 +340,73 @@ public class ImdiTable extends JTable {
         });
     }
 
+    public JToolTip createToolTip() {
+        System.out.println("createToolTip");
+        listToolTip.updateList();
+        return listToolTip;
+    }
+
+    class JListToolTip extends JToolTip {
+
+        JPanel jPanel;
+        Object targetObject;
+
+        public JListToolTip() {
+            this.setLayout(new BorderLayout());
+            jPanel = new JPanel();
+            jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
+            add(jPanel, BorderLayout.CENTER);
+            jPanel.setBackground(getBackground());
+            jPanel.setBorder(getBorder());
+        }
+
+        private void addIconLabel(Object tempObject) {
+            JLabel jLabel = new JLabel(tempObject.toString());
+            if (tempObject instanceof ImdiHelper.ImdiTreeObject) {
+                jLabel.setIcon(((ImdiHelper.ImdiTreeObject) tempObject).getIcon());
+            }
+            jLabel.doLayout();
+            jPanel.add(jLabel);
+        }
+
+        public void updateList() {
+            System.out.println("updateList: " + targetObject);
+            jPanel.removeAll();
+            if (targetObject != null) {
+                if (targetObject instanceof Object[]) {
+                    for (int childCounter = 0; childCounter < ((Object[]) targetObject).length; childCounter++) {
+                        addIconLabel(((Object[]) targetObject)[childCounter]);
+                    }
+                } else if (targetObject instanceof ImdiHelper.ImdiTreeObject) {
+                    addIconLabel(targetObject);
+                } else {
+                    //JTextField
+                    JTextArea jTextArea = new JTextArea();
+                    jTextArea.setText(targetObject.toString());
+                    jTextArea.setBackground(getBackground());
+//                    jTextArea.setLineWrap(true);                    
+//                    jTextArea.setColumns(100);
+                    jTextArea.doLayout();
+                    jPanel.add(jTextArea);
+                }
+                jPanel.doLayout();
+                doLayout();
+            }
+        }
+
+        public String getTipText() {
+            // return a zero length string to prevent the tooltip text overlaying the custom tip component
+            return "";
+        }
+
+        public Dimension getPreferredSize() {
+            return jPanel.getPreferredSize();
+        }
+
+        public void setTartgetObject(Object targetObjectLocal) {
+            targetObject = targetObjectLocal;
+        }
+    }
     @Override
     public TableCellEditor getCellEditor(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
@@ -494,6 +568,9 @@ public class ImdiTable extends JTable {
         int realColumnIndex = convertColumnIndexToModel(colIndex);
         if (rowIndex >= 0 && colIndex >= 0) {
             tip = getValueAt(rowIndex, colIndex).toString();
+            listToolTip.setTartgetObject(getValueAt(rowIndex, colIndex));
+        } else {
+            listToolTip.setTartgetObject(null);
         }
         return tip;
     }
