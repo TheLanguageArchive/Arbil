@@ -10,11 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import java.net.MalformedURLException;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -200,8 +195,10 @@ public class ImdiHelper {
             }
         }
 
-        public void loadImdiDom(boolean useCache) {
+        public String loadImdiDom(boolean useCache) {
             Document nodDom;
+            // cacheLocation will be null if useCache = false hence no file has been saved
+            String cacheLocation = null;
             try {
                 // TODO: check that the imdi is not already in the cache and check that the url is not pointing to a cache file
                 OurURL inUrlLocal = null;
@@ -226,7 +223,7 @@ public class ImdiHelper {
                 imdiLinkArray = getImdiLinks(nodDom);
                 // save this to the cache before deleting the dom
                 if (useCache) {
-                    saveNodeToCache(nodDom);
+                    cacheLocation = saveNodeToCache(nodDom);
                 }
             } catch (MalformedURLException mue) {
                 System.out.println("Invalid input URL: " + mue);
@@ -234,6 +231,7 @@ public class ImdiHelper {
             }
             //we are now done with the dom so free the memory
             nodDom = null;
+            return cacheLocation;
         }
 
 //        private String getField(String fieldName) {
@@ -592,32 +590,6 @@ public class ImdiHelper {
             }
             debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
         }
-
-        public String getSaveLocation() {
-            if (this.isImdi() && !this.isImdiChild()) {
-                //this file name must be set from the imdi url by removing the servername but keeping the path  and appending it to the destination directory
-                String fileName = this.getUrl();
-//                if (fileName.toLowerCase().startsWith("http://")) {
-//                    fileName = fileName.substring("http://".length());
-//                } else {
-//                    // there may be ftp or other archive types that need different methods
-//                    throw new UnsupportedOperationException("Not supported yet.");
-//                }
-                return getSaveLocation(fileName);
-            }
-            return null;
-        }
-
-        // converts a String path to the cache path
-        public String getSaveLocation(String pathString) {
-            String cachePath = GuiHelper.linorgSessionStorage.destinationDirectory + pathString.replace("://", "/");
-            File tempFile = new File(cachePath);
-            if (!tempFile.getParentFile().exists()) {
-                tempFile.getParentFile().mkdirs();
-            }
-            return cachePath;
-        }
-
         // this function returns the URL path to a remote resource
         public String getFullResourcePath() {
             String targetUrlString = resourceUrlString;
@@ -628,57 +600,17 @@ public class ImdiHelper {
             return targetUrlString;
         }
 
-        private void saveRemoteResource() {
-            String targetUrlString = getFullResourcePath();
-            System.out.println("saveRemoteResource: " + targetUrlString);
-            String destinationPath = getSaveLocation(targetUrlString);
-            File tempFile = new File(destinationPath);
-            if (tempFile.exists()) {
-                System.out.println("this resource is already in the cache");
-            } else {
-                try {
-                    URL u = new URL(targetUrlString);
-                    URLConnection yc = u.openConnection();
-                    HttpURLConnection h = (HttpURLConnection) yc;
-                    //h.setFollowRedirects(false);
-
-                    System.out.println("Code: " + h.getResponseCode() + ", Message: " + h.getResponseMessage());
-                    if (h.getResponseCode() != 200) {
-                        System.out.println("non 200 response, skipping file");
-                    } else {
-                        int bufferLength = 1024 * 4;
-                        FileOutputStream fout = new FileOutputStream(destinationPath); //targetUrlString
-                        System.out.println("getting file");
-                        InputStream stream = yc.getInputStream();
-                        byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
-                        int bytesread = 0;
-                        int totalRead = 0;
-                        while (bytesread >= 0) {
-                            bytesread = stream.read(buffer);
-                            totalRead += bytesread;
-//                        System.out.println("bytesread: " + bytesread);
-//                        System.out.println("Mbs totalRead: " + totalRead / 1048576);
-                            if (bytesread == -1) {
-                                break;
-                            }
-                            fout.write(buffer, 0, bytesread);
-                        }
-                        System.out.println("Downloaded: " + totalRead / 1048576 + " Mbs");
-                    }
-                } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-        }
         // before this is called it is recomended to confirm that the destinationDirectory path already exist and is correct, otherwise unintended directories maybe created
-        public void saveNodeToCache(Document nodDom) {
+        public String saveNodeToCache(Document nodDom) {
+            String cacheLocation = null;
             debugOut("saveBrachToLocal: " + this.toString());
             if (this.isImdi() && !this.isImdiChild()) {
                 if (nodDom != null) {
                     //System.out.println("saveBrachToLocal: " + this.getUrl());
                     //System.out.println("saveBrachToLocal: " + this.nodDom.);
 
-                    String destinationPath = getSaveLocation();
+                    String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
+
                     debugOut("destinationPath: " + destinationPath);
                     File tempFile = new File(destinationPath);
                     // only save the file if it does not exist, otherwise local changes would be lost and it would be pointless anyway
@@ -701,9 +633,11 @@ public class ImdiHelper {
 //                    while (nodesToAddEnumeration.hasMoreElements()) {
 ////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBrachToLocal(destinationDirectory);
 //                    }
+                    cacheLocation = destinationPath;
 
                 }
             }
+            return cacheLocation;
         }
 
         private void addField(ImdiField fieldToAdd, int childLevel, Vector addedImdiNodes, boolean useCache) {
@@ -750,7 +684,7 @@ public class ImdiHelper {
 //                        resourceUrlString = resourceFile.getCanonicalPath();
                     resourceUrlString = fieldToAdd.fieldValue;
                     if (useCache) {
-                        saveRemoteResource();
+                        GuiHelper.linorgSessionStorage.updateCache(getFullResourcePath());
                     }
                     mimeHashQueue.addToQueue(this);
                 }

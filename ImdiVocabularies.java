@@ -71,8 +71,10 @@ public class ImdiVocabularies {
         }
     }
 
-    public void parseRemoteFile(String vocabUrl) {
-        System.out.println("parseRemoteFile: " + vocabUrl);
+    public void parseRemoteFile(String vocabRemoteUrl) {
+        String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl);
+
+        System.out.println("parseRemoteFile: " + cachePath);
         try {
 //            javax.xml.parsers.SAXParserFactory factory = javax.xml.parsers.SAXParserFactory.newInstance();
 //            factory.setValidating(true);
@@ -91,8 +93,8 @@ public class ImdiVocabularies {
             xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
             Vector vocabularyList = new Vector();
             xmlReader.setContentHandler(new saxVocabularyHandler(vocabularyList));
-            xmlReader.parse(vocabUrl);
-            vocabulariesTable.put(vocabUrl, vocabularyList);
+            xmlReader.parse(cachePath);
+            vocabulariesTable.put(vocabRemoteUrl, vocabularyList);
 //            org.xml.sax.XMLReader xmlReader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
 //            saxVocabularyHandler handler = new saxVocabularyHandler();
 //            xmlReader.setContentHandler(handler);

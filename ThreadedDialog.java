@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -284,8 +283,7 @@ public class ThreadedDialog {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
                             // TODO: newNodeLocation is not used to good effect, it would be better to truely verify that the branch has been saved to the cache
-                            String newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).getSaveLocation();
-                            ((ImdiHelper.ImdiTreeObject) currentElement).loadImdiDom(saveToCache); // save the first node which will not be saved by loadSomeChildren
+                            String newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).loadImdiDom(saveToCache); // save the first node which will not be saved by loadSomeChildren
                             if (newNodeLocation != null) {
 //                                if (!new File(newNodeLocation).exists()) {// this would allow incomplete copies to be added
                                     totalLoaded += loadSomeChildren(currentElement, totalLoaded, saveToCache);
