@@ -62,25 +62,25 @@ public class GuiHelper {
 
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
-        
-            System.out.println("initAddMenu: " + targetNodeUserObject);
-            for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
-                String currentMenuName = menuItemName.nextElement().toString();
-                javax.swing.JMenuItem addMenuItem;
-                addMenuItem = new javax.swing.JMenuItem();
-                addMenuItem.setText(currentMenuName);
-                addMenuItem.setName(currentMenuName);
-                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        DefaultMutableTreeNode targetNode = treeHelper.getLeadLocalCorpusTreeSelection();
-                        treeHelper.getImdiChildNodes(targetNode);
-                        treeHelper.addImdiChildNode(targetNode, ((Component)evt.getSource()).getName());
-                        treeHelper.reloadLocalCorpusTree();
-                    }
-                });
-                addMenu.add(addMenuItem);
-            }
+        System.out.println("initAddMenu: " + targetNodeUserObject);
+        for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+            String currentMenuName = menuItemName.nextElement().toString();
+            javax.swing.JMenuItem addMenuItem;
+            addMenuItem = new javax.swing.JMenuItem();
+            addMenuItem.setText(currentMenuName);
+            addMenuItem.setName(currentMenuName);
+            addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
+                    treeHelper.getImdiChildNodes(targetNode);
+                    treeHelper.addImdiChildNode(targetNode, ((Component) evt.getSource()).getName());
+                    treeHelper.reloadLocalCorpusTree();
+                }
+            });
+            addMenu.add(addMenuItem);
+        }
 //            if (addMenu.getComponentCount() == 0){
 //                javax.swing.JMenuItem addMenuItem = new javax.swing.JMenuItem();
 //                String emptyMenuName = "cannot add here";
@@ -113,7 +113,6 @@ public class GuiHelper {
             viewMenu.add(viewLabelRadioButtonMenuItem);
         }
     }
-    
 //// date filter code
 //    public void updateDateSlider(JSlider dateSlider) {
 //        if (imdiHelper.minNodeDate == null) {
@@ -144,7 +143,6 @@ public class GuiHelper {
 //        }
 //    }
 //// end date filter code
-    
     public void searchSelectedNodes(Component targetComponent, Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
         //int[] childCountArray = new int[]{0, 0};
         int messageIconIndex = 0;

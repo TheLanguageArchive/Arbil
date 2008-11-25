@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import java.net.MalformedURLException;
 import java.io.File;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -68,13 +69,13 @@ public class ImdiHelper {
     static Icon tickb = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-b16x16.png"));
     static Icon tickg = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-g16x16.png"));
     static Icon ticky = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-y16x16.png"));
-    static Icon tickbgy = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-bgy16x16.png"));    
+    static Icon tickbgy = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-bgy16x16.png"));
     static Icon exclamb = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-b16x16.png"));
     static Icon exclamg = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-g16x16.png"));
     static Icon exclamy = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-y16x16.png"));
     static Icon exclamr = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-r16x16.png"));
     
-//static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");    
+    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");    
 //    static Icon fileIcon = UIManager.getIcon("FileView.fileIcon");
     //                        UIManager.getIcon("FileView.directoryIcon");
 //                        UIManager.getIcon("FileView.fileIcon");
@@ -880,6 +881,20 @@ public class ImdiHelper {
             } else {
                 return false;
             }
+        }
+
+        public URL getURL() {
+            try {
+                if (urlString.startsWith("http")) {
+                    return new URL(urlString);
+                } else {
+                    return getFile().toURL();
+                }
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+            }
+            return null;
         }
 
         public File getFile() {

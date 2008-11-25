@@ -5,6 +5,7 @@
  */
 package mpi.linorg;
 
+import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -600,19 +601,20 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
-            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
+            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
             addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
-            Object leadSelectedTreeObject = ((DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject();
-            if (leadSelectedTreeObject instanceof ImdiHelper.ImdiTreeObject) {
+            Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
+            if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiHelper.ImdiTreeObject) {
                 if (((ImdiHelper.ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
                     saveMenuItem.setVisible(true);
                 } else if (((ImdiHelper.ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
                     viewChangesMenuItem.setVisible(true);
                     sendToServerMenuItem.setVisible(true);
                 }
+                viewXmlMenuItem.setVisible(true);
+                viewXmlMenuItem1.setVisible(true);
             }
-
             showContextMenu = true; //nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {
@@ -620,8 +622,6 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
         } else {
             copyImdiUrlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            viewXmlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);// this should only show if only one tree has selected nodes or just one node is selected
-            viewXmlMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1 && localCorpusTree.getSelectionCount() > 0); // only show if it is the local corpus tree that has selected nodes
             reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         }
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
@@ -635,6 +635,9 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
 
         // show the context menu
         if (showContextMenu) {
+            if (evt.getSource() instanceof Component) {
+                treePopupMenu.setInvoker((Component) evt.getSource());
+            }
             treePopupMenu.show((java.awt.Component) evt.getSource(), evt.getX(), evt.getY());
         }
     }
@@ -672,23 +675,23 @@ private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent
 
 private void viewXmlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlMenuItemActionPerformed
 // TODO add your handling code here:
-    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(), false);
+    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()), false);
 }//GEN-LAST:event_viewXmlMenuItemActionPerformed
 
 private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
 // TODO add your handling code here:
     DefaultMutableTreeNode selectedTreeNode = null;
-    if (remoteCorpusTree.getLeadSelectionPath() == null) {
-        if (localDirectoryTree.getLeadSelectionPath() != null) {
+    if (remoteCorpusTree.getSelectionPath() == null) {
+        if (localDirectoryTree.getSelectionPath() != null) {
             System.out.println("copying local directory location");
-            selectedTreeNode = (DefaultMutableTreeNode) localDirectoryTree.getLeadSelectionPath().getLastPathComponent();
+            selectedTreeNode = (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent();
         }
     } else {
         System.out.println("copying remote url");
-        selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getLeadSelectionPath().getLastPathComponent();
+        selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent();
     }
     if (selectedTreeNode == null) {
-        if (localCorpusTree.getLeadSelectionPath() != null) {
+        if (localCorpusTree.getSelectionPath() != null) {
             JOptionPane.showMessageDialog(this, "Cannot copy from the cache", "", 0);
         } else {
             JOptionPane.showMessageDialog(this, "No node selected", "", 0);
@@ -719,8 +722,8 @@ private void addDefaultLocationsMenuItemActionPerformed(java.awt.event.ActionEve
 private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeRemoteCorpusMenuItemActionPerformed
 // TODO add your handling code here:
     DefaultMutableTreeNode selectedTreeNode = null;
-    if (remoteCorpusTree.getLeadSelectionPath() != null) {
-        selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getLeadSelectionPath().getLastPathComponent();
+    if (remoteCorpusTree.getSelectionPath() != null) {
+        selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent();
     }
     removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeRemoteCorpusMenuItemActionPerformed
@@ -728,8 +731,8 @@ private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEven
 private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
 // TODO add your handling code here:
     DefaultMutableTreeNode selectedTreeNode = null;
-    if (localCorpusTree.getLeadSelectionPath() != null) {
-        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
+    if (localCorpusTree.getSelectionPath() != null) {
+        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
     }
     removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
@@ -737,8 +740,8 @@ private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent 
 private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
 // TODO add your handling code here:
     DefaultMutableTreeNode selectedTreeNode = null;
-    if (localDirectoryTree.getLeadSelectionPath() != null) {
-        selectedTreeNode = (DefaultMutableTreeNode) localDirectoryTree.getLeadSelectionPath().getLastPathComponent();
+    if (localDirectoryTree.getSelectionPath() != null) {
+        selectedTreeNode = (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent();
     }
     removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeLocalDirectoryMenuItemActionPerformed
@@ -753,36 +756,38 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
 // TODO add your handling code here:
     if (showSelectionPreviewCheckBoxMenuItem.getState()) {
         // count the total number of selected nodes across all trees
-        int selectedNodesCount = remoteCorpusTree.getSelectionCount();
-        selectedNodesCount += localCorpusTree.getSelectionCount();
-        selectedNodesCount += localDirectoryTree.getSelectionCount();
-
-        // if there are no nodes selected then clear the grid
-        if (0 == selectedNodesCount) {
-            guiHelper.removeAllFromGridData(previewTable.getModel());
-        } else {
-            Vector nodesToRemove = new Vector();
-            Vector nodesToAdd = new Vector();
-            // Make a list of nodes to be removed and a separate list of nodes to ba added
-            // this may not be the quickest way to do this but it will reduce redraws and make the other calls simpler
-            for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
-                // only preview imdi nodes
-                if (parentNode.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
-                    if (((ImdiHelper.ImdiTreeObject) parentNode.getUserObject()).isImdi()) {
-                        if (evt.isAddedPath(selectedCount)) {
-                            System.out.println("adding: " + parentNode.getPath());
-                            nodesToAdd.add(parentNode.getUserObject());
-                        } else {
-                            System.out.println("removing: " + parentNode.getPath());
-                            nodesToRemove.add(parentNode.getUserObject());
-                        }
-                    }
-                }
-            }
-            guiHelper.removeFromGridData(previewTable.getModel(), nodesToRemove);
-            guiHelper.addToGridData(previewTable.getModel(), nodesToAdd);
-        }
+//        int selectedNodesCount = remoteCorpusTree.getSelectionCount();
+//        selectedNodesCount += localCorpusTree.getSelectionCount();
+//        selectedNodesCount += localDirectoryTree.getSelectionCount();
+//
+//        // if there are no nodes selected then clear the grid
+//        if (0 == selectedNodesCount) {
+//            guiHelper.removeAllFromGridData(previewTable.getModel());
+//        } else {
+//            Vector nodesToRemove = new Vector();
+//            Vector nodesToAdd = new Vector();
+//            // Make a list of nodes to be removed and a separate list of nodes to ba added
+//            // this may not be the quickest way to do this but it will reduce redraws and make the other calls simpler
+//            for (int selectedCount = 0; selectedCount < evt.getPaths().length; selectedCount++) {
+//                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) evt.getPaths()[selectedCount].getLastPathComponent();
+//                // only preview imdi nodes
+//                if (parentNode.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
+//                    if (((ImdiHelper.ImdiTreeObject) parentNode.getUserObject()).isImdi()) {
+//                        if (evt.isAddedPath(selectedCount)) {
+//                            System.out.println("adding: " + parentNode.getPath());
+//                            nodesToAdd.add(parentNode.getUserObject());
+//                        } else {
+//                            System.out.println("removing: " + parentNode.getPath());
+//                            nodesToRemove.add(parentNode.getUserObject());
+//                        }
+//                    }
+//                }
+//            }
+//            guiHelper.removeFromGridData(previewTable.getModel(), nodesToRemove);
+//            guiHelper.addToGridData(previewTable.getModel(), nodesToAdd);  
+//        }
+        guiHelper.removeAllFromGridData(previewTable.getModel());
+        guiHelper.addToGridData(previewTable.getModel(), GuiHelper.treeHelper.getSingleSelectedNode(evt.getSource()));
     }
 }//GEN-LAST:event_jTreeValueChanged
 
@@ -807,7 +812,7 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
             mainSplitPane.setDividerLocation(lastPost);
             // update the preview data grid
             guiHelper.removeAllFromGridData(previewTable.getModel());
-            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
+//            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }
     }
 
@@ -828,14 +833,12 @@ private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 
 private void addMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addMenuMenuSelected
 // TODO add your handling code here:
-    if (localCorpusTree.getLeadSelectionPath() != null) {
-        guiHelper.initAddMenu(addMenu, ((DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent()).getUserObject());
-    }
+    guiHelper.initAddMenu(addMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));
 }//GEN-LAST:event_addMenuMenuSelected
 
 private void viewXmlXslMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlXslMenuItemActionPerformed
 // TODO add your handling code here:
-    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(), true);
+    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()), true);
 }//GEN-LAST:event_viewXmlXslMenuItemActionPerformed
 
 private void treeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMouseDragged
