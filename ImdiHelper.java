@@ -65,7 +65,16 @@ public class ImdiHelper {
     static Icon unknownnodeicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/file.png"));
     static Icon dataicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/data.png"));
     static Icon stopicon = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/stop.png"));
-    //static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");
+    static Icon tickb = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-b16x16.png"));
+    static Icon tickg = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-g16x16.png"));
+    static Icon ticky = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-y16x16.png"));
+    static Icon tickbgy = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/tick-bgy16x16.png"));    
+    static Icon exclamb = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-b16x16.png"));
+    static Icon exclamg = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-g16x16.png"));
+    static Icon exclamy = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-y16x16.png"));
+    static Icon exclamr = new ImageIcon(GuiHelper.linorgSessionStorage.getClass().getResource("/mpi/linorg/resources/icons/exclam-r16x16.png"));
+    
+//static Icon directoryIcon = UIManager.getIcon("FileView.directoryIcon");    
 //    static Icon fileIcon = UIManager.getIcon("FileView.fileIcon");
     //                        UIManager.getIcon("FileView.directoryIcon");
 //                        UIManager.getIcon("FileView.fileIcon");
@@ -161,6 +170,7 @@ public class ImdiHelper {
         int matchesRemote = 0;
         int matchesLocalResource = 0;
         int imdiChildCounter = 0; // used to keep the imdi child nodes unique when they are added
+        boolean imdiNeedsSaveToDisk = false;
         private String nodeText;
         private String urlString;
         private String resourceUrlString;
@@ -327,12 +337,10 @@ public class ImdiHelper {
 //            }
 //            return valueFound;
 //        }
-        
         // used to populate the child list in the show child popup in the table
         public Enumeration getChildEnum() {
             return childrenHashtable.elements();
         }
-        
         // used to populate the child nodes in the table cell
         public Collection getChildCollection() {
             return childrenHashtable.values();
@@ -600,6 +608,58 @@ public class ImdiHelper {
             return targetUrlString;
         }
 
+        public boolean needsChangesSentToServer() {
+            return new File(this.getFile().getPath() + ".0").exists();
+        }
+
+        public void saveChangesToCache() {
+            System.out.println("saveChangesToCache");
+            Document nodDom;
+            OurURL inUrlLocal = null;
+            if (urlString.startsWith("http")) {
+                System.out.println("should not try to save remote files");
+                return;
+            }
+            System.out.println("tempUrlString: " + this.getFile());
+            try {
+                inUrlLocal = new OurURL(this.getFile().toURL());
+                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                if (nodDom == null) {
+                    System.out.println("Could not load IMDI");
+                } else {
+                    //String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
+                    int versionCounter = 0;
+                    while (new File(this.getFile() + "." + versionCounter).exists()) {
+                        versionCounter++;
+                    }
+                    while (versionCounter >= 0) {
+                        File lastFile = new File(this.getFile().getPath() + "." + versionCounter);
+                        versionCounter--;
+                        File nextFile = new File(this.getFile().getPath() + "." + versionCounter);
+                        if (versionCounter >= 0) {
+                            nextFile.renameTo(lastFile);
+                            System.out.println("renaming: " + nextFile + " : " + lastFile);
+                        } else {
+                            this.getFile().renameTo(lastFile);
+                            System.out.println("renaming: " + this.getFile() + " : " + lastFile);
+                        }
+                    }
+                    System.out.println("writeDOM");
+                    // make the required changes to the dom
+                    // TODO: make the changes to the dom before saving
+
+                    // save the dom / imdi file
+                    api.writeDOM(nodDom, this.getFile(), false);
+                    // update the icon to indicate the change
+                    imdiNeedsSaveToDisk = false;
+                    clearIcon();
+                }
+            } catch (MalformedURLException mue) {
+                System.out.println("Invalid input URL: " + mue);
+                nodeText = "Invalid input URL";
+            }
+        }
+
         // before this is called it is recomended to confirm that the destinationDirectory path already exist and is correct, otherwise unintended directories maybe created
         public String saveNodeToCache(Document nodDom) {
             String cacheLocation = null;
@@ -628,7 +688,7 @@ public class ImdiHelper {
                         //getHash(tempFile, this.getUrl());
                         System.out.println("imdi should be saved in cache now");
                     }
-                // no point iterating child nodes which have not been loaded, it is better to do the outside this function
+                    // no point iterating child nodes which have not been loaded, it is better to do the outside this function
 //                    Enumeration nodesToAddEnumeration = childrenHashtable.elements();
 //                    while (nodesToAddEnumeration.hasMoreElements()) {
 ////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBrachToLocal(destinationDirectory);
@@ -872,6 +932,16 @@ public class ImdiHelper {
         }
         // Return the icon
         public Icon getIcon() {
+            if (needsChangesSentToServer()) {
+                icon = exclamy;
+//                icon = tickb;
+//                if (imdiNeedsSaveToDisk) {
+//                    
+//                }
+            }
+            if (imdiNeedsSaveToDisk) {
+                icon = exclamr;
+            }
             if (icon == null) {
                 this.getMimeHashResult();
                 if (mpiMimeType != null) {
@@ -973,6 +1043,7 @@ public class ImdiHelper {
         private boolean hasVocabularyType = false;
         public boolean vocabularyIsOpen;
         public boolean vocabularyIsList;
+        public boolean fieldNeedsSaveToDisk = false;
         private Hashtable fieldAttributes = new Hashtable();
 
         public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
@@ -988,6 +1059,8 @@ public class ImdiHelper {
 
         public void setFieldValue(String fieldValue) {
             this.fieldValue = fieldValue;
+            parentImdi.imdiNeedsSaveToDisk = true;
+            fieldNeedsSaveToDisk = true;
             parentImdi.clearIcon();
         }
 

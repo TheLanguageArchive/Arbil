@@ -10,6 +10,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -229,9 +230,10 @@ public class GuiHelper {
 //        System.out.println("done");
     }
 
-    public void openImdiXmlWindow(Object userObject, boolean formatXml) {                      
+    public void openImdiXmlWindow(Object userObject, boolean formatXml) {
         if (userObject instanceof ImdiHelper.ImdiTreeObject) {
-            String nodeUrl = ((ImdiHelper.ImdiTreeObject) (userObject)).getUrl();
+            File nodeFile = ((ImdiHelper.ImdiTreeObject) (userObject)).getFile();
+            System.out.println("openImdiXmlWindow: " + nodeFile);
             String nodeName = ((ImdiHelper.ImdiTreeObject) (userObject)).toString();
             if (formatXml) {
                 try {
@@ -240,14 +242,19 @@ public class GuiHelper {
                     // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
                     javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(this.getClass().getResource("/mpi/linorg/resources/imdixsl/IMDI_3_0_TO_WEB.xsl").toString()));
                     // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeUrl), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeUrl.replace("file:/", "/") + ".html")));
-                    linorgWindowManager.openUrlWindow(nodeName + "-transformed", nodeUrl + ".html");
+                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeFile.getCanonicalPath() + ".html")));
+                    linorgWindowManager.openUrlWindow(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());
-                    //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+                //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
-                linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+                try {
+                    linorgWindowManager.openUrlWindow(nodeName, nodeFile.toURL());
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
+                }
             }
         }
     }

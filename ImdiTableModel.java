@@ -481,6 +481,15 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
+    public boolean hasValueChanged(int row, int col) {
+        if (row > -1 && col > -1) {
+            if (data[row][col] instanceof ImdiHelper.ImdiField) {
+                return ((ImdiHelper.ImdiField) data[row][col]).fieldNeedsSaveToDisk;
+            }
+        }
+        return false;
+    }
+
     public Color getCellColour(int row, int col) {
         return cellColour[row][col];
     }

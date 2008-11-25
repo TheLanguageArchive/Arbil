@@ -5,6 +5,7 @@
 package mpi.linorg;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -472,6 +473,9 @@ public class ImdiTable extends JTable {
             DefaultTableCellRenderer fieldLabelRenderer = new DefaultTableCellRenderer();
             fieldLabelRenderer.setText(cellField.toString());
             fieldLabelRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
+            if (imdiTableModel.hasValueChanged(row, modelcolumn)) {
+                fieldLabelRenderer.setForeground(Color.blue);
+            }
             return fieldLabelRenderer;
         }
 //        return super.getCellRenderer(row, modelcolumn);

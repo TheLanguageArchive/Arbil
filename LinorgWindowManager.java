@@ -57,8 +57,8 @@ public class LinorgWindowManager {
 
         // open the introduction page
         // always get this page from the server if available, but also save it for off line use
-        URL url = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
-        openUrlWindow("Introduction", url.toString());
+        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
+        openUrlWindow("Introduction", introductionUrl);
         startKeyListener();
     }
 
@@ -219,7 +219,7 @@ public class LinorgWindowManager {
         desktopPane.add(currentInternalFrame, 0);
     }
 
-    public void openUrlWindow(String frameTitle, String locationUrl) {
+    public void openUrlWindow(String frameTitle, URL locationUrl) {
         JEditorPane htmlDisplay = new JEditorPane();
         htmlDisplay.setEditable(false);
         htmlDisplay.setContentType("text/html");
