@@ -276,7 +276,7 @@ public class ImdiDragDrop {
                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                     }
                     JTree dropTree = (JTree) comp;
-                    DefaultMutableTreeNode targetNode = GuiHelper.treeHelper.getLeadLocalCorpusTreeSelection();
+                    DefaultMutableTreeNode targetNode = GuiHelper.treeHelper.getLocalCorpusTreeSingleSelection();
                     // TODO: getImdiChildNodes really shouldnt be called here, instead it would be better for the targetNode to get its childeren before adding anything
                     GuiHelper.treeHelper.getImdiChildNodes(targetNode);
                     Object dropTargetUserObject = targetNode.getUserObject();

@@ -212,9 +212,9 @@ public class TreeHelper {
         localCorpusTree.expandPath(currentSelection);
     }
 
-    public DefaultMutableTreeNode getLeadLocalCorpusTreeSelection() {
+    public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
         System.out.println("localCorpusTree: " + localCorpusTree);
-        return (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
+        return (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
     }
 
     public void showLocationsDialog() {
@@ -284,6 +284,7 @@ public class TreeHelper {
     public void getImdiChildNodes(DefaultMutableTreeNode itemNode) {
         if (itemNode.getChildCount() == 0) {
             // add "loading" node
+            itemNode.setAllowsChildren(true);
             itemNode.add(new DefaultMutableTreeNode(new JLabel("loading...", ImdiHelper.fileUnknown, JLabel.CENTER)));
             if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
                 ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
@@ -306,25 +307,19 @@ public class TreeHelper {
         }
     }
 
-    public Object getSingleSelectedNode() {
-        // TODO: this is not preferable because two nodes could be selected and be confusing to the user
+    public Object getSingleSelectedNode(Object sourceObject) {
+        System.out.println("getSingleSelectedNode: " + sourceObject);
+
         DefaultMutableTreeNode selectedTreeNode = null;
         Object returnObject = null;
-
-        if (remoteCorpusTree.getSelectionCount() > 0 && localCorpusTree.getSelectionCount() > 0) {
-            // if two trees have nodes selected then fail rather than confusing the user with an unexpected node
-            return null;
-        }
-
-        if (remoteCorpusTree.getLeadSelectionPath() == null) {
-            if (localCorpusTree.getLeadSelectionPath() != null) {
-                selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getLeadSelectionPath().getLastPathComponent();
+        if (sourceObject instanceof JTree) {
+            javax.swing.tree.TreePath currentNodePath = ((JTree) sourceObject).getSelectionPath();
+            if (currentNodePath != null) {
+                selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
             }
-        } else {
-            selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getLeadSelectionPath().getLastPathComponent();
-        }
-        if (selectedTreeNode != null) {
-            returnObject = selectedTreeNode.getUserObject();
+            if (selectedTreeNode != null) {
+                returnObject = selectedTreeNode.getUserObject();
+            }
         }
         return returnObject;
     }
