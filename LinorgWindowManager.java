@@ -329,7 +329,7 @@ public class LinorgWindowManager {
                 if (imdiObject.hasResource()) {
                     targetFile = imdiObject.getResource();
                 } else if (imdiObject.isArchivableFile()) {
-                    targetFile = imdiObject.getUrl();
+                    targetFile = imdiObject.getUrlString();
                 }
 
                 ImageIcon icon = new ImageIcon(targetFile.replace("file://", ""));

@@ -301,7 +301,7 @@ public class GuiHelper {
         //getImdiChildNodes(itemNode); // load the child nodes and the fields for each
         if (imdiHelper.isImdiNode(itemNode)) {
             ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode;
-            String hashKey = itemImdiTreeObject.getUrl();
+            String hashKey = itemImdiTreeObject.getUrlString();
             System.out.println("hashkey: " + hashKey);
             if (itemImdiTreeObject.isImdi()) {
                 ((ImdiTableModel) tableModel).addSingleImdiObject(itemImdiTreeObject);
@@ -310,12 +310,12 @@ public class GuiHelper {
                 // TODO: display non imdi file
                 // TODO: move the display of resources and files into a separate class
                 // TODO: replace selectedFilesList but using the name propetry of the added component for the purpose of removing it later
-                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrl());
+                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrlString());
                 String imageFileName;
                 if (itemImdiTreeObject.getResource() != null) {
                     imageFileName = itemImdiTreeObject.getResource();
                 } else {
-                    imageFileName = itemImdiTreeObject.getUrl();
+                    imageFileName = itemImdiTreeObject.getUrlString();
                 }
 //                if (selectedFilesPanel == null) {
 //                    selectedFilesPanel = new JPanel();
@@ -354,7 +354,7 @@ public class GuiHelper {
             // iterate over the supplied nodes
             Object currentObject = nodesToRemoveEnum.nextElement();
             if (imdiHelper.isImdiNode(currentObject)) {
-                String hashKey = ((ImdiHelper.ImdiTreeObject) currentObject).getUrl();
+                String hashKey = ((ImdiHelper.ImdiTreeObject) currentObject).getUrlString();
                 if (selectedFilesList.containsKey(hashKey)) {
                     // remove any image nodes from the image window                
                     //System.out.println("removing from images");
@@ -369,7 +369,7 @@ public class GuiHelper {
     public void copyNodeUrlToClipboard(DefaultMutableTreeNode selectedNode) {
         if (imdiHelper.isImdiNode(selectedNode.getUserObject())) {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            StringSelection stringSelection = new StringSelection(((ImdiHelper.ImdiTreeObject) selectedNode.getUserObject()).getUrl());
+            StringSelection stringSelection = new StringSelection(((ImdiHelper.ImdiTreeObject) selectedNode.getUserObject()).getUrlString());
             clipboard.setContents(stringSelection, clipboardOwner);
         }
     }

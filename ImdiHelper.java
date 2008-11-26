@@ -262,7 +262,7 @@ public class ImdiHelper {
             File nodeFile = this.getFile();
             returnArray = nodeFile.list();
             for (int linkCount = 0; linkCount < returnArray.length; linkCount++) {
-                returnArray[linkCount] = this.getUrl() + File.separatorChar + returnArray[linkCount];
+                returnArray[linkCount] = this.getUrlString() + File.separatorChar + returnArray[linkCount];
             }
             return returnArray;
         }
@@ -272,7 +272,7 @@ public class ImdiHelper {
             String[] returnArray = null;
             try {
                 if (nodDom != null) {
-                    OurURL baseURL = new OurURL(this.getUrl());
+                    OurURL baseURL = new OurURL(this.getUrlString());
                     debugOut("getIMDILinks");
                     IMDILink[] links = api.getIMDILinks(nodDom, baseURL, WSNodeType.CORPUS);
                     debugOut("links.length: " + links.length);
@@ -338,16 +338,29 @@ public class ImdiHelper {
 //            }
 //            return valueFound;
 //        }
-        // used to populate the child list in the show child popup in the table
+        
+        /**
+         * Used to populate the child list in the show child popup in the imditable.
+         * @return An enumeration of the next level child nodes.
+         */
         public Enumeration getChildEnum() {
             return childrenHashtable.elements();
         }
-        // used to populate the child nodes in the table cell
+        
+        /**
+         * Used to populate the child nodes in the table cell.
+         * @return A collection of the next level child nodes.
+         */
         public Collection getChildCollection() {
             return childrenHashtable.values();
         }
 
-        // used to populate the child nodes in the table cell
+        /**
+         * Gets the second level child nodes from the fist level child node matching the child type string.
+         * Used to populate the child nodes in the table cell.
+         * @param childType The name of the first level child to query.
+         * @return An object array of all second level child nodes in the first level node.
+         */
         public Object[] getChildNodesArray(String childType) {
             for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
                 ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
@@ -361,7 +374,7 @@ public class ImdiHelper {
         public Vector addChildNode(ImdiTreeObject nodeToAdd) {
             System.out.println("addChildNode: " + nodeToAdd);
             // TODO: the resource should be optionaly copied or moved into the cache or hardlinked
-            Vector addedImdiNodes = addChildNode(nodeToAdd.mpiMimeType, nodeToAdd.getUrl());
+            Vector addedImdiNodes = addChildNode(nodeToAdd.mpiMimeType, nodeToAdd.getUrlString());
             return addedImdiNodes;
         }
 
@@ -371,14 +384,16 @@ public class ImdiHelper {
             ImdiTreeObject destinationNode;
             if (GuiHelper.imdiSchema.isImdiChildType(nodeType)) {
                 destinationNode = this;
+                imdiNeedsSaveToDisk = true;
             } else {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-                String currentFileName = this.getUrl();
-                if (currentFileName.endsWith(".imdi")) {
-                    currentFileName = currentFileName.substring(0, currentFileName.length() - 5);
-                }
+                String currentFileName = this.getFile().getParent();
+//                if (currentFileName.endsWith(".imdi")) {
+                //currentFileName = currentFileName.substring(0, currentFileName.length() - 5);
+//                }
                 destinationNode = new ImdiTreeObject("new child", currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi");
                 addedImdiNodes.add(destinationNode);
+                destinationNode.imdiNeedsSaveToDisk = true;
             }
             // begin temp test
 //            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
@@ -393,12 +408,12 @@ public class ImdiHelper {
                 ImdiField fieldToAdd = new ImdiField(destinationNode, currentField[0], currentField[1]);
                 //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
                 fieldToAdd.translateFieldName(currentField[0]);
-                if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrl(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
+                if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrlString(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
                     destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
                 }
             }
             if (destinationNode != this) {
-                childrenHashtable.put(destinationNode.getUrl(), destinationNode);
+                childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
             }
             return addedImdiNodes;
         }
@@ -424,7 +439,7 @@ public class ImdiHelper {
                             //System.out.println("linkArray: " + imdiLinkArray[linkCount]);
                             ImdiTreeObject currentImdi = new ImdiTreeObject(null, imdiLinkArray[linkCount]);
 //                        tempImdiVector.add(currentImdi);
-                            childrenHashtable.put(currentImdi.getUrl(), currentImdi);
+                            childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
                             if (isStringImdi(imdiLinkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
                                 currentImdi.loadImdiDom(saveToCache);
                             }
@@ -529,11 +544,11 @@ public class ImdiHelper {
         }
 
         public void searchNodes(Hashtable foundNodes, String searchString) {
-            if (!foundNodes.containsKey(this.getUrl())) {
+            if (!foundNodes.containsKey(this.getUrlString())) {
 //                debugOut("searching: " + this.getUrl());
-                if (this.getUrl().contains(searchString)) {
-                    foundNodes.put(this.getUrl(), this);
-                    debugOut("found: " + this.getUrl());
+                if (this.getUrlString().contains(searchString)) {
+                    foundNodes.put(this.getUrlString(), this);
+                    debugOut("found: " + this.getUrlString());
                 }
             }
             Enumeration nodesToAddEnumeration = childrenHashtable.elements();
@@ -549,6 +564,10 @@ public class ImdiHelper {
             return nodeEnabled;
         }
 
+        /**
+         * Tests if this node has child nodes even if they are not yet loaded.
+         * @return boolean
+         */
         public boolean canHaveChildren() {
             boolean returnValue = false;
             if (imdiLinkArray != null) {
@@ -599,7 +618,11 @@ public class ImdiHelper {
             }
             debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
         }
-        // this function returns the URL path to a remote resource
+        
+        /**
+         * Resolves the full path to a resource file if it exists.
+         * @return The path to remote resource if it exists.
+         */
         public String getFullResourcePath() {
             String targetUrlString = resourceUrlString;
             if (targetUrlString.startsWith(".")) {
@@ -609,10 +632,31 @@ public class ImdiHelper {
             return targetUrlString;
         }
 
+        /**
+         * Checks if there are changes saved on disk that have not been sent to the server.
+         * @return boolean
+         */
         public boolean needsChangesSentToServer() {
             return new File(this.getFile().getPath() + ".0").exists();
         }
 
+        private void getAllFields(Vector allFields) {
+            // returns all fields relevant to the parent node
+            // that includes all indinodechild fields but not from any other imdi file
+            System.out.println("getAllFields: " + this.toString());
+            allFields.addAll(fieldHashtable.values());
+            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
+                ImdiTreeObject currentChild = ((ImdiTreeObject) childEnum.nextElement());
+                if (currentChild.isImdiChild()) {
+                    currentChild.getAllFields(allFields);
+                }
+            }
+        }
+
+        /**
+         * Saves the current changes from memory into a new imdi file on disk.
+         * Previous imdi files are renamed and kept as a history.
+         */
         public void saveChangesToCache() {
             System.out.println("saveChangesToCache");
             Document nodDom;
@@ -623,8 +667,16 @@ public class ImdiHelper {
             }
             System.out.println("tempUrlString: " + this.getFile());
             try {
-                inUrlLocal = new OurURL(this.getFile().toURL());
-                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                if (this.getFile().exists()) {
+                    inUrlLocal = new OurURL(this.getFile().toURL());
+                    nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                } else {
+                    if (this.isSession()) {
+                        nodDom = api.createIMDIDOM(WSNodeType.SESSION);
+                    } else {
+                        nodDom = api.createIMDIDOM(WSNodeType.CORPUS);
+                    }
+                }
                 if (nodDom == null) {
                     System.out.println("Could not load IMDI");
                 } else {
@@ -648,7 +700,33 @@ public class ImdiHelper {
                     System.out.println("writeDOM");
                     // make the required changes to the dom
                     // TODO: make the changes to the dom before saving
+                    // refer to: /data1/repos/trunk/src/java/mpi/imdi/api/TestDom.java
 
+                    Vector allFields = new Vector();
+                    getAllFields(allFields);
+
+
+                    for (Enumeration<ImdiField> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+                        ImdiField currentField = fieldsEnum.nextElement();
+                        if (currentField.fieldID == null) {
+                            // here we are assuming that if there is no fieldID then it is a new field so it will be added here
+                            IMDIElement ie = api.addIMDIElement(nodDom, currentField.xmlPath);
+                            // TODO: the field is not added and this section needs to be completed
+                            currentField.fieldID = ie.getDomId();
+                        }
+                        if (currentField.fieldNeedsSaveToDisk) {
+                            // set value
+                            System.out.println("trying to save: " + currentField.fieldID + " : " + currentField.getFieldValue());
+                            IMDIElement target = new IMDIElement(null, currentField.fieldID);
+                            target.setValue(currentField.getFieldValue());
+                            IMDIElement ie = api.setIMDIElement(nodDom, target);
+                            currentField.fieldNeedsSaveToDisk = false;
+//                            checkOkay("Set IMDI element: " + args, ie != null);
+//                            if (ie != null) {
+//                                printElement(ie);                    // save the dom / imdi file
+//                            }
+                        }
+                    }
                     // save the dom / imdi file
                     api.writeDOM(nodDom, this.getFile(), false);
                     // update the icon to indicate the change
@@ -660,8 +738,13 @@ public class ImdiHelper {
                 nodeText = "Invalid input URL";
             }
         }
-
-        // before this is called it is recomended to confirm that the destinationDirectory path already exist and is correct, otherwise unintended directories maybe created
+        
+        /**
+         * Saves the node dom into the local cache.
+         * Before this is called it is recommended to confirm that the destinationDirectory path already exist and is correct, otherwise unintended directories maybe created
+         * @param nodDom The dom for this node that will be saved.
+         * @return A string path of the saved location.
+         */
         public String saveNodeToCache(Document nodDom) {
             String cacheLocation = null;
             debugOut("saveBrachToLocal: " + this.toString());
@@ -670,7 +753,7 @@ public class ImdiHelper {
                     //System.out.println("saveBrachToLocal: " + this.getUrl());
                     //System.out.println("saveBrachToLocal: " + this.nodDom.);
 
-                    String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
+                    String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrlString());
 
                     debugOut("destinationPath: " + destinationPath);
                     File tempFile = new File(destinationPath);
@@ -701,6 +784,13 @@ public class ImdiHelper {
             return cacheLocation;
         }
 
+        /**
+         * Adds a field to the imdi node and creates imdi child nodes if required.
+         * @param fieldToAdd The field to be added.
+         * @param childLevel For internal use and should be zero. Used to track the distance in imdi child nodes from the imdi node.
+         * @param addedImdiNodes Returns with all the imdi child nodes that have been added during the process.
+         * @param useCache If true the the imdi file will be saved to the cache.
+         */
         private void addField(ImdiField fieldToAdd, int childLevel, Vector addedImdiNodes, boolean useCache) {
             // TODO: modify this so that each child node gets the full filename and full xml path
 //            if (isImdi()) {
@@ -755,7 +845,7 @@ public class ImdiHelper {
                 //String parentName = fieldLabel.substring(0, firstSeparator);
                 debugOut("childsName: " + childsName);
                 if (!childrenHashtable.containsKey(childsName)) {
-                    ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrl() + "#" + fieldToAdd.xmlPath);
+                    ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrlString() + "#" + fieldToAdd.xmlPath);
                     if (addedImdiNodes != null) {
                         addedImdiNodes.add(tempImdiTreeObject);
                     }
@@ -766,21 +856,31 @@ public class ImdiHelper {
             }
         }
 
+        /**
+         * Gets the fields in this node, this does not include any imdi child fields.
+         * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
+         * @return A hashtable of the fields
+         */
         public Hashtable getFields() {
             // store the Hastable for next call
             // if hashtable is null then load from imdi
             return fieldHashtable;
         }
 
+        /**
+         * Compares this node to another based on its toString value.
+         * @return The string comparison result.
+         */
         public int compareTo(Object o) throws ClassCastException {
             if (!(o instanceof ImdiTreeObject)) {
                 throw new ClassCastException("ImdiTreeObject expected.");
             }
             return this.toString().compareTo(((ImdiTreeObject) o).toString());
         }
-        // Return text for display
+
         @Override
         public String toString() {
+            // Return text for display
             if (fieldHashtable.containsKey("Session.Name")) {
                 nodeText = fieldHashtable.get("Session.Name").toString();
             } else if (fieldHashtable.containsKey("Corpus.Name")) {
@@ -802,23 +902,40 @@ public class ImdiHelper {
 //            }
         }
 
+        /**
+         * Tests if there is file associated with this node and if it is an archivable type.
+         * The file could be either a resource file (getResource) or a loose file (getUrlString).
+         * @return boolean
+         */
         public boolean isArchivableFile() {
             return mpiMimeType != null;
         }
 
+        /**
+         * Tests if a resource file is associated with this node.
+         * @return boolean
+         */
         public boolean hasResource() {
             return resourceUrlString != null;
         }
 
+        /**
+         * Gets the ULR string of the resource file if it is available.
+         * @return a URL string of the resource file
+         */
         public String getResource() {
             return resourceUrlString;
         }
 
-        public String getUrl() {
+        /**
+         * Gets the ULR string provided when the node was created.
+         * @return a URL string of the IMDI
+         */
+        public String getUrlString() {
             return urlString;
         }
 
-        public void getMimeHashResult() {
+        private void getMimeHashResult() {
             hashString = mimeHashQueue.getHashResult(this);
             mpiMimeType = mimeHashQueue.getMimeResult(this);
 
@@ -866,6 +983,10 @@ public class ImdiHelper {
             return false;
         }
 
+        /**
+         * Tests if this node represents an imdi file or if if it represents a child node from an imdi file (created by adding fields with child nodes).
+         * @return boolean
+         */
         public boolean isImdiChild() {
             return isStringImdiChild(urlString);
         }
@@ -883,6 +1004,10 @@ public class ImdiHelper {
             }
         }
 
+        /**
+         * Returns a URL object for this node.
+         * @return A URL that this node represents.
+         */
         public URL getURL() {
             try {
                 if (urlString.startsWith("http")) {
@@ -905,11 +1030,18 @@ public class ImdiHelper {
             containersOfThisNode.add(containerToAdd);
         }
 
-        public void removeContainer(Object containerToAdd) {
+        /**
+         * Removes a UI containers from the list of containers interested in this node.
+         * @param containerToRemove The container to be removed from the list.
+         */
+        public void removeContainer(Object containerToRemove) {
             // TODO: make sure that containers are removed when a node is removed from the tree, otherwise memory will not get freed
-            containersOfThisNode.remove(containerToAdd);
+            containersOfThisNode.remove(containerToRemove);
         }
 
+        /**
+         * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
+         */
         public void clearIcon() {
             System.out.println("clearIcon: " + this.toString());
             icon = null;
@@ -945,7 +1077,13 @@ public class ImdiHelper {
 //                GuiHelper.treeHelper.localDirectoryTreeModel.nodeStructureChanged(currentTreeNode);
             }
         }
-        // Return the icon
+        
+        /**
+         * If not already done calculates the required icon for this node in its current state.
+         * Once calculated the stored icon will be returned. 
+         * To clear the icon and recalculate it "clearIcon()" should be called.
+         * @return The icon for this node.
+         */
         public Icon getIcon() {
             if (needsChangesSentToServer()) {
                 icon = exclamy;
@@ -1113,7 +1251,11 @@ public class ImdiHelper {
         public void addAttribute(String attributeName, String attributeValue) {
             debugOut("attributeName: " + attributeName);
             debugOut("attributeValue: " + attributeValue);
-            // look for the vocabulary type
+            // TODO: this could be done as required no on load. ie when getId is called 
+            if (attributeName.equals("id")) {
+                fieldID = attributeValue;
+            }
+            // look for the vocabulary type 
             if (attributeName.equals("Type")) {
                 //System.out.println("setVocabularyType");
                 hasVocabularyType = true;

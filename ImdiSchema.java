@@ -56,8 +56,8 @@ public class ImdiSchema {
 
     /**
      * This function is only a place holder and will be replaced.
-     * @param parentToBe is the imdi node that will receive the new child
-     * @return an enumeration of Strings for the available child types, one of which will be passed to listFieldsFor().
+     * @param targetNodeUserObject The imdi node that will receive the new child.
+     * @return An enumeration of Strings for the available child types, one of which will be passed to "listFieldsFor()".
      */
     public Enumeration listTypesFor(Object targetNodeUserObject) {
         // temp method for testing until replaced

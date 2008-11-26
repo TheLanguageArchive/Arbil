@@ -120,7 +120,7 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
-        imdiObjectHash.put(imdiTreeObject.getUrl(), imdiTreeObject);
+        imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
         if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
             System.out.println("Adding to jlist: " + imdiTreeObject.toString());
             if (!listModel.contains(imdiTreeObject)) {
@@ -229,7 +229,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 listModel.removeElement(imdiTreeObject);
                 //}
                 // remove the node
-                imdiObjectHash.remove(imdiTreeObject.getUrl());
+                imdiObjectHash.remove(imdiTreeObject.getUrlString());
                 // update the used columns
                 Enumeration fieldNames = imdiTreeObject.getFields().keys();
                 while (fieldNames.hasMoreElements()) {
@@ -521,7 +521,7 @@ public class ImdiTableModel extends AbstractTableModel {
         System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
         if (data[row][col] instanceof ImdiHelper.ImdiField) {
             ImdiHelper.ImdiField currentField = ((ImdiHelper.ImdiField) data[row][col]);
-            if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrl(), currentField.xmlPath, currentField.getFieldValue(), value.toString())) {
+            if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), value.toString())) {
                 currentField.setFieldValue(value.toString());
             }
             fireTableCellUpdated(row, col);

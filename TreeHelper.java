@@ -144,7 +144,7 @@ public class TreeHelper {
 
     public void removeLocation(Object removeObject) {
         if (GuiHelper.imdiHelper.isImdiNode(removeObject)) {
-            removeLocation(((ImdiHelper.ImdiTreeObject) removeObject).getUrl()); //.replace("file://", "")
+            removeLocation(((ImdiHelper.ImdiTreeObject) removeObject).getUrlString()); //.replace("file://", "")
         }
     }
 

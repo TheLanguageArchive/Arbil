@@ -216,7 +216,7 @@ public class MimeHashQueue {
         if (imdiObject.hasResource()) {
             return imdiObject.getFullResourcePath();
         } else {
-            return imdiObject.getUrl();
+            return imdiObject.getUrlString();
         }
     }
 
