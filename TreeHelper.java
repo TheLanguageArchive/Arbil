@@ -53,8 +53,8 @@ public class TreeHelper {
     }
 
     public void setTrees(JTree tempRemoteCorpusTree, JTree tempLocalCorpusTree, JTree tempLocalDirectoryTree) {
-        remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiHelper.serverIcon, JLabel.LEFT));
-        localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ImdiHelper.directoryIcon, JLabel.LEFT));
+        remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiTreeObject.imdiIcons.serverIcon, JLabel.LEFT));
+        localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ImdiTreeObject.imdiIcons.directoryIcon, JLabel.LEFT));
         localDirectoryRootNode.setUserObject(new JLabel("Working Directories", UIManager.getIcon("FileView.computerIcon"), JLabel.LEFT));
 
         remoteCorpusTree = tempRemoteCorpusTree;
@@ -142,7 +142,7 @@ public class TreeHelper {
     }
 
     public void removeLocation(Object removeObject) {
-        if (GuiHelper.imdiHelper.isImdiNode(removeObject)) {
+        if (ImdiTreeObject.isImdiNode(removeObject)) {
             removeLocation(((ImdiTreeObject) removeObject).getUrlString()); //.replace("file://", "")
         }
     }
@@ -266,7 +266,7 @@ public class TreeHelper {
 
     public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType) {
         System.out.println("adding a new node to: " + itemNode);
-        if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
+        if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
                 System.out.println("its an imdi so start adding");
@@ -284,8 +284,8 @@ public class TreeHelper {
         if (itemNode.getChildCount() == 0) {
             // add "loading" node
             itemNode.setAllowsChildren(true);
-            itemNode.add(new DefaultMutableTreeNode(new JLabel("loading...", ImdiHelper.fileUnknown, JLabel.CENTER)));
-            if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
+            itemNode.add(new DefaultMutableTreeNode(new JLabel("loading...", ImdiTreeObject.imdiIcons.fileUnknown, JLabel.CENTER)));
+            if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
                 ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
                 if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
                     System.out.println("file to be opened");
