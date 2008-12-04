@@ -30,7 +30,7 @@ public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
     private static IMDIDom api = new IMDIDom();
     public static MimeHashQueue mimeHashQueue = new MimeHashQueue(); // used to calculate mime types and md5 sums
-    static ImdiIcons imdiIcons;
+    static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     boolean debugOn = false;
     Hashtable fieldHashtable = new Hashtable();
