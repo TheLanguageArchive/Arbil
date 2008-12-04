@@ -1,7 +1,7 @@
 /*
  * LinorgSessionStorage 
- * use to save and load objects from disk
- */ 
+ * use to save and load objects from disk and to manage items in the local cache
+ */
 package mpi.linorg;
 
 import java.io.File;
@@ -37,22 +37,12 @@ public class LinorgSessionStorage {
         }
         System.out.println("storageDirectory: " + storageDirectory);
         System.out.println("cacheDirExists: " + cacheDirExists());
-//        ObjectToSerialize o = new ObjectToSerialize("Object", 42);
-//        System.out.println(o);
-//        try {
-//            Hashtable hashtable = new Hashtable();
-//            hashtable.put("first key", "first value");
-//            hashtable.put("second key", "second value");
-//            hashtable.put("third key", "third value");
-//            
-//            saveObject(hashtable, "hashtable.ser");
-//            saveObject(o, "object.ser");
-//            ObjectToSerialize object_loaded = (ObjectToSerialize) loadObject("object.ser");
-//            System.out.println(object_loaded);
-//        } catch (Exception e) {
-//        }
     }
 
+    /**
+     * Tests that the cache directory exists and creates it if it does not.
+     * @return Boolean
+     */
     public boolean cacheDirExists() {
         destinationDirectory = storageDirectory + "imdicache" + File.separatorChar; // storageDirectory already has the file separator appended
         File destinationFile = new File(destinationDirectory);
@@ -63,6 +53,12 @@ public class LinorgSessionStorage {
         return cacheDirExists;
     }
 
+    /**
+     * Serialises the passed object to a file in the linorg storage directory so that it can be retrieved on application restart.
+     * @param object The object to be serialised
+     * @param filename The name of the file the object is to be serialised into
+     * @throws java.io.IOException
+     */
     public void saveObject(Serializable object, String filename) throws IOException {
         System.out.println("saveObject: " + filename);
         ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(storageDirectory + filename));
@@ -70,6 +66,12 @@ public class LinorgSessionStorage {
         objstream.close();
     }
 
+    /**
+     * Deserialises the file from the linorg storage directory into an object. Use to recreate program state from last save.
+     * @param filename The name of the file containing the serialised object
+     * @return The deserialised object
+     * @throws java.lang.Exception
+     */
     public Object loadObject(String filename) throws Exception {
         System.out.println("loadObject: " + filename);
         ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
@@ -78,6 +80,12 @@ public class LinorgSessionStorage {
         return object;
     }
 
+    /**
+     * Fetch the file from the remote URL and save into the cache.
+     * Currently this does not expire the objects in the cache, however that will be required in the future.
+     * @param pathString Path of the remote file.
+     * @return The path of the file in the cache.
+     */
     public String updateCache(String pathString) {
         //TODO: There will need to be a way to expire the files in the cache.
         String cachePath = getSaveLocation(pathString);
@@ -86,7 +94,12 @@ public class LinorgSessionStorage {
         }
         return cachePath;
     }
-    // converts a String path to the cache path
+    
+    /**
+     * Converts a String path from the remote location to the respective location in the cache.
+     * @param pathString Path of the remote file.
+     * @return The path in the cache for the file.
+     */
     public String getSaveLocation(String pathString) {
         String cachePath = GuiHelper.linorgSessionStorage.destinationDirectory + pathString.replace("://", "/");
         File tempFile = new File(cachePath);
@@ -96,6 +109,11 @@ public class LinorgSessionStorage {
         return cachePath;
     }
 
+    /**
+     * Copies a remote file over http and saves it into the cache.
+     * @param targetUrlString The URL of the remote file as a string
+     * @param destinationPath The local path where the file should be saved
+     */
     public void saveRemoteResource(String targetUrlString, String destinationPath) {
 //        String targetUrlString = getFullResourcePath();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
@@ -137,20 +155,5 @@ public class LinorgSessionStorage {
                 System.out.println(ex.getMessage());
             }
         }
-    }//    class ObjectToSerialize implements Serializable {
-//
-//        static private final long serialVersionUID = 42L;
-//
-//        public ObjectToSerialize(String firstAttribute, int secondAttribute) {
-//            this.firstAttribute = firstAttribute;
-//            this.secondAttribute = secondAttribute;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return firstAttribute + ", " + secondAttribute;
-//        }
-//        private String firstAttribute;
-//        private int secondAttribute;
-//    }
+    }
 }

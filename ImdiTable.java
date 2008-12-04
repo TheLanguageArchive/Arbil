@@ -8,18 +8,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
-import javax.swing.AbstractCellEditor;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
@@ -27,16 +23,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
@@ -54,7 +47,7 @@ import javax.swing.table.TableModel;
  */
 public class ImdiTable extends JTable {
 
-    private ImdiTableModel imdiTableModel;    
+    private ImdiTableModel imdiTableModel;
     JListToolTip listToolTip = new JListToolTip();
 
     public ImdiTable(ImdiTableModel localImdiTableModel, Enumeration rowNodesEnum, String frameTitle) {
@@ -234,17 +227,22 @@ public class ImdiTable extends JTable {
                 if (evt.getButton() == MouseEvent.BUTTON3) {
                     // set the clicked cell selected
                     java.awt.Point p = evt.getPoint();
-                    int rowIndex = rowAtPoint(p);
-                    int colIndex = columnAtPoint(p);
+                    int clickedRow = rowAtPoint(p);
+                    int clickedColumn = columnAtPoint(p);
+                    boolean clickedRowAlreadySelected = isRowSelected(clickedRow);
+                    
                     if (!evt.isShiftDown() && !evt.isControlDown()) {
-                        // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
-                        getSelectionModel().clearSelection();
-                        // make sure the clicked cell is selected
-                        getSelectionModel().addSelectionInterval(rowIndex, rowIndex);
-                        getColumnModel().getSelectionModel().addSelectionInterval(colIndex, colIndex);
-                    // make sure the clicked cell is the lead selection
+                        // if it is the right mouse button and there is already a selection then do not proceed in changing the selection
+                        if (!((evt.getButton() == MouseEvent.BUTTON3 && clickedRowAlreadySelected))) {
+                            // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
+                            getSelectionModel().clearSelection();
+                            // make sure the clicked cell is selected
+                            getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
+                            getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
+                        // make sure the clicked cell is the lead selection
 //                    getSelectionModel().setLeadSelectionIndex(rowIndex);
 //                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
+                        }
                     }
                 }
 
@@ -349,81 +347,26 @@ public class ImdiTable extends JTable {
         return listToolTip;
     }
 
-    class JListToolTip extends JToolTip {
-
-        JPanel jPanel;
-        Object targetObject;
-
-        public JListToolTip() {
-            this.setLayout(new BorderLayout());
-            jPanel = new JPanel();
-            jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
-            add(jPanel, BorderLayout.CENTER);
-            jPanel.setBackground(getBackground());
-            jPanel.setBorder(getBorder());
-        }
-
-        private void addIconLabel(Object tempObject) {
-            JLabel jLabel = new JLabel(tempObject.toString());
-            if (tempObject instanceof ImdiHelper.ImdiTreeObject) {
-                jLabel.setIcon(((ImdiHelper.ImdiTreeObject) tempObject).getIcon());
-            }
-            jLabel.doLayout();
-            jPanel.add(jLabel);
-        }
-
-        public void updateList() {
-            System.out.println("updateList: " + targetObject);
-            jPanel.removeAll();
-            if (targetObject != null) {
-                if (targetObject instanceof Object[]) {
-                    for (int childCounter = 0; childCounter < ((Object[]) targetObject).length; childCounter++) {
-                        addIconLabel(((Object[]) targetObject)[childCounter]);
-                    }
-                } else if (targetObject instanceof ImdiHelper.ImdiTreeObject) {
-                    addIconLabel(targetObject);
-                } else {
-                    //JTextField
-                    JTextArea jTextArea = new JTextArea();
-                    jTextArea.setText(targetObject.toString());
-                    jTextArea.setBackground(getBackground());
-//                    jTextArea.setLineWrap(true);                    
-//                    jTextArea.setColumns(100);
-                    jTextArea.doLayout();
-                    jPanel.add(jTextArea);
-                }
-                jPanel.doLayout();
-                doLayout();
-            }
-        }
-
-        public String getTipText() {
-            // return a zero length string to prevent the tooltip text overlaying the custom tip component
-            return "";
-        }
-
-        public Dimension getPreferredSize() {
-            return jPanel.getPreferredSize();
-        }
-
-        public void setTartgetObject(Object targetObjectLocal) {
-            targetObject = targetObjectLocal;
-        }
-    }
+//    @Override
+//    public Dimension getPreferredScrollableViewportSize() {
+//        System.out.println("getPreferredScrollableViewportSize");
+//        Dimension size = super.getPreferredScrollableViewportSize();
+//        return new Dimension(Math.min(getPreferredSize().width, size.width), size.height);
+//    }
     @Override
     public TableCellEditor getCellEditor(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
         Object cellField = getModel().getValueAt(row, modelcolumn);
-        if (cellField instanceof ImdiHelper.ImdiField) {
+        if (cellField instanceof ImdiField) {
             System.out.println("getCellEditor: " + cellField.toString());
-            if (((ImdiHelper.ImdiField) cellField).hasVocabulary()) {
+            if (((ImdiField) cellField).hasVocabulary()) {
                 System.out.println("Has Vocabulary");
                 JComboBox comboBox = new JComboBox();
-                comboBox.setEditable(((ImdiHelper.ImdiField) cellField).vocabularyIsOpen);
-                for (Enumeration vocabularyList = ((ImdiHelper.ImdiField) cellField).getVocabulary(); vocabularyList.hasMoreElements();) {
+                comboBox.setEditable(((ImdiField) cellField).vocabularyIsOpen);
+                for (Enumeration vocabularyList = ((ImdiField) cellField).getVocabulary(); vocabularyList.hasMoreElements();) {
                     comboBox.addItem(vocabularyList.nextElement());
                 }
-                // TODO: enable multiple selection for vocabulary lists
+// TODO: enable multiple selection for vocabulary lists
                 comboBox.setSelectedItem(cellField.toString());
                 return new DefaultCellEditor(comboBox);
             } else {
@@ -431,7 +374,7 @@ public class ImdiTable extends JTable {
                 return new DefaultCellEditor(new JTextField());
             }
         } else if (cellField instanceof Object[]) {
-            return new imdiChildEditor();
+            return new ImdiChildCellEditor();
         }
         return super.getCellEditor(row, modelcolumn);
     }
@@ -440,10 +383,10 @@ public class ImdiTable extends JTable {
     public TableCellRenderer getCellRenderer(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
         Object cellField = getModel().getValueAt(row, modelcolumn);
-        if (cellField instanceof ImdiHelper.ImdiTreeObject) {
+        if (cellField instanceof ImdiTreeObject) {
             DefaultTableCellRenderer iconLabelRenderer = new DefaultTableCellRenderer();
-            iconLabelRenderer.setIcon(((ImdiHelper.ImdiTreeObject) cellField).getIcon());
-            iconLabelRenderer.setText(((ImdiHelper.ImdiTreeObject) cellField).toString());
+            iconLabelRenderer.setIcon(((ImdiTreeObject) cellField).getIcon());
+            iconLabelRenderer.setText(((ImdiTreeObject) cellField).toString());
             return iconLabelRenderer;
         } else if (cellField instanceof Object[]) {
             System.out.println("adding child nodes to cell");
@@ -461,7 +404,7 @@ public class ImdiTable extends JTable {
 
             Object[] childArray = (Object[]) cellField;
             for (Object childImdiObject : childArray) {
-                Icon currentIcon = ((ImdiHelper.ImdiTreeObject) childImdiObject).getIcon();
+                Icon currentIcon = ((ImdiTreeObject) childImdiObject).getIcon();
                 currentIcon.paintIcon(multiIconLabelRenderer, g2d, currentIconXPosition, 0);
                 currentIconXPosition += currentIcon.getIconWidth();
             }
@@ -574,7 +517,7 @@ public class ImdiTable extends JTable {
         }
         return tip;
     }
-    //Implement table header tool tips.
+//Implement table header tool tips.
     protected JTableHeader createDefaultTableHeader() {
         return new JTableHeader(columnModel) {
 
@@ -598,7 +541,7 @@ public class ImdiTable extends JTable {
         }
     }
 
-    public ImdiHelper.ImdiTreeObject[] getSelectedRowsFromTable() {
+    public ImdiTreeObject[] getSelectedRowsFromTable() {
         int[] selectedRows = this.getSelectedRows();
         return imdiTableModel.getSelectedImdiNodes(selectedRows);
     }
@@ -627,38 +570,4 @@ public class ImdiTable extends JTable {
         }
     }
     //jTable1.setAutoCreateRowSorter(true);
-    class imdiChildEditor extends AbstractCellEditor implements TableCellEditor {
-
-        JLabel button;
-        Object cellValue;
-        String columnName;
-        Object rowImdi;
-
-        public imdiChildEditor() {
-            button = new JLabel("...");
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-
-                public void mouseClicked(java.awt.event.MouseEvent evt) {
-                    if (evt.getClickCount() > 1) {
-                        GuiHelper.linorgWindowManager.openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
-                    }
-                }
-            });
-        }
-
-        public Object getCellEditorValue() {
-            return cellValue;
-        }
-
-        public Component getTableCellEditorComponent(JTable table,
-                Object value,
-                boolean isSelected,
-                int row,
-                int column) {
-            columnName = getColumnName(column);
-            rowImdi = getValueAt(row, 0);
-            cellValue = value;
-            return button;
-        }
-    }
 }

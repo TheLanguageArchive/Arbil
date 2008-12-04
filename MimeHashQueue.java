@@ -14,7 +14,6 @@ import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import mpi.linorg.ImdiHelper.ImdiTreeObject;
 
 /**
  *
@@ -32,6 +31,7 @@ public class MimeHashQueue {
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
 
     public MimeHashQueue() {
+        System.out.println("MimeHashQueue init");
         continueThread = true;
         new Thread() {
 
@@ -47,7 +47,7 @@ public class MimeHashQueue {
                     for (Enumeration nodesToCheck = imdiObjectQueue.keys(); nodesToCheck.hasMoreElements();) {
                         String currentNodeURL = nodesToCheck.nextElement().toString();
                         System.out.println("run MimeHashQueue processing: " + currentNodeURL);
-                        ImdiHelper.ImdiTreeObject currentImdiObject = ((ImdiHelper.ImdiTreeObject) imdiObjectQueue.get(currentNodeURL));
+                        ImdiTreeObject currentImdiObject = ((ImdiTreeObject) imdiObjectQueue.get(currentNodeURL));
                         // check that the file has not been done already
                         // TODO: chang this to use an additional hastable of mtimes for each file and if the mtime does not match then rescan the file
                         if (!knownMimeTypes.containsKey(currentNodeURL)) {
@@ -191,7 +191,7 @@ public class MimeHashQueue {
                     while (otherNodesEnum.hasMoreElements()) {
                         Object currentElement = otherNodesEnum.nextElement();
                         Object currentNode = processedImdiObjects.get(currentElement);
-                        if (currentNode instanceof ImdiHelper.ImdiTreeObject) {
+                        if (currentNode instanceof ImdiTreeObject) {
                             //debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
                             // clear the icon of the other copies so that they will be updated to indicate the commonality
                             System.out.println("Clearing icon for other node: " + currentNode.toString());
@@ -212,7 +212,7 @@ public class MimeHashQueue {
 //            return hashString;
     }
 
-    private String getFilePath(ImdiHelper.ImdiTreeObject imdiObject) {
+    private String getFilePath(ImdiTreeObject imdiObject) {
         if (imdiObject.hasResource()) {
             return imdiObject.getFullResourcePath();
         } else {
@@ -220,7 +220,7 @@ public class MimeHashQueue {
         }
     }
 
-    public void addToQueue(ImdiHelper.ImdiTreeObject imdiObject) {
+    public void addToQueue(ImdiTreeObject imdiObject) {
         if (!imdiObject.isDirectory() && imdiObject.isLocal() && (!imdiObject.isImdiChild() || imdiObject.hasResource())) {
             System.out.println("addToQueue: " + getFilePath(imdiObject));
             // here also check that the destination file exists and is readable
@@ -228,7 +228,7 @@ public class MimeHashQueue {
         }
     }
 
-    public String getMimeResult(ImdiHelper.ImdiTreeObject imdiObject) {
+    public String getMimeResult(ImdiTreeObject imdiObject) {
         Object returnObject = knownMimeTypes.get(getFilePath(imdiObject));
         if (returnObject != null) {
             return returnObject.toString();
@@ -237,7 +237,7 @@ public class MimeHashQueue {
         }
     }
 
-    public String getHashResult(ImdiHelper.ImdiTreeObject imdiObject) {
+    public String getHashResult(ImdiTreeObject imdiObject) {
         Object returnObject = pathToMd5Sums.get(getFilePath(imdiObject));
         if (returnObject != null) {
             return returnObject.toString();

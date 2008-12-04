@@ -14,6 +14,7 @@ import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
@@ -101,7 +102,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
             for (int selectedCount = 0; selectedCount < treesToSearch[treeCount].getSelectionCount(); selectedCount++) {
                 DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) treesToSearch[treeCount].getSelectionPaths()[selectedCount].getLastPathComponent();
-                if (parentNode.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
+                if (parentNode.getUserObject() instanceof ImdiTreeObject) {
                     selectedNodes.add(parentNode.getUserObject());
                 }
             }
@@ -139,6 +140,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveMenuItem = new javax.swing.JMenuItem();
         viewChangesMenuItem = new javax.swing.JMenuItem();
         sendToServerMenuItem = new javax.swing.JMenuItem();
+        validateMenuItem = new javax.swing.JMenuItem();
         mainSplitPane = new javax.swing.JSplitPane();
         leftSplitPane = new javax.swing.JSplitPane();
         leftLocalSplitPane = new javax.swing.JSplitPane();
@@ -309,6 +311,14 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(sendToServerMenuItem);
+
+        validateMenuItem.setText("Check IMDI format.");
+        validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                validateMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(validateMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Linorg");
@@ -528,8 +538,8 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
 
     boolean clickedPathIsSelected = (((javax.swing.JTree) evt.getSource()).isPathSelected(clickedNodePath));
     if (evt.getButton() == 3) {
-        // thisis simplified and made to match the same type of actions as the imditable 
-        if (!evt.isShiftDown() && !evt.isControlDown()) {
+        // this is simplified and made to match the same type of actions as the imditable 
+        if (!evt.isShiftDown() && !evt.isControlDown() && !clickedPathIsSelected) {
             ((javax.swing.JTree) evt.getSource()).clearSelection();
             ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
         }
@@ -605,10 +615,10 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
-            if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiHelper.ImdiTreeObject) {
-                if (((ImdiHelper.ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
+            if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
+                if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
                     saveMenuItem.setVisible(true);
-                } else if (((ImdiHelper.ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
+                } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
                     viewChangesMenuItem.setVisible(true);
                     sendToServerMenuItem.setVisible(true);
                 }
@@ -680,24 +690,18 @@ private void viewXmlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//G
 
 private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
 // TODO add your handling code here:
-    DefaultMutableTreeNode selectedTreeNode = null;
-    if (remoteCorpusTree.getSelectionPath() == null) {
-        if (localDirectoryTree.getSelectionPath() != null) {
-            System.out.println("copying local directory location");
-            selectedTreeNode = (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent();
-        }
-    } else {
-        System.out.println("copying remote url");
-        selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent();
-    }
-    if (selectedTreeNode == null) {
+    //DefaultMutableTreeNode selectedTreeNode = null;
+    ImdiTreeObject selectedImdiNode = (ImdiTreeObject)GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker());
+
+    if (selectedImdiNode == null) {
         if (localCorpusTree.getSelectionPath() != null) {
             JOptionPane.showMessageDialog(this, "Cannot copy from the cache", "", 0);
+            guiHelper.copyNodeUrlToClipboard(selectedImdiNode);
         } else {
             JOptionPane.showMessageDialog(this, "No node selected", "", 0);
         }
     } else {
-        guiHelper.copyNodeUrlToClipboard(selectedTreeNode);
+        guiHelper.copyNodeUrlToClipboard(selectedImdiNode);
     }
 }//GEN-LAST:event_copyImdiUrlMenuItemActionPerformed
 
@@ -863,8 +867,8 @@ private void saveNodeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
     for (Enumeration nodesEnum = getSelectedNodes(new JTree[]{localCorpusTree}).elements(); nodesEnum.hasMoreElements();) {
         Object userObject = nodesEnum.nextElement();
         System.out.println("userObject: " + userObject);
-        if (userObject instanceof ImdiHelper.ImdiTreeObject) {
-            ((ImdiHelper.ImdiTreeObject) userObject).saveChangesToCache();
+        if (userObject instanceof ImdiTreeObject) {
+            ((ImdiTreeObject) userObject).saveChangesToCache();
         }
     }
 }//GEN-LAST:event_saveNodeMenuItemActionPerformed
@@ -875,7 +879,16 @@ private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt)
 
 private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewChangesMenuItemActionPerformed
 // TODO add your handling code here:
+
 }//GEN-LAST:event_viewChangesMenuItemActionPerformed
+
+private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateMenuItemActionPerformed
+// TODO add your handling code here:
+    //XsdChecker xsdChecker = new XsdChecker();
+    //GuiHelper.linorgWindowManager.createWindow("XsdChecker", new JScrollPane(xsdChecker));
+    // TODO: check the node type before passing
+    //xsdChecker.checkXML((ImdiTreeObject)GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
+}//GEN-LAST:event_validateMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -929,6 +942,7 @@ private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) 
     private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JSeparator treePopupMenuSeparator1;
     private javax.swing.JSeparator treePopupMenuSeparator2;
+    private javax.swing.JMenuItem validateMenuItem;
     private javax.swing.JMenuItem viewChangesMenuItem;
     private javax.swing.JMenu viewMenu;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;

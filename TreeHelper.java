@@ -18,7 +18,6 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 
 /**
@@ -144,7 +143,7 @@ public class TreeHelper {
 
     public void removeLocation(Object removeObject) {
         if (GuiHelper.imdiHelper.isImdiNode(removeObject)) {
-            removeLocation(((ImdiHelper.ImdiTreeObject) removeObject).getUrlString()); //.replace("file://", "")
+            removeLocation(((ImdiTreeObject) removeObject).getUrlString()); //.replace("file://", "")
         }
     }
 
@@ -170,9 +169,9 @@ public class TreeHelper {
             System.out.println("removeChildNode: " + childNode);
             Object childUserObject = childNode.getUserObject();
             // get the imdi node
-            if (childUserObject instanceof ImdiHelper.ImdiTreeObject) {
+            if (childUserObject instanceof ImdiTreeObject) {
                 //deregister the tree node in the imdinode
-                ((ImdiHelper.ImdiTreeObject) childUserObject).removeContainer(childUserObject);
+                ((ImdiTreeObject) childUserObject).removeContainer(childUserObject);
             }
         }
         //remove the node from the parent               
@@ -186,11 +185,11 @@ public class TreeHelper {
         removeChildNodes(localDirectoryRootNode);
         Vector locationImdiNodes = new Vector();
         for (Enumeration locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
-            locationImdiNodes.add(GuiHelper.imdiHelper.getTreeNodeObject(locationEnum.nextElement().toString()));
+            locationImdiNodes.add(new ImdiTreeObject(null, locationEnum.nextElement().toString()));
         }
         Collections.sort(locationImdiNodes);
-        for (Enumeration<ImdiHelper.ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
-            ImdiHelper.ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
+        for (Enumeration<ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
+            ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
             DefaultMutableTreeNode currentTreeNode = new DefaultMutableTreeNode(currentImdiObject);
             currentImdiObject.registerContainer(currentTreeNode);
             if (!currentImdiObject.isLocal()) {
@@ -225,7 +224,7 @@ public class TreeHelper {
 
             public TableCellRenderer getCellRenderer(int row, int column) {
                 if (column == 0) {
-                    ImdiHelper.ImdiTreeObject imdiObject = (ImdiHelper.ImdiTreeObject) getModel().getValueAt(row, column);
+                    ImdiTreeObject imdiObject = (ImdiTreeObject) getModel().getValueAt(row, column);
                     DefaultTableCellRenderer iconLabelRenderer = new DefaultTableCellRenderer();
                     iconLabelRenderer.setIcon(imdiObject.getIcon());
                     iconLabelRenderer.setText(imdiObject.toString());
@@ -250,13 +249,13 @@ public class TreeHelper {
         int rowCounter = 0;
         while (locationEnum.hasMoreElements()) {
             tableObjectAray[rowCounter][1] = locationEnum.nextElement();
-            tableObjectAray[rowCounter][0] = GuiHelper.imdiHelper.getTreeNodeObject(tableObjectAray[rowCounter][1].toString());
+            tableObjectAray[rowCounter][0] = new ImdiTreeObject(null, tableObjectAray[rowCounter][1].toString());
             rowCounter++;
         }
         return new javax.swing.table.DefaultTableModel(tableObjectAray, new String[]{"", "Location"}) {
 
             Class[] types = new Class[]{
-                ImdiHelper.ImdiTreeObject.class, java.lang.String.class
+                ImdiTreeObject.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -268,7 +267,7 @@ public class TreeHelper {
     public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType) {
         System.out.println("adding a new node to: " + itemNode);
         if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
-            ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
+            ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
                 System.out.println("its an imdi so start adding");
                 Vector tempVector = imdiTreeObject.addChildNode(nodeType, null);
@@ -287,12 +286,12 @@ public class TreeHelper {
             itemNode.setAllowsChildren(true);
             itemNode.add(new DefaultMutableTreeNode(new JLabel("loading...", ImdiHelper.fileUnknown, JLabel.CENTER)));
             if (GuiHelper.imdiHelper.isImdiNode(itemNode.getUserObject())) {
-                ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode.getUserObject();
+                ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
                 if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
                     System.out.println("file to be opened");
                 } else {
                     //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
-                    ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes(false);
+                    ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes(false);
                     Arrays.sort(childNodes);
                     // remove the loading node
                     removeChildNodes(itemNode);
@@ -326,39 +325,5 @@ public class TreeHelper {
 
     public ImdiTreeRenderer getImdiTreeRenderer() {
         return new ImdiTreeRenderer();
-    }
-
-    public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
-
-        public ImdiTreeRenderer() {
-        }
-
-        public Component getTreeCellRendererComponent(
-                JTree tree,
-                Object value,
-                boolean sel,
-                boolean expanded,
-                boolean leaf,
-                int row,
-                boolean hasFocus) {
-
-            super.getTreeCellRendererComponent(
-                    tree, value, sel,
-                    expanded, leaf, row,
-                    hasFocus);
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-            if (node.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
-                ImdiHelper.ImdiTreeObject imdiTreeObject = (ImdiHelper.ImdiTreeObject) node.getUserObject();
-
-                setIcon(imdiTreeObject.getIcon());
-                setToolTipText(imdiTreeObject.toString());
-                setEnabled(imdiTreeObject.getNodeEnabled());
-            //setVisible(imdiTreeObject.getNodeEnabled());
-            } else if (node.getUserObject() instanceof JLabel) {
-                setIcon(((JLabel) node.getUserObject()).getIcon());
-                setText(((JLabel) node.getUserObject()).getText());
-            }
-            return this;
-        }
-    }
+    }    
 }

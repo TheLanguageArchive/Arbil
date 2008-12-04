@@ -55,7 +55,7 @@ public class GuiHelper {
     }
 
     public void saveState() {
-        imdiHelper.mimeHashQueue.saveMd5sumIndex();
+        ImdiTreeObject.mimeHashQueue.saveMd5sumIndex();
         imdiFieldViews.saveViewsToFile();
         treeHelper.saveLocations();
     }
@@ -229,10 +229,10 @@ public class GuiHelper {
     }
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml) {
-        if (userObject instanceof ImdiHelper.ImdiTreeObject) {
-            File nodeFile = ((ImdiHelper.ImdiTreeObject) (userObject)).getFile();
+        if (userObject instanceof ImdiTreeObject) {
+            File nodeFile = ((ImdiTreeObject) (userObject)).getFile();
             System.out.println("openImdiXmlWindow: " + nodeFile);
-            String nodeName = ((ImdiHelper.ImdiTreeObject) (userObject)).toString();
+            String nodeName = ((ImdiTreeObject) (userObject)).toString();
             if (formatXml) {
                 try {
                     // 1. Instantiate a TransformerFactory.
@@ -300,7 +300,7 @@ public class GuiHelper {
         // there is no point loading the child nodes to display the parent node in a grid, however if the child nodes are requested for display then at that point they will need to be loaded but not at this point
         //getImdiChildNodes(itemNode); // load the child nodes and the fields for each
         if (imdiHelper.isImdiNode(itemNode)) {
-            ImdiHelper.ImdiTreeObject itemImdiTreeObject = (ImdiHelper.ImdiTreeObject) itemNode;
+            ImdiTreeObject itemImdiTreeObject = (ImdiTreeObject) itemNode;
             String hashKey = itemImdiTreeObject.getUrlString();
             System.out.println("hashkey: " + hashKey);
             if (itemImdiTreeObject.isImdi()) {
@@ -354,7 +354,7 @@ public class GuiHelper {
             // iterate over the supplied nodes
             Object currentObject = nodesToRemoveEnum.nextElement();
             if (imdiHelper.isImdiNode(currentObject)) {
-                String hashKey = ((ImdiHelper.ImdiTreeObject) currentObject).getUrlString();
+                String hashKey = ((ImdiTreeObject) currentObject).getUrlString();
                 if (selectedFilesList.containsKey(hashKey)) {
                     // remove any image nodes from the image window                
                     //System.out.println("removing from images");
@@ -366,10 +366,10 @@ public class GuiHelper {
         }
     }
 
-    public void copyNodeUrlToClipboard(DefaultMutableTreeNode selectedNode) {
-        if (imdiHelper.isImdiNode(selectedNode.getUserObject())) {
+    public void copyNodeUrlToClipboard(ImdiTreeObject selectedNode) {
+        if (selectedNode != null) {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            StringSelection stringSelection = new StringSelection(((ImdiHelper.ImdiTreeObject) selectedNode.getUserObject()).getUrlString());
+            StringSelection stringSelection = new StringSelection(selectedNode.getUrlString());
             clipboard.setContents(stringSelection, clipboardOwner);
         }
     }

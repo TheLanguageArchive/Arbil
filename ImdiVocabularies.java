@@ -92,7 +92,7 @@ public class ImdiVocabularies {
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
             Vector vocabularyList = new Vector();
-            xmlReader.setContentHandler(new saxVocabularyHandler(vocabularyList));
+            xmlReader.setContentHandler(new SaxVocabularyHandler(vocabularyList));
             xmlReader.parse(cachePath);
             vocabulariesTable.put(vocabRemoteUrl, vocabularyList);
 //            org.xml.sax.XMLReader xmlReader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
@@ -109,11 +109,11 @@ public class ImdiVocabularies {
         }
     }
 
-    public class saxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
+    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
         Vector collectedVocab;
 
-        public saxVocabularyHandler(Vector vocabList) {
+        public SaxVocabularyHandler(Vector vocabList) {
             super();
             collectedVocab = vocabList;
         }

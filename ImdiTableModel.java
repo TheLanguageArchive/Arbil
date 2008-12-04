@@ -15,10 +15,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
-import mpi.linorg.ImdiHelper.ImdiTreeObject;
 
 /**
  *
@@ -40,36 +37,8 @@ public class ImdiTableModel extends AbstractTableModel {
     public ImdiTableModel() {
         tableFieldView = GuiHelper.imdiFieldViews.getCurrentGlobalView().clone();
     }
-    
-    // code related to the list display of resources and loose files
-    class ImdiListDataListener implements ListDataListener {
 
-        private LinorgWindowManager.ImdiSplitPanel imdiSplitPanel;
-
-        public ImdiListDataListener(LinorgWindowManager.ImdiSplitPanel localImdiSplitPanel) {
-            imdiSplitPanel = localImdiSplitPanel;
-        }
-
-        public void contentsChanged(ListDataEvent e) {
-            if (imdiSplitPanel != null) {
-                imdiSplitPanel.setSplitDisplay();
-            }
-        }
-
-        public void intervalAdded(ListDataEvent e) {
-            if (imdiSplitPanel != null) {
-                imdiSplitPanel.setSplitDisplay();
-            }
-        }
-
-        public void intervalRemoved(ListDataEvent e) {
-            if (imdiSplitPanel != null) {
-                imdiSplitPanel.setSplitDisplay();
-            }
-        }
-    }
-
-    public DefaultListModel getListModel(LinorgWindowManager.ImdiSplitPanel imdiSplitPanel) {
+    public DefaultListModel getListModel(LinorgSplitPanel imdiSplitPanel) {
         ImdiListDataListener listDataListener = new ImdiListDataListener(imdiSplitPanel);
         listModel.addListDataListener(listDataListener);
         return listModel;
@@ -84,8 +53,8 @@ public class ImdiTableModel extends AbstractTableModel {
         reloadTableData();
     }
 
-    public ImdiHelper.ImdiTreeObject[] getSelectedImdiNodes(int[] selectedRows) {
-        ImdiHelper.ImdiTreeObject[] selectedNodesArray = new ImdiHelper.ImdiTreeObject[selectedRows.length];
+    public ImdiTreeObject[] getSelectedImdiNodes(int[] selectedRows) {
+        ImdiTreeObject[] selectedNodesArray = new ImdiTreeObject[selectedRows.length];
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
             selectedNodesArray[selectedRowCounter] = getImdiNodeFromRow(selectedRows[selectedRowCounter]);
         }
@@ -109,7 +78,9 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void addImdiObjects(Enumeration nodesToAdd) {
         while (nodesToAdd.hasMoreElements()) {
-            addImdiObject((ImdiTreeObject) nodesToAdd.nextElement());
+            Object currentObject = nodesToAdd.nextElement();
+            //System.out.println("addImdiObjects: " + currentObject.toString());
+            addImdiObject((ImdiTreeObject) currentObject);
         }
         reloadTableData();
     }
@@ -120,31 +91,32 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
-        imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
-        if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
-            System.out.println("Adding to jlist: " + imdiTreeObject.toString());
-            if (!listModel.contains(imdiTreeObject)) {
-                listModel.addElement(imdiTreeObject);
-            }
-        } else {
-            System.out.println("Not adding to jlist: " + imdiTreeObject.toString());
-        }
-        System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
-        System.out.println("hasResource: " + imdiTreeObject.hasResource());
-        Enumeration fieldNames = imdiTreeObject.getFields().keys();
-        while (fieldNames.hasMoreElements()) {
-            String currentColumnName = fieldNames.nextElement().toString();
-            // keep track of the number of times that columns are used by updating the column use count hashtable
-            Object currentColumnUse = allColumnNames.get(currentColumnName);
-            int currentColumnUseCount = 0;
-            if (currentColumnUse == null) {
-                currentColumnUseCount = 1;
-                tableFieldView.addKnownColumn(currentColumnName);
+        if (imdiTreeObject != null) {
+            imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
+            if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
+                System.out.println("Adding to jlist: " + imdiTreeObject.toString());
+                if (!listModel.contains(imdiTreeObject)) {
+                    listModel.addElement(imdiTreeObject);
+                }
             } else {
-                currentColumnUseCount = ((Integer) currentColumnUse) + 1;
+                System.out.println("Not adding to jlist: " + imdiTreeObject.toString());
             }
-            allColumnNames.put(currentColumnName, currentColumnUseCount);
-        }
+            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
+            System.out.println("hasResource: " + imdiTreeObject.hasResource());
+            Enumeration fieldNames = imdiTreeObject.getFields().keys();
+            while (fieldNames.hasMoreElements()) {
+                String currentColumnName = fieldNames.nextElement().toString();
+                // keep track of the number of times that columns are used by updating the column use count hashtable
+                Object currentColumnUse = allColumnNames.get(currentColumnName);
+                int currentColumnUseCount = 0;
+                if (currentColumnUse == null) {
+                    currentColumnUseCount = 1;
+                    tableFieldView.addKnownColumn(currentColumnName);
+                } else {
+                    currentColumnUseCount = ((Integer) currentColumnUse) + 1;
+                }
+                allColumnNames.put(currentColumnName, currentColumnUseCount);
+            }
 
 //            Enumeration tempColoumnEnum = columnNameHash.keys();
 //            while (tempColoumnEnum.hasMoreElements()) {
@@ -158,6 +130,7 @@ public class ImdiTableModel extends AbstractTableModel {
 //                String element = (String) it.next();
 //                System.out.println(element);
 //            }
+        }
     }
 
     public void removeAllImdiRows() {
@@ -175,12 +148,12 @@ public class ImdiTableModel extends AbstractTableModel {
     private ImdiTreeObject getImdiNodeFromRow(int rowNumber) {
         // TODO: find error removing rows // look again here...
         // if that the first column is the imdi node (ergo string and icon) use that to remove the row
-        if (data[rowNumber][0] instanceof ImdiHelper.ImdiTreeObject) {
+        if (data[rowNumber][0] instanceof ImdiTreeObject) {
             return (ImdiTreeObject) data[rowNumber][0];
         } else {
             // in the case that the icon and sting are not displayed then try to get the imdifield in order to get the imdinode
             // TODO: this will fail if the imdiobject for the row does not have a field to display for the first column because there will be no imdi nor field in the first coloumn
-            return ((ImdiHelper.ImdiField) data[rowNumber][columnNames.length - 1]).parentImdi;
+            return ((ImdiField) data[rowNumber][columnNames.length - 1]).parentImdi;
         //throw new UnsupportedOperationException("Not supported yet.");
         }
     }
@@ -195,21 +168,29 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void copyImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
+        String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
         int firstColumn = 0;
         if (showIcons) {
             firstColumn = 1;
         }
         // add the headers
-        for (int selectedColCounter = firstColumn; selectedColCounter < getColumnCount(); selectedColCounter++) {
-            copiedString = copiedString + getColumnName(selectedColCounter) + ",";
+        int columnCount = getColumnCount();
+        for (int selectedColCounter = firstColumn; selectedColCounter < columnCount; selectedColCounter++) {
+            copiedString = copiedString + "\"" + getColumnName(selectedColCounter) + "\"";
+            if (selectedColCounter < columnCount - 1) {
+                copiedString = copiedString + csvSeparator;
+            }
         }
         copiedString = copiedString + "\n";
         // add the cell data
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
             System.out.println("copying row: " + selectedRowCounter);
-            for (int selectedColCounter = firstColumn; selectedColCounter < getColumnCount(); selectedColCounter++) {
-                copiedString = copiedString + "\"" + data[selectedRows[selectedRowCounter]][selectedColCounter].toString().replace("\"", "\"\"") + "\",";
+            for (int selectedColCounter = firstColumn; selectedColCounter < columnCount; selectedColCounter++) {
+                copiedString = copiedString + "\"" + data[selectedRows[selectedRowCounter]][selectedColCounter].toString().replace("\"", "\"\"") + "\"";
+                if (selectedColCounter < columnCount - 1) {
+                    copiedString = copiedString + csvSeparator;
+                }
             }
             copiedString = copiedString + "\n";
         }
@@ -288,7 +269,7 @@ public class ImdiTableModel extends AbstractTableModel {
         return dataTemp;
     }
 
-    public class TableRowComparator implements Comparator {
+    private class TableRowComparator implements Comparator {
 
         int sortColumn = 0;
         boolean sortReverse = false;
@@ -352,7 +333,9 @@ public class ImdiTableModel extends AbstractTableModel {
             // create and populate the column names array and prepend the icon and append the imdinode
             columnNamesTemp = new String[displayedColumnNames.size() + firstFreeColumn + childColumnNames.size()];
             int columnPopulateCounter = firstFreeColumn;
-            columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
+            if (columnNamesTemp.length > 0) {
+                columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
+            }
             for (Enumeration currentColumnEnum = displayedColumnNames.elements(); currentColumnEnum.hasMoreElements();) {
                 System.out.println("columnPopulateCounter: " + columnPopulateCounter);
                 columnNamesTemp[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
@@ -483,8 +466,8 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public boolean hasValueChanged(int row, int col) {
         if (row > -1 && col > -1) {
-            if (data[row][col] instanceof ImdiHelper.ImdiField) {
-                return ((ImdiHelper.ImdiField) data[row][col]).fieldNeedsSaveToDisk;
+            if (data[row][col] instanceof ImdiField) {
+                return ((ImdiField) data[row][col]).fieldNeedsSaveToDisk;
             }
         }
         return false;
@@ -503,8 +486,8 @@ public class ImdiTableModel extends AbstractTableModel {
         //Note that the data/cell address is constant,
         //no matter where the cell appears onscreen.
         boolean returnValue = false;
-        if (data[row][col] instanceof ImdiHelper.ImdiField) {
-            returnValue = ((ImdiHelper.ImdiField) data[row][col]).parentImdi.isLocal();
+        if (data[row][col] instanceof ImdiField) {
+            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal();
         }
         System.out.println("Cell is ImdiField: " + returnValue);
 //        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
@@ -519,8 +502,8 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void setValueAt(Object value, int row, int col) {
         System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
-        if (data[row][col] instanceof ImdiHelper.ImdiField) {
-            ImdiHelper.ImdiField currentField = ((ImdiHelper.ImdiField) data[row][col]);
+        if (data[row][col] instanceof ImdiField) {
+            ImdiField currentField = ((ImdiField) data[row][col]);
             if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), value.toString())) {
                 currentField.setFieldValue(value.toString());
             }

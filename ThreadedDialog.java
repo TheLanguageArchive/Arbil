@@ -42,7 +42,6 @@ public class ThreadedDialog {
     private JTextField searchLabel;
     private Hashtable foundNodes = new Hashtable();
     // variables used by the copy thread
-    
     // variables used by all threads
     private boolean stopSearch = false;
     private boolean threadARunning = false;
@@ -89,7 +88,7 @@ public class ThreadedDialog {
     private boolean selectedNodesContainImdi() {
         Enumeration selectedNodesEnum = selectedNodes.elements();
         while (selectedNodesEnum.hasMoreElements()) {
-            if (selectedNodesEnum.nextElement() instanceof ImdiHelper.ImdiTreeObject) {
+            if (selectedNodesEnum.nextElement() instanceof ImdiTreeObject) {
                 return true;
             }
         }
@@ -157,7 +156,7 @@ public class ThreadedDialog {
         searchDialog.getContentPane().add(panel, BorderLayout.PAGE_END);
 
         searchDialog.pack();
-        
+
         searchDialog.setLocationRelativeTo(targetComponent);
 
         showResultsButton.addActionListener(new ActionListener() {
@@ -228,8 +227,8 @@ public class ThreadedDialog {
         Enumeration selectedNodesEnum = selectedNodes.elements();
         while (selectedNodesEnum.hasMoreElements()) {
             Object currentElement = selectedNodesEnum.nextElement();
-            if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
-                int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) currentElement).getChildCount();
+            if (currentElement instanceof ImdiTreeObject) {
+                int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getChildCount();
                 childrenToLoad += tempChildCountArray[0];
                 loadedChildren += tempChildCountArray[1];
             }
@@ -242,12 +241,12 @@ public class ThreadedDialog {
         appendToTaskOutput("loading sub corpus");
         boolean moreToLoad = true;
         while (moreToLoad && !stopSearch) {
-            int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) currentElement).getChildCount();
+            int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getChildCount();
             appendToTaskOutput("total loaded: " + (totalLoaded + tempChildCountArray[1]) + " (" + currentElement.toString() + " loaded: " + tempChildCountArray[1] + " unknown: " + tempChildCountArray[0] + ")");
             progressBar.setString("" + (totalLoaded + tempChildCountArray[1]));
             moreToLoad = (tempChildCountArray[0] != 0);
             if (moreToLoad) {
-                ((ImdiHelper.ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5, saveToCache);
+                ((ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5, saveToCache);
             }
             currentLoaded = tempChildCountArray[1];
 //            progressBar.setNote(currentLoaded);
@@ -281,20 +280,20 @@ public class ThreadedDialog {
                     int totalLoaded = 0;
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
-                        if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
+                        if (currentElement instanceof ImdiTreeObject) {
                             // TODO: newNodeLocation is not used to good effect, it would be better to truely verify that the branch has been saved to the cache
-                            String newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).loadImdiDom(saveToCache); // save the first node which will not be saved by loadSomeChildren
+                            String newNodeLocation = ((ImdiTreeObject) currentElement).loadImdiDom(saveToCache); // save the first node which will not be saved by loadSomeChildren
                             if (newNodeLocation != null) {
 //                                if (!new File(newNodeLocation).exists()) {// this would allow incomplete copies to be added
-                                    totalLoaded += loadSomeChildren(currentElement, totalLoaded, saveToCache);
+                                totalLoaded += loadSomeChildren(currentElement, totalLoaded, saveToCache);
 //                                    if (!stopSearch) {
 //                                        // perform the copy
 //                                        appendToTaskOutput("Saving to: " + newNodeLocation);
 //                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBrachToLocal();
 //                                    }
-    //                             } else {
-    //                                 appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
-    //                             }
+                            //                             } else {
+                            //                                 appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
+                            //                             }
                             } // else appendToTaskOutput("Unable to process: " + currentElement);                            
                             if (newNodeLocation != null && !stopSearch) { // make sure we dont add an incomplete location
                                 //appendToTaskOutput("would save location when done: " + newNodeLocation);
@@ -346,11 +345,11 @@ public class ThreadedDialog {
                     int totalLoaded = 0;
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
-                        if (currentElement instanceof ImdiHelper.ImdiTreeObject) {
+                        if (currentElement instanceof ImdiTreeObject) {
                             totalLoaded += loadSomeChildren(currentElement, totalLoaded, false);
                             // perform the search        
                             appendToTaskOutput("searching");
-                            ((ImdiHelper.ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
+                            ((ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
                             appendToTaskOutput("total found: " + foundNodes.size() + ")");
                         }
                     }

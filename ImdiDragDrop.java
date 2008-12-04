@@ -21,7 +21,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class ImdiDragDrop {
 
-    public DataFlavor imdiObjectFlavour = new DataFlavor(ImdiHelper.ImdiTreeObject.class, "ImdiTreeObject");
+    public DataFlavor imdiObjectFlavour = new DataFlavor(ImdiTreeObject.class, "ImdiTreeObject");
     public ImdiObjectSelection imdiObjectSelection = new ImdiObjectSelection();
 
     public void addDrag(JTable tableSource) {
@@ -86,7 +86,7 @@ public class ImdiDragDrop {
     public class ImdiObjectSelection extends TransferHandler implements Transferable {
 
         DataFlavor flavors[] = {imdiObjectFlavour};
-        ImdiHelper.ImdiTreeObject[] draggedImdiObjects;
+        ImdiTreeObject[] draggedImdiObjects;
         public boolean selectionContainsArchivableLocalFile = false;
         public boolean selectionContainsLocalFile = false;
         public boolean selectionContainsLocalDirectory = false;
@@ -180,7 +180,7 @@ public class ImdiDragDrop {
 
         private Container findImdiSplitPanel(Container tempCom) {
             while (tempCom != null) {
-                if (tempCom instanceof LinorgWindowManager.ImdiSplitPanel) {
+                if (tempCom instanceof LinorgSplitPanel) {
                     System.out.println("canImport true");
                     return tempCom;
                 }
@@ -209,13 +209,13 @@ public class ImdiDragDrop {
                 JTree draggedTree = (JTree) comp;
                 //System.out.println("selectedCount: " + draggedTree.getSelectionCount());
                 //TreePath draggedPath[] = draggedTree.getSelectionPaths();
-                draggedImdiObjects = new ImdiHelper.ImdiTreeObject[draggedTree.getSelectionCount()];
+                draggedImdiObjects = new ImdiTreeObject[draggedTree.getSelectionCount()];
                 for (int selectedCount = 0; selectedCount < draggedTree.getSelectionCount(); selectedCount++) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) draggedTree.getSelectionPaths()[selectedCount].getLastPathComponent();
                     //System.out.println("parentNode: " + parentNode.toString());
-                    if (parentNode.getUserObject() instanceof ImdiHelper.ImdiTreeObject) {
+                    if (parentNode.getUserObject() instanceof ImdiTreeObject) {
                         //System.out.println("DraggedImdi: " + parentNode.getUserObject().toString());
-                        draggedImdiObjects[selectedCount] = (ImdiHelper.ImdiTreeObject) (parentNode.getUserObject());
+                        draggedImdiObjects[selectedCount] = (ImdiTreeObject) (parentNode.getUserObject());
                         // classify the draggable bundle to help matching drop targets
                         selectionContainsArchivableLocalFile = draggedImdiObjects[selectedCount].isArchivableFile();
                         if (draggedImdiObjects[selectedCount].isLocal()) {
@@ -253,10 +253,10 @@ public class ImdiDragDrop {
             } else if (comp instanceof JList) {
                 Object[] selectedValues = ((JList) comp).getSelectedValues();
                 //System.out.println("selectedValues: " + selectedValues);
-                draggedImdiObjects = new ImdiHelper.ImdiTreeObject[selectedValues.length];
+                draggedImdiObjects = new ImdiTreeObject[selectedValues.length];
                 for (int selectedNodeCounter = 0; selectedNodeCounter < selectedValues.length; selectedNodeCounter++) {
-                    if (selectedValues[selectedNodeCounter] instanceof ImdiHelper.ImdiTreeObject) {
-                        draggedImdiObjects[selectedNodeCounter] = (ImdiHelper.ImdiTreeObject) selectedValues[selectedNodeCounter];
+                    if (selectedValues[selectedNodeCounter] instanceof ImdiTreeObject) {
+                        draggedImdiObjects[selectedNodeCounter] = (ImdiTreeObject) selectedValues[selectedNodeCounter];
                     }
                 }
                 return this;
@@ -281,8 +281,8 @@ public class ImdiDragDrop {
                     GuiHelper.treeHelper.getImdiChildNodes(targetNode);
                     Object dropTargetUserObject = targetNode.getUserObject();
                     System.out.println("to: " + dropTargetUserObject.toString());
-                    if (dropTargetUserObject instanceof ImdiHelper.ImdiTreeObject) {
-                        if (((ImdiHelper.ImdiTreeObject) dropTargetUserObject).isSession()) {
+                    if (dropTargetUserObject instanceof ImdiTreeObject) {
+                        if (((ImdiTreeObject) dropTargetUserObject).isSession()) {
                             if (selectionContainsArchivableLocalFile == true &&
                                     selectionContainsLocalFile == true &&
                                     selectionContainsLocalDirectory == false &&
@@ -295,7 +295,7 @@ public class ImdiDragDrop {
                                 System.out.println("ok to add local file");
                                 for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                    Vector tempVector = ((ImdiHelper.ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
+                                    Vector tempVector = ((ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
                                     GuiHelper.treeHelper.refreshChildNodes(targetNode);
                                     GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new Resource(s) in " + dropTargetUserObject);
                                 }
@@ -306,8 +306,8 @@ public class ImdiDragDrop {
 //                    }
                 } else {
                     Container imdiSplitPanel = findImdiSplitPanel(comp);
-                    if (imdiSplitPanel instanceof LinorgWindowManager.ImdiSplitPanel) {
-                        LinorgWindowManager.ImdiSplitPanel targetPanel = (LinorgWindowManager.ImdiSplitPanel) imdiSplitPanel;
+                    if (imdiSplitPanel instanceof LinorgSplitPanel) {
+                        LinorgSplitPanel targetPanel = (LinorgSplitPanel) imdiSplitPanel;
                         ImdiTableModel dropTableModel = (ImdiTableModel) targetPanel.imdiTable.getModel();
                         dropTableModel.addImdiObjects(draggedImdiObjects);
                     }

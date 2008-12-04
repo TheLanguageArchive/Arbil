@@ -5,32 +5,20 @@
 package mpi.linorg;
 
 import java.awt.AWTEvent;
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -124,46 +112,63 @@ public class LinorgWindowManager {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 
             public void eventDispatched(AWTEvent e) {
-//                System.out.println("keyPressed: "+e.paramString());
+                boolean isKeybordRepeat = false;
                 if (e instanceof KeyEvent) {
-//                    System.out.println("ControlDown");
-//                    System.out.println("is KeyEvent");
-//                    System.out.println("KeyEvent.getID: " + ((KeyEvent) e).getID());
-                    if (((KeyEvent) e).isControlDown() && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
-//                        System.out.println("VK_W");
-                        JInternalFrame focusedWindow = desktopPane.getSelectedFrame();
-                        if (focusedWindow != null) {
-                            String windowName = focusedWindow.getName();
-                            Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                            if (windowAndMenu != null) {
-                                windowMenu.remove(windowAndMenu[1]);
-                            }
-                            windowList.remove(windowName);
-                            desktopPane.remove(focusedWindow);
-                            try {
-                                JInternalFrame topMostWindow = desktopPane.getAllFrames()[0];
-                                if (topMostWindow != null) {
-                                    System.out.println("topMostWindow: " + topMostWindow);
-                                    topMostWindow.setSelected(true);
+                    // only consider key release events
+                    if (e.getID() == KeyEvent.KEY_RELEASED) {
+                        // work around for jvm in linux
+                        // due to the bug in the jvm for linux the keyboard repeats are shown as real key events, so we attempt to prevent ludicrous key events being used here
+                        KeyEvent nextPress = (KeyEvent) Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent(KeyEvent.KEY_PRESSED);
+                        if (nextPress != null) {
+                            // the next key event is at the same time as this event
+                            if ((nextPress.getWhen() == ((KeyEvent) e).getWhen())) {
+                                // the next key code is the same as this event                                
+                                if (((nextPress.getKeyCode() == ((KeyEvent) e).getKeyCode()))) {
+                                    isKeybordRepeat = true;
                                 }
-                            } catch (Exception ex) {
-                                System.out.println(ex.getMessage());
                             }
-                            desktopPane.repaint();
                         }
-                    }
-                    if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown()) {
-                        try {
-                            JInternalFrame[] allWindows = desktopPane.getAllFrames();
-                            int targetLayerInt;
-                            if (((KeyEvent) e).isShiftDown()) {
-                                targetLayerInt = 1;
-                            } else {
-                                targetLayerInt = allWindows.length - 1;
+                        // end work around for jvm in linux
+                        if (!isKeybordRepeat) {
+//                            System.out.println("KeyEvent.paramString: " + ((KeyEvent) e).paramString());
+//                            System.out.println("KeyEvent.getWhen: " + ((KeyEvent) e).getWhen());
+                            if (((KeyEvent) e).isControlDown() && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
+                                JInternalFrame focusedWindow = desktopPane.getSelectedFrame();
+                                if (focusedWindow != null) {
+                                    String windowName = focusedWindow.getName();
+                                    Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+                                    if (windowAndMenu != null) {
+                                        windowMenu.remove(windowAndMenu[1]);
+                                    }
+                                    windowList.remove(windowName);
+                                    desktopPane.remove(focusedWindow);
+                                    try {
+                                        JInternalFrame topMostWindow = desktopPane.getAllFrames()[0];
+                                        if (topMostWindow != null) {
+                                            System.out.println("topMostWindow: " + topMostWindow);
+                                            topMostWindow.setSelected(true);
+                                        }
+                                    } catch (Exception ex) {
+                                        System.out.println(ex.getMessage());
+                                    }
+                                    desktopPane.repaint();
+                                }
                             }
-                            allWindows[targetLayerInt].setSelected(true);
-                        } catch (Exception ex) {
-                            System.out.println(ex.getMessage());
+                            if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown()) {
+                                try {
+                                    JInternalFrame[] allWindows = desktopPane.getAllFrames();
+                                    int targetLayerInt;
+                                    if (((KeyEvent) e).isShiftDown()) {
+                                        allWindows[0].moveToBack();
+                                        targetLayerInt = 1;
+                                    } else {
+                                        targetLayerInt = allWindows.length - 1;
+                                    }
+                                    allWindows[targetLayerInt].setSelected(true);
+                                } catch (Exception ex) {
+                                    System.out.println(ex.getMessage());
+                                }
+                            }
                         }
                     }
                 }
@@ -171,9 +176,9 @@ public class LinorgWindowManager {
         }, AWTEvent.KEY_EVENT_MASK);
     }
 
-    public void createWindow(String windowTitle, Component contentsComponent) {
+    public JInternalFrame createWindow(String windowTitle, Component contentsComponent) {
         JInternalFrame currentInternalFrame = new javax.swing.JInternalFrame();
-//        GuiHelper.imdiDragDrop.addTransferHandler(currentInternalFrame);
+        //        GuiHelper.imdiDragDrop.addTransferHandler(currentInternalFrame);
         currentInternalFrame.add(contentsComponent);
         windowTitle = addWindowToList(windowTitle, currentInternalFrame);
 
@@ -217,6 +222,13 @@ public class LinorgWindowManager {
             nextWindowY = 0;
         }
         desktopPane.add(currentInternalFrame, 0);
+        try {
+            // prevent the frame focus process onsuming mouse events that should be recieved by the jtable etc.
+            currentInternalFrame.setSelected(true);
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+        return currentInternalFrame;
     }
 
     public void openUrlWindow(String frameTitle, URL locationUrl) {
@@ -237,121 +249,8 @@ public class LinorgWindowManager {
 
     public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
         ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
-        ImdiSplitPanel imdiSplitPanel = new ImdiSplitPanel(imdiTable);
+        LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
         this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.setSplitDisplay();
-    }
-
-    public class ImdiSplitPanel extends JPanel {
-
-        private JList fileList;
-        public ImdiTable imdiTable;
-        private JScrollPane tableScrollPane;
-        private JScrollPane listScroller;
-        private JSplitPane splitPane;
-
-        public ImdiSplitPanel(ImdiTable localImdiTable) {
-//            setBackground(new Color(0xFF00FF));
-            this.setLayout(new BorderLayout());
-
-            imdiTable = localImdiTable;
-            splitPane = new JSplitPane();
-
-            fileList = new JList(((ImdiTableModel) localImdiTable.getModel()).getListModel(this));
-            fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-            fileList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-            fileList.setVisibleRowCount(-1);
-
-            listScroller = new JScrollPane(fileList);
-            listScroller.setPreferredSize(new Dimension(250, 80));
-
-            ImageBoxRenderer renderer = new ImageBoxRenderer();
-            fileList.setCellRenderer(renderer);
-            splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-            splitPane.setDividerSize(5);
-            tableScrollPane = new JScrollPane(imdiTable);
-        }
-
-        public void setSplitDisplay() {
-            this.removeAll();
-            if (fileList.getModel().getSize() == 0) {
-                this.add(tableScrollPane);
-            } else {
-                splitPane.setTopComponent(tableScrollPane);
-                splitPane.setTopComponent(tableScrollPane);
-                splitPane.setBottomComponent(listScroller);
-                GuiHelper.imdiDragDrop.addDrag(fileList);
-                GuiHelper.imdiDragDrop.addTransferHandler(tableScrollPane);
-                this.add(splitPane);
-                this.doLayout();
-                splitPane.setDividerLocation(0.5);
-            }
-            GuiHelper.imdiDragDrop.addDrag(imdiTable);
-            GuiHelper.imdiDragDrop.addTransferHandler(this);
-            this.doLayout();
-        }
-    }
-
-    class ImageBoxRenderer extends JLabel implements ListCellRenderer {
-
-        int outputWidth = 200;
-        int outputHeight = 130;
-
-        public ImageBoxRenderer() {
-            setOpaque(true);
-            setHorizontalAlignment(CENTER);
-            setVerticalAlignment(CENTER);
-            setVerticalTextPosition(JLabel.BOTTOM);
-            setHorizontalTextPosition(JLabel.CENTER);
-            setPreferredSize(new Dimension(outputWidth + 10, outputHeight + 50));
-        }
-
-        /*
-         * This method finds the image and text corresponding
-         * to the selected value and returns the label, set up
-         * to display the text and image.
-         */
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-
-            if (isSelected) {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-            } else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-            }
-
-            //Set the icon and text.  If icon was null, say so.
-            if (value instanceof ImdiHelper.ImdiTreeObject) {
-                ImdiHelper.ImdiTreeObject imdiObject = (ImdiHelper.ImdiTreeObject) value;
-                setText(imdiObject.toString());
-                String targetFile = "";
-                if (imdiObject.hasResource()) {
-                    targetFile = imdiObject.getResource();
-                } else if (imdiObject.isArchivableFile()) {
-                    targetFile = imdiObject.getUrlString();
-                }
-
-                ImageIcon icon = new ImageIcon(targetFile.replace("file://", ""));
-                if (icon != null) {
-//                        int outputWidth = 32;
-//                        int outputHeight = 32;
-//                        int outputWidth = getPreferredSize().width;
-//                        int outputHeight = getPreferredSize().height - 100;
-                    BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
-                    Graphics2D g2 = resizedImg.createGraphics();
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g2.drawImage(icon.getImage(), 0, 0, outputWidth, outputHeight, null);
-                    g2.dispose();
-                    ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
-                    setIcon(thumbnailIcon);
-                }
-
-                setFont(list.getFont());
-            } else {
-                setText(value.toString() + " (no image available)");
-            }
-            return this;
-        }
     }
 }

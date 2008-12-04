@@ -63,13 +63,13 @@ public class ImdiSchema {
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
-        if (targetNodeUserObject instanceof ImdiHelper.ImdiTreeObject) {
-            if (((ImdiHelper.ImdiTreeObject) targetNodeUserObject).isSession()) {
+        if (targetNodeUserObject instanceof ImdiTreeObject) {
+            if (((ImdiTreeObject) targetNodeUserObject).isSession()) {
                 childTypes.add("Actor");
                 childTypes.add("WrittenResource");
                 childTypes.add("Anonym");
                 childTypes.add("MediaFile");
-            } else if (!((ImdiHelper.ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
+            } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add("Corpus");
                 childTypes.add("Session");
             }
