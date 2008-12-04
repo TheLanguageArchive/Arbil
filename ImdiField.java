@@ -12,7 +12,8 @@ import java.util.Hashtable;
  * @author petwit
  */
 public class ImdiField {
-
+    static private ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
+    
     public ImdiTreeObject parentImdi;
     public String xmlPath;
     public String translatedPath;
@@ -54,9 +55,9 @@ public class ImdiField {
         }
         // make sure that the current value is in the list if it is an open vocabulary (this could be done in a better place ie on first load whe all the values are available)
         if (vocabularyIsOpen) {
-            ImdiHelper.imdiVocabularies.addVocabularyEntry(vocabularyKey, fieldValue);
+            imdiVocabularies.addVocabularyEntry(vocabularyKey, fieldValue);
         }
-        return ImdiHelper.imdiVocabularies.getVocabulary(vocabularyKey);
+        return imdiVocabularies.getVocabulary(vocabularyKey);
     }
 
     public boolean isDisplayable() {
@@ -69,7 +70,7 @@ public class ImdiField {
             Object linkAttribute = fieldAttributes.get("Link");
             if (linkAttribute != null) {
                 vocabularyKey = linkAttribute.toString();
-                ImdiHelper.imdiVocabularies.getVocabulary(vocabularyKey);
+                imdiVocabularies.getVocabulary(vocabularyKey);
             }
         }
     // end set up the vocabularies

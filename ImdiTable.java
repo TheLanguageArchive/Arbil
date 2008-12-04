@@ -393,10 +393,10 @@ public class ImdiTable extends JTable {
             DefaultTableCellRenderer multiIconLabelRenderer = new DefaultTableCellRenderer();
             int currentIconXPosition = 0;
 
-            int width = ImdiHelper.corpusicon.getIconWidth() * ((Object[]) cellField).length;
-            int height = ImdiHelper.corpusicon.getIconHeight();
+            int width = ImdiTreeObject.imdiIcons.corpusicon.getIconWidth() * ((Object[]) cellField).length;
+            int height = ImdiTreeObject.imdiIcons.corpusicon.getIconHeight();
             if (width == 0) { // make sure that zero length child cells have a width
-                width = ImdiHelper.corpusicon.getIconWidth();
+                width = ImdiTreeObject.imdiIcons.corpusicon.getIconWidth();
             }
             BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 

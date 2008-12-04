@@ -30,6 +30,7 @@ public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
     private static IMDIDom api = new IMDIDom();
     public static MimeHashQueue mimeHashQueue = new MimeHashQueue(); // used to calculate mime types and md5 sums
+    static ImdiIcons imdiIcons;
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     boolean debugOn = false;
     Hashtable fieldHashtable = new Hashtable();
@@ -74,12 +75,37 @@ public class ImdiTreeObject implements Comparable {
             // if it is an imdi or a loose file but not a direcotry then get the md5sum
             mimeHashQueue.addToQueue(this);
         }
-        
-        if (ImdiHelper.isStringImdi(urlString) || ImdiHelper.isStringImdiHistoryFile(urlString)) {
+
+        if (ImdiTreeObject.isStringImdi(urlString) || ImdiTreeObject.isStringImdiHistoryFile(urlString)) {
             loadImdiDom(false);
         }
     }
+    // static methods for testing imdi file and object types
+    static public boolean isImdiNode(Object unknownObj) {
+        if (unknownObj == null) {
+            return false;
+        }
+        return (unknownObj instanceof ImdiTreeObject);
+    }
 
+    static public boolean isStringLocal(String urlString) {
+        return (!urlString.startsWith("http://"));
+    }
+
+    static public boolean isStringImdiHistoryFile(String urlString) {
+//        System.out.println("isStringImdiHistoryFile" + urlString);
+//        System.out.println("isStringImdiHistoryFile" + urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
+        return isStringImdi(urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
+    }
+
+    static public boolean isStringImdi(String urlString) {
+        return urlString.endsWith(".imdi");
+    }
+
+    static public boolean isStringImdiChild(String urlString) {
+        return urlString.contains("#.METATRANSCRIPT");
+    }
+    // end static methods for testing imdi file and object types
     private void debugOut(String messageString) {
         if (debugOn) {
             System.out.println(messageString);
@@ -319,7 +345,7 @@ public class ImdiTreeObject implements Comparable {
                         ImdiTreeObject currentImdi = new ImdiTreeObject(null, imdiLinkArray[linkCount]);
 //                        tempImdiVector.add(currentImdi);
                         childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
-                        if (ImdiHelper.isStringImdi(imdiLinkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
+                        if (ImdiTreeObject.isStringImdi(imdiLinkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
                             currentImdi.loadImdiDom(saveToCache);
                         }
                     }
@@ -855,8 +881,8 @@ public class ImdiTreeObject implements Comparable {
                 for (Enumeration listOfMatches = mimeHashQueue.getDuplicateList(hashString); listOfMatches.hasMoreElements();) {
                     String currentUrl = listOfMatches.nextElement().toString();
                     //System.out.println("currentUrl: " + currentUrl);
-                    if (ImdiHelper.isStringLocal(currentUrl)) {
-                        if (ImdiHelper.isStringImdiChild(currentUrl)) {
+                    if (ImdiTreeObject.isStringLocal(currentUrl)) {
+                        if (ImdiTreeObject.isStringImdiChild(currentUrl)) {
                             matchesLocalResource++;
                         } else {
                             matchesLocal++;
@@ -883,7 +909,7 @@ public class ImdiTreeObject implements Comparable {
             if (isImdiChild()) {
                 return true;
             } else {
-                return ImdiHelper.isStringImdi(urlString);
+                return ImdiTreeObject.isStringImdi(urlString);
             }
         }
         return false;
@@ -894,7 +920,7 @@ public class ImdiTreeObject implements Comparable {
      * @return boolean
      */
     public boolean isImdiChild() {
-        return ImdiHelper.isStringImdiChild(urlString);
+        return ImdiTreeObject.isStringImdiChild(urlString);
     }
 
     public boolean isSession() {
@@ -904,7 +930,7 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isLocal() {
         if (urlString != null) {
-            return ImdiHelper.isStringLocal(urlString);
+            return ImdiTreeObject.isStringLocal(urlString);
         } else {
             return false;
         }
@@ -992,14 +1018,14 @@ public class ImdiTreeObject implements Comparable {
      */
     public Icon getIcon() {
         if (needsChangesSentToServer()) {
-            icon = ImdiHelper.exclamy;
+            icon = imdiIcons.exclamy;
 //                icon = tickb;
 //                if (imdiNeedsSaveToDisk) {
 //                    
 //                }
         }
         if (imdiNeedsSaveToDisk) {
-            icon = ImdiHelper.exclamr;
+            icon = imdiIcons.exclamr;
         }
         if (icon == null) {
             this.getMimeHashResult();
@@ -1008,49 +1034,49 @@ public class ImdiTreeObject implements Comparable {
                 //String mediaTypeString = typeObject.toString();
                 //nodeText = mediaTypeString;
                 if (mpiMimeType.contains("audio")) {
-                    icon = ImdiHelper.audiofileicon;
+                    icon = imdiIcons.audiofileicon;
                 } else if (mpiMimeType.contains("video")) {
-                    icon = ImdiHelper.videofileicon;
+                    icon = imdiIcons.videofileicon;
                 } else if (mpiMimeType.contains("image")) {// ?????
-                    icon = ImdiHelper.picturefileicon;
+                    icon = imdiIcons.picturefileicon;
                 } else if (mpiMimeType.contains("text")) {
-                    icon = ImdiHelper.writtenresicon;
+                    icon = imdiIcons.writtenresicon;
                 } else if (mpiMimeType.contains("nonarchivable")) {
-                    icon = ImdiHelper.fileIcon;
+                    icon = imdiIcons.fileIcon;
                 } else if (mpiMimeType.contains("unreadable")) {
-                    icon = ImdiHelper.fileUnReadable;
+                    icon = imdiIcons.fileUnReadable;
                 } else {
-                    icon = ImdiHelper.fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
+                    icon = imdiIcons.fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
                     nodeText = mpiMimeType + " : " + nodeText;
                 }
             } else if (isImdi()) {
                 if (isImdiChild()) {
                     if (resourceUrlString != null && hashString == null) {
-                        icon = ImdiHelper.fileCrossIcon;
+                        icon = imdiIcons.fileCrossIcon;
                     } else {
-                        icon = ImdiHelper.dataicon;
+                        icon = imdiIcons.dataicon;
                     }
                 } else if (isSession()) {
                     if (isLocal()) {
                         if (matchesRemote == 0) {
-                            icon = ImdiHelper.sessionlocalicon;
+                            icon = imdiIcons.sessionlocalicon;
                         } else {
-                            icon = ImdiHelper.sessionlocalservericon;
+                            icon = imdiIcons.sessionlocalservericon;
                         }
                     } else {
-                        icon = ImdiHelper.sessionservericon;
+                        icon = imdiIcons.sessionservericon;
                     }
                 } else {
                     if (isLocal()) {
                         if (matchesRemote == 0) {
-                            icon = ImdiHelper.corpuslocalicon;
+                            icon = imdiIcons.corpuslocalicon;
                         } else {
-                            icon = ImdiHelper.corpuslocalservericon;
+                            icon = imdiIcons.corpuslocalservericon;
                         }
                     } else {
                         // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
 //                            if (matchesLocal == 0) {
-                        icon = ImdiHelper.corpusservericon;
+                        icon = imdiIcons.corpusservericon;
 //                            } else {
 //                                icon = corpuslocalservericon;
 //                            }
@@ -1071,7 +1097,7 @@ public class ImdiTreeObject implements Comparable {
 //                            if (matchesLocalResource > 0) {
 //                                icon = fileTickIcon;
 //                            } else /*if (matchesRemote == 0)*/ {
-                    icon = ImdiHelper.fileUnknown;
+                    icon = imdiIcons.fileUnknown;
 //                            }
 //                        }
 //                        else {
@@ -1079,7 +1105,7 @@ public class ImdiTreeObject implements Comparable {
 //                        }
                 } else {
 //                        if (matchesLocal == 0) {
-                    icon = ImdiHelper.fileServerIcon;
+                    icon = imdiIcons.fileServerIcon;
 //                        } else {
 //                            icon = fileServerIcon;
 //                        }

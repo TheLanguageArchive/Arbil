@@ -24,12 +24,10 @@ import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * 
+ *
  * @author petwit
  */
 public class GuiHelper {
-
-    static ImdiHelper imdiHelper;
     static ImdiFieldViews imdiFieldViews;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
@@ -49,7 +47,7 @@ public class GuiHelper {
     };
 
     public GuiHelper() {
-        imdiHelper = new ImdiHelper();
+        //imdiHelper = new ImdiIcons();
         imdiFieldViews = new ImdiFieldViews();
         treeHelper.loadLocationsList();
     }
@@ -299,7 +297,7 @@ public class GuiHelper {
     public void addToGridData(TableModel tableModel, Object itemNode) {
         // there is no point loading the child nodes to display the parent node in a grid, however if the child nodes are requested for display then at that point they will need to be loaded but not at this point
         //getImdiChildNodes(itemNode); // load the child nodes and the fields for each
-        if (imdiHelper.isImdiNode(itemNode)) {
+        if (ImdiTreeObject.isImdiNode(itemNode)) {
             ImdiTreeObject itemImdiTreeObject = (ImdiTreeObject) itemNode;
             String hashKey = itemImdiTreeObject.getUrlString();
             System.out.println("hashkey: " + hashKey);
@@ -353,7 +351,7 @@ public class GuiHelper {
         for (Enumeration nodesToRemoveEnum = nodesToRemove.elements(); nodesToRemoveEnum.hasMoreElements();) {
             // iterate over the supplied nodes
             Object currentObject = nodesToRemoveEnum.nextElement();
-            if (imdiHelper.isImdiNode(currentObject)) {
+            if (ImdiTreeObject.isImdiNode(currentObject)) {
                 String hashKey = ((ImdiTreeObject) currentObject).getUrlString();
                 if (selectedFilesList.containsKey(hashKey)) {
                     // remove any image nodes from the image window                
