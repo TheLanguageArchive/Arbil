@@ -8,13 +8,14 @@ package mpi.linorg;
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
@@ -76,6 +77,16 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         GuiHelper.linorgWindowManager.setComponents(windowMenu, this, jDesktopPane1);
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
+
+        String lastChange = "";
+        try {
+            BufferedReader versionDate = new BufferedReader(new FileReader("version.date"));
+            lastChange = versionDate.readLine();
+            System.out.println("lastChange: " + lastChange);
+        } catch (Exception ex) {
+        }
+
+        setTitle("Linorg (testing version, not for production use) " + lastChange);
     }
 
     private void addLocation(String addableLocation) {
@@ -130,6 +141,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         copyImdiUrlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItem1 = new javax.swing.JMenuItem();
+        validateMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
         addRemoteCorpusMenuItem = new javax.swing.JMenuItem();
         addDefaultLocationsMenuItem = new javax.swing.JMenuItem();
@@ -140,7 +152,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveMenuItem = new javax.swing.JMenuItem();
         viewChangesMenuItem = new javax.swing.JMenuItem();
         sendToServerMenuItem = new javax.swing.JMenuItem();
-        validateMenuItem = new javax.swing.JMenuItem();
         mainSplitPane = new javax.swing.JSplitPane();
         leftSplitPane = new javax.swing.JSplitPane();
         leftLocalSplitPane = new javax.swing.JSplitPane();
@@ -238,6 +249,15 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(viewXmlMenuItem1);
+
+        validateMenuItem.setText("Check IMDI format");
+        validateMenuItem.setActionCommand("Check IMDI format");
+        validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                validateMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(validateMenuItem);
         treePopupMenu.add(treePopupMenuSeparator2);
 
         addRemoteCorpusMenuItem.setText("Add Remote Location");
@@ -311,14 +331,6 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(sendToServerMenuItem);
-
-        validateMenuItem.setText("Check IMDI format.");
-        validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                validateMenuItemActionPerformed(evt);
-            }
-        });
-        treePopupMenu.add(validateMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Linorg");
@@ -599,6 +611,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
         sendToServerMenuItem.setVisible(false);
+        validateMenuItem.setVisible(false);
 
         if (evt.getSource() == remoteCorpusTree) {
             removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
@@ -624,6 +637,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
                 }
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItem1.setVisible(true);
+                validateMenuItem.setVisible(true);
             }
             showContextMenu = true; //nodeLevel != 1;
         }
@@ -691,7 +705,7 @@ private void viewXmlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//G
 private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
 // TODO add your handling code here:
     //DefaultMutableTreeNode selectedTreeNode = null;
-    ImdiTreeObject selectedImdiNode = (ImdiTreeObject)GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker());
+    ImdiTreeObject selectedImdiNode = (ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker());
 
     if (selectedImdiNode == null) {
         if (localCorpusTree.getSelectionPath() != null) {
@@ -879,15 +893,14 @@ private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt)
 
 private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewChangesMenuItemActionPerformed
 // TODO add your handling code here:
-
 }//GEN-LAST:event_viewChangesMenuItemActionPerformed
 
 private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateMenuItemActionPerformed
 // TODO add your handling code here:
-    //XsdChecker xsdChecker = new XsdChecker();
-    //GuiHelper.linorgWindowManager.createWindow("XsdChecker", new JScrollPane(xsdChecker));
+        //XsdChecker xsdChecker = new XsdChecker();
+        //GuiHelper.linorgWindowManager.createWindow("XsdChecker", new JScrollPane(xsdChecker));
     // TODO: check the node type before passing
-    //xsdChecker.checkXML((ImdiTreeObject)GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
+        //xsdChecker.checkXML((ImdiTreeObject)GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
 }//GEN-LAST:event_validateMenuItemActionPerformed
 
     /**
