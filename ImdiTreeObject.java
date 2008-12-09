@@ -18,7 +18,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.Icon;
-import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.w3c.dom.NamedNodeMap;
 
@@ -32,25 +31,25 @@ public class ImdiTreeObject implements Comparable {
     public static MimeHashQueue mimeHashQueue = new MimeHashQueue(); // used to calculate mime types and md5 sums
     static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
-    boolean debugOn = false;
-    Hashtable fieldHashtable = new Hashtable();
-    Hashtable childrenHashtable = new Hashtable();
-    boolean imdiDataLoaded = false;
-    String hashString = null;
-    String mpiMimeType = null;
-    int matchesLocal = 0;
-    int matchesRemote = 0;
-    int matchesLocalResource = 0;
-    int imdiChildCounter = 0; // used to keep the imdi child nodes unique when they are added
-    boolean imdiNeedsSaveToDisk = false;
+    private boolean debugOn = false;
+    private Hashtable fieldHashtable = new Hashtable();
+    private Hashtable childrenHashtable = new Hashtable();
+    private boolean imdiDataLoaded = false;
+    public String hashString = null;
+    public String mpiMimeType = null;
+    public int matchesLocal = 0;
+    public int matchesRemote = 0;
+    public int matchesLocalResource = 0;
+    public int imdiChildCounter = 0; // used to keep the imdi child nodes unique when they are added
+    public boolean imdiNeedsSaveToDisk = false;
     private String nodeText;
     private String urlString;
     private String resourceUrlString;
-    private boolean isDirectory;
+    public boolean isDirectory;
     private Icon icon;
-    boolean nodeEnabled = true;
-    String[] imdiLinkArray; // an array of links found in the imdi or the listing of the directory depending on the object
-    Vector containersOfThisNode = new Vector();
+    private boolean nodeEnabled = true;
+    private String[] imdiLinkArray; // an array of links found in the imdi or the listing of the directory depending on the object
+    private Vector containersOfThisNode = new Vector();
 
     // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
@@ -1017,100 +1016,9 @@ public class ImdiTreeObject implements Comparable {
      * @return The icon for this node.
      */
     public Icon getIcon() {
-        if (needsChangesSentToServer()) {
-            icon = imdiIcons.exclamy;
-//                icon = tickb;
-//                if (imdiNeedsSaveToDisk) {
-//                    
-//                }
-        }
-        if (imdiNeedsSaveToDisk) {
-            icon = imdiIcons.exclamr;
-        }
         if (icon == null) {
             this.getMimeHashResult();
-            if (mpiMimeType != null) {
-                //nodeText = "isImdiChildWithType";
-                //String mediaTypeString = typeObject.toString();
-                //nodeText = mediaTypeString;
-                if (mpiMimeType.contains("audio")) {
-                    icon = imdiIcons.audiofileicon;
-                } else if (mpiMimeType.contains("video")) {
-                    icon = imdiIcons.videofileicon;
-                } else if (mpiMimeType.contains("image")) {// ?????
-                    icon = imdiIcons.picturefileicon;
-                } else if (mpiMimeType.contains("text")) {
-                    icon = imdiIcons.writtenresicon;
-                } else if (mpiMimeType.contains("nonarchivable")) {
-                    icon = imdiIcons.fileIcon;
-                } else if (mpiMimeType.contains("unreadable")) {
-                    icon = imdiIcons.fileUnReadable;
-                } else {
-                    icon = imdiIcons.fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
-                    nodeText = mpiMimeType + " : " + nodeText;
-                }
-            } else if (isImdi()) {
-                if (isImdiChild()) {
-                    if (resourceUrlString != null && hashString == null) {
-                        icon = imdiIcons.fileCrossIcon;
-                    } else {
-                        icon = imdiIcons.dataicon;
-                    }
-                } else if (isSession()) {
-                    if (isLocal()) {
-                        if (matchesRemote == 0) {
-                            icon = imdiIcons.sessionlocalicon;
-                        } else {
-                            icon = imdiIcons.sessionlocalservericon;
-                        }
-                    } else {
-                        icon = imdiIcons.sessionservericon;
-                    }
-                } else {
-                    if (isLocal()) {
-                        if (matchesRemote == 0) {
-                            icon = imdiIcons.corpuslocalicon;
-                        } else {
-                            icon = imdiIcons.corpuslocalservericon;
-                        }
-                    } else {
-                        // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
-//                            if (matchesLocal == 0) {
-                        icon = imdiIcons.corpusservericon;
-//                            } else {
-//                                icon = corpuslocalservericon;
-//                            }
-                    }
-                }
-            }
-        }
-        if (icon == null) {
-            if (this.isDirectory) {
-                icon = UIManager.getIcon("FileView.directoryIcon");
-            } else {
-                if (isLocal()) {
-
-//                        if (mpiMimeType != null) {
-//                            nodeText = "[" + mpiMimeType + "]" + nodeText;
-//                            icon = mediafileicon;
-//                        } else {
-//                            if (matchesLocalResource > 0) {
-//                                icon = fileTickIcon;
-//                            } else /*if (matchesRemote == 0)*/ {
-                    icon = imdiIcons.fileUnknown;
-//                            }
-//                        }
-//                        else {
-//                            icon = fileServerLocalIcon;
-//                        }
-                } else {
-//                        if (matchesLocal == 0) {
-                    icon = imdiIcons.fileServerIcon;
-//                        } else {
-//                            icon = fileServerIcon;
-//                        }
-                }
-            }
+            icon = imdiIcons.getIconForImdi(this);
         }
         return icon;
     }
