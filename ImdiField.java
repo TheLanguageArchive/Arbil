@@ -12,8 +12,8 @@ import java.util.Hashtable;
  * @author petwit
  */
 public class ImdiField {
+
     static private ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
-    
     public ImdiTreeObject parentImdi;
     public String xmlPath;
     public String translatedPath;
@@ -39,10 +39,12 @@ public class ImdiField {
     }
 
     public void setFieldValue(String fieldValue) {
-        this.fieldValue = fieldValue;
-        parentImdi.imdiNeedsSaveToDisk = true;
-        fieldNeedsSaveToDisk = true;
-        parentImdi.clearIcon();
+        if (!this.fieldValue.equals(fieldValue)) {
+            this.fieldValue = fieldValue;
+            parentImdi.imdiNeedsSaveToDisk = true;
+            fieldNeedsSaveToDisk = true;
+            parentImdi.clearIcon();
+        }
     }
 
     public boolean hasVocabulary() {
