@@ -341,7 +341,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 columnNamesTemp[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
                 columnPopulateCounter++;
             }
-            // populate the child node columns
+            // populate the child node column titles
             for (Enumeration childColEnum = childColumnNames.elements(); childColEnum.hasMoreElements();) {
                 columnNamesTemp[columnPopulateCounter] = childColEnum.nextElement().toString();
                 columnPopulateCounter++;
@@ -374,6 +374,7 @@ public class ImdiTableModel extends AbstractTableModel {
                             dataTemp[rowCounter][columnCounter] = "";
                         }
                     } else {
+                        // populate the cell with any the child nodes for the current child nodes column
                         dataTemp[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
                         // prevent null values
                         if (dataTemp[rowCounter][columnCounter] == null) {
