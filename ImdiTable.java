@@ -8,18 +8,15 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -230,7 +227,7 @@ public class ImdiTable extends JTable {
                     int clickedRow = rowAtPoint(p);
                     int clickedColumn = columnAtPoint(p);
                     boolean clickedRowAlreadySelected = isRowSelected(clickedRow);
-                    
+
                     if (!evt.isShiftDown() && !evt.isControlDown()) {
                         // if it is the right mouse button and there is already a selection then do not proceed in changing the selection
                         if (!((evt.getButton() == MouseEvent.BUTTON3 && clickedRowAlreadySelected))) {
@@ -254,6 +251,17 @@ public class ImdiTable extends JTable {
                     windowedTablePopupMenu.setName("windowedTablePopupMenu");
 
                     if (getSelectedRow() != -1) {
+
+                        JMenuItem viewSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                        viewSelectedRowsMenuItem.setText("View Selected Rows");
+                        viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                viewSelectedTableRows();
+                            }
+                        });
+                        windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
+
                         JMenuItem copySelectedRowsMenuItem = new javax.swing.JMenuItem();
                         copySelectedRowsMenuItem.setText("Copy Selected Rows");
                         copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -390,27 +398,16 @@ public class ImdiTable extends JTable {
             return iconLabelRenderer;
         } else if (cellField instanceof Object[]) {
             System.out.println("adding child nodes to cell");
-            DefaultTableCellRenderer multiIconLabelRenderer = new DefaultTableCellRenderer();
-            int currentIconXPosition = 0;
+            DefaultTableCellRenderer multiIconLabelRenderer = new DefaultTableCellRenderer() {
 
-            int width = ImdiTreeObject.imdiIcons.corpusicon.getIconWidth() * ((Object[]) cellField).length;
-            int height = ImdiTreeObject.imdiIcons.corpusicon.getIconHeight();
-            if (width == 0) { // make sure that zero length child cells have a width
-                width = ImdiTreeObject.imdiIcons.corpusicon.getIconWidth();
-            }
-            BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-            Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
-
-            Object[] childArray = (Object[]) cellField;
-            for (Object childImdiObject : childArray) {
-                Icon currentIcon = ((ImdiTreeObject) childImdiObject).getIcon();
-                currentIcon.paintIcon(multiIconLabelRenderer, g2d, currentIconXPosition, 0);
-                currentIconXPosition += currentIcon.getIconWidth();
-            }
-            g2d.dispose();
-            multiIconLabelRenderer.setIcon(new ImageIcon(bufferedImage));
-            multiIconLabelRenderer.setText(""); 
+                @Override
+                public String getText() {
+                    return "";
+                }
+            };
+            multiIconLabelRenderer.setIcon(ImdiTreeObject.imdiIcons.getIconForImdi((Object[]) cellField));
+//            multiIconLabelRenderer.setIcon(((ImdiTreeObject) ((Object[])cellField)[0]).getIcon());
+            multiIconLabelRenderer.setText("");
             return multiIconLabelRenderer;
         } else { //        add cell background colour
             DefaultTableCellRenderer fieldLabelRenderer = new DefaultTableCellRenderer();
@@ -539,6 +536,11 @@ public class ImdiTable extends JTable {
         } else {
             JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Nothing to copy");
         }
+    }
+
+    public void viewSelectedTableRows() {
+        int[] selectedRows = this.getSelectedRows();
+        GuiHelper.linorgWindowManager.openFloatingTable(new Vector(Arrays.asList(imdiTableModel.getSelectedImdiNodes(selectedRows))).elements(), "Selection");
     }
 
     public ImdiTreeObject[] getSelectedRowsFromTable() {
