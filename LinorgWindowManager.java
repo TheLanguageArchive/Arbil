@@ -237,6 +237,8 @@ public class LinorgWindowManager {
         htmlDisplay.setContentType("text/html");
         try {
             htmlDisplay.setPage(locationUrl);
+            htmlDisplay.addHyperlinkListener(new LinorgHyperlinkListener());
+            
         //gridViewInternalFrame.setMaximum(true);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
