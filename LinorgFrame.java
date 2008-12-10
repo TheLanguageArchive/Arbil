@@ -78,15 +78,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         GuiHelper.linorgWindowManager.setComponents(windowMenu, this, jDesktopPane1);
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
-        String lastChange = "";
-        try {
-            BufferedReader versionDate = new BufferedReader(new FileReader("version.date"));
-            lastChange = versionDate.readLine();
-            System.out.println("lastChange: " + lastChange);
-        } catch (Exception ex) {
-        }
-
-        setTitle("Linorg (testing version, not for production use) " + lastChange);
+        setTitle("Linorg (testing version, not for production use) " + new linorgVersion().compileDate);
     }
 
     private void addLocation(String addableLocation) {

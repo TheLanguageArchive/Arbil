@@ -67,7 +67,7 @@ public class ThreadedDialog {
 
     public void copyToCache(Vector localSelectedNodes) {
         selectedNodes = localSelectedNodes;
-        searchDialog.setTitle("Copy Brach");
+        searchDialog.setTitle("Copy Branch");
         if (!selectedNodesContainImdi()) {
             JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
             return;
@@ -75,7 +75,7 @@ public class ThreadedDialog {
         //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
 
         //destinationDirectory = destinationDirectory + File.separator + mirrorNameString;
-        //boolean brachDirCreated = (new File(destinationDirectory)).mkdir();
+        //boolean branchDirCreated = (new File(destinationDirectory)).mkdir();
         // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
         if (GuiHelper.linorgSessionStorage.cacheDirExists()) {
             performCopy();
@@ -289,7 +289,7 @@ public class ThreadedDialog {
 //                                    if (!stopSearch) {
 //                                        // perform the copy
 //                                        appendToTaskOutput("Saving to: " + newNodeLocation);
-//                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBrachToLocal();
+//                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBranchToLocal();
 //                                    }
                             //                             } else {
                             //                                 appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
