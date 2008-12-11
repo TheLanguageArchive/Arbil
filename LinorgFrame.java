@@ -33,8 +33,8 @@ public class LinorgFrame extends javax.swing.JFrame {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                guiHelper.saveState();
-                super.windowClosing(e);
+                performCleanExit();
+                //super.windowClosing(e);
             }
         });
 
@@ -77,6 +77,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
         setTitle("Linorg (Testing version, not for production use) " + new LinorgVersion().compileDate);
+    }
+
+    private void performCleanExit() {
+        guiHelper.saveState();
+        System.exit(0);
     }
 
     private void addLocation(String addableLocation) {
@@ -201,6 +206,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(searchSubnodesMenuItem);
 
         reloadSubnodesMenuItem.setText("Reload");
+        reloadSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reloadSubnodesMenuItemActionPerformed(evt);
+            }
+        });
         treePopupMenu.add(reloadSubnodesMenuItem);
 
         addMenu.setText("Add");
@@ -241,7 +251,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(viewXmlMenuItem1);
 
         validateMenuItem.setText("Check IMDI format");
-        validateMenuItem.setActionCommand("Check IMDI format");
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 validateMenuItemActionPerformed(evt);
@@ -446,6 +455,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         fileMenu.setText("File");
 
         exitMenuItem.setText("Exit");
+        exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitMenuItemActionPerformed(evt);
+            }
+        });
         fileMenu.add(exitMenuItem);
 
         jMenuBar1.add(fileMenu);
@@ -883,15 +897,24 @@ private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt)
 
 private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewChangesMenuItemActionPerformed
 // TODO add your handling code here:
+    
 }//GEN-LAST:event_viewChangesMenuItemActionPerformed
 
 private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateMenuItemActionPerformed
 // TODO add your handling code here:
-        //XsdChecker xsdChecker = new XsdChecker();
-        //GuiHelper.linorgWindowManager.createWindow("XsdChecker", new JScrollPane(xsdChecker));
-    // TODO: check the node type before passing
-        //xsdChecker.checkXML((ImdiTreeObject)GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
+    
 }//GEN-LAST:event_validateMenuItemActionPerformed
+
+private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
+// TODO add your handling code here:
+    performCleanExit();
+}//GEN-LAST:event_exitMenuItemActionPerformed
+
+private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadSubnodesMenuItemActionPerformed
+// TODO add your handling code here:
+    // TODO: this is inadequate and needs to be updated
+    //((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).clearIcon();
+}//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
     /**
      * @param args the command line arguments

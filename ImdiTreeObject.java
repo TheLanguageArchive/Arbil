@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.w3c.dom.NamedNodeMap;
 
@@ -41,12 +41,13 @@ public class ImdiTreeObject implements Comparable {
     public int matchesRemote = 0;
     public int matchesLocalResource = 0;
     public int imdiChildCounter = 0; // used to keep the imdi child nodes unique when they are added
+    public boolean fileNotFound = false;
     public boolean imdiNeedsSaveToDisk = false;
     private String nodeText;
     private String urlString;
     private String resourceUrlString;
     public boolean isDirectory;
-    private Icon icon;
+    private ImageIcon icon;
     private boolean nodeEnabled = true;
     private String[] imdiLinkArray; // an array of links found in the imdi or the listing of the directory depending on the object
     private Vector containersOfThisNode = new Vector();
@@ -129,6 +130,7 @@ public class ImdiTreeObject implements Comparable {
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
             if (nodDom == null) {
                 nodeText = "Could not load IMDI";
+                fileNotFound = true;
             } else {
                 //set the string name to unknown, it will be updated in the tostring function
                 nodeText = "unknown";
@@ -185,7 +187,7 @@ public class ImdiTreeObject implements Comparable {
                     returnArray = new String[links.length];
                     for (int linkCount = 0; linkCount < links.length; linkCount++) {
                         returnArray[linkCount] = links[linkCount].getRawURL().toString();
-                    //System.out.println("link:" + returnArray[linkCount]);
+                        System.out.println("ImdiLink:" + returnArray[linkCount]);
                     }
                 }
             }
@@ -678,11 +680,11 @@ public class ImdiTreeObject implements Comparable {
      */
     public String saveNodeToCache(Document nodDom) {
         String cacheLocation = null;
-//        debugOut("saveBrachToLocal: " + this.toString());
+        System.out.println("saveBranchToLocal: " + this.toString());
         if (this.isImdi() && !this.isImdiChild()) {
             if (nodDom != null) {
-                //System.out.println("saveBrachToLocal: " + this.getUrl());
-                //System.out.println("saveBrachToLocal: " + this.nodDom.);
+                //System.out.println("saveBranchToLocal: " + this.getUrl());
+                //System.out.println("saveBranchToLocal: " + this.nodDom.);
 
                 String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrlString());
 
@@ -706,7 +708,7 @@ public class ImdiTreeObject implements Comparable {
                 // no point iterating child nodes which have not been loaded, it is better to do the outside this function
 //                    Enumeration nodesToAddEnumeration = childrenHashtable.elements();
 //                    while (nodesToAddEnumeration.hasMoreElements()) {
-////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBrachToLocal(destinationDirectory);
+////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBranchToLocal(destinationDirectory);
 //                    }
                 cacheLocation = destinationPath;
 
@@ -927,6 +929,11 @@ public class ImdiTreeObject implements Comparable {
         return fieldHashtable.containsKey("Session.Name");
     }
 
+    public boolean isCorpus() {
+        // test if this node is a session
+        return fieldHashtable.containsKey("Corpus.Name");
+    }
+
     public boolean isLocal() {
         if (urlString != null) {
             return ImdiTreeObject.isStringLocal(urlString);
@@ -1015,7 +1022,7 @@ public class ImdiTreeObject implements Comparable {
      * To clear the icon and recalculate it "clearIcon()" should be called.
      * @return The icon for this node.
      */
-    public Icon getIcon() {
+    public ImageIcon getIcon() {
         if (icon == null) {
             this.getMimeHashResult();
             icon = imdiIcons.getIconForImdi(this);

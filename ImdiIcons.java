@@ -6,6 +6,7 @@ package mpi.linorg;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
@@ -15,42 +16,64 @@ import javax.swing.UIManager;
  * @author petwit
  */
 public class ImdiIcons {
-
-    private Icon corpusicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
-    private Icon corpuslocalicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/corpuslocal16x16c.png"));
-    private Icon corpuslocalservericon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/corpusserverlocal16x16c.png"));
-    private Icon corpusservericon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/corpusserver16x16c.png"));//    corpusserverlocal16x16c.png corpusserver16x16c.png 
-    public Icon serverIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/server16x16.png"));
-    public Icon directoryIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/directory16x16.png"));
-    private Icon fileIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/file16x16.png"));
-    private Icon fileTickIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/filetick16x16.png"));
-    private Icon fileCrossIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/filecross16x16.png"));
-    public Icon fileUnknown = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/fileunknown16x16.png"));
-    private Icon fileUnReadable = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/fileunreadable16x16.png"));
-    private Icon fileServerIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/fileserver16x16.png"));
-    private Icon fileLocalIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/filelocal16x16.png"));
-    private Icon fileServerLocalIcon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/fileserverlocal16x16.png"));
-    private Icon sessionicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/session_color.png"));
-    private Icon sessionlocalservericon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/session_color-serverlocal.png"));
-    private Icon sessionlocalicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/session_color-local.png"));
-    private Icon sessionservericon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/session_color-server.png"));
-    private Icon writtenresicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/writtenresource.png"));
-    private Icon mediafileicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/mediafile.png"));
-    private Icon videofileicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/video.png"));
-    private Icon audiofileicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/audio.png"));
-    private Icon picturefileicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/pictures.png"));
-    private Icon infofileicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/infofile.png"));
-    private Icon unknownnodeicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/file.png"));
-    private Icon dataicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/data.png"));
-    private Icon stopicon = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/stop.png"));
-    private Icon tickb = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/tick-b16x16.png"));
-    private Icon tickg = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/tick-g16x16.png"));
-    private Icon ticky = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/tick-y16x16.png"));
-    private Icon tickbgy = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/tick-bgy16x16.png"));
-    private Icon exclamb = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/exclam-b16x16.png"));
-    private Icon exclamg = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/exclam-g16x16.png"));
-    private Icon exclamy = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/exclam-y16x16.png"));
-    private Icon exclamr = new ImageIcon(this.getClass().getResource("/mpi/linorg/resources/icons/exclam-r16x16.png"));
+    // basic icons used in the gui
+    public static ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
+    public static ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
+    public static ImageIcon loadingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));    
+    // complex icons used for the imdi files
+    private ImageIcon corpusicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
+    private ImageIcon localicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/local.png"));
+    private ImageIcon remoteicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/remote.png"));
+    private ImageIcon blankIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/blank.png"));
+    private ImageIcon writtenresourceIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/writtenresource.png"));
+    private ImageIcon videoIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/video.png"));
+    private ImageIcon annotationIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/annotation.png"));
+    private ImageIcon audioIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/audio.png"));
+    private ImageIcon mediafileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/mediafile.png"));
+//    private ImageIcon corpuslocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpuslocal16x16c.png"));
+    private ImageIcon metadataIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/metadata.png"));
+    private ImageIcon corpusnodeColorIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
+    //private ImageIcon missingRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/missing-red.png"));
+    private ImageIcon missingRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/notfound.png"));
+//    private ImageIcon corpusnodeIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode.png"));
+//    private ImageIcon openerClosedBlackIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/Opener_closed_black.png"));
+//    private ImageIcon corpusIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpus.png"));
+//    private ImageIcon openerOpenBlackIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/Opener_open_black.png"));
+//    private ImageIcon corpusserver16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusserver16x16c.png"));
+    private ImageIcon picturesIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/pictures.png"));
+//    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusserverlocal16x16c.png"));
+//    private ImageIcon questionRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/question-red.png"));
+    private ImageIcon dataIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/data.png"));
+    private ImageIcon dataemptyIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/dataempty.png"));
+//    private ImageIcon server16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
+//    private ImageIcon directory16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
+//    private ImageIcon sessionColorLocalIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color-local.png"));
+//    private ImageIcon directoryclosed16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directoryclosed16x16.png"));
+    private ImageIcon sessionColorIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color.png"));
+    private ImageIcon exclamationBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-blue.png"));
+//    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color-serverlocal.png"));
+//    private ImageIcon exclamationGreenIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-green.png"));
+//    private ImageIcon sessionColorServerIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color-server.png"));
+    private ImageIcon exclamationRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-red.png"));
+//    private ImageIcon sessionIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session.png"));
+//    private ImageIcon exclamationYellowIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-yellow.png"));
+//    private ImageIcon stopIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/stop.png"));
+    private ImageIcon file16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file16x16.png"));
+//    private ImageIcon filelocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/filelocal16x16.png"));
+//    private ImageIcon tickBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-blue.png"));
+    private ImageIcon fileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file.png"));
+//    private ImageIcon tickGreenIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-green.png"));
+//    private ImageIcon fileserver16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/fileserver16x16.png"));
+//    private ImageIcon tickRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-red.png"));
+//    private ImageIcon fileserverlocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/fileserverlocal16x16.png"));
+//    private ImageIcon tickYellowIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-yellow.png"));
+//    private ImageIcon infofileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/infofile.png"));
+//    private ImageIcon transcriptIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/transcript.png"));
+//    private ImageIcon lexiconIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/lexicon.png"));    //  loading icons
+    private ImageIcon loading01Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
+//    private ImageIcon loading02Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading02.png"));
+//    private ImageIcon loading03Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading03.png"));
+//    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
 
     public ImageIcon getIconForImdi(Object[] imdiObjectArray) {
         int currentIconXPosition = 0;
@@ -62,7 +85,7 @@ public class ImdiIcons {
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
         for (Object childImdiObject : imdiObjectArray) {
-            Icon currentIcon = ((ImdiTreeObject) childImdiObject).getIcon();
+            ImageIcon currentIcon = ((ImdiTreeObject) childImdiObject).getIcon();
             currentIcon.paintIcon(null, g2d, currentIconXPosition, 0);
             currentIconXPosition += currentIcon.getIconWidth();
         }
@@ -70,103 +93,101 @@ public class ImdiIcons {
         return new ImageIcon(bufferedImage);
     }
 
-    public Icon getIconForImdi(ImdiTreeObject imdiObject) {
-        // TODO: create compound icons for the imdi nodes
-        Icon icon = null;
-        if (imdiObject.needsChangesSentToServer()) {
-            icon = exclamy;
-//                icon = tickb;
-//                if (imdiNeedsSaveToDisk) {
-//                    
-//                }
+    public ImageIcon compositIcons(Object[] iconArray) {
+        int widthTotal = 0;
+        int heightMax = 0;
+        for (Object currentIcon : iconArray) {
+            int width = ((Icon) currentIcon).getIconWidth();
+            int height = ((Icon) currentIcon).getIconHeight();
+            if (currentIcon != missingRedIcon) {
+                widthTotal += width;
+            }
+            if (heightMax < height) {
+                heightMax = height;
+            }
         }
-        if (imdiObject.imdiNeedsSaveToDisk) {
-            icon = exclamr;
+        int currentIconXPosition = 0;
+
+        BufferedImage bufferedImage = new BufferedImage(widthTotal, heightMax, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
+        for (Object currentIcon : iconArray) {
+            int yPos = (heightMax - ((Icon) currentIcon).getIconHeight()) / 2;
+            if (currentIcon != missingRedIcon) { // the missing icon always overlays the previous icon
+                ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition, yPos);
+                currentIconXPosition += ((Icon) currentIcon).getIconWidth();
+            } else {
+                ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition - missingRedIcon.getIconWidth(), yPos);
+            }
         }
-        if (icon == null) {
-            if (imdiObject.mpiMimeType != null) {
-                //nodeText = "isImdiChildWithType";
-                //String mediaTypeString = typeObject.toString();
-                //nodeText = mediaTypeString;
-                if (imdiObject.mpiMimeType.contains("audio")) {
-                    icon = audiofileicon;
-                } else if (imdiObject.mpiMimeType.contains("video")) {
-                    icon = videofileicon;
-                } else if (imdiObject.mpiMimeType.contains("image")) {// ?????
-                    icon = picturefileicon;
-                } else if (imdiObject.mpiMimeType.contains("text")) {
-                    icon = writtenresicon;
-                } else if (imdiObject.mpiMimeType.contains("nonarchivable")) {
-                    icon = fileIcon;
-                } else if (imdiObject.mpiMimeType.contains("unreadable")) {
-                    icon = fileUnReadable;
+        g2d.dispose();
+        return new ImageIcon(bufferedImage);
+    }
+
+    public ImageIcon getIconForImdi(ImdiTreeObject imdiObject) {
+        Vector iconsVector = new Vector();
+
+        if (imdiObject.isLocal()) {
+            if (imdiObject.isImdi()) {
+                if (imdiObject.matchesRemote == 0) {
+                    iconsVector.add(localicon);
                 } else {
-                    icon = fileUnknown; // TODO: add any other required icons; for now if we are not showing a known type then make it known by using an obvious icon
-                //imdiObject.nodeText = imdiObject.mpiMimeType + " : " + nodeText;
+                    iconsVector.add(remoteicon);
                 }
-            } else if (imdiObject.isImdi()) {
-                if (imdiObject.isImdiChild()) {
-                    if (imdiObject.hasResource() && imdiObject.hashString == null) {
-                        icon = fileCrossIcon;
-                    } else {
-                        icon = dataicon;
-                    }
-                } else if (imdiObject.isSession()) {
-                    if (imdiObject.isLocal()) {
-                        if (imdiObject.matchesRemote == 0) {
-                            icon = sessionlocalicon;
-                        } else {
-                            icon = sessionlocalservericon;
-                        }
-                    } else {
-                        icon = sessionservericon;
-                    }
-                } else {
-                    if (imdiObject.isLocal()) {
-                        if (imdiObject.matchesRemote == 0) {
-                            icon = corpuslocalicon;
-                        } else {
-                            icon = corpuslocalservericon;
-                        }
-                    } else {
-                        // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
+            }
+        } else {
+            // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
 //                            if (matchesLocal == 0) {
-                        icon = corpusservericon;
+            iconsVector.add(remoteicon);
 //                            } else {
 //                                icon = corpuslocalservericon;
 //                            }
-                    }
-                }
-            }
         }
-        if (icon == null) {
-            if (imdiObject.isDirectory) {
-                icon = UIManager.getIcon("FileView.directoryIcon");
-            } else {
-                if (imdiObject.isLocal()) {
-
-//                        if (mpiMimeType != null) {
-//                            nodeText = "[" + mpiMimeType + "]" + nodeText;
-//                            icon = mediafileicon;
-//                        } else {
-//                            if (matchesLocalResource > 0) {
-//                                icon = fileTickIcon;
-//                            } else /*if (matchesRemote == 0)*/ {
-                    icon = fileUnknown;
-//                            }
-//                        }
-//                        else {
-//                            icon = fileServerLocalIcon;
-//                        }
+        if (imdiObject.mpiMimeType != null) {
+            if (imdiObject.mpiMimeType.contains("audio")) {
+                iconsVector.add(audioIcon);
+            } else if (imdiObject.mpiMimeType.contains("video")) {
+                iconsVector.add(videoIcon);
+            } else if (imdiObject.mpiMimeType.contains("image")) {// ?????
+                iconsVector.add(picturesIcon);
+            } else if (imdiObject.mpiMimeType.contains("text")) {
+                iconsVector.add(writtenresourceIcon);
+            }
+        } else if (imdiObject.hasResource()) {
+            // the resource is not found so show a unknow resource icon
+            iconsVector.add(fileIcon);
+        } else if (imdiObject.isImdi()) {
+            if (imdiObject.isImdiChild()) {
+                if (imdiObject.getFields().size() > 0) {
+                    iconsVector.add(dataIcon);
                 } else {
-//                        if (matchesLocal == 0) {
-                    icon = fileServerIcon;
-//                        } else {
-//                            icon = fileServerIcon;
-//                        }
+                    iconsVector.add(dataemptyIcon);
                 }
+            } else if (imdiObject.isSession()) {
+                iconsVector.add(sessionColorIcon);
+            } else if (imdiObject.isCorpus()) {
+                iconsVector.add(corpusnodeColorIcon);
+            } else {
+                // TODO: this icon could be reconsidered since it may not be correct in the case of a session that failed to load
+                iconsVector.add(corpusnodeColorIcon);
+            //iconsVector.add(blankIcon);
             }
+        } else if (imdiObject.isDirectory) {
+            iconsVector.add(UIManager.getIcon("FileView.directoryIcon"));
+        } else {
+            iconsVector.add(fileIcon);
         }
-        return icon;
+        // add missing file icon
+        if ((imdiObject.fileNotFound) || (imdiObject.hasResource() && imdiObject.hashString == null)) {
+            iconsVector.add(missingRedIcon);
+        }
+        // add icons for save state
+        if (imdiObject.needsChangesSentToServer()) {
+            iconsVector.add(exclamationBlueIcon);
+        }
+        if (imdiObject.imdiNeedsSaveToDisk) {
+            iconsVector.add(exclamationRedIcon);
+        }
+        return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
     }
 }
+
