@@ -5,7 +5,7 @@
         <property name="BUILDDIR" value="classes"/>
         <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
     </target>
-    <target name="all" depends="setproperties, clean, clobber, compile, jar, run" description="clean, build, jar and run">        
+    <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
     <target name="clean" description="remove intermediate files">
@@ -18,8 +18,8 @@
     <!-- target compile (this is included by build.all) -->
     <target name="compile" description="compile the linorg source code to class files">
         <echo message="Compiling Linorg"/>
-        <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="mpi/linorg/**.java">            
-             <classpath>
+        <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="mpi/linorg/**.java">
+            <classpath>
                 <fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>
             </classpath>
         </javac>
@@ -28,7 +28,7 @@
         <jar destfile="linorg.jar">
             <fileset dir="classes" includes="**/*.class"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/Introduction.html"/>            
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/Introduction.html"/>
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
             </manifest>
@@ -42,7 +42,63 @@
                 <pathelement location="linorg.jar"/>
             </classpath>
         </java>
-    </target>  
-    
+    </target>
+    <target depends="setproperties" name="getsvnversion">
+       <!-- <exec executable="svn" output="version.info">
+            <arg value="info"/>
+        </exec>
+        <exec executable="grep" output="version.date">-->
+            <!--<arg value="^Revision"/>-->
+           <!-- <arg value="^Last Changed Date:"/>
+            <arg value="version.info"/>
+        </exec>-->
+        <!--<exec executable="date" output="version.date" />-->
+        <exec outputproperty="linorg.current.revision" executable="svnversion">
+            <arg line="-n -c" />
+            <arg line="${SRCDIR}mpi/linorg/" />
+            <redirector>
+                <outputfilterchain>
+                    <tokenfilter>
+                        <replaceregex pattern="^[0-9]*:?" replace="" flags="g"/>
+                    </tokenfilter>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec outputproperty="linorg.info.all" executable="svn">
+            <arg line="info" />
+            <arg line="${SRCDIR}mpi/linorg/" />
+            <redirector>
+                <outputfilterchain>
+                    <tokenfilter>
+                        <replaceregex pattern="^" replace="\\\\n" flags="g"/>
+                    </tokenfilter>
+                    <striplinebreaks/>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec outputproperty="linorg.last.commit.date" executable="svn">
+            <arg line="info" />
+            <arg line="${SRCDIR}mpi/linorg/" />
+            <redirector>
+                <outputfilterchain>
+                    <linecontainsregexp>
+                        <regexp pattern="^Last Changed Date:" />
+                    </linecontainsregexp>
+                    <tokenfilter>
+                        <replaceregex pattern=".*\/([^\/]+)$" replace="\1" flags="g"/>
+                    </tokenfilter>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec outputproperty="linorg.build.date" executable="date" />
+        <echo file="${SRCDIR}mpi/linorg/LinorgVersion.java" append="false">package mpi.linorg;
+public class LinorgVersion {
+    String currentRevision = "${linorg.current.revision}";
+    String lastCommitDate = "${linorg.last.commit.date}";
+    String compileDate = "${linorg.build.date}";
+    String fullInfo = "${linorg.info.all}";
+}
+        </echo>
+    </target>
 </project>
  

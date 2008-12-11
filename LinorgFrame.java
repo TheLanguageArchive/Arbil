@@ -8,8 +8,6 @@ package mpi.linorg;
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -78,7 +76,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         GuiHelper.linorgWindowManager.setComponents(windowMenu, this, jDesktopPane1);
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
-        setTitle("Linorg (testing version, not for production use) " + new linorgVersion().compileDate);
+        setTitle("Linorg (Testing version, not for production use) " + new LinorgVersion().compileDate);
     }
 
     private void addLocation(String addableLocation) {
