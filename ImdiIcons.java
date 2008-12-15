@@ -19,7 +19,7 @@ public class ImdiIcons {
     // basic icons used in the gui
     public static ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
     public static ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
-    public static ImageIcon loadingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));    
+    public static ImageIcon loadingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
     // complex icons used for the imdi files
     private ImageIcon corpusicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
     private ImageIcon localicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/local.png"));
@@ -77,12 +77,17 @@ public class ImdiIcons {
 
     public ImageIcon getIconForImdi(Object[] imdiObjectArray) {
         int currentIconXPosition = 0;
-        int width = corpusicon.getIconWidth() * imdiObjectArray.length;
-        int height = corpusicon.getIconHeight();
-        if (width == 0) { // make sure that zero length child cells have a width
-            width = corpusicon.getIconWidth();
+        int width = 0;
+        int heightMax = 0;
+        for (Object currentImdi : imdiObjectArray) {
+            width += ((ImdiTreeObject) currentImdi).getIcon().getIconWidth();
+            int height = ((ImdiTreeObject) currentImdi).getIcon().getIconHeight();
+            if (heightMax < height) {
+                heightMax = height;
+            }
         }
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        BufferedImage bufferedImage = new BufferedImage(width, heightMax, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
         for (Object childImdiObject : imdiObjectArray) {
             ImageIcon currentIcon = ((ImdiTreeObject) childImdiObject).getIcon();
