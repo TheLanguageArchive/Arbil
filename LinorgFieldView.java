@@ -96,6 +96,7 @@ class LinorgFieldView implements Serializable {
     public void addHiddenColumn(String columnName) {
         System.out.println("addHiddenColumn");
         hiddenColumns.add(columnName);
+        showOnlyColumns.remove(columnName);
         showState();
     }
 

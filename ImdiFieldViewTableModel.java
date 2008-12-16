@@ -52,7 +52,7 @@ public class ImdiFieldViewTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        System.out.println("isCellEditable showOnlyEnabledCount: " + showOnlyEnabledCount);
+//        System.out.println("isCellEditable showOnlyEnabledCount: " + showOnlyEnabledCount);
         if (column == hideColumn) {
             if (showOnlyEnabledCount < 0) { // count the show only selection
                 showOnlyEnabledCount = 0;
@@ -73,7 +73,7 @@ public class ImdiFieldViewTableModel extends DefaultTableModel {
     @Override
     public void setValueAt(Object aValue, int row, int column) {
         super.setValueAt(aValue, row, column);
-        System.out.println("setValueAt showOnlyEnabledCount reset");
+//        System.out.println("setValueAt showOnlyEnabledCount reset");
         // clear the show only count to retrigger the checking process
         showOnlyEnabledCount = -1;
 //                fireTableDataChanged();
