@@ -4,11 +4,8 @@
  */
 package mpi.linorg;
 
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -44,51 +41,6 @@ public class ImdiFieldViews {
 
     public Enumeration getSavedFieldViewLables() {
         return savedFieldViews.keys();
-    }
-
-    // return the table model used to edit the field view
-    public DefaultTableModel getImdiFieldViewTableModel(String viewLabel) {
-        Object currentView = savedFieldViews.get(viewLabel);
-        // we want a table model even if it has no rows
-        return getImdiFieldViewTableModel((LinorgFieldView) currentView);
-    }
-
-    // return the table model used to edit the field view
-    public DefaultTableModel getImdiFieldViewTableModel(Object currentView) {
-        //System.out.println("setting to: " + viewLabel);
-        javax.swing.table.DefaultTableModel returnTableModel = new javax.swing.table.DefaultTableModel(
-                new Object[][]{
-                    {null, null, null, null/*, null*/}
-                },
-                new String[]{
-                    "Column Name", "Column Description", "Show Only", "Hide"//, "Always Display"
-                }) {
-
-            Class[] types = new Class[]{
-                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
-            }
-        };
-        returnTableModel.setRowCount(0);
-        // we want a table model even if it has no rows
-        if (currentView != null) {
-            // loop the known columns
-            for (Enumeration knownColumnNames = ((LinorgFieldView) currentView).getKnownColumns(); knownColumnNames.hasMoreElements();) {
-                String currentFieldName = knownColumnNames.nextElement().toString();
-                returnTableModel.addRow(new Object[]{currentFieldName, GuiHelper.imdiSchema.getHelpForField(currentFieldName),
-                            // set the show only fields
-                            ((LinorgFieldView) currentView).isShowOnlyColumn(currentFieldName),
-                            // set the hidden fields
-                            ((LinorgFieldView) currentView).isHiddenColumn(currentFieldName)//,
-                        // set alays show fields
-                        //((LinorgFieldView) currentView).isAlwaysShowColumn(currentFieldName)
-                        });
-            }
-        }
-        return returnTableModel;
     }
 
     private void loadImdiFieldViews() {
