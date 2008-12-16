@@ -128,14 +128,17 @@ public class ImdiTreeObject implements Comparable {
             //System.out.println("tempUrlString: " + tempUrlString);
             inUrlLocal = new OurURL(tempUrlString);
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
-            if (nodDom == null) {
-                nodeText = "Could not load IMDI";
-                fileNotFound = true;
-            } else {
-                //set the string name to unknown, it will be updated in the tostring function
-                nodeText = "unknown";
-                // load the fields from the imdi file
-                iterateChildNodes(nodDom.getFirstChild(), "", useCache);
+            // only read the fields into imdi tree objects if it is not going to be saved to the cache
+            if (!useCache) {
+                if (nodDom == null) {
+                    nodeText = "Could not load IMDI";
+                    fileNotFound = true;
+                } else {
+                    //set the string name to unknown, it will be updated in the tostring function
+                    nodeText = "unknown";
+                    // load the fields from the imdi file
+                    iterateChildNodes(nodDom.getFirstChild(), "", useCache);
+                }
             }
             // get the links from the imdi before we dispose of the dom
             imdiLinkArray = getImdiLinks(nodDom);
