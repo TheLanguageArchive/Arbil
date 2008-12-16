@@ -17,6 +17,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -30,8 +31,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
@@ -112,46 +111,32 @@ public class ImdiTable extends JTable {
                             dialogcontainer.setLayout(new BorderLayout());
                             editViewsDialog.setSize(600, 400);
                             editViewsDialog.setBounds(50, 50, 600, 400);
-                            TableModel tableModel = GuiHelper.imdiFieldViews.getImdiFieldViewTableModel(imdiTableModel.getFieldView());
-                            tableModel.addTableModelListener(new TableModelListener() {
-
-                                //private JTable dilalogTargetTable = targetTable;
-                                public void tableChanged(TableModelEvent e) {
-                                    TableModel localTableModel = (TableModel) e.getSource();
-                                    String targetColumnName = localTableModel.getValueAt(e.getFirstRow(), 0).toString();
-                                    boolean booleanState = localTableModel.getValueAt(e.getFirstRow(), e.getColumn()).equals(true);
-//                                    System.out.println("name: " + targetColumnName);
-//                                    System.out.println("value: " + booleanState);
-//                                    System.out.println("pos: " + e.getColumn());
-                                    switch (e.getColumn()) {
+                            TableModel tableModel = new ImdiFieldViewTableModel(imdiTableModel);
+                            JTable viewEditingTable = new JTable(tableModel) {
+                                @Override
+                                //Implement table cell tool tips.
+                                public String getToolTipText(MouseEvent e) {
+                                    java.awt.Point p = e.getPoint();
+                                    switch (columnAtPoint(p)) {
                                         case 2:
-                                            if (booleanState) {
-                                                imdiTableModel.getFieldView().addShowOnlyColumn(targetColumnName);
-                                            } else {
-                                                imdiTableModel.getFieldView().removeShowOnlyColumn(targetColumnName);
-                                            }
-                                            break;
+                                            return "Show only checked fields (hides all others and overrides hide fields)";
                                         case 3:
-                                            if (booleanState) {
-                                                imdiTableModel.getFieldView().addHiddenColumn(targetColumnName);
-                                            } else {
-                                                imdiTableModel.getFieldView().removeHiddenColumn(targetColumnName);
-                                            }
-                                            break;
-                                        case 4:
-                                            if (booleanState) {
-                                                imdiTableModel.getFieldView().addAlwaysShowColumn(targetColumnName);
-                                            } else {
-                                                imdiTableModel.getFieldView().removeAlwaysShowColumn(targetColumnName);
-                                            }
-                                            break;
+                                            return "Hide checked fields (only active when no 'show only' selection is made)";
                                     }
-                                    imdiTableModel.reloadTableData();
-                                //                                  throw new UnsupportedOperationException("Not supported yet.");
+                                    return null;
                                 }
-                            });
-                            JTable ordertable = new JTable(tableModel);
-                            JScrollPane js = new JScrollPane(ordertable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+                                @Override
+                                public TableCellRenderer getCellRenderer(int row, int column) {
+                                    TableCellRenderer tableCellRenderer = super.getCellRenderer(row, column);
+                                    if (tableCellRenderer instanceof JCheckBox) {
+                                        ((JCheckBox)tableCellRenderer).setEnabled(getModel().isCellEditable(row, column));
+                                    }
+                                    return tableCellRenderer;
+                                }                                
+                            };
+
+                            JScrollPane js = new JScrollPane(viewEditingTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
                             js.setBounds(10, 10, 550, 350);
                             dialogcontainer.add(js);
                             editViewsDialog.add(js);
