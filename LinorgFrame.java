@@ -165,6 +165,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         editMenu = new javax.swing.JMenu();
         optionsMenu = new javax.swing.JMenu();
         editLocationsMenuItem = new javax.swing.JMenuItem();
+        templatesMenu = new javax.swing.JMenu();
         editFieldViewsMenuItem = new javax.swing.JMenuItem();
         saveWindowsCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
@@ -476,6 +477,9 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         optionsMenu.add(editLocationsMenuItem);
+
+        templatesMenu.setText("Templates");
+        optionsMenu.add(templatesMenu);
 
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -965,6 +969,7 @@ private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JMenuItem searchSubnodesMenuItem;
     private javax.swing.JMenuItem sendToServerMenuItem;
     private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
+    private javax.swing.JMenu templatesMenu;
     private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JSeparator treePopupMenuSeparator1;
     private javax.swing.JSeparator treePopupMenuSeparator2;
