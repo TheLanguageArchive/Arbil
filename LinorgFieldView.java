@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package mpi.linorg;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -111,8 +111,7 @@ class LinorgFieldView implements Serializable {
         if (showOnlyColumns.size() > 0) {
             // set to true if it is in the show only list
             showColumn = showOnlyColumns.contains(currentColumnString);
-        }
-        if (showColumn) {
+        } else { // if (showColumn) { // this else makes the selection exclusive 
             // set to false if in the hidden list
             showColumn = !hiddenColumns.contains(currentColumnString);
         }
@@ -124,7 +123,8 @@ class LinorgFieldView implements Serializable {
     }
 
     public Enumeration getKnownColumns() {
-        return knownColumns.elements();
+        Collections.sort(knownColumns);
+        return (knownColumns).elements();
     }
 
     public boolean isShowOnlyColumn(String columnString) {
