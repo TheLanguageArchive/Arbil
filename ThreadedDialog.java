@@ -350,7 +350,7 @@ public class ThreadedDialog {
                             // perform the search        
                             appendToTaskOutput("searching");
                             ((ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
-                            appendToTaskOutput("total found: " + foundNodes.size() + ")");
+                            appendToTaskOutput("total found: " + foundNodes.size());
                         }
                     }
 
