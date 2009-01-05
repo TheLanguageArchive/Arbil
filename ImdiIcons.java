@@ -58,7 +58,7 @@ public class ImdiIcons {
 //    private ImageIcon sessionIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session.png"));
 //    private ImageIcon exclamationYellowIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-yellow.png"));
 //    private ImageIcon stopIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/stop.png"));
-    private ImageIcon file16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file16x16.png"));
+//    private ImageIcon file16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file16x16.png"));
 //    private ImageIcon filelocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/filelocal16x16.png"));
 //    private ImageIcon tickBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-blue.png"));
     private ImageIcon fileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file.png"));
