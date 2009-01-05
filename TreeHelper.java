@@ -185,7 +185,7 @@ public class TreeHelper {
         removeChildNodes(localDirectoryRootNode);
         Vector locationImdiNodes = new Vector();
         for (Enumeration locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
-            locationImdiNodes.add(new ImdiTreeObject(null, locationEnum.nextElement().toString()));
+            locationImdiNodes.add(GuiHelper.imdiLoader.getImdiObject(null, locationEnum.nextElement().toString()));
         }
         Collections.sort(locationImdiNodes);
         for (Enumeration<ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
@@ -249,7 +249,7 @@ public class TreeHelper {
         int rowCounter = 0;
         while (locationEnum.hasMoreElements()) {
             tableObjectAray[rowCounter][1] = locationEnum.nextElement();
-            tableObjectAray[rowCounter][0] = new ImdiTreeObject(null, tableObjectAray[rowCounter][1].toString());
+            tableObjectAray[rowCounter][0] = GuiHelper.imdiLoader.getImdiObject(null, tableObjectAray[rowCounter][1].toString());
             rowCounter++;
         }
         return new javax.swing.table.DefaultTableModel(tableObjectAray, new String[]{"", "Location"}) {
@@ -266,6 +266,7 @@ public class TreeHelper {
 
     public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType) {
         System.out.println("adding a new node to: " + itemNode);
+        System.out.println("adding nodeType: " + nodeType);
         if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
@@ -277,6 +278,10 @@ public class TreeHelper {
         } else {
             // TODO: implement adding to the root node
             System.out.println("TODO: implement adding to the root node");
+            Vector tempVector = new ImdiTreeObject("temp node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null);
+            ((ImdiTreeObject)tempVector.firstElement()).saveChangesToCache();
+            refreshChildNodes(itemNode);
+            GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " as a unattached corpus");
         }
     }
 
@@ -325,5 +330,5 @@ public class TreeHelper {
 
     public ImdiTreeRenderer getImdiTreeRenderer() {
         return new ImdiTreeRenderer();
-    }    
+    }
 }
