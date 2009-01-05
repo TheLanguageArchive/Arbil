@@ -4,10 +4,8 @@
  */
 package mpi.linorg;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -105,41 +103,13 @@ public class ImdiTable extends JTable {
                     editViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
-                            //System.out.println("editViewNenuItem: " + targetTable.toString());
+                            ImdiFieldViewTable fieldViewTable = new ImdiFieldViewTable(imdiTableModel);
                             JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
-                            Container dialogcontainer = editViewsDialog.getContentPane();
-                            dialogcontainer.setLayout(new BorderLayout());
-                            editViewsDialog.setSize(600, 400);
+                            editViewsDialog.setTitle("Editing Current View");
+                            
+                            JScrollPane js = new JScrollPane(fieldViewTable);
+                            editViewsDialog.getContentPane().add(js);
                             editViewsDialog.setBounds(50, 50, 600, 400);
-                            TableModel tableModel = new ImdiFieldViewTableModel(imdiTableModel);
-                            JTable viewEditingTable = new JTable(tableModel) {
-                                @Override
-                                //Implement table cell tool tips.
-                                public String getToolTipText(MouseEvent e) {
-                                    java.awt.Point p = e.getPoint();
-                                    switch (columnAtPoint(p)) {
-                                        case 2:
-                                            return "Show only checked fields (hides all others and overrides hide fields)";
-                                        case 3:
-                                            return "Hide checked fields (only active when no 'show only' selection is made)";
-                                    }
-                                    return null;
-                                }
-
-                                @Override
-                                public TableCellRenderer getCellRenderer(int row, int column) {
-                                    TableCellRenderer tableCellRenderer = super.getCellRenderer(row, column);
-                                    if (tableCellRenderer instanceof JCheckBox) {
-                                        ((JCheckBox)tableCellRenderer).setEnabled(getModel().isCellEditable(row, column));
-                                    }
-                                    return tableCellRenderer;
-                                }                                
-                            };
-
-                            JScrollPane js = new JScrollPane(viewEditingTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-                            js.setBounds(10, 10, 550, 350);
-                            dialogcontainer.add(js);
-                            editViewsDialog.add(js);
                             editViewsDialog.setVisible(true);
                         }
                     });
