@@ -6,12 +6,14 @@ package mpi.linorg;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -19,6 +21,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -29,6 +32,7 @@ import javax.swing.event.InternalFrameEvent;
 public class LinorgWindowManager {
 
     Hashtable windowList = new Hashtable();
+    Hashtable windowStatesHashtable;
     JMenu windowMenu;
     private JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
     public JFrame linorgFrame;
@@ -43,11 +47,128 @@ public class LinorgWindowManager {
         desktopPane = jDesktopPane;
         //linorgFrame.getLayeredPane().add(desktopPane);
 
+        try {
+            // load the saved states
+            windowStatesHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("windowStates");
+            // set the main window position and size
+            Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
+            if (linorgFrameBounds instanceof Rectangle) {
+                linorgFrame.setBounds((Rectangle) linorgFrameBounds);
+//                Rectangle screenSize = Toolkit.getScreenSize();
+//                if (screenSize.getHeight() > linorgFrame.getHeight())
+//                    linorgFrame.setSize(((Rectangle) linorgFrameBounds).getWidth(), screenSize.getHeight());
+            }
+            // set the split pane positions
+            loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
+        } catch (Exception ex) {
+            windowStatesHashtable = new Hashtable();
+            System.out.println("load windowStates exception: " + ex.getMessage());
+        }
+    }
+
+    public void openIntroductionPage() {
         // open the introduction page
-        // always get this page from the server if available, but also save it for off line use
+        // TODO: always get this page from the server if available, but also save it for off line use
         URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
         openUrlWindow("Introduction", introductionUrl);
+        
+        try {
+            // load the saved windows
+            Hashtable windowListHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("openWindows");
+            for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
+                String currentWindowName = windowNamesEnum.nextElement().toString();
+                System.out.println("currentWindowName: " + currentWindowName);
+                Vector imdiURLs = (Vector)windowListHashtable.get(currentWindowName);
+//                System.out.println("imdiEnumeration: " + imdiEnumeration);
+                Vector imdiObjectsVector = new Vector();
+                for (Enumeration imdiURLsEnum = imdiURLs.elements(); imdiURLsEnum.hasMoreElements();){
+                    // TODO: move all loading of imdi objects into a single class that makes sure only one instence of each URL is ever loaded
+                    imdiObjectsVector.add(GuiHelper.imdiLoader.getImdiObject("", imdiURLsEnum.nextElement().toString()));
+                }
+                openFloatingTable(imdiObjectsVector.elements(), currentWindowName);
+                //openFloatingTable(null, currentWindowName);
+            }
+            System.out.println("done loading windowStates");
+        } catch (Exception ex) {
+            windowStatesHashtable = new Hashtable();
+            System.out.println("load windowStates exception: " + ex.getMessage());
+        }
+        
         startKeyListener();
+    }
+
+    private void loadSplitPlanes(Component targetComponent) {
+        //System.out.println("loadSplitPlanes: " + targetComponent);
+        if (targetComponent instanceof JSplitPane) {
+            System.out.println("loadSplitPlanes: " + targetComponent.getName());
+            Object linorgSplitPosition = windowStatesHashtable.get(targetComponent.getName());
+            if (linorgSplitPosition instanceof Integer) {
+                System.out.println(targetComponent.getName() + ": " + linorgSplitPosition);
+                ((JSplitPane) targetComponent).setDividerLocation((Integer) linorgSplitPosition);
+            }
+            for (Component childComponent : ((JSplitPane) targetComponent).getComponents()) {
+                loadSplitPlanes(childComponent);
+            }
+        }
+    }
+
+    private void saveSplitPlanes(Component targetComponent) {
+        //System.out.println("saveSplitPlanes: " + targetComponent);
+        if (targetComponent instanceof JSplitPane) {
+            System.out.println("saveSplitPlanes: " + targetComponent.getName());
+            windowStatesHashtable.put(targetComponent.getName(), ((JSplitPane) targetComponent).getDividerLocation());
+            for (Component childComponent : ((JSplitPane) targetComponent).getComponents()) {
+                saveSplitPlanes(childComponent);
+            }
+        }
+    }
+
+    public void saveWindowStates() {
+        // loop windowList and make a hashtable of window names with a vector of the imdinodes displayed, then save the hashtable
+        try {
+            // collect the main window size and position for saving
+            windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
+            // collect the split pane positions for saving
+            saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
+            // save the collected states
+            GuiHelper.linorgSessionStorage.saveObject(windowStatesHashtable, "windowStates");
+            // save the windows
+            Hashtable windowListHashtable = new Hashtable();
+            //(Hashtable) windowList.clone();
+            for (Enumeration windowNamesEnum = windowList.keys(); windowNamesEnum.hasMoreElements();) {
+                String currentWindowName = windowNamesEnum.nextElement().toString();
+                System.out.println("currentWindowName: " + currentWindowName);
+                // set the value of the windowListHashtable to be the imdi urls rather than the windows
+                Object windowObject = ((Component[]) windowList.get(currentWindowName))[0];
+                try {
+                    if (windowObject != null) {
+                        Object currentComponent = ((JInternalFrame) windowObject).getContentPane().getComponent(0);
+                        if (currentComponent != null && currentComponent instanceof LinorgSplitPanel){
+//                System.out.println("windowObject: " + windowObject);
+//                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane());
+//                System.out.println("getComponent: " + ((JInternalFrame) windowObject).getComponent(0));
+//                System.out.println("LinorgSplitPanel: " + ((LinorgSplitPanel)((JInternalFrame) windowObject).getContentPane()));
+//                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane().getComponent(0));                                           
+                            Enumeration windowImdiNodes = ((ImdiTableModel) ((LinorgSplitPanel)currentComponent).imdiTable.getModel()).getImdiNodesURLs();
+                            Vector currentNodesVector = new Vector();
+                            while (windowImdiNodes.hasMoreElements()){
+                                currentNodesVector.add(windowImdiNodes.nextElement().toString());
+                            }
+                            windowListHashtable.put(currentWindowName, currentNodesVector);
+                            System.out.println("saved");
+                        }
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Exception: " + ex.getMessage());
+                }
+            }
+            // save the windows
+            GuiHelper.linorgSessionStorage.saveObject(windowListHashtable, "openWindows");
+
+            System.out.println("saved windowStates");
+        } catch (Exception ex) {
+            System.out.println("save windowStates exception: " + ex.getMessage());
+        }
     }
 
     private String addWindowToList(String windowName, JInternalFrame windowFrame) {
@@ -238,7 +359,7 @@ public class LinorgWindowManager {
         try {
             htmlDisplay.setPage(locationUrl);
             htmlDisplay.addHyperlinkListener(new LinorgHyperlinkListener());
-            
+
         //gridViewInternalFrame.setMaximum(true);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
