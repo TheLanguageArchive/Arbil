@@ -64,6 +64,10 @@ public class ImdiTableModel extends AbstractTableModel {
     public Enumeration getImdiNodes() {
         return imdiObjectHash.elements();
     }
+    
+    public Enumeration getImdiNodesURLs() {
+        return imdiObjectHash.keys();
+    }
 
     public void setShowIcons(boolean localShowIcons) {
         showIcons = localShowIcons;
@@ -93,6 +97,7 @@ public class ImdiTableModel extends AbstractTableModel {
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
         if (imdiTreeObject != null) {
             imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
+            imdiTreeObject.registerContainer(this);
             if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
                 System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(imdiTreeObject)) {
@@ -135,6 +140,9 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void removeAllImdiRows() {
         listModel.removeAllElements();
+        for (Enumeration removableNodes = imdiObjectHash.elements(); removableNodes.hasMoreElements();){
+            ((ImdiTreeObject)removableNodes.nextElement()).removeContainer(this);
+        }
         imdiObjectHash.clear();
         allColumnNames.clear();
         columnNames = new String[0];
@@ -211,6 +219,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 //}
                 // remove the node
                 imdiObjectHash.remove(imdiTreeObject.getUrlString());
+                imdiTreeObject.removeContainer(this);
                 // update the used columns
                 Enumeration fieldNames = imdiTreeObject.getFields().keys();
                 while (fieldNames.hasMoreElements()) {
