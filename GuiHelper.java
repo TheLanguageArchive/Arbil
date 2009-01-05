@@ -34,6 +34,7 @@ public class GuiHelper {
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
     static LinorgJournal linorgJournal = new LinorgJournal();
     static ImdiSchema imdiSchema = new ImdiSchema();
+    static ImdiLoader imdiLoader = new ImdiLoader();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
 //    private JPanel selectedFilesPanel;
     static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
@@ -56,6 +57,7 @@ public class GuiHelper {
         ImdiTreeObject.mimeHashQueue.saveMd5sumIndex();
         imdiFieldViews.saveViewsToFile();
         treeHelper.saveLocations();
+        linorgWindowManager.saveWindowStates();
     }
 
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
