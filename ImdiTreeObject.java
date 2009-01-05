@@ -300,7 +300,7 @@ public class ImdiTreeObject implements Comparable {
 //                if (currentFileName.endsWith(".imdi")) {
             //currentFileName = currentFileName.substring(0, currentFileName.length() - 5);
 //                }
-            destinationNode = new ImdiTreeObject("new child", currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi");
+            destinationNode = GuiHelper.imdiLoader.getImdiObject("new child", currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi");
             addedImdiNodes.add(destinationNode);
             destinationNode.imdiNeedsSaveToDisk = true;
         }
@@ -346,7 +346,7 @@ public class ImdiTreeObject implements Comparable {
                     //System.out.println("loadChildNodes(non session): " + this.toString());
                     for (int linkCount = 0; linkCount < imdiLinkArray.length /*&& linkCount < 10*/; linkCount++) {
                         //System.out.println("linkArray: " + imdiLinkArray[linkCount]);
-                        ImdiTreeObject currentImdi = new ImdiTreeObject(null, imdiLinkArray[linkCount]);
+                        ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObject(null, imdiLinkArray[linkCount]);
 //                        tempImdiVector.add(currentImdi);
                         childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
                         if (ImdiTreeObject.isStringImdi(imdiLinkArray[linkCount])/* && linkCount < 9*/) { //TODO: remove this limitation of nine links
@@ -621,9 +621,9 @@ public class ImdiTreeObject implements Comparable {
                     ImdiField currentField = fieldsEnum.nextElement();
                     if (currentField.fieldID == null) {
                         // here we are assuming that if there is no fieldID then it is a new field so it will be added here
-                        IMDIElement ie = api.addIMDIElement(nodDom, currentField.xmlPath);
-                        // TODO: the field is not added and this section needs to be completed
-                        currentField.fieldID = ie.getDomId();
+//                        IMDIElement ie = api.addIMDIElement(nodDom, currentField.xmlPath);
+//                        // TODO: the field is not added and this section needs to be completed
+//                        currentField.fieldID = ie.getDomId();
                     }
                     if (currentField.fieldNeedsSaveToDisk) {
                         // set value
@@ -781,7 +781,7 @@ public class ImdiTreeObject implements Comparable {
             //String parentName = fieldLabel.substring(0, firstSeparator);
             debugOut("childsName: " + childsName);
             if (!childrenHashtable.containsKey(childsName)) {
-                ImdiTreeObject tempImdiTreeObject = new ImdiTreeObject(childsName, this.getUrlString() + "#" + fieldToAdd.xmlPath);
+                ImdiTreeObject tempImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsName, this.getUrlString() + "#" + fieldToAdd.xmlPath);
                 if (addedImdiNodes != null) {
                     addedImdiNodes.add(tempImdiTreeObject);
                 }
@@ -988,29 +988,34 @@ public class ImdiTreeObject implements Comparable {
         icon = null;
         // here we need to cause an update in the tree gui so that the new icon can be loaded
         for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
-            //TODO: update the icons for any duplicate nodes
-            DefaultMutableTreeNode currentTreeNode = ((DefaultMutableTreeNode) containersForNode.nextElement());
-            System.out.println("containersOfThisNode: " + currentTreeNode.toString());
+            Object currentContainer = containersForNode.nextElement();
+            if (currentContainer instanceof ImdiTableModel) {
+                ((ImdiTableModel)currentContainer).fireTableDataChanged();
+            }
+            if (currentContainer instanceof DefaultMutableTreeNode) {
+                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
+                System.out.println("containersOfThisNode: " + currentTreeNode.toString());
 //                //nodeChanged(TreeNode node): Invoke this method after you've changed how node is to be represented in the tree.
-            try {
-                if (!this.isLocal()) {
-                    GuiHelper.treeHelper.remoteCorpusTreeModel.nodeChanged(currentTreeNode);
-                } else if (this.isImdi()) {
-                    // TODO: there has been a race condition here, probably not resolved
-                    //addToQueue: ../Media/Jul050801-R.mpg
-                    //addToQueue: ../Media/Jul050801-R.mpeg
-                    //addToQueue: ../Media/Jul050801-R.wav
-                    //null
-                    //clearIcon: phidang_talk
-                    //containersOfThisNode: phidang_talk
-                    //Exception in thread "Thread-1" java.lang.ArrayIndexOutOfBoundsException: node has no children
-                    //System.out.println("getPathToRoot: " + GuiHelper.treeHelper.localCorpusTreeModel.getPathToRoot(currentTreeNode));
-                    GuiHelper.treeHelper.localCorpusTreeModel.nodeChanged(currentTreeNode);
-                } else {
-                    GuiHelper.treeHelper.localDirectoryTreeModel.nodeChanged(currentTreeNode);
+                try {
+                    if (!this.isLocal()) {
+                        GuiHelper.treeHelper.remoteCorpusTreeModel.nodeChanged(currentTreeNode);
+                    } else if (this.isImdi()) {
+                        // TODO: there has been a race condition here, probably not resolved
+                        //addToQueue: ../Media/Jul050801-R.mpg
+                        //addToQueue: ../Media/Jul050801-R.mpeg
+                        //addToQueue: ../Media/Jul050801-R.wav
+                        //null
+                        //clearIcon: phidang_talk
+                        //containersOfThisNode: phidang_talk
+                        //Exception in thread "Thread-1" java.lang.ArrayIndexOutOfBoundsException: node has no children
+                        //System.out.println("getPathToRoot: " + GuiHelper.treeHelper.localCorpusTreeModel.getPathToRoot(currentTreeNode));
+                        GuiHelper.treeHelper.localCorpusTreeModel.nodeChanged(currentTreeNode);
+                    } else {
+                        GuiHelper.treeHelper.localDirectoryTreeModel.nodeChanged(currentTreeNode);
+                    }
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
                 }
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
             }
         // nodeStructureChanged(TreeNode node): Invoke this method if you've totally changed the children of node and its childrens children...
 //                GuiHelper.treeHelper.remoteCorpusTreeModel.nodeStructureChanged(currentTreeNode);
