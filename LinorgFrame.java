@@ -68,12 +68,13 @@ public class LinorgFrame extends javax.swing.JFrame {
         leftSplitPane.setDividerLocation(0.15);
         leftLocalSplitPane.setDividerLocation(0.2);
 
-        setSize(800, 600);
+        //setSize(800, 600);
         //this.setExtendedState(Frame.MAXIMIZED_BOTH);
 
-        setVisible(true);
 
         GuiHelper.linorgWindowManager.setComponents(windowMenu, this, jDesktopPane1);
+        setVisible(true);
+        GuiHelper.linorgWindowManager.openIntroductionPage();
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
         setTitle("Linorg (Testing version, not for production use) " + new LinorgVersion().compileDate);
@@ -337,12 +338,15 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         mainSplitPane.setDividerLocation(100);
         mainSplitPane.setDividerSize(5);
+        mainSplitPane.setName("mainSplitPane"); // NOI18N
 
         leftSplitPane.setDividerSize(5);
         leftSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        leftSplitPane.setName("leftSplitPane"); // NOI18N
 
         leftLocalSplitPane.setDividerSize(5);
         leftLocalSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        leftLocalSplitPane.setName("leftLocalSplitPane"); // NOI18N
 
         localDirectoryTree.setModel(GuiHelper.treeHelper.localDirectoryTreeModel);
         localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
@@ -446,6 +450,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         rightSplitPane.setDividerSize(5);
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        rightSplitPane.setName("rightSplitPane"); // NOI18N
         rightSplitPane.setTopComponent(rightScrollPane);
         rightSplitPane.setRightComponent(jDesktopPane1);
 
