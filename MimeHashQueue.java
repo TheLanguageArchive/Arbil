@@ -26,8 +26,8 @@ public class MimeHashQueue {
     private Hashtable knownMimeTypes;
     private Hashtable md5SumToDuplicates;
     private Hashtable pathToMd5Sums;
-    private boolean continueThread = false;//  used to check the file type
-    private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType();
+    private boolean continueThread = false;
+    private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType(); //  used to check the file type
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
 
     public MimeHashQueue() {
@@ -238,7 +238,10 @@ public class MimeHashQueue {
     }
 
     public String getHashResult(ImdiTreeObject imdiObject) {
-        Object returnObject = pathToMd5Sums.get(getFilePath(imdiObject));
+        Object returnObject = null;
+        if (pathToMd5Sums != null) {
+            returnObject = pathToMd5Sums.get(getFilePath(imdiObject));
+        }
         if (returnObject != null) {
             return returnObject.toString();
         } else {

@@ -21,17 +21,17 @@ public class ImdiIcons {
     public static ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
     public static ImageIcon loadingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
     // complex icons used for the imdi files
-    private ImageIcon corpusicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
+//    private ImageIcon corpusicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
     private ImageIcon localicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/local.png"));
     private ImageIcon remoteicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/remote.png"));
-    private ImageIcon blankIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/blank.png"));
+//    private ImageIcon blankIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/blank.png"));
     private ImageIcon writtenresourceIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/writtenresource.png"));
     private ImageIcon videoIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/video.png"));
-    private ImageIcon annotationIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/annotation.png"));
+//    private ImageIcon annotationIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/annotation.png"));
     private ImageIcon audioIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/audio.png"));
-    private ImageIcon mediafileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/mediafile.png"));
+//    private ImageIcon mediafileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/mediafile.png"));
 //    private ImageIcon corpuslocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpuslocal16x16c.png"));
-    private ImageIcon metadataIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/metadata.png"));
+//    private ImageIcon metadataIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/metadata.png"));
     private ImageIcon corpusnodeColorIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
     //private ImageIcon missingRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/missing-red.png"));
     private ImageIcon missingRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/notfound.png"));
@@ -131,6 +131,9 @@ public class ImdiIcons {
     public ImageIcon getIconForImdi(ImdiTreeObject imdiObject) {
         Vector iconsVector = new Vector();
 
+        if (imdiObject.isLoading) {
+            iconsVector.add(loadingIcon);
+        }
         if (imdiObject.isLocal()) {
             if (imdiObject.isImdi()) {
                 if (imdiObject.matchesRemote == 0) {

@@ -133,6 +133,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
         addMenu = new javax.swing.JMenu();
+        deleteMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         copyImdiUrlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItem = new javax.swing.JMenuItem();
@@ -226,6 +227,14 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(addMenu);
+
+        deleteMenuItem.setText("Delete");
+        deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(deleteMenuItem);
         treePopupMenu.add(treePopupMenuSeparator1);
 
         copyImdiUrlMenuItem.setText("Copy Location to Clipboard");
@@ -620,6 +629,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         actorsToGridMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
         addMenu.setVisible(false);
+        deleteMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setVisible(false);
         saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
@@ -640,6 +650,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
             addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
+            deleteMenuItem.setVisible(nodeLevel > 2);
             Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
             if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
                 if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
@@ -925,6 +936,11 @@ private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     //((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).clearIcon();
 }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
+private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.treeHelper.deleteNode(treePopupMenu.getInvoker());
+}//GEN-LAST:event_deleteMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -945,6 +961,7 @@ private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
     private javax.swing.JMenuItem copyBranchMenuItem;
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
+    private javax.swing.JMenuItem deleteMenuItem;
     private javax.swing.JMenuItem editFieldViewsMenuItem;
     private javax.swing.JMenuItem editLocationsMenuItem;
     private javax.swing.JMenu editMenu;
