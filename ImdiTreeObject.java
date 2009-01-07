@@ -12,10 +12,14 @@ import java.net.MalformedURLException;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -1078,31 +1082,46 @@ public class ImdiTreeObject implements Comparable {
                 DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
                 System.out.println("containersOfThisNode: " + currentTreeNode.toString());
 //                //nodeChanged(TreeNode node): Invoke this method after you've changed how node is to be represented in the tree.
+                /////////////////////////////////////
+                // resort the branch since the node name may have changed
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
+                ArrayList children = Collections.list(parentNode.children());
+                Collections.sort(children, new TreeStringComparator());
+                parentNode.removeAllChildren();
+                Iterator childrenIterator = children.iterator();
+                while (childrenIterator.hasNext()) {
+                    DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) childrenIterator.next();
+                    parentNode.add(currentNode);
+                }
+                /////////////////////////////////////
+
                 try {
                     if (!this.isLocal()) {
                         GuiHelper.treeHelper.remoteCorpusTreeModel.nodeChanged(currentTreeNode);
+                        GuiHelper.treeHelper.remoteCorpusTreeModel.nodeStructureChanged(parentNode);
                     } else if (this.isImdi()) {
-                        // TODO: there has been a race condition here, probably not resolved
-                        //addToQueue: ../Media/Jul050801-R.mpg
-                        //addToQueue: ../Media/Jul050801-R.mpeg
-                        //addToQueue: ../Media/Jul050801-R.wav
-                        //null
-                        //clearIcon: phidang_talk
-                        //containersOfThisNode: phidang_talk
-                        //Exception in thread "Thread-1" java.lang.ArrayIndexOutOfBoundsException: node has no children
-                        //System.out.println("getPathToRoot: " + GuiHelper.treeHelper.localCorpusTreeModel.getPathToRoot(currentTreeNode));
                         GuiHelper.treeHelper.localCorpusTreeModel.nodeChanged(currentTreeNode);
+                        GuiHelper.treeHelper.localCorpusTreeModel.nodeStructureChanged(parentNode);
                     } else {
                         GuiHelper.treeHelper.localDirectoryTreeModel.nodeChanged(currentTreeNode);
+                        GuiHelper.treeHelper.localDirectoryTreeModel.nodeStructureChanged(parentNode);
                     }
                 } catch (Exception ex) {
                     System.out.println(ex.getMessage());
                 }
             }
-        // nodeStructureChanged(TreeNode node): Invoke this method if you've totally changed the children of node and its childrens children...
-//                GuiHelper.treeHelper.remoteCorpusTreeModel.nodeStructureChanged(currentTreeNode);
-//                GuiHelper.treeHelper.localCorpusTreeModel.nodeStructureChanged(currentTreeNode);
-//                GuiHelper.treeHelper.localDirectoryTreeModel.nodeStructureChanged(currentTreeNode);
+        }
+    }
+
+    class TreeStringComparator implements Comparator {
+
+        public int compare(Object object1, Object object2) {
+            if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
+                throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
+            }
+            String string1 = ((DefaultMutableTreeNode) object1).getUserObject().toString();
+            String string2 = ((DefaultMutableTreeNode) object2).getUserObject().toString();
+            return string1.compareToIgnoreCase(string2);
         }
     }
 

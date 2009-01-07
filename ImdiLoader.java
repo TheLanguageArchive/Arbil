@@ -26,7 +26,7 @@ public class ImdiLoader {
             public void run() {
                 while (continueThread) {
                     try {
-                        Thread.currentThread().sleep(500);//sleep for 100 ms
+                        Thread.currentThread().sleep(500);
                     } catch (InterruptedException ie) {
                         System.err.println("run ImdiLoader: " + ie.getMessage());
                     }

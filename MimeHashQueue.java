@@ -229,12 +229,13 @@ public class MimeHashQueue {
     }
 
     public String getMimeResult(ImdiTreeObject imdiObject) {
-        Object returnObject = knownMimeTypes.get(getFilePath(imdiObject));
-        if (returnObject != null) {
-            return returnObject.toString();
-        } else {
-            return null;
+        if (knownMimeTypes != null && imdiObject != null) {
+            Object returnObject = knownMimeTypes.get(getFilePath(imdiObject));
+            if (returnObject != null) {
+                return returnObject.toString();
+            }
         }
+        return null;
     }
 
     public String getHashResult(ImdiTreeObject imdiObject) {
