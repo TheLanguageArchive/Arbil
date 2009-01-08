@@ -62,6 +62,7 @@ public class LinorgWindowManager {
             loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
+            linorgFrame.setBounds(0, 0, 640, 480);
             System.out.println("load windowStates exception: " + ex.getMessage());
         }
     }
@@ -71,7 +72,7 @@ public class LinorgWindowManager {
         // TODO: always get this page from the server if available, but also save it for off line use
         URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
         openUrlWindow("Introduction", introductionUrl);
-        
+
         try {
             // load the saved windows
             Hashtable windowListHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("openWindows");
@@ -86,14 +87,14 @@ public class LinorgWindowManager {
                     imdiObjectsVector.add(GuiHelper.imdiLoader.getImdiObject("", imdiURLsEnum.nextElement().toString()));
                 }
                 openFloatingTable(imdiObjectsVector.elements(), currentWindowName);
-                //openFloatingTable(null, currentWindowName);
+            //openFloatingTable(null, currentWindowName);
             }
             System.out.println("done loading windowStates");
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
             System.out.println("load windowStates exception: " + ex.getMessage());
         }
-        
+
         startKeyListener();
     }
 
@@ -126,8 +127,10 @@ public class LinorgWindowManager {
     public void saveWindowStates() {
         // loop windowList and make a hashtable of window names with a vector of the imdinodes displayed, then save the hashtable
         try {
-            // collect the main window size and position for saving
-            windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
+            // collect the main window size and position for saving             
+            if (linorgFrame.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
+                windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
+            }
             // collect the split pane positions for saving
             saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
             // save the collected states

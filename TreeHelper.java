@@ -207,8 +207,8 @@ public class TreeHelper {
     
     public void reloadLocalCorpusTree(DefaultMutableTreeNode targetNode) {
         localCorpusTreeModel.nodeStructureChanged(targetNode);
-        // TODO: make sure the refreshed node is expanded
-        //localCorpusTree.expandPath(localCorpusTree.gettargetNode);
+//         TODO: make sure the refreshed node is expanded 
+//        localCorpusTree.expandPath(localCorpusTree.gettargetNode); 
     }
     
     public void reloadLocalCorpusTree() {
@@ -278,12 +278,12 @@ public class TreeHelper {
             if (imdiTreeObject.isImdi()) {
                 System.out.println("its an imdi so start adding");
                 Vector tempVector = imdiTreeObject.addChildNode(nodeType, null);
-                for (Enumeration addedNodesEnum = tempVector.elements(); addedNodesEnum.hasMoreElements();) {
-                    ImdiTreeObject currentNode = (ImdiTreeObject) addedNodesEnum.nextElement();
-                    if (!currentNode.isImdiChild()) {
-                        imdiTreeObject.addCorpusLink(currentNode);
-                    }
-                }
+//                for (Enumeration addedNodesEnum = tempVector.elements(); addedNodesEnum.hasMoreElements();) {
+//                    ImdiTreeObject currentNode = (ImdiTreeObject) addedNodesEnum.nextElement();
+//                    if (!currentNode.isImdiChild()) {
+//                        imdiTreeObject.addCorpusLink(currentNode);
+//                    }
+//                }
                 refreshChildNodes(itemNode);
                 GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " in " + itemNode);
             }
@@ -291,7 +291,7 @@ public class TreeHelper {
             // TODO: implement adding to the root node
             System.out.println("TODO: implement adding to the root node");
             Vector tempVector = new ImdiTreeObject("temp node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null);
-            ((ImdiTreeObject) tempVector.firstElement()).saveChangesToCache();
+            //((ImdiTreeObject) tempVector.firstElement()).createFileInCache();
             refreshChildNodes(itemNode);
             GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " as a unattached corpus");
         }
@@ -351,7 +351,9 @@ public class TreeHelper {
                 selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
             }
             parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
-            ((ImdiTreeObject) parentTreeNode.getUserObject()).deleteCorpusLink((ImdiTreeObject) selectedTreeNode.getUserObject());
+            ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
+            ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
+            parentImdiNode.deleteCorpusLink(childImdiNode);
             parentTreeNode.remove(selectedTreeNode);
             localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
         } else {

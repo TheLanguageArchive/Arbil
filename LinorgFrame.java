@@ -648,7 +648,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
             addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
-            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
+//            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 2);
             Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
@@ -670,9 +670,9 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
         } else {
             copyImdiUrlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         }
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
+        reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 
         // hide show the separators
         treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && evt.getSource() != localDirectoryTree);
@@ -933,7 +933,7 @@ private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: this is inadequate and needs to be updated
-    //((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).clearIcon();
+    ((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).reloadImdiNode();
 }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
 private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteMenuItemActionPerformed

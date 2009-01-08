@@ -98,6 +98,11 @@ public class ImdiTableModel extends AbstractTableModel {
         if (imdiTreeObject != null) {
             imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
             imdiTreeObject.registerContainer(this);
+        }
+    }
+    private void updateAllImdiObjects() {
+        for (Enumeration nodesEnum = imdiObjectHash.elements(); nodesEnum.hasMoreElements();){            
+            ImdiTreeObject imdiTreeObject = (ImdiTreeObject)nodesEnum.nextElement();        
             if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
                 System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(imdiTreeObject)) {
@@ -316,6 +321,8 @@ public class ImdiTableModel extends AbstractTableModel {
     public void reloadTableData() {
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
+        
+        updateAllImdiObjects();
 
         if (imdiObjectHash.size() > 1) {
             // display the grid view
