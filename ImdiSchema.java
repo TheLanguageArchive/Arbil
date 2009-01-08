@@ -65,10 +65,10 @@ public class ImdiSchema {
         Vector childTypes = new Vector();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             if (((ImdiTreeObject) targetNodeUserObject).isSession()) {
-                childTypes.add("Actor");
-                childTypes.add("WrittenResource");
-                childTypes.add("Anonym");
-                childTypes.add("MediaFile");
+//                childTypes.add("Actor");
+//                childTypes.add("WrittenResource");
+//                childTypes.add("Anonym");
+//                childTypes.add("MediaFile");
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add("Corpus");
                 childTypes.add("Session");

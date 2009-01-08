@@ -361,7 +361,7 @@ public class ImdiTreeObject implements Comparable {
 //                }
             String targetFileName = currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi";
 
-            this.createFileInCache(new File(targetFileName), !nodeType.equals(".METATRANSCRIPT.Corpus"));
+            this.createFileInCache(new File(targetFileName), !nodeType.equals("Corpus"));
             destinationNode = GuiHelper.imdiLoader.getImdiObject("new child", targetFileName);
             this.addCorpusLink(destinationNode);
             addedImdiNodes.add(destinationNode);
@@ -374,17 +374,17 @@ public class ImdiTreeObject implements Comparable {
 //            addableImdiChild.addField(fieldToAdd1, 0);
         // end temp test
         //for (Enumeration fieldsToAdd = GuiHelper.imdiFieldViews.getCurrentGlobalView().getAlwaysShowColumns(); fieldsToAdd.hasMoreElements();) {
-        for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(nodeType, getNextImdiChildIdentifier(), resourcePath); fieldsToAdd.hasMoreElements();) {
-            String[] currentField = (String[]) fieldsToAdd.nextElement();
-            System.out.println("fieldToAdd: " + currentField[0]);
-            System.out.println("valueToAdd: " + currentField[1]);
-            ImdiField fieldToAdd = new ImdiField(destinationNode, currentField[0], currentField[1]);
-            //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
-            fieldToAdd.translateFieldName(currentField[0]);
-            if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrlString(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
-                destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
-            }
-        }
+//        for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(this, nodeType, getNextImdiChildIdentifier(), resourcePath); fieldsToAdd.hasMoreElements();) {
+//            String[] currentField = (String[]) fieldsToAdd.nextElement();
+//            System.out.println("fieldToAdd: " + currentField[0]);
+//            System.out.println("valueToAdd: " + currentField[1]);
+//            ImdiField fieldToAdd = new ImdiField(destinationNode, currentField[0], currentField[1]);
+//            //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
+//            fieldToAdd.translateFieldName(currentField[0]);
+//            if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrlString(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
+//                destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
+//            }
+//        }
         if (destinationNode != this) {
             childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
         }
@@ -690,6 +690,12 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void addCorpusLink(ImdiTreeObject targetImdiNode) {
+        // if needs saving then save now while you can
+        // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
+        if (imdiNeedsSaveToDisk) {
+            saveChangesToCache();
+        }
+
         Document nodDom;
         try {
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
@@ -1196,8 +1202,8 @@ public class ImdiTreeObject implements Comparable {
         for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
             Object currentContainer = containersForNode.nextElement();
             if (currentContainer instanceof ImdiTableModel) {
-                ((ImdiTableModel) currentContainer).fireTableDataChanged();
-//                ((ImdiTableModel) currentContainer).reloadTableData();
+//                ((ImdiTableModel) currentContainer).fireTableDataChanged();
+                ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
             }
             if (currentContainer instanceof DefaultMutableTreeNode) {
                 DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
