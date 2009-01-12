@@ -34,6 +34,7 @@ public class GuiHelper {
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
     static LinorgJournal linorgJournal = new LinorgJournal();
     static ImdiSchema imdiSchema = new ImdiSchema();
+    static LinorgBugCatcher linorgBugCatcher = new LinorgBugCatcher();
     static ImdiLoader imdiLoader = new ImdiLoader();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
 //    private JPanel selectedFilesPanel;
@@ -243,14 +244,16 @@ public class GuiHelper {
                     transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeFile.getCanonicalPath() + ".html")));
                     linorgWindowManager.openUrlWindow(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                    //System.out.println(ex.getMessage());
                 //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
                 try {
                     linorgWindowManager.openUrlWindow(nodeName, nodeFile.toURL());
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                    //System.out.println(ex.getMessage());
                 //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
                 }
             }

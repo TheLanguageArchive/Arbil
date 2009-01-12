@@ -42,7 +42,8 @@ public class MimeHashQueue {
                     try {
                         Thread.currentThread().sleep(500);//sleep for 100 ms
                     } catch (InterruptedException ie) {
-                        System.err.println("run MimeHashQueue: " + ie.getMessage());
+                        GuiHelper.linorgBugCatcher.logError(ie);
+//                        System.err.println("run MimeHashQueue: " + ie.getMessage());
                     }
                     for (Enumeration nodesToCheck = imdiObjectQueue.keys(); nodesToCheck.hasMoreElements();) {
                         String currentNodeURL = nodesToCheck.nextElement().toString();
@@ -98,7 +99,8 @@ public class MimeHashQueue {
             GuiHelper.linorgSessionStorage.saveObject(pathToMd5Sums, "pathToMd5Sums");
             System.out.println("saveMd5sumIndex");
         } catch (IOException ex) {
-            System.out.println("saveMap exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("saveMap exception: " + ex.getMessage());
         }
     }
 
@@ -118,7 +120,8 @@ public class MimeHashQueue {
             // convert to a url object
             url = file.toURL();
         } catch (MalformedURLException e) {
-            System.out.println(e.getMessage());
+            GuiHelper.linorgBugCatcher.logError(e);
+//            System.out.println(e.getMessage());
         }
         if (url == null) {
             System.out.println("Invalid URL: " + filePath);
@@ -136,6 +139,7 @@ public class MimeHashQueue {
                 }
                 mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
             } catch (Exception ioe) {
+                GuiHelper.linorgBugCatcher.logError(ioe);
                 System.out.println("Cannot read file at URL: " + url + " ioe: " + ioe.getMessage());
             }
             System.out.println(mpiMimeType);
@@ -175,6 +179,7 @@ public class MimeHashQueue {
 //                    debugOut("location: " + getUrl());
 //                    debugOut("digest: " + digest.toString());                    
         } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
             System.out.println("failed to created hash: " + ex.getMessage());
         }
         // store the url to node mapping. Note that; in the case of a resource line the session node is mapped against the resource url not the imdichildnode for the file

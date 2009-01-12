@@ -110,6 +110,7 @@ public class ThreadedDialog {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException ignore) {
+                        GuiHelper.linorgBugCatcher.logError(ignore);
                     }
                 }
             }
@@ -222,6 +223,7 @@ public class ThreadedDialog {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignore) {
+                GuiHelper.linorgBugCatcher.logError(ignore);
             }
         }
     }
@@ -320,6 +322,7 @@ public class ThreadedDialog {
                                         appendToTaskOutput("saved in cache");
                                     }
                                 } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(ex);
                                     totalErrors++;
                                     appendToTaskOutput("Exception: " + ex.getMessage());
                                 }
@@ -351,7 +354,8 @@ public class ThreadedDialog {
                         System.out.println("copy canceled");
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    ex.printStackTrace();
                 }
                 threadARunning = false;
                 if (!stopSearch) {
@@ -403,7 +407,8 @@ public class ThreadedDialog {
                         showResultsButton.setEnabled(true);
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    ex.printStackTrace();
                 }
                 threadBRunning = false;
             }

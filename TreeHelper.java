@@ -105,7 +105,8 @@ public class TreeHelper {
             GuiHelper.linorgSessionStorage.saveObject(locationsList, "locationsList");
             System.out.println("saved locationsList");
         } catch (Exception ex) {
-            System.out.println("save locationsList exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("save locationsList exception: " + ex.getMessage());
         }
     }
 
@@ -113,7 +114,8 @@ public class TreeHelper {
         try {
             locationsList = (Vector) GuiHelper.linorgSessionStorage.loadObject("locationsList");
         } catch (Exception ex) {
-            System.out.println("load locationsList exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("load locationsList exception: " + ex.getMessage());
         }
         if (locationsList == null) {
             locationsList = new Vector();

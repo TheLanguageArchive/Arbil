@@ -188,7 +188,8 @@ public class ImdiTreeObject implements Comparable {
                     DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                     nodDom = builder.parse(tempUrlString);
                 } catch (Exception ex) {
-                    System.out.println("Could not parse dom: " + this.getUrlString());
+                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    System.out.println("Could not parse dom: " + this.getUrlString());
                 }
             } else {
                 OurURL inUrlLocal = null;
@@ -215,7 +216,8 @@ public class ImdiTreeObject implements Comparable {
 ////                cacheLocation = saveNodeToCache(nodDom);
 //            }
         } catch (MalformedURLException mue) {
-            System.out.println("Invalid input URL: " + mue);
+            GuiHelper.linorgBugCatcher.logError(mue);
+//            System.out.println("Invalid input URL: " + mue);
             nodeText = "Invalid input URL";
         }
         //we are now done with the dom so free the memory
@@ -531,7 +533,8 @@ public class ImdiTreeObject implements Comparable {
                     System.out.println("linkPathCorrected: " + linkPath);
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
                 } catch (Exception ex) {
-                    System.out.println("Exception CorpusLink: " + ex.getMessage());
+                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    System.out.println("Exception CorpusLink: " + ex.getMessage());
                 }
             }
 //            if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
@@ -688,7 +691,8 @@ public class ImdiTreeObject implements Comparable {
             reloadImdiNode();
 //            throw (new Exception("deleteCorpusLink not yet implemented"));
         } catch (Exception ex) {
-            System.out.println("Exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("Exception: " + ex.getMessage());
         }
     }
 
@@ -717,7 +721,8 @@ public class ImdiTreeObject implements Comparable {
             api.writeDOM(nodDom, this.getFile(), false);
             reloadImdiNode();
         } catch (Exception ex) {
-            System.out.println("Exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("Exception: " + ex.getMessage());
         }
     }
 
@@ -881,7 +886,8 @@ public class ImdiTreeObject implements Comparable {
                 imdiNeedsSaveToDisk = false;
             }
         } catch (MalformedURLException mue) {
-            System.out.println("Invalid input URL: " + mue);
+            GuiHelper.linorgBugCatcher.logError(mue);
+//            System.out.println("Invalid input URL: " + mue);
             nodeText = "Invalid input URL";
         }
         clearIcon();
@@ -1171,7 +1177,8 @@ public class ImdiTreeObject implements Comparable {
                 return getFile().toURL();
             }
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println(ex.getMessage());
         //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
         }
         return null;
@@ -1239,7 +1246,8 @@ public class ImdiTreeObject implements Comparable {
                         GuiHelper.treeHelper.localDirectoryTreeModel.nodeStructureChanged(parentNode);
                     }
                 } catch (Exception ex) {
-                    System.out.println(ex.getMessage());
+                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    System.out.println(ex.getMessage());
                 }
 //                ////////////////////
 //                DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();

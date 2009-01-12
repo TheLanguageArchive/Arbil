@@ -103,9 +103,10 @@ public class ImdiVocabularies {
 //            xmlReader.parse(new org.xml.sax.InputSource(r));
         //xmlReader.parse(new BufferedInputStream(inputStreamFromURLConnection), saxDefaultHandler);
         } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
             // if the vocab could not be loaded then add the key to prevent retries and set the value to null to indicate that there was an error
             //vocabulariesTable.put(vocabUrl, null);
-            System.out.println(ex.getMessage());
+//            System.out.println(ex.getMessage());
         }
     }
 

@@ -162,7 +162,8 @@ public class LinorgWindowManager {
                         }
                     }
                 } catch (Exception ex) {
-                    System.out.println("Exception: " + ex.getMessage());
+                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    System.out.println("Exception: " + ex.getMessage());
                 }
             }
             // save the windows
@@ -170,7 +171,8 @@ public class LinorgWindowManager {
 
             System.out.println("saved windowStates");
         } catch (Exception ex) {
-            System.out.println("save windowStates exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("save windowStates exception: " + ex.getMessage());
         }
     }
 
@@ -214,7 +216,8 @@ public class LinorgWindowManager {
                 ((JInternalFrame) windowObject).setSelected(true);
             }
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println(ex.getMessage());
         }
     }
 
@@ -273,7 +276,8 @@ public class LinorgWindowManager {
                                             topMostWindow.setSelected(true);
                                         }
                                     } catch (Exception ex) {
-                                        System.out.println(ex.getMessage());
+                                        GuiHelper.linorgBugCatcher.logError(ex);
+//                                        System.out.println(ex.getMessage());
                                     }
                                     desktopPane.repaint();
                                 }
@@ -290,7 +294,8 @@ public class LinorgWindowManager {
                                     }
                                     allWindows[targetLayerInt].setSelected(true);
                                 } catch (Exception ex) {
-                                    System.out.println(ex.getMessage());
+                                    GuiHelper.linorgBugCatcher.logError(ex);
+//                                    System.out.println(ex.getMessage());
                                 }
                             }
                         }
@@ -350,7 +355,8 @@ public class LinorgWindowManager {
             // prevent the frame focus process onsuming mouse events that should be recieved by the jtable etc.
             currentInternalFrame.setSelected(true);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println(ex.getMessage());
         }
         return currentInternalFrame;
     }
@@ -365,7 +371,8 @@ public class LinorgWindowManager {
 
         //gridViewInternalFrame.setMaximum(true);
         } catch (Exception ex) {
-            System.out.println(ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println(ex.getMessage());
         }
         JScrollPane jScrollPane6;
         jScrollPane6 = new javax.swing.JScrollPane();

@@ -22,6 +22,7 @@ public class LinorgJournal {
             returnValue = true;
         } catch (Exception ex) {
             returnValue = false;
+            GuiHelper.linorgBugCatcher.logError(ex);
             System.err.println("failed to write to the journal: " + ex.getMessage());
         }
         return (returnValue);

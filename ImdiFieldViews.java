@@ -50,7 +50,8 @@ public class ImdiFieldViews {
             savedFieldViews = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("savedFieldViews");
             currentGlobalViewName = (String) GuiHelper.linorgSessionStorage.loadObject("currentGlobalViewName");
         } catch (Exception ex) {
-            System.out.println("load savedFieldViews exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("load savedFieldViews exception: " + ex.getMessage());
         }
         if (savedFieldViews == null) {
             savedFieldViews = new Hashtable();
@@ -78,7 +79,8 @@ public class ImdiFieldViews {
             GuiHelper.linorgSessionStorage.saveObject(savedFieldViews, "savedFieldViews");
             GuiHelper.linorgSessionStorage.saveObject(currentGlobalViewName, "currentGlobalViewName");
         } catch (Exception ex) {
-            System.out.println("save savedFieldViews exception: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+            //System.out.println("save savedFieldViews exception: " + ex.getMessage());
         }
     }
 

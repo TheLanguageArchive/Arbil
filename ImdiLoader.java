@@ -28,7 +28,8 @@ public class ImdiLoader {
                     try {
                         Thread.currentThread().sleep(500);
                     } catch (InterruptedException ie) {
-                        System.err.println("run ImdiLoader: " + ie.getMessage());
+                        GuiHelper.linorgBugCatcher.logError(ie);
+                        //System.err.println("run ImdiLoader: " + ie.getMessage());
                     }
                     while (imdiNodesToInit.size() > 0) {
                         ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiNodesToInit.remove(0);

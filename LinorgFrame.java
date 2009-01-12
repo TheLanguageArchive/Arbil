@@ -716,7 +716,8 @@ private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent
         try {
             addLocation(fc.getSelectedFile().getCanonicalPath());
         } catch (IOException ex) {
-            System.out.println("Error adding location: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("Error adding location: " + ex.getMessage());
         }
     }
 }//GEN-LAST:event_addLocalDirectoryMenuItemActionPerformed

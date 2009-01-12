@@ -152,7 +152,8 @@ public class LinorgSessionStorage {
                     System.out.println("Downloaded: " + totalRead / 1048576 + " Mbs");
                 }
             } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+                GuiHelper.linorgBugCatcher.logError(ex);
+//                System.out.println(ex.getMessage());
             }
         }
     }
