@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -26,6 +27,9 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import mpi.imdi.api.*;
+import mpi.util.OurURL;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -236,7 +240,7 @@ public class ThreadedDialog {
         return (new int[]{childrenToLoad, loadedChildren});
     }
     // load all childeren
-    private int loadSomeChildren(Object currentElement, int totalLoaded, boolean saveToCache) {
+    private int loadSomeChildren(Object currentElement, int totalLoaded) {
         int currentLoaded = 0;
         appendToTaskOutput("loading sub corpus");
         boolean moreToLoad = true;
@@ -246,7 +250,7 @@ public class ThreadedDialog {
             progressBar.setString("" + (totalLoaded + tempChildCountArray[1]));
             moreToLoad = (tempChildCountArray[0] != 0);
             if (moreToLoad) {
-                ((ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5, saveToCache);
+                ((ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5);
             }
             currentLoaded = tempChildCountArray[1];
 //            progressBar.setNote(currentLoaded);
@@ -270,7 +274,7 @@ public class ThreadedDialog {
 
             public void run() {
                 try {
-                    boolean saveToCache = true;
+//                    boolean saveToCache = true;
                     waitTillVisible();
                     appendToTaskOutput("Copying");
                     progressBar.setIndeterminate(true);
@@ -278,23 +282,52 @@ public class ThreadedDialog {
                     appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
                     Enumeration selectedNodesEnum = selectedNodes.elements();
                     int totalLoaded = 0;
+                    int totalErrors = 0;
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
-                            // TODO: newNodeLocation is not used to good effect, it would be better to truely verify that the branch has been saved to the cache
-                            String newNodeLocation = ((ImdiTreeObject) currentElement).loadImdiDom(saveToCache); // save the first node which will not be saved by loadSomeChildren
-                            if (newNodeLocation != null) {
-//                                if (!new File(newNodeLocation).exists()) {// this would allow incomplete copies to be added
-                                totalLoaded += loadSomeChildren(currentElement, totalLoaded, saveToCache);
-//                                    if (!stopSearch) {
-//                                        // perform the copy
-//                                        appendToTaskOutput("Saving to: " + newNodeLocation);
-//                                        newNodeLocation = ((ImdiHelper.ImdiTreeObject) currentElement).saveBranchToLocal();
-//                                    }
-                            //                             } else {
-                            //                                 appendToTaskOutput("Using existing cached copy: " + newNodeLocation);
-                            //                             }
-                            } // else appendToTaskOutput("Unable to process: " + currentElement);                            
+                            Vector getList = new Vector();
+                            getList.add(((ImdiTreeObject) currentElement).getUrlString());
+                            while (!stopSearch && getList.size() > 0) {
+                                String currentTarget = (String) getList.remove(0);
+                                appendToTaskOutput(currentTarget);
+                                try {
+                                    appendToTaskOutput("connecting...");
+                                    OurURL inUrlLocal = new OurURL(currentTarget);
+                                    Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
+                                    appendToTaskOutput("getting links...");
+                                    IMDILink[] links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.CORPUS);
+                                    if (links != null) {
+                                        for (int linkCount = 0; linkCount < links.length; linkCount++) {
+                                            getList.add(links[linkCount].getRawURL().toString());
+                                        }
+                                    }
+                                    appendToTaskOutput("saving to disk...");
+                                    String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(currentTarget);
+                                    File tempFile = new File(destinationPath);
+                                    if (tempFile.exists()) {
+                                        appendToTaskOutput("this imdi is already in the cache");
+                                    } else {
+                                        // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
+                                        // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
+                                        ImdiTreeObject.api.writeDOM(nodDom, new File(destinationPath), false);
+                                        // at this point the file should exist and not have been modified by the user
+                                        // create hash index with server url but basedon the saved file
+                                        // note that if the imdi.api has changed this file then it will not be detected
+                                        // TODO: it will be best to change this to use the server api get mb5 sum when it is written
+                                        // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
+                                        //getHash(tempFile, this.getUrl());
+                                        appendToTaskOutput("saved in cache");
+                                    }
+                                } catch (Exception ex) {
+                                    totalErrors++;
+                                    appendToTaskOutput("Exception: " + ex.getMessage());
+                                }
+                                totalLoaded++;
+                                progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + totalErrors + " errors)");
+                            }
+                            String newNodeLocation = GuiHelper.linorgSessionStorage.getSaveLocation(((ImdiTreeObject) currentElement).getUrlString());
+//                            String newNodeLocation = ((ImdiTreeObject) currentElement).loadImdiDom(); // save the first node which will not be saved by loadSomeChildren
                             if (newNodeLocation != null && !stopSearch) { // make sure we dont add an incomplete location
                                 //appendToTaskOutput("would save location when done: " + newNodeLocation);
                                 //guiHelper.addLocation("file://" + newNodeLocation);
@@ -302,7 +335,13 @@ public class ThreadedDialog {
                                 if (!GuiHelper.treeHelper.addLocation("file://" + newNodeLocation)) {
                                     // alert the user when the node already exists and cannot be added again
                                     progressBar.setIndeterminate(false);
-                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "The location already exists and cannot be added again", searchDialog.getTitle(), 0);
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "The location:\n" + newNodeLocation + "\nalready exists and cannot be added again", searchDialog.getTitle(), 0);
+                                } else {
+                                    //GuiHelper.linorgWindowManager.localCorpusTreeModel.reload();
+                                    GuiHelper.treeHelper.reloadLocalCorpusTree();
+                                }
+                                if (                                totalErrors != 0){
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "There were " + totalErrors + " errors, some files may not be in the cashe.", searchDialog.getTitle(), 0);
                                 }
                             }
                         }
@@ -346,7 +385,7 @@ public class ThreadedDialog {
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
-                            totalLoaded += loadSomeChildren(currentElement, totalLoaded, false);
+                            totalLoaded += loadSomeChildren(currentElement, totalLoaded);
                             // perform the search        
                             appendToTaskOutput("searching");
                             ((ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
@@ -370,9 +409,9 @@ public class ThreadedDialog {
             }
         }.start();
     }
-    ///////////////////////////////////////////
-    // end functions that create the threads //
-    ///////////////////////////////////////////
+///////////////////////////////////////////
+// end functions that create the threads //
+///////////////////////////////////////////
     private void showResults() {
         if (foundNodes.size() > 0) {
             String frameTitle;

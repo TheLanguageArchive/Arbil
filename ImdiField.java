@@ -18,7 +18,7 @@ public class ImdiField {
     public String xmlPath;
     public String translatedPath;
 //        public String nodeName;
-    public String fieldValue;
+    public String fieldValue = "";
     public String fieldID;
     private String vocabularyKey;
     private boolean hasVocabularyType = false;

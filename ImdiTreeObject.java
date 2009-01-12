@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
@@ -32,7 +34,7 @@ import org.w3c.dom.NodeList;
  */
 public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
-    private static IMDIDom api = new IMDIDom();
+    public static IMDIDom api = new IMDIDom();
     public static MimeHashQueue mimeHashQueue = new MimeHashQueue(); // used to calculate mime types and md5 sums
     static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
@@ -163,15 +165,15 @@ public class ImdiTreeObject implements Comparable {
 
         initNodeVariables();
         if (ImdiTreeObject.isStringImdi(this.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(this.getUrlString())) {
-            loadImdiDom(false);
+            loadImdiDom();
         }
         clearIcon();
     }
 
-    public String loadImdiDom(boolean useCache) {
+    public void loadImdiDom() {
         Document nodDom = null;
         // cacheLocation will be null if useCache = false hence no file has been saved
-        String cacheLocation = null;
+//        String cacheLocation = null;
         try {
             String tempUrlString;
             if (!urlString.startsWith("http") && !urlString.startsWith("file")) {
@@ -180,45 +182,45 @@ public class ImdiTreeObject implements Comparable {
                 tempUrlString = urlString;
             }
             //System.out.println("tempUrlString: " + tempUrlString);
-//            if (false && !useCache) {
-//                // TODO: resolve why this is not functioning, till then the subsequent stanza is used
-//                try {
-//                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//                    nodDom = builder.parse(tempUrlString);
-//                } catch (Exception ex) {
-//                    System.out.println("Could not parse dom: " + this.getUrlString());
-//                }
-//            } else {
+            if (false) {
+                // TODO: resolve why this is not functioning, till then the subsequent stanza is used
+                try {
+                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    nodDom = builder.parse(tempUrlString);
+                } catch (Exception ex) {
+                    System.out.println("Could not parse dom: " + this.getUrlString());
+                }
+            } else {
                 OurURL inUrlLocal = null;
                 inUrlLocal = new OurURL(tempUrlString);
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
-//            }
+            }
 
             // only read the fields into imdi tree objects if it is not going to be saved to the cache
-            if (!useCache) {
-                if (nodDom == null) {
-                    nodeText = "Could not load IMDI";
-                    fileNotFound = true;
-                } else {
-                    //set the string name to unknown, it will be updated in the tostring function
-                    nodeText = "unknown";
-                    // load the fields from the imdi file
-                    iterateChildNodes(nodDom.getFirstChild(), "", useCache);
-                }
+//            if (!useCache) {
+            if (nodDom == null) {
+                nodeText = "Could not load IMDI";
+                fileNotFound = true;
+            } else {
+                //set the string name to unknown, it will be updated in the tostring function
+                nodeText = "unknown";
+                // load the fields from the imdi file
+                iterateChildNodes(nodDom.getFirstChild(), "");
             }
-            // save this to the cache before deleting the dom
-            if (useCache) {
-                // get the links from the imdi before we dispose of the dom
-                getImdiLinks(nodDom);
-                cacheLocation = saveNodeToCache(nodDom);
-            }
+//            }
+        // save this to the cache before deleting the dom
+//            if (useCache) {
+//                // get the links from the imdi before we dispose of the dom
+//                getImdiLinks(nodDom);
+////                cacheLocation = saveNodeToCache(nodDom);
+//            }
         } catch (MalformedURLException mue) {
             System.out.println("Invalid input URL: " + mue);
             nodeText = "Invalid input URL";
         }
         //we are now done with the dom so free the memory
         nodDom = null;
-        return cacheLocation;
+//        return cacheLocation;
     }
 
 //        private String getField(String fieldName) {
@@ -242,23 +244,23 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    private void getImdiLinks(Document nodDom) {
-        try {
-            if (nodDom != null) {
-                OurURL baseURL = new OurURL(this.getUrlString());
-//                debugOut("getIMDILinks");
-                IMDILink[] links = api.getIMDILinks(nodDom, baseURL, WSNodeType.CORPUS);
-//                debugOut("links.length: " + links.length);
-                if (links != null) {
-                    for (int linkCount = 0; linkCount < links.length; linkCount++) {
-                        childLinks.add(new String[]{links[linkCount].getRawURL().toString(), null});
-                    }
-                }
-            }
-        } catch (MalformedURLException mue) {
-            System.out.println("Error getting links: " + mue);
-        }
-    }
+//    private void getImdiLinks(Document nodDom) {
+//        try {
+//            if (nodDom != null) {
+//                OurURL baseURL = new OurURL(this.getUrlString());
+////                debugOut("getIMDILinks");
+//                IMDILink[] links = api.getIMDILinks(nodDom, baseURL, WSNodeType.CORPUS);
+////                debugOut("links.length: " + links.length);
+//                if (links != null) {
+//                    for (int linkCount = 0; linkCount < links.length; linkCount++) {
+//                        childLinks.add(new String[]{links[linkCount].getRawURL().toString(), null});
+//                    }
+//                }
+//            }
+//        } catch (MalformedURLException mue) {
+//            System.out.println("Error getting links: " + mue);
+//        }
+//    }
 
 //        private boolean populateChildFields(String fieldNameString, boolean alwaysShow) {
 //            // this is called when loading children and when loading fields
@@ -391,7 +393,7 @@ public class ImdiTreeObject implements Comparable {
         return addedImdiNodes;
     }
 
-    public ImdiTreeObject[] loadChildNodes(boolean saveToCache) {
+    public ImdiTreeObject[] loadChildNodes() {
         if (!imdiDataLoaded) {
             // if this node has been loaded then do not load again
             // to refresh the node and its children the node should be nulled and recreated
@@ -406,7 +408,7 @@ public class ImdiTreeObject implements Comparable {
                     ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
                     childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
                     if (ImdiTreeObject.isStringImdi(currentChildPath)) {
-                        currentImdi.loadImdiDom(saveToCache);
+                        currentImdi.loadImdiDom();
                     }
                 }
             }
@@ -441,7 +443,8 @@ public class ImdiTreeObject implements Comparable {
         return returnImdiArray;
     }
 
-    private void iterateChildNodes(Node startNode, String nodePath, boolean useCache) {
+    private void iterateChildNodes(Node startNode, String nodePath) {
+//        System.out.println("iterateChildNodes: " + nodePath);
         String siblingSpacer = "";
         Vector childNames = new Vector();
         Hashtable childrenWithSiblings = new Hashtable();
@@ -507,8 +510,8 @@ public class ImdiTreeObject implements Comparable {
             if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
 //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
                 fieldToAdd.translateFieldName(siblingNodePath + siblingSpacer);
-                this.addField(fieldToAdd, 0, null, useCache);
-            } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink")) {
+                this.addField(fieldToAdd, 0, null);
+            } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
                 String parentPath = this.urlString.substring(0, this.urlString.lastIndexOf("/")) + "/"; // this is a url so don't use the path separator
                 System.out.println("LinkValue: " + fieldValue);
                 System.out.println("ParentPath: " + parentPath);
@@ -547,7 +550,7 @@ public class ImdiTreeObject implements Comparable {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            iterateChildNodes(childNode.getFirstChild(), siblingNodePath + siblingSpacer, useCache);
+            iterateChildNodes(childNode.getFirstChild(), siblingNodePath + siblingSpacer);
         }
     }
 
@@ -602,7 +605,7 @@ public class ImdiTreeObject implements Comparable {
         return returnArray;
     }
 
-    public void loadNextLevelOfChildren(long stopTime, boolean saveToCache) {
+    public void loadNextLevelOfChildren(long stopTime) {
 //        debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
         if (System.currentTimeMillis() > stopTime) {
             return;
@@ -612,11 +615,11 @@ public class ImdiTreeObject implements Comparable {
                 Enumeration nodesToAddEnumeration = childrenHashtable.elements();
                 while (nodesToAddEnumeration.hasMoreElements()) {
                     // load one level of child nodes
-                    ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime, saveToCache);
+                    ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime);
                 //((ImdiTreeObject) nodesToAddEnumeration.nextElement()).();
                 }
             } else {
-                loadChildNodes(saveToCache);
+                loadChildNodes();
             }
         }
 //        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
@@ -890,45 +893,44 @@ public class ImdiTreeObject implements Comparable {
      * @param nodDom The dom for this node that will be saved.
      * @return A string path of the saved location.
      */
-    public String saveNodeToCache(Document nodDom) {
-        String cacheLocation = null;
-        System.out.println("saveBranchToLocal: " + this.toString());
-        if (this.isImdi() && !this.isImdiChild()) {
-            if (nodDom != null) {
-                //System.out.println("saveBranchToLocal: " + this.getUrl());
-                //System.out.println("saveBranchToLocal: " + this.nodDom.);
-
-                String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrlString());
-
-//                debugOut("destinationPath: " + destinationPath);
-                File tempFile = new File(destinationPath);
-                // only save the file if it does not exist, otherwise local changes would be lost and it would be pointless anyway
-                if (tempFile.exists()) {
-                    System.out.println("this imdi is already in the cache");
-                } else {
-                    // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
-                    // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
-                    api.writeDOM(nodDom, new File(destinationPath), false);
-                    // at this point the file should exist and not have been modified by the user
-                    // create hash index with server url but basedon the saved file
-                    // note that if the imdi.api has changed this file then it will not be detected
-                    // TODO: it will be best to change this to use the server api get mb5 sum when it is written
-                    // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
-                    //getHash(tempFile, this.getUrl());
-                    System.out.println("imdi should be saved in cache now");
-                }
-                // no point iterating child nodes which have not been loaded, it is better to do the outside this function
-//                    Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-//                    while (nodesToAddEnumeration.hasMoreElements()) {
-////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBranchToLocal(destinationDirectory);
-//                    }
-                cacheLocation = destinationPath;
-
-            }
-        }
-        return cacheLocation;
-    }
-
+//    public String saveNodeToCache(Document nodDom) {
+//        String cacheLocation = null;
+//        System.out.println("saveBranchToLocal: " + this.toString());
+//        if (this.isImdi() && !this.isImdiChild()) {
+//            if (nodDom != null) {
+//                //System.out.println("saveBranchToLocal: " + this.getUrl());
+//                //System.out.println("saveBranchToLocal: " + this.nodDom.);
+//
+//                String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrlString());
+//
+////                debugOut("destinationPath: " + destinationPath);
+//                File tempFile = new File(destinationPath);
+//                // only save the file if it does not exist, otherwise local changes would be lost and it would be pointless anyway
+//                if (tempFile.exists()) {
+//                    System.out.println("this imdi is already in the cache");
+//                } else {
+//                    // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
+//                    // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
+//                    api.writeDOM(nodDom, new File(destinationPath), false);
+//                    // at this point the file should exist and not have been modified by the user
+//                    // create hash index with server url but basedon the saved file
+//                    // note that if the imdi.api has changed this file then it will not be detected
+//                    // TODO: it will be best to change this to use the server api get mb5 sum when it is written
+//                    // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
+//                    //getHash(tempFile, this.getUrl());
+//                    System.out.println("imdi should be saved in cache now");
+//                }
+//                // no point iterating child nodes which have not been loaded, it is better to do the outside this function
+////                    Enumeration nodesToAddEnumeration = childrenHashtable.elements();
+////                    while (nodesToAddEnumeration.hasMoreElements()) {
+//////                        ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).saveBranchToLocal(destinationDirectory);
+////                    }
+//                cacheLocation = destinationPath;
+//
+//            }
+//        }
+//        return cacheLocation;
+//    }
     /**
      * Adds a field to the imdi node and creates imdi child nodes if required.
      * @param fieldToAdd The field to be added.
@@ -936,7 +938,7 @@ public class ImdiTreeObject implements Comparable {
      * @param addedImdiNodes Returns with all the imdi child nodes that have been added during the process.
      * @param useCache If true the the imdi file will be saved to the cache.
      */
-    private void addField(ImdiField fieldToAdd, int childLevel, Vector addedImdiNodes, boolean useCache) {
+    private void addField(ImdiField fieldToAdd, int childLevel, Vector addedImdiNodes) {
         // TODO: modify this so that each child node gets the full filename and full xml path
 //            if (isImdi()) {
 //                if (fieldLabel.startsWith("Session.")) {
@@ -979,9 +981,9 @@ public class ImdiTreeObject implements Comparable {
 //                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
 //                        resourceUrlString = resourceFile.getCanonicalPath();
                 resourceUrlString = fieldToAdd.fieldValue;
-                if (useCache) {
-                    GuiHelper.linorgSessionStorage.updateCache(getFullResourcePath());
-                }
+//                if (useCache) {
+//                    GuiHelper.linorgSessionStorage.updateCache(getFullResourcePath());
+//                }
                 mimeHashQueue.addToQueue(this);
             }
         } else {
@@ -997,7 +999,7 @@ public class ImdiTreeObject implements Comparable {
                 tempImdiTreeObject.imdiDataLoaded = true;
                 childrenHashtable.put(childsName, tempImdiTreeObject);
             }
-            ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1, addedImdiNodes, useCache);
+            ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1, addedImdiNodes);
         }
     }
 

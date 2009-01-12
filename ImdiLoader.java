@@ -33,7 +33,7 @@ public class ImdiLoader {
                     while (imdiNodesToInit.size() > 0) {
                         ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiNodesToInit.remove(0);
                         System.out.println("run ImdiLoader processing: " + currentImdiObject.getUrlString());
-                        currentImdiObject.loadImdiDom(false);
+                        currentImdiObject.loadImdiDom();
                         currentImdiObject.isLoading = false;
                         currentImdiObject.clearIcon();
                     }

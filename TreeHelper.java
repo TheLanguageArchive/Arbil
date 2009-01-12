@@ -309,7 +309,7 @@ public class TreeHelper {
                     System.out.println("file to be opened");
                 } else {
                     //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
-                    ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes(false);
+                    ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes();
                     Arrays.sort(childNodes);
                     // remove the loading node
                     removeChildNodes(itemNode);
