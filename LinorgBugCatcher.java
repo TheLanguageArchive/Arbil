@@ -42,14 +42,14 @@ public class LinorgBugCatcher {
             FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
 //            System.out.println("logCatch: " + messageString);
 //            journalFile.append(messageString + "\n");
-            errorLogFile.append("Error Date: " + new Date().toString() + "\n");
-            errorLogFile.append("Compile Date: " + new LinorgVersion().compileDate + "\n");
-            errorLogFile.append("Current Revision: " + new LinorgVersion().currentRevision + "\n");
+            errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
+            errorLogFile.append("Compile Date: " + new LinorgVersion().compileDate + System.getProperty("line.separator"));
+            errorLogFile.append("Current Revision: " + new LinorgVersion().currentRevision + System.getProperty("line.separator"));
             StackTraceElement[] stackTraceElements = exception.getStackTrace();
             for (StackTraceElement element : stackTraceElements) {
-                errorLogFile.append(element.toString() + "\n");
+                errorLogFile.append(element.toString() + System.getProperty("line.separator"));
             }
-            errorLogFile.append("======================================================================\n");
+            errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
             errorLogFile.close();
         } catch (Exception ex) {
             System.err.println("failed to write to the journal: " + ex.getMessage());
