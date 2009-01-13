@@ -53,14 +53,16 @@ public class ImdiLoader {
     public ImdiTreeObject getImdiObject(String localNodeText, String localUrlString) {
         ImdiTreeObject currentImdiObject = null;
         if (localUrlString.length() > 0) {
+            // correct any variations in the url string
+            localUrlString = new ImdiTreeObject(localNodeText, localUrlString).getUrlString();
             currentImdiObject = (ImdiTreeObject) imdiHashTable.get(localUrlString);
-        }
-        if (currentImdiObject == null) {
+            if (currentImdiObject == null) {
             currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
-            imdiHashTable.put(localUrlString, currentImdiObject);
-            if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
-                currentImdiObject.isLoading = true;
-                imdiNodesToInit.add(currentImdiObject);
+                imdiHashTable.put(localUrlString, currentImdiObject);
+                if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
+                    currentImdiObject.isLoading = true;
+                    imdiNodesToInit.add(currentImdiObject);
+                }
             }
         }
         return currentImdiObject;
