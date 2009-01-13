@@ -51,7 +51,7 @@ public class ImdiTreeObject implements Comparable {
     public boolean fileNotFound;
     public boolean imdiNeedsSaveToDisk;
     private String nodeText;
-    private String urlString;
+    private URL nodeUrl;
     private String resourceUrlString;
     public boolean isDirectory;
     private ImageIcon icon;
@@ -64,7 +64,14 @@ public class ImdiTreeObject implements Comparable {
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         nodeText = localNodeText;
-        urlString = localUrlString;
+        try {
+            if (!localUrlString.toLowerCase().startsWith("http") && !localUrlString.toLowerCase().startsWith("file")) {
+                localUrlString = "file://" + localUrlString;
+            }
+            nodeUrl = new URL(localUrlString);
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
         initNodeVariables();
     }
     // static methods for testing imdi file and object types
@@ -124,7 +131,7 @@ public class ImdiTreeObject implements Comparable {
 
         icon = null;//idleIcon;//null;//new ImageIcon(getClass().getResource(imageName)); 
         isDirectory = false;
-        if (urlString != null) {
+        if (nodeUrl != null) {
             if (!isImdi() && isLocal()) {
                 File fileObject = getFile();
                 if (fileObject != null) {
@@ -133,7 +140,7 @@ public class ImdiTreeObject implements Comparable {
                 nodeText = fileObject.getName();
             }
             if (!isImdi() && nodeText == null) {
-                nodeText = urlString;
+                nodeText = this.getUrlString();
             }
         }
         if (!isImdi() && !isDirectory()) {
@@ -175,25 +182,19 @@ public class ImdiTreeObject implements Comparable {
         // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
         try {
-            String tempUrlString;
-            if (!urlString.startsWith("http") && !urlString.startsWith("file")) {
-                tempUrlString = "file://" + urlString;
-            } else {
-                tempUrlString = urlString;
-            }
             //System.out.println("tempUrlString: " + tempUrlString);
             if (false) {
                 // TODO: resolve why this is not functioning, till then the subsequent stanza is used
                 try {
                     DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                    nodDom = builder.parse(tempUrlString);
+                    nodDom = builder.parse(nodeUrl.openStream());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
 //                    System.out.println("Could not parse dom: " + this.getUrlString());
                 }
             } else {
                 OurURL inUrlLocal = null;
-                inUrlLocal = new OurURL(tempUrlString);
+                inUrlLocal = new OurURL(nodeUrl);
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
             }
 
@@ -514,10 +515,10 @@ public class ImdiTreeObject implements Comparable {
                 fieldToAdd.translateFieldName(siblingNodePath + siblingSpacer);
                 this.addField(fieldToAdd, 0, null);
             } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
-                String parentPath = this.urlString.substring(0, this.urlString.lastIndexOf("/")) + "/"; // this is a url so don't use the path separator
+                String parentPath = this.getParentDirectory();
                 System.out.println("LinkValue: " + fieldValue);
                 System.out.println("ParentPath: " + parentPath);
-                System.out.println("Parent: " + this.urlString);
+                System.out.println("Parent: " + this.getUrlString());
                 String linkPath;
                 try {
                     if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http")) {
@@ -635,8 +636,7 @@ public class ImdiTreeObject implements Comparable {
     public String getFullResourcePath() {
         String targetUrlString = resourceUrlString;
         if (targetUrlString.startsWith(".")) {
-            String parentUrl = this.urlString.split("#")[0];
-            targetUrlString = parentUrl.substring(0, parentUrl.lastIndexOf("/")) + "/" + targetUrlString;
+            targetUrlString = this.getParentDirectory() + "/" + targetUrlString;
         }
         return targetUrlString;
     }
@@ -784,7 +784,7 @@ public class ImdiTreeObject implements Comparable {
         System.out.println("saveChangesToCache");
         Document nodDom;
         OurURL inUrlLocal = null;
-        if (urlString.startsWith("http")) {
+        if (nodeUrl.getProtocol().toLowerCase().startsWith("http")) {
             System.out.println("should not try to save remote files");
             return;
         }
@@ -1088,7 +1088,7 @@ public class ImdiTreeObject implements Comparable {
      * @return a URL string of the IMDI
      */
     public String getUrlString() {
-        return urlString;
+        return nodeUrl.toString();
     }
 
     private void getMimeHashResult() {
@@ -1129,11 +1129,11 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isImdi() {
-        if (urlString != null /* && nodDom != null*/) {
+        if (nodeUrl != null /* && nodDom != null*/) {
             if (isImdiChild()) {
                 return true;
             } else {
-                return ImdiTreeObject.isStringImdi(urlString);
+                return ImdiTreeObject.isStringImdi(this.getUrlString());
             }
         }
         return false;
@@ -1144,7 +1144,7 @@ public class ImdiTreeObject implements Comparable {
      * @return boolean
      */
     public boolean isImdiChild() {
-        return ImdiTreeObject.isStringImdiChild(urlString);
+        return ImdiTreeObject.isStringImdiChild(this.getUrlString());
     }
 
     public boolean isSession() {
@@ -1158,8 +1158,8 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isLocal() {
-        if (urlString != null) {
-            return ImdiTreeObject.isStringLocal(urlString);
+        if (nodeUrl != null) {
+            return ImdiTreeObject.isStringLocal(this.getUrlString());
         } else {
             return false;
         }
@@ -1170,24 +1170,18 @@ public class ImdiTreeObject implements Comparable {
      * @return A URL that this node represents.
      */
     public URL getURL() {
-        try {
-            if (urlString.startsWith("http")) {
-                return new URL(urlString);
-            } else {
-                return getFile().toURL();
-            }
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-//            System.out.println(ex.getMessage());
-        //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
-        }
-        return null;
+        return nodeUrl;
     }
 
     public File getFile() {
-        return new File(urlString.replaceFirst("file://", ""));
+        return new File(nodeUrl.getFile());
     }
 
+    public String getParentDirectory() {
+        String parentPath = this.getUrlString().substring(0, this.getUrlString().lastIndexOf("/")) + "/"; // this is a url so don't use the path separator
+        return parentPath;
+    }
+    
     public void registerContainer(Object containerToAdd) {
         containersOfThisNode.add(containerToAdd);
     }
@@ -1223,7 +1217,7 @@ public class ImdiTreeObject implements Comparable {
                 DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
                 ArrayList children = Collections.list(parentNode.children());
                 Collections.sort(children, new TreeStringComparator());
-                parentNode.removeAllChildren();
+//                parentNode.removeAllChildren();
                 Iterator childrenIterator = children.iterator();
                 while (childrenIterator.hasNext()) {
                     DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) childrenIterator.next();

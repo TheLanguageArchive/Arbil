@@ -207,6 +207,15 @@ public class TreeHelper {
         remoteCorpusTreeModel.reload();
     }
     
+    public void redrawTrees(){
+        localCorpusTree.invalidate();
+        localDirectoryTree.invalidate();
+        remoteCorpusTree.invalidate();
+        localCorpusTree.repaint();
+        localDirectoryTree.repaint();
+        remoteCorpusTree.repaint();
+    }
+    
     public void reloadLocalCorpusTree(DefaultMutableTreeNode targetNode) {
         localCorpusTreeModel.nodeStructureChanged(targetNode);
 //         TODO: make sure the refreshed node is expanded 
