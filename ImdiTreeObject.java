@@ -65,10 +65,12 @@ public class ImdiTreeObject implements Comparable {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         nodeText = localNodeText;
         try {
+//            localUrlString = localUrlString.replace("\\", "/");
             if (!localUrlString.toLowerCase().startsWith("http") && !localUrlString.toLowerCase().startsWith("file")) {
-                localUrlString = "file://" + localUrlString;
+                nodeUrl = new File(localUrlString).toURL();
+            } else {
+                nodeUrl = new URL(localUrlString);
             }
-            nodeUrl = new URL(localUrlString);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -194,7 +196,7 @@ public class ImdiTreeObject implements Comparable {
                 }
             } else {
                 OurURL inUrlLocal = null;
-                inUrlLocal = new OurURL(nodeUrl);
+                inUrlLocal = new OurURL(this.getUrlString());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
             }
 
@@ -1181,7 +1183,7 @@ public class ImdiTreeObject implements Comparable {
         String parentPath = this.getUrlString().substring(0, this.getUrlString().lastIndexOf("/")) + "/"; // this is a url so don't use the path separator
         return parentPath;
     }
-    
+
     public void registerContainer(Object containerToAdd) {
         containersOfThisNode.add(containerToAdd);
     }
