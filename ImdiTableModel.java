@@ -28,8 +28,9 @@ public class ImdiTableModel extends AbstractTableModel {
     private Hashtable allColumnNames = new Hashtable();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
-    private int[] maxColumnWidths;
-    int sortColumn = 0;
+    private int[] maxColumnWidths;   
+    boolean horizontalView = false;
+    int sortColumn = -1;
     boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
@@ -64,7 +65,7 @@ public class ImdiTableModel extends AbstractTableModel {
     public Enumeration getImdiNodes() {
         return imdiObjectHash.elements();
     }
-    
+
     public Enumeration getImdiNodesURLs() {
         return imdiObjectHash.keys();
     }
@@ -100,9 +101,10 @@ public class ImdiTableModel extends AbstractTableModel {
             imdiTreeObject.registerContainer(this);
         }
     }
+
     private void updateAllImdiObjects() {
-        for (Enumeration nodesEnum = imdiObjectHash.elements(); nodesEnum.hasMoreElements();){            
-            ImdiTreeObject imdiTreeObject = (ImdiTreeObject)nodesEnum.nextElement();        
+        for (Enumeration nodesEnum = imdiObjectHash.elements(); nodesEnum.hasMoreElements();) {
+            ImdiTreeObject imdiTreeObject = (ImdiTreeObject) nodesEnum.nextElement();
             if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
                 System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(imdiTreeObject)) {
@@ -145,8 +147,8 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void removeAllImdiRows() {
         listModel.removeAllElements();
-        for (Enumeration removableNodes = imdiObjectHash.elements(); removableNodes.hasMoreElements();){
-            ((ImdiTreeObject)removableNodes.nextElement()).removeContainer(this);
+        for (Enumeration removableNodes = imdiObjectHash.elements(); removableNodes.hasMoreElements();) {
+            ((ImdiTreeObject) removableNodes.nextElement()).removeContainer(this);
         }
         imdiObjectHash.clear();
         allColumnNames.clear();
@@ -295,19 +297,32 @@ public class ImdiTableModel extends AbstractTableModel {
         }
 
         public int compare(Object firstRowArray, Object secondRowArray) {
-            String baseValueA = ((Object[]) firstRowArray)[sortColumn].toString();
-            String comparedValueA = ((Object[]) secondRowArray)[sortColumn].toString();
-            // TODO: add the second or more sort column
+            if (sortColumn >= 0) {
+                // (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
+                String baseValueA = ((Object[]) firstRowArray)[sortColumn].toString();
+                String comparedValueA = ((Object[]) secondRowArray)[sortColumn].toString();
+                // TODO: add the second or more sort column
 //            if (!(baseValueA.equals(comparedValueA))) {
 //                return baseValueB.compareTo(comparedValueB);
 //            } else {
 //                return baseValueA.compareTo(comparedValueA);
 //            }
-            int returnValue = baseValueA.compareTo(comparedValueA);
-            if (!sortReverse) {
-                returnValue = 1 - returnValue;
+                int returnValue = baseValueA.compareTo(comparedValueA);
+                if (sortReverse) {
+                    returnValue = 1 - returnValue;
+                }
+                return returnValue;
+            } else {
+                try {
+                    String baseValueA = ((ImdiField) ((Object[]) firstRowArray)[1]).fieldID;
+                    String comparedValueA = ((ImdiField) (((Object[]) secondRowArray)[1])).fieldID;
+                    int returnValue = baseValueA.compareTo(comparedValueA);
+                    return returnValue;
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                    return 1;
+                }
             }
-            return returnValue;
         }
     }
 
@@ -321,10 +336,23 @@ public class ImdiTableModel extends AbstractTableModel {
     public void reloadTableData() {
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
-        
+
         updateAllImdiObjects();
 
-        if (imdiObjectHash.size() > 1) {
+        // set the view to either horizontal or vertical and set the default sort
+        boolean lastHorizontalView = horizontalView;
+        horizontalView = imdiObjectHash.size() > 1;
+        if (lastHorizontalView != horizontalView) {
+            sortReverse = false;
+            // update to the default sort
+            if (horizontalView) {
+                sortColumn = 0;
+            } else {
+                sortColumn = -1;
+            }
+        }
+
+        if (horizontalView) {
             // display the grid view
 
             // calculate which of the available columns to show
@@ -536,15 +564,21 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void sortByColumn(int columnIndex) {
         // TODO: sort columns
-        System.out.println("sortByColumn: " + columnIndex);
+//        System.out.println("sortByColumn: " + columnIndex);
         // set the reverse sort flag
         if (sortColumn == columnIndex) {
-            sortReverse = !sortReverse;
+            if (horizontalView || sortReverse == false) {
+                sortReverse = !sortReverse;
+            } else {
+//                 set the sort by the imdi field order
+                sortColumn = -1;
+            }
         } else {
+            //set the current sort column
+            sortColumn = columnIndex;
             sortReverse = false;
         }
-        //set the current sort column
-        sortColumn = columnIndex;
+        System.out.println("sortByColumn: " + sortColumn);
         //fireTableStructureChanged();
         reloadTableData();
     }
