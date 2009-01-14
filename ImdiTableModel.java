@@ -28,7 +28,7 @@ public class ImdiTableModel extends AbstractTableModel {
     private Hashtable allColumnNames = new Hashtable();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
-    private int[] maxColumnWidths;   
+    private int[] maxColumnWidths;
     boolean horizontalView = false;
     int sortColumn = -1;
     boolean sortReverse = false;
@@ -316,7 +316,9 @@ public class ImdiTableModel extends AbstractTableModel {
                 try {
                     String baseValueA = ((ImdiField) ((Object[]) firstRowArray)[1]).fieldID;
                     String comparedValueA = ((ImdiField) (((Object[]) secondRowArray)[1])).fieldID;
-                    int returnValue = baseValueA.compareTo(comparedValueA);
+                    int baseIntA = Integer.parseInt(baseValueA.substring(1));
+                    int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
+                    int returnValue = baseIntA - comparedIntA;
                     return returnValue;
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
