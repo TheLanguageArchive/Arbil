@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.text.Document;
 
 /**
  *
@@ -67,6 +68,27 @@ public class LinorgWindowManager {
         }
     }
 
+    public void openAboutPage() {
+        // open the introduction page
+        // TODO: always get this page from the server if available, but also save it for off line use
+        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/About.html");
+        JEditorPane aboutDisplayPane = openUrlWindow("About", introductionUrl);
+
+        aboutDisplayPane.doLayout();
+        Document doc = aboutDisplayPane.getDocument();
+        try {
+            LinorgVersion linorgVersion = new LinorgVersion();            
+            doc.insertString(doc.getLength(), "\n", null);
+            doc.insertString(doc.getLength(), "------------------------------------------------------\n", null);
+            doc.insertString(doc.getLength(), linorgVersion.currentRevision + "\n", null);
+            doc.insertString(doc.getLength(), linorgVersion.compileDate + "\n", null);
+            doc.insertString(doc.getLength(), linorgVersion.lastCommitDate + "\n", null);
+            doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+    }
+
     public void openIntroductionPage() {
         // open the introduction page
         // TODO: always get this page from the server if available, but also save it for off line use
@@ -79,10 +101,10 @@ public class LinorgWindowManager {
             for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
                 String currentWindowName = windowNamesEnum.nextElement().toString();
                 System.out.println("currentWindowName: " + currentWindowName);
-                Vector imdiURLs = (Vector)windowListHashtable.get(currentWindowName);
+                Vector imdiURLs = (Vector) windowListHashtable.get(currentWindowName);
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
                 Vector imdiObjectsVector = new Vector();
-                for (Enumeration imdiURLsEnum = imdiURLs.elements(); imdiURLsEnum.hasMoreElements();){
+                for (Enumeration imdiURLsEnum = imdiURLs.elements(); imdiURLsEnum.hasMoreElements();) {
                     // TODO: move all loading of imdi objects into a single class that makes sure only one instence of each URL is ever loaded
                     imdiObjectsVector.add(GuiHelper.imdiLoader.getImdiObject("", imdiURLsEnum.nextElement().toString()));
                 }
@@ -146,15 +168,15 @@ public class LinorgWindowManager {
                 try {
                     if (windowObject != null) {
                         Object currentComponent = ((JInternalFrame) windowObject).getContentPane().getComponent(0);
-                        if (currentComponent != null && currentComponent instanceof LinorgSplitPanel){
+                        if (currentComponent != null && currentComponent instanceof LinorgSplitPanel) {
 //                System.out.println("windowObject: " + windowObject);
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane());
 //                System.out.println("getComponent: " + ((JInternalFrame) windowObject).getComponent(0));
 //                System.out.println("LinorgSplitPanel: " + ((LinorgSplitPanel)((JInternalFrame) windowObject).getContentPane()));
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane().getComponent(0));                                           
-                            Enumeration windowImdiNodes = ((ImdiTableModel) ((LinorgSplitPanel)currentComponent).imdiTable.getModel()).getImdiNodesURLs();
+                            Enumeration windowImdiNodes = ((ImdiTableModel) ((LinorgSplitPanel) currentComponent).imdiTable.getModel()).getImdiNodesURLs();
                             Vector currentNodesVector = new Vector();
-                            while (windowImdiNodes.hasMoreElements()){
+                            while (windowImdiNodes.hasMoreElements()) {
                                 currentNodesVector.add(windowImdiNodes.nextElement().toString());
                             }
                             windowListHashtable.put(currentWindowName, currentNodesVector);
@@ -361,7 +383,7 @@ public class LinorgWindowManager {
         return currentInternalFrame;
     }
 
-    public void openUrlWindow(String frameTitle, URL locationUrl) {
+    public JEditorPane openUrlWindow(String frameTitle, URL locationUrl) {
         JEditorPane htmlDisplay = new JEditorPane();
         htmlDisplay.setEditable(false);
         htmlDisplay.setContentType("text/html");
@@ -378,6 +400,7 @@ public class LinorgWindowManager {
         jScrollPane6 = new javax.swing.JScrollPane();
         jScrollPane6.setViewportView(htmlDisplay);
         createWindow(frameTitle, jScrollPane6);
+        return htmlDisplay;
     }
 
     public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {

@@ -327,6 +327,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(saveMenuItem);
 
         viewChangesMenuItem.setText("View Changes");
+        viewChangesMenuItem.setEnabled(false);
         viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewChangesMenuItemActionPerformed(evt);
@@ -335,6 +336,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(viewChangesMenuItem);
 
         sendToServerMenuItem.setText("Send to Server");
+        sendToServerMenuItem.setEnabled(false);
         sendToServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sendToServerMenuItemActionPerformed(evt);
@@ -480,6 +482,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         jMenuBar1.add(fileMenu);
 
         editMenu.setText("Edit");
+        editMenu.setEnabled(false);
         jMenuBar1.add(editMenu);
 
         optionsMenu.setText("Options");
@@ -493,9 +496,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         optionsMenu.add(editLocationsMenuItem);
 
         templatesMenu.setText("Templates");
+        templatesMenu.setEnabled(false);
         optionsMenu.add(templatesMenu);
 
         editFieldViewsMenuItem.setText("Field Views");
+        editFieldViewsMenuItem.setEnabled(false);
         editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editFieldViewsMenuItemActionPerformed(evt);
@@ -505,6 +510,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         saveWindowsCheckBoxMenuItem.setSelected(true);
         saveWindowsCheckBoxMenuItem.setText("Save Windows on Exit");
+        saveWindowsCheckBoxMenuItem.setEnabled(false);
         optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
         showSelectionPreviewCheckBoxMenuItem.setSelected(true);
@@ -536,6 +542,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         helpMenu.setText("Help");
 
         aboutMenuItem.setText("About");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutMenuItemActionPerformed(evt);
+            }
+        });
         helpMenu.add(aboutMenuItem);
 
         jMenuBar1.add(helpMenu);
@@ -942,13 +953,22 @@ private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     GuiHelper.treeHelper.deleteNode(treePopupMenu.getInvoker());
 }//GEN-LAST:event_deleteMenuItemActionPerformed
 
+private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.linorgWindowManager.openAboutPage();
+}//GEN-LAST:event_aboutMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
             java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new LinorgFrame();
+                try{
+                    new LinorgFrame();
+                } catch (Exception ex) {
+                    new LinorgBugCatcher().logError(ex);
+                }
             }
         });
     }

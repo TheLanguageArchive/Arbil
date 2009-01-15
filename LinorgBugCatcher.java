@@ -58,6 +58,7 @@ public class LinorgBugCatcher {
 
     public void logError(String messageString, Exception exception) {
         try {
+            System.err.println("exception: " + exception.getMessage());
             FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
 //            System.out.println("logCatch: " + messageString);
             errorLogFile.append(messageString + System.getProperty("line.separator"));
