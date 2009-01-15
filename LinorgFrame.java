@@ -542,6 +542,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         helpMenu.setText("Help");
 
         aboutMenuItem.setText("About");
+        aboutMenuItem.setEnabled(false);
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 aboutMenuItemActionPerformed(evt);
