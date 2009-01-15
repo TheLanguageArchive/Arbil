@@ -245,7 +245,8 @@ public class ImdiTreeObject implements Comparable {
         File nodeFile = this.getFile();
         dirLinkArray = nodeFile.list();
         for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
-            childLinks.add(new String[]{this.getUrlString() + File.separatorChar + dirLinkArray[linkCount], null});
+            String currentLink = this.getUrlString() + dirLinkArray[linkCount];
+            childLinks.add(new String[]{currentLink, null});
         }
     }
 
@@ -638,7 +639,7 @@ public class ImdiTreeObject implements Comparable {
     public String getFullResourcePath() {
         String targetUrlString = resourceUrlString;
         if (targetUrlString.startsWith(".")) {
-            targetUrlString = this.getParentDirectory() + "/" + targetUrlString;
+            targetUrlString = this.getParentDirectory() + targetUrlString;
         }
         return targetUrlString;
     }

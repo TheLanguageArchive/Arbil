@@ -36,30 +36,35 @@ public class LinorgBugCatcher {
         } catch (Exception e) {
         }
     }
-    
-    public void logMessage(String messageString) {
-        try {
-            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
-            System.out.println("logCatch: " + messageString);
-            errorLogFile.append(messageString + System.getProperty("line.separator"));
-            errorLogFile.append("Message Date: " + new Date().toString() + System.getProperty("line.separator"));
-            errorLogFile.append("Compile Date: " + new LinorgVersion().compileDate + System.getProperty("line.separator"));
-            errorLogFile.append("Current Revision: " + new LinorgVersion().currentRevision + System.getProperty("line.separator"));
-            errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
-            errorLogFile.close();
-        } catch (Exception ex) {
-            System.err.println("failed to write to the journal: " + ex.getMessage());
-        }
+
+//    public void logMessage(String messageString) {
+//        try {
+//            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
+//            System.out.println("logCatch: " + messageString);
+//            errorLogFile.append(messageString + System.getProperty("line.separator"));
+//            errorLogFile.append("Message Date: " + new Date().toString() + System.getProperty("line.separator"));
+//            errorLogFile.append("Compile Date: " + new LinorgVersion().compileDate + System.getProperty("line.separator"));
+//            errorLogFile.append("Current Revision: " + new LinorgVersion().currentRevision + System.getProperty("line.separator"));
+//            errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
+//            errorLogFile.close();
+//        } catch (Exception ex) {
+//            System.err.println("failed to write to the error log: " + ex.getMessage());
+//        }
+//    }
+
+    public void logError(Exception exception) {
+        logError("", exception);
     }
 
-    public void logError(/*String messageString,*/Exception exception) {
+    public void logError(String messageString, Exception exception) {
         try {
             FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
 //            System.out.println("logCatch: " + messageString);
-//            journalFile.append(messageString + "\n");
+            errorLogFile.append(messageString + System.getProperty("line.separator"));
             errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
             errorLogFile.append("Compile Date: " + new LinorgVersion().compileDate + System.getProperty("line.separator"));
             errorLogFile.append("Current Revision: " + new LinorgVersion().currentRevision + System.getProperty("line.separator"));
+            errorLogFile.append("Exception Message: " + exception.getMessage() + System.getProperty("line.separator"));
             StackTraceElement[] stackTraceElements = exception.getStackTrace();
             for (StackTraceElement element : stackTraceElements) {
                 errorLogFile.append(element.toString() + System.getProperty("line.separator"));
@@ -67,7 +72,7 @@ public class LinorgBugCatcher {
             errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
             errorLogFile.close();
         } catch (Exception ex) {
-            System.err.println("failed to write to the journal: " + ex.getMessage());
+            System.err.println("failed to write to the error log: " + ex.getMessage());
         }
     }
 }

@@ -115,10 +115,14 @@ public class MimeHashQueue {
 
         URL url = null;
         try {
+//            System.out.println("getMimeType: " + filePath);
             // Create a file object
-            File file = new File(filePath.replace("file://", ""));
-            // convert to a url object
-            url = file.toURL();
+//            File file = new File(filePath.replace("file://", ""));
+//            System.out.println("file: " + file);
+//            // convert to a url object
+//            url = file.toURL();
+            url = new URL(filePath);
+            System.out.println("url: " + url);
         } catch (MalformedURLException e) {
             GuiHelper.linorgBugCatcher.logError(e);
 //            System.out.println(e.getMessage());
@@ -126,6 +130,8 @@ public class MimeHashQueue {
         if (url == null) {
             System.out.println("Invalid URL: " + filePath);
         //System.exit(1);
+        } else if (!new File(url.getFile()).exists()) {
+            System.out.println("File does not exist: " + filePath);
         } else {
             try {
                 // this will choke on strings that look url encoded but are not. because it erroneously decodes them
@@ -136,6 +142,7 @@ public class MimeHashQueue {
                     } else {
                         mpiMimeType = fileType.checkStream(inputStream, filePath);
                     }
+                    System.out.println("mpiMimeType: " + mpiMimeType);
                 }
                 mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
             } catch (Exception ioe) {
@@ -179,7 +186,8 @@ public class MimeHashQueue {
 //                    debugOut("location: " + getUrl());
 //                    debugOut("digest: " + digest.toString());                    
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+//            GuiHelper.linorgBugCatcher.logMessage("getHash: " + targetFile);
+            GuiHelper.linorgBugCatcher.logError("getHash: " + targetFile, ex);
             System.out.println("failed to created hash: " + ex.getMessage());
         }
         // store the url to node mapping. Note that; in the case of a resource line the session node is mapped against the resource url not the imdichildnode for the file
