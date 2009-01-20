@@ -744,16 +744,16 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void updateImdiFileNodeIds() {
-        System.out.println("updateNodeIds: " + this.getFile());
+//        System.out.println("updateNodeIds");
         try {
-            System.out.println("removing NodeIds");
+//            System.out.println("removing NodeIds");
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
             Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             api.writeDOM(nodDom, this.getFile(), true);
-            System.out.println("adding NodeIds");
+//            System.out.println("adding NodeIds");
             Document nodDomSecondLoad = api.loadIMDIDocument(inUrlLocal, false, null);
             api.writeDOM(nodDomSecondLoad, this.getFile(), false);
-            System.out.println("reloading updateNodeIds");
+//            System.out.println("reloading updateNodeIds");
             reloadImdiNode();
         } catch (Exception mue) {
             GuiHelper.linorgBugCatcher.logError(mue);

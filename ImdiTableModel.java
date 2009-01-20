@@ -105,7 +105,8 @@ public class ImdiTableModel extends AbstractTableModel {
     private void updateAllImdiObjects() {
         for (Enumeration nodesEnum = imdiObjectHash.elements(); nodesEnum.hasMoreElements();) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) nodesEnum.nextElement();
-            if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
+            if (!imdiTreeObject.isImdi() || imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) { 
+                // on application reload a file may be readded to a table before the type checker gets a chance to run, since a file must have been checked for it to get here we bypass that check at this point
                 System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(imdiTreeObject)) {
                     listModel.addElement(imdiTreeObject);
@@ -344,6 +345,12 @@ public class ImdiTableModel extends AbstractTableModel {
         // set the view to either horizontal or vertical and set the default sort
         boolean lastHorizontalView = horizontalView;
         horizontalView = imdiObjectHash.size() > 1;
+        if (!horizontalView) { // set the table for a single image if that is all that is shown
+            if (imdiObjectHash.size() == listModel.getSize()) {
+                horizontalView = true;
+            }
+        }
+
         if (lastHorizontalView != horizontalView) {
             sortReverse = false;
             // update to the default sort

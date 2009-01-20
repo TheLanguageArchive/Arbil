@@ -15,8 +15,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.table.AbstractTableModel;
@@ -69,7 +67,7 @@ public class GuiHelper {
             String[] currentField = (String[]) menuItemName.nextElement();
             System.out.println("MenuText: " + currentField[0]);
             System.out.println("ActionCommand: " + currentField[1]);
-            
+
             javax.swing.JMenuItem addMenuItem;
             addMenuItem = new javax.swing.JMenuItem();
             addMenuItem.setText(currentField[0]);
@@ -249,7 +247,7 @@ public class GuiHelper {
                     linorgWindowManager.openUrlWindowOnce(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
+                //System.out.println(ex.getMessage());
                 //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
@@ -257,7 +255,7 @@ public class GuiHelper {
                     linorgWindowManager.openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
+                //System.out.println(ex.getMessage());
                 //linorgWindowManager.openUrlWindow(nodeName, nodeUrl);
                 }
             }
@@ -313,33 +311,47 @@ public class GuiHelper {
             if (itemImdiTreeObject.isImdi()) {
                 ((ImdiTableModel) tableModel).addSingleImdiObject(itemImdiTreeObject);
             }
-            if (!itemImdiTreeObject.isImdi() || itemImdiTreeObject.getResource() != null) {
-                // TODO: display non imdi file
-                // TODO: move the display of resources and files into a separate class
-                // TODO: replace selectedFilesList but using the name propetry of the added component for the purpose of removing it later
-                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrlString());
-                String imageFileName;
-                if (itemImdiTreeObject.getResource() != null) {
-                    imageFileName = itemImdiTreeObject.getResource();
-                } else {
-                    imageFileName = itemImdiTreeObject.getUrlString();
-                }
-//                if (selectedFilesPanel == null) {
-//                    selectedFilesPanel = new JPanel();
-//                    selectedFilesPanel.setLayout(new java.awt.GridLayout(6, 6));
-//                    linorgWindowManager.createWindow("Selected Files", selectedFilesPanel);
+//            if (!itemImdiTreeObject.isImdi() || itemImdiTreeObject.getResource() != null) {
+//                // TODO: display non imdi file
+//                // TODO: move the display of resources and files into a separate class
+//                // TODO: replace selectedFilesList but using the name propetry of the added component for the purpose of removing it later
+//                System.out.println("display non imdi file: " + itemImdiTreeObject.getUrlString());
+//                String imageFileName;
+//                if (itemImdiTreeObject.getResource() != null) {
+//                    imageFileName = itemImdiTreeObject.getResource();
+//                } else {
+//                    imageFileName = itemImdiTreeObject.getUrlString();
 //                }
-                imageFileName = imageFileName.replace("file://", "");
-                ImageIcon nodeImage = new ImageIcon(imageFileName);
-                JLabel imageLabel = new JLabel(itemImdiTreeObject.toString(), nodeImage, JLabel.CENTER);
-                //Set the position of the text, relative to the icon:
-                imageLabel.setVerticalTextPosition(JLabel.BOTTOM);
-                imageLabel.setHorizontalTextPosition(JLabel.CENTER);
-//                selectedFilesPanel.add(imageLabel);
-//                selectedFilesList.put(hashKey, imageLabel);
-//                selectedFilesPanel.revalidate();
-//                selectedFilesPanel.repaint();
-            }
+////                if (selectedFilesPanel == null) {
+////                    selectedFilesPanel = new JPanel();
+////                    selectedFilesPanel.setLayout(new java.awt.GridLayout(6, 6));
+////                    linorgWindowManager.createWindow("Selected Files", selectedFilesPanel);
+////                }
+//                //imageFileName = imageFileName.replace("file:", "");
+//                try {
+//                System.out.println("imageFileName: " + new URL(imageFileName).getFile());
+//                    //ImageIcon nodeImage = new ImageIcon(new URL(imageFileName).getFile());
+//                ImageIcon nodeImage = ImdiIcons.directoryIcon;
+//                    JLabel imageLabel = new JLabel(itemImdiTreeObject.toString(), nodeImage, JLabel.CENTER);
+//                    //Set the position of the text, relative to the icon:
+//                    imageLabel.setVerticalTextPosition(JLabel.BOTTOM);
+//                    imageLabel.setHorizontalTextPosition(JLabel.CENTER);
+////                selectedFilesPanel.add(imageLabel);
+////                selectedFilesList.put(hashKey, imageLabel);
+////                selectedFilesPanel.revalidate();
+////                selectedFilesPanel.repaint();
+//                    if (MapView.isGisFile(hashKey)) {
+//                        if (mapView == null) {
+//                            mapView = new MapView();
+//                            linorgWindowManager.createWindow("GIS Viewer", mapView);
+//                        }
+//                        mapView.addLayer(hashKey, imageFileName);
+//                        mapView.setVisible(true);
+//                    }
+//                } catch (Exception ex) {
+//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                }
+//            }
         }
     }
 
