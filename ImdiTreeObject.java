@@ -533,9 +533,9 @@ public class ImdiTreeObject implements Comparable {
                 this.addField(fieldToAdd, 0, null);
             } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
                 String parentPath = this.getParentDirectory();
-                System.out.println("LinkValue: " + fieldValue);
-                System.out.println("ParentPath: " + parentPath);
-                System.out.println("Parent: " + this.getUrlString());
+//                System.out.println("LinkValue: " + fieldValue);
+//                System.out.println("ParentPath: " + parentPath);
+//                System.out.println("Parent: " + this.getUrlString());
                 String linkPath;
                 try {
                     if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http")) {
@@ -546,9 +546,9 @@ public class ImdiTreeObject implements Comparable {
                     } else {
                         linkPath = fieldToAdd.getFieldValue();
                     }
-                    System.out.println("linkPath: " + linkPath);
+//                    System.out.println("linkPath: " + linkPath);
                     //linkPath = linkPath.replaceAll("/[^/]*/\\.\\./", "/");
-                    System.out.println("linkPathCorrected: " + linkPath);
+//                    System.out.println("linkPathCorrected: " + linkPath);
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
