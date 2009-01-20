@@ -850,27 +850,29 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
 
 private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
+    GuiHelper.linorgWindowManager.saveSplitPlanes(this.getContentPane().getComponent(0));
     if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
             // remove the right split split and show only the jdesktoppane
-            int lastPost = mainSplitPane.getDividerLocation();
+//            int lastPost = mainSplitPane.getDividerLocation();
             mainSplitPane.remove(rightSplitPane);
             mainSplitPane.setRightComponent(jDesktopPane1);
-            mainSplitPane.setDividerLocation(lastPost);
+//            mainSplitPane.setDividerLocation(lastPost);
             // clear the grid to keep things tidy
             guiHelper.removeAllFromGridData(previewTable.getModel());
         } else {
             // put the jdesktoppane and the preview grid back into the right split pane
-            int lastPost = mainSplitPane.getDividerLocation();
+//            int lastPost = mainSplitPane.getDividerLocation();
             mainSplitPane.remove(jDesktopPane1);
             mainSplitPane.setRightComponent(rightSplitPane);
             rightSplitPane.setTopComponent(rightScrollPane);
             rightSplitPane.setBottomComponent(jDesktopPane1);
             rightSplitPane.setDividerLocation(0.1);
-            mainSplitPane.setDividerLocation(lastPost);
+//            mainSplitPane.setDividerLocation(lastPost);
             // update the preview data grid
             guiHelper.removeAllFromGridData(previewTable.getModel());
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }
+        GuiHelper.linorgWindowManager.loadSplitPlanes(this.getContentPane().getComponent(0));
     }
 
 private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed

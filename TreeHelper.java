@@ -299,8 +299,6 @@ public class TreeHelper {
                 GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " in " + itemNode);
             }
         } else {
-            // TODO: implement adding to the root node
-            System.out.println("TODO: implement adding to the root node");
             Vector tempVector = new ImdiTreeObject("temp node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null);
             addLocation(((ImdiTreeObject) tempVector.firstElement()).getUrlString());
             applyRootLocations();

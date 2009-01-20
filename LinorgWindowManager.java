@@ -120,7 +120,7 @@ public class LinorgWindowManager {
         startKeyListener();
     }
 
-    private void loadSplitPlanes(Component targetComponent) {
+    public void loadSplitPlanes(Component targetComponent) {
         //System.out.println("loadSplitPlanes: " + targetComponent);
         if (targetComponent instanceof JSplitPane) {
             System.out.println("loadSplitPlanes: " + targetComponent.getName());
@@ -135,7 +135,7 @@ public class LinorgWindowManager {
         }
     }
 
-    private void saveSplitPlanes(Component targetComponent) {
+    public void saveSplitPlanes(Component targetComponent) {
         //System.out.println("saveSplitPlanes: " + targetComponent);
         if (targetComponent instanceof JSplitPane) {
             System.out.println("saveSplitPlanes: " + targetComponent.getName());

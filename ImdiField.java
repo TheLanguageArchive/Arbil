@@ -120,13 +120,13 @@ public class ImdiField {
     public void translateFieldName(String fieldName) {
         // TODO: move this to the imdischema class
         // replace the xml paths with user friendly node names
-        fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.WrittenResource", "WrittenResource");
-        fieldName = fieldName.replace(".METATRANSCRIPT.Session.MDGroup.Actors.Actor", "Actors");
-        fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.Anonyms", "Anonyms");
-        fieldName = fieldName.replace(".METATRANSCRIPT.Session.Resources.MediaFile", "MediaFiles");
-        fieldName = fieldName.replace(".METATRANSCRIPT.Session.MDGroup", "");
-        fieldName = fieldName.replace(".METATRANSCRIPT.Session", "Session");
-        fieldName = fieldName.replace(".METATRANSCRIPT.Corpus", "Corpus");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "WrittenResource", "WrittenResource");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup" + ImdiSchema.imdiPathSeparator + "Actors" + ImdiSchema.imdiPathSeparator + "Actor", "Actors");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "Anonyms", "Anonyms");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "MediaFile", "MediaFiles");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup", "");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session", "Session");
+        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus", "Corpus");
         translatedPath = fieldName;
     }
 }

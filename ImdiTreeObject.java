@@ -360,6 +360,17 @@ public class ImdiTreeObject implements Comparable {
         ImdiTreeObject destinationNode;
         if (GuiHelper.imdiSchema.isImdiChildType(nodeType)) {
             destinationNode = this;
+            try {
+                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+//                System.out.println("addChildNode: insertFromTemplate");
+                GuiHelper.imdiSchema.insertFromTemplate(nodeType, nodDom);
+//                System.out.println("addChildNode: save");
+                api.writeDOM(nodDom, this.getFile(), false);                
+            } catch (Exception ex) {
+//                System.out.println("addChildNode: " + ex.getMessage());
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
             imdiNeedsSaveToDisk = true;
         } else {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -369,13 +380,16 @@ public class ImdiTreeObject implements Comparable {
 //                }
             String targetFileName = currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi";
 
-            this.createFileInCache(new File(targetFileName), !nodeType.equals("Corpus"));
+            GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType);
             destinationNode = GuiHelper.imdiLoader.getImdiObject("new child", targetFileName);
             this.addCorpusLink(destinationNode);
             addedImdiNodes.add(destinationNode);
 //            destinationNode.saveChangesToCache();
 //            destinationNode.imdiNeedsSaveToDisk = true;
         }
+        //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
+        destinationNode.updateImdiFileNodeIds();
+
         // begin temp test
 //            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
 //            fieldToAdd1.translateFieldName("test.field.translated");
@@ -471,7 +485,7 @@ public class ImdiTreeObject implements Comparable {
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
-            String siblingNodePath = nodePath + "." + localName;
+            String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
             if (localName != null && childrenWithSiblings.containsKey(localName)) {
                 // add brackets to conform with the imdi api notation
@@ -729,54 +743,22 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void createFileInCache(File targetFile, boolean isSession) {
-        System.out.println("createFileInCache: " + targetFile);
-        //////////////////////////////////////////////////////////
-        // this would be great if the create IMDIDOM function just created a dom but instead it creates an imdi file with bogus and blank fields including an actor
-        Document nodDom;
-        if (isSession) {
-            nodDom = api.createIMDIDOM(WSNodeType.SESSION);
-        } else {
-            nodDom = api.createIMDIDOM(WSNodeType.CORPUS);
+    public void updateImdiFileNodeIds() {
+        System.out.println("updateNodeIds: " + this.getFile());
+        try {
+            System.out.println("removing NodeIds");
+            OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+            Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+            api.writeDOM(nodDom, this.getFile(), true);
+            System.out.println("adding NodeIds");
+            Document nodDomSecondLoad = api.loadIMDIDocument(inUrlLocal, false, null);
+            api.writeDOM(nodDomSecondLoad, this.getFile(), false);
+            System.out.println("reloading updateNodeIds");
+            reloadImdiNode();
+        } catch (Exception mue) {
+            GuiHelper.linorgBugCatcher.logError(mue);
+            System.out.println("Invalid input URL: " + mue);
         }
-        // create the file on disk without the values being added
-        api.writeDOM(nodDom, targetFile, false);
-    //////////////////////////////////////////////////////////
-//        try {
-////            isSession = false;
-//            FileWriter targetFileWriter = new FileWriter(targetFile, false);
-//            targetFileWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-//            targetFileWriter.append("<METATRANSCRIPT xmlns=\"http://www.mpi.nl/IMDI/Schema/IMDI\"\n");
-//            targetFileWriter.append("xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n");
-//            targetFileWriter.append("FormatId=\"IMDI 3.0.7\"\n");
-//            targetFileWriter.append("Originator=\"Linorg\"\n");
-//            if (isSession)
-//            targetFileWriter.append("Type=\"SESSION\"\n");
-//            else
-//            targetFileWriter.append("Type=\"CORPUS\"\n");
-//            targetFileWriter.append("xsi:schemaLocation=\"http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd\">\n");
-//            if (isSession)
-//            targetFileWriter.append("<Session>\n");
-//            else
-//            targetFileWriter.append("<Corpus>\n");            
-////            targetFileWriter.append("<Name/>\n");
-//            targetFileWriter.append("<Title/>\n");
-////            targetFileWriter.append("<Description/>\n");
-//            if (isSession)
-//            targetFileWriter.append("</Session>\n");
-//            else
-//            targetFileWriter.append("</Corpus>\n");            
-//            targetFileWriter.append("</METATRANSCRIPT>\n");
-//            targetFileWriter.close();
-////            returnValue = true;
-//        } catch (Exception ex) {
-//            System.err.println("createFileInCache failed: " + ex.getMessage());
-//        }
-//                Date="2009-01-07"
-//                Version="0"
-//                id="i18"
-//        reloadImdiNode();
-    //////////////////////////////////////////////////////////
     }
 
     /**
@@ -985,7 +967,7 @@ public class ImdiTreeObject implements Comparable {
 //                    }
 //                }
             // if the node contains a ResourceLink then save the location in resourceUrlString and create a hash for the file
-            if (childsLabel.equals(".ResourceLink")) {
+            if (childsLabel.equals(ImdiSchema.imdiPathSeparator + "ResourceLink")) {
 //                        // resolve the relative location of the file
 //                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
 //                        resourceUrlString = resourceFile.getCanonicalPath();
@@ -1040,19 +1022,19 @@ public class ImdiTreeObject implements Comparable {
             return "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
         }
         // Return text for display
-        if (fieldHashtable.containsKey("Session.Name")) {
-            nodeText = fieldHashtable.get("Session.Name").toString();
-        } else if (fieldHashtable.containsKey("Corpus.Name")) {
-            nodeText = fieldHashtable.get("Corpus.Name").toString();
+        if (fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name")) {
+            nodeText = fieldHashtable.get("Session" + ImdiSchema.imdiPathSeparator + "Name").toString();
+        } else if (fieldHashtable.containsKey("Corpus" + ImdiSchema.imdiPathSeparator + "Name")) {
+            nodeText = fieldHashtable.get("Corpus" + ImdiSchema.imdiPathSeparator + "Name").toString();
         }
 
         String nameText = "";
-        if (fieldHashtable.containsKey(".Name")) {
+        if (fieldHashtable.containsKey(ImdiSchema.imdiPathSeparator + "Name")) {
             nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get(".Name").toString();
-        } else if (fieldHashtable.containsKey(".ResourceLink")) {
+            nameText = /*") " +*/ fieldHashtable.get(ImdiSchema.imdiPathSeparator + "Name").toString();
+        } else if (fieldHashtable.containsKey(ImdiSchema.imdiPathSeparator + "ResourceLink")) {
             nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get(".ResourceLink").toString();
+            nameText = /*") " +*/ fieldHashtable.get(ImdiSchema.imdiPathSeparator + "ResourceLink").toString();
         }
 //            if (mpiMimeType != null) {
 //            return " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + nodeText + " : " + hashString + ":" + mpiMimeType + ":" + resourceUrlString;
@@ -1152,12 +1134,12 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isSession() {
         // test if this node is a session
-        return fieldHashtable.containsKey("Session.Name");
+        return fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name");
     }
 
     public boolean isCorpus() {
         // test if this node is a session
-        return fieldHashtable.containsKey("Corpus.Name");
+        return fieldHashtable.containsKey("Corpus" + ImdiSchema.imdiPathSeparator + "Name");
     }
 
     public boolean isLocal() {

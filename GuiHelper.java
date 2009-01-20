@@ -66,18 +66,22 @@ public class GuiHelper {
 
         System.out.println("initAddMenu: " + targetNodeUserObject);
         for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
-            String currentMenuName = menuItemName.nextElement().toString();
+            String[] currentField = (String[]) menuItemName.nextElement();
+            System.out.println("MenuText: " + currentField[0]);
+            System.out.println("ActionCommand: " + currentField[1]);
+            
             javax.swing.JMenuItem addMenuItem;
             addMenuItem = new javax.swing.JMenuItem();
-            addMenuItem.setText(currentMenuName);
-            addMenuItem.setName(currentMenuName);
+            addMenuItem.setText(currentField[0]);
+            addMenuItem.setName(currentField[0]);
+            addMenuItem.setActionCommand(currentField[1]);
             addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
                     treeHelper.getImdiChildNodes(targetNode);
-                    treeHelper.addImdiChildNode(targetNode, ((Component) evt.getSource()).getName());
-                    treeHelper.reloadLocalCorpusTree();
+                    treeHelper.addImdiChildNode(targetNode, (evt.getActionCommand()));
+                    treeHelper.reloadLocalCorpusTree(targetNode);
                 }
             });
             addMenu.add(addMenuItem);
