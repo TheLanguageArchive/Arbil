@@ -1,0 +1,45 @@
+      <WrittenResource>
+        <ResourceLink/>
+        <MediaResourceLink/>
+        <Date>Unspecified</Date>
+        <Type Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Type.xml" 
+		Type="OpenVocabulary">Unspecified</Type>
+        <SubType Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" 
+		Type="OpenVocabularyList">Unspecified</SubType>
+        <Format Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml" 
+		Type="OpenVocabulary">Unspecified</Format>
+        <Size/>
+        <Validation>
+          <Type Link="http://www.mpi.nl/IMDI/Schema/Validation-Type.xml" 
+		Type="ClosedVocabulary">Unspecified</Type>
+          <Methodology 
+		Link="http://www.mpi.nl/IMDI/Schema/Validation-Methodology.xml" 
+		Type="ClosedVocabulary">Unspecified</Methodology>
+          <Level>Unspecified</Level>
+          <Description LanguageId="" Link=""/>
+        </Validation>
+        <Derivation 
+		Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Derivation.xml" 
+		Type="ClosedVocabulary">Unspecified</Derivation>
+        <CharacterEncoding/>
+        <ContentEncoding/>
+        <LanguageId/>
+        <Anonymized>Unspecified</Anonymized>
+        <Access>
+          <Availability/>
+          <Date>Unspecified</Date>
+          <Owner/>
+          <Publisher/>
+          <Contact>
+            <Name/>
+            <Address/>
+            <Email/>
+            <Organisation/>
+          </Contact>
+          <Description LanguageId="" Link=""/>
+        </Access>
+        <Description LanguageId="" Link=""/>
+        <Keys>
+          <Key Name=""/>
+        </Keys>
+      </WrittenResource>

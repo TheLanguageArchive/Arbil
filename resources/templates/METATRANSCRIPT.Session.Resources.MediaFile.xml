@@ -1,0 +1,31 @@
+      <MediaFile>
+        <ResourceLink/>
+        <Type Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" 
+		Type="ClosedVocabulary" 
+		>Unspecified</Type>
+        <Format Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" 
+		Type="OpenVocabulary">Unspecified</Format>
+        <Size/>
+        <Quality>Unspecified</Quality>
+        <RecordingConditions/>
+        <TimePosition>
+          <Start>Unspecified</Start>
+          <End>Unspecified</End>
+        </TimePosition>
+        <Access>
+          <Availability/>
+          <Date>Unspecified</Date>
+          <Owner/>
+          <Publisher/>
+          <Contact>
+            <Name/>
+            <Address/>
+            <Email/>
+            <Organisation/>
+          </Contact>
+          <Description LanguageId="" Link=""/>
+        </Access>
+        <Description LanguageId="" Link=""/>
+        <Keys>
+        </Keys>
+      </MediaFile>
