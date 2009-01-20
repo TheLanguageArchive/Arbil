@@ -4,7 +4,6 @@
  */
 package mpi.linorg;
 
-import java.io.IOException;
 import javax.swing.JEditorPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
@@ -25,7 +24,7 @@ public class LinorgHyperlinkListener implements HyperlinkListener {
 //            } catch (IOException e) {
 //                System.out.println(e.getMessage());
 //            }
-            GuiHelper.linorgWindowManager.openUrlWindow(evt.getURL().toString(), evt.getURL());
+            GuiHelper.linorgWindowManager.openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
         }
     }
 }

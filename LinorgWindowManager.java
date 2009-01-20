@@ -72,20 +72,21 @@ public class LinorgWindowManager {
         // open the introduction page
         // TODO: always get this page from the server if available, but also save it for off line use
         URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/About.html");
-        JEditorPane aboutDisplayPane = openUrlWindow("About", introductionUrl);
-
-        aboutDisplayPane.doLayout();
-        Document doc = aboutDisplayPane.getDocument();
-        try {
-            LinorgVersion linorgVersion = new LinorgVersion();            
-            doc.insertString(doc.getLength(), "\n", null);
-            doc.insertString(doc.getLength(), "------------------------------------------------------\n", null);
-            doc.insertString(doc.getLength(), linorgVersion.currentRevision + "\n", null);
-            doc.insertString(doc.getLength(), linorgVersion.compileDate + "\n", null);
-            doc.insertString(doc.getLength(), linorgVersion.lastCommitDate + "\n", null);
-            doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+        JEditorPane aboutDisplayPane = openUrlWindowOnce("About", introductionUrl);
+        if (aboutDisplayPane != null) {
+            aboutDisplayPane.doLayout();
+            Document doc = aboutDisplayPane.getDocument();
+            try {
+                LinorgVersion linorgVersion = new LinorgVersion();
+                doc.insertString(doc.getLength(), "\n", null);
+                doc.insertString(doc.getLength(), "------------------------------------------------------\n", null);
+                doc.insertString(doc.getLength(), "Revision: " + linorgVersion.currentRevision + "\n", null);
+                doc.insertString(doc.getLength(), "Compile Date: " + linorgVersion.compileDate + "\n", null);
+                doc.insertString(doc.getLength(), linorgVersion.lastCommitDate + "\n", null);
+//                doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
         }
     }
 
@@ -93,7 +94,7 @@ public class LinorgWindowManager {
         // open the introduction page
         // TODO: always get this page from the server if available, but also save it for off line use
         URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
-        openUrlWindow("Introduction", introductionUrl);
+        openUrlWindowOnce("Introduction", introductionUrl);
 
         try {
             // load the saved windows
@@ -381,6 +382,16 @@ public class LinorgWindowManager {
 //            System.out.println(ex.getMessage());
         }
         return currentInternalFrame;
+    }
+
+    public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
+        // TODO: this is not a good way to do this as it does not check the URL only the title
+        if (windowList.containsKey(frameTitle)) {
+            focusWindow(frameTitle);
+        } else {
+            return openUrlWindow(frameTitle, locationUrl);
+        }
+        return null;
     }
 
     public JEditorPane openUrlWindow(String frameTitle, URL locationUrl) {

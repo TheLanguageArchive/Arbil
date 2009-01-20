@@ -224,7 +224,7 @@ public class ImdiSchema {
     public void addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromTemplate: " + templateType + " : " + destinationFile);
         // copy the template to disk
-        URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType + ".xml");
+        URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");
 //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
         File templateFile = new File(templateUrl.getFile());
 //        System.out.println("templateFile: " + templateFile);
@@ -248,7 +248,7 @@ public class ImdiSchema {
 
     public void insertFromTemplate(String elementName, Document targetImdiDom) {
         try {
-            File templateFile = new File(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName + ".xml").getFile());
+            File templateFile = new File(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml").getFile());
             if (templateFile.exists()) {
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 // get the parent node

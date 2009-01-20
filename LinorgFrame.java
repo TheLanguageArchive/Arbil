@@ -174,7 +174,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         viewMenu = new javax.swing.JMenu();
         windowMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
+        introductionMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
+        featuresMenuItem = new javax.swing.JMenuItem();
 
         viewSelectedNodesMenuItem.setText("View Selected");
         viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -543,14 +545,29 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         helpMenu.setText("Help");
 
+        introductionMenuItem.setText("Introduction");
+        introductionMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                introductionMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(introductionMenuItem);
+
         aboutMenuItem.setText("About");
-        aboutMenuItem.setEnabled(false);
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 aboutMenuItemActionPerformed(evt);
             }
         });
         helpMenu.add(aboutMenuItem);
+
+        featuresMenuItem.setText("Features/Known Bugs");
+        featuresMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                featuresMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(featuresMenuItem);
 
         jMenuBar1.add(helpMenu);
 
@@ -963,6 +980,16 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     GuiHelper.linorgWindowManager.openAboutPage();
 }//GEN-LAST:event_aboutMenuItemActionPerformed
 
+private void featuresMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_featuresMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.linorgWindowManager.openUrlWindowOnce("Features/Known Bugs", this.getClass().getResource("/mpi/linorg/resources/html/Features.html"));
+}//GEN-LAST:event_featuresMenuItemActionPerformed
+
+private void introductionMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_introductionMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.linorgWindowManager.openUrlWindowOnce("Introduction", this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html"));
+}//GEN-LAST:event_introductionMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -992,8 +1019,10 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JMenuItem editLocationsMenuItem;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenuItem exitMenuItem;
+    private javax.swing.JMenuItem featuresMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
+    private javax.swing.JMenuItem introductionMenuItem;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane2;
