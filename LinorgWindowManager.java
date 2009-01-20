@@ -20,11 +20,11 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.text.Document;
 
 /**
  *
@@ -69,25 +69,33 @@ public class LinorgWindowManager {
     }
 
     public void openAboutPage() {
+        LinorgVersion linorgVersion = new LinorgVersion();
+        String messageString =  "Linguistic Organiser\n" +
+        "A local tool for organising linguistic data.\n" +
+        "Max Planck Institute for Psycholinguistics\n" +
+        "Revision: " + linorgVersion.currentRevision + "\n" +
+        linorgVersion.lastCommitDate + "\n" +
+        "Compile Date: " + linorgVersion.compileDate + "\n";
+        JOptionPane.showMessageDialog(linorgFrame, messageString, "About Linorg", JOptionPane.PLAIN_MESSAGE);
         // open the introduction page
         // TODO: always get this page from the server if available, but also save it for off line use
-        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/About.html");
-        JEditorPane aboutDisplayPane = openUrlWindowOnce("About", introductionUrl);
-        if (aboutDisplayPane != null) {
-            aboutDisplayPane.doLayout();
-            Document doc = aboutDisplayPane.getDocument();
-            try {
-                LinorgVersion linorgVersion = new LinorgVersion();
-                doc.insertString(doc.getEndPosition().getOffset(), "\n", null);
-                doc.insertString(doc.getEndPosition().getOffset(), "------------------------------------------------------\n", null);
-                doc.insertString(doc.getEndPosition().getOffset(), "Revision: " + linorgVersion.currentRevision + "\n", null);
-                doc.insertString(doc.getEndPosition().getOffset(), "Compile Date: " + linorgVersion.compileDate + "\n", null);
-                doc.insertString(doc.getEndPosition().getOffset(), linorgVersion.lastCommitDate + "\n", null);
-//                doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
-            }
-        }
+//        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/About.html");
+//        JEditorPane aboutDisplayPane = openUrlWindowOnce("About", introductionUrl);
+//        if (aboutDisplayPane != null) {
+//            aboutDisplayPane.doLayout();
+//            Document doc = aboutDisplayPane.getDocument();
+//            try {
+//                LinorgVersion linorgVersion = new LinorgVersion();
+//                doc.insertString(doc.getEndPosition().getOffset(), "\n", null);
+//                doc.insertString(doc.getEndPosition().getOffset(), "------------------------------------------------------\n", null);
+//                doc.insertString(doc.getEndPosition().getOffset(), "Revision: " + linorgVersion.currentRevision + "\n", null);
+//                doc.insertString(doc.getEndPosition().getOffset(), "Compile Date: " + linorgVersion.compileDate + "\n", null);
+//                doc.insertString(doc.getEndPosition().getOffset(), linorgVersion.lastCommitDate + "\n", null);
+////                doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
+//            } catch (Exception ex) {
+//                GuiHelper.linorgBugCatcher.logError(ex);
+//            }
+//        }
     }
 
     public void openIntroductionPage() {
