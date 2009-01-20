@@ -78,11 +78,11 @@ public class LinorgWindowManager {
             Document doc = aboutDisplayPane.getDocument();
             try {
                 LinorgVersion linorgVersion = new LinorgVersion();
-                doc.insertString(doc.getLength(), "\n", null);
-                doc.insertString(doc.getLength(), "------------------------------------------------------\n", null);
-                doc.insertString(doc.getLength(), "Revision: " + linorgVersion.currentRevision + "\n", null);
-                doc.insertString(doc.getLength(), "Compile Date: " + linorgVersion.compileDate + "\n", null);
-                doc.insertString(doc.getLength(), linorgVersion.lastCommitDate + "\n", null);
+                doc.insertString(doc.getEndPosition().getOffset(), "\n", null);
+                doc.insertString(doc.getEndPosition().getOffset(), "------------------------------------------------------\n", null);
+                doc.insertString(doc.getEndPosition().getOffset(), "Revision: " + linorgVersion.currentRevision + "\n", null);
+                doc.insertString(doc.getEndPosition().getOffset(), "Compile Date: " + linorgVersion.compileDate + "\n", null);
+                doc.insertString(doc.getEndPosition().getOffset(), linorgVersion.lastCommitDate + "\n", null);
 //                doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
