@@ -30,6 +30,7 @@ public class ImdiSchema {
      * When complete this function will parse the imdi schema
      */
     static String imdiPathSeparator = ".";
+
     public void parseXSD() {
 //        http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
 //        /data1/repos/trunk/src/java/mpi/metadata/profiles/IMDI_3.0.xsd
@@ -220,16 +221,14 @@ public class ImdiSchema {
 //    }
     public String getHelpForField(String fieldName) {
         return "Usage description for: " + fieldName;
-    }    
+    }
+
     public void addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromTemplate: " + templateType + " : " + destinationFile);
         // copy the template to disk
         URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");
-//        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
-        File templateFile = new File(templateUrl.getFile());
-//        System.out.println("templateFile: " + templateFile);
         try {
-            InputStream in = new FileInputStream(templateFile);
+            InputStream in = templateUrl.openStream();
             OutputStream out = new FileOutputStream(destinationFile);
 
             // Transfer bytes from in to out
@@ -248,21 +247,17 @@ public class ImdiSchema {
 
     public void insertFromTemplate(String elementName, Document targetImdiDom) {
         try {
-            File templateFile = new File(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml").getFile());
-            if (templateFile.exists()) {
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                // get the parent node
-                String targetXpath = elementName.substring(0, elementName.lastIndexOf("."));                
-                // convert to xpath for the api
-                targetXpath = targetXpath.replace(".", "/:");
-                NodeList targetNodelist = org.apache.xpath.XPathAPI.selectNodeList(targetImdiDom, targetXpath);
-                // insert the section into the target imdi
-                Document insertableSection = builder.parse(templateFile);
-                Node addableNode = targetImdiDom.importNode(insertableSection.getFirstChild(), true);
-                targetNodelist.item(0).appendChild(addableNode);
-            } else {
-                System.out.println("template file not found: " + elementName);
-            }
+            URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml");
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            // get the parent node
+            String targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
+            // convert to xpath for the api
+            targetXpath = targetXpath.replace(".", "/:");
+            NodeList targetNodelist = org.apache.xpath.XPathAPI.selectNodeList(targetImdiDom, targetXpath);
+            // insert the section into the target imdi
+            Document insertableSection = builder.parse(templateUrl.openStream());
+            Node addableNode = targetImdiDom.importNode(insertableSection.getFirstChild(), true);
+            targetNodelist.item(0).appendChild(addableNode);
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
             GuiHelper.linorgBugCatcher.logError(ex);
