@@ -64,6 +64,7 @@ public class LinorgWindowManager {
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
             linorgFrame.setBounds(0, 0, 640, 480);
+            windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
             System.out.println("load windowStates exception: " + ex.getMessage());
         }
     }
