@@ -961,19 +961,19 @@ public class ImdiTreeObject implements Comparable {
             return "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
         }
         // Return text for display
-        if (fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name")) {
-            nodeText = fieldHashtable.get("Session" + ImdiSchema.imdiPathSeparator + "Name").toString();
-        } else if (fieldHashtable.containsKey("Corpus" + ImdiSchema.imdiPathSeparator + "Name")) {
-            nodeText = fieldHashtable.get("Corpus" + ImdiSchema.imdiPathSeparator + "Name").toString();
-        }
+//        if (fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name")) {
+//            nodeText = fieldHashtable.get("Session" + ImdiSchema.imdiPathSeparator + "Name").toString();
+//        } else if (fieldHashtable.containsKey("Corpus" + ImdiSchema.imdiPathSeparator + "Name")) {
+//            nodeText = fieldHashtable.get("Corpus" + ImdiSchema.imdiPathSeparator + "Name").toString();
+//        }
 
         String nameText = "";
-        if (fieldHashtable.containsKey(ImdiSchema.imdiPathSeparator + "Name")) {
+        if (fieldHashtable.containsKey("Name")) {
             nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get(ImdiSchema.imdiPathSeparator + "Name").toString();
-        } else if (fieldHashtable.containsKey(ImdiSchema.imdiPathSeparator + "ResourceLink")) {
+            nameText = /*") " +*/ fieldHashtable.get("Name").toString();
+        } else if (fieldHashtable.containsKey("ResourceLink")) {
             nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get(ImdiSchema.imdiPathSeparator + "ResourceLink").toString();
+            nameText = /*") " +*/ fieldHashtable.get("ResourceLink").toString();
         }
 //            if (mpiMimeType != null) {
 //            return " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + nodeText + " : " + hashString + ":" + mpiMimeType + ":" + resourceUrlString;
@@ -1084,12 +1084,20 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isSession() {
         // test if this node is a session
-        return fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name");
+        Object nameField = fieldHashtable.get("Name");
+        if (nameField != null){
+            return ((ImdiField)nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
+        }
+        return false;
     }
 
     public boolean isCorpus() {
         // test if this node is a session
-        return fieldHashtable.containsKey("Corpus" + ImdiSchema.imdiPathSeparator + "Name");
+        Object nameField = fieldHashtable.get("Name");
+        if (nameField != null){
+            return ((ImdiField)nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");
+        }
+        return false;
     }
 
     public boolean isLocal() {
