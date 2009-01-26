@@ -61,15 +61,15 @@ public class ImdiFieldViews {
             currentGlobalViewName = "All";
 
             LinorgFieldView fewFieldView = new LinorgFieldView();
-            fewFieldView.setShowOnlyColumns(new String[]{".name", ".description", ".title", ".date", ".language"});
+            fewFieldView.setShowOnlyColumns(new String[]{"name", "description", "title", "date", "language"});
             addImdiFieldView("Few", fewFieldView);
 
             LinorgFieldView otherFieldView = new LinorgFieldView();
-            otherFieldView.addHiddenColumn(".name");
-            otherFieldView.addHiddenColumn(".description");
-            otherFieldView.addHiddenColumn(".title");
-            otherFieldView.addHiddenColumn(".date");
-            otherFieldView.addHiddenColumn(".language");
+            otherFieldView.addHiddenColumn("name");
+            otherFieldView.addHiddenColumn("description");
+            otherFieldView.addHiddenColumn("title");
+            otherFieldView.addHiddenColumn("date");
+            otherFieldView.addHiddenColumn("language");
             addImdiFieldView("Other", otherFieldView);
         }
     }

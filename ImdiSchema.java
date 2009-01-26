@@ -277,15 +277,15 @@ public class ImdiSchema {
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/*/ResourceLink");
                 linkNode.setTextContent(localFilePath);
             }
-            if (mimeType.equals("image/jpeg")) {
-                Hashtable exifTags = getExifMetadata(resourcePath);
-                String dateExifTag = "date";
-                if (exifTags.contains(dateExifTag)) {
-                    Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/MediaFile/Date");
-                    linkNode.setTextContent(exifTags.get(dateExifTag).toString());
-                }
-            }
             if (mimeType != null) {
+                if (mimeType.equals("image/jpeg")) {
+                    Hashtable exifTags = getExifMetadata(resourcePath);
+                    String dateExifTag = "date";
+                    if (exifTags.contains(dateExifTag)) {
+                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/MediaFile/Date");
+                        linkNode.setTextContent(exifTags.get(dateExifTag).toString());
+                    }
+                }
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/*/Format");
                 linkNode.setTextContent(mimeType);
             }
