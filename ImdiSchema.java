@@ -324,7 +324,7 @@ public class ImdiSchema {
                 if (!parentNode.getUrlString().contains("#")) {
                     pathUrlXpathSeparator = "#";
                 }
-                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + nodePath);
+                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
                 // add brackets to conform with the imdi api notation
                 siblingSpacer = "(" + (metaNodeImdiTreeObject.getChildCount() + 1) + ")";
                 ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
