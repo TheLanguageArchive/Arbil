@@ -63,7 +63,7 @@ public class MimeHashQueue {
                                     currentImdiObject.clearIcon();
                                 }
                             } catch (MalformedURLException e) {
-                                GuiHelper.linorgBugCatcher.logError(e);
+                                GuiHelper.linorgBugCatcher.logError(currentNodeString, e);
                             }
                         }
                         processedImdiObjects.put(currentNodeString, currentImdiObject);

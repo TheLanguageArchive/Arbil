@@ -162,7 +162,11 @@ public class TreeHelper {
                     if (!locationsList.remove(removeLocation)) {
                         removeLocation = removeLocation.substring(1);
                         System.out.println("removeLocation: " + removeLocation);
-                        locationsList.remove(removeLocation);
+                        if (!locationsList.remove(removeLocation)) {
+                            removeLocation = removeLocation.replace("/", "\\");
+                            System.out.println("removeLocation: " + removeLocation);
+                            locationsList.remove(removeLocation);
+                        }
                     }
                 }
             } catch (Exception ex) {
