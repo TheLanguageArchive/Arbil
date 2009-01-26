@@ -304,7 +304,7 @@ public class ImdiSchema {
     }
 
     public void iterateChildNodes(ImdiTreeObject parentNode, Vector childLinks, Node startNode, String nodePath) {
-        System.out.println("iterateChildNodes: " + nodePath);
+//        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
         // any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode
@@ -318,6 +318,7 @@ public class ImdiSchema {
 
             ImdiTreeObject destinationNode;
             String childsMetaNode = pathIsChildNode(siblingNodePath);
+//            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 String siblingSpacer = "";
                 String pathUrlXpathSeparator = "";
@@ -335,6 +336,7 @@ public class ImdiSchema {
             } else {
                 destinationNode = parentNode;
             }
+//            System.out.println("destinationNode: " + destinationNode);
 //            System.out.println("getLocalName: " + childNode.getLocalName());
 //            System.out.println("hasChildNodes: " + childNode.hasChildNodes());
             boolean shouldAddCurrent = false;

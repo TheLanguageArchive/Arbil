@@ -49,20 +49,22 @@ public class MimeHashQueue {
 
                         String currentNodeString = nodesToCheck.nextElement().toString();
                         ImdiTreeObject currentImdiObject = ((ImdiTreeObject) imdiObjectQueue.get(currentNodeString));
-                        try {
-                            URL currentNodeUrl = new URL(currentNodeString);
-                            System.out.println("run MimeHashQueue processing: " + currentNodeString);
-                            // check that the file has not been done already
-                            // TODO: chang this to use an additional hastable of mtimes for each file and if the mtime does not match then rescan the file
-                            if (!knownMimeTypes.containsKey(currentNodeString)) {
-                                // this couldbe optimised by not mime checking imdi files, but for easy reading it is done
-                                if (/*currentNodeURL.endsWith(".imdi") ||*/getMimeType(currentNodeUrl)) {
-                                    getHash(currentNodeUrl);
+                        if (currentNodeString != null && currentNodeString.length() > 0) {
+                            try {
+                                URL currentNodeUrl = new URL(currentNodeString);
+                                System.out.println("run MimeHashQueue processing: " + currentNodeString);
+                                // check that the file has not been done already
+                                // TODO: chang this to use an additional hastable of mtimes for each file and if the mtime does not match then rescan the file
+                                if (!knownMimeTypes.containsKey(currentNodeString)) {
+                                    // this couldbe optimised by not mime checking imdi files, but for easy reading it is done
+                                    if (/*currentNodeURL.endsWith(".imdi") ||*/getMimeType(currentNodeUrl)) {
+                                        getHash(currentNodeUrl);
+                                    }
+                                    currentImdiObject.clearIcon();
                                 }
-                                currentImdiObject.clearIcon();
+                            } catch (MalformedURLException e) {
+                                GuiHelper.linorgBugCatcher.logError(e);
                             }
-                        } catch (MalformedURLException e) {
-                            GuiHelper.linorgBugCatcher.logError(e);
                         }
                         processedImdiObjects.put(currentNodeString, currentImdiObject);
                         imdiObjectQueue.remove(currentNodeString);
@@ -210,7 +212,7 @@ public class MimeHashQueue {
             }
         }
 //            }
-            System.out.println("hashString: " + hashString);
+        System.out.println("hashString: " + hashString);
 //            return hashString;
     }
 

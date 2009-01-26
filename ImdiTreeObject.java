@@ -7,7 +7,6 @@ package mpi.linorg;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import java.net.MalformedURLException;
 import java.io.File;
 import java.net.URL;
@@ -25,8 +24,6 @@ import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -338,7 +335,7 @@ public class ImdiTreeObject implements Comparable {
      * @return An integer of the next level of child nodes including corpus links and imdi child nodes.
      */
     public int getChildCount() {
-        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
+//        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
         return childLinks.size() + childrenHashtable.size();
     }
 
@@ -850,7 +847,7 @@ public class ImdiTreeObject implements Comparable {
 //        return cacheLocation;
 //    }
     public void addField(ImdiField fieldToAdd) {
-        System.out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
+//        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
         fieldHashtable.put(fieldToAdd.getTranslateFieldName(), fieldToAdd);
 
         if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.parentImdi.isImdiChild()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
@@ -1154,7 +1151,7 @@ public class ImdiTreeObject implements Comparable {
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
     public void clearIcon() {
-        System.out.println("clearIcon: " + this.toString());
+//        System.out.println("clearIcon: " + this.toString());
         icon = null;
         // here we need to cause an update in the tree gui so that the new icon can be loaded
         for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
@@ -1165,7 +1162,7 @@ public class ImdiTreeObject implements Comparable {
             }
             if (currentContainer instanceof DefaultMutableTreeNode) {
                 DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                System.out.println("containersOfThisNode: " + currentTreeNode.toString());
+//                System.out.println("containersOfThisNode: " + currentTreeNode.toString());
 //                //nodeChanged(TreeNode node): Invoke this method after you've changed how node is to be represented in the tree.
                 /////////////////////////////////////
                 DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();

@@ -134,10 +134,10 @@ public class ImdiField {
 
 //                    if (attributeName.equals("Name")) {
             if (fieldName.endsWith("Keys.Key")) {
-                System.out.println("Found key for: " + xmlPath);
+//                System.out.println("Found key for: " + xmlPath);
                 Object keyValue = fieldAttributes.get("Name");
                 if (keyValue != null) {
-                    System.out.println("Key value valid: " + keyValue.toString());
+//                    System.out.println("Key value valid: " + keyValue.toString());
                     fieldName = fieldName + ImdiSchema.imdiPathSeparator + keyValue.toString();
                 }
 //                xmlPath = xmlPath + ImdiSchema.imdiPathSeparator + attributeValue;

@@ -259,7 +259,7 @@ public class ImdiTableModel extends AbstractTableModel {
         public TableRowComparator(int tempSortColumn, boolean tempSortReverse) {
             sortColumn = tempSortColumn;
             sortReverse = tempSortReverse;
-            System.out.println("TableRowComparator: " + sortColumn + ":" + sortReverse);
+//            System.out.println("TableRowComparator: " + sortColumn + ":" + sortReverse);
         }
 
         public int compare(Object firstRowArray, Object secondRowArray) {
@@ -295,7 +295,7 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     private void sortTableRows(String[] columnNamesTemp, Object[][] dataTemp) {
-        System.out.println("sortTableRows");
+//        System.out.println("sortTableRows");
         if (sortColumn < columnNamesTemp.length) {
             Arrays.sort(dataTemp, new TableRowComparator(sortColumn, sortReverse));
         }
@@ -345,7 +345,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // set the column offset to accomadate the icon which is not in the column hashtable
             int firstFreeColumn = 0;
             if (showIcons) {
-                System.out.println("showing icon");
+//                System.out.println("showing icon");
                 // this assumes that the icon will always be in the leftmost column
                 firstFreeColumn = 1;
             }
@@ -357,7 +357,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
             }
             for (Enumeration currentColumnEnum = displayedColumnNames.elements(); currentColumnEnum.hasMoreElements();) {
-                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
+//                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
                 columnNamesTemp[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
                 columnPopulateCounter++;
             }

@@ -159,7 +159,11 @@ public class TreeHelper {
                 if (!locationsList.remove(removeLocation)) {
                     removeLocation = removeLocation.substring(0, removeLocation.length() - 1);
                     System.out.println("removeLocation: " + removeLocation);
-                    locationsList.remove(removeLocation);
+                    if (!locationsList.remove(removeLocation)) {
+                        removeLocation = removeLocation.substring(1);
+                        System.out.println("removeLocation: " + removeLocation);
+                        locationsList.remove(removeLocation);
+                    }
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError("could not remove location: ", ex);
@@ -174,7 +178,7 @@ public class TreeHelper {
     }
 
     private void removeChildNodes(DefaultMutableTreeNode parentNode) {
-        System.out.println("removeChildNode: " + parentNode);
+//        System.out.println("removeChildNode: " + parentNode);
         // this function replaces the use of removeAllChildren et. al. from the tree nodes
         // its purpose is to deregister the tree node from the imdinode before removing the node from the tree
         // loop child nodes
@@ -333,26 +337,27 @@ public class TreeHelper {
             itemNode.setAllowsChildren(true);
             itemNode.add(new DefaultMutableTreeNode(new JLabel("adding...", ImdiIcons.loadingIcon, JLabel.CENTER), false));
 //        }
-        if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
-            ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
-            if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
-                System.out.println("file to be opened");
-            } else {
-                //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
-                ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes();
-                Arrays.sort(childNodes);
-                // remove the loading node
-                removeChildNodes(itemNode);
-                for (int childCount = 0; childCount < childNodes.length; childCount++) {
-                    System.out.println("Adding tree node: " + childNodes[childCount]);
-                    DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
-                    treeNode.setAllowsChildren(childNodes[childCount].canHaveChildren() || childNodes[childCount].isDirectory());
-                    childNodes[childCount].registerContainer(treeNode);
-                    itemNode.add(treeNode);
+            if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
+                ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
+                if (!imdiTreeObject.isImdi() && !imdiTreeObject.isDirectory()) {
+                    System.out.println("file to be opened");
+                } else {
+                    //ImdiHelper.ImdiTreeObject[] childNodes = imdiTreeObject.getChildren(imdiFieldViews, imdiFieldViews.getCurrentFieldArray());
+                    ImdiTreeObject[] childNodes = imdiTreeObject.loadChildNodes();
+                    Arrays.sort(childNodes);
+                    // remove the loading node
+                    removeChildNodes(itemNode);
+                    for (int childCount = 0; childCount < childNodes.length; childCount++) {
+                        System.out.println("Adding tree node: " + childNodes[childCount]);
+                        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(childNodes[childCount]);
+                        treeNode.setAllowsChildren(childNodes[childCount].canHaveChildren() || childNodes[childCount].isDirectory());
+                        childNodes[childCount].registerContainer(treeNode);
+                        itemNode.add(treeNode);
+                    }
                 }
             }
         }
-    }}
+    }
 
     public Object getSingleSelectedNode(Object sourceObject) {
         System.out.println("getSingleSelectedNode: " + sourceObject);

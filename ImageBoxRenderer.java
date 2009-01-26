@@ -62,26 +62,29 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 targetFile = imdiObject.getUrlString();
             }
 
-            try {
-                ImageIcon nodeImage = new ImageIcon(new URL(targetFile).getFile());
-                if (nodeImage != null) {
+            if (targetFile != null && targetFile.length() > 0) {
+                try {
+//                    System.out.println("targetFile: " + targetFile);
+                    ImageIcon nodeImage = new ImageIcon(new URL(targetFile).getFile());
+                    if (nodeImage != null) {
 //                        int outputWidth = 32;
 //                        int outputHeight = 32;
 //                        int outputWidth = getPreferredSize().width;
 //                        int outputHeight = getPreferredSize().height - 100;
-                    BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
-                    Graphics2D g2 = resizedImg.createGraphics();
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
-                    g2.dispose();
-                    ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
-                    setIcon(thumbnailIcon);
-                }
+                        BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D g2 = resizedImg.createGraphics();
+                        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                        g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
+                        g2.dispose();
+                        ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
+                        setIcon(thumbnailIcon);
+                    }
 
-                setFont(list.getFont());
-            } catch (Exception ex) {
-                setText(value.toString() + " (failed to render image)");
-                GuiHelper.linorgBugCatcher.logError(ex);
+                    setFont(list.getFont());
+                } catch (Exception ex) {
+                    setText(value.toString() + " (failed to render image)");
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         } else {
             setText(value.toString() + " (no image available)");
