@@ -401,6 +401,9 @@ public class ImdiTreeObject implements Comparable {
      */
     public String addChildNode(String nodeType, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
+        if (imdiNeedsSaveToDisk){
+            saveChangesToCache();
+        }
         String addedNodePath = null;
         ImdiTreeObject destinationNode;
         if (GuiHelper.imdiSchema.isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
