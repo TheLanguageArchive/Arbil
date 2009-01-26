@@ -37,8 +37,8 @@ public class LinorgWindowManager {
     JMenu windowMenu;
     private JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
     public JFrame linorgFrame;
-    int nextWindowX = 0;
-    int nextWindowY = 0;
+    int nextWindowX = 50;
+    int nextWindowY = 50;
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
 
@@ -46,27 +46,29 @@ public class LinorgWindowManager {
         windowMenu = jMenu;
         linorgFrame = linorgFrameLocal;
         desktopPane = jDesktopPane;
-        //linorgFrame.getLayeredPane().add(desktopPane);
-
         try {
             // load the saved states
             windowStatesHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("windowStates");
             // set the main window position and size
             Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
-            if (linorgFrameBounds instanceof Rectangle) {
+            if (linorgFrameBounds != null && linorgFrameBounds instanceof Rectangle) {
                 linorgFrame.setBounds((Rectangle) linorgFrameBounds);
 //                Rectangle screenSize = Toolkit.getScreenSize();
 //                if (screenSize.getHeight() > linorgFrame.getHeight())
 //                    linorgFrame.setSize(((Rectangle) linorgFrameBounds).getWidth(), screenSize.getHeight());
+            } else {
+                // if the application was maximised when it was last closed then these values will not be set
+                linorgFrame.setBounds(0, 0, 800, 600);
+                linorgFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             }
-            // set the split pane positions
-            loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
-            linorgFrame.setBounds(0, 0, 640, 480);
-            windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
+            linorgFrame.setBounds(0, 0, 800, 600);
+            linorgFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             System.out.println("load windowStates exception: " + ex.getMessage());
         }
+        // set the split pane positions
+        loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
     }
 
     public void openAboutPage() {
@@ -78,25 +80,6 @@ public class LinorgWindowManager {
                 linorgVersion.lastCommitDate + "\n" +
                 "Compile Date: " + linorgVersion.compileDate + "\n";
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Linorg", JOptionPane.PLAIN_MESSAGE);
-    // open the introduction page
-    // TODO: always get this page from the server if available, but also save it for off line use
-//        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/About.html");
-//        JEditorPane aboutDisplayPane = openUrlWindowOnce("About", introductionUrl);
-//        if (aboutDisplayPane != null) {
-//            aboutDisplayPane.doLayout();
-//            Document doc = aboutDisplayPane.getDocument();
-//            try {
-//                LinorgVersion linorgVersion = new LinorgVersion();
-//                doc.insertString(doc.getEndPosition().getOffset(), "\n", null);
-//                doc.insertString(doc.getEndPosition().getOffset(), "------------------------------------------------------\n", null);
-//                doc.insertString(doc.getEndPosition().getOffset(), "Revision: " + linorgVersion.currentRevision + "\n", null);
-//                doc.insertString(doc.getEndPosition().getOffset(), "Compile Date: " + linorgVersion.compileDate + "\n", null);
-//                doc.insertString(doc.getEndPosition().getOffset(), linorgVersion.lastCommitDate + "\n", null);
-////                doc.insertString(doc.getLength(), linorgVersion.fullInfo + "\n", null);
-//            } catch (Exception ex) {
-//                GuiHelper.linorgBugCatcher.logError(ex);
-//            }
-//        }
     }
 
     public void openIntroductionPage() {
@@ -139,6 +122,13 @@ public class LinorgWindowManager {
             if (linorgSplitPosition instanceof Integer) {
                 System.out.println(targetComponent.getName() + ": " + linorgSplitPosition);
                 ((JSplitPane) targetComponent).setDividerLocation((Integer) linorgSplitPosition);
+            } else {
+                if (targetComponent.getName().equals("rightSplitPane")) {
+                    ((JSplitPane) targetComponent).setDividerLocation(150);
+                } else {
+                    //leftSplitPane  leftLocalSplitPane rightSplitPane)
+                    ((JSplitPane) targetComponent).setDividerLocation(200);
+                }
             }
             for (Component childComponent : ((JSplitPane) targetComponent).getComponents()) {
                 loadSplitPlanes(childComponent);

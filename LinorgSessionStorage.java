@@ -74,9 +74,12 @@ public class LinorgSessionStorage {
      */
     public Object loadObject(String filename) throws Exception {
         System.out.println("loadObject: " + filename);
-        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
-        Object object = objstream.readObject();
-        objstream.close();
+        Object object = null;
+        if (new File(storageDirectory + filename).exists()) {
+            ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
+            object = objstream.readObject();
+            objstream.close();
+        }
         return object;
     }
 
@@ -94,7 +97,7 @@ public class LinorgSessionStorage {
         }
         return cachePath;
     }
-    
+
     /**
      * Converts a String path from the remote location to the respective location in the cache.
      * @param pathString Path of the remote file.
