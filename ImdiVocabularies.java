@@ -46,6 +46,18 @@ public class ImdiVocabularies {
         }
     }
 
+    public boolean vocabularyContains(String vocabularyLocation, String valueString) {
+        if (!vocabulariesTable.containsKey(vocabularyLocation)) {
+            parseRemoteFile(vocabularyLocation);
+        }
+        Vector tempVocab = (Vector) vocabulariesTable.get(vocabularyLocation);
+        if (tempVocab != null) {
+            return tempVocab.contains(valueString);
+        } else {
+            return false;
+        }
+    }
+
     public Enumeration getVocabulary(String vocabularyLocation) {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
@@ -104,8 +116,8 @@ public class ImdiVocabularies {
         //xmlReader.parse(new BufferedInputStream(inputStreamFromURLConnection), saxDefaultHandler);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-            // if the vocab could not be loaded then add the key to prevent retries and set the value to null to indicate that there was an error
-            //vocabulariesTable.put(vocabUrl, null);
+        // if the vocab could not be loaded then add the key to prevent retries and set the value to null to indicate that there was an error
+        //vocabulariesTable.put(vocabUrl, null);
 //            System.out.println(ex.getMessage());
         }
     }

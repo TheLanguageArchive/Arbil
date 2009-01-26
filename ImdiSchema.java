@@ -5,7 +5,6 @@
 package mpi.linorg;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,37 +29,6 @@ public class ImdiSchema {
      * When complete this function will parse the imdi schema
      */
     static String imdiPathSeparator = ".";
-
-    public void parseXSD() {
-//        http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/profiles/IMDI_3.0.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_3_0_6.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_3.0.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_1.8.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_3_0_8.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_1.9.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_2.9.xsd
-//        /data1/repos/trunk/src/java/mpi/metadata/schemas/IMDI/IMDI_3_0_7_01.xsd
-//        /data1/repos/trunk/src/java/mpi/imdi/api/resources/IMDI_3.0.xsd
-//        /data1/repos/trunk/src/java/mpi/bcarchive/typecheck/resources/IMDI_3_0_7.xsd
-//        /data1/repos/trunk/src/java/mpi/bcarchive/typecheck/resources/IMDI_3_0_8.xsd
-//        /data1/repos/trunk/src/java/mpi/vocabs/CV/www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
-//        /data1/repos/trunk/webapps/index_server/web/IMDI_3.0.xsd
-//        /data1/repos/trunk/resources/testdata/imdi/imdi_2/IMDI_3.0.xsd
-//        /data1/repos/trunk/resources/testdata/imdi/imdi_3/Profiles/IMDI_3.0.xsd
-//        /data1/repos/trunk/build/mpi/vocabs/CV/www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
-//        /data1/repos/trunk/build/mpi/metadata/profiles/IMDI_3.0.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_1.9.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_1.8.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_3.0.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_3_0_8.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_3_0_6.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_3_0_7_01.xsd
-//        /data1/repos/trunk/build/mpi/metadata/schemas/IMDI/IMDI_2.9.xsd
-//        /data1/repos/trunk/build/mpi/bcarchive/typecheck/resources/IMDI_3_0_8.xsd
-//        /data1/repos/trunk/build/mpi/bcarchive/typecheck/resources/IMDI_3_0_7.xsd
-//        /data1/repos/trunk/build/mpi/imdi/api/resources/IMDI_3.0.xsd
-    }
 
     /**
      * This function is only a place holder and will be replaced.
@@ -88,7 +56,7 @@ public class ImdiSchema {
                 childTypes.add(new String[]{"Corpus", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
                 childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
             }
-            System.out.println("childTypes: " + childTypes);
+//            System.out.println("childTypes: " + childTypes);
         } else {
             // corpus can be added to the root node
             childTypes.add(new String[]{"Corpus", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
@@ -155,14 +123,13 @@ public class ImdiSchema {
 ////        return fieldTypes.elements();
 //    }
 
-    // functions to extract the exif data from images
-    // this will probably need to be moved to a more appropriate class
+// functions to extract the exif data from images
+// this will probably need to be moved to a more appropriate class
     public Hashtable getExifMetadata(String resourcePath) {
         Hashtable exifTags = new Hashtable();
         System.out.println("tempGetExif: " + resourcePath);
         try {
-            File tempFile = new File(resourcePath);
-            URL url = tempFile.toURL();
+            URL url = new URL(resourcePath);
             Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
             ImageReader reader = (ImageReader) readers.next();
             reader.setInput(ImageIO.createImageInputStream(url.openStream()));
@@ -203,10 +170,10 @@ public class ImdiSchema {
         }
     }
     // end functions to extract the exif data from images
-
     public boolean isImdiChildType(String childType) {
-        //<xsd:element name="Actor" minOccurs="0" maxOccurs="unbounded">
-//        return !childType.equals("Session") && !childType.equals("Corpus");
+        if (childType == null) {
+            return false;
+        }
         return !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus");
     }
 //    public boolean nodesChildrenCanHaveSiblings(String xmlPath) {
@@ -223,13 +190,21 @@ public class ImdiSchema {
         return "Usage description for: " + fieldName;
     }
 
-    public void addFromTemplate(File destinationFile, String templateType) {
+    public String addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromTemplate: " + templateType + " : " + destinationFile);
+        String addedPathString = null;
         // copy the template to disk
         URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");
+//        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
+//        System.out.println("templateFile: " + templateFile);
+        addedPathString = copyToDisk(templateUrl, destinationFile);
+        return addedPathString;
+    }
+
+    private String copyToDisk(URL sourceURL, File targetFile) {
         try {
-            InputStream in = templateUrl.openStream();
-            OutputStream out = new FileOutputStream(destinationFile);
+            InputStream in = sourceURL.openStream();
+            OutputStream out = new FileOutputStream(targetFile);
 
             // Transfer bytes from in to out
             byte[] buf = new byte[1024];
@@ -239,29 +214,232 @@ public class ImdiSchema {
             }
             in.close();
             out.close();
+            return targetFile.toURL().toString();
         } catch (Exception ex) {
-            System.out.println("addFromTemplate: " + ex);
+            System.out.println("copyToDisk: " + ex);
             GuiHelper.linorgBugCatcher.logError(ex);
         }
+        return null;
     }
 
-    public void insertFromTemplate(String elementName, Document targetImdiDom) {
+    public String insertFromTemplate(File destinationFile, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
+        System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
+        String addedPathString = null;
+        if (elementName == null) {
+            for (String[] formatType : new String[][]{
+                        {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+                        {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile"}
+                    }) {
+                if (ImdiField.imdiVocabularies.vocabularyContains(formatType[0], mimeType)) {
+//                    if (mimeType.equals("image/jpeg")) {
+                    elementName = formatType[1];
+                    break;
+                }
+            }
+        }
         try {
             URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml");
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            // get the parent node
+            // prepare the parent node
             String targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
             // convert to xpath for the api
             targetXpath = targetXpath.replace(".", "/:");
-            NodeList targetNodelist = org.apache.xpath.XPathAPI.selectNodeList(targetImdiDom, targetXpath);
+            // find the node to add the new section to
+            Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
             // insert the section into the target imdi
             Document insertableSection = builder.parse(templateUrl.openStream());
+            // insert values into the section that about to be added
+            if (resourcePath != null) {
+                String localFilePath = resourcePath; // will be changed when copied to the cache
+                // copy the file to the imdi directory
+                try {
+                    //// TODO: the resource should be optionaly copied or moved into the cache or hardlinked
+                    URL resourceUrl = new URL(resourcePath);
+//                    String resourcesDirName = "resources";
+                    File originalFile = new File(resourceUrl.getFile());
+                    int suffixIndex = originalFile.getName().lastIndexOf(".");
+                    String targetFilename = originalFile.getName().substring(0, suffixIndex);
+                    String targetSuffix = originalFile.getName().substring(suffixIndex);
+                    System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
+                    File destinationDirectory = new File(destinationFile.getParentFile().getPath()); // + File.separatorChar + resourcesDirName);
+                    System.out.println("destinationDirectory: " + destinationDirectory.toString());
+//                    destinationDirectory.mkdir();
+                    File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
+                    localFilePath = "." + /*File.separatorChar + resourcesDirName +*/ File.separatorChar + destinationFileCopy.getName();
+                    copyToDisk(resourceUrl, destinationFileCopy);
+                    System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+                } catch (Exception ex) {
+                    //localFilePath = resourcePath; // link to the original file
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+
+                // find the correct node and set the resourcePath value
+                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/*/ResourceLink");
+                linkNode.setTextContent(localFilePath);
+            }
+            if (mimeType.equals("image/jpeg")) {
+                Hashtable exifTags = getExifMetadata(resourcePath);
+                String dateExifTag = "date";
+                if (exifTags.contains(dateExifTag)) {
+                    Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/MediaFile/Date");
+                    linkNode.setTextContent(exifTags.get(dateExifTag).toString());
+                }
+            }
+            if (mimeType != null) {
+                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/*/Format");
+                linkNode.setTextContent(mimeType);
+            }
+
+            // import the new section to the target dom
             Node addableNode = targetImdiDom.importNode(insertableSection.getFirstChild(), true);
-            targetNodelist.item(0).appendChild(addableNode);
+            // add the new section to the target dom
+            targetNode.appendChild(addableNode);
+            addedPathString = destinationFile.toURL().toString() + "#" + elementName;
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
             GuiHelper.linorgBugCatcher.logError(ex);
         }
-//        return null;
+        //return addedPathString;
+        return null;
+    }
+
+    public void iterateChildNodes(ImdiTreeObject parentNode, Vector childLinks, Node startNode, String nodePath) {
+        System.out.println("iterateChildNodes: " + nodePath);
+        //loop all nodes
+        // each end node becomes a field
+        // any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode
+        // the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
+
+        // add the fields and nodes 
+        for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
+            String localName = childNode.getLocalName();
+            String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
+            //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
+
+            ImdiTreeObject destinationNode;
+            String childsMetaNode = pathIsChildNode(siblingNodePath);
+            if (localName != null && childsMetaNode != null) {
+                String siblingSpacer = "";
+                String pathUrlXpathSeparator = "";
+                if (!parentNode.getUrlString().contains("#")) {
+                    pathUrlXpathSeparator = "#";
+                }
+                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + nodePath);
+                // add brackets to conform with the imdi api notation
+                siblingSpacer = "(" + (metaNodeImdiTreeObject.getChildCount() + 1) + ")";
+                ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
+                parentNode.attachChildNode(metaNodeImdiTreeObject);
+                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
+                destinationNode = subNodeImdiTreeObject;
+                siblingNodePath = "";
+            } else {
+                destinationNode = parentNode;
+            }
+//            System.out.println("getLocalName: " + childNode.getLocalName());
+//            System.out.println("hasChildNodes: " + childNode.hasChildNodes());
+            boolean shouldAddCurrent = false;
+            NodeList childNodes = childNode.getChildNodes();
+            // if there is no child nodes or there is only one and it is text then add the field
+            if ((childNodes.getLength() == 0 && localName != null) || (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE)) {
+//                System.out.println("should add");
+                shouldAddCurrent = true;
+            }
+//            System.out.println("getChildNodes: " + childNode.getChildNodes().getLength());
+            String fieldValue;
+            if (childNodes.getLength() == 1) {
+                fieldValue = childNodes.item(0).getTextContent();
+            } else {
+                fieldValue = "";
+            }
+            ImdiField fieldToAdd = new ImdiField(destinationNode, siblingNodePath, fieldValue);
+
+            // TODO: about to write this function
+            //GuiHelper.imdiSchema.convertXmlPathToUiPath();
+
+            // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
+            // TODO: note that this method does not use any attributes without a node value
+            NamedNodeMap namedNodeMap = childNode.getAttributes();
+            if (namedNodeMap != null) {
+                for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
+                    String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
+                    String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
+//                    System.out.println("attributeName: " + attributeName);
+//                    System.out.println("attributeValue: " + attributeValue);
+                    if (attributeValue != null && attributeValue.length() > 0) {
+                        // only add attributes if they contain a value
+                        fieldToAdd.addAttribute(attributeName, attributeValue);
+                    }
+                }
+            }
+            if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
+//                System.out.println("Adding: " + fieldToAdd);
+//                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
+//                fieldToAdd.translateFieldName(siblingNodePath);
+                destinationNode.addField(fieldToAdd);
+            } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
+                String parentPath = destinationNode.getParentDirectory();
+//                System.out.println("LinkValue: " + fieldValue);
+//                System.out.println("ParentPath: " + parentPath);
+//                System.out.println("Parent: " + this.getUrlString());
+                String linkPath;
+                try {
+                    if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http")) {
+//                    linkPath = parentPath /*+ File.separatorChar*/ + fieldToAdd.getFieldValue();
+                        linkPath = parentPath + fieldToAdd.getFieldValue();
+                    } else if (fieldToAdd.getFieldValue().toLowerCase().startsWith("&root;")) {
+                        linkPath = parentPath + fieldToAdd.getFieldValue().substring(6);
+                    } else {
+                        linkPath = fieldToAdd.getFieldValue();
+                    }
+                    System.out.println("linkPath: " + linkPath);
+                    //linkPath = linkPath.replaceAll("/[^/]*/\\.\\./", "/");
+//                    System.out.println("linkPathCorrected: " + linkPath);
+                    childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                    System.out.println("Exception CorpusLink: " + ex.getMessage());
+                }
+            }
+//            if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
+//                // the corpus link nodes are used but via the api.getlinks so dont log them here
+//                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
+//                if (namedNodeMap != null) {
+//                    for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
+//                        String attributeName = fieldToAdd.xmlPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
+//                        // add all attributes even if they contain no value
+//                        // TODO: check if this should be removed yet
+//                        if (!listDiscardedOfAttributes.contains(attributeName) && !attributeName.endsWith(":id")) {
+//                            // also ignore any id attributes that would have been attached to blank fields
+//                            listDiscardedOfAttributes.add(attributeName);
+//                        }
+//                    }
+//                }
+//            }
+            fieldToAdd.finishLoading();
+            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath);
+        }
+    }
+
+    public String pathIsChildNode(String nodePath) {
+        // TODO: change this to use a master list of types and populate it from the schema
+        if (nodePath.contains(".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language")) {
+            return "Languages";
+        }
+        if (nodePath.contains(".Languages.Language")) {
+            return "Languages";
+        }
+        if (nodePath.contains(".METATRANSCRIPT.Session.MDGroup.Actors.Actor")) {
+            return "Actors";
+        }
+        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.MediaFile")) {
+            return "MediaFiles";
+        }
+        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.WrittenResource")) {
+            return "WrittenResources";
+        }
+        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.Source")) {
+            return "Sources";
+        }
+        return null;
     }
 }

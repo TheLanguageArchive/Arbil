@@ -25,7 +25,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
     private boolean showIcons = false;
     private Hashtable imdiObjectHash = new Hashtable();
-    private Hashtable allColumnNames = new Hashtable();
+    private Vector allColumnNames = new Vector();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
     private int[] maxColumnWidths;
@@ -103,9 +103,10 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     private void updateAllImdiObjects() {
+        allColumnNames.removeAllElements();
         for (Enumeration nodesEnum = imdiObjectHash.elements(); nodesEnum.hasMoreElements();) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) nodesEnum.nextElement();
-            if (!imdiTreeObject.isImdi() || imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) { 
+            if (!imdiTreeObject.isImdi() || imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
                 // on application reload a file may be readded to a table before the type checker gets a chance to run, since a file must have been checked for it to get here we bypass that check at this point
                 System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(imdiTreeObject)) {
@@ -116,33 +117,13 @@ public class ImdiTableModel extends AbstractTableModel {
             }
             System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
             System.out.println("hasResource: " + imdiTreeObject.hasResource());
-            Enumeration fieldNames = imdiTreeObject.getFields().keys();
-            while (fieldNames.hasMoreElements()) {
+            for (Enumeration fieldNames = imdiTreeObject.getFields().keys();fieldNames.hasMoreElements();) {
                 String currentColumnName = fieldNames.nextElement().toString();
-                // keep track of the number of times that columns are used by updating the column use count hashtable
-                Object currentColumnUse = allColumnNames.get(currentColumnName);
-                int currentColumnUseCount = 0;
-                if (currentColumnUse == null) {
-                    currentColumnUseCount = 1;
-                    tableFieldView.addKnownColumn(currentColumnName);
-                } else {
-                    currentColumnUseCount = ((Integer) currentColumnUse) + 1;
+                if (!allColumnNames.contains(currentColumnName)){
+                    allColumnNames.add(currentColumnName);
                 }
-                allColumnNames.put(currentColumnName, currentColumnUseCount);
+                    tableFieldView.addKnownColumn(currentColumnName);
             }
-
-//            Enumeration tempColoumnEnum = columnNameHash.keys();
-//            while (tempColoumnEnum.hasMoreElements()) {
-//                System.out.println("column: " + tempColoumnEnum.nextElement());
-//            }
-
-//            Vector vecSort = new Vector(columnNameHash.keySet());
-//            Collections.sort(vecSort, Collections.reverseOrder());
-//            Iterator it = vecSort.iterator();
-//            while (it.hasNext()) {
-//                String element = (String) it.next();
-//                System.out.println(element);
-//            }
         }
     }
 
@@ -222,25 +203,9 @@ public class ImdiTableModel extends AbstractTableModel {
             if (currentObject instanceof ImdiTreeObject) {
                 ImdiTreeObject imdiTreeObject = (ImdiTreeObject) currentObject;
                 System.out.println("removing: " + imdiTreeObject.toString());
-                //if (imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
                 listModel.removeElement(imdiTreeObject);
-                //}
-                // remove the node
                 imdiObjectHash.remove(imdiTreeObject.getUrlString());
                 imdiTreeObject.removeContainer(this);
-                // update the used columns
-                Enumeration fieldNames = imdiTreeObject.getFields().keys();
-                while (fieldNames.hasMoreElements()) {
-                    String currentColumnName = fieldNames.nextElement().toString();
-                    //System.out.println("currentColumnName: " + currentColumnName);
-                    int currentColumnUse = (Integer) allColumnNames.get(currentColumnName);
-                    currentColumnUse--;
-                    if (currentColumnUse == 0) {
-                        allColumnNames.remove(currentColumnName);
-                    } else {
-                        allColumnNames.put(currentColumnName, currentColumnUse);
-                    }
-                }
             }
         }
         // refresh the table data
@@ -346,7 +311,9 @@ public class ImdiTableModel extends AbstractTableModel {
         boolean lastHorizontalView = horizontalView;
         horizontalView = imdiObjectHash.size() > 1;
         if (!horizontalView) { // set the table for a single image if that is all that is shown
-            if (imdiObjectHash.size() == listModel.getSize()) {
+            //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
+		// TODO: this does not account for when a resource is shown
+            if (allColumnNames.size() == 0) {
                 horizontalView = true;
             }
         }
@@ -365,7 +332,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // display the grid view
 
             // calculate which of the available columns to show
-            Enumeration columnNameEnum = allColumnNames.keys();
+            Enumeration columnNameEnum = allColumnNames.elements();
             Vector displayedColumnNames = new Vector();
             while (columnNameEnum.hasMoreElements()) {
                 String currentColumnString = (String) columnNameEnum.nextElement();

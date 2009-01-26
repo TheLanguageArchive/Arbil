@@ -70,15 +70,15 @@ public class LinorgWindowManager {
 
     public void openAboutPage() {
         LinorgVersion linorgVersion = new LinorgVersion();
-        String messageString =  "Linguistic Organiser\n" +
-        "A local tool for organising linguistic data.\n" +
-        "Max Planck Institute for Psycholinguistics\n" +
-        "Revision: " + linorgVersion.currentRevision + "\n" +
-        linorgVersion.lastCommitDate + "\n" +
-        "Compile Date: " + linorgVersion.compileDate + "\n";
+        String messageString = "Linguistic Organiser\n" +
+                "A local tool for organising linguistic data.\n" +
+                "Max Planck Institute for Psycholinguistics\n" +
+                "Revision: " + linorgVersion.currentRevision + "\n" +
+                linorgVersion.lastCommitDate + "\n" +
+                "Compile Date: " + linorgVersion.compileDate + "\n";
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Linorg", JOptionPane.PLAIN_MESSAGE);
-        // open the introduction page
-        // TODO: always get this page from the server if available, but also save it for off line use
+    // open the introduction page
+    // TODO: always get this page from the server if available, but also save it for off line use
 //        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/About.html");
 //        JEditorPane aboutDisplayPane = openUrlWindowOnce("About", introductionUrl);
 //        if (aboutDisplayPane != null) {
@@ -101,8 +101,9 @@ public class LinorgWindowManager {
     public void openIntroductionPage() {
         // open the introduction page
         // TODO: always get this page from the server if available, but also save it for off line use
-        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
-        openUrlWindowOnce("Introduction", introductionUrl);
+//        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
+//        openUrlWindowOnce("Introduction", introductionUrl);
+        openUrlWindowOnce("Features/Known Bugs", this.getClass().getResource("/mpi/linorg/resources/html/Features.html"));
 
         try {
             // load the saved windows
@@ -301,10 +302,13 @@ public class LinorgWindowManager {
                                     windowList.remove(windowName);
                                     desktopPane.remove(focusedWindow);
                                     try {
-                                        JInternalFrame topMostWindow = desktopPane.getAllFrames()[0];
-                                        if (topMostWindow != null) {
-                                            System.out.println("topMostWindow: " + topMostWindow);
-                                            topMostWindow.setSelected(true);
+                                        JInternalFrame[] allWindows = desktopPane.getAllFrames();
+                                        if (allWindows.length > 0) {
+                                            JInternalFrame topMostWindow = allWindows[0];
+                                            if (topMostWindow != null) {
+                                                System.out.println("topMostWindow: " + topMostWindow);
+                                                topMostWindow.setSelected(true);
+                                            }
                                         }
                                     } catch (Exception ex) {
                                         GuiHelper.linorgBugCatcher.logError(ex);

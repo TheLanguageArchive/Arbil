@@ -13,10 +13,10 @@ import java.util.Hashtable;
  */
 public class ImdiField {
 
-    static private ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
+    static public ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
     public ImdiTreeObject parentImdi;
     public String xmlPath;
-    public String translatedPath;
+    private String translatedPath = null;
 //        public String nodeName;
     public String fieldValue = "";
     public String fieldID;
@@ -63,7 +63,7 @@ public class ImdiField {
     }
 
     public boolean isDisplayable() {
-        return (fieldValue != null && /*fieldValue.trim().length() > 0 && */ !xmlPath.contains("CorpusLink"));
+        return (fieldValue != null && /*fieldValue.trim().length() > 0 && */ !xmlPath.contains("CorpusLink") && !xmlPath.endsWith(".Keys"));
     }
 
     public void finishLoading() {
@@ -79,8 +79,8 @@ public class ImdiField {
     }
 
     public void addAttribute(String attributeName, String attributeValue) {
-//        debugOut("attributeName: " + attributeName);
-//        debugOut("attributeValue: " + attributeValue);
+//        System.out.println("attributeName: " + attributeName);
+//        System.out.println("attributeValue: " + attributeValue);
         // TODO: this could be done as required no on load. ie when getId is called 
         if (attributeName.equals("id")) {
             fieldID = attributeValue;
@@ -117,16 +117,35 @@ public class ImdiField {
         return fieldValue;
     }
 
-    public void translateFieldName(String fieldName) {
-        // TODO: move this to the imdischema class
-        // replace the xml paths with user friendly node names
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "WrittenResource", "WrittenResource");
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup" + ImdiSchema.imdiPathSeparator + "Actors" + ImdiSchema.imdiPathSeparator + "Actor", "Actors");
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "Anonyms", "Anonyms");
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "MediaFile", "MediaFiles");
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup", "");
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session", "Session");
-        fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus", "Corpus");
-        translatedPath = fieldName;
+    public String getTranslateFieldName() {
+        if (translatedPath == null) {
+            String fieldName = xmlPath;
+            // TODO: move this to the imdischema class
+            // replace the xml paths with user friendly node names
+//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "WrittenResource", "WrittenResource");
+//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup" + ImdiSchema.imdiPathSeparator + "Actors" + ImdiSchema.imdiPathSeparator + "Actor", "Actors");
+//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "Anonyms", "Anonyms");
+//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "MediaFile", "MediaFiles");
+//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup", "");
+            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup", "Session");
+            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session", "Session");
+            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus", "Corpus");
+
+
+//                    if (attributeName.equals("Name")) {
+            if (fieldName.endsWith("Keys.Key")) {
+                System.out.println("Found key for: " + xmlPath);
+                Object keyValue = fieldAttributes.get("Name");
+                if (keyValue != null) {
+                    System.out.println("Key value valid: " + keyValue.toString());
+                    fieldName = fieldName + ImdiSchema.imdiPathSeparator + keyValue.toString();
+                }
+//                xmlPath = xmlPath + ImdiSchema.imdiPathSeparator + attributeValue;
+                
+            }
+//        }
+            translatedPath = fieldName;
+        }
+        return translatedPath;
     }
 }

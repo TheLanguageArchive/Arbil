@@ -46,20 +46,26 @@ public class MimeHashQueue {
 //                        System.err.println("run MimeHashQueue: " + ie.getMessage());
                     }
                     for (Enumeration nodesToCheck = imdiObjectQueue.keys(); nodesToCheck.hasMoreElements();) {
-                        String currentNodeURL = nodesToCheck.nextElement().toString();
-                        System.out.println("run MimeHashQueue processing: " + currentNodeURL);
-                        ImdiTreeObject currentImdiObject = ((ImdiTreeObject) imdiObjectQueue.get(currentNodeURL));
-                        // check that the file has not been done already
-                        // TODO: chang this to use an additional hastable of mtimes for each file and if the mtime does not match then rescan the file
-                        if (!knownMimeTypes.containsKey(currentNodeURL)) {
-                            // this couldbe optimised by not mime checking imdi files, but for easy reading it is done
-                            if (/*currentNodeURL.endsWith(".imdi") ||*/getMimeType(currentNodeURL)) {
-                                getHash(currentNodeURL);
+
+                        String currentNodeString = nodesToCheck.nextElement().toString();
+                        ImdiTreeObject currentImdiObject = ((ImdiTreeObject) imdiObjectQueue.get(currentNodeString));
+                        try {
+                            URL currentNodeUrl = new URL(currentNodeString);
+                            System.out.println("run MimeHashQueue processing: " + currentNodeString);
+                            // check that the file has not been done already
+                            // TODO: chang this to use an additional hastable of mtimes for each file and if the mtime does not match then rescan the file
+                            if (!knownMimeTypes.containsKey(currentNodeString)) {
+                                // this couldbe optimised by not mime checking imdi files, but for easy reading it is done
+                                if (/*currentNodeURL.endsWith(".imdi") ||*/getMimeType(currentNodeUrl)) {
+                                    getHash(currentNodeUrl);
+                                }
+                                currentImdiObject.clearIcon();
                             }
-                            currentImdiObject.clearIcon();
+                        } catch (MalformedURLException e) {
+                            GuiHelper.linorgBugCatcher.logError(e);
                         }
-                        processedImdiObjects.put(currentNodeURL, currentImdiObject);
-                        imdiObjectQueue.remove(currentNodeURL);
+                        processedImdiObjects.put(currentNodeString, currentImdiObject);
+                        imdiObjectQueue.remove(currentNodeString);
                     }
                 // TODO: add check for url in list with different hash which would indicate a modified file and require a red x on the icon
                 // TODO: add check for mtime change and update accordingly
@@ -104,56 +110,38 @@ public class MimeHashQueue {
         }
     }
 
-    public boolean getMimeType(String filePath) {
-        System.out.println("getMimeType: " + filePath);
+    public boolean getMimeType(URL fileUrl) {
+        System.out.println("getMimeType: " + fileUrl);
         String mpiMimeType;
         // here we also want to check the magic number but the mpi api has a function similar to that so we
         // use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
         // because the api uses null to indicate non archivable we cant return other strings
         mpiMimeType = null;//"unreadable";
         boolean deep = true;
-
-        URL url = null;
-        try {
-//            System.out.println("getMimeType: " + filePath);
-            // Create a file object
-//            File file = new File(filePath.replace("file://", ""));
-//            System.out.println("file: " + file);
-//            // convert to a url object
-//            url = file.toURL();
-            url = new URL(filePath);
-            System.out.println("url: " + url);
-        } catch (MalformedURLException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
-//            System.out.println(e.getMessage());
-        }
-        if (url == null) {
-            System.out.println("Invalid URL: " + filePath);
-        //System.exit(1);
-        } else if (!new File(url.getFile()).exists()) {
-            System.out.println("File does not exist: " + filePath);
+        if (!new File(fileUrl.getFile()).exists()) {
+            System.out.println("File does not exist: " + fileUrl);
         } else {
             try {
                 // this will choke on strings that look url encoded but are not. because it erroneously decodes them
-                InputStream inputStream = url.openStream();
+                InputStream inputStream = fileUrl.openStream();
                 if (inputStream != null) {
                     if (deep) {
-                        mpiMimeType = deepFileType.checkStream(inputStream, filePath);
+                        mpiMimeType = deepFileType.checkStream(inputStream, fileUrl.getFile());
                     } else {
-                        mpiMimeType = fileType.checkStream(inputStream, filePath);
+                        mpiMimeType = fileType.checkStream(inputStream, fileUrl.getFile());
                     }
                     System.out.println("mpiMimeType: " + mpiMimeType);
                 }
                 mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
             } catch (Exception ioe) {
                 GuiHelper.linorgBugCatcher.logError(ioe);
-                System.out.println("Cannot read file at URL: " + url + " ioe: " + ioe.getMessage());
+                System.out.println("Cannot read file at URL: " + fileUrl + " ioe: " + ioe.getMessage());
             }
             System.out.println(mpiMimeType);
         }
         // if non null then it is an archivable file type
         if (mpiMimeType != null) {
-            knownMimeTypes.put(filePath, mpiMimeType);
+            knownMimeTypes.put(fileUrl.toString(), mpiMimeType);
         } else {
             // because the api uses null to indicate non archivable we cant return other strings
             //knownMimeTypes.put(filePath, "nonarchivable");
@@ -161,16 +149,16 @@ public class MimeHashQueue {
         return (mpiMimeType != null);
     }
 
-    public void getHash(String filePath) {
-        System.out.println("getHash: " + filePath);
-        File targetFile = new File(filePath.replace("file://", ""));
+    public void getHash(URL fileUrl) {
+        System.out.println("getHash: " + fileUrl);
+//        File targetFile = new URL(filePath).getFile();
         String hashString = null;
         // TODO: add hashes for session links 
         // TODO: organise a way to get the md5 sum of files on the server
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             StringBuffer hexString = new StringBuffer();
-            FileInputStream is = new FileInputStream(targetFile);
+            FileInputStream is = new FileInputStream(fileUrl.getFile());
             byte[] buff = new byte[1024];
             byte[] md5sum;
             int i = 0;
@@ -187,18 +175,19 @@ public class MimeHashQueue {
 //                    debugOut("digest: " + digest.toString());                    
         } catch (Exception ex) {
 //            GuiHelper.linorgBugCatcher.logMessage("getHash: " + targetFile);
-            GuiHelper.linorgBugCatcher.logError("getHash: " + targetFile, ex);
+            GuiHelper.linorgBugCatcher.logError("getHash: " + fileUrl, ex);
             System.out.println("failed to created hash: " + ex.getMessage());
         }
         // store the url to node mapping. Note that; in the case of a resource line the session node is mapped against the resource url not the imdichildnode for the file
 //                urlToNodeHashtable.put(nodeLocation, this);
 
+//        String filePath = fileUrl.getPath();
         if (hashString != null) {
-            pathToMd5Sums.put(filePath, hashString);
+            pathToMd5Sums.put(fileUrl.toString(), hashString);
             Object matchingNodes = md5SumToDuplicates.get(hashString);
             if (matchingNodes != null) {
 //                        debugOut("checking vector for: " + hashString);
-                if (!((Vector) matchingNodes).contains(filePath)) {
+                if (!((Vector) matchingNodes).contains(fileUrl.toString())) {
 //                            debugOut("adding to vector: " + hashString);
                     Enumeration otherNodesEnum = ((Vector) matchingNodes).elements();
                     while (otherNodesEnum.hasMoreElements()) {
@@ -211,17 +200,17 @@ public class MimeHashQueue {
                             ((ImdiTreeObject) currentNode).clearIcon();
                         }
                     }
-                    ((Vector) matchingNodes).add(filePath);
+                    ((Vector) matchingNodes).add(fileUrl.toString());
                 }
             } else {
                 System.out.println("creating new vector for: " + hashString);
                 Vector nodeVector = new Vector();
-                nodeVector.add(filePath);
+                nodeVector.add(fileUrl.toString());
                 md5SumToDuplicates.put(hashString, nodeVector);
             }
         }
 //            }
-//            debugOut("hashString: " + hashString);
+            System.out.println("hashString: " + hashString);
 //            return hashString;
     }
 

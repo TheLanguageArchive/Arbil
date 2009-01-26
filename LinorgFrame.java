@@ -163,6 +163,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         jDesktopPane1 = new javax.swing.JDesktopPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
+        saveFileMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
         optionsMenu = new javax.swing.JMenu();
@@ -474,6 +475,15 @@ public class LinorgFrame extends javax.swing.JFrame {
         getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
 
         fileMenu.setText("File");
+
+        saveFileMenuItem.setText("Save Changes");
+        saveFileMenuItem.setEnabled(false);
+        saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveFileMenuItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(saveFileMenuItem);
 
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -967,7 +977,7 @@ private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: this is inadequate and needs to be updated
-    ((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).reloadImdiNode();
+    ((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).reloadNode(true);
 }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
 private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteMenuItemActionPerformed
@@ -989,6 +999,11 @@ private void introductionMenuItemActionPerformed(java.awt.event.ActionEvent evt)
 // TODO add your handling code here:
     GuiHelper.linorgWindowManager.openUrlWindowOnce("Introduction", this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html"));
 }//GEN-LAST:event_introductionMenuItemActionPerformed
+
+private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
+// TODO add your handling code here:
+    
+}//GEN-LAST:event_saveFileMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1041,6 +1056,7 @@ private void introductionMenuItemActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.JMenuItem removeRemoteCorpusMenuItem;
     private javax.swing.JScrollPane rightScrollPane;
     private javax.swing.JSplitPane rightSplitPane;
+    private javax.swing.JMenuItem saveFileMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private javax.swing.JMenuItem searchSubnodesMenuItem;

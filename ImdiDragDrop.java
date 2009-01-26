@@ -282,7 +282,7 @@ public class ImdiDragDrop {
                     Object dropTargetUserObject = targetNode.getUserObject();
                     System.out.println("to: " + dropTargetUserObject.toString());
                     if (dropTargetUserObject instanceof ImdiTreeObject) {
-                        if (((ImdiTreeObject) dropTargetUserObject).isSession()) {
+                        if (((ImdiTreeObject) dropTargetUserObject).isSession() || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()) {
                             if (selectionContainsArchivableLocalFile == true &&
                                     selectionContainsLocalFile == true &&
                                     selectionContainsLocalDirectory == false &&
@@ -295,13 +295,19 @@ public class ImdiDragDrop {
                                 System.out.println("ok to add local file");
                                 for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                    Vector tempVector = ((ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
+                                    String addedNodeUrl = ((ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
                                     GuiHelper.treeHelper.refreshChildNodes(targetNode);
-                                    GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new Resource(s) in " + dropTargetUserObject);
+                                    if (addedNodeUrl != null) {
+                                        Vector tempVector = new Vector();
+                                        tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
+                                        GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new Resource(s) in " + dropTargetUserObject);
+                                    }
                                 }
                             }
                         }
-                        GuiHelper.treeHelper.reloadLocalCorpusTree();
+                        GuiHelper.treeHelper.reloadLocalCorpusTree(); // targetNode
+                    //GuiHelper.treeHelper.refreshChildNodes(targetNode);
+
                     }
 //                    }
                 } else {

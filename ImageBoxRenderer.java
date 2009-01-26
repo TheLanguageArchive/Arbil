@@ -57,7 +57,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             setText(imdiObject.toString());
             String targetFile = "";
             if (imdiObject.hasResource()) {
-                targetFile = imdiObject.getResource();
+                targetFile = imdiObject.getFullResourcePath();
             } else if (imdiObject.isArchivableFile()) {
                 targetFile = imdiObject.getUrlString();
             }

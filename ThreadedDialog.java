@@ -234,7 +234,7 @@ public class ThreadedDialog {
         while (selectedNodesEnum.hasMoreElements()) {
             Object currentElement = selectedNodesEnum.nextElement();
             if (currentElement instanceof ImdiTreeObject) {
-                int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getChildCount();
+                int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getRecursiveChildCount();
                 childrenToLoad += tempChildCountArray[0];
                 loadedChildren += tempChildCountArray[1];
             }
@@ -247,7 +247,7 @@ public class ThreadedDialog {
         appendToTaskOutput("loading sub corpus");
         boolean moreToLoad = true;
         while (moreToLoad && !stopSearch) {
-            int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getChildCount();
+            int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getRecursiveChildCount();
             appendToTaskOutput("total loaded: " + (totalLoaded + tempChildCountArray[1]) + " (" + currentElement.toString() + " loaded: " + tempChildCountArray[1] + " unknown: " + tempChildCountArray[0] + ")");
             progressBar.setString("" + (totalLoaded + tempChildCountArray[1]));
             moreToLoad = (tempChildCountArray[0] != 0);
