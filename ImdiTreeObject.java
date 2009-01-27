@@ -706,6 +706,10 @@ public class ImdiTreeObject implements Comparable {
      * Previous imdi files are renamed and kept as a history.
      */
     public void saveChangesToCache() {
+        if (this.isImdiChild()){
+            getDomParentNode().saveChangesToCache();
+            return;
+        }
         System.out.println("saveChangesToCache");
         Document nodDom;
         OurURL inUrlLocal = null;
@@ -1041,6 +1045,16 @@ public class ImdiTreeObject implements Comparable {
      */
     public String getUrlString() {
         return nodeUrl.toString();
+    }
+    
+    /**
+     * Gets the ImdiTreeObject parent of an imdi child node.
+     * The returned node will be able to reload/save the dom for this node.
+     * Only relevant for imdi child nodes.
+     * @return ImdiTreeObject
+     */
+    public ImdiTreeObject getDomParentNode() {
+        return GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
     }
 
     private void getMimeHashResult() {
