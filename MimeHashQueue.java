@@ -95,7 +95,7 @@ public class MimeHashQueue {
             knownMimeTypes = new Hashtable();
             md5SumToDuplicates = new Hashtable();
             pathToMd5Sums = new Hashtable();
-            System.out.println("loadMap exception: " + ex.getMessage());
+            System.out.println("load loadMd5sumIndex failed: " + ex.getMessage());
         }
     }
 

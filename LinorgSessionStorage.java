@@ -75,11 +75,11 @@ public class LinorgSessionStorage {
     public Object loadObject(String filename) throws Exception {
         System.out.println("loadObject: " + filename);
         Object object = null;
-        if (new File(storageDirectory + filename).exists()) {
-            ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
-            object = objstream.readObject();
-            objstream.close();
-        }
+//        if (new File(storageDirectory + filename).exists()) { // this must be allowed to throw so don't do checks here
+        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
+        object = objstream.readObject();
+        objstream.close();
+//        }
         return object;
     }
 

@@ -34,7 +34,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 performCleanExit();
-                //super.windowClosing(e);
+            //super.windowClosing(e);
             }
         });
 

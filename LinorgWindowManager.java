@@ -50,22 +50,20 @@ public class LinorgWindowManager {
             // load the saved states
             windowStatesHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("windowStates");
             // set the main window position and size
-            Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
-            if (linorgFrameBounds != null && linorgFrameBounds instanceof Rectangle) {
-                linorgFrame.setBounds((Rectangle) linorgFrameBounds);
-//                Rectangle screenSize = Toolkit.getScreenSize();
-//                if (screenSize.getHeight() > linorgFrame.getHeight())
-//                    linorgFrame.setSize(((Rectangle) linorgFrameBounds).getWidth(), screenSize.getHeight());
-            } else {
-                // if the application was maximised when it was last closed then these values will not be set
-                linorgFrame.setBounds(0, 0, 800, 600);
-                linorgFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            linorgFrame.setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
+            if (linorgFrame.getExtendedState() == JFrame.ICONIFIED){
+                // start up iconified is just too confusing to the user
+                linorgFrame.setExtendedState(JFrame.NORMAL);
             }
+            // if the application was maximised when it was last closed then these values will not be set and this will through setting the size in the catch
+            Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
+            linorgFrame.setBounds((Rectangle) linorgFrameBounds);
         } catch (Exception ex) {
+            System.out.println("load windowStates failed: " + ex.getMessage());
+            System.out.println("setting default windowStates");
             windowStatesHashtable = new Hashtable();
             linorgFrame.setBounds(0, 0, 800, 600);
             linorgFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            System.out.println("load windowStates exception: " + ex.getMessage());
         }
         // set the split pane positions
         loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
@@ -108,7 +106,7 @@ public class LinorgWindowManager {
             System.out.println("done loading windowStates");
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
-            System.out.println("load windowStates exception: " + ex.getMessage());
+            System.out.println("load windowStates failed: " + ex.getMessage());
         }
 
         startKeyListener();
@@ -154,6 +152,7 @@ public class LinorgWindowManager {
             if (linorgFrame.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
                 windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
             }
+            windowStatesHashtable.put("linorgFrameExtendedState", linorgFrame.getExtendedState());
             // collect the split pane positions for saving
             saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
             // save the collected states

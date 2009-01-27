@@ -115,10 +115,7 @@ public class TreeHelper {
         try {
             locationsList = (Vector) GuiHelper.linorgSessionStorage.loadObject("locationsList");
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-//            System.out.println("load locationsList exception: " + ex.getMessage());
-        }
-        if (locationsList == null) {
+            System.out.println("load locationsList failed: " + ex.getMessage());
             locationsList = new Vector();
 //            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
 //            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
