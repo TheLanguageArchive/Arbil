@@ -302,13 +302,14 @@ public class TreeHelper {
         };
     }
 
-    public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType) {
-        System.out.println("adding a new node to: " + itemNode);
-        System.out.println("adding nodeType: " + nodeType);
+    public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType, String nodeTypeDisplayName) {
+//        System.out.println("adding a new node to: " + itemNode);
+//        System.out.println("adding nodeType: " + nodeType);
+//        System.out.println("adding nodeTypeDisplayName: " + nodeTypeDisplayName);
         if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
-                System.out.println("its an imdi so start adding");
+//                System.out.println("its an imdi so start adding");
                 String addedNodeUrl = imdiTreeObject.addChildNode(nodeType, null, null);
 //                for (Enumeration addedNodesEnum = tempVector.elements(); addedNodesEnum.hasMoreElements();) {
 //                    ImdiTreeObject currentNode = (ImdiTreeObject) addedNodesEnum.nextElement();
@@ -320,7 +321,7 @@ public class TreeHelper {
                 if (addedNodeUrl != null) {
                     Vector tempVector = new Vector();
                     tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
-                    GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " in " + itemNode);
+                    GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " in " + itemNode);
                 }
             }
         } else {
@@ -330,7 +331,7 @@ public class TreeHelper {
             //refreshChildNodes(itemNode);
             Vector tempVector = new Vector();
             tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
-            GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeType + " as a unattached corpus");
+            GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " as a unattached corpus");
         }
     }
 

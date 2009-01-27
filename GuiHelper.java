@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.table.AbstractTableModel;
@@ -78,7 +79,7 @@ public class GuiHelper {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
                     treeHelper.getImdiChildNodes(targetNode);
-                    treeHelper.addImdiChildNode(targetNode, (evt.getActionCommand()));
+                    treeHelper.addImdiChildNode(targetNode, (evt.getActionCommand()), ((JMenuItem)evt.getSource()).getText());
                     treeHelper.reloadLocalCorpusTree(targetNode);
                 }
             });
