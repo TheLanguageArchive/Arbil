@@ -41,7 +41,7 @@ public class ImdiField {
     public void setFieldValue(String fieldValue) {
         if (!this.fieldValue.equals(fieldValue)) {
             this.fieldValue = fieldValue;
-            parentImdi.imdiNeedsSaveToDisk = true;
+            parentImdi.setImdiNeedsSaveToDisk(true);
             fieldNeedsSaveToDisk = true;
             parentImdi.clearIcon();
         }

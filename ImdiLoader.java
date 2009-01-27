@@ -15,8 +15,9 @@ import java.util.Vector;
 public class ImdiLoader {
 
     private boolean continueThread = false;
-    Vector imdiNodesToInit = new Vector();
+    private Vector imdiNodesToInit = new Vector();
     private Hashtable imdiHashTable = new Hashtable();
+    private Vector nodesNeedingSave = new Vector();
 
     public ImdiLoader() {
         System.out.println("ImdiLoader init");
@@ -29,7 +30,7 @@ public class ImdiLoader {
                         Thread.currentThread().sleep(500);
                     } catch (InterruptedException ie) {
                         GuiHelper.linorgBugCatcher.logError(ie);
-                        //System.err.println("run ImdiLoader: " + ie.getMessage());
+                    //System.err.println("run ImdiLoader: " + ie.getMessage());
                     }
                     while (imdiNodesToInit.size() > 0) {
                         ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiNodesToInit.remove(0);
@@ -51,13 +52,14 @@ public class ImdiLoader {
     }
 
     public ImdiTreeObject getImdiObject(String localNodeText, String localUrlString) {
+//        System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
         ImdiTreeObject currentImdiObject = null;
         if (localUrlString.length() > 0) {
             // correct any variations in the url string
             localUrlString = new ImdiTreeObject(localNodeText, localUrlString).getUrlString();
             currentImdiObject = (ImdiTreeObject) imdiHashTable.get(localUrlString);
             if (currentImdiObject == null) {
-            currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
+                currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
                 imdiHashTable.put(localUrlString, currentImdiObject);
                 if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
                     currentImdiObject.isLoading = true;
@@ -73,5 +75,27 @@ public class ImdiLoader {
         // stop the thread
         continueThread = false;
         super.finalize();
+    }
+
+    public void addNodeNeedingSave(ImdiTreeObject nodeToSave) {
+        if (!nodesNeedingSave.contains(nodeToSave)) {
+            System.out.println("addNodeNeedingSave: " + nodeToSave);
+            nodesNeedingSave.add(nodeToSave);
+        }
+    }
+
+    public void removeNodesNeedingSave(ImdiTreeObject savedNode) {
+        System.out.println("removeNodesNeedingSave: " + savedNode);
+        nodesNeedingSave.remove(savedNode);
+    }
+
+    public boolean nodesNeedSave() {
+        return nodesNeedingSave.size() > 0;
+    }
+
+    public void saveNodesNeedingSave() {
+        while (nodesNeedingSave.size() > 0){
+            ((ImdiTreeObject)nodesNeedingSave.get(0)).saveChangesToCache(); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
+        }
     }
 }

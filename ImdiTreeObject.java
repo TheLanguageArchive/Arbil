@@ -105,6 +105,17 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk) {
+        if (this.imdiNeedsSaveToDisk != imdiNeedsSaveToDisk) {
+            if (imdiNeedsSaveToDisk) {
+                GuiHelper.imdiLoader.addNodeNeedingSave(this);
+            } else {
+                GuiHelper.imdiLoader.removeNodesNeedingSave(this);
+            }
+        }
+        this.imdiNeedsSaveToDisk = imdiNeedsSaveToDisk;
+    }
+
     private void initNodeVariables() {
         fieldHashtable = new Hashtable();
         childrenHashtable = new Hashtable();
@@ -115,7 +126,7 @@ public class ImdiTreeObject implements Comparable {
         matchesRemote = 0;
         matchesLocalResource = 0;
         fileNotFound = false;
-        imdiNeedsSaveToDisk = false;
+        setImdiNeedsSaveToDisk(false);
 //    nodeText = null;
 //    urlString = null;
         resourceUrlString = null;
@@ -401,7 +412,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public String addChildNode(String nodeType, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
-        if (imdiNeedsSaveToDisk){
+        if (imdiNeedsSaveToDisk) {
             saveChangesToCache();
         }
         String addedNodePath = null;
@@ -432,7 +443,9 @@ public class ImdiTreeObject implements Comparable {
 
             addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType);
             destinationNode = GuiHelper.imdiLoader.getImdiObject("new child", targetFileName);
-            this.addCorpusLink(destinationNode);
+            if (this.getFile().exists()) {
+                this.addCorpusLink(destinationNode);
+            }
 //            destinationNode.saveChangesToCache();
 //            destinationNode.imdiNeedsSaveToDisk = true;
         }
@@ -795,7 +808,7 @@ public class ImdiTreeObject implements Comparable {
                 api.writeDOM(nodDom, this.getFile(), false);
                 reloadImdiNode(false);
                 // update the icon to indicate the change
-                imdiNeedsSaveToDisk = false;
+                setImdiNeedsSaveToDisk(false);
             }
         } catch (MalformedURLException mue) {
             GuiHelper.linorgBugCatcher.logError(mue);
@@ -1085,8 +1098,8 @@ public class ImdiTreeObject implements Comparable {
     public boolean isSession() {
         // test if this node is a session
         Object nameField = fieldHashtable.get("Name");
-        if (nameField != null){
-            return ((ImdiField)nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
+        if (nameField != null) {
+            return ((ImdiField) nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
         }
         return false;
     }
@@ -1094,8 +1107,8 @@ public class ImdiTreeObject implements Comparable {
     public boolean isCorpus() {
         // test if this node is a session
         Object nameField = fieldHashtable.get("Name");
-        if (nameField != null){
-            return ((ImdiField)nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");
+        if (nameField != null) {
+            return ((ImdiField) nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");
         }
         return false;
     }

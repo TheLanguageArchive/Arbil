@@ -81,6 +81,17 @@ public class LinorgFrame extends javax.swing.JFrame {
     }
 
     private void performCleanExit() {
+        if (GuiHelper.imdiLoader.nodesNeedSave()){
+            switch(JOptionPane.showConfirmDialog(this, "Save changes?")){
+                case JOptionPane.NO_OPTION:
+                    break;
+                case JOptionPane.YES_OPTION:
+                    GuiHelper.imdiLoader.saveNodesNeedingSave();
+                    break;
+                default:
+                    return;
+            }
+        }
         guiHelper.saveState();
         System.exit(0);
     }
@@ -349,7 +360,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         treePopupMenu.add(sendToServerMenuItem);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Linorg");
 
         mainSplitPane.setDividerLocation(100);
@@ -475,6 +486,15 @@ public class LinorgFrame extends javax.swing.JFrame {
         getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
 
         fileMenu.setText("File");
+        fileMenu.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                fileMenuMenuSelected(evt);
+            }
+        });
 
         saveFileMenuItem.setText("Save Changes");
         saveFileMenuItem.setEnabled(false);
@@ -1002,8 +1022,13 @@ private void introductionMenuItemActionPerformed(java.awt.event.ActionEvent evt)
 
 private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
 // TODO add your handling code here:
-    
+    GuiHelper.imdiLoader.saveNodesNeedingSave();
 }//GEN-LAST:event_saveFileMenuItemActionPerformed
+
+private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_fileMenuMenuSelected
+// TODO add your handling code here:
+    saveFileMenuItem.setEnabled(GuiHelper.imdiLoader.nodesNeedSave());
+}//GEN-LAST:event_fileMenuMenuSelected
 
     /**
      * @param args the command line arguments
