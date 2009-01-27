@@ -79,6 +79,9 @@ public class LinorgSessionStorage {
         ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
         object = objstream.readObject();
         objstream.close();
+        if (object == null){
+            throw(new Exception("Loaded object is null"));
+        }
 //        }
         return object;
     }
