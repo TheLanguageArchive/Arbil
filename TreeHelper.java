@@ -132,6 +132,8 @@ public class TreeHelper {
 
     public boolean addLocation(String addedLocation) {
         System.out.println("addLocation" + addedLocation);
+        // make sure the added location url matches that of the imdi node format
+        addedLocation = GuiHelper.imdiLoader.getImdiObject(null, addedLocation).getUrlString();
         if (addedLocation != null) {
             if (!locationsList.contains(addedLocation)) {
                 locationsList.add(addedLocation);
@@ -149,27 +151,7 @@ public class TreeHelper {
 
     public void removeLocation(String removeLocation) {
         System.out.println("removeLocation: " + removeLocation);
-        if (!locationsList.remove(removeLocation)) {
-            try {
-                removeLocation = new URL(removeLocation).getFile();
-                System.out.println("removeLocation: " + removeLocation);
-                if (!locationsList.remove(removeLocation)) {
-                    removeLocation = removeLocation.substring(0, removeLocation.length() - 1);
-                    System.out.println("removeLocation: " + removeLocation);
-                    if (!locationsList.remove(removeLocation)) {
-                        removeLocation = removeLocation.substring(1);
-                        System.out.println("removeLocation: " + removeLocation);
-                        if (!locationsList.remove(removeLocation)) {
-                            removeLocation = removeLocation.replace("/", "\\");
-                            System.out.println("removeLocation: " + removeLocation);
-                            locationsList.remove(removeLocation);
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError("could not remove location: ", ex);
-            }
-        }
+        locationsList.remove(removeLocation);
     }
 
     public void refreshChildNodes(DefaultMutableTreeNode itemNode) {
@@ -207,9 +189,13 @@ public class TreeHelper {
         for (Enumeration locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
             locationImdiNodes.add(GuiHelper.imdiLoader.getImdiObject(null, locationEnum.nextElement().toString()));
         }
+        // remove all locations from the list so they can be replaced in a format that matches the imdi url format
+        locationsList.removeAllElements();
         Collections.sort(locationImdiNodes);
         for (Enumeration<ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
             ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
+            // add the locations back to the list so they matches the imdi url format
+            locationsList.add(currentImdiObject.getUrlString());
             DefaultMutableTreeNode currentTreeNode = new DefaultMutableTreeNode(currentImdiObject);
             currentImdiObject.registerContainer(currentTreeNode);
             if (!currentImdiObject.isLocal()) {
