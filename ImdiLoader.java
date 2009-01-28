@@ -15,13 +15,15 @@ import java.util.Vector;
 public class ImdiLoader {
 
     private boolean continueThread = false;
-    private Vector imdiNodesToInit = new Vector();
+    private Vector imdiRemoteNodesToInit = new Vector();
+    private Vector imdiLocalNodesToInit = new Vector();
     private Hashtable imdiHashTable = new Hashtable();
     private Vector nodesNeedingSave = new Vector();
 
     public ImdiLoader() {
         System.out.println("ImdiLoader init");
         continueThread = true;
+        // start the remote imdi thread
         new Thread() {
 
             public void run() {
@@ -30,22 +32,38 @@ public class ImdiLoader {
                         Thread.currentThread().sleep(500);
                     } catch (InterruptedException ie) {
                         GuiHelper.linorgBugCatcher.logError(ie);
-                    //System.err.println("run ImdiLoader: " + ie.getMessage());
                     }
-                    while (imdiNodesToInit.size() > 0) {
-                        ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiNodesToInit.remove(0);
-                        System.out.println("run ImdiLoader processing: " + currentImdiObject.getUrlString());
+                    while (imdiRemoteNodesToInit.size() > 0) {
+                        // this has been separated in to two separate threads to prevent long delays when there is no server connection
+                        // each node is loaded one at a time and must time out before the next is started
+                        // the local corpus nodes are the fastest so they are now loaded in a separate thread
+                        // alternatively a thread pool may be an option
+                        ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiRemoteNodesToInit.remove(0);
+                        System.out.println("run RemoteImdiLoader processing: " + currentImdiObject.getUrlString());
                         currentImdiObject.loadImdiDom();
                         currentImdiObject.isLoading = false;
                         currentImdiObject.clearIcon();
                     }
-//                    for (Enumeration nodesToCheck = imdiNodesToInit.elements(); nodesToCheck.hasMoreElements();) {
-//                        ImdiTreeObject currentImdiObject = (ImdiTreeObject) nodesToCheck.nextElement();
-//                        System.out.println("run ImdiLoader processing: " + currentImdiObject.getUrlString());
-//                        currentImdiObject.loadImdiDom(false);
-//                        currentImdiObject.clearIcon();
-//                        imdiNodesToInit.remove(currentImdiObject);
-//                    }
+                }
+            }
+        }.start();
+        // start the local imdi thread
+        new Thread() {
+
+            public void run() {
+                while (continueThread) {
+                    try {
+                        Thread.currentThread().sleep(500);
+                    } catch (InterruptedException ie) {
+                        GuiHelper.linorgBugCatcher.logError(ie);
+                    }
+                    while (imdiLocalNodesToInit.size() > 0) {
+                        ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiLocalNodesToInit.remove(0);
+                        System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
+                        currentImdiObject.loadImdiDom();
+                        currentImdiObject.isLoading = false;
+                        currentImdiObject.clearIcon();
+                    }
                 }
             }
         }.start();
@@ -63,7 +81,11 @@ public class ImdiLoader {
                 imdiHashTable.put(localUrlString, currentImdiObject);
                 if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
                     currentImdiObject.isLoading = true;
-                    imdiNodesToInit.add(currentImdiObject);
+                    if (ImdiTreeObject.isStringLocal(currentImdiObject.getUrlString())) {
+                        imdiLocalNodesToInit.add(currentImdiObject);
+                    } else {
+                        imdiRemoteNodesToInit.add(currentImdiObject);
+                    }
                 }
             }
         }
@@ -94,8 +116,8 @@ public class ImdiLoader {
     }
 
     public void saveNodesNeedingSave() {
-        while (nodesNeedingSave.size() > 0){
-            ((ImdiTreeObject)nodesNeedingSave.get(0)).saveChangesToCache(); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
+        while (nodesNeedingSave.size() > 0) {
+            ((ImdiTreeObject) nodesNeedingSave.get(0)).saveChangesToCache(); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
         }
     }
 }
