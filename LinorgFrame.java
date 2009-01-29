@@ -727,6 +727,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
                 validateMenuItem.setVisible(true);
             }
             deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
+            addMenu.setEnabled(!nodeIsImdiChild);
             showContextMenu = true; //nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {

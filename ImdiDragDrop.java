@@ -282,7 +282,7 @@ public class ImdiDragDrop {
                     Object dropTargetUserObject = targetNode.getUserObject();
                     System.out.println("to: " + dropTargetUserObject.toString());
                     if (dropTargetUserObject instanceof ImdiTreeObject) {
-                        if (((ImdiTreeObject) dropTargetUserObject).isSession() || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()) {
+                        if (((ImdiTreeObject) dropTargetUserObject).isSession()/* || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()*/) { //TODO: for now we do not allow drag on to imdi child nodes
                             if (selectionContainsArchivableLocalFile == true &&
                                     selectionContainsLocalFile == true &&
                                     selectionContainsLocalDirectory == false &&
@@ -304,8 +304,8 @@ public class ImdiDragDrop {
                                     }
                                 }
                             }
+                        GuiHelper.treeHelper.reloadLocalCorpusTree();
                         }
-                        GuiHelper.treeHelper.reloadLocalCorpusTree(); // targetNode
                     //GuiHelper.treeHelper.refreshChildNodes(targetNode);
 
                     }
