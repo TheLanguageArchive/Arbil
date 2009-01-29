@@ -42,7 +42,7 @@ public class ImdiIcons {
 //    private ImageIcon corpusserver16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusserver16x16c.png"));
     private ImageIcon picturesIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/pictures.png"));
 //    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusserverlocal16x16c.png"));
-//    private ImageIcon questionRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/question-red.png"));
+    private ImageIcon questionRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/question-red.png"));
     private ImageIcon dataIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/data.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/dataempty.png"));
 //    private ImageIcon server16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
@@ -159,6 +159,11 @@ public class ImdiIcons {
                 iconsVector.add(picturesIcon);
             } else if (imdiObject.mpiMimeType.contains("text")) {
                 iconsVector.add(writtenresourceIcon);
+            } else if (imdiObject.mpiMimeType.contains("pdf")) {
+                iconsVector.add(writtenresourceIcon);
+            } else {
+                iconsVector.add(questionRedIcon);
+                GuiHelper.linorgBugCatcher.logError(imdiObject.mpiMimeType, new Exception("Icon not found for file"));
             }
         } else if (imdiObject.hasResource()) {
             // the resource is not found so show a unknow resource icon
