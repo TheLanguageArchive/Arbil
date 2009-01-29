@@ -10,6 +10,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -51,7 +52,7 @@ public class LinorgWindowManager {
             windowStatesHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("windowStates");
             // set the main window position and size
             linorgFrame.setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
-            if (linorgFrame.getExtendedState() == JFrame.ICONIFIED){
+            if (linorgFrame.getExtendedState() == JFrame.ICONIFIED) {
                 // start up iconified is just too confusing to the user
                 linorgFrame.setExtendedState(JFrame.NORMAL);
             }
@@ -85,7 +86,24 @@ public class LinorgWindowManager {
         // TODO: always get this page from the server if available, but also save it for off line use
 //        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
 //        openUrlWindowOnce("Introduction", introductionUrl);
-        openUrlWindowOnce("Features/Known Bugs", this.getClass().getResource("/mpi/linorg/resources/html/Features.html"));
+//        get remote file to local disk
+//        if local file exists then open that
+//        else open the one in the jar file
+        String remoteUrl = "http://www.mpi.nl/tg/j2se/jnlp/linorg/Features.html";
+        String cachePath = GuiHelper.linorgSessionStorage.updateCache(remoteUrl, true);
+        System.out.println("cachePath: " + cachePath);
+        URL destinationUrl = null;
+        try {
+            if (new File(cachePath).exists()) {
+                destinationUrl = new File(cachePath).toURL();
+            }
+        } catch (Exception ex) {
+        }
+        if (destinationUrl == null) {
+            destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
+        }
+        System.out.println("destinationUrl: " + destinationUrl);
+        openUrlWindowOnce("Features/Known Bugs", destinationUrl);
 
         try {
             // load the saved windows

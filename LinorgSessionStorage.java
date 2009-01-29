@@ -92,11 +92,11 @@ public class LinorgSessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public String updateCache(String pathString) {
+    public String updateCache(String pathString, boolean expireCacheCopy) {
         //TODO: There will need to be a way to expire the files in the cache.
         String cachePath = getSaveLocation(pathString);
-        if (!new File(cachePath).exists()) {
-            GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath);
+        if (!new File(cachePath).exists() || expireCacheCopy) {
+            GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath, expireCacheCopy);
         }
         return cachePath;
     }
@@ -120,12 +120,13 @@ public class LinorgSessionStorage {
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
      */
-    public void saveRemoteResource(String targetUrlString, String destinationPath) {
+    public void saveRemoteResource(String targetUrlString, String destinationPath, boolean expireCacheCopy) {
 //        String targetUrlString = getFullResourcePath();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
         System.out.println("saveRemoteResource: " + targetUrlString);
+        System.out.println("destinationPath: " + destinationPath);
         File tempFile = new File(destinationPath);
-        if (tempFile.exists()) {
+        if (tempFile.exists() && !expireCacheCopy) {
             System.out.println("this resource is already in the cache");
         } else {
             try {

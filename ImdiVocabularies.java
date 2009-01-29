@@ -84,7 +84,7 @@ public class ImdiVocabularies {
     }
 
     public void parseRemoteFile(String vocabRemoteUrl) {
-        String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl);
+        String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
 
         System.out.println("parseRemoteFile: " + cachePath);
         try {
