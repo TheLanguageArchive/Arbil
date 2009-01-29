@@ -28,13 +28,13 @@
         <jar destfile="linorg.jar">
             <fileset dir="classes" includes="**/*.class"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/Introduction.html"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
             </manifest>
         </jar>
     </target>
-    
     <target name="run" description="run the application">
         <java classname="mpi.linorg.Linorg">
             <classpath>
@@ -99,6 +99,16 @@ public class LinorgVersion {
     String fullInfo = "${linorg.info.all}";
 }
         </echo>
+    </target>
+    <target depends="setproperties, getsvnversion, clean, clobber, compile, jar" name="signlinorg">
+        <!--<signjar keystore="/data1/repos/trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
+            <path>
+                <fileset dir="lib" includes="**/*.jar" />
+            </path>
+        </signjar>-->
+        <signjar jar="linorg.jar"
+        keystore="/data1/repos/trunk/cert/mpi.keystore"
+        alias="mpi.keyalias" storepass="123456" />
     </target>
 </project>
  
