@@ -712,8 +712,10 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 2);
+            boolean nodeIsImdiChild = false;
             Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
             if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
+                nodeIsImdiChild = ((ImdiTreeObject)leadSelectedTreeObject).isImdiChild();                
                 if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
                     saveMenuItem.setVisible(true);
                 } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
@@ -724,6 +726,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
                 viewXmlMenuItem1.setVisible(true);
                 validateMenuItem.setVisible(true);
             }
+            deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
             showContextMenu = true; //nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {
