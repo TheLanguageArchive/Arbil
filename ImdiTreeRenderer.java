@@ -37,7 +37,8 @@ public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) node.getUserObject();
 
             setIcon(imdiTreeObject.getIcon());
-            setToolTipText(imdiTreeObject.toString());
+//            setToolTipText(imdiTreeObject.toString());
+            //listToolTip.setTartgetObject(imdiTreeObject);
             setEnabled(imdiTreeObject.getNodeEnabled());
         //setVisible(imdiTreeObject.getNodeEnabled());
         } else if (node.getUserObject() instanceof JLabel) {

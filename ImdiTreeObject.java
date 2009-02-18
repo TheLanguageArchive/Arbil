@@ -476,6 +476,10 @@ public class ImdiTreeObject implements Comparable {
         return addedNodePath;
     }
 
+    /**
+     * Loads the child links and returns them as an array
+     * @return ImdiTreeObject[] array of child nodes
+     */
     public ImdiTreeObject[] loadChildNodes() {
         if (!imdiDataLoaded) {
             // if this node has been loaded then do not load again
@@ -527,18 +531,16 @@ public class ImdiTreeObject implements Comparable {
         return returnImdiArray;
     }
 
-    public void searchNodes(Hashtable foundNodes, String searchString) {
-        if (!foundNodes.containsKey(this.getUrlString())) {
-//                debugOut("searching: " + this.getUrl());
-            if (this.getUrlString().contains(searchString)) {
-                foundNodes.put(this.getUrlString(), this);
-                debugOut("found: " + this.getUrlString());
+    public boolean containsFieldValue(String searchValue) {
+        boolean findResult = false;
+        for (ImdiField currentField : (Collection<ImdiField>) this.fieldHashtable.values()) {
+            System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
+            if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
+                findResult = true;
             }
         }
-        Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-        while (nodesToAddEnumeration.hasMoreElements()) {
-            ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).searchNodes(foundNodes, searchString);
-        }
+        System.out.println("result: " + findResult + ":" + this);
+        return findResult;
     }
 
     // this is used to disable the node in the tree gui
@@ -706,7 +708,7 @@ public class ImdiTreeObject implements Comparable {
      * Previous imdi files are renamed and kept as a history.
      */
     public void saveChangesToCache() {
-        if (this.isImdiChild()){
+        if (this.isImdiChild()) {
             getDomParentNode().saveChangesToCache();
             return;
         }
@@ -949,7 +951,6 @@ public class ImdiTreeObject implements Comparable {
 //            ((ImdiTreeObject) childrenHashtable.get(childsName)).addField(fieldToAdd, nextChildLevel + 1, addedImdiNodes);
 //        }
 //    }
-
     /**
      * Gets the fields in this node, this does not include any imdi child fields.
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
@@ -1046,7 +1047,7 @@ public class ImdiTreeObject implements Comparable {
     public String getUrlString() {
         return nodeUrl.toString();
     }
-    
+
     /**
      * Gets the ImdiTreeObject parent of an imdi child node.
      * The returned node will be able to reload/save the dom for this node.
@@ -1201,7 +1202,7 @@ public class ImdiTreeObject implements Comparable {
                 currentTreeNode.setAllowsChildren(this.canHaveChildren());
 //                parentNode.setAllowsChildren(true); // the parent obviously has children
 
-                if (nodeTextChanged) {
+                if (nodeTextChanged && parentNode != null) {
                     try {
 //                    if (parentNode != null) {
                         // resort the branch since the node name may have changed
@@ -1214,7 +1215,7 @@ public class ImdiTreeObject implements Comparable {
                             parentNode.add(currentNode);
                         }
                     } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        GuiHelper.linorgBugCatcher.logError("sorting " + parentNode, ex);
                     }
                 }
                 /////////////////////////////////////

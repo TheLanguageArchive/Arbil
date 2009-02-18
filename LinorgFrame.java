@@ -105,15 +105,6 @@ public class LinorgFrame extends javax.swing.JFrame {
     //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
     }
 
-    private void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
-        if (selectedTreeNode == null) {
-            JOptionPane.showMessageDialog(this, "No node selected", "", 0);
-        } else {
-            GuiHelper.treeHelper.removeLocation(selectedTreeNode.getUserObject());
-            GuiHelper.treeHelper.applyRootLocations();
-        }
-    }
-
     private Vector getSelectedNodes(JTree[] treesToSearch) {
         Vector selectedNodes = new Vector();
         // iterate over allthe selected nodes in the available trees
@@ -140,7 +131,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu = new javax.swing.JPopupMenu();
         viewSelectedNodesMenuItem = new javax.swing.JMenuItem();
         copyBranchMenuItem = new javax.swing.JMenuItem();
-        actorsToGridMenuItem = new javax.swing.JMenuItem();
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
         addMenu = new javax.swing.JMenu();
@@ -164,11 +154,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         leftSplitPane = new javax.swing.JSplitPane();
         leftLocalSplitPane = new javax.swing.JSplitPane();
         jScrollPane2 = new javax.swing.JScrollPane();
-        localDirectoryTree = new javax.swing.JTree();
+        localDirectoryTree = new ImdiTree();
         jScrollPane4 = new javax.swing.JScrollPane();
-        localCorpusTree = new javax.swing.JTree();
+        localCorpusTree = new ImdiTree();
         jScrollPane3 = new javax.swing.JScrollPane();
-        remoteCorpusTree = new javax.swing.JTree();
+        remoteCorpusTree = new ImdiTree();
         rightSplitPane = new javax.swing.JSplitPane();
         rightScrollPane = new javax.swing.JScrollPane();
         jDesktopPane1 = new javax.swing.JDesktopPane();
@@ -189,6 +179,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         introductionMenuItem = new javax.swing.JMenuItem();
         aboutMenuItem = new javax.swing.JMenuItem();
         featuresMenuItem = new javax.swing.JMenuItem();
+        shortCutKeysjMenuItem = new javax.swing.JMenuItem();
 
         viewSelectedNodesMenuItem.setText("View Selected");
         viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -205,14 +196,6 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(copyBranchMenuItem);
-
-        actorsToGridMenuItem.setText("Search for Actors");
-        actorsToGridMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                actorsToGridMenuItemActionPerformed(evt);
-            }
-        });
-        treePopupMenu.add(actorsToGridMenuItem);
 
         searchSubnodesMenuItem.setText("Search");
         searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -599,6 +582,14 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         helpMenu.add(featuresMenuItem);
 
+        shortCutKeysjMenuItem.setText("Short Cut Keys");
+        shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                shortCutKeysjMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(shortCutKeysjMenuItem);
+
         jMenuBar1.add(helpMenu);
 
         setJMenuBar(jMenuBar1);
@@ -687,7 +678,6 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         viewXmlMenuItem1.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
-        actorsToGridMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
         addMenu.setVisible(false);
         deleteMenuItem.setVisible(false);
@@ -706,7 +696,6 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         if (evt.getSource() == localCorpusTree) {
             removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            actorsToGridMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
             addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
@@ -755,12 +744,6 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         }
     }
 }//GEN-LAST:event_treeMousePressed
-
-private void actorsToGridMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actorsToGridMenuItemActionPerformed
-// TODO add your handling code here:
-    ThreadedDialog threadedDialog = new ThreadedDialog(localCorpusTree);
-    threadedDialog.searchNodes(getSelectedNodes(new JTree[]{localCorpusTree}), "Actor");
-}//GEN-LAST:event_actorsToGridMenuItemActionPerformed
 
 private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
 // TODO add your handling code here:
@@ -833,7 +816,7 @@ private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEven
     if (remoteCorpusTree.getSelectionPath() != null) {
         selectedTreeNode = (DefaultMutableTreeNode) remoteCorpusTree.getSelectionPath().getLastPathComponent();
     }
-    removeSelectedLocation(selectedTreeNode);
+    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeRemoteCorpusMenuItemActionPerformed
 
 private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
@@ -842,7 +825,7 @@ private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent 
     if (localCorpusTree.getSelectionPath() != null) {
         selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
     }
-    removeSelectedLocation(selectedTreeNode);
+    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
 
 private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
@@ -851,13 +834,12 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
     if (localDirectoryTree.getSelectionPath() != null) {
         selectedTreeNode = (DefaultMutableTreeNode) localDirectoryTree.getSelectionPath().getLastPathComponent();
     }
-    removeSelectedLocation(selectedTreeNode);
+    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeLocalDirectoryMenuItemActionPerformed
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    ThreadedDialog threadedDialog = new ThreadedDialog(localCorpusTree);
-    threadedDialog.searchNodes(getSelectedNodes(new JTree[]{localCorpusTree}), null);
+    GuiHelper.linorgWindowManager.openSearchTable(getSelectedNodes(new JTree[]{localCorpusTree}), "Search");    
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
 private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
@@ -1034,6 +1016,11 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
     saveFileMenuItem.setEnabled(GuiHelper.imdiLoader.nodesNeedSave());
 }//GEN-LAST:event_fileMenuMenuSelected
 
+private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.linorgWindowManager.openUrlWindowOnce("Short Cut Keys", this.getClass().getResource("/mpi/linorg/resources/html/ShortCutKeys.html"));
+}//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1051,7 +1038,6 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
-    private javax.swing.JMenuItem actorsToGridMenuItem;
     private javax.swing.JMenuItem addDefaultLocationsMenuItem;
     private javax.swing.JMenuItem addLocalDirectoryMenuItem;
     private javax.swing.JMenu addMenu;
@@ -1090,6 +1076,7 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private javax.swing.JMenuItem searchSubnodesMenuItem;
     private javax.swing.JMenuItem sendToServerMenuItem;
+    private javax.swing.JMenuItem shortCutKeysjMenuItem;
     private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private javax.swing.JMenu templatesMenu;
     private javax.swing.JPopupMenu treePopupMenu;

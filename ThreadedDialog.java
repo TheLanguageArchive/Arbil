@@ -16,7 +16,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -26,7 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
 import org.w3c.dom.Document;
@@ -39,35 +37,16 @@ public class ThreadedDialog {
 
     private JDialog searchDialog;
     private JProgressBar progressBar;
-    private JButton searchButton,  stopButton,  showResultsButton;
+    private JButton stopButton;
     JPanel searchPanel;
     private JTextArea taskOutput;
     // variables used but the search thread
-    private JTextField searchLabel;
-    private Hashtable foundNodes = new Hashtable();
     // variables used by the copy thread
     // variables used by all threads
     private boolean stopSearch = false;
     private boolean threadARunning = false;
     private boolean threadBRunning = false;
     private Vector selectedNodes;
-
-//    public Hashtable getFoundNodes() {
-//        return foundNodes;
-//    }
-    public void searchNodes(Vector localSelectedNodes, String searchString) {
-        selectedNodes = localSelectedNodes;
-        searchDialog.setTitle("Search");
-        if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
-            return;
-        }
-        if (searchString != null) {
-            searchLabel.setText(searchString);
-            performSearch();
-        }
-        searchDialog.setVisible(true);
-    }
 
     public void copyToCache(Vector localSelectedNodes) {
         selectedNodes = localSelectedNodes;
@@ -118,71 +97,30 @@ public class ThreadedDialog {
 
         //searchDialog.getContentPane().setLayout(new FlowLayout());
         searchDialog.getContentPane().setLayout(new BorderLayout());
-
-        searchLabel = new JTextField(25);
-        //searchLabel.setMargin(new Insets(5, 5, 5, 5));
-//        searchLabel.setMaximumSize(new Dimension(300, 50));
-//        searchLabel.set
-
-//        JPanel inputPanel = new JPanel(new BorderLayout());
-//        inputPanel.add(new JLabel("Search String:"), BorderLayout.LINE_START);
-//        inputPanel.add(searchLabel, BorderLayout.LINE_END);
         searchPanel = new JPanel(new FlowLayout());
         searchPanel.add(new JLabel("Search String:"));
-        searchPanel.add(searchLabel);
         searchDialog.getContentPane().add(searchPanel, BorderLayout.PAGE_START);
-
         taskOutput = new JTextArea(5, 20);
         taskOutput.setMargin(new Insets(5, 5, 5, 5));
         taskOutput.setEditable(false);
-
         searchDialog.getContentPane().add(new JScrollPane(taskOutput), BorderLayout.CENTER);
-
-        searchButton = new JButton("Search");
-        showResultsButton = new JButton("Show Results");
         stopButton = new JButton("Stop");
-
         stopButton.setEnabled(false);
-        showResultsButton.setEnabled(false);
-
-        //searchDialog.getContentPane().add(searchButton);
-
         progressBar = new JProgressBar(0, 100);
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
         progressBar.setString("");
-        //searchDialog.getContentPane().add(progressBar);
         JPanel panel = new JPanel();
-        searchPanel.add(searchButton);
         panel.add(progressBar);
         panel.add(stopButton);
-        panel.add(showResultsButton);
-
         searchDialog.getContentPane().add(panel, BorderLayout.PAGE_END);
-
         searchDialog.pack();
-
         searchDialog.setLocationRelativeTo(targetComponent);
-
-        showResultsButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                showResults();
-            }
-        });
-
         stopButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 stopSearch = true;
                 stopButton.setEnabled(false);
-            }
-        });
-        // set up search action
-        searchButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                performSearch();
             }
         });
     }
@@ -193,25 +131,18 @@ public class ThreadedDialog {
     }
 
     private void setUItoRunningState() {
-        searchButton.setEnabled(false);
         stopButton.setEnabled(true);
-        showResultsButton.setEnabled(false);
-        searchLabel.setEnabled(false);
-        searchLabel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         taskOutput.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         searchDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
 
     private void setUItoStoppedState() {
         Toolkit.getDefaultToolkit().beep();
-        searchLabel.setCursor(null);
         taskOutput.setCursor(null);
         searchDialog.setCursor(null); //turn off the wait cursor
         //appendToTaskOutput("Done!");
         progressBar.setIndeterminate(false);
-        searchButton.setEnabled(true);
         stopButton.setEnabled(false);
-        searchLabel.setEnabled(true);
         stopSearch = false;
     }
     /////////////////////////////////////
@@ -241,24 +172,6 @@ public class ThreadedDialog {
         }
         return (new int[]{childrenToLoad, loadedChildren});
     }
-    // load all childeren
-    private int loadSomeChildren(Object currentElement, int totalLoaded) {
-        int currentLoaded = 0;
-        appendToTaskOutput("loading sub corpus");
-        boolean moreToLoad = true;
-        while (moreToLoad && !stopSearch) {
-            int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getRecursiveChildCount();
-            appendToTaskOutput("total loaded: " + (totalLoaded + tempChildCountArray[1]) + " (" + currentElement.toString() + " loaded: " + tempChildCountArray[1] + " unknown: " + tempChildCountArray[0] + ")");
-            progressBar.setString("" + (totalLoaded + tempChildCountArray[1]));
-            moreToLoad = (tempChildCountArray[0] != 0);
-            if (moreToLoad) {
-                ((ImdiTreeObject) currentElement).loadNextLevelOfChildren(System.currentTimeMillis() + 100 * 5);
-            }
-            currentLoaded = tempChildCountArray[1];
-//            progressBar.setNote(currentLoaded);
-        }
-        return currentLoaded;
-    }
     /////////////////////////////////////////
     // end functions called by the threads //
     /////////////////////////////////////////
@@ -270,7 +183,6 @@ public class ThreadedDialog {
         appendToTaskOutput("performCopy");
         setUItoRunningState();
         searchPanel.setVisible(false);
-        showResultsButton.setVisible(false);
         threadARunning = true;
         new Thread() {
 
@@ -343,7 +255,7 @@ public class ThreadedDialog {
                                     //GuiHelper.linorgWindowManager.localCorpusTreeModel.reload();
                                     GuiHelper.treeHelper.reloadLocalCorpusTree();
                                 }
-                                if (                                totalErrors != 0){
+                                if (totalErrors != 0) {
                                     JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "There were " + totalErrors + " errors, some files may not be in the cashe.", searchDialog.getTitle(), 0);
                                 }
                             }
@@ -366,68 +278,7 @@ public class ThreadedDialog {
             }
         }.start();
     }
-
-    private void performSearch() {
-        //searchLabel.setEditable(false);
-        if (searchLabel.getText().length() == 0) {
-            JOptionPane.showConfirmDialog(searchDialog, "A search term is required");
-            searchButton.setEnabled(true);
-            return;
-        }
-        setUItoRunningState();
-        threadBRunning = true;
-        new Thread() {
-
-            public void run() {
-                try {
-                    waitTillVisible();
-                    progressBar.setIndeterminate(true);
-                    int[] childCount = countChildern();
-                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
-                    Enumeration selectedNodesEnum = selectedNodes.elements();
-                    int totalLoaded = 0;
-                    while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
-                        Object currentElement = selectedNodesEnum.nextElement();
-                        if (currentElement instanceof ImdiTreeObject) {
-                            totalLoaded += loadSomeChildren(currentElement, totalLoaded);
-                            // perform the search        
-                            appendToTaskOutput("searching");
-                            ((ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
-                            appendToTaskOutput("total found: " + foundNodes.size());
-                        }
-                    }
-
-                    if (stopSearch) {
-                        appendToTaskOutput("search canceled");
-                    //System.out.println("search canceled");
-                    }
-                    setUItoStoppedState();
-
-                    if (foundNodes.size() > 0) {
-                        showResultsButton.setEnabled(true);
-                    }
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-//                    ex.printStackTrace();
-                }
-                threadBRunning = false;
-            }
-        }.start();
-    }
 ///////////////////////////////////////////
 // end functions that create the threads //
 ///////////////////////////////////////////
-    private void showResults() {
-        if (foundNodes.size() > 0) {
-            String frameTitle;
-            if (selectedNodes.size() == 1) {
-                frameTitle = "Found: " + searchLabel.getText() + " x " + foundNodes.size() + " in " + selectedNodes.get(0).toString();
-            } else {
-                frameTitle = "Found: " + searchLabel.getText() + " x " + foundNodes.size() + " in " + selectedNodes.size() + " nodes";
-            }
-            GuiHelper.linorgWindowManager.openFloatingTable(foundNodes.elements(), frameTitle);
-        } else {
-            JOptionPane.showMessageDialog(searchDialog, "\"" + searchLabel.getText() + "\" not found", "Search", 0);
-        }
-    }
 }

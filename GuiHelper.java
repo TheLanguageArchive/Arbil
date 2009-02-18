@@ -16,8 +16,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -27,6 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author petwit
  */
 public class GuiHelper {
+
     static ImdiFieldViews imdiFieldViews;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
@@ -66,10 +65,10 @@ public class GuiHelper {
         System.out.println("initAddMenu: " + targetNodeUserObject);
         for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
             String[] currentField = (String[]) menuItemName.nextElement();
-            System.out.println("MenuText: " + currentField[0]);
-            System.out.println("ActionCommand: " + currentField[1]);
+//            System.out.println("MenuText: " + currentField[0]);
+//            System.out.println("ActionCommand: " + currentField[1]);
 
-            javax.swing.JMenuItem addMenuItem;
+            JMenuItem addMenuItem;
             addMenuItem = new javax.swing.JMenuItem();
             addMenuItem.setText(currentField[0]);
             addMenuItem.setName(currentField[0]);
@@ -147,90 +146,6 @@ public class GuiHelper {
 //        }
 //    }
 //// end date filter code
-    public void searchSelectedNodes(Component targetComponent, Vector selectedNodes, String searchString, JPopupMenu jPopupMenu) {
-        //int[] childCountArray = new int[]{0, 0};
-        int messageIconIndex = 0;
-        if (selectedNodes.size() == 0) {
-            JOptionPane.showMessageDialog(linorgWindowManager.linorgFrame, "No nodes are selected", "Search", messageIconIndex);
-            return;
-        } else {
-            ThreadedDialog threadedDialog = new ThreadedDialog(targetComponent);
-            threadedDialog.searchNodes(selectedNodes, searchString);
-        //Hashtable foundNodes = searchDialog.getFoundNodes();
-//            if (foundNodes.size() > 0) {
-//                String frameTitle;
-//                if (selectedNodes.size() == 1) {
-//                    frameTitle = "Found: " + searchString + " x " + foundNodes.size() + " in " + selectedNodes.get(0).toString();
-//                } else {
-//                    frameTitle = "Found: " + searchString + " x " + foundNodes.size() + " in " + selectedNodes.size() + " nodes";
-//                }
-//                openFloatingTable(foundNodes.elements(), frameTitle, jPopupMenu);
-//            } else {
-//                JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "\"" + searchString + "\" not found", "Search", messageIconIndex);
-//            }
-        }
-
-    // count selected nodes and then their child node indicating unopened nodes
-    // iterate over allthe selected nodes in the localCorpusTree
-//        Enumeration selectedNodesEnum = selectedNodes.elements();
-//        while (selectedNodesEnum.hasMoreElements()) {
-//            Object currentElement = selectedNodesEnum.nextElement();
-//            if (imdiHelper.isImdiNode(currentElement)) {
-//                int[] tempChildCountArray = ((ImdiHelper.ImdiTreeObject) currentElement).getChildCount();
-//                childCountArray[0] += tempChildCountArray[0];
-//                childCountArray[1] += tempChildCountArray[1];
-//                System.out.println("children not loaded: " + childCountArray[0] + " loaded:" + childCountArray[1]);
-//            }
-//        }
-
-//        if (childCountArray[0] > 0 || childCountArray[1] == 0) {
-//            if (selectedNodes.size() == 0) {
-//                JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "No nodes are selected", "Search", messageIconIndex);
-//                return;
-//            }
-//            if (childCountArray[1] == 0) {
-//                JOptionPane.showMessageDialog(linorgWindowManager.desktopPane, "Of the selected nodes none have been loaded", "Search", messageIconIndex);
-//                return;
-//            }
-//            if (childCountArray[0] > 0) {
-//                if (0 != JOptionPane.showConfirmDialog(linorgWindowManager.desktopPane, childCountArray[0] + " out of " + (childCountArray[0] + childCountArray[1]) + "nodes are not loaded\ndo you want to continue?", "Search", messageIconIndex)) {
-//                    return;
-//                }
-//            }
-//        }
-
-//        if (searchString == null) {
-//            searchString = JOptionPane.showInputDialog(linorgWindowManager.desktopPane, "Enter search term");
-//        }
-
-//        // iterate over all the selected nodes in the localCorpusTree
-//        Hashtable foundNodes = new Hashtable();
-//        selectedNodesEnum = selectedNodes.elements();
-//        // show a progress dialog
-////        int lengthOfTask = selectedNodes.size();
-////        int progressInTask = 0;
-////        ProgressMonitor progressMonitor = new ProgressMonitor(destinationComp, "Searching selected nodes and (loaded)subnodes", "", 0, lengthOfTask);
-//        while (selectedNodesEnum.hasMoreElements()) {
-//            Object currentElement = selectedNodesEnum.nextElement();
-//            if (imdiHelper.isImdiNode(currentElement)) {
-//                System.out.println("parentNode: " + currentElement);
-//                ((ImdiHelper.ImdiTreeObject) currentElement).searchNodes(foundNodes, searchString);
-//            // update the progress dialog
-////                String message = String.format("done " + progressInTask + " of " + lengthOfTask);//"Completed %d%%.\n", progressInTask);
-////                progressMonitor.setNote(message);
-////                progressMonitor.setProgress(progressInTask);
-////                progressInTask++;
-////                if (progressMonitor.isCanceled()) {
-////                    progressMonitor.close();
-////                    break;
-////                }
-////            JOptionPane.showMessageDialog(destinationComp, "done " + progressInTask + " of " + lengthOfTask);
-//            }
-//        }
-//        //progressMonitor.close();
-
-//        System.out.println("done");
-    }
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml) {
         if (userObject instanceof ImdiTreeObject) {

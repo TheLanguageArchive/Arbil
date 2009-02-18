@@ -5,7 +5,6 @@
 package mpi.linorg;
 
 import java.awt.Component;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -173,6 +172,7 @@ public class TreeHelper {
             // get the imdi node
             if (childUserObject instanceof ImdiTreeObject) {
                 //deregister the tree node in the imdinode
+                ((ImdiTreeObject) childUserObject).getDomParentNode().clearChildIcons();
                 ((ImdiTreeObject) childUserObject).removeContainer(childUserObject);
             }
         }
@@ -364,6 +364,17 @@ public class TreeHelper {
         return returnObject;
     }
 
+    public void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
+        if (selectedTreeNode == null) {
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No node selected", "", 0);
+        } else {
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "Remove link to '" + selectedTreeNode + "?", "Remove", JOptionPane.YES_NO_OPTION)) {
+                GuiHelper.treeHelper.removeLocation(selectedTreeNode.getUserObject());
+                GuiHelper.treeHelper.applyRootLocations();
+            }
+        }
+    }
+
     public void deleteNode(Object sourceObject) {
         System.out.println("deleteNode: " + sourceObject);
 
@@ -377,9 +388,11 @@ public class TreeHelper {
             parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
             ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
             ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
-            parentImdiNode.deleteCorpusLink(childImdiNode);
-            parentTreeNode.remove(selectedTreeNode);
-            localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION)) {
+                parentImdiNode.deleteCorpusLink(childImdiNode);
+                parentTreeNode.remove(selectedTreeNode);
+                localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
+            }
         } else {
             System.out.println("cannot delete from this tree");
         }

@@ -5,6 +5,7 @@
 package mpi.linorg;
 
 import java.awt.AWTEvent;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -350,8 +351,9 @@ public class LinorgWindowManager {
 
     public JInternalFrame createWindow(String windowTitle, Component contentsComponent) {
         JInternalFrame currentInternalFrame = new javax.swing.JInternalFrame();
+        currentInternalFrame.setLayout(new BorderLayout());
         //        GuiHelper.imdiDragDrop.addTransferHandler(currentInternalFrame);
-        currentInternalFrame.add(contentsComponent);
+        currentInternalFrame.add(contentsComponent, BorderLayout.CENTER);
         windowTitle = addWindowToList(windowTitle, currentInternalFrame);
 
         // set the new window size to be fully visible
@@ -432,6 +434,15 @@ public class LinorgWindowManager {
         jScrollPane6.setViewportView(htmlDisplay);
         createWindow(frameTitle, jScrollPane6);
         return htmlDisplay;
+    }
+
+    public void openSearchTable(Vector selectedNodes, String frameTitle) {
+        ImdiTableModel resultsTableModel = new ImdiTableModel();
+        ImdiTable imdiTable = new ImdiTable(resultsTableModel, null, frameTitle);
+        LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
+        JInternalFrame searchFrame = this.createWindow(frameTitle, imdiSplitPanel);
+        searchFrame.add(new ImdiNodeSearchPanel(resultsTableModel, selectedNodes), BorderLayout.NORTH);
+        imdiSplitPanel.setSplitDisplay();
     }
 
     public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
