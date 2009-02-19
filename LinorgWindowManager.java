@@ -441,7 +441,7 @@ public class LinorgWindowManager {
         ImdiTable imdiTable = new ImdiTable(resultsTableModel, null, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
         JInternalFrame searchFrame = this.createWindow(frameTitle, imdiSplitPanel);
-        searchFrame.add(new ImdiNodeSearchPanel(resultsTableModel, selectedNodes), BorderLayout.NORTH);
+        searchFrame.add(new ImdiNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
         imdiSplitPanel.setSplitDisplay();
     }
 
