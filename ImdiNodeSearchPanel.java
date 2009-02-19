@@ -6,6 +6,7 @@ package mpi.linorg;
 
 import java.awt.Component;
 import java.util.Vector;
+import javax.swing.JInternalFrame;
 
 /**
  * Document   : ImdiNodeSearchPanel
@@ -15,6 +16,7 @@ import java.util.Vector;
 public class ImdiNodeSearchPanel extends javax.swing.JPanel {
 
     ImdiNodeSearchPanel thisPanel = this;
+    JInternalFrame parentFrame;
     ImdiTableModel resultsTableModel;
     private Vector selectedNodes;
     private Vector searchNodes;
@@ -26,8 +28,10 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
     private javax.swing.JButton stopButton;
     private boolean stopSearch = false;
     private boolean threadRunning = false;
+    int totalNodesToSearch = -1;
 
-    public ImdiNodeSearchPanel(ImdiTableModel resultsTableModelLocal, Vector localSelectedNodes) {
+    public ImdiNodeSearchPanel(JInternalFrame parentFrameLocal, ImdiTableModel resultsTableModelLocal, Vector localSelectedNodes) {
+        parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
         selectedNodes = localSelectedNodes;
         searchTermsPanel = new javax.swing.JPanel();
@@ -58,6 +62,10 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         });
         jPanel2.add(addButton);
 
+        searchProgressBar.setString("");
+        searchProgressBar.setStringPainted(true);
+        jPanel2.add(searchProgressBar);
+
         stopButton.setText("stop");
         stopButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -67,7 +75,6 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         });
         stopButton.setEnabled(false);
         jPanel2.add(stopButton);
-        jPanel2.add(searchProgressBar);
 
         searchButton.setText("search");
         searchButton.addActionListener(new java.awt.event.ActionListener() {
@@ -114,12 +121,21 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
             public void run() {
                 threadRunning = true;
                 try {
-                    searchProgressBar.setIndeterminate(true);
+                    if (totalNodesToSearch == -1) {
+                        searchProgressBar.setIndeterminate(true);
+                    } else {
+                        searchProgressBar.setIndeterminate(false);
+                        searchProgressBar.setMinimum(0);
+                        searchProgressBar.setMaximum(totalNodesToSearch);
+                        searchProgressBar.setValue(0);
+                    }
                     for (Component currentTermComp : searchTermsPanel.getComponents()) {
                         ((ImdiNodeSearchTerm) currentTermComp).populateSearchTerm();
                     }
-//                    int totalLoaded = 0;
+                    int totalSearched = 0;
+                    int totalFound = 0;
                     while (searchNodes.size() > 0 && !stopSearch) {
+                        System.out.println("parentFrame: " + parentFrame.isVisible());
                         Object currentElement = searchNodes.remove(0);
                         if (currentElement instanceof ImdiTreeObject) {
                             ImdiTreeObject currentImdiNode = (ImdiTreeObject) currentElement;
@@ -144,7 +160,6 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                         termPassedFilter = currentImdiNode.isSession();
                                     } else if (!currentTermPanel.nodeType.equals("All")) {
                                         termPassedFilter = currentImdiNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*\\)$");
-//                                        termPassedFilter = currentImdiNode.getUrlString().matches(currentTermPanel.nodeType);
                                     }
                                     // filter by the search string if entered
                                     if (currentTermPanel.searchString.length() > 0) {
@@ -162,37 +177,35 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                     } else {
                                         nodePassedFilter = (nodePassedFilter || termPassedFilter);
                                     }
-
-//                                    if ((nodePassedFilter && currentTermPanel.booleanAnd) || (!nodePassedFilter && !currentTermPanel.booleanAnd)) {//                                        currentTermPanel.notEqual;
-//                                        currentTermPanel.searchString;
-//                                        currentTermPanel.nodeType;
-//                                    }
                                 }
-//                                for (Enumeration<String[]> searchTermsEnum = searchTermsVect.elements(); searchTermsEnum.hasMoreElements();) {
-//                                    String[] currentSearchTerm = searchTermsEnum.nextElement();
-//                                    currentSearchTerm
-//                                }
-
+                                totalSearched++;
                                 // if the node has no fields it should still be added since it will only pass a search if for instance the search is for actors and in that case it should be shown even if blank
                                 if (nodePassedFilter) {
                                     resultsTableModel.addSingleImdiObject(currentImdiNode);
+                                    searchProgressBar.setString("searched: " + totalSearched + " found: " + (++totalFound));
                                 }
+//                                if (totalNodesToSearch != -1) {
+                                searchProgressBar.setValue(totalSearched);
+//                                }
                             }
-////                            totalLoaded += loadAllChildren(currentElement, totalLoaded);
-//                            // perform the search        
-//                            appendToTaskOutput("searching");
-//                            ((ImdiTreeObject) currentElement).searchNodes(foundNodes, searchLabel.getText());
-//                            appendToTaskOutput("total found: " + foundNodes.size());
+                        }
+                        if (!parentFrame.isVisible()) {
+                            // in the case that the user has closed the search window we want to stop the thread
+                            stopSearch = true;
                         }
                     }
 
                     if (stopSearch) {
                         searchProgressBar.setString("search canceled");
+                    } else {
+                        // collect the max nodes found only if the search completed
+                        totalNodesToSearch = totalSearched;
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
                 searchProgressBar.setIndeterminate(false);
+                searchProgressBar.setValue(0);
                 searchButton.setEnabled(true);
                 stopButton.setEnabled(false);
                 threadRunning = false;
