@@ -5,8 +5,10 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 
 /**
  * Document   : ImdiNodeSearchPanel
@@ -18,10 +20,11 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
     ImdiNodeSearchPanel thisPanel = this;
     JInternalFrame parentFrame;
     ImdiTableModel resultsTableModel;
-    private Vector selectedNodes;
-    private Vector searchNodes;
+    private Vector<ImdiTreeObject> selectedNodes;
+    private Vector<ImdiTreeObject> searchNodes;
     private javax.swing.JButton addButton;
     public javax.swing.JPanel searchTermsPanel;
+    private javax.swing.JPanel inputNodePanel;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton searchButton;
     private javax.swing.JProgressBar searchProgressBar;
@@ -35,6 +38,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         resultsTableModel = resultsTableModelLocal;
         selectedNodes = localSelectedNodes;
         searchTermsPanel = new javax.swing.JPanel();
+        inputNodePanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         addButton = new javax.swing.JButton();
         stopButton = new javax.swing.JButton();
@@ -42,6 +46,13 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         searchButton = new javax.swing.JButton();
 
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
+        inputNodePanel.setLayout(new java.awt.GridLayout());
+        add(inputNodePanel);
+        for (Enumeration<ImdiTreeObject> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
+            ImdiTreeObject currentNode = selectedNodesEnum.nextElement();
+            JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
+            inputNodePanel.add(currentLabel);
+        }
 
         searchTermsPanel.setLayout(new javax.swing.BoxLayout(searchTermsPanel, javax.swing.BoxLayout.PAGE_AXIS));
         searchTermsPanel.add(new ImdiNodeSearchTerm(this));
