@@ -86,6 +86,9 @@ public class ImdiLoader {
                     } else {
                         imdiRemoteNodesToInit.add(currentImdiObject);
                     }
+                } else if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
+                    // cause the parent node to be loaded
+                    currentImdiObject.getDomParentNode();
                 }
             }
         }
