@@ -15,7 +15,6 @@ import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JMenu;
@@ -50,11 +49,6 @@ public class ImdiTable extends JTable {
         }
         this.setModel(imdiTableModel);
         this.setName(frameTitle);
-        //jTable1.doLayout();
-        //jTable1.getModel().
-        //jTable1.invalidate();
-
-        setColumnWidths();
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
@@ -104,7 +98,7 @@ public class ImdiTable extends JTable {
                             ImdiFieldViewTable fieldViewTable = new ImdiFieldViewTable(imdiTableModel);
                             JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
                             editViewsDialog.setTitle("Editing Current View");
-                            
+
                             JScrollPane js = new JScrollPane(fieldViewTable);
                             editViewsDialog.getContentPane().add(js);
                             editViewsDialog.setBounds(50, 50, 600, 400);
@@ -147,25 +141,6 @@ public class ImdiTable extends JTable {
                         fieldViewsMenuItem.add(viewLabelMenuItem);
                     }
                     popupMenu.add(fieldViewsMenuItem);
-
-                    JCheckBoxMenuItem constrainWidthMenuItem = new JCheckBoxMenuItem("Constrain table width");
-                    constrainWidthMenuItem.setSelected(getAutoResizeMode() == JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-                    constrainWidthMenuItem.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            if (((JCheckBoxMenuItem) e.getSource()).isSelected()) {
-                                System.out.println("AUTO_RESIZE_SUBSEQUENT_COLUMNS");
-                                setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-                            } else {
-                                System.out.println("AUTO_RESIZE_OFF");
-                                setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                            }
-                            // set sizes of the columns
-                            setColumnWidths();
-                        }
-                    });
-
-                    popupMenu.add(constrainWidthMenuItem);
                     popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
                 }
             }
@@ -302,18 +277,18 @@ public class ImdiTable extends JTable {
         });
     }
 
+    @Override
+    public void doLayout() {
+        setColumnWidths();
+        super.doLayout();
+    }
+
     public JToolTip createToolTip() {
         System.out.println("createToolTip");
         listToolTip.updateList();
         return listToolTip;
     }
 
-//    @Override
-//    public Dimension getPreferredScrollableViewportSize() {
-//        System.out.println("getPreferredScrollableViewportSize");
-//        Dimension size = super.getPreferredScrollableViewportSize();
-//        return new Dimension(Math.min(getPreferredSize().width, size.width), size.height);
-//    }
     @Override
     public TableCellEditor getCellEditor(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
@@ -382,76 +357,55 @@ public class ImdiTable extends JTable {
             ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
         }
     }
-
+    
+    int lastColumnCount = -1;
     private void setColumnWidths() {
+        // resize the columns only if the number of columns have changed
+        boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount();
+        lastColumnCount = this.getModel().getColumnCount();
+
         int charPixWidth = 9; // this does not need to be accurate but must be more than the number of pixels used to render each character
+        int maxColumnWidth = 100;
+        int totalWidth = 0;
         for (int columnCount = 0; columnCount < this.getModel().getColumnCount(); columnCount++) {
-            this.getColumnModel().getColumn(columnCount).setPreferredWidth(((ImdiTableModel) this.getModel()).getColumnLength(columnCount) * charPixWidth);
-            System.out.println("preferedWidth: " + ((ImdiTableModel) this.getModel()).getColumnLength(columnCount));
+//            System.out.println("defaultPreferedWidth: " + this.getColumnModel().getColumn(columnCount).getPreferredWidth());
+            // setPreferredWidth || setMinWidth
+            int currentWidth = ((ImdiTableModel) this.getModel()).getColumnWidth(columnCount) * charPixWidth;
+            if (currentWidth > maxColumnWidth) {
+                currentWidth = maxColumnWidth;
+            }
+            if (resizeColumns) {
+                this.getColumnModel().getColumn(columnCount).setPreferredWidth(currentWidth);
+            }
+            totalWidth += this.getColumnModel().getColumn(columnCount).getPreferredWidth();
+//            System.out.println("preferedWidth: " + ((ImdiTableModel) this.getModel()).getColumnWidth(columnCount));
+        }
+        int parentWidth = 800;
+        int parentHeight = 600;
+        if (this.getParent() != null) {
+            parentWidth = this.getParent().getWidth();
+            parentHeight = this.getParent().getHeight();
+        }
+        System.out.println("totalWidth: " + totalWidth + "ParentWidth: " + parentWidth);
+//        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//        setPreferredScrollableViewportSize(new Dimension(Math.max(totalWidth, parentWidth), parentHeight));
+//        if (totalWidth < parentWidth) {
+//            int lastColumn = this.getModel().getColumnCount() - 1;
+//            if (lastColumn >= 0) {
+//                this.getColumnModel().getColumn(lastColumn).setPreferredWidth(this.getColumnModel().getColumn(lastColumn).getPreferredWidth() + parentWidth - totalWidth);
+//            }
+//        }
+        //        setPreferredSize(new Dimension(Math.max(totalWidth, parentWidth), parentHeight));
+        if (totalWidth < parentWidth) {
+//            System.out.println("AUTO_RESIZE_SUBSEQUENT_COLUMNS");
+//            setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+            setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        } else {
+            System.out.println("AUTO_RESIZE_OFF");
+            setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
     }
-//    private JTable targetTable = null; // this is used to track the originator of the table's menu actions, this method is not preferable however the menu event does not pass on the originator
-    //private int targetRow;
     private int targetColumn;
-    // create a window containing a table of nodes
-//    public ImdiTable(Enumeration rowNodesEnum, String frameTitle) {
-//        javax.swing.JTable jTable1;
-//        javax.swing.JScrollPane jScrollPane6;
-//        jScrollPane6 = new javax.swing.JScrollPane();
-//        jTable1 = new ImdiTable() {
-
-//            public TableCellEditor getCellEditor(int row, int column) {
-//                if (column == 2) {
-//                    JComboBox comboBox = new JComboBox();
-//                    comboBox.addItem("Item 1");
-//                    comboBox.addItem("Item 2");
-//                    comboBox.addItem("Item 3");
-//                    comboBox.addItem("Item 4");
-//                    comboBox.addItem("Item 5");
-//                    comboBox.addItem("Item 6");
-//                    return new DefaultCellEditor(comboBox);
-//                }
-//                if (column == 3) {
-//                    //openFloatingTable(this, getImdiTableModel({new ImdiHelper.ImdiTreeObject("one", null), new ImdiHelper.ImdiTreeObject("one", null)}), frameTitle, jPopupMenu);
-//                }
-//                return super.getCellEditor(row, column);
-//            }
-    // this cell renderer may have caused redraw issues
-//            public TableCellRenderer getCellRenderer(int row, int column) {
-//                if (column == 3 && (row == 2 || row == 0)) {
-//                    TableCellRenderer listTableCellRenderer = new TableCellRenderer() {
-//
-//                        public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus, int row, int column) {
-//                            JList cellList;
-//                            if (row == 0) {
-//                                cellList = new JList(new Object[]{"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"});
-//                            } else {
-//                                cellList = new JList(new Object[]{"Item 1", "Item 2", "Item 5"});
-//                            }
-//                            //cellListHeight = cellList.getPreferredSize().height;
-//                            table.setRowHeight(row, cellList.getPreferredSize().height);
-//                            return cellList;
-//                        }
-//                    };
-////                    if (cellListHeight > super.getRowHeight()) {
-////                        super.setRowHeight(row, cellListHeight);
-////                    }
-////                        public Component getTableCellRendererComponent(JTable jTable,
-////                                Object obj, boolean isSelected, boolean hasFocus, int row,
-////                                int column) {
-////                            setText((String) obj);
-////                            int height_wanted = (int) getPreferredSize().getHeight();
-////                            if (height_wanted != jTable.getRowHeight(row)) {
-////                                jTable.setRowHeight(row, height_wanted);
-////                            }
-////                            return this;
-////                        }
-//                    return listTableCellRenderer;
-//                } //                if (row == 5) {
-//                //                    setBackground(Color.green);
-//                //                }
-//                return super.getCellRenderer(row, column);
-//            }
     //Implement table cell tool tips.
     public String getToolTipText(MouseEvent e) {
         String tip = null;

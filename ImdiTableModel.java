@@ -484,7 +484,7 @@ public class ImdiTableModel extends AbstractTableModel {
         return columnNames[col];
     }
 
-    public int getColumnLength(int col) {
+    public int getColumnWidth(int col) {
         return maxColumnWidths[col];
     }
 

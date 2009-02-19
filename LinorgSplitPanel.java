@@ -64,5 +64,11 @@ public class LinorgSplitPanel extends JPanel {
         GuiHelper.imdiDragDrop.addTransferHandler(this);
         this.doLayout();
     }
+
+    @Override
+    public void doLayout() {
+        imdiTable.doLayout();
+        super.doLayout();
+    }
 }
 
