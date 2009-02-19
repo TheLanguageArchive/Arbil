@@ -97,8 +97,13 @@ public class ImdiTableModel extends AbstractTableModel {
 
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
         if (imdiTreeObject != null) {
-            imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
-            imdiTreeObject.registerContainer(this);
+            if (imdiTreeObject.isDirectory) {
+                // TODO: this could be made non recursive, but only if issues arrise
+                addImdiObjects(imdiTreeObject.loadChildNodes());
+            } else {
+                imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
+                imdiTreeObject.registerContainer(this);
+            }
         }
     }
 
@@ -117,12 +122,12 @@ public class ImdiTableModel extends AbstractTableModel {
             }
             System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
             System.out.println("hasResource: " + imdiTreeObject.hasResource());
-            for (Enumeration fieldNames = imdiTreeObject.getFields().keys();fieldNames.hasMoreElements();) {
+            for (Enumeration fieldNames = imdiTreeObject.getFields().keys(); fieldNames.hasMoreElements();) {
                 String currentColumnName = fieldNames.nextElement().toString();
-                if (!allColumnNames.contains(currentColumnName)){
+                if (!allColumnNames.contains(currentColumnName)) {
                     allColumnNames.add(currentColumnName);
                 }
-                    tableFieldView.addKnownColumn(currentColumnName);
+                tableFieldView.addKnownColumn(currentColumnName);
             }
         }
     }
@@ -302,6 +307,7 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void reloadTableData() {
+        int previousColumnCount = getColumnCount();
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
 
@@ -312,7 +318,7 @@ public class ImdiTableModel extends AbstractTableModel {
         horizontalView = imdiObjectHash.size() > 1;
         if (!horizontalView) { // set the table for a single image if that is all that is shown
             //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
-		// TODO: this does not account for when a resource is shown
+            // TODO: this does not account for when a resource is shown
             if (allColumnNames.size() == 0) {
                 horizontalView = true;
             }
@@ -410,6 +416,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 }
                 rowCounter++;
             }
+            System.out.println("setting column widths: " + maxColumnWidths);
 //            // display the column names use count for testing only
 //            Enumeration tempEnum = columnNameHash.elements();
 //            int tempColCount = 0;
@@ -455,7 +462,11 @@ public class ImdiTableModel extends AbstractTableModel {
         cellColour = setCellColours(dataTemp);
         columnNames = columnNamesTemp;
         data = dataTemp;
-        fireTableStructureChanged();
+        if (previousColumnCount != getColumnCount()) {
+            fireTableStructureChanged();
+        } else {
+            fireTableDataChanged();
+        }
     }
     private String[] columnNames = new String[0];
     private Object[][] data = new Object[0][0];
