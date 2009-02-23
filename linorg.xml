@@ -30,6 +30,7 @@
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsd/*.xsd"/>
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
             </manifest>
@@ -38,7 +39,31 @@
     <target name="run" description="run the application">
         <java classname="mpi.linorg.Linorg">
             <classpath>
-                <fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>
+                <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
+                <filelist dir="${WEBAPPS_LIB}">
+                    <file name="imdiapi.jar" />
+                    <file name="log4j-1.2.14.jar" />
+                    <file name="log4j-1.2.9.jar" />
+                    <file name="saxon8-dom4j.jar" />
+                    <file name="saxon8-dom.jar" />
+                    <file name="saxon8.jar" />
+                    <file name="saxon8-xqj.jar" />
+                    <file name="saxon-dom-8.7.jar" />
+                    <file name="typecheck.jar" />
+                    <file name="xalan.jar" />
+                    <!--
+                    <file name="xalan-2.7.0.jar" />                    
+                    <file name="xercesImpl-2.9.0.jar" />
+                    -->
+                    <!--
+                    <file name="saxon8-ant.jar" />
+                    <file name="saxon8-sql.jar" />
+                    <file name="saxon8-jdom.jar" />
+                    <file name="saxon8-xom.jar" />
+                    <file name="saxon8-xpath.jar" />
+                    <file name="xercesImpl.jar" />
+                    -->
+                </filelist>
                 <pathelement location="linorg.jar"/>
             </classpath>
         </java>

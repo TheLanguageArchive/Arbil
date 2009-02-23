@@ -704,6 +704,21 @@ public class ImdiTreeObject implements Comparable {
     }
 
     /**
+     * Exports the imdi file for use in other applications.
+     * The exported file has the id attributes removed via the api.
+     * @param targetFile
+     */
+    public void exportImdiFile(File exportFile) {
+        try {
+            Document nodDom;
+            nodDom = api.loadIMDIDocument(new OurURL(this.getFile().toURL()), false);
+            api.writeDOM(nodDom, exportFile, true);
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+    }
+
+    /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history.
      */

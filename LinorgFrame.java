@@ -260,7 +260,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(viewXmlMenuItem1);
 
         validateMenuItem.setText("Check IMDI format");
-        validateMenuItem.setEnabled(false);
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 validateMenuItemActionPerformed(evt);
@@ -972,7 +971,10 @@ private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) 
 
 private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateMenuItemActionPerformed
 // TODO add your handling code here:
-    
+    XsdChecker xsdChecker = new XsdChecker();
+    GuiHelper.linorgWindowManager.createWindow("XsdChecker", xsdChecker);
+    xsdChecker.checkXML((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
+    xsdChecker.setDividerLocation(0.5);
 }//GEN-LAST:event_validateMenuItemActionPerformed
 
 private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
