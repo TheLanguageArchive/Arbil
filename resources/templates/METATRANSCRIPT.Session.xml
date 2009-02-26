@@ -37,7 +37,6 @@
         <Description LanguageId="" Link=""/>
       </Project>
       <Keys>
-        <Key Name=""/>
       </Keys>
       <Content>
         <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" 
@@ -71,7 +70,6 @@
           <Description LanguageId="" Link=""/>
         </Languages>
         <Keys>
-          <Key Name=""/>
         </Keys>
         <Description LanguageId="" Link=""/>
       </Content>
