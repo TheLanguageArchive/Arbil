@@ -39,8 +39,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
 
         initComponents();
-
-        GuiHelper.treeHelper.setTrees(remoteCorpusTree, localCorpusTree, localDirectoryTree);
+        GuiHelper.treeHelper.setTrees((ImdiTree) remoteCorpusTree, (ImdiTree) localCorpusTree, (ImdiTree) localDirectoryTree);
 
         //Enable tool tips.
         ToolTipManager.sharedInstance().registerComponent(localDirectoryTree);
@@ -607,9 +606,9 @@ private void remoteCorpusTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent
         //There is no selection.
     } else {
         parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
+        // load imdi data if not already loaded
+        GuiHelper.treeHelper.getImdiChildNodes(parentNode);
     }
-    // load imdi data if not already loaded
-    GuiHelper.treeHelper.getImdiChildNodes(parentNode);
 //remoteCorpusTree.scrollPathToVisible(evt.getPath());
 }//GEN-LAST:event_remoteCorpusTreeTreeWillExpand
 
@@ -703,7 +702,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             boolean nodeIsImdiChild = false;
             Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
             if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
-                nodeIsImdiChild = ((ImdiTreeObject)leadSelectedTreeObject).isImdiChild();                
+                nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
                 if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
                     saveMenuItem.setVisible(true);
                 } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
@@ -838,7 +837,7 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.openSearchTable(getSelectedNodes(new JTree[]{localCorpusTree}), "Search");    
+    GuiHelper.linorgWindowManager.openSearchTable(getSelectedNodes(new JTree[]{localCorpusTree}), "Search");
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
 private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
