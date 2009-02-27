@@ -287,10 +287,14 @@ public class ImdiTableModel extends AbstractTableModel {
                 try {
                     String baseValueA = ((ImdiField) ((Object[]) firstRowArray)[1]).fieldID;
                     String comparedValueA = ((ImdiField) (((Object[]) secondRowArray)[1])).fieldID;
-                    int baseIntA = Integer.parseInt(baseValueA.substring(1));
-                    int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
-                    int returnValue = baseIntA - comparedIntA;
-                    return returnValue;
+//                    if (baseValueA != null && comparedValueA != null) {
+                        int baseIntA = Integer.parseInt(baseValueA.substring(1));
+                        int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
+                        int returnValue = baseIntA - comparedIntA;
+                        return returnValue;
+//                    } else {
+//                        return 0;
+//                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                     return 1;
@@ -307,6 +311,7 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void reloadTableData() {
+        System.out.println("reloadTableData");
         int previousColumnCount = getColumnCount();
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
