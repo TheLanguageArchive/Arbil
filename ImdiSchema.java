@@ -15,8 +15,7 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import mpi.util.OurURL;
 import org.w3c.dom.*;
 
 /**
@@ -239,15 +238,11 @@ public class ImdiSchema {
         }
         try {
             URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml");
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             // prepare the parent node
             String targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
             // convert to xpath for the api
             targetXpath = targetXpath.replace(".", "/:");
-            // find the node to add the new section to
-            Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-            // insert the section into the target imdi
-            Document insertableSection = builder.parse(templateUrl.openStream());
+            Document insertableSectionDoc = ImdiTreeObject.api.loadIMDIDocument(new OurURL(templateUrl), false);
             // insert values into the section that about to be added
             if (resourcePath != null) {
                 String localFilePath = resourcePath; // will be changed when copied to the cache
@@ -274,7 +269,7 @@ public class ImdiSchema {
                 }
 
                 // find the correct node and set the resourcePath value
-                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/*/ResourceLink");
+                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
                 linkNode.setTextContent(localFilePath);
             }
             if (mimeType != null) {
@@ -282,25 +277,48 @@ public class ImdiSchema {
                     Hashtable exifTags = getExifMetadata(resourcePath);
                     String dateExifTag = "date";
                     if (exifTags.contains(dateExifTag)) {
-                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/MediaFile/Date");
+                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:MediaFile/:Date");
                         linkNode.setTextContent(exifTags.get(dateExifTag).toString());
                     }
                 }
-                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSection, "/*/Format");
+                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
                 linkNode.setTextContent(mimeType);
             }
 
             // import the new section to the target dom
-            Node addableNode = targetImdiDom.importNode(insertableSection.getFirstChild(), true);
-            // add the new section to the target dom
-            targetNode.appendChild(addableNode);
+            Node addableNode = targetImdiDom.importNode(org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*"), true);
+
+            Node insertBeforeNode = null;
+            String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
+            if (insertBeforeCSL != null && insertBeforeCSL.length() > 0) {
+                String[] insertBeforeArray = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore").split(",");
+                System.out.println("insertbefore: " + insertBeforeArray.toString());
+
+                // find the node to add the new section before
+                int insertBeforeCounter = 0;
+                while (insertBeforeNode == null & insertBeforeCounter < insertBeforeArray.length) {
+                    insertBeforeNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath + "/:" + insertBeforeArray[insertBeforeCounter]);
+                    insertBeforeCounter++;
+                }
+            }
+
+            // find the node to add the new section to
+            Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+            if (insertBeforeNode != null) {
+                System.out.println("inserting before: " + insertBeforeNode.getNodeName());
+                targetNode.insertBefore(addableNode, insertBeforeNode);
+            } else {
+                System.out.println("inserting anywhere");
+                targetNode.appendChild(addableNode);
+            }
             addedPathString = destinationFile.toURL().toString() + "#" + elementName;
+            String childsMetaNode = pathIsChildNode(elementName);
+            addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
             GuiHelper.linorgBugCatcher.logError(ex);
         }
-        //return addedPathString;
-        return null;
+        return addedPathString;
     }
 
     public void iterateChildNodes(ImdiTreeObject parentNode, Vector childLinks, Node startNode, String nodePath) {
