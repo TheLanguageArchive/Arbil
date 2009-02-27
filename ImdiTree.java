@@ -35,12 +35,13 @@ public class ImdiTree extends JTree {
         } else {
             TreePath curPath = getPathForLocation(event.getX(), event.getY());
             Object targetObject = ((DefaultMutableTreeNode) curPath.getLastPathComponent()).getUserObject();
-            
-            if (targetObject instanceof ImdiTreeObject){
+
+            if (targetObject instanceof ImdiTreeObject) {
                 listToolTip.setTartgetObject(targetObject);
-                tip = ((ImdiTreeObject)targetObject).getUrlString(); // this is required to be unique to the node so that the tip is updated
+                tip = ((ImdiTreeObject) targetObject).getUrlString(); // this is required to be unique to the node so that the tip is updated
+            } else {
+                listToolTip.setTartgetObject(null);
             }
-            else listToolTip.setTartgetObject(null);
         }
         return tip;
     }
