@@ -11,17 +11,15 @@ import java.net.MalformedURLException;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -60,18 +58,25 @@ public class ImdiTreeObject implements Comparable {
     // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
+        containersOfThisNode = new Vector();
         nodeText = localNodeText;
+        nodeUrl = conformStringToUrl(localUrlString);
+        initNodeVariables();
+    }
+
+    static public URL conformStringToUrl(String inputUrlString) {
+        URL returnUrl = null;
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
-            if (!localUrlString.toLowerCase().startsWith("http") && !localUrlString.toLowerCase().startsWith("file")) {
-                nodeUrl = new File(localUrlString).toURL();
+            if (!inputUrlString.toLowerCase().startsWith("http") && !inputUrlString.toLowerCase().startsWith("file")) {
+                returnUrl = new File(inputUrlString).toURL();
             } else {
-                nodeUrl = new URL(localUrlString);
+                returnUrl = new URL(inputUrlString);
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
-        initNodeVariables();
+        return returnUrl;
     }
     // static methods for testing imdi file and object types
     static public boolean isImdiNode(Object unknownObj) {
@@ -106,11 +111,16 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk) {
-        if (this.imdiNeedsSaveToDisk != imdiNeedsSaveToDisk) {
-            if (imdiNeedsSaveToDisk) {
-                GuiHelper.imdiLoader.addNodeNeedingSave(this);
-            } else {
-                GuiHelper.imdiLoader.removeNodesNeedingSave(this);
+        if (isImdiChild()) {
+            this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk);
+            this.getParentDomNode().clearIcon();
+        } else {
+            if (this.imdiNeedsSaveToDisk != imdiNeedsSaveToDisk) {
+                if (imdiNeedsSaveToDisk) {
+                    GuiHelper.imdiLoader.addNodeNeedingSave(this);
+                } else {
+                    GuiHelper.imdiLoader.removeNodesNeedingSave(this);
+                }
             }
         }
         this.imdiNeedsSaveToDisk = imdiNeedsSaveToDisk;
@@ -134,7 +144,6 @@ public class ImdiTreeObject implements Comparable {
         icon = null;
         nodeEnabled = true;
         childLinks = new Vector();
-        containersOfThisNode = new Vector();
         isLoading = false;
 
 
@@ -155,6 +164,9 @@ public class ImdiTreeObject implements Comparable {
         if (!isImdi() && !isDirectory()) {
             // if it is an not imdi or a loose file but not a direcotry then get the md5sum
             mimeHashQueue.addToQueue(this);
+        }
+        if (this.isDirectory()) {
+            getDirectoryLinks();
         }
     }
 
@@ -423,10 +435,12 @@ public class ImdiTreeObject implements Comparable {
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+//                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
                 addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.getFile(), nodeType, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
-                api.writeDOM(nodDom, this.getFile(), false);
+//                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
             } catch (Exception ex) {
 //                System.out.println("addChildNode: " + ex.getMessage());
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -485,9 +499,6 @@ public class ImdiTreeObject implements Comparable {
             // if this node has been loaded then do not load again
             // to refresh the node and its children the node should be nulled and recreated
             imdiDataLoaded = true;
-            if (this.isDirectory()) {
-                getDirectoryLinks();
-            }
             if (!this.isSession()) {
                 //getImdiFieldLinks();
                 for (Enumeration childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
@@ -724,7 +735,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public void saveChangesToCache() {
         if (this.isImdiChild()) {
-            getDomParentNode().saveChangesToCache();
+            getParentDomNode().saveChangesToCache();
             return;
         }
         System.out.println("saveChangesToCache");
@@ -1069,7 +1080,7 @@ public class ImdiTreeObject implements Comparable {
      * Only relevant for imdi child nodes.
      * @return ImdiTreeObject
      */
-    public ImdiTreeObject getDomParentNode() {
+    public ImdiTreeObject getParentDomNode() {
         return GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
     }
 
@@ -1169,7 +1180,12 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void registerContainer(Object containerToAdd) {
+//        System.out.println("registerContainer: " + containerToAdd + " : " + this);
         containersOfThisNode.add(containerToAdd);
+    }
+
+    public Enumeration getRegisteredContainers() {
+        return containersOfThisNode.elements();
     }
 
     /**
@@ -1178,6 +1194,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public void removeContainer(Object containerToRemove) {
         // TODO: make sure that containers are removed when a node is removed from the tree, otherwise memory will not get freed
+//        System.out.println("de registerContainer: " + containerToRemove);
         containersOfThisNode.remove(containerToRemove);
     }
 
@@ -1198,103 +1215,36 @@ public class ImdiTreeObject implements Comparable {
      */
     public void clearIcon() {
 //        System.out.println("clearIcon: " + this.toString());
+//        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
         icon = null;
-        // here we need to cause an update in the tree gui so that the new icon can be loaded
-        for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
-            Object currentContainer = containersForNode.nextElement();
-            if (currentContainer instanceof ImdiTableModel) {
-//                ((ImdiTableModel) currentContainer).fireTableDataChanged();
-                ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
-            }
-            if (currentContainer instanceof DefaultMutableTreeNode) {
-                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-//                System.out.println("containersOfThisNode: " + currentTreeNode.toString());
-//                //nodeChanged(TreeNode node): Invoke this method after you've changed how node is to be represented in the tree.
-                /////////////////////////////////////
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                // set the allows children flag
-//                System.out.println("clearIcon: canHaveChildren: " + this.canHaveChildren());
-                currentTreeNode.setAllowsChildren(this.canHaveChildren());
-//                parentNode.setAllowsChildren(true); // the parent obviously has children
+        SwingUtilities.invokeLater(new Runnable() {
 
-                if (nodeTextChanged && parentNode != null) {
-                    try {
-//                    if (parentNode != null) {
-                        // resort the branch since the node name may have changed
-                        ArrayList children = Collections.list(parentNode.children());
-                        Collections.sort(children, new TreeStringComparator());
-//                parentNode.removeAllChildren();
-                        Iterator childrenIterator = children.iterator();
-                        while (childrenIterator.hasNext()) {
-                            DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) childrenIterator.next();
-                            parentNode.add(currentNode);
+            public void run() {
+
+//                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
+//                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
+                // here we need to cause an update in the tree and table gui so that the new icon can be loaded
+                for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
+                    Object currentContainer = containersForNode.nextElement();
+//                    System.out.println("currentContainer: " + currentContainer.toString());
+                    if (currentContainer instanceof ImdiTableModel) {
+                        ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
+                    }
+                    if (currentContainer instanceof DefaultMutableTreeNode) {
+                        DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
+                        DefaultTreeModel modelForNodes = GuiHelper.treeHelper.getModelForNode(currentTreeNode);
+                        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
+                        // set the allows children flag
+//                      System.out.println("clearIcon: canHaveChildren: " + this.canHaveChildren());
+                        currentTreeNode.setAllowsChildren(ImdiTreeObject.this.canHaveChildren());
+                        modelForNodes.nodeChanged(currentTreeNode);
+                        if (parentNode != null) {
+                            GuiHelper.treeHelper.sortChildNodes(parentNode);
                         }
-                    } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError("sorting " + parentNode, ex);
                     }
                 }
-                /////////////////////////////////////
-
-                try {
-                    if (!this.isLocal()) {
-                        GuiHelper.treeHelper.remoteCorpusTreeModel.nodeChanged(currentTreeNode);
-                        GuiHelper.treeHelper.remoteCorpusTreeModel.nodeStructureChanged(currentTreeNode);
-                        GuiHelper.treeHelper.remoteCorpusTreeModel.nodeStructureChanged(parentNode);
-                    } else if (this.isImdi()) {
-                        GuiHelper.treeHelper.localCorpusTreeModel.nodeChanged(currentTreeNode);
-                        GuiHelper.treeHelper.localCorpusTreeModel.nodeStructureChanged(currentTreeNode);
-                        GuiHelper.treeHelper.localCorpusTreeModel.nodeStructureChanged(parentNode);
-                    } else {
-                        GuiHelper.treeHelper.localDirectoryTreeModel.nodeChanged(currentTreeNode);
-                        GuiHelper.treeHelper.localDirectoryTreeModel.nodeStructureChanged(currentTreeNode);
-                        GuiHelper.treeHelper.localDirectoryTreeModel.nodeStructureChanged(parentNode);
-                    }
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-//                    System.out.println(ex.getMessage());
-                }
-//                ////////////////////
-//                DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-//                int currentIndex = parentTreeNode.getIndex(currentTreeNode);
-//                int childNodeCounter = 0;
-//                for (Enumeration childNodeEnum = parentTreeNode.children(); childNodeEnum.hasMoreElements();) {
-//                    DefaultMutableTreeNode siblingTreeNode = (DefaultMutableTreeNode) childNodeEnum.nextElement();
-//                    System.out.println("currentTreeNode: " + currentTreeNode.toString());
-//                    System.out.println("siblingTreeNode: " + siblingTreeNode.toString());
-//                    int compValue = siblingTreeNode.toString().compareToIgnoreCase(currentTreeNode.toString());
-//                    System.out.println("compare: " + compValue);
-//                    if (currentTreeNode != siblingTreeNode) {
-//                        if (compValue >= 0) {
-//                            System.out.println("swap to here if not lesser: " + currentIndex + " : " + childNodeCounter);
-//                            parentTreeNode.remove(currentTreeNode);
-//                            int targetIndex = childNodeCounter - 1;
-//                            if (targetIndex < 0) {
-//                                targetIndex = 0;
-//                            }
-//                            parentTreeNode.insert(currentTreeNode, targetIndex);
-//                            GuiHelper.treeHelper.localCorpusTreeModel.nodeStructureChanged(currentTreeNode);
-//                            GuiHelper.treeHelper.localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
-////                           /////////// GuiHelper.treeHelper.localCorpusTreeModel.reload();
-//                            break;
-//                        }
-//                    }
-//                    childNodeCounter++;
-//                }
-//            ////////////////////
             }
-        }
-    }
-
-    class TreeStringComparator implements Comparator {
-
-        public int compare(Object object1, Object object2) {
-            if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
-                throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
-            }
-            String string1 = ((DefaultMutableTreeNode) object1).getUserObject().toString();
-            String string2 = ((DefaultMutableTreeNode) object2).getUserObject().toString();
-            return string1.compareToIgnoreCase(string2);
-        }
+        });
     }
 
     /**
