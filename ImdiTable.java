@@ -386,7 +386,7 @@ public class ImdiTable extends JTable {
             parentWidth = this.getParent().getWidth();
             parentHeight = this.getParent().getHeight();
         }
-        System.out.println("totalWidth: " + totalWidth + "ParentWidth: " + parentWidth);
+//        System.out.println("totalWidth: " + totalWidth + "ParentWidth: " + parentWidth);
 //        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 //        setPreferredScrollableViewportSize(new Dimension(Math.max(totalWidth, parentWidth), parentHeight));
 //        if (totalWidth < parentWidth) {
