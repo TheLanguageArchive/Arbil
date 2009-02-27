@@ -251,7 +251,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(viewXmlMenuItem);
 
         viewXmlMenuItem1.setText("View IMDI Formatted");
-        viewXmlMenuItem1.setEnabled(false);
+//        viewXmlMenuItem1.setEnabled(false);
         viewXmlMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewXmlXslMenuItemActionPerformed(evt);
