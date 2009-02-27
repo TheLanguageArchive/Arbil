@@ -31,7 +31,7 @@
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsd/*.xsd"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/imdixsl/*.xsl"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.xsl"/>
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
             </manifest>
