@@ -60,9 +60,11 @@ public class ImdiLoader {
                     while (imdiLocalNodesToInit.size() > 0) {
                         ImdiTreeObject currentImdiObject = (ImdiTreeObject) imdiLocalNodesToInit.remove(0);
                         System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
-                        currentImdiObject.loadImdiDom();
-                        currentImdiObject.isLoading = false;
-                        currentImdiObject.clearIcon();
+                        if (currentImdiObject.isLoading) {
+                            currentImdiObject.loadImdiDom();
+                            currentImdiObject.isLoading = false;
+                            currentImdiObject.clearIcon();
+                        }
                     }
                 }
             }
@@ -74,21 +76,22 @@ public class ImdiLoader {
         ImdiTreeObject currentImdiObject = null;
         if (localUrlString.length() > 0) {
             // correct any variations in the url string
-            localUrlString = new ImdiTreeObject(localNodeText, localUrlString).getUrlString();
+            localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
             currentImdiObject = (ImdiTreeObject) imdiHashTable.get(localUrlString);
             if (currentImdiObject == null) {
+                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
                 currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
                 imdiHashTable.put(localUrlString, currentImdiObject);
-                if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
+                if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
+                    // cause the parent node to be loaded
+                    currentImdiObject.getParentDomNode();
+                } else if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
                     currentImdiObject.isLoading = true;
                     if (ImdiTreeObject.isStringLocal(currentImdiObject.getUrlString())) {
                         imdiLocalNodesToInit.add(currentImdiObject);
                     } else {
                         imdiRemoteNodesToInit.add(currentImdiObject);
                     }
-                } else if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
-                    // cause the parent node to be loaded
-                    currentImdiObject.getDomParentNode();
                 }
             }
         }
