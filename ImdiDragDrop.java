@@ -296,7 +296,7 @@ public class ImdiDragDrop {
                                 for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                                     String addedNodeUrl = ((ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
-                                    GuiHelper.treeHelper.refreshChildNodes(targetNode);
+                                    GuiHelper.treeHelper.updateTreeNodeChildren(targetNode);
                                     if (addedNodeUrl != null) {
                                         Vector tempVector = new Vector();
                                         tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
