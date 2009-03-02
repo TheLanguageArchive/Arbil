@@ -32,7 +32,7 @@ public class TreeHelper {
     private DefaultMutableTreeNode localCorpusRootNode;
     private DefaultMutableTreeNode remoteCorpusRootNode;
     private DefaultMutableTreeNode localDirectoryRootNode;
-    private ImdiTree localCorpusTree;
+    public ImdiTree localCorpusTree;
     private ImdiTree localDirectoryTree;
     private ImdiTree remoteCorpusTree;
     private Vector locationsList; // this is the list of locations seen in the tree and the location settings
@@ -396,6 +396,8 @@ public class TreeHelper {
                     Vector tempVector = new Vector();
                     tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
                     GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " in " + itemNode);
+                    // this will only happen on the local corpus tree so we can just address that here
+                    localCorpusTree.scrollToNode(addedNodeUrl);
                 }
             }
         } else {
@@ -407,6 +409,8 @@ public class TreeHelper {
             Vector tempVector = new Vector();
             tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
             GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " as a unattached corpus");
+            // this will only happen on the local corpus tree so we can just address that here
+            localCorpusTree.scrollToNode(addedNodeUrl);
         }
     }
 

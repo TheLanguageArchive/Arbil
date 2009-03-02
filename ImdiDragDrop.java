@@ -301,10 +301,12 @@ public class ImdiDragDrop {
                                         Vector tempVector = new Vector();
                                         tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
                                         GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new Resource(s) in " + dropTargetUserObject);
+                                        // this will only happen on the local corpus tree so we can just address that here
+                                        GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedNodeUrl);
                                     }
                                 }
                             }
-                        GuiHelper.treeHelper.reloadLocalCorpusTree();
+                            GuiHelper.treeHelper.reloadLocalCorpusTree();
                         }
                     //GuiHelper.treeHelper.refreshChildNodes(targetNode);
 
@@ -318,7 +320,7 @@ public class ImdiDragDrop {
                         dropTableModel.addImdiObjects(draggedImdiObjects);
                     } else if (imdiSplitPanel instanceof JDesktopPane) {
                         GuiHelper.linorgWindowManager.openFloatingTable(new Vector(Arrays.asList(draggedImdiObjects)).elements(), "Selection");
-                        
+
                     }
                 }
             }
