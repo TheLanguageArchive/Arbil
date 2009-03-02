@@ -37,7 +37,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             //super.windowClosing(e);
             }
         });
-
+        
         initComponents();
         GuiHelper.treeHelper.setTrees((ImdiTree) remoteCorpusTree, (ImdiTree) localCorpusTree, (ImdiTree) localDirectoryTree);
 
@@ -166,6 +166,10 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveFileMenuItem = new javax.swing.JMenuItem();
         exitMenuItem = new javax.swing.JMenuItem();
         editMenu = new javax.swing.JMenu();
+        copyMenuItem = new javax.swing.JMenuItem();
+        pasteMenuItem = new javax.swing.JMenuItem();
+        undoMenuItem = new javax.swing.JMenuItem();
+        redoMenuItem = new javax.swing.JMenuItem();
         optionsMenu = new javax.swing.JMenu();
         editLocationsMenuItem = new javax.swing.JMenuItem();
         templatesMenu = new javax.swing.JMenu();
@@ -179,6 +183,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
         featuresMenuItem = new javax.swing.JMenuItem();
         shortCutKeysjMenuItem = new javax.swing.JMenuItem();
+        helpMenuItem = new javax.swing.JMenuItem();
 
         viewSelectedNodesMenuItem.setText("View Selected");
         viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -250,7 +255,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(viewXmlMenuItem);
 
         viewXmlMenuItem1.setText("View IMDI Formatted");
-//        viewXmlMenuItem1.setEnabled(false);
         viewXmlMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewXmlXslMenuItemActionPerformed(evt);
@@ -477,6 +481,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
 
+        saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         saveFileMenuItem.setText("Save Changes");
         saveFileMenuItem.setEnabled(false);
         saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -497,7 +502,25 @@ public class LinorgFrame extends javax.swing.JFrame {
         jMenuBar1.add(fileMenu);
 
         editMenu.setText("Edit");
-        editMenu.setEnabled(false);
+
+        copyMenuItem.setText("Copy");
+        copyMenuItem.setEnabled(false);
+        editMenu.add(copyMenuItem);
+
+        pasteMenuItem.setText("Paste");
+        pasteMenuItem.setEnabled(false);
+        editMenu.add(pasteMenuItem);
+
+        undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+        undoMenuItem.setText("Undo");
+        undoMenuItem.setEnabled(false);
+        editMenu.add(undoMenuItem);
+
+        redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        redoMenuItem.setText("Redo");
+        redoMenuItem.setEnabled(false);
+        editMenu.add(redoMenuItem);
+
         jMenuBar1.add(editMenu);
 
         optionsMenu.setText("Options");
@@ -528,6 +551,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveWindowsCheckBoxMenuItem.setEnabled(false);
         optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
+        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         showSelectionPreviewCheckBoxMenuItem.setSelected(true);
         showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
         showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -587,6 +611,10 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         helpMenu.add(shortCutKeysjMenuItem);
+
+        helpMenuItem.setText("Help");
+        helpMenuItem.setEnabled(false);
+        helpMenu.add(helpMenuItem);
 
         jMenuBar1.add(helpMenu);
 
@@ -1045,6 +1073,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
     private javax.swing.JMenuItem copyBranchMenuItem;
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
+    private javax.swing.JMenuItem copyMenuItem;
     private javax.swing.JMenuItem deleteMenuItem;
     private javax.swing.JMenuItem editFieldViewsMenuItem;
     private javax.swing.JMenuItem editLocationsMenuItem;
@@ -1053,6 +1082,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JMenuItem featuresMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
+    private javax.swing.JMenuItem helpMenuItem;
     private javax.swing.JMenuItem introductionMenuItem;
     private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JMenuBar jMenuBar1;
@@ -1065,6 +1095,8 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JTree localDirectoryTree;
     private javax.swing.JSplitPane mainSplitPane;
     private javax.swing.JMenu optionsMenu;
+    private javax.swing.JMenuItem pasteMenuItem;
+    private javax.swing.JMenuItem redoMenuItem;
     private javax.swing.JMenuItem reloadSubnodesMenuItem;
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JMenuItem removeCachedCopyMenuItem;
@@ -1083,6 +1115,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JSeparator treePopupMenuSeparator1;
     private javax.swing.JSeparator treePopupMenuSeparator2;
+    private javax.swing.JMenuItem undoMenuItem;
     private javax.swing.JMenuItem validateMenuItem;
     private javax.swing.JMenuItem viewChangesMenuItem;
     private javax.swing.JMenu viewMenu;

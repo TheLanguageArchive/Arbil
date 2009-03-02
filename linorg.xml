@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <project name="Linorg" default="compile">
     <target name="setproperties">
-        <property name="SRCDIR" value="./"/>
+        <property name="SRCDIR" value="../../../../src/java/"/>
         <property name="BUILDDIR" value="classes"/>
-        <property name="WEBAPPS_LIB" value="../lib/"/>
+        <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
     </target>
     <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>

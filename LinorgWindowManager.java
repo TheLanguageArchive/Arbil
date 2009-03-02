@@ -69,6 +69,7 @@ public class LinorgWindowManager {
         }
         // set the split pane positions
         loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
+        GuiHelper.imdiDragDrop.addTransferHandler(desktopPane);
     }
 
     public void openAboutPage() {

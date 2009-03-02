@@ -7,8 +7,10 @@ package mpi.linorg;
 import java.awt.Container;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.util.Arrays;
 import java.util.Vector;
 import javax.swing.JComponent;
+import javax.swing.JDesktopPane;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.JTree;
@@ -171,16 +173,15 @@ public class ImdiDragDrop {
             //} else if ((comp.getParent().getParent().getParent() instanceof LinorgWindowManager.ImdiSplitPanel) ||(comp.getParent().getParent() instanceof LinorgWindowManager.ImdiSplitPanel) ||(comp.getParent() instanceof LinorgWindowManager.ImdiSplitPanel) ||(comp instanceof LinorgWindowManager.ImdiSplitPanel)) {
             } else {
                 // search through al the parent nodes to see if we can find a drop target
-                return (null != findImdiSplitPanel(comp));
-
+                return (null != findImdiDropableTarget(comp));
             }
             System.out.println("canImport false");
             return false;
         }
 
-        private Container findImdiSplitPanel(Container tempCom) {
+        private Container findImdiDropableTarget(Container tempCom) {
             while (tempCom != null) {
-                if (tempCom instanceof LinorgSplitPanel) {
+                if (tempCom instanceof LinorgSplitPanel || tempCom instanceof JDesktopPane) {
                     System.out.println("canImport true");
                     return tempCom;
                 }
@@ -277,7 +278,6 @@ public class ImdiDragDrop {
                     }
                     JTree dropTree = (JTree) comp;
                     DefaultMutableTreeNode targetNode = GuiHelper.treeHelper.getLocalCorpusTreeSingleSelection();
-                    // TODO: getImdiChildNodes really shouldnt be called here, instead it would be better for the targetNode to get its childeren before adding anything
                     GuiHelper.treeHelper.getImdiChildNodes(targetNode);
                     Object dropTargetUserObject = targetNode.getUserObject();
                     System.out.println("to: " + dropTargetUserObject.toString());
@@ -311,11 +311,14 @@ public class ImdiDragDrop {
                     }
 //                    }
                 } else {
-                    Container imdiSplitPanel = findImdiSplitPanel(comp);
+                    Container imdiSplitPanel = findImdiDropableTarget(comp);
                     if (imdiSplitPanel instanceof LinorgSplitPanel) {
                         LinorgSplitPanel targetPanel = (LinorgSplitPanel) imdiSplitPanel;
                         ImdiTableModel dropTableModel = (ImdiTableModel) targetPanel.imdiTable.getModel();
                         dropTableModel.addImdiObjects(draggedImdiObjects);
+                    } else if (imdiSplitPanel instanceof JDesktopPane) {
+                        GuiHelper.linorgWindowManager.openFloatingTable(new Vector(Arrays.asList(draggedImdiObjects)).elements(), "Selection");
+                        
                     }
                 }
             }
