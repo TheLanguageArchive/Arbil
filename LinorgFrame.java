@@ -708,6 +708,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         addMenu.setVisible(false);
         deleteMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setVisible(false);
+        viewSelectedNodesMenuItem.setText("View Selected");
         saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
         sendToServerMenuItem.setVisible(false);
@@ -720,6 +721,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
             addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
         }
         if (evt.getSource() == localCorpusTree) {
+            viewSelectedNodesMenuItem.setText("View/Edit Selected");
             removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
