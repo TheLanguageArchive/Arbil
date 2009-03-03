@@ -91,19 +91,22 @@ public class LinorgWindowManager {
 //        get remote file to local disk
 //        if local file exists then open that
 //        else open the one in the jar file
-        String remoteUrl = "http://www.mpi.nl/tg/j2se/jnlp/linorg/Features.html";
-        String cachePath = GuiHelper.linorgSessionStorage.updateCache(remoteUrl, true);
-        System.out.println("cachePath: " + cachePath);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  The features html file has been limited to the version in the jar (not the server), so that it is specific to the version of linorg in the jar. //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//        String remoteUrl = "http://www.mpi.nl/tg/j2se/jnlp/linorg/Features.html";
+//        String cachePath = GuiHelper.linorgSessionStorage.updateCache(remoteUrl, true);
+//        System.out.println("cachePath: " + cachePath);
         URL destinationUrl = null;
-        try {
-            if (new File(cachePath).exists()) {
-                destinationUrl = new File(cachePath).toURL();
-            }
-        } catch (Exception ex) {
-        }
-        if (destinationUrl == null) {
+//        try {
+//            if (new File(cachePath).exists()) {
+//                destinationUrl = new File(cachePath).toURL();
+//            }
+//        } catch (Exception ex) {
+//        }
+//        if (destinationUrl == null) {
             destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
-        }
+//        }
         System.out.println("destinationUrl: " + destinationUrl);
         openUrlWindowOnce("Features/Known Bugs", destinationUrl);
 
