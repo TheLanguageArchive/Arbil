@@ -136,5 +136,11 @@ public class LinorgVersion {
         keystore="/data1/repos/trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
     </target>
+    <target depends="signlinorg" name="scp_to_lux09">
+        <input message="Please enter lux09 username:" addproperty="lux09.user" />
+        <input message="Please enter lux09 password:" addproperty="lux09.pw" />
+        <move file="linorg.jar" tofile="linorg${linorg.current.revision}.jar"/>
+        <scp file="linorg${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+    </target>
 </project>
  
