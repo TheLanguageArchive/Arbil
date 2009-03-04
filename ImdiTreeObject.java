@@ -34,7 +34,7 @@ public class ImdiTreeObject implements Comparable {
     static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
-    private Hashtable fieldHashtable;
+    private Hashtable<String, ImdiField> fieldHashtable;
     private Hashtable childrenHashtable;
     private boolean imdiDataLoaded;
     public String hashString;
@@ -54,6 +54,7 @@ public class ImdiTreeObject implements Comparable {
     private Vector childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
     private Vector containersOfThisNode;
     public boolean isLoading;
+    private boolean isTemplate;
 
     // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
@@ -982,7 +983,7 @@ public class ImdiTreeObject implements Comparable {
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
      * @return A hashtable of the fields
      */
-    public Hashtable getFields() {
+    public Hashtable<String, ImdiField> getFields() {
         // store the Hastable for next call
         // if hashtable is null then load from imdi
         return fieldHashtable;
@@ -1245,6 +1246,15 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         });
+    }
+
+    public boolean isTemplate() {
+        return isTemplate;
+    }
+
+    public void setTemplateStatus(boolean templateStatus) {
+        isTemplate = templateStatus;
+        clearIcon();
     }
 
     /**

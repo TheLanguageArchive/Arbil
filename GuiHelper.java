@@ -27,6 +27,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class GuiHelper {
 
     static ImdiFieldViews imdiFieldViews;
+    static LinorgTemplates linorgTemplates;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
@@ -49,6 +50,7 @@ public class GuiHelper {
     public GuiHelper() {
         //imdiHelper = new ImdiIcons();
         imdiFieldViews = new ImdiFieldViews();
+        linorgTemplates = new LinorgTemplates();
         treeHelper.loadLocationsList();
     }
 
@@ -78,7 +80,7 @@ public class GuiHelper {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
                     treeHelper.getImdiChildNodes(targetNode);
-                    treeHelper.addImdiChildNode(targetNode, (evt.getActionCommand()), ((JMenuItem)evt.getSource()).getText());
+                    treeHelper.addImdiChildNode(targetNode, (evt.getActionCommand()), ((JMenuItem) evt.getSource()).getText());
                     treeHelper.reloadLocalCorpusTree(targetNode);
                 }
             });
@@ -93,6 +95,33 @@ public class GuiHelper {
 //                addMenu.add(addMenuItem);
 //            }
 
+    }
+
+    public void initAddFromTemplateMenu(javax.swing.JMenu addFromTemplateMenu, Object targetNodeUserObject) {
+        addFromTemplateMenu.removeAll();
+        for (Enumeration menuItemName = linorgTemplates.listTemplatesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+            String[] currentField = (String[]) menuItemName.nextElement();
+//            System.out.println("MenuText: " + currentField[0]);
+//            System.out.println("ActionCommand: " + currentField[1]);
+
+            JMenuItem addMenuItem;
+            addMenuItem = new javax.swing.JMenuItem();
+            addMenuItem.setText(currentField[0]);
+            addMenuItem.setName(currentField[0]);
+            addMenuItem.setActionCommand(currentField[1]);
+            addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    String imdiTemplateUrlString = evt.getActionCommand();
+                    DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
+                    treeHelper.getImdiChildNodes(targetNode);
+                    String addedNodeUrl = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
+                    linorgTemplates.mergeFromTemplate(addedNodeUrl, imdiTemplateUrlString, true);
+                    treeHelper.reloadLocalCorpusTree(targetNode);
+                }
+            });
+            addFromTemplateMenu.add(addMenuItem);
+        }
     }
 
     public void initViewMenu(javax.swing.JMenu viewMenu) {

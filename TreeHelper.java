@@ -375,7 +375,8 @@ public class TreeHelper {
         };
     }
 
-    public void addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType, String nodeTypeDisplayName) {
+    public String addImdiChildNode(DefaultMutableTreeNode itemNode, String nodeType, String nodeTypeDisplayName) {
+        String addedNodeUrl = null;
 //        System.out.println("adding a new node to: " + itemNode);
 //        System.out.println("adding nodeType: " + nodeType);
 //        System.out.println("adding nodeTypeDisplayName: " + nodeTypeDisplayName);
@@ -384,7 +385,7 @@ public class TreeHelper {
             if (imdiTreeObject.isImdi()) {
                 System.out.println("adding to imdi node");
 //                System.out.println("its an imdi so start adding");
-                String addedNodeUrl = imdiTreeObject.addChildNode(nodeType, null, null);
+                addedNodeUrl = imdiTreeObject.addChildNode(nodeType, null, null);
 //                for (Enumeration addedNodesEnum = tempVector.elements(); addedNodesEnum.hasMoreElements();) {
 //                    ImdiTreeObject currentNode = (ImdiTreeObject) addedNodesEnum.nextElement();
 //                    if (!currentNode.isImdiChild()) {
@@ -402,7 +403,7 @@ public class TreeHelper {
             }
         } else {
             System.out.println("adding root imdi node");
-            String addedNodeUrl = new ImdiTreeObject("temp node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
+            addedNodeUrl = new ImdiTreeObject("temp node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
             addLocation(addedNodeUrl);
             applyRootLocations();
             //refreshChildNodes(itemNode);
@@ -412,6 +413,7 @@ public class TreeHelper {
             // this will only happen on the local corpus tree so we can just address that here
             localCorpusTree.scrollToNode(addedNodeUrl);
         }
+        return addedNodeUrl;
     }
 
     public void getImdiChildNodes(DefaultMutableTreeNode itemNode) {

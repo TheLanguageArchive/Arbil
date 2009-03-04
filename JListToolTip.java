@@ -102,6 +102,11 @@ class JListToolTip extends JToolTip {
             jLabel.doLayout();
             jPanel.add(jLabel);
         }
+        if (tempObject.isTemplate()) {
+            JLabel jLabel = new JLabel(preSpaces + "Available in the templates menu");
+            jLabel.doLayout();
+            jPanel.add(jLabel);
+        }
     }
 
     public void updateList() {

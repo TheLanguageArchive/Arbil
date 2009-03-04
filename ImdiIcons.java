@@ -74,6 +74,7 @@ public class ImdiIcons {
 //    private ImageIcon loading02Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading02.png"));
 //    private ImageIcon loading03Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading03.png"));
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
+    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
 
     public ImageIcon getIconForImdi(Object[] imdiObjectArray) {
         int currentIconXPosition = 0;
@@ -192,6 +193,9 @@ public class ImdiIcons {
         // add missing file icon
         if ((imdiObject.fileNotFound) || (imdiObject.hasResource() && imdiObject.hashString == null)) {
             iconsVector.add(missingRedIcon);
+        }
+        if (imdiObject.isTemplate()) {
+            iconsVector.add(templateIcon);
         }
         // add icons for save state
         if (imdiObject.needsChangesSentToServer()) {

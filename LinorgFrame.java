@@ -133,6 +133,10 @@ public class LinorgFrame extends javax.swing.JFrame {
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
         addMenu = new javax.swing.JMenu();
+        templateMenu = new javax.swing.JMenu();
+        setAsTemplateMenuItem = new javax.swing.JMenuItem();
+        addFromTemplateMenu = new javax.swing.JMenu();
+        mergeWithTemplateMenu = new javax.swing.JMenu();
         deleteMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         copyImdiUrlMenuItem = new javax.swing.JMenuItem();
@@ -228,6 +232,33 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(addMenu);
+
+        templateMenu.setText("Templates");
+
+        setAsTemplateMenuItem.setText("Set As Template");
+        setAsTemplateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setAsTemplateMenuItemActionPerformed(evt);
+            }
+        });
+        templateMenu.add(setAsTemplateMenuItem);
+
+        addFromTemplateMenu.setText("Add From Template");
+        addFromTemplateMenu.addMenuListener(new javax.swing.event.MenuListener() {
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                addFromTemplateMenuMenuSelected(evt);
+            }
+        });
+        templateMenu.add(addFromTemplateMenu);
+
+        mergeWithTemplateMenu.setText("Merge With Template");
+        templateMenu.add(mergeWithTemplateMenu);
+
+        treePopupMenu.add(templateMenu);
 
         deleteMenuItem.setText("Delete");
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -709,6 +740,8 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         deleteMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setText("View Selected");
+        templateMenu.setVisible(false);
+        mergeWithTemplateMenu.setEnabled(false);
         saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
         sendToServerMenuItem.setVisible(false);
@@ -742,6 +775,16 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItem1.setVisible(true);
                 validateMenuItem.setVisible(true);
+                // set up the templates menu                
+                templateMenu.setVisible(true);
+                setAsTemplateMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus());
+                if (((ImdiTreeObject) leadSelectedTreeObject).isTemplate()) {
+                    setAsTemplateMenuItem.setText("Remove From Templates List");
+                    setAsTemplateMenuItem.setActionCommand("false");
+                } else {
+                    setAsTemplateMenuItem.setText("Add To Templates List");
+                    setAsTemplateMenuItem.setActionCommand("true");
+                }
             }
             deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
             addMenu.setEnabled(!nodeIsImdiChild);
@@ -1052,6 +1095,17 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     GuiHelper.linorgWindowManager.openUrlWindowOnce("Short Cut Keys", this.getClass().getResource("/mpi/linorg/resources/html/ShortCutKeys.html"));
 }//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
 
+private void setAsTemplateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setAsTemplateMenuItemActionPerformed
+// TODO add your handling code here:
+    // TODO: set the boolean correctly
+    GuiHelper.linorgTemplates.toggleTemplateList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), setAsTemplateMenuItem.getActionCommand().equals("true"));//GEN-LAST:event_setAsTemplateMenuItemActionPerformed
+}
+
+private void addFromTemplateMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromTemplateMenuMenuSelected
+// TODO add your handling code here:
+    guiHelper.initAddFromTemplateMenu(addFromTemplateMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));//GEN-LAST:event_addFromTemplateMenuMenuSelected
+}
+
     /**
      * @param args the command line arguments
      */
@@ -1070,6 +1124,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenuItem addDefaultLocationsMenuItem;
+    private javax.swing.JMenu addFromTemplateMenu;
     private javax.swing.JMenuItem addLocalDirectoryMenuItem;
     private javax.swing.JMenu addMenu;
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
@@ -1096,6 +1151,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JTree localCorpusTree;
     private javax.swing.JTree localDirectoryTree;
     private javax.swing.JSplitPane mainSplitPane;
+    private javax.swing.JMenu mergeWithTemplateMenu;
     private javax.swing.JMenu optionsMenu;
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenuItem redoMenuItem;
@@ -1111,8 +1167,10 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private javax.swing.JMenuItem searchSubnodesMenuItem;
     private javax.swing.JMenuItem sendToServerMenuItem;
+    private javax.swing.JMenuItem setAsTemplateMenuItem;
     private javax.swing.JMenuItem shortCutKeysjMenuItem;
     private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
+    private javax.swing.JMenu templateMenu;
     private javax.swing.JMenu templatesMenu;
     private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JSeparator treePopupMenuSeparator1;
