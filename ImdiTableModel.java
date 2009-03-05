@@ -8,7 +8,9 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -34,6 +36,7 @@ public class ImdiTableModel extends AbstractTableModel {
     boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
+    String[] singleNodeViewHeadings = new String[]{"IMDI Field", "Value"};
 
     public ImdiTableModel() {
         tableFieldView = GuiHelper.imdiFieldViews.getCurrentGlobalView().clone();
@@ -173,7 +176,7 @@ public class ImdiTableModel extends AbstractTableModel {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
         int firstColumn = 0;
-        if (showIcons) {
+        if (showIcons && horizontalView) { // horizontalView excludes icon display
             firstColumn = 1;
         }
         // add the headers
@@ -200,6 +203,60 @@ public class ImdiTableModel extends AbstractTableModel {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(copiedString);
         clipboard.setContents(stringSelection, clipBoardOwner);
+    }
+
+    public String pasteIntoImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
+        int pastedCount = 0;
+        String resultMessage = null;
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Transferable transfer = clipboard.getContents(null);
+        try {
+            String clipBoardString = transfer.getTransferData(DataFlavor.stringFlavor).toString();
+            System.out.println("clipBoardString: " + clipBoardString);
+            // to do this there must be either two rows or two columns otherwise we should abort
+            String[] clipBoardLines = clipBoardString.split("\\n");
+            if (clipBoardLines.length > 1) {
+                String[] firstLine = clipBoardLines[0].split("\\t");
+                boolean singleNodeAxis = false;
+                String regexString = "[(\"^)($\")]";
+                System.out.println("regexString: " + (firstLine[0].replaceAll(regexString, "")));
+                if (firstLine[0].replaceAll(regexString, "").equals(singleNodeViewHeadings[0]) && firstLine[1].replaceAll(regexString, "").equals(singleNodeViewHeadings[1])) {
+                    singleNodeAxis = true;
+                }
+                if (!singleNodeAxis) {
+                    resultMessage = "Incorrect data to paste.\nFields must be copied from a table where only one IMDI file is displayed.";
+                }
+                if (singleNodeAxis) {
+                    for (int lineCounter = 1 /* skip the header */; lineCounter < clipBoardLines.length; lineCounter++) {
+                        String clipBoardLine = clipBoardLines[lineCounter];
+                        System.out.println("clipBoardLine: " + clipBoardLine);
+                        String[] clipBoardCells = clipBoardLine.split("\\t");
+                        System.out.println("clipBoardCells.length: " + clipBoardCells.length);
+                        if (clipBoardCells.length != 2) {
+                            resultMessage = "Inconsistent number of columns in the data to paste.";
+                        }
+                        //loop over all cells in the selected rows
+                        for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
+                            for (int selectedColCounter = 0; selectedColCounter < getColumnCount(); selectedColCounter++) {
+                                if (data[selectedRows[selectedRowCounter]][selectedColCounter] instanceof ImdiField) {
+                                    ImdiField currentField = (ImdiField) data[selectedRows[selectedRowCounter]][selectedColCounter];
+                                    if (currentField.getTranslateFieldName().equals(clipBoardCells[0].replaceAll(regexString, ""))) {
+                                        currentField.setFieldValue(clipBoardCells[1].replaceAll(regexString, ""));
+                                        pastedCount++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                resultMessage = "No data to paste.";
+            }
+            if (pastedCount == 0)resultMessage="No fields matched the data on the clipboard.";
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+        return resultMessage;
     }
 
     public void removeImdiObjects(Enumeration nodesToRemove) {
@@ -288,10 +345,10 @@ public class ImdiTableModel extends AbstractTableModel {
                     String baseValueA = ((ImdiField) ((Object[]) firstRowArray)[1]).fieldID;
                     String comparedValueA = ((ImdiField) (((Object[]) secondRowArray)[1])).fieldID;
 //                    if (baseValueA != null && comparedValueA != null) {
-                        int baseIntA = Integer.parseInt(baseValueA.substring(1));
-                        int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
-                        int returnValue = baseIntA - comparedIntA;
-                        return returnValue;
+                    int baseIntA = Integer.parseInt(baseValueA.substring(1));
+                    int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
+                    int returnValue = baseIntA - comparedIntA;
+                    return returnValue;
 //                    } else {
 //                        return 0;
 //                    }
@@ -432,7 +489,7 @@ public class ImdiTableModel extends AbstractTableModel {
         } else {
             // display the single node view
             maxColumnWidths = new int[2];
-            columnNamesTemp = new String[]{"Name", "Value"};
+            columnNamesTemp = singleNodeViewHeadings;
             if (imdiObjectHash.size() == 0) {
                 dataTemp = allocateCellData(0, 2);
             } else {

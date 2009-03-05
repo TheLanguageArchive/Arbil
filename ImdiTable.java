@@ -200,6 +200,16 @@ public class ImdiTable extends JTable {
                         });
                         windowedTablePopupMenu.add(copySelectedRowsMenuItem);
 
+                        JMenuItem pasteIntoSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                        pasteIntoSelectedRowsMenuItem.setText("Paste Into Selected Rows");
+                        pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                pasteIntoSelectedTableRowsToClipBoard();
+                            }
+                        });
+                        windowedTablePopupMenu.add(pasteIntoSelectedRowsMenuItem);
+
                         JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
                         matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
                         matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -442,6 +452,18 @@ public class ImdiTable extends JTable {
             imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
         } else {
             JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Nothing to copy");
+        }
+    }
+
+    public void pasteIntoSelectedTableRowsToClipBoard() {
+        int[] selectedRows = this.getSelectedRows();
+        if (selectedRows.length > 0) {
+            String pasteResult = imdiTableModel.pasteIntoImdiRows(selectedRows, GuiHelper.clipboardOwner);
+            if (pasteResult != null) {
+                JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, pasteResult);
+            }
+        } else {
+            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No rows selected.");
         }
     }
 
