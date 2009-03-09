@@ -713,7 +713,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
 //            ((javax.swing.JTree) evt.getSource()).addSelectionInterval(leadSelectedInt, clickedNodeInt);
 //        }
 //    }
-    if (evt.getButton() == 3) {
+    if (evt.getButton() == 3 || evt.isMetaDown()) {
         boolean showContextMenu = true;
         int selectionCount = ((javax.swing.JTree) evt.getSource()).getSelectionCount();
         int nodeLevel = -1;
