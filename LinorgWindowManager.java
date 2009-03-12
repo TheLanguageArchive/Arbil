@@ -105,7 +105,7 @@ public class LinorgWindowManager {
 //        } catch (Exception ex) {
 //        }
 //        if (destinationUrl == null) {
-            destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
+        destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
 //        }
         System.out.println("destinationUrl: " + destinationUrl);
         openUrlWindowOnce("Features/Known Bugs", destinationUrl);
@@ -254,16 +254,21 @@ public class LinorgWindowManager {
         return currentWindowName;
     }
 
-    private void focusWindow(String windowName) {
-        Object windowObject = ((Component[]) windowList.get(windowName))[0];
-        try {
-            if (windowObject != null) {
-                ((JInternalFrame) windowObject).setSelected(true);
-            }
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+    public boolean focusWindow(String windowName) {
+        if (windowList.containsKey(windowName)) {
+            Object windowObject = ((Component[]) windowList.get(windowName))[0];
+            try {
+                if (windowObject != null) {
+                    ((JInternalFrame) windowObject).setIcon(false);
+                    ((JInternalFrame) windowObject).setSelected(true);
+                    return true;
+                }
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
+            }
         }
+        return false;
     }
 
     private void startKeyListener() {
@@ -320,6 +325,7 @@ public class LinorgWindowManager {
                                             JInternalFrame topMostWindow = allWindows[0];
                                             if (topMostWindow != null) {
                                                 System.out.println("topMostWindow: " + topMostWindow);
+                                                topMostWindow.setIcon(false);
                                                 topMostWindow.setSelected(true);
                                             }
                                         }
@@ -340,6 +346,7 @@ public class LinorgWindowManager {
                                     } else {
                                         targetLayerInt = allWindows.length - 1;
                                     }
+                                    allWindows[targetLayerInt].setIcon(false);
                                     allWindows[targetLayerInt].setSelected(true);
                                 } catch (Exception ex) {
                                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -401,7 +408,7 @@ public class LinorgWindowManager {
         }
         desktopPane.add(currentInternalFrame, 0);
         try {
-            // prevent the frame focus process onsuming mouse events that should be recieved by the jtable etc.
+            // prevent the frame focus process consuming mouse events that should be recieved by the jtable etc.
             currentInternalFrame.setSelected(true);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -412,9 +419,7 @@ public class LinorgWindowManager {
 
     public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
         // TODO: this is not a good way to do this as it does not check the URL only the title
-        if (windowList.containsKey(frameTitle)) {
-            focusWindow(frameTitle);
-        } else {
+        if (!focusWindow(frameTitle)) {
             return openUrlWindow(frameTitle, locationUrl);
         }
         return null;
