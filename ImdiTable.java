@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -24,7 +22,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -149,7 +146,7 @@ public class ImdiTable extends JTable {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getButton() == MouseEvent.BUTTON3) {
+                if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
                     // set the clicked cell selected
                     java.awt.Point p = evt.getPoint();
                     int clickedRow = rowAtPoint(p);
@@ -158,7 +155,7 @@ public class ImdiTable extends JTable {
 
                     if (!evt.isShiftDown() && !evt.isControlDown()) {
                         // if it is the right mouse button and there is already a selection then do not proceed in changing the selection
-                        if (!((evt.getButton() == MouseEvent.BUTTON3 && clickedRowAlreadySelected))) {
+                        if (!(((evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) && clickedRowAlreadySelected))) {
                             // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
                             getSelectionModel().clearSelection();
                             // make sure the clicked cell is selected
@@ -171,7 +168,7 @@ public class ImdiTable extends JTable {
                     }
                 }
 
-                if (evt.getButton() == MouseEvent.BUTTON3) {
+                if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
 //                    targetTable = (JTable) evt.getComponent();
 //                    System.out.println("set the current table");
                     JPopupMenu windowedTablePopupMenu;
@@ -303,26 +300,8 @@ public class ImdiTable extends JTable {
     public TableCellEditor getCellEditor(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
         Object cellField = getModel().getValueAt(row, modelcolumn);
-        if (cellField instanceof ImdiField) {
-            System.out.println("getCellEditor: " + cellField.toString());
-            if (((ImdiField) cellField).hasVocabulary()) {
-                System.out.println("Has Vocabulary");
-                JComboBox comboBox = new JComboBox();
-                comboBox.setEditable(((ImdiField) cellField).vocabularyIsOpen);
-                for (Enumeration vocabularyList = ((ImdiField) cellField).getVocabulary(); vocabularyList.hasMoreElements();) {
-                    comboBox.addItem(vocabularyList.nextElement());
-                }
-// TODO: enable multiple selection for vocabulary lists
-                comboBox.setSelectedItem(cellField.toString());
-                return new DefaultCellEditor(comboBox);
-            } else {
-                //return super.getCellEditor(row, modelcolumn);
-                return new DefaultCellEditor(new JTextField());
-            }
-        } else if (cellField instanceof Object[]) {
-            return new ImdiChildCellEditor();
-        }
-        return super.getCellEditor(row, modelcolumn);
+//        System.out.println("getCellEditor: " + cellField.toString());
+        return new ImdiChildCellEditor();
     }
 
     @Override
@@ -334,8 +313,7 @@ public class ImdiTable extends JTable {
             iconLabelRenderer.setIcon(((ImdiTreeObject) cellField).getIcon());
             iconLabelRenderer.setText(((ImdiTreeObject) cellField).toString());
             return iconLabelRenderer;
-        } else if (cellField instanceof Object[]) {
-            System.out.println("adding child nodes to cell");
+        } else if (cellField instanceof ImdiTreeObject[]) {
             DefaultTableCellRenderer multiIconLabelRenderer = new DefaultTableCellRenderer() {
 
                 @Override
@@ -343,11 +321,26 @@ public class ImdiTable extends JTable {
                     return "";
                 }
             };
-            multiIconLabelRenderer.setIcon(ImdiTreeObject.imdiIcons.getIconForImdi((Object[]) cellField));
-//            multiIconLabelRenderer.setIcon(((ImdiTreeObject) ((Object[])cellField)[0]).getIcon());
+            multiIconLabelRenderer.setIcon(ImdiTreeObject.imdiIcons.getIconForImdi((ImdiTreeObject[]) cellField));
             multiIconLabelRenderer.setText("");
             return multiIconLabelRenderer;
-        } else { //        add cell background colour
+        } else if (cellField instanceof ImdiField[]) {
+            System.out.println("adding ImdiField[] to cell");
+            DefaultTableCellRenderer multiFieldLabelRenderer = new DefaultTableCellRenderer() {
+
+                @Override
+                public String getText() {
+                    return "<multiple values>";
+                }
+
+                @Override
+                public Color getForeground() {
+                    int greyTone = 150;
+                    return new Color(greyTone, greyTone, greyTone);
+                }
+            };
+            return multiFieldLabelRenderer;
+        } else {
             DefaultTableCellRenderer fieldLabelRenderer = new DefaultTableCellRenderer();
             fieldLabelRenderer.setText(cellField.toString());
             fieldLabelRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
@@ -356,19 +349,18 @@ public class ImdiTable extends JTable {
             }
             return fieldLabelRenderer;
         }
-//        return super.getCellRenderer(row, modelcolumn);
     }
 
     public void showRowChildData() {
         Object[] possibilities = ((ImdiTableModel) this.getModel()).getChildNames();
         String selectionResult = (String) JOptionPane.showInputDialog(GuiHelper.linorgWindowManager.linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
-
+//      TODO: JOptionPane.show it would be good to have a miltiple select here
         if ((selectionResult != null) && (selectionResult.length() > 0)) {
             ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
         }
     }
-    
     int lastColumnCount = -1;
+
     private void setColumnWidths() {
         // resize the columns only if the number of columns have changed
         boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount();
