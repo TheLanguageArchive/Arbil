@@ -256,7 +256,7 @@ public class ThreadedDialog {
                                     GuiHelper.treeHelper.reloadLocalCorpusTree();
                                 }
                                 if (totalErrors != 0) {
-                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "There were " + totalErrors + " errors, some files may not be in the cashe.", searchDialog.getTitle(), 0);
+                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "There were " + totalErrors + " errors, some files may not be in the cache.", searchDialog.getTitle(), 0);
                                 }
                             }
                         }
