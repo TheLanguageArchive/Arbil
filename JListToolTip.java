@@ -10,7 +10,6 @@ import java.util.Hashtable;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JToolTip;
 
 /**
@@ -32,8 +31,15 @@ class JListToolTip extends JToolTip {
         jPanel.setBorder(getBorder());
     }
 
+    private String truncateString(String inputString) {
+        if (inputString.length() > 100) {
+            inputString = inputString.substring(0, 100) + "...";
+        }
+        return inputString + " ";// add a space to padd the end of the tooltip
+    }
+
     private void addIconLabel(Object tempObject) {
-        JLabel jLabel = new JLabel(tempObject.toString());
+        JLabel jLabel = new JLabel(truncateString(tempObject.toString()));
         if (tempObject instanceof ImdiTreeObject) {
             jLabel.setIcon(((ImdiTreeObject) tempObject).getIcon());
         }
@@ -41,22 +47,25 @@ class JListToolTip extends JToolTip {
         jPanel.add(jLabel);
     }
 
-    private void addDetailLabel(String prefixString, Object tempObject) {
-        if (tempObject != null) {
-            String labelString = tempObject.toString();
-            if (labelString.length() > 100) {
-                labelString = labelString.substring(0, 100) + "...";
+    private void addDetailLabel(String labelString) {
+        JLabel jLabel = new JLabel(truncateString(labelString));
+        jLabel.doLayout();
+        jPanel.add(jLabel);
+    }
+
+    private void addDetailLabel(String prefixString, ImdiField[] tempFieldArray) {
+        if (tempFieldArray != null) {
+            for (ImdiField tempField : tempFieldArray) {
+                String labelString = tempField.toString();
+                addDetailLabel(preSpaces + prefixString + labelString);
             }
-            JLabel jLabel = new JLabel(preSpaces + prefixString + labelString);
-            jLabel.doLayout();
-            jPanel.add(jLabel);
         }
     }
 
     private void addLabelsForImdiObject(ImdiTreeObject tempObject) {
 
         if (tempObject.isImdi()) {
-            Hashtable tempFields = tempObject.getFields();
+            Hashtable<String, ImdiField[]> tempFields = tempObject.getFields();
             addDetailLabel("Name: ", tempFields.get("Name"));
             addDetailLabel("Title: ", tempFields.get("Title"));
             addDetailLabel("Description: ", tempFields.get("Description"));
@@ -67,6 +76,13 @@ class JListToolTip extends JToolTip {
                 jLabel.doLayout();
                 jPanel.add(jLabel);
             }
+        }
+        
+        //if (tempObject.matchesInCache + tempObject.matchesLocalFileSystem + tempObject.matchesRemote > 0){
+        if (tempObject.hasResource() || (!tempObject.isImdi() && !tempObject.isDirectory())){
+            addDetailLabel(preSpaces + "Copies in cache: " + tempObject.matchesInCache);
+            addDetailLabel(preSpaces + "Copies on local file system: " + tempObject.matchesLocalFileSystem);
+            addDetailLabel(preSpaces + "Copies on server: ?"/* + tempObject.matchesRemote*/);
         }
 
         if (!tempObject.isLocal()) {
@@ -121,17 +137,21 @@ class JListToolTip extends JToolTip {
                 addIconLabel(targetObject);
                 addLabelsForImdiObject((ImdiTreeObject) targetObject);
             } else {
-                //JTextField
-                JTextArea jTextArea = new JTextArea();
-                jTextArea.setText(targetObject.toString());
-                jTextArea.setBackground(getBackground());
-//                    jTextArea.setLineWrap(true);                    
-//                    jTextArea.setColumns(100);
-                jTextArea.doLayout();
-                jPanel.add(jTextArea);
+                addDetailLabel(targetObject.toString());
+            //JTextField
+//                JTextArea jTextArea = new JTextArea();
+//                jTextArea.setText(targetObject.toString());
+//                jTextArea.setBackground(getBackground());
+//                jTextArea.setLineWrap(true);
+//                jTextArea.setMaximumSize(new Dimension(300, 300));
+//                jTextArea.setColumns(50);
+//                jTextArea.doLayout();
+//                jPanel.add(jTextArea);
             }
             jPanel.doLayout();
             doLayout();
+//            revalidate();
+//            validate();
         }
     }
 
