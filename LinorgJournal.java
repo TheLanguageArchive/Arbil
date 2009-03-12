@@ -12,12 +12,12 @@ import java.io.FileWriter;
  */
 public class LinorgJournal {
 
-    public boolean saveJournalEntry(String imdiUrl, String imdiNodePath, String oldValue, String newValue) {
+    public boolean saveJournalEntry(String imdiUrl, String imdiNodePath, String oldValue, String newValue, String eventType) {
         boolean returnValue = false;
         try {
             FileWriter journalFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgjornal.log", true);
             System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
-            journalFile.append(imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue + "\n");
+            journalFile.append("\""+imdiUrl + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
             journalFile.close();
             returnValue = true;
         } catch (Exception ex) {
