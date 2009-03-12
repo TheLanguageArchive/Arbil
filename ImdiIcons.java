@@ -60,9 +60,9 @@ public class ImdiIcons {
 //    private ImageIcon stopIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/stop.png"));
 //    private ImageIcon file16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file16x16.png"));
 //    private ImageIcon filelocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/filelocal16x16.png"));
-//    private ImageIcon tickBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-blue.png"));
+    private ImageIcon tickBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-blue.png"));
     private ImageIcon fileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/file.png"));
-//    private ImageIcon tickGreenIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-green.png"));
+    private ImageIcon tickGreenIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-green.png"));
 //    private ImageIcon fileserver16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/fileserver16x16.png"));
 //    private ImageIcon tickRedIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/tick-red.png"));
 //    private ImageIcon fileserverlocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/fileserverlocal16x16.png"));
@@ -76,13 +76,13 @@ public class ImdiIcons {
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
     private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
 
-    public ImageIcon getIconForImdi(Object[] imdiObjectArray) {
+    public ImageIcon getIconForImdi(ImdiTreeObject[] imdiObjectArray) {
         int currentIconXPosition = 0;
         int width = 0;
         int heightMax = 0;
-        for (Object currentImdi : imdiObjectArray) {
-            width += ((ImdiTreeObject) currentImdi).getIcon().getIconWidth();
-            int height = ((ImdiTreeObject) currentImdi).getIcon().getIconHeight();
+        for (ImdiTreeObject currentImdi : imdiObjectArray) {
+            width += currentImdi.getIcon().getIconWidth();
+            int height = currentImdi.getIcon().getIconHeight();
             if (heightMax < height) {
                 heightMax = height;
             }
@@ -194,8 +194,13 @@ public class ImdiIcons {
         if ((imdiObject.fileNotFound) || (imdiObject.hasResource() && imdiObject.hashString == null)) {
             iconsVector.add(missingRedIcon);
         }
-        if (imdiObject.isTemplate()) {
-            iconsVector.add(templateIcon);
+        // add a file attached to a session icon
+        if (!imdiObject.isImdi() && imdiObject.matchesInCache + imdiObject.matchesRemote > 0) {
+            if (imdiObject.matchesRemote > 0) {
+                iconsVector.add(tickGreenIcon);
+            } else {
+                iconsVector.add(tickBlueIcon);
+            }
         }
         // add icons for save state
         if (imdiObject.needsChangesSentToServer()) {
