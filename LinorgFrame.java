@@ -6,6 +6,7 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -77,6 +78,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
         setTitle("Linorg (Testing version, not for production use) " + new LinorgVersion().compileDate);
+        showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
+        checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
+        showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
     }
 
     private void performCleanExit() {
@@ -92,6 +96,12 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         }
         guiHelper.saveState();
+        try {
+            GuiHelper.linorgSessionStorage.saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
+            GuiHelper.linorgSessionStorage.saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
         System.exit(0);
     }
 
@@ -180,6 +190,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         editFieldViewsMenuItem = new javax.swing.JMenuItem();
         saveWindowsCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
+        checkNewVersionAtStartCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         viewMenu = new javax.swing.JMenu();
         windowMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
@@ -592,6 +603,10 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
 
+        checkNewVersionAtStartCheckBoxMenuItem.setSelected(true);
+        checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
+        optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
+
         jMenuBar1.add(optionsMenu);
 
         viewMenu.setText("View");
@@ -680,15 +695,15 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
     int leadSelectedInt = ((javax.swing.JTree) evt.getSource()).getLeadSelectionRow();
 
     boolean clickedPathIsSelected = (((javax.swing.JTree) evt.getSource()).isPathSelected(clickedNodePath));
-    if (evt.getButton() == 3) {
+    if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
         // this is simplified and made to match the same type of actions as the imditable 
         if (!evt.isShiftDown() && !evt.isControlDown() && !clickedPathIsSelected) {
             ((javax.swing.JTree) evt.getSource()).clearSelection();
             ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
         }
     }
-//    if (evt.getButton() == 3) {
-//        if (/*(*/!evt.isControlDown() /*&& evt.getButton() == 1*/ /*&& !evt.isShiftDown())*/ /* || (evt.getButton() == 3 && !clickedPathIsSelected)*/) {
+//    if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
+//        if (/*(*/!evt.isControlDown() /*&& evt.getButton() == 1*/ /*&& !evt.isShiftDown())*/ /* || ((evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) && !clickedPathIsSelected)*/) {
 //            System.out.println("alt not down so clearing selection");
 //            ((javax.swing.JTree) evt.getSource()).clearSelection();
 ////        if (evt.getSource() != remoteCorpusTree) {
@@ -713,7 +728,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
 //            ((javax.swing.JTree) evt.getSource()).addSelectionInterval(leadSelectedInt, clickedNodeInt);
 //        }
 //    }
-    if (evt.getButton() == 3 || evt.isMetaDown()) {
+    if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
         boolean showContextMenu = true;
         int selectionCount = ((javax.swing.JTree) evt.getSource()).getSelectionCount();
         int nodeLevel = -1;
@@ -793,9 +808,9 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
         if (evt.getSource() == localDirectoryTree) {
             removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
-        } else {
-            copyImdiUrlMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         }
+        copyImdiUrlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);
+
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 
@@ -1110,9 +1125,9 @@ private void addFromTemplateMenuMenuSelected(javax.swing.event.MenuEvent evt) {/
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                try{
+                try {
                     new LinorgFrame();
                 } catch (Exception ex) {
                     new LinorgBugCatcher().logError(ex);
@@ -1128,6 +1143,7 @@ private void addFromTemplateMenuMenuSelected(javax.swing.event.MenuEvent evt) {/
     private javax.swing.JMenuItem addLocalDirectoryMenuItem;
     private javax.swing.JMenu addMenu;
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
+    private javax.swing.JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem;
     private javax.swing.JMenuItem copyBranchMenuItem;
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
