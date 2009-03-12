@@ -55,7 +55,6 @@ public class GuiHelper {
     }
 
     public void saveState() {
-        ImdiTreeObject.mimeHashQueue.saveMd5sumIndex();
         imdiFieldViews.saveViewsToFile();
         treeHelper.saveLocations();
         linorgWindowManager.saveWindowStates();
