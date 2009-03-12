@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -29,6 +31,47 @@ public class ImdiSchema {
      */
     static String imdiPathSeparator = ".";
 
+    private String getNodePath(ImdiTreeObject targetImdiObject) {
+        String xpath;
+        xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session";
+        Object[] nodePathArray = ((ImdiTreeObject) targetImdiObject).getUrlString().split("#");
+        System.out.println("nodePath0: " + nodePathArray[0]);
+        if (nodePathArray.length > 1) {
+            String nodePath = nodePathArray[1].toString();
+            System.out.println("nodePath1: " + nodePath);
+            // convert the dot path to xpath
+            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
+//                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
+            System.out.println("xpath: " + xpath);
+        }
+        return xpath;
+    }
+
+    private Vector getSubnodesFromTemplatesDir(final String nodepath, boolean getBranches/*, boolean singleEntry, boolean canHaveChildren*/) {
+        Vector returnVector = new Vector();
+//        System.out.println("getSubnodesOf: " + nodepath);
+        File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
+        for (String currentTemplate : templatesDirectory.list()) {
+            currentTemplate = "." + currentTemplate;
+            if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
+                if (currentTemplate.startsWith(nodepath)) {
+                    String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
+                    String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
+                    returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
+                }
+            }
+        }
+        Collections.sort(returnVector, new Comparator() {
+
+            public int compare(Object o1, Object o2) {
+                String value1 = ((String[]) o1)[0];
+                String value2 = ((String[]) o2)[0];
+                return value1.compareTo(value2);
+            }
+        });
+        return returnVector;
+    }
+
     /**
      * This function is only a place holder and will be replaced.
      * @param targetNodeUserObject The imdi node that will receive the new child.
@@ -40,17 +83,8 @@ public class ImdiSchema {
         Vector childTypes = new Vector();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             if (((ImdiTreeObject) targetNodeUserObject).isSession() || ((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
-//                childTypes.add(new String[]{"Region", ".METATRANSCRIPT.Session.MDGroup.Location.Region"});
-                childTypes.add(new String[]{"Language", ".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language"});
-                childTypes.add(new String[]{"Actor", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor"});
-//                childTypes.add(new String[]{"Actor Language", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language"});
-                childTypes.add(new String[]{"Media File", ".METATRANSCRIPT.Session.Resources.MediaFile"});
-                childTypes.add(new String[]{"Written Resource", ".METATRANSCRIPT.Session.Resources.WrittenResource"});
-//                childTypes.add(new String[]{"Lexicon Resource Description", ".METATRANSCRIPT.Session.Resources.LexiconResource.Description"});
-                childTypes.add(new String[]{"Source", ".METATRANSCRIPT.Session.Resources.Source"});
-//                childTypes.add(new String[]{"", ""});
-//                childTypes.add(new String[]{"", ""});
-//                childTypes.add(new String[]{"", ""});      
+                String xpath = getNodePath((ImdiTreeObject) targetNodeUserObject);
+                childTypes = getSubnodesFromTemplatesDir(xpath, true);
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add(new String[]{"Corpus", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
                 childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
