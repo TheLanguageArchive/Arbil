@@ -125,7 +125,7 @@ public class ImdiTableModel extends AbstractTableModel {
             }
             System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
             System.out.println("hasResource: " + imdiTreeObject.hasResource());
-            for (Enumeration fieldNames = imdiTreeObject.getFields().keys(); fieldNames.hasMoreElements();) {
+            for (Enumeration<String> fieldNames = imdiTreeObject.getFields().keys(); fieldNames.hasMoreElements();) {
                 String currentColumnName = fieldNames.nextElement().toString();
                 if (!allColumnNames.contains(currentColumnName)) {
                     allColumnNames.add(currentColumnName);
@@ -155,6 +155,8 @@ public class ImdiTableModel extends AbstractTableModel {
         // if that the first column is the imdi node (ergo string and icon) use that to remove the row
         if (data[rowNumber][0] instanceof ImdiTreeObject) {
             return (ImdiTreeObject) data[rowNumber][0];
+        } else if (data[rowNumber][0] instanceof ImdiField[]) {
+            return ((ImdiField[]) data[rowNumber][columnNames.length - 1])[0].parentImdi;
         } else {
             // in the case that the icon and sting are not displayed then try to get the imdifield in order to get the imdinode
             // TODO: this will fail if the imdiobject for the row does not have a field to display for the first column because there will be no imdi nor field in the first coloumn
@@ -211,12 +213,23 @@ public class ImdiTableModel extends AbstractTableModel {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable transfer = clipboard.getContents(null);
         try {
-            String clipBoardString = transfer.getTransferData(DataFlavor.stringFlavor).toString();
+            String clipBoardString = "";
+            Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
+            if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
+                clipBoardString = clipBoardData.toString();
+            }
             System.out.println("clipBoardString: " + clipBoardString);
             // to do this there must be either two rows or two columns otherwise we should abort
-            String[] clipBoardLines = clipBoardString.split("\\n");
+            String[] clipBoardLines = clipBoardString.split("\"\\n\"");
+            if (clipBoardLines.length == 1) {
+                // re try in case the csv text is not quoted
+                clipBoardLines = clipBoardString.split("\n");
+            }
             if (clipBoardLines.length > 1) {
-                String[] firstLine = clipBoardLines[0].split("\\t");
+                String[] firstLine = clipBoardLines[0].split("\"\\t\"");
+                if (firstLine.length == 1) {
+                    firstLine = clipBoardLines[0].split("\t");
+                }
                 boolean singleNodeAxis = false;
                 String regexString = "[(\"^)($\")]";
                 System.out.println("regexString: " + (firstLine[0].replaceAll(regexString, "")));
@@ -227,22 +240,48 @@ public class ImdiTableModel extends AbstractTableModel {
                     resultMessage = "Incorrect data to paste.\nFields must be copied from a table where only one IMDI file is displayed.";
                 }
                 if (singleNodeAxis) {
+                    Hashtable<String, Integer> fieldNamePasteCount = new Hashtable(); // used to count the field index in the fields array if there are multiple values of the same name
                     for (int lineCounter = 1 /* skip the header */; lineCounter < clipBoardLines.length; lineCounter++) {
                         String clipBoardLine = clipBoardLines[lineCounter];
                         System.out.println("clipBoardLine: " + clipBoardLine);
                         String[] clipBoardCells = clipBoardLine.split("\\t");
                         System.out.println("clipBoardCells.length: " + clipBoardCells.length);
                         if (clipBoardCells.length != 2) {
-                            resultMessage = "Inconsistent number of columns in the data to paste.";
-                        }
-                        //loop over all cells in the selected rows
-                        for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-                            for (int selectedColCounter = 0; selectedColCounter < getColumnCount(); selectedColCounter++) {
-                                if (data[selectedRows[selectedRowCounter]][selectedColCounter] instanceof ImdiField) {
-                                    ImdiField currentField = (ImdiField) data[selectedRows[selectedRowCounter]][selectedColCounter];
-                                    if (currentField.getTranslateFieldName().equals(clipBoardCells[0].replaceAll(regexString, ""))) {
-                                        currentField.setFieldValue(clipBoardCells[1].replaceAll(regexString, ""));
-                                        pastedCount++;
+                            resultMessage = "Inconsistent number of columns in the data to paste.\nThe pasted data could be incorrect.";
+                        } else {//loop over the selected rows
+                            String currentFieldName = clipBoardCells[0].replaceAll(regexString, "");
+                            String currentFieldValue = clipBoardCells[1].replaceAll(regexString, "");
+                            int currentFieldCounted = 0;
+                            if (fieldNamePasteCount.containsKey(currentFieldName)) {
+                                currentFieldCounted = fieldNamePasteCount.get(currentFieldName);
+                                fieldNamePasteCount.put(currentFieldName, ++currentFieldCounted);
+                            } else {
+                                fieldNamePasteCount.put(currentFieldName, currentFieldCounted);
+                            }
+                            for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
+                                //loop over all cells in the selected rows
+                                for (int selectedColCounter = 0; selectedColCounter < getColumnCount(); selectedColCounter++) {
+                                    // the cell contents could be either an imdifield or an array of imdifields or an imditreeobject or an array of imditreenodes or a string or null
+                                    // only imdifields or arrays of imdifield need to be handled here
+                                    ImdiField[] currentFieldArray = null;
+                                    if (data[selectedRows[selectedRowCounter]][selectedColCounter] instanceof ImdiField[]) {
+                                        currentFieldArray = (ImdiField[]) data[selectedRows[selectedRowCounter]][selectedColCounter];
+                                    }
+                                    if (data[selectedRows[selectedRowCounter]][selectedColCounter] instanceof ImdiField) {
+                                        if (((ImdiField) data[selectedRows[selectedRowCounter]][selectedColCounter]).getTranslateFieldName().equals(currentFieldName)) {
+                                            currentFieldArray = ((ImdiField) data[selectedRows[selectedRowCounter]][selectedColCounter]).parentImdi.getFields().get(currentFieldName);
+                                        }
+                                    }
+                                    // todo prevent field array paste different from table view to single view
+                                    if (currentFieldArray != null) {
+                                        System.out.println("current target Field: " + currentFieldArray[0].getTranslateFieldName());
+                                        if (currentFieldArray.length > currentFieldCounted) {
+                                            if (currentFieldArray[currentFieldCounted].getTranslateFieldName().equals(currentFieldName)) {
+                                                System.out.println("currentFieldName: " + currentFieldName + ":" + currentFieldCounted + ":" + currentFieldValue);
+                                                currentFieldArray[currentFieldCounted].setFieldValue(currentFieldValue);
+                                                pastedCount++;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -252,7 +291,11 @@ public class ImdiTableModel extends AbstractTableModel {
             } else {
                 resultMessage = "No data to paste.";
             }
-            if (pastedCount == 0)resultMessage="No fields matched the data on the clipboard.";
+            if (pastedCount == 0) {
+                if (resultMessage == null) {
+                    resultMessage = "No fields matched the data on the clipboard.";
+                }
+            }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -446,7 +489,7 @@ public class ImdiTableModel extends AbstractTableModel {
             while (imdiRowsEnum.hasMoreElements()) {
                 ImdiTreeObject currentNode = (ImdiTreeObject) imdiRowsEnum.nextElement();
                 System.out.println("currentNode: " + currentNode.toString());
-                Hashtable fieldsHash = currentNode.getFields();
+                Hashtable<String, ImdiField[]> fieldsHash = currentNode.getFields();
                 if (showIcons) {
                     //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
                     dataTemp[rowCounter][0] = currentNode;
@@ -455,9 +498,13 @@ public class ImdiTableModel extends AbstractTableModel {
                 for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
                     if (columnCounter < columnNamesTemp.length - childColumnNames.size()) {
-                        Object currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
+                        ImdiField[] currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
                         if (currentValue != null) {
-                            dataTemp[rowCounter][columnCounter] = currentValue;
+                            if (currentValue.length == 1) {
+                                dataTemp[rowCounter][columnCounter] = currentValue[0];
+                            } else {
+                                dataTemp[rowCounter][columnCounter] = currentValue;
+                            }
                         } else {
                             dataTemp[rowCounter][columnCounter] = "";
                         }
@@ -495,15 +542,23 @@ public class ImdiTableModel extends AbstractTableModel {
             } else {
                 Enumeration imdiRowsEnum = imdiObjectHash.elements();
                 if (imdiRowsEnum.hasMoreElements()) {
-                    Hashtable fieldsHash = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getFields();
-                    dataTemp = allocateCellData(fieldsHash.size(), 2);
-                    Enumeration labelsEnum = fieldsHash.keys();
-                    Enumeration valuesEnum = fieldsHash.elements();
+                    Hashtable<String, ImdiField[]> fieldsHash = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getFields();
+                    // calculate the real number of rows
+                    Vector<ImdiField> allRowFields = new Vector();
+                    for (Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
+                        ImdiField[] currentFieldArray = valuesEnum.nextElement();
+                        for (ImdiField currentField : currentFieldArray) {
+                            allRowFields.add(currentField);
+                        }
+                    }
+                    dataTemp = allocateCellData(allRowFields.size(), 2);
+//                    Enumeration<String> labelsEnum = fieldsHash.keys();
+//                    Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements();
                     int rowCounter = 0;
-                    while (labelsEnum.hasMoreElements() && valuesEnum.hasMoreElements()) {
-                        dataTemp[rowCounter][0] = labelsEnum.nextElement();
-                        dataTemp[rowCounter][1] = valuesEnum.nextElement();
-
+                    for (Enumeration<ImdiField> allFieldsEnum = allRowFields.elements(); allFieldsEnum.hasMoreElements();) {
+                        ImdiField currentField = allFieldsEnum.nextElement();
+                        dataTemp[rowCounter][0] = currentField.getTranslateFieldName();
+                        dataTemp[rowCounter][1] = currentField;
                         //record the column string lengths 
                         int currentLength = (dataTemp[rowCounter][0].toString()).length();
                         if (maxColumnWidths[0] < currentLength) {
@@ -523,11 +578,19 @@ public class ImdiTableModel extends AbstractTableModel {
         sortTableRows(columnNamesTemp, dataTemp);
         cellColour = setCellColours(dataTemp);
         columnNames = columnNamesTemp;
+        Object[][] prevousData = data;
         data = dataTemp;
-        if (previousColumnCount != getColumnCount()) {
+        if (previousColumnCount != getColumnCount() || prevousData.length != data.length) {
             fireTableStructureChanged();
         } else {
-            fireTableDataChanged();
+            for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
+                for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
+//                    if (prevousData[rowCounter][colCounter] != data[rowCounter][colCounter]) {
+//                        System.out.println("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
+                        fireTableCellUpdated(rowCounter, colCounter);
+//                    }
+                }
+            }
         }
     }
     private String[] columnNames = new String[0];
@@ -563,6 +626,17 @@ public class ImdiTableModel extends AbstractTableModel {
             if (data[row][col] instanceof ImdiField) {
                 return ((ImdiField) data[row][col]).fieldNeedsSaveToDisk;
             }
+            if (data[row][col] instanceof ImdiField[]) {
+                boolean needsSave = false;
+                ImdiField[] fieldArray = (ImdiField[]) data[row][col];
+                for (ImdiField fieldElement : fieldArray) {
+                    System.out.println("hasValueChanged: " + fieldElement);
+                    if (fieldElement.fieldNeedsSaveToDisk) {
+                        needsSave = true;
+                    }
+                }
+                return needsSave;
+            }
         }
         return false;
     }
@@ -582,6 +656,8 @@ public class ImdiTableModel extends AbstractTableModel {
         boolean returnValue = false;
         if (data[row][col] instanceof ImdiField) {
             returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal();
+        } else if (data[row][col] instanceof ImdiField[]) {
+            returnValue = ((ImdiField[]) data[row][col])[0].parentImdi.isLocal();
         }
         System.out.println("Cell is ImdiField: " + returnValue);
 //        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
@@ -597,16 +673,16 @@ public class ImdiTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int col) {
         System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
         if (data[row][col] instanceof ImdiField) {
+            // multiple field colums will not be edited here or saved here
             ImdiField currentField = ((ImdiField) data[row][col]);
-            if (GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), value.toString())) {
-                currentField.setFieldValue(value.toString());
-            }
+            currentField.setFieldValue(value.toString());
             fireTableCellUpdated(row, col);
         } else if (data[row][col] instanceof Object[]) {
             System.out.println("cell is a child list so do not edit");
         } else {
-            data[row][col] = value;
-            fireTableCellUpdated(row, col);
+            // TODO: is this even valid, presumably this will be a string and therefore not saveable to the imdi
+//            data[row][col] = value;
+//            fireTableCellUpdated(row, col);
         }
         fireTableCellUpdated(row, col);
     }
