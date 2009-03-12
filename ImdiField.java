@@ -26,6 +26,7 @@ public class ImdiField {
     public boolean vocabularyIsList;
     public boolean fieldNeedsSaveToDisk = false;
     private Hashtable fieldAttributes = new Hashtable();
+    private int isLongField = -1;
 
     public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
         parentImdi = localParentImdi;
@@ -34,15 +35,30 @@ public class ImdiField {
     //translatedPath = translateFieldName(tempPath + siblingSpacer);
     }
 
+    public boolean isLongField() {
+        if (isLongField == -1) {
+            // calculate length and count line breaks
+            // TODO: the length chosed in currently abitary and should relate to the length of the text field
+            if (fieldValue.length() > 50 || fieldValue.contains("\n")) {
+                isLongField = 1;
+            } else {
+                isLongField = 0;
+            }
+        }
+        return isLongField == 1;
+    }
+
     public String getFieldValue() {
         return fieldValue;
     }
 
     public void setFieldValue(String fieldValue) {
         if (!this.fieldValue.equals(fieldValue)) {
+            GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
             this.fieldValue = fieldValue;
             parentImdi.setImdiNeedsSaveToDisk(true);
             fieldNeedsSaveToDisk = true;
+            isLongField = -1;
             parentImdi.clearIcon();
         }
     }
