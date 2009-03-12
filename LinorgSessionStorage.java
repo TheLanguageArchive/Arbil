@@ -40,6 +40,15 @@ public class LinorgSessionStorage {
     }
 
     /**
+     * Tests if the a string points to a flie that is in the cache directory.
+     * @return Boolean
+     */
+    public boolean pathIsInsideCache(String pathString) {
+//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + pathString);
+        return pathString.contains(storageDirectory + "imdicache");
+    }
+
+    /**
      * Tests that the cache directory exists and creates it if it does not.
      * @return Boolean
      */
@@ -79,11 +88,22 @@ public class LinorgSessionStorage {
         ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
         object = objstream.readObject();
         objstream.close();
-        if (object == null){
-            throw(new Exception("Loaded object is null"));
+        if (object == null) {
+            throw (new Exception("Loaded object is null"));
         }
 //        }
         return object;
+    }
+
+    public boolean loadBoolean(String filename, boolean defaultValue) {
+        boolean resultValue = false;
+        try {
+            resultValue = (Boolean) GuiHelper.linorgSessionStorage.loadObject(filename);
+        } catch (Exception ex) {
+            System.out.println("load " + filename + " failed: " + ex.getMessage());
+            resultValue = defaultValue;
+        }
+        return resultValue;
     }
 
     /**
