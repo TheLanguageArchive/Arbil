@@ -30,18 +30,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
     public static IMDIDom api = new IMDIDom();
-    public static MimeHashQueue mimeHashQueue = new MimeHashQueue(); // used to calculate mime types and md5 sums
     static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
-    private Hashtable<String, ImdiField> fieldHashtable;
-    private Hashtable childrenHashtable;
+    private Hashtable<String, ImdiField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
+    private Hashtable<String, ImdiTreeObject> childrenHashtable;
     private boolean imdiDataLoaded;
     public String hashString;
     public String mpiMimeType;
-    public int matchesLocal;
+    public int matchesInCache;
     public int matchesRemote;
-    public int matchesLocalResource;
+    public int matchesLocalFileSystem;
     public boolean fileNotFound;
     public boolean imdiNeedsSaveToDisk;
     private String nodeText,  lastNodeText = "";
@@ -133,9 +132,9 @@ public class ImdiTreeObject implements Comparable {
         imdiDataLoaded = false;
         hashString = null;
         mpiMimeType = null;
-        matchesLocal = 0;
+        matchesInCache = 0;
         matchesRemote = 0;
-        matchesLocalResource = 0;
+        matchesLocalFileSystem = 0;
         fileNotFound = false;
         setImdiNeedsSaveToDisk(false);
 //    nodeText = null;
@@ -146,9 +145,6 @@ public class ImdiTreeObject implements Comparable {
         nodeEnabled = true;
         childLinks = new Vector();
         isLoading = false;
-
-
-        icon = null;//idleIcon;//null;//new ImageIcon(getClass().getResource(imageName)); 
         isDirectory = false;
         if (nodeUrl != null) {
             if (!isImdi() && isLocal()) {
@@ -164,7 +160,7 @@ public class ImdiTreeObject implements Comparable {
         }
         if (!isImdi() && !isDirectory()) {
             // if it is an not imdi or a loose file but not a direcotry then get the md5sum
-            mimeHashQueue.addToQueue(this);
+            MimeHashQueue.getSingleInstance().addToQueue(this);
         }
         if (this.isDirectory()) {
             getDirectoryLinks();
@@ -375,7 +371,7 @@ public class ImdiTreeObject implements Comparable {
      * Used to populate the child nodes in the table cell.
      * @return A collection of the next level child nodes.
      */
-    public Collection getChildCollection() {
+    public Collection<ImdiTreeObject> getChildCollection() {
         return childrenHashtable.values();
     }
 
@@ -385,11 +381,11 @@ public class ImdiTreeObject implements Comparable {
      * @param childType The name of the first level child to query.
      * @return An object array of all second level child nodes in the first level node.
      */
-    public Object[] getChildNodesArray(String childType) {
+    public ImdiTreeObject[] getChildNodesArray(String childType) {
         for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
             ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
             if (currentNode.toString().equals(childType)) {
-                return currentNode.getChildCollection().toArray();
+                return currentNode.getChildCollection().toArray(new ImdiTreeObject[0]);
             }
         }
         return null;
@@ -545,10 +541,12 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean containsFieldValue(String searchValue) {
         boolean findResult = false;
-        for (ImdiField currentField : (Collection<ImdiField>) this.fieldHashtable.values()) {
-            System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
-            if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
-                findResult = true;
+        for (ImdiField[] currentFieldArray : (Collection<ImdiField[]>) this.fieldHashtable.values()) {
+            for (ImdiField currentField : currentFieldArray) {
+                System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
+                if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
+                    findResult = true;
+                }
             }
         }
         System.out.println("result: " + findResult + ":" + this);
@@ -620,7 +618,7 @@ public class ImdiTreeObject implements Comparable {
         return new File(this.getFile().getPath() + ".0").exists();
     }
 
-    private void getAllFields(Vector allFields) {
+    private void getAllFields(Vector<ImdiField[]> allFields) {
         // returns all fields relevant to the parent node
         // that includes all indinodechild fields but not from any other imdi file
         System.out.println("getAllFields: " + this.toString());
@@ -744,6 +742,7 @@ public class ImdiTreeObject implements Comparable {
         OurURL inUrlLocal = null;
         if (nodeUrl.getProtocol().toLowerCase().startsWith("http")) {
             System.out.println("should not try to save remote files");
+            setImdiNeedsSaveToDisk(false);
             return;
         }
         System.out.println("tempUrlString: " + this.getFile());
@@ -779,37 +778,43 @@ public class ImdiTreeObject implements Comparable {
                 // TODO: make the changes to the dom before saving
                 // refer to: /data1/repos/trunk/src/java/mpi/imdi/api/TestDom.java
 
-                Vector allFields = new Vector();
+                Vector<ImdiField[]> allFields = new Vector();
                 getAllFields(allFields);
 
 
-                for (Enumeration<ImdiField> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
-                    ImdiField currentField = fieldsEnum.nextElement();
-                    if (currentField.fieldID == null) {
-                        // here we are assuming that if there is no fieldID then it is a new field so it will be added here
+                for (Enumeration<ImdiField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+                    {
+                        ImdiField[] currentFieldArray = fieldsEnum.nextElement();
+                        for (ImdiField currentField : currentFieldArray) {
+                            if (currentField.fieldID == null) {
+                                // here we are assuming that if there is no fieldID then it is a new field so it will be added here
 //                        IMDIElement ie = api.addIMDIElement(nodDom, currentField.xmlPath);
 //                        // TODO: the field is not added and this section needs to be completed
 //                        currentField.fieldID = ie.getDomId();
-                    }
-                    if (currentField.fieldNeedsSaveToDisk) {
-                        if (currentField.fieldID == null) {
-                            String apiPath = currentField.xmlPath.replace(".METATRANSCRIPT.", "");
-                            System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
-                            api.addIMDIElement(nodDom, apiPath);
-                            api.setIMDIValue(nodDom, apiPath, currentField.getFieldValue());
-                            currentField.fieldNeedsSaveToDisk = false;
-                        } else {
-                            // set value
-                            System.out.println("trying to save: " + currentField.fieldID + " : " + currentField.getFieldValue());
-                            IMDIElement target = new IMDIElement(null, currentField.fieldID);
-                            target.setValue(currentField.getFieldValue());
-                            IMDIElement ie = api.setIMDIElement(nodDom, target);
-                            currentField.fieldNeedsSaveToDisk = false;
-                        }
+                            }
+                            if (currentField.fieldNeedsSaveToDisk) {
+                                if (currentField.fieldID == null) {
+                                    String apiPath = currentField.xmlPath.replace(".METATRANSCRIPT.", "");
+                                    System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
+                                    api.addIMDIElement(nodDom, apiPath);
+                                    api.setIMDIValue(nodDom, apiPath, currentField.getFieldValue());
+                                    currentField.fieldNeedsSaveToDisk = false;
+                                } else {
+                                    // set value
+                                    System.out.println("trying to save: " + currentField.fieldID + " : " + currentField.getFieldValue());
+                                    IMDIElement target = new IMDIElement(null, currentField.fieldID);
+                                    target.setValue(currentField.getFieldValue());
+                                    IMDIElement ie = api.setIMDIElement(nodDom, target);
+                                    currentField.fieldNeedsSaveToDisk = false;
+                                }
+                                GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
+
 //                            checkOkay("Set IMDI element: " + args, ie != null);
 //                            if (ie != null) {
 //                                printElement(ie);                    // save the dom / imdi file
 //                            }
+                            }
+                        }
                     }
                 }
 
@@ -897,11 +902,25 @@ public class ImdiTreeObject implements Comparable {
 //    }
     public void addField(ImdiField fieldToAdd) {
 //        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
-        fieldHashtable.put(fieldToAdd.getTranslateFieldName(), fieldToAdd);
+        ImdiField[] currentFieldsArray = fieldHashtable.get(fieldToAdd.getTranslateFieldName());
+        if (currentFieldsArray == null) {
+            currentFieldsArray = new ImdiField[]{fieldToAdd};
+        } else {
+            System.out.println("appendingField: " + fieldToAdd);
+            ImdiField[] appendedFieldsArray = new ImdiField[currentFieldsArray.length + 1];
+            System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
+            appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
+            currentFieldsArray = appendedFieldsArray;
+
+//            for (ImdiField tempField : currentFieldsArray) {
+//                System.out.println("appended fields: " + tempField);
+//            }
+        }
+        fieldHashtable.put(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
 
         if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.parentImdi.isImdiChild()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
             resourceUrlString = fieldToAdd.fieldValue;
-            mimeHashQueue.addToQueue(this);
+            MimeHashQueue.getSingleInstance().addToQueue(this);
         }
     }
 
@@ -983,7 +1002,7 @@ public class ImdiTreeObject implements Comparable {
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
      * @return A hashtable of the fields
      */
-    public Hashtable<String, ImdiField> getFields() {
+    public Hashtable<String, ImdiField[]> getFields() {
         // store the Hastable for next call
         // if hashtable is null then load from imdi
         return fieldHashtable;
@@ -1015,10 +1034,10 @@ public class ImdiTreeObject implements Comparable {
         String nameText = "";
         if (fieldHashtable.containsKey("Name")) {
             nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get("Name").toString();
+            nameText = /*") " +*/ fieldHashtable.get("Name")[0].toString();
         } else if (fieldHashtable.containsKey("ResourceLink")) {
             nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get("ResourceLink").toString();
+            nameText = /*") " +*/ fieldHashtable.get("ResourceLink")[0].toString();
         }
 //            if (mpiMimeType != null) {
 //            return " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + nodeText + " : " + hashString + ":" + mpiMimeType + ":" + resourceUrlString;
@@ -1085,35 +1104,6 @@ public class ImdiTreeObject implements Comparable {
         return GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
     }
 
-    private void getMimeHashResult() {
-        hashString = mimeHashQueue.getHashResult(this);
-        mpiMimeType = mimeHashQueue.getMimeResult(this);
-
-        // there is no point counting matches when the hash does not exist, ie when there is no file.          
-        if (hashString != null) {
-            //System.out.println("countMatches <<<<<<<<<<< " + this.toString());
-            matchesLocal = 0;
-            matchesRemote = 0;
-            matchesLocalResource = 0;
-            if (hashString != null) {
-                for (Enumeration listOfMatches = mimeHashQueue.getDuplicateList(hashString); listOfMatches.hasMoreElements();) {
-                    String currentUrl = listOfMatches.nextElement().toString();
-                    //System.out.println("currentUrl: " + currentUrl);
-                    if (ImdiTreeObject.isStringLocal(currentUrl)) {
-                        if (ImdiTreeObject.isStringImdiChild(currentUrl)) {
-                            matchesLocalResource++;
-                        } else {
-                            matchesLocal++;
-                        }
-                    } else {
-                        matchesRemote++;
-                    }
-                }
-            //System.out.println(">>> [L:" + matchesLocal + " R:" + matchesRemote + "]");
-            }
-        }
-    }
-
     public boolean isDirectory() {
         return isDirectory;
     }
@@ -1139,18 +1129,18 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isSession() {
         // test if this node is a session
-        Object nameField = fieldHashtable.get("Name");
-        if (nameField != null) {
-            return ((ImdiField) nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
+        ImdiField[] nameFields = fieldHashtable.get("Name");
+        if (nameFields != null) {
+            return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
         }
         return false;
     }
 
     public boolean isCorpus() {
         // test if this node is a session
-        Object nameField = fieldHashtable.get("Name");
-        if (nameField != null) {
-            return ((ImdiField) nameField).xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");
+        ImdiField[] nameFields = fieldHashtable.get("Name");
+        if (nameFields != null) {
+            return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");
         }
         return false;
     }
@@ -1217,11 +1207,10 @@ public class ImdiTreeObject implements Comparable {
     public void clearIcon() {
 //        System.out.println("clearIcon: " + this.toString());
 //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
-        icon = null;
         SwingUtilities.invokeLater(new Runnable() {
 
             public void run() {
-
+                icon = imdiIcons.getIconForImdi(ImdiTreeObject.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
 //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
 //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
                 // here we need to cause an update in the tree and table gui so that the new icon can be loaded
@@ -1265,7 +1254,6 @@ public class ImdiTreeObject implements Comparable {
      */
     public ImageIcon getIcon() {
         if (icon == null) {
-            this.getMimeHashResult();
             icon = imdiIcons.getIconForImdi(this);
         }
         return icon;
