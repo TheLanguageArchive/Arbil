@@ -26,7 +26,7 @@ public class ImdiFieldViewTable extends JTable {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getButton() == MouseEvent.BUTTON3) {
+                if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
                     // set the clicked cell selected
                     java.awt.Point p = evt.getPoint();
                     int clickedColumn = columnAtPoint(p);
