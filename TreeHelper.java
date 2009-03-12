@@ -86,27 +86,27 @@ public class TreeHelper {
         if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi")) {
             addedCount++;
         }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi")) {
-            addedCount++;
-        }
-        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi")) {
-            addedCount++;
-        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi")) {
+//            addedCount++;
+//        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi")) {
+//            addedCount++;
+//        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi")) {
+//            addedCount++;
+//        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi")) {
+//            addedCount++;
+//        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi")) {
+//            addedCount++;
+//        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi")) {
+//            addedCount++;
+//        }
+//        if (addLocation("http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi")) {
+//            addedCount++;
+//        }
         return addedCount;
     }
 
@@ -256,7 +256,6 @@ public class TreeHelper {
         }
     }
 
-
     public void loadAndRefreshDescendantNodes(DefaultMutableTreeNode itemNode) {
         System.out.println("refreshChildNodes: " + itemNode);
         updateTreeNodeChildren(itemNode);
@@ -383,6 +382,9 @@ public class TreeHelper {
         if (ImdiTreeObject.isImdiNode(itemNode.getUserObject())) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) itemNode.getUserObject();
             if (imdiTreeObject.isImdi()) {
+                if (imdiTreeObject.isImdiChild()){
+                    imdiTreeObject = imdiTreeObject.getParentDomNode();
+                }
                 System.out.println("adding to imdi node");
 //                System.out.println("its an imdi so start adding");
                 addedNodeUrl = imdiTreeObject.addChildNode(nodeType, null, null);
