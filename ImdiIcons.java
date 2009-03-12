@@ -202,6 +202,10 @@ public class ImdiIcons {
                 iconsVector.add(tickBlueIcon);
             }
         }
+        // add icons for templates
+        if (imdiObject.isTemplate()) {
+            iconsVector.add(templateIcon);
+        }
         // add icons for save state
         if (imdiObject.needsChangesSentToServer()) {
             iconsVector.add(exclamationBlueIcon);
