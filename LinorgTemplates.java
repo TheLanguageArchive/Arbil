@@ -123,13 +123,18 @@ public class LinorgTemplates {
         System.out.println("mergeFromTemplate: " + addedNodeUrl + " : " + imdiTemplateUrl);
         ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateUrl);
         ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
-        
-        Hashtable<String, ImdiField> targetFieldsHash = targetImdiObject.getFields();              
-                
-        for (Enumeration<ImdiField> templateFeildEnum = templateImdiObject.getFields().elements(); templateFeildEnum.hasMoreElements();){
-            ImdiField currentFeild = templateFeildEnum.nextElement();
-            // TODO: check overwriteValues before overwriting values
-            targetFieldsHash.get(currentFeild.getTranslateFieldName()).setFieldValue(currentFeild.getFieldValue());
+
+        Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
+
+        for (Enumeration<ImdiField[]> templateFeildEnum = templateImdiObject.getFields().elements(); templateFeildEnum.hasMoreElements();) {
+            ImdiField[] currentFeildArray = templateFeildEnum.nextElement();
+            for (ImdiField currentFeild : currentFeildArray) {
+                // TODO: check overwriteValues before overwriting values
+                ImdiField[] targetFieldArray = targetFieldsHash.get(currentFeild.getTranslateFieldName());
+                for (ImdiField targetFeild : targetFieldArray) {
+                    targetFeild.setFieldValue(currentFeild.getFieldValue());
+                }
+            }
         }
     }
 }
