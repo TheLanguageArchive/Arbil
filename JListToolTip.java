@@ -25,6 +25,7 @@ class JListToolTip extends JToolTip {
     public JListToolTip() {
         this.setLayout(new BorderLayout());
         jPanel = new JPanel();
+//        jPanel.setMaximumSize(new Dimension(300, 300));
         jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
         add(jPanel, BorderLayout.CENTER);
         jPanel.setBackground(getBackground());
@@ -53,17 +54,20 @@ class JListToolTip extends JToolTip {
         jPanel.add(jLabel);
     }
 
+    private void addTabbedLabel(String labelString) {
+        addDetailLabel(preSpaces + labelString);
+    }
+
     private void addDetailLabel(String prefixString, ImdiField[] tempFieldArray) {
         if (tempFieldArray != null) {
             for (ImdiField tempField : tempFieldArray) {
                 String labelString = tempField.toString();
-                addDetailLabel(preSpaces + prefixString + labelString);
+                addTabbedLabel(prefixString + labelString);
             }
         }
     }
 
     private void addLabelsForImdiObject(ImdiTreeObject tempObject) {
-
         if (tempObject.isImdi()) {
             Hashtable<String, ImdiField[]> tempFields = tempObject.getFields();
             addDetailLabel("Name: ", tempFields.get("Name"));
@@ -72,56 +76,39 @@ class JListToolTip extends JToolTip {
             addDetailLabel("Format: ", tempFields.get("Format"));
         } else {
             if (!tempObject.isDirectory()) {
-                JLabel jLabel = new JLabel(preSpaces + "Unattached file");
-                jLabel.doLayout();
-                jPanel.add(jLabel);
+                addTabbedLabel("Unattached file");
+                if (tempObject.isArchivableFile()) {
+                    addTabbedLabel("Archivable file");
+                } else {
+                    addTabbedLabel("Not archivable");
+                }
             }
         }
-        
         //if (tempObject.matchesInCache + tempObject.matchesLocalFileSystem + tempObject.matchesRemote > 0){
-        if (tempObject.hasResource() || (!tempObject.isImdi() && !tempObject.isDirectory())){
-            addDetailLabel(preSpaces + "Copies in cache: " + tempObject.matchesInCache);
-            addDetailLabel(preSpaces + "Copies on local file system: " + tempObject.matchesLocalFileSystem);
-            addDetailLabel(preSpaces + "Copies on server: ?"/* + tempObject.matchesRemote*/);
+
+        if (tempObject.hasResource() || (!tempObject.isImdi() && !tempObject.isDirectory())) {
+            addTabbedLabel("Copies in cache: " + tempObject.matchesInCache);
+            addTabbedLabel("Copies on local file system: " + tempObject.matchesLocalFileSystem);
+            addTabbedLabel("Copies on server: ?"/* + tempObject.matchesRemote*/);
         }
 
         if (!tempObject.isLocal()) {
-            JLabel jLabel = new JLabel(preSpaces + "Remote file (read only)");
-//            jLabel.setIcon(ImdiTreeObject.imdiIcons.remoteicon);
-//            jLabel.setVerticalTextPosition(JLabel.RIGHT);
-            jLabel.doLayout();
-            jPanel.add(jLabel);
+            addTabbedLabel("Remote file (read only)");
         } else if (tempObject.hasResource()) {
             if (tempObject.fileNotFound) {
-                JLabel jLabel = new JLabel(preSpaces + "File not found");
-                jLabel.doLayout();
-                jPanel.add(jLabel);
+                addTabbedLabel("File not found");
             }
         } else if (tempObject.isImdi()) {
-            JLabel jLabel = new JLabel(preSpaces + "Local file (editable)");
-//            jLabel.setIcon(ImdiTreeObject.imdiIcons.localicon);
-//            jLabel.setVerticalTextPosition(JLabel.RIGHT);
-            jLabel.doLayout();
-            jPanel.add(jLabel);
+            addTabbedLabel("Local file (editable)");
         }
         if (tempObject.needsChangesSentToServer()) {
-            JLabel jLabel = new JLabel(preSpaces + "Local changes not sent to the server");
-//            jLabel.setIcon(ImdiTreeObject.imdiIcons.exclamationBlueIcon);
-//            jLabel.setVerticalTextPosition(JLabel.RIGHT);
-            jLabel.doLayout();
-            jPanel.add(jLabel);
+            addTabbedLabel("Local changes not sent to the server");
         }
         if (tempObject.imdiNeedsSaveToDisk) {
-            JLabel jLabel = new JLabel(preSpaces + "Unsaved changes");
-//            jLabel.setIcon(ImdiTreeObject.imdiIcons.exclamationRedIcon);
-//            jLabel.setVerticalTextPosition(JLabel.RIGHT);
-            jLabel.doLayout();
-            jPanel.add(jLabel);
+            addTabbedLabel("Unsaved changes");
         }
         if (tempObject.isTemplate()) {
-            JLabel jLabel = new JLabel(preSpaces + "Available in the templates menu");
-            jLabel.doLayout();
-            jPanel.add(jLabel);
+            addTabbedLabel("Available in the templates menu");
         }
     }
 
@@ -156,6 +143,7 @@ class JListToolTip extends JToolTip {
     }
 
     public String getTipText() {
+//        System.out.println("getTipText");
         // return a zero length string to prevent the tooltip text overlaying the custom tip component
         return "";
     }
@@ -165,6 +153,7 @@ class JListToolTip extends JToolTip {
     }
 
     public void setTartgetObject(Object targetObjectLocal) {
+//        System.out.println("setTartgetObject: " + targetObjectLocal);
         targetObject = targetObjectLocal;
     }
 }
