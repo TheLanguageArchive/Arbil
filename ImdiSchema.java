@@ -47,19 +47,46 @@ public class ImdiSchema {
         return xpath;
     }
 
-    private Vector getSubnodesFromTemplatesDir(final String nodepath, boolean getBranches/*, boolean singleEntry, boolean canHaveChildren*/) {
+    private Vector getSubnodesFromTemplatesDir(final String nodepath) {
         Vector returnVector = new Vector();
-//        System.out.println("getSubnodesOf: " + nodepath);
-        File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
-        for (String currentTemplate : templatesDirectory.list()) {
-            currentTemplate = "." + currentTemplate;
-            if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
-                if (currentTemplate.startsWith(nodepath)) {
-                    String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
-                    String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-                    returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
+        System.out.println("getSubnodesOf: " + nodepath);
+        String[] templatesArray = {"METATRANSCRIPT.Session.xml",
+            "METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml",
+            "METATRANSCRIPT.Session.Resources.MediaFile.xml",
+            "METATRANSCRIPT.Corpus.xml",
+            "METATRANSCRIPT.Session.Resources.WrittenResource.xml",
+            "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
+            "METATRANSCRIPT.Session.Resources.Source.xml"
+        };
+        try {
+            File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
+            String[] testingListing = templatesDirectory.list();
+            int linesRead = 0;
+            for (String currentTemplate : templatesArray) {
+                if (testingListing != null) {
+                    if (!testingListing[linesRead].equals(currentTemplate)) {
+                        System.out.println(testingListing[linesRead] + " : " + currentTemplate);
+                        throw new Exception("error in the templates array");
+                    }
+                }
+                currentTemplate = "." + currentTemplate;
+                if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
+                    if (currentTemplate.startsWith(nodepath)) {
+                        String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
+                        String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
+                        returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
+                    }
+                }
+                linesRead++;
+            }
+            if (testingListing != null) {
+                if (testingListing.length != linesRead) {
+                    System.out.println(testingListing[linesRead]);
+                    throw new Exception("error missing line in the templates array");
                 }
             }
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
         }
         Collections.sort(returnVector, new Comparator() {
 
@@ -84,7 +111,7 @@ public class ImdiSchema {
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             if (((ImdiTreeObject) targetNodeUserObject).isSession() || ((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 String xpath = getNodePath((ImdiTreeObject) targetNodeUserObject);
-                childTypes = getSubnodesFromTemplatesDir(xpath, true);
+                childTypes = getSubnodesFromTemplatesDir(xpath);
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add(new String[]{"Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
                 childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
