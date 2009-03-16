@@ -411,7 +411,7 @@ public class TreeHelper {
             //refreshChildNodes(itemNode);
             Vector tempVector = new Vector();
             tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
-            GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " as a unattached corpus");
+            GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName);
             // this will only happen on the local corpus tree so we can just address that here
             localCorpusTree.scrollToNode(addedNodeUrl);
         }
