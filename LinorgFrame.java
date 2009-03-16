@@ -38,7 +38,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             //super.windowClosing(e);
             }
         });
-        
+
         initComponents();
         GuiHelper.treeHelper.setTrees((ImdiTree) remoteCorpusTree, (ImdiTree) localCorpusTree, (ImdiTree) localDirectoryTree);
 
@@ -84,8 +84,8 @@ public class LinorgFrame extends javax.swing.JFrame {
     }
 
     private void performCleanExit() {
-        if (GuiHelper.imdiLoader.nodesNeedSave()){
-            switch(JOptionPane.showConfirmDialog(this, "Save changes?")){
+        if (GuiHelper.imdiLoader.nodesNeedSave()) {
+            switch (JOptionPane.showConfirmDialog(this, "Save changes?")) {
                 case JOptionPane.NO_OPTION:
                     break;
                 case JOptionPane.YES_OPTION:
@@ -163,6 +163,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveMenuItem = new javax.swing.JMenuItem();
         viewChangesMenuItem = new javax.swing.JMenuItem();
         sendToServerMenuItem = new javax.swing.JMenuItem();
+        exportMenuItem = new javax.swing.JMenuItem();
         mainSplitPane = new javax.swing.JSplitPane();
         leftSplitPane = new javax.swing.JSplitPane();
         leftLocalSplitPane = new javax.swing.JSplitPane();
@@ -386,6 +387,15 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(sendToServerMenuItem);
+
+        exportMenuItem.setText("Export");
+        exportMenuItem.setEnabled(false);
+        exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(exportMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Linorg");
@@ -658,8 +668,13 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         helpMenu.add(shortCutKeysjMenuItem);
 
+        helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
         helpMenuItem.setText("Help");
-        helpMenuItem.setEnabled(false);
+        helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                helpMenuItemActionPerformed(evt);
+            }
+        });
         helpMenu.add(helpMenuItem);
 
         jMenuBar1.add(helpMenu);
@@ -802,7 +817,7 @@ private void treeMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
                 }
             }
             deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
-            addMenu.setEnabled(!nodeIsImdiChild);
+//            addMenu.setEnabled(!nodeIsImdiChild);
             showContextMenu = true; //nodeLevel != 1;
         }
         if (evt.getSource() == localDirectoryTree) {
@@ -1107,21 +1122,40 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 
 private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.openUrlWindowOnce("Short Cut Keys", this.getClass().getResource("/mpi/linorg/resources/html/ShortCutKeys.html"));
+    LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
+    if (!GuiHelper.linorgWindowManager.focusWindow("Help")) {
+        GuiHelper.linorgWindowManager.createWindow("Help", helpComponent);
+    }
+    helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
 }//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
 
 private void setAsTemplateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setAsTemplateMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: set the boolean correctly
-    GuiHelper.linorgTemplates.toggleTemplateList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), setAsTemplateMenuItem.getActionCommand().equals("true"));//GEN-LAST:event_setAsTemplateMenuItemActionPerformed
-}
+    GuiHelper.linorgTemplates.toggleTemplateList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), setAsTemplateMenuItem.getActionCommand().equals("true"));
+}//GEN-LAST:event_setAsTemplateMenuItemActionPerformed
 
 private void addFromTemplateMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromTemplateMenuMenuSelected
 // TODO add your handling code here:
-    guiHelper.initAddFromTemplateMenu(addFromTemplateMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));//GEN-LAST:event_addFromTemplateMenuMenuSelected
-}
+    guiHelper.initAddFromTemplateMenu(addFromTemplateMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));
+}//GEN-LAST:event_addFromTemplateMenuMenuSelected
 
-    /**
+private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
+// TODO add your handling code here:
+    if (!GuiHelper.linorgWindowManager.focusWindow("Help")) {
+        // forcus existing or create a new help window
+        GuiHelper.linorgWindowManager.createWindow("Help", LinorgHelp.getSingleInstance());
+    }
+}//GEN-LAST:event_helpMenuItemActionPerformed
+
+private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportMenuItemActionPerformed
+// TODO add your handling code here:
+    // directory selection dialog
+    // make sure the chosen directory is empty
+    // export the tree, maybe adjusting resource links so that resource files do not need to be copied
+}//GEN-LAST:event_exportMenuItemActionPerformed
+
+/**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -1152,6 +1186,7 @@ private void addFromTemplateMenuMenuSelected(javax.swing.event.MenuEvent evt) {/
     private javax.swing.JMenuItem editLocationsMenuItem;
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenuItem exitMenuItem;
+    private javax.swing.JMenuItem exportMenuItem;
     private javax.swing.JMenuItem featuresMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
