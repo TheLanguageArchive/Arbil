@@ -26,14 +26,16 @@
     </target>
     <target name="jar" depends="compile" description="create a Jar file">
         <jar destfile="linorg.jar">
-            <fileset dir="classes" includes="**/*.class"/>
+            <fileset dir="classes" includes="mpi/linorg/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.html"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsd/*.xsd"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.xsl"/>
             <manifest>
-                <attribute name="Main-Class" value="mpi.linorg.Linorg"/>
+                <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
+                <attribute name="Class-Path" value="lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan.jar lib/xercesImpl-2.9.0.jar"/>
             </manifest>
         </jar>
     </target>
@@ -41,18 +43,18 @@
         <java classname="mpi.linorg.Linorg">
             <classpath>
                 <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
-                <filelist dir="${WEBAPPS_LIB}">
+                <!--<filelist dir="${WEBAPPS_LIB}">
                     <file name="imdiapi.jar" />
                     <file name="log4j-1.2.14.jar" />
-                    <file name="log4j-1.2.9.jar" />
+                    <file name="typecheck.jar" />
+                    <file name="xalan-2.7.0.jar" />-->
+                    <!--
                     <file name="saxon8-dom4j.jar" />
                     <file name="saxon8-dom.jar" />
                     <file name="saxon8.jar" />
                     <file name="saxon8-xqj.jar" />
                     <file name="saxon-dom-8.7.jar" />
-                    <file name="typecheck.jar" />
-                    <file name="xalan.jar" />
-                    <!--
+                    <file name="log4j-1.2.9.jar" />
                     <file name="xalan-2.7.0.jar" />                    
                     <file name="xercesImpl-2.9.0.jar" />
                     -->
@@ -64,7 +66,7 @@
                     <file name="saxon8-xpath.jar" />
                     <file name="xercesImpl.jar" />
                     -->
-                </filelist>
+               <!-- </filelist>-->
                 <pathelement location="linorg.jar"/>
             </classpath>
         </java>
@@ -144,6 +146,7 @@ public class LinorgVersion {
         <move file="linorg.jar" tofile="linorg${linorg.current.revision}.jar"/>
         <scp file="linorg${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <scp file="currentversion.txt" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <move file="linorg${linorg.current.revision}.jar" tofile="linorg.jar"/>
     </target>
 </project>
  
