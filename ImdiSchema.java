@@ -31,18 +31,25 @@ public class ImdiSchema {
      */
     static String imdiPathSeparator = ".";
 
+    public boolean nodeCanExistInNode(ImdiTreeObject parentImdiObject, ImdiTreeObject childImdiObject) {
+        String parentPath = getNodePath((ImdiTreeObject) parentImdiObject);
+        String childPath = getNodePath((ImdiTreeObject) childImdiObject);
+//        System.out.println("nodeCanExistInNode: " + parentPath + " : " + childPath);
+        return childPath.startsWith(parentPath);
+    }
+
     private String getNodePath(ImdiTreeObject targetImdiObject) {
         String xpath;
         xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session";
         Object[] nodePathArray = ((ImdiTreeObject) targetImdiObject).getUrlString().split("#");
-        System.out.println("nodePath0: " + nodePathArray[0]);
+//        System.out.println("nodePath0: " + nodePathArray[0]);
         if (nodePathArray.length > 1) {
             String nodePath = nodePathArray[1].toString();
-            System.out.println("nodePath1: " + nodePath);
+//            System.out.println("nodePath1: " + nodePath);
             // convert the dot path to xpath
             xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
 //                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
-            System.out.println("xpath: " + xpath);
+//            System.out.println("xpath: " + xpath);
         }
         return xpath;
     }
