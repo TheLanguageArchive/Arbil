@@ -67,29 +67,31 @@ public class ImdiSchema {
         };
         try {
             File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
-            String[] testingListing = templatesDirectory.list();
-            int linesRead = 0;
-            for (String currentTemplate : templatesArray) {
+            if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
+                String[] testingListing = templatesDirectory.list();
+                int linesRead = 0;
+                for (String currentTemplate : templatesArray) {
+                    if (testingListing != null) {
+                        if (!testingListing[linesRead].equals(currentTemplate)) {
+                            System.out.println(testingListing[linesRead] + " : " + currentTemplate);
+                            throw new Exception("error in the templates array");
+                        }
+                    }
+                    currentTemplate = "." + currentTemplate;
+                    if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
+                        if (currentTemplate.startsWith(nodepath)) {
+                            String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
+                            String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
+                            returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
+                        }
+                    }
+                    linesRead++;
+                }
                 if (testingListing != null) {
-                    if (!testingListing[linesRead].equals(currentTemplate)) {
-                        System.out.println(testingListing[linesRead] + " : " + currentTemplate);
-                        throw new Exception("error in the templates array");
+                    if (testingListing.length != linesRead) {
+                        System.out.println(testingListing[linesRead]);
+                        throw new Exception("error missing line in the templates array");
                     }
-                }
-                currentTemplate = "." + currentTemplate;
-                if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
-                    if (currentTemplate.startsWith(nodepath)) {
-                        String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
-                        String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-                        returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
-                    }
-                }
-                linesRead++;
-            }
-            if (testingListing != null) {
-                if (testingListing.length != linesRead) {
-                    System.out.println(testingListing[linesRead]);
-                    throw new Exception("error missing line in the templates array");
                 }
             }
         } catch (Exception ex) {
