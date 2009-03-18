@@ -82,17 +82,16 @@ public class LinorgTemplates {
             ImdiTreeObject targetImdiObject = (ImdiTreeObject) targetNodeUserObject;
             boolean targetIsCorpus = targetImdiObject.isCorpus();
             boolean targetIsSession = targetImdiObject.isSession();
+            boolean targetIsImdiChild = targetImdiObject.isImdiChild();
             for (Enumeration<ImdiTreeObject> imdiObjectEnum = imdiTemplateObjects.elements(); imdiObjectEnum.hasMoreElements();) {
                 ImdiTreeObject currentTemplateObject = imdiObjectEnum.nextElement();
                 boolean addThisTemplate = false;
-                if (!currentTemplateObject.isImdiChild()) {
-                    if (targetIsCorpus) {
-                        addThisTemplate = true;
-                    }
-                } else {
-                    if (targetIsSession) {
-                        addThisTemplate = true;
-                    }
+                if (targetIsCorpus && !currentTemplateObject.isImdiChild()) {
+                    addThisTemplate = true;
+                } else if (targetIsSession && currentTemplateObject.isImdiChild()) {
+                    addThisTemplate = true;
+                } else if (targetIsImdiChild && currentTemplateObject.isImdiChild()) {
+                    addThisTemplate = GuiHelper.imdiSchema.nodeCanExistInNode(targetImdiObject, currentTemplateObject);
                 }
                 if (addThisTemplate) {
                     System.out.println("adding: " + currentTemplateObject);
@@ -123,18 +122,24 @@ public class LinorgTemplates {
         System.out.println("mergeFromTemplate: " + addedNodeUrl + " : " + imdiTemplateUrl);
         ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateUrl);
         ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
-
         Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
-
         for (Enumeration<ImdiField[]> templateFeildEnum = templateImdiObject.getFields().elements(); templateFeildEnum.hasMoreElements();) {
-            ImdiField[] currentFeildArray = templateFeildEnum.nextElement();
-            for (ImdiField currentFeild : currentFeildArray) {
-                // TODO: check overwriteValues before overwriting values
-                ImdiField[] targetFieldArray = targetFieldsHash.get(currentFeild.getTranslateFieldName());
-                for (ImdiField targetFeild : targetFieldArray) {
-                    targetFeild.setFieldValue(currentFeild.getFieldValue());
+            ImdiField[] currentTemplateFields = templateFeildEnum.nextElement();
+            if (currentTemplateFields.length > 0) {
+                ImdiField[] targetNodeFields = targetFieldsHash.get(currentTemplateFields[0].getTranslateFieldName());
+                for (int fieldCounter = 0; fieldCounter < currentTemplateFields.length; fieldCounter++) {
+                    if (targetNodeFields.length > fieldCounter) {
+                        // copy to the exisiting fields
+                        targetNodeFields[fieldCounter].setFieldValue(currentTemplateFields[fieldCounter].getFieldValue());
+                    } else {
+                        // add sub nodes if they dont already exist
+                        ImdiField fieldToAdd = new ImdiField(targetImdiObject, currentTemplateFields[fieldCounter].xmlPath, currentTemplateFields[fieldCounter].getFieldValue());
+                        targetImdiObject.addField(fieldToAdd);
+                        fieldToAdd.fieldNeedsSaveToDisk = true;
+                    }
                 }
             }
         }
+        targetImdiObject.saveChangesToCache();
     }
 }
