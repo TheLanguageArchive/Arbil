@@ -363,7 +363,7 @@ public class ImdiTreeObject implements Comparable {
      * Used to populate the child list in the show child popup in the imditable.
      * @return An enumeration of the next level child nodes.
      */
-    public Enumeration getChildEnum() {
+    public Enumeration<ImdiTreeObject> getChildEnum() {
         return childrenHashtable.elements();
     }
 
@@ -786,18 +786,14 @@ public class ImdiTreeObject implements Comparable {
                     {
                         ImdiField[] currentFieldArray = fieldsEnum.nextElement();
                         for (ImdiField currentField : currentFieldArray) {
-                            if (currentField.fieldID == null) {
-                                // here we are assuming that if there is no fieldID then it is a new field so it will be added here
-//                        IMDIElement ie = api.addIMDIElement(nodDom, currentField.xmlPath);
-//                        // TODO: the field is not added and this section needs to be completed
-//                        currentField.fieldID = ie.getDomId();
-                            }
                             if (currentField.fieldNeedsSaveToDisk) {
                                 if (currentField.fieldID == null) {
+                                    // if the field does not have an id attribite then it must now be created in the imdi file via the imdi api
                                     String apiPath = currentField.xmlPath.replace(".METATRANSCRIPT.", "");
                                     System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
-                                    api.addIMDIElement(nodDom, apiPath);
-                                    api.setIMDIValue(nodDom, apiPath, currentField.getFieldValue());
+                                    IMDIElement addedElement = api.addIMDIElement(nodDom, apiPath);
+                                    addedElement.setValue(currentField.getFieldValue());
+                                    api.setIMDIElement(nodDom, addedElement);
                                     currentField.fieldNeedsSaveToDisk = false;
                                 } else {
                                     // set value
@@ -808,42 +804,13 @@ public class ImdiTreeObject implements Comparable {
                                     currentField.fieldNeedsSaveToDisk = false;
                                 }
                                 GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
-
-//                            checkOkay("Set IMDI element: " + args, ie != null);
-//                            if (ie != null) {
-//                                printElement(ie);                    // save the dom / imdi file
-//                            }
                             }
                         }
                     }
                 }
-
-
-                // add element
-//                    IMDIElement ie = api.addIMDIElement(nodDom, args);
-//                    checkOkay("Create IMDI element: " + args, ie != null);
-//                    if (ie != null) {
-//                        printElement(ie);
-//                    }
-//                    api.getIMDIElement(nodDom, hashString);
-//                    api.setIMDIElement(nodDom, arg1);
-//                    writeDOM(nodDom, this.getFile(), false);
-//                    // remove element
-//                    IMDIElement target = null;
-//                    if ((args.indexOf('.') != -1) || !args.startsWith("i")) {
-//                        target = new IMDIElement(args);
-//                    } else {
-//                        target = new IMDIElement("-none-", args);
-//                    }
-//                    checkOkay("Delete IMDI element " + target,
-//                            api.removeIMDIElement(dom, target));
-
-
-
-
-
-
-                api.writeDOM(nodDom, this.getFile(), false);
+                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
+                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order
                 reloadImdiNode(false);
                 // update the icon to indicate the change
                 setImdiNeedsSaveToDisk(false);
