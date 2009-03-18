@@ -156,13 +156,14 @@ public class MimeHashQueue {
         for (Enumeration<String> duplicatesPathEnum = duplicatesPaths.elements(); duplicatesPathEnum.hasMoreElements();) {
             String currentDupPath = duplicatesPathEnum.nextElement();
             try {
-                if (new File(new URL(currentDupPath).getFile()).exists()) { // check that the file still exists and has the same mtime otherwise rescan
+                File currentFile = new File(new URL(currentDupPath).getFile());
+                if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
                     // get the currently loaded imdiobjects for the paths
                     ImdiTreeObject currentImdiObject = currentlyLoadedImdiObjects.get(currentDupPath);
                     if (currentImdiObject != null) {
                         relevantImdiObjects.add(currentImdiObject);
                     }
-                    if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentDupPath)) {
+                    if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentFile)) {
                         matchesInCache++;
                     } else {
                         matchesLocalFileSystem++;
