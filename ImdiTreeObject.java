@@ -204,16 +204,15 @@ public class ImdiTreeObject implements Comparable {
 ////                currentTreeNode
 //            }
 //        }
-
-        initNodeVariables();
         if (ImdiTreeObject.isStringImdi(this.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(this.getUrlString())) {
-            loadImdiDom();
+            GuiHelper.imdiLoader.requestReload(this);
         }
         clearIcon();
     }
 
     public void loadImdiDom() {
         System.out.println("loadImdiDom: " + this.getFile().getName());
+        initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
         Document nodDom = null;
         // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
@@ -696,7 +695,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void updateImdiFileNodeIds() {
-//        System.out.println("updateNodeIds");
+        System.out.println("updateImdiFileNodeIds");
         try {
 //            System.out.println("removing NodeIds");
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());

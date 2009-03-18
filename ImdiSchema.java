@@ -260,7 +260,7 @@ public class ImdiSchema {
     }
 
     public String addFromTemplate(File destinationFile, String templateType) {
-        System.out.println("addFromTemplate: " + templateType + " : " + destinationFile);
+        System.out.println("addFromTemplateFile: " + templateType + " : " + destinationFile);
         String addedPathString = null;
         // copy the template to disk
         URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");

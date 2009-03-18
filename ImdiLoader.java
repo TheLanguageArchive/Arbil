@@ -102,6 +102,10 @@ public class ImdiLoader {
         return currentImdiObject;
     }
 
+    public void requestReload(ImdiTreeObject currentImdiObject) {
+        imdiLocalNodesToInit.add(currentImdiObject);
+    }
+
     @Override
     protected void finalize() throws Throwable {
         // stop the thread
