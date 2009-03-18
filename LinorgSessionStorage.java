@@ -15,6 +15,8 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -43,9 +45,12 @@ public class LinorgSessionStorage {
      * Tests if the a string points to a flie that is in the cache directory.
      * @return Boolean
      */
-    public boolean pathIsInsideCache(String pathString) {
-//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + pathString);
-        return pathString.contains(storageDirectory + "imdicache");
+    public boolean pathIsInsideCache(File fullTestFile) {
+//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);    
+        File testFile = new File(fullTestFile.getPath().split("imdicache")[0]);
+        File storageFile = new File(storageDirectory);
+//        System.out.println("fileIsInsideCache" + storageFile + " : " + testFile);
+        return storageFile.equals(testFile);
     }
 
     /**
@@ -104,6 +109,36 @@ public class LinorgSessionStorage {
             resultValue = defaultValue;
         }
         return resultValue;
+    }
+
+     /**
+     * Fetch the file from the remote URL and save into the cache.
+     * Currently this does not expire the objects in the cache, however that will be required in the future.
+     * @param pathString Path of the remote file.
+     * @param expireCacheDays Number of days old that a file can be before it is replaced.
+     * @return The path of the file in the cache.
+     */
+    public String updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
+        String cachePath = getSaveLocation(pathString);
+        File targetFile = new File(cachePath);
+        boolean fileNeedsUpdate = !targetFile.exists();
+        if (!fileNeedsUpdate) {
+            Date lastModified = new Date(targetFile.lastModified());
+            Date expireDate = new Date(System.currentTimeMillis());
+            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + cachePath);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(expireDate);
+            calendar.add(Calendar.DATE, -expireCacheDays);
+            expireDate.setTime(calendar.getTime().getTime());
+
+            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + cachePath);
+
+            fileNeedsUpdate = expireDate.after(lastModified);
+            System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
+        }
+        System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
+        return updateCache(pathString, fileNeedsUpdate);
     }
 
     /**
