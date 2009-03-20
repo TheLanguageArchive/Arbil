@@ -35,7 +35,7 @@ public class TreeHelper {
     public ImdiTree localCorpusTree;
     private ImdiTree localDirectoryTree;
     private ImdiTree remoteCorpusTree;
-    private Vector locationsList; // this is the list of locations seen in the tree and the location settings
+    private Vector<String> locationsList; // this is the list of locations seen in the tree and the location settings
 
     public TreeHelper() {
         localCorpusRootNode = new DefaultMutableTreeNode();
@@ -122,10 +122,10 @@ public class TreeHelper {
 
     public void loadLocationsList() {
         try {
-            locationsList = (Vector) GuiHelper.linorgSessionStorage.loadObject("locationsList");
+            locationsList = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("locationsList");
         } catch (Exception ex) {
             System.out.println("load locationsList failed: " + ex.getMessage());
-            locationsList = new Vector();
+            locationsList = new Vector<String>();
 //            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
 //            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
 //            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
