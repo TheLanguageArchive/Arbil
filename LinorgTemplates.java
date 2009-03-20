@@ -24,12 +24,12 @@ public class LinorgTemplates {
 
     private void loadSelectedTemplates() {
         try {
-            selectedTemplates = (Vector) GuiHelper.linorgSessionStorage.loadObject("selectedTemplates");
+            selectedTemplates = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("selectedTemplates");
         } catch (Exception ex) {
             System.out.println("load selectedTemplates failed: " + ex.getMessage());
-            selectedTemplates = new Vector();
+            selectedTemplates = new Vector<String>();
         }
-        imdiTemplateObjects = new Vector();
+        imdiTemplateObjects = new Vector<ImdiTreeObject>();
         // loop templates and load the imdi objects then set the template flags for each
         for (Enumeration<String> templatesEnum = selectedTemplates.elements(); templatesEnum.hasMoreElements();) {
             ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObject("", templatesEnum.nextElement());
@@ -77,7 +77,7 @@ public class LinorgTemplates {
 
     public Enumeration listTemplatesFor(Object targetNodeUserObject) {
         System.out.println("listTemplatesFor: " + targetNodeUserObject);
-        Vector validTemplates = new Vector();
+        Vector<String[]> validTemplates = new Vector<String[]>();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             ImdiTreeObject targetImdiObject = (ImdiTreeObject) targetNodeUserObject;
             boolean targetIsCorpus = targetImdiObject.isCorpus();
@@ -127,15 +127,27 @@ public class LinorgTemplates {
             ImdiField[] currentTemplateFields = templateFeildEnum.nextElement();
             if (currentTemplateFields.length > 0) {
                 ImdiField[] targetNodeFields = targetFieldsHash.get(currentTemplateFields[0].getTranslateFieldName());
-                for (int fieldCounter = 0; fieldCounter < currentTemplateFields.length; fieldCounter++) {
-                    if (targetNodeFields.length > fieldCounter) {
-                        // copy to the exisiting fields
-                        targetNodeFields[fieldCounter].setFieldValue(currentTemplateFields[fieldCounter].getFieldValue());
-                    } else {
-                        // add sub nodes if they dont already exist
-                        ImdiField fieldToAdd = new ImdiField(targetImdiObject, currentTemplateFields[fieldCounter].xmlPath, currentTemplateFields[fieldCounter].getFieldValue());
-                        targetImdiObject.addField(fieldToAdd);
-                        fieldToAdd.fieldNeedsSaveToDisk = true;
+
+//                System.out.println("TranslateFieldName: " + currentTemplateFields[0].getTranslateFieldName());
+//                System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading);
+                if (targetNodeFields != null) {
+                    System.out.println("copy fields");
+                    for (int fieldCounter = 0; fieldCounter < currentTemplateFields.length; fieldCounter++) {
+                        ImdiField currentField;
+                        if (targetNodeFields.length > fieldCounter) {// error here adding a template node
+                            // copy to the exisiting fields
+                            currentField = targetNodeFields[fieldCounter];
+                            currentField.setFieldValue(currentTemplateFields[fieldCounter].getFieldValue());
+                        } else {
+                            // add sub nodes if they dont already exist
+                            currentField = new ImdiField(targetImdiObject, currentTemplateFields[fieldCounter].xmlPath, currentTemplateFields[fieldCounter].getFieldValue());
+                            targetImdiObject.addField(currentField);
+                            currentField.fieldNeedsSaveToDisk = true;
+                        }
+                        String currentLanguageId = currentTemplateFields[fieldCounter].getLanguageId();
+                        if (currentLanguageId != null) {
+                            currentField.setLanguageId(currentLanguageId);
+                        }
                     }
                 }
             }
