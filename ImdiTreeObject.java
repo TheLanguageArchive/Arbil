@@ -144,7 +144,7 @@ public class ImdiTreeObject implements Comparable {
         icon = null;
         nodeEnabled = true;
         childLinks = new Vector();
-        isLoading = false;
+//        isLoading = true;
         isDirectory = false;
         if (nodeUrl != null) {
             if (!isImdi() && isLocal()) {
@@ -786,23 +786,33 @@ public class ImdiTreeObject implements Comparable {
                         ImdiField[] currentFieldArray = fieldsEnum.nextElement();
                         for (ImdiField currentField : currentFieldArray) {
                             if (currentField.fieldNeedsSaveToDisk) {
+                                IMDIElement changedElement;
                                 if (currentField.fieldID == null) {
                                     // if the field does not have an id attribite then it must now be created in the imdi file via the imdi api
                                     String apiPath = currentField.xmlPath.replace(".METATRANSCRIPT.", "");
                                     System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
-                                    IMDIElement addedElement = api.addIMDIElement(nodDom, apiPath);
-                                    addedElement.setValue(currentField.getFieldValue());
-                                    api.setIMDIElement(nodDom, addedElement);
-                                    currentField.fieldNeedsSaveToDisk = false;
+                                    changedElement = api.addIMDIElement(nodDom, apiPath);
                                 } else {
                                     // set value
                                     System.out.println("trying to save: " + currentField.fieldID + " : " + currentField.getFieldValue());
-                                    IMDIElement target = new IMDIElement(null, currentField.fieldID);
-                                    target.setValue(currentField.getFieldValue());
-                                    IMDIElement ie = api.setIMDIElement(nodDom, target);
-                                    currentField.fieldNeedsSaveToDisk = false;
+                                    changedElement = new IMDIElement(null, currentField.fieldID);
+
                                 }
+                                changedElement.setValue(currentField.getFieldValue());
+                                IMDIElement ie = api.setIMDIElement(nodDom, changedElement);
+//                                System.out.println("ie.id: " + ie.getDomId());
+//                                System.out.println("ie.spec: " + ie.getSpec());
+                                currentField.fieldNeedsSaveToDisk = false;
                                 GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
+                                String fieldLanguageId = currentField.getLanguageId();
+                                if (fieldLanguageId != null) {
+                                    IMDILink changedLink;
+                                    changedLink = api.getIMDILink(nodDom, null, ie.getDomId());
+                                    System.out.println("trying to save language id: " + fieldLanguageId);
+                                    changedLink.setLanguageId(fieldLanguageId);
+                                    api.changeIMDILink(nodDom, null, changedLink);
+                                    GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath + ":LanguageId", fieldLanguageId, "", "save");
+                                }
                             }
                         }
                     }
@@ -1185,6 +1195,9 @@ public class ImdiTreeObject implements Comparable {
 //                    System.out.println("currentContainer: " + currentContainer.toString());
                     if (currentContainer instanceof ImdiTableModel) {
                         ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
+                    }
+                    if (currentContainer instanceof ImdiChildCellEditor) {
+                        ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
                     }
                     if (currentContainer instanceof DefaultMutableTreeNode) {
                         DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
