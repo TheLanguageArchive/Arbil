@@ -59,6 +59,9 @@ public class ImdiVocabularies {
     }
 
     public Enumeration getVocabulary(String vocabularyLocation) {
+        if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
+            return null;
+        }
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
