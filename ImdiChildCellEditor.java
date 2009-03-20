@@ -6,6 +6,9 @@ package mpi.linorg;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -13,7 +16,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.AbstractCellEditor;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,6 +27,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
@@ -31,13 +38,17 @@ import javax.swing.table.TableCellEditor;
  */
 class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor {
 
+    ImdiTreeObject registeredOwner = null;
     JPanel editorPanel;
     JLabel button;
-    Object[] cellValue;
     String columnName;
     Object rowImdi;
     Component editorComponent = null;
     boolean receivedKeyDown = false;
+    Object[] cellValue;
+    int selectedField = -1;
+    JTextArea fieldEditors[] = null;
+    JComboBox fieldLanguageBoxs[] = null;
 
     public ImdiChildCellEditor() {
         button = new JLabel("...");
@@ -70,19 +81,57 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         });
     }
 
+    public void updateEditor(ImdiTreeObject parentImdiObject) {
+        // this will only be called when the long field editor is shown
+        // when an imdi node is edited or saved or reloaded this will be called to update the displayed values
+        if (cellValue instanceof ImdiField[]) {
+            String fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
+            cellValue = parentImdiObject.getFields().get(fieldName);
+            for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
+                fieldEditors[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getFieldValue());
+                if (fieldLanguageBoxs[cellFieldCounter] != null) {
+                    fieldLanguageBoxs[cellFieldCounter].setSelectedItem(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
+                    ;
+                }
+            }
+        }
+    }
+    private JComboBox getLanguageIdBox(final int cellFieldIndex) {
+        ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
+        String fieldLanguageId = cellField.getLanguageId();
+        if (fieldLanguageId != null) {
+            System.out.println("Has LanguageId");
+            final JComboBox comboBox = new JComboBox();
+            comboBox.setEditable(false);
+            for (Enumeration vocabularyList = cellField.getLanguageList(); vocabularyList.hasMoreElements();) {
+                comboBox.addItem(vocabularyList.nextElement());
+            }
+            comboBox.setSelectedItem(fieldLanguageId);
+            comboBox.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
+                    cellField.setLanguageId((String) comboBox.getSelectedItem());
+                }
+            });
+            return comboBox;
+        } else {
+            return null;
+        }
+    }
     private void startEditorMode(boolean ctrlDown) {
         System.out.println("startEditorMode");
         if (cellValue instanceof ImdiField[]) {
-            if (!ctrlDown && !((ImdiField) cellValue[0]).isLongField() && cellValue.length == 1) {
-                if (((ImdiField) cellValue[0]).hasVocabulary()) {
+            if (!ctrlDown && !((ImdiField) cellValue[selectedField]).isLongField() && selectedField != -1) {
+                if (((ImdiField) cellValue[selectedField]).hasVocabulary()) {
                     System.out.println("Has Vocabulary");
                     JComboBox comboBox = new JComboBox();
-                    comboBox.setEditable(((ImdiField) cellValue[0]).vocabularyIsOpen);
-                    for (Enumeration vocabularyList = ((ImdiField) cellValue[0]).getVocabulary(); vocabularyList.hasMoreElements();) {
+                    comboBox.setEditable(((ImdiField) cellValue[selectedField]).vocabularyIsOpen);
+                    for (Enumeration vocabularyList = ((ImdiField) cellValue[selectedField]).getVocabulary(); vocabularyList.hasMoreElements();) {
                         comboBox.addItem(vocabularyList.nextElement());
                     }
                     // TODO: enable multiple selection for vocabulary lists
-                    comboBox.setSelectedItem(cellValue[0].toString());
+                    comboBox.setSelectedItem(cellValue[selectedField].toString());
                     editorPanel.remove(button);
                     editorPanel.add(comboBox);
                     editorPanel.doLayout();
@@ -91,42 +140,77 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     editorComponent = comboBox;
                 } else {
                     editorPanel.remove(button);
-                    JTextField editorTextField = new JTextField(cellValue[0].toString());
+                    editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
+                    JTextField editorTextField = new JTextField(cellValue[selectedField].toString());
+                    editorTextField.setMinimumSize(new Dimension(50, (int) editorTextField.getMinimumSize().getHeight()));
                     editorPanel.add(editorTextField);
+                    JComboBox fieldLanguageBox = getLanguageIdBox(selectedField);
+                    if (fieldLanguageBox != null) {
+                        editorPanel.add(fieldLanguageBox);
+                    }
                     editorPanel.doLayout();
                     editorTextField.requestFocusInWindow();
                     editorComponent = editorTextField;
                 }
             } else {
                 int titleCount = 1;
-                JTextArea firstTabTextArea = null;
+                JTextArea focusedTabTextArea = null;
                 JTabbedPane tabPane = new JTabbedPane();
-                for (ImdiField cellValueItem : (ImdiField[]) cellValue) {
-                    final ImdiField sourceField = cellValueItem;
-                    final JTextArea fieldEditor = new JTextArea();
-                    if (firstTabTextArea == null) {
-                        firstTabTextArea = fieldEditor;
+
+                fieldEditors = new JTextArea[cellValue.length];
+                fieldLanguageBoxs = new JComboBox[cellValue.length];
+
+                for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
+                    final int cellFieldIndex = cellFieldCounter;
+//                    ImdiField cellField = ((ImdiField) cellValue[cellFieldIndex]);
+//                    final ImdiField sourceField = cellValueItem;
+                    fieldEditors[cellFieldIndex] = new JTextArea();
+                    if (focusedTabTextArea == null || selectedField == cellFieldCounter) {
+                        // set the selected field as the first one or in the case of a single node being selected tab to its pane
+                        focusedTabTextArea = fieldEditors[cellFieldIndex];
                     }
-                    fieldEditor.setEditable(sourceField.parentImdi.getParentDomNode().isLocal());
-                    fieldEditor.addFocusListener(new FocusListener() {
+                    fieldEditors[cellFieldIndex].setEditable(((ImdiField) cellValue[cellFieldIndex]).parentImdi.getParentDomNode().isLocal());
+                    fieldEditors[cellFieldIndex].addFocusListener(new FocusListener() {
 
                         public void focusGained(FocusEvent e) {
-                            fieldEditor.setText(sourceField.getFieldValue());
                         }
 
                         public void focusLost(FocusEvent e) {
-                            if (sourceField.parentImdi.getParentDomNode().isLocal()) {
-                                sourceField.setFieldValue(fieldEditor.getText());
+                            ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
+                            if (cellField.parentImdi.getParentDomNode().isLocal()) {
+                                cellField.setFieldValue(fieldEditors[cellFieldIndex].getText());
                             }
                         }
                     });
-                    fieldEditor.setText(cellValueItem.getFieldValue());
-                    fieldEditor.setLineWrap(true);
-                    fieldEditor.setWrapStyleWord(true);
-                    tabPane.add(cellValueItem.getTranslateFieldName() + " " + titleCount++, new JScrollPane(fieldEditor));
+                    fieldEditors[cellFieldIndex].setText(((ImdiField) cellValue[cellFieldIndex]).getFieldValue());
+                    fieldEditors[cellFieldIndex].setLineWrap(true);
+                    fieldEditors[cellFieldIndex].setWrapStyleWord(true);
+
+                    JPanel tabPanel = new JPanel();
+                    tabPanel.setLayout(new BorderLayout());
+                    fieldLanguageBoxs[cellFieldIndex] = getLanguageIdBox(cellFieldIndex);
+                    if (fieldLanguageBoxs[cellFieldIndex] != null) {
+                        tabPanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.PAGE_START);
+                    }
+                    tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
+                    tabPane.add(((ImdiField) cellValue[cellFieldIndex]).getTranslateFieldName() + " " + titleCount++, tabPanel);
                 }
-                GuiHelper.linorgWindowManager.createWindow(columnName + " in " + rowImdi, tabPane);
-                firstTabTextArea.requestFocusInWindow();
+                registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
+                registeredOwner.registerContainer(this);
+                JInternalFrame editorFrame = GuiHelper.linorgWindowManager.createWindow(columnName + " in " + rowImdi, tabPane);
+                editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
+
+                    @Override
+                    public void internalFrameClosed(InternalFrameEvent e) {
+                        // deregister component from imditreenode
+                        registeredOwner.removeContainer(this);
+                        super.internalFrameClosed(e);
+                    }
+                });
+                if (selectedField != -1) {
+                    tabPane.setSelectedIndex(selectedField);
+                }
+                focusedTabTextArea.requestFocusInWindow();
             }
         } else {
             GuiHelper.linorgWindowManager.openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
@@ -135,15 +219,15 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
     public Object getCellEditorValue() {
 //        System.out.println("getCellEditorValue");
-        if (((Object[]) cellValue).length == 1) {
+        if (selectedField != -1) {
             if (editorComponent != null) {
                 if (editorComponent instanceof JComboBox) {
-                    ((ImdiField[]) cellValue)[0].setFieldValue(((JComboBox) editorComponent).getSelectedItem().toString());
+                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JComboBox) editorComponent).getSelectedItem().toString());
                 } else if (editorComponent instanceof JTextField) {
-                    ((ImdiField[]) cellValue)[0].setFieldValue(((JTextField) editorComponent).getText());
+                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JTextField) editorComponent).getText());
                 }
             }
-            return ((Object[]) cellValue)[0];
+            return cellValue[selectedField];
         } else {
             return cellValue;
         }
@@ -156,7 +240,17 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             int column) {
         receivedKeyDown = true;
         if (value instanceof ImdiField) {
-            cellValue = new ImdiField[]{(ImdiField) value}; // TODO: something going funny saving after this edit
+            // TODO: get the whole array from the parent and select the correct tab for editing
+            String fieldName = ((ImdiField) value).getTranslateFieldName();
+            cellValue = ((ImdiField) value).parentImdi.getFields().get(fieldName);
+            // TODO: find the chosen fields index in the array and store
+            for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
+                System.out.println("selectedField: " + cellValue[cellFieldCounter] + " : " + value);
+                if (cellValue[cellFieldCounter].equals(value)) {
+                    System.out.println("selectedField found");
+                    selectedField = cellFieldCounter;
+                }
+            }
         } else {
             cellValue = (Object[]) value;
         }
