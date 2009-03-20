@@ -330,7 +330,7 @@ public class ImdiSchema {
                     System.out.println("destinationDirectory: " + destinationDirectory.toString());
 //                    destinationDirectory.mkdir();
                     File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
-                    localFilePath = "." + /*File.separatorChar + resourcesDirName +*/ File.separatorChar + destinationFileCopy.getName();
+                    localFilePath = "./" + /*File.separatorChar + resourcesDirName +*/ /* File.separatorChar + */ destinationFileCopy.getName();
                     copyToDisk(resourceUrl, destinationFileCopy);
                     System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
                 } catch (Exception ex) {
@@ -455,7 +455,7 @@ public class ImdiSchema {
                     String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
 //                    System.out.println("attributeName: " + attributeName);
 //                    System.out.println("attributeValue: " + attributeValue);
-                    if (attributeValue != null && attributeValue.length() > 0) {
+                    if (attributeValue != null /*&& attributeValue.length() > 0*/) {
                         // only add attributes if they contain a value
                         fieldToAdd.addAttribute(attributeName, attributeValue);
                     }
