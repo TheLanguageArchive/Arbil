@@ -103,6 +103,7 @@ public class ImdiLoader {
     }
 
     public void requestReload(ImdiTreeObject currentImdiObject) {
+        currentImdiObject.isLoading = true;
         imdiLocalNodesToInit.add(currentImdiObject);
     }
 
