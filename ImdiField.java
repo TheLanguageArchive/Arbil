@@ -25,7 +25,7 @@ public class ImdiField {
     public boolean vocabularyIsOpen;
     public boolean vocabularyIsList;
     public boolean fieldNeedsSaveToDisk = false;
-    private Hashtable fieldAttributes = new Hashtable();
+    private Hashtable<String, String> fieldAttributes = new Hashtable();
     private int isLongField = -1;
 
     public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
@@ -65,6 +65,28 @@ public class ImdiField {
 
     public boolean hasVocabulary() {
         return (vocabularyKey != null);
+    }
+
+    public String getLanguageId() {
+        return fieldAttributes.get("LanguageId");
+    }
+
+    public void setLanguageId(String languageId) {
+        String oldLanguageId = getLanguageId();
+        if (!languageId.equals(oldLanguageId)) {
+            GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageId, "edit");
+            fieldAttributes.put("LanguageId", languageId);
+//            fieldLanguageId = languageId;
+            parentImdi.setImdiNeedsSaveToDisk(true);
+            fieldNeedsSaveToDisk = true;
+            isLongField = -1;
+            parentImdi.clearIcon();
+        }
+
+    }
+
+    public Enumeration getLanguageList() { // TODO: move this url to somewhere appropriate
+        return imdiVocabularies.getVocabulary("http://www.mpi.nl/IMDI/Schema/LanguagesID.xml");
     }
 
     public Enumeration getVocabulary() {
