@@ -114,8 +114,8 @@ public class GuiHelper {
                     String imdiTemplateUrlString = evt.getActionCommand();
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
                     treeHelper.getImdiChildNodes(targetNode);
-                    String addedNodeUrl = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
-                    linorgTemplates.mergeFromTemplate(addedNodeUrl, imdiTemplateUrlString, true);
+                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
+                    linorgTemplates.mergeFromTemplate(addedNodeUrlString, imdiTemplateUrlString, true);
                     treeHelper.reloadLocalCorpusTree(targetNode);
                 }
             });
