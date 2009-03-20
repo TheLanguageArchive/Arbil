@@ -11,18 +11,14 @@
   <Session>
     <Name>Standard (Session) Resource Bundle</Name>
     <Title/>
-    <Date>Unspecified</Date>
+    <Date></Date>
     <Description LanguageId="" Link=""/>
     <MDGroup>
       <Location>
-        <Continent 
-		Link="http://www.mpi.nl/IMDI/Schema/Continents.xml"
-		Type="ClosedVocabulary">Unspecified</Continent>
-        <Country 
-		Link="http://www.mpi.nl/IMDI/Schema/Countries.xml"
-		Type="ClosedVocabulary">Unspecified</Country>
-        <Region>Unspecified</Region>
-        <Address>Unspecified</Address>
+        <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="ClosedVocabulary"></Continent>
+        <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"></Country>
+        <Region></Region>
+        <Address></Address>
       </Location>
       <Project>
         <Name/>
@@ -39,32 +35,18 @@
       <Keys>
       </Keys>
       <Content>
-        <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" 
-		Type="OpenVocabulary">Unspecified</Genre>
-        <SubGenre Link="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" 
-		Type="OpenVocabularyList">Unspecified</SubGenre>
-        <Task Link="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" 
-		Type="OpenVocabulary"/>
-        <Modalities Link="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" 
-		Type="OpenVocabularyList"/>
-        <Subject Link="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" 
-		Type="OpenVocabularyList"/>
+        <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" Type="OpenVocabulary"></Genre>
+        <SubGenre Link="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" Type="OpenVocabularyList"></SubGenre>
+        <Task Link="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" Type="OpenVocabulary"/>
+        <Modalities Link="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" Type="OpenVocabularyList"/>
+        <Subject Link="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" Type="OpenVocabularyList"/>
         <CommunicationContext>
-          <Interactivity Link="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" 
-		Type="ClosedVocabulary"> Unspecified </Interactivity>
-          <PlanningType Link="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" 
-		Type="ClosedVocabulary"> Unspecified </PlanningType>
-          <Involvement Link="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" 
-		Type="ClosedVocabulary"> Unspecified </Involvement>
-          <SocialContext 
-		Link="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" 
-		Type="ClosedVocabulary"> Unspecified </SocialContext>
-          <EventStructure 
-		Link="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" 
-		Type="ClosedVocabulary"> Unspecified </EventStructure>
-          <Channel 
-		Link="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" 
-		Type="ClosedVocabulary"> Unspecified </Channel>
+          <Interactivity Link="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" Type="ClosedVocabulary"></Interactivity>
+          <PlanningType Link="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" Type="ClosedVocabulary"></PlanningType>
+          <Involvement Link="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" Type="ClosedVocabulary"></Involvement>
+          <SocialContext Link="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" Type="ClosedVocabulary"></SocialContext>
+          <EventStructure Link="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" Type="ClosedVocabulary"></EventStructure>
+          <Channel Link="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" Type="ClosedVocabulary"></Channel>
         </CommunicationContext>
         <Languages>
           <Description LanguageId="" Link=""/>
@@ -82,7 +64,7 @@
         <ResourceLink></ResourceLink>
         <Access>
           <Availability/>
-          <Date>Unspecified</Date>
+          <Date></Date>
           <Owner/>
           <Publisher/>
           <Contact>

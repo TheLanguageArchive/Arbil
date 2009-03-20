@@ -1,39 +1,27 @@
 
-<InsertableSection
-	xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" >
+<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" >
     <Actor>
-        <Role 
-		Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" 
-		Type="OpenVocabularyList">Unspecified
-        </Role>
+        <Role Link="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" Type="OpenVocabularyList"></Role>
         <Name>Standard Actor</Name>
         <FullName/>
         <Code/>
-        <FamilySocialRole 
-		Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" 
-		Type="OpenVocabularyList">Unspecified
-        </FamilySocialRole>
+        <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" Type="OpenVocabularyList"></FamilySocialRole>
         <Languages>
             <Description LanguageId="" Link=""/>
             <Language>
-                <Id>Unspecified</Id>
-                <Name  
-			Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" 
-			Type="OpenVocabulary">Unspecified
-                </Name>
-                <MotherTongue>Unspecified</MotherTongue>
-                <PrimaryLanguage>Unspecified</PrimaryLanguage>
+                <Id></Id>
+                <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"></Name>
+                <MotherTongue></MotherTongue>
+                <PrimaryLanguage></PrimaryLanguage>
                 <Description LanguageId="" Link=""/>
             </Language>
         </Languages>
         <EthnicGroup/>
-        <Age>Unspecified</Age>
-        <BirthDate>Unspecified</BirthDate>
-        <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" 
-		Type="ClosedVocabulary">Unspecified
-        </Sex>
-        <Education>Unspecified</Education>
-        <Anonymized>Unspecified</Anonymized>
+        <Age></Age>
+        <BirthDate></BirthDate>
+        <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" Type="ClosedVocabulary"></Sex>
+        <Education></Education>
+        <Anonymized></Anonymized>
         <Contact>
             <Name/>
             <Address/>

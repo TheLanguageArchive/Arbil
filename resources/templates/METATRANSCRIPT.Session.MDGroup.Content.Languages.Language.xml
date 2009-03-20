@@ -1,13 +1,11 @@
 
 <InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI">
     <Language>
-        <Id>Unspecified</Id>
-        <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" 
-		Type="OpenVocabulary">Standard Language
-        </Name>
-        <Dominant>Unspecified</Dominant>
-        <SourceLanguage>Unspecified</SourceLanguage>
-        <TargetLanguage>Unspecified</TargetLanguage>
+        <Id></Id>
+        <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary">Standard Language</Name>
+        <Dominant></Dominant>
+        <SourceLanguage></SourceLanguage>
+        <TargetLanguage></TargetLanguage>
         <Description LanguageId="" Link=""/>
     </Language>
 </InsertableSection>

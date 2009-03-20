@@ -2,23 +2,18 @@
 <InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms">
     <MediaFile>
         <ResourceLink/>
-        <Type Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" 
-		Type="ClosedVocabulary" 
-		>Unspecified
-        </Type>
-        <Format Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" 
-		Type="OpenVocabulary">Unspecified
-        </Format>
+        <Type Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" Type="ClosedVocabulary" ></Type>
+        <Format Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" Type="OpenVocabulary"></Format>
         <Size/>
-        <Quality>Unspecified</Quality>
+        <Quality></Quality>
         <RecordingConditions/>
         <TimePosition>
-            <Start>Unspecified</Start>
-            <End>Unspecified</End>
+            <Start></Start>
+            <End></End>
         </TimePosition>
         <Access>
             <Availability/>
-            <Date>Unspecified</Date>
+            <Date></Date>
             <Owner/>
             <Publisher/>
             <Contact>
