@@ -150,7 +150,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                         Object currentElement = searchNodes.remove(0);
                         if (currentElement instanceof ImdiTreeObject) {
                             ImdiTreeObject currentImdiNode = (ImdiTreeObject) currentElement;
-                            if (currentImdiNode.isLoading) {
+                            if (currentImdiNode.isLoading()) {
                                 System.out.println("still loading so putting back into the list: " + currentImdiNode);
                                 searchNodes.add(currentImdiNode);
                             } else {
