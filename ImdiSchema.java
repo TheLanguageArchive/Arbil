@@ -57,7 +57,8 @@ public class ImdiSchema {
     private Vector getSubnodesFromTemplatesDir(final String nodepath) {
         Vector returnVector = new Vector();
         System.out.println("getSubnodesOf: " + nodepath);
-        String[] templatesArray = {"METATRANSCRIPT.Session.xml",
+        String[] templatesArray = {
+            "METATRANSCRIPT.Session.xml",
             "METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml",
             "METATRANSCRIPT.Session.Resources.MediaFile.xml",
             "METATRANSCRIPT.Corpus.xml",
@@ -77,14 +78,6 @@ public class ImdiSchema {
                             throw new Exception("error in the templates array");
                         }
                     }
-                    currentTemplate = "." + currentTemplate;
-                    if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
-                        if (currentTemplate.startsWith(nodepath)) {
-                            String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
-                            String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-                            returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
-                        }
-                    }
                     linesRead++;
                 }
                 if (testingListing != null) {
@@ -96,6 +89,16 @@ public class ImdiSchema {
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
+        }
+        for (String currentTemplate : templatesArray) {
+            currentTemplate = "." + currentTemplate;
+            if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
+                if (currentTemplate.startsWith(nodepath)) {
+                    String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
+                    String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
+                    returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
+                }
+            }
         }
         Collections.sort(returnVector, new Comparator() {
 
