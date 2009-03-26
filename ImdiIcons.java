@@ -70,7 +70,7 @@ public class ImdiIcons {
 //    private ImageIcon infofileIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/infofile.png"));
 //    private ImageIcon transcriptIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/transcript.png"));
 //    private ImageIcon lexiconIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/lexicon.png"));    //  loading icons
-    private ImageIcon loading01Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
+//    private ImageIcon loading01Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
 //    private ImageIcon loading02Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading02.png"));
 //    private ImageIcon loading03Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading03.png"));
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
@@ -132,7 +132,7 @@ public class ImdiIcons {
     public ImageIcon getIconForImdi(ImdiTreeObject imdiObject) {
         Vector iconsVector = new Vector();
 
-        if (imdiObject.isLoading) {
+        if (imdiObject.isLoading()) {
             iconsVector.add(loadingIcon);
         }
         if (imdiObject.isLocal()) {
