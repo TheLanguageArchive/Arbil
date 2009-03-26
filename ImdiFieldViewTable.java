@@ -25,8 +25,26 @@ public class ImdiFieldViewTable extends JTable {
         setModel(tableModel);
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                System.out.println("mousePressed");
+                checkPopup(evt);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                System.out.println("mouseReleased");
+                checkPopup(evt);
+            }
+
+//            @Override
+//            public void mouseClicked(java.awt.event.MouseEvent evt) {
+//                System.out.println("mouseClicked");
+//                checkPopup(evt);
+//            }
+
+            private void checkPopup(java.awt.event.MouseEvent evt) {
+                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
                     // set the clicked cell selected
                     java.awt.Point p = evt.getPoint();
                     int clickedColumn = columnAtPoint(p);
