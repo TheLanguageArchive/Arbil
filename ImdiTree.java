@@ -50,24 +50,31 @@ public class ImdiTree extends JTree {
 
     public void scrollToNode(String imdiUrlString) {
         System.out.println("scrollToNode: " + imdiUrlString);
-//        DefaultTreeModel treeModel = 
         // get imdi object 
         ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
-        if (targetImdiNode.isImdiChild()) {
-            // get the dom parent
-            ImdiTreeObject parentImdiNode = targetImdiNode.getParentDomNode();
-            System.out.println("parentImdiNode: " + parentImdiNode);
-            // get parent tree node 
-            for (Enumeration registeredContainers = parentImdiNode.getRegisteredContainers(); registeredContainers.hasMoreElements();) {
-                Object currentContainer = registeredContainers.nextElement();
-                System.out.println("parentImdiNode registeredContainers: " + currentContainer);
-                if (currentContainer instanceof DefaultMutableTreeNode) {
-                    // refresh the tree for the node
-                    // refresh the parent tree (including the target node)
-                    GuiHelper.treeHelper.loadAndRefreshDescendantNodes((DefaultMutableTreeNode) currentContainer);
-                }
-            }
-        }
+        scrollToNode(targetImdiNode);
+    }
+
+    public void scrollToNode(ImdiTreeObject targetImdiNode) {
+        System.out.println("scrollToNode: " + targetImdiNode);
+//        DefaultTreeModel treeModel = 
+        // get imdi object 
+//        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
+//        if (targetImdiNode.isImdiChild()) {
+//            // get the dom parent
+//            ImdiTreeObject parentImdiNode = targetImdiNode.getParentDomNode();
+//            System.out.println("parentImdiNode: " + parentImdiNode);
+//            // get parent tree node 
+//            for (Enumeration registeredContainers = parentImdiNode.getRegisteredContainers(); registeredContainers.hasMoreElements();) {
+//                Object currentContainer = registeredContainers.nextElement();
+//                System.out.println("parentImdiNode registeredContainers: " + currentContainer);
+//                if (currentContainer instanceof DefaultMutableTreeNode) {
+//                    // refresh the tree for the node
+//                    // refresh the parent tree (including the target node)
+//                    GuiHelper.treeHelper.loadAndRefreshDescendantNodes((DefaultMutableTreeNode) currentContainer);
+//                }
+//            }
+//        }
         // get tree node 
         for (Enumeration registeredContainers = targetImdiNode.getRegisteredContainers(); registeredContainers.hasMoreElements();) {
             Object currentContainer = registeredContainers.nextElement();
@@ -78,7 +85,7 @@ public class ImdiTree extends JTree {
                 SwingUtilities.invokeLater(new Runnable() {
 
                     public void run() {
-
+                        System.out.println("scrollToNode targetTreePath: " + targetTreePath);
                         scrollPathToVisible(targetTreePath);
                         setSelectionPath(targetTreePath);
                     }
