@@ -52,13 +52,18 @@ public class ImdiTreeObject implements Comparable {
     private boolean nodeEnabled;
     private Vector childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
     private Vector containersOfThisNode;
-    public boolean isLoading;
+    public int isLoadingCount = 0;
+    public boolean lockedByLoadingThread = false;
     private boolean isTemplate;
+    public Vector<String[]> addQueue;
+//    public Vector<ImdiTreeObject> mergeQueue;
+    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
 
     // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         containersOfThisNode = new Vector();
+        addQueue = new Vector();
         nodeText = localNodeText;
         nodeUrl = conformStringToUrl(localUrlString);
         initNodeVariables();
@@ -127,6 +132,14 @@ public class ImdiTreeObject implements Comparable {
     }
 
     private void initNodeVariables() {
+        if (childrenHashtable != null) {
+            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
+                ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
+                if (currentNode.isImdiChild()) {
+                    currentNode.initNodeVariables();
+                }
+            }
+        }
         fieldHashtable = new Hashtable();
         childrenHashtable = new Hashtable();
         imdiDataLoaded = false;
@@ -167,49 +180,15 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void reloadNode(boolean recursiveReload) {
-        if (this.isImdiChild()) {
-            // get the parent node that has the dom
-            ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(null, this.getUrlString().split("#")[0]);
-            // reload the parent node
-            metaNodeImdiTreeObject.reloadNode(true);
-        } else {
-            // reload this node since it has a dom
-            reloadImdiNode(recursiveReload);
-        }
+    public void reloadNode() {
+        getParentDomNode().imdiNeedsSaveToDisk = false; // clear any changes
+        GuiHelper.imdiLoader.requestReload(getParentDomNode());
     }
 
-    private void reloadImdiNode(boolean recursiveReload) {
-        System.out.println("reloadImdiNode: " + this + childrenHashtable.size());
-//        if (imdiNeedsSaveToDisk) {
-//            saveChangesToCache();
-//        }
-        if (recursiveReload || this.isSession() || this.isImdiChild()) {
-            // TODO: iterate through imdichildnodes and subdirectories clearing as we go
-            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
-                ImdiTreeObject childNode = (ImdiTreeObject) childEnum.nextElement();
-//            if (!childNode.isCorpus()) {
-                childNode.reloadImdiNode(recursiveReload);
-//            }
-            }
-        }
-//        for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
-//            Object currentContainer = containersForNode.nextElement();
-//            if (currentContainer instanceof DefaultMutableTreeNode) {
-//                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-//                currentTreeNode.removeAllChildren();
-////                for (Enumeration childToAddEnum = this.getChildEnum();childToAddEnum.hasMoreElements();){
-////                    childToAddEnum
-////                }
-////                currentTreeNode
-//            }
-//        }
-        if (ImdiTreeObject.isStringImdi(this.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(this.getUrlString())) {
-            GuiHelper.imdiLoader.requestReload(this);
-        }
-        clearIcon();
-    }
-
+//    private void reloadImdiNode() {
+//        System.out.println("reloadImdiNode: " + this + childrenHashtable.size());
+//
+//    }
     public void loadImdiDom() {
         System.out.println("loadImdiDom: " + this.getFile().getName());
         initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
@@ -409,10 +388,10 @@ public class ImdiTreeObject implements Comparable {
      * Add a resource contained i an imdi object
      * @return String path to the added node
      */
-    public String addChildNode(ImdiTreeObject nodeToAdd) {
-        System.out.println("addChildNode: " + nodeToAdd);
-        return addChildNode(null, nodeToAdd.getUrlString(), nodeToAdd.mpiMimeType);
-    }
+//    public String addChildNode(ImdiTreeObject nodeToAdd) {
+//        System.out.println("addChildNode: " + nodeToAdd);
+//        return addChildNode(null, nodeToAdd.getUrlString(), nodeToAdd.mpiMimeType);
+//    }
 
     /**
      * Add a new node based on a template and optionally attach a resource
@@ -479,10 +458,10 @@ public class ImdiTreeObject implements Comparable {
 //                destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
 //            }
 //        }
-        if (destinationNode != this) {
-//            System.out.println("adding to list of child nodes 1: " + destinationNode);
-            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
-        }
+//        if (destinationNode != this) {
+////            System.out.println("adding to list of child nodes 1: " + destinationNode);
+//            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
+//        }
         return addedNodePath;
     }
 
@@ -656,7 +635,7 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("attempting to remove link");
             api.removeIMDIElement(nodDom, target);
             api.writeDOM(nodDom, this.getFile(), false);
-            reloadImdiNode(false);
+            GuiHelper.imdiLoader.requestReload(getParentDomNode());
 //            throw (new Exception("deleteCorpusLink not yet implemented"));
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -687,14 +666,14 @@ public class ImdiTreeObject implements Comparable {
             // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
             api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), targetImdiNode.toString(), nodeType, "");
             api.writeDOM(nodDom, this.getFile(), false);
-            reloadImdiNode(false);
+            GuiHelper.imdiLoader.requestReload(getParentDomNode());
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
         }
     }
 
-    public void updateImdiFileNodeIds() {
+    private void updateImdiFileNodeIds() {
         System.out.println("updateImdiFileNodeIds");
         try {
 //            System.out.println("removing NodeIds");
@@ -705,7 +684,8 @@ public class ImdiTreeObject implements Comparable {
             Document nodDomSecondLoad = api.loadIMDIDocument(inUrlLocal, false, null);
             api.writeDOM(nodDomSecondLoad, this.getFile(), false);
 //            System.out.println("reloading updateNodeIds");
-            reloadImdiNode(false);
+//            reloadImdiNode(false);
+            loadImdiDom();
         } catch (Exception mue) {
             GuiHelper.linorgBugCatcher.logError(mue);
             System.out.println("Invalid input URL: " + mue);
@@ -727,6 +707,11 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public void requestAddNode(String nodeType, String nodeTypeDisplayName, String templateUrlString, String resourceUrl, String mimeType) {
+//        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + templateUrlString + " : " + resourceUrl);
+        addQueue.add(new String[]{nodeType, nodeTypeDisplayName, templateUrlString, resourceUrl, mimeType});
+        GuiHelper.imdiLoader.requestReload(this);
+    }
     /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history.
@@ -820,7 +805,6 @@ public class ImdiTreeObject implements Comparable {
                 api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order
-                reloadImdiNode(false);
                 // update the icon to indicate the change
                 setImdiNeedsSaveToDisk(false);
             }
@@ -995,10 +979,18 @@ public class ImdiTreeObject implements Comparable {
         return this.toString().compareTo(((ImdiTreeObject) o).toString());
     }
 
+    public boolean isLoading() {
+        return isLoadingCount > 0;
+    }
+
     @Override
     public String toString() {
-        if (isLoading) {
-            return "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
+        if (isLoading()) {
+            if (lastNodeText.length() > 0) {
+                return lastNodeText;
+            } else {
+                return "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
+            }
         }
         // Return text for display
 //        if (fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name")) {
@@ -1177,6 +1169,9 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public void addJumpToInTreeRequest() {
+        jumpToRequested = true;
+    }
     /**
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
