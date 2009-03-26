@@ -26,7 +26,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class GuiHelper {
 
-    static ImdiFieldViews imdiFieldViews;
     static LinorgTemplates linorgTemplates;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
@@ -49,21 +48,19 @@ public class GuiHelper {
 
     public GuiHelper() {
         //imdiHelper = new ImdiIcons();
-        imdiFieldViews = new ImdiFieldViews();
         linorgTemplates = new LinorgTemplates();
         treeHelper.loadLocationsList();
     }
 
     public void saveState() {
-        imdiFieldViews.saveViewsToFile();
+        ImdiFieldViews.getSingleInstance().saveViewsToFile();
         treeHelper.saveLocations();
         linorgWindowManager.saveWindowStates();
     }
 
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
-
-        System.out.println("initAddMenu: " + targetNodeUserObject);
+//        System.out.println("initAddMenu: " + targetNodeUserObject);
         for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
             String[] currentField = (String[]) menuItemName.nextElement();
 //            System.out.println("MenuText: " + currentField[0]);
@@ -78,15 +75,17 @@ public class GuiHelper {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
-                    treeHelper.getImdiChildNodes(targetNode);
-                    treeHelper.addImdiChildNode(targetNode, (evt.getActionCommand()), ((JMenuItem) evt.getSource()).getText());
-                    treeHelper.reloadLocalCorpusTree(targetNode);
+                    ImdiTreeObject imdiTreeObject;
+                    if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
+                        imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
+                    } else {
+                        imdiTreeObject = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus.imdi"));
+                    }
+                    imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText(), null, null, null);
                 }
             });
             addMenu.add(addMenuItem);
         }
-//            if (addMenu.getComponentCount() == 0){
-//                javax.swing.JMenuItem addMenuItem = new javax.swing.JMenuItem();
 //                String emptyMenuName = "cannot add here";
 //                addMenuItem.setText(emptyMenuName);
 //                addMenuItem.setName(emptyMenuName);
@@ -113,10 +112,25 @@ public class GuiHelper {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     String imdiTemplateUrlString = evt.getActionCommand();
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
-                    treeHelper.getImdiChildNodes(targetNode);
-                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
-                    linorgTemplates.mergeFromTemplate(addedNodeUrlString, imdiTemplateUrlString, true);
-                    treeHelper.reloadLocalCorpusTree(targetNode);
+                    ImdiTreeObject imdiTreeObject;
+                    if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
+                        imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
+//                        imdiTreeObject.requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
+                        imdiTreeObject.requestAddNode(linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText(), imdiTemplateUrlString, null, null);
+                    }
+//                    treeHelper.getImdiChildNodes(targetNode);
+//                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
+//                    imdiLoader.getImdiObject("", addedNodeUrlString).requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
+//                    loop child nodes and insert them into the new node
+//                    ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateUrlString);
+//                    ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
+//                    
+//                    for (Enumeration<ImdiTreeObject> childTemplateEnum = templateImdiObject.getChildEnum(); childTemplateEnum.hasMoreElements();) {
+//                        ImdiTreeObject currentTemplateChild = childTemplateEnum.nextElement();
+//                        String addedNodeUrl = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(currentTemplateChild.getUrlString()), currentTemplateChild.toString());
+//                        linorgTemplates.mergeFromTemplate(addedNodeUrl, imdiTemplateUrlString, true);
+//                    }
+//                    treeHelper.reloadLocalCorpusTree(targetNode);
                 }
             });
             addFromTemplateMenu.add(addMenuItem);
@@ -127,18 +141,18 @@ public class GuiHelper {
         viewMenu.removeAll();
         ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
         //String[] viewLabels = guiHelper.imdiFieldViews.getSavedFieldViewLables();
-        for (Enumeration menuItemName = imdiFieldViews.getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
+        for (Enumeration menuItemName = ImdiFieldViews.getSingleInstance().getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
             String currentMenuName = menuItemName.nextElement().toString();
             javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
             viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
             viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
-            viewLabelRadioButtonMenuItem.setSelected(imdiFieldViews.getCurrentGlobalViewName().equals(currentMenuName));
+            viewLabelRadioButtonMenuItem.setSelected(ImdiFieldViews.getSingleInstance().getCurrentGlobalViewName().equals(currentMenuName));
             viewLabelRadioButtonMenuItem.setText(currentMenuName);
             viewLabelRadioButtonMenuItem.setName(currentMenuName);
-            viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener () {
 
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    imdiFieldViews.setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    ImdiFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
                 }
             });
             viewMenu.add(viewLabelRadioButtonMenuItem);
