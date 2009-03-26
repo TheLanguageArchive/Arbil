@@ -295,23 +295,11 @@ public class ImdiDragDrop {
                                 System.out.println("ok to add local file");
                                 for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                    String addedNodeUrl = ((ImdiTreeObject) dropTargetUserObject).addChildNode(draggedImdiObjects[draggedCounter]);
-                                    GuiHelper.treeHelper.updateTreeNodeChildren(targetNode);
-                                    if (addedNodeUrl != null) {
-                                        Vector tempVector = new Vector();
-                                        tempVector.add(GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl));
-                                        GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new Resource(s) in " + dropTargetUserObject);
-                                        // this will only happen on the local corpus tree so we can just address that here
-                                        GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedNodeUrl);
-                                    }
+                                    ((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
                                 }
                             }
-                            GuiHelper.treeHelper.reloadLocalCorpusTree();
                         }
-                    //GuiHelper.treeHelper.refreshChildNodes(targetNode);
-
                     }
-//                    }
                 } else {
                     Container imdiSplitPanel = findImdiDropableTarget(comp);
                     if (imdiSplitPanel instanceof LinorgSplitPanel) {
