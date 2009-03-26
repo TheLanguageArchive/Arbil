@@ -39,7 +39,7 @@ public class ImdiTableModel extends AbstractTableModel {
     String[] singleNodeViewHeadings = new String[]{"IMDI Field", "Value"};
 
     public ImdiTableModel() {
-        tableFieldView = GuiHelper.imdiFieldViews.getCurrentGlobalView().clone();
+        tableFieldView = ImdiFieldViews.getSingleInstance().getCurrentGlobalView().clone();
     }
 
     public DefaultListModel getListModel(LinorgSplitPanel imdiSplitPanel) {
@@ -278,7 +278,7 @@ public class ImdiTableModel extends AbstractTableModel {
                                         if (currentFieldArray.length > currentFieldCounted) {
                                             if (currentFieldArray[currentFieldCounted].getTranslateFieldName().equals(currentFieldName)) {
                                                 System.out.println("currentFieldName: " + currentFieldName + ":" + currentFieldCounted + ":" + currentFieldValue);
-                                                currentFieldArray[currentFieldCounted].setFieldValue(currentFieldValue);
+                                                currentFieldArray[currentFieldCounted].setFieldValue(currentFieldValue, true); // while we could reduce ui updates, this may be a paste into multiple nodes, so to keep it simple the field does the ui update rather than saving it till last
                                                 pastedCount++;
                                             }
                                         }
@@ -675,7 +675,7 @@ public class ImdiTableModel extends AbstractTableModel {
         if (data[row][col] instanceof ImdiField) {
             // multiple field colums will not be edited here or saved here
             ImdiField currentField = ((ImdiField) data[row][col]);
-            currentField.setFieldValue(value.toString());
+            currentField.setFieldValue(value.toString(), true);
             fireTableCellUpdated(row, col);
         } else if (data[row][col] instanceof Object[]) {
             System.out.println("cell is a child list so do not edit");
