@@ -15,8 +15,17 @@ public class ImdiFieldViews {
 
     private Hashtable<String, LinorgFieldView> savedFieldViews;
     private String currentGlobalViewName = "";
+    static public ImdiFieldViews singleInstance = null;
 
-    public ImdiFieldViews() {
+    static synchronized public ImdiFieldViews getSingleInstance() {
+        System.out.println("ImdiFieldViews getSingleInstance");
+        if (singleInstance == null) {
+            singleInstance = new ImdiFieldViews();
+        }
+        return singleInstance;
+    }
+
+    private ImdiFieldViews() {
         loadImdiFieldViews();
     }
 
