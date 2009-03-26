@@ -50,15 +50,33 @@ public class ImdiTable extends JTable {
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 //            public void mousePressed(java.awt.event.MouseEvent evt) {
+            @Override
+            public void mousePressed(MouseEvent evt) {
+//                System.out.println("mousePressed");
+                checkPopup(evt);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+//                System.out.println("mouseReleased");
+                checkPopup(evt);
+            }
+
+            @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
+                System.out.println("mouseClicked");
                 System.out.println("table header click");
                 targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
                 //targetTable = ((JTableHeader) evt.getComponent()).getTable();
                 if (evt.getButton() == MouseEvent.BUTTON1) {
                     imdiTableModel.sortByColumn(targetColumn);
                 }
+                checkPopup(evt);
+            }
+
+            private void checkPopup(java.awt.event.MouseEvent evt) {
                 System.out.println("columnIndex: " + targetColumn);
-                if (evt.getButton() == MouseEvent.BUTTON3) {
+                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
                     //targetTable = ((JTableHeader) evt.getComponent()).getTable();
                     System.out.println("columnIndex: " + targetColumn);
 
@@ -81,7 +99,7 @@ public class ImdiTable extends JTable {
                             String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this view as", "Save View", JOptionPane.PLAIN_MESSAGE);
                             // if the user did not cancel
                             if (fieldViewName != null) {
-                                if (!GuiHelper.imdiFieldViews.addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
+                                if (!ImdiFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
                                     JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "A View with the same name already exists, nothing saved");
                                 }
                             }
@@ -121,7 +139,7 @@ public class ImdiTable extends JTable {
                     JMenu fieldViewsMenuItem = new JMenu("Apply Saved View");
                     ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
                     //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
-                    for (Enumeration savedViewsEnum = GuiHelper.imdiFieldViews.getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
+                    for (Enumeration savedViewsEnum = ImdiFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
                         String currentViewLabel = savedViewsEnum.nextElement().toString();
                         javax.swing.JMenuItem viewLabelMenuItem;
                         viewLabelMenuItem = new javax.swing.JMenuItem();
@@ -132,7 +150,7 @@ public class ImdiTable extends JTable {
                         viewLabelMenuItem.addActionListener(new ActionListener() {
 
                             public void actionPerformed(ActionEvent evt) {
-                                imdiTableModel.setCurrentView(GuiHelper.imdiFieldViews.getView(((Component) evt.getSource()).getName()));
+                                imdiTableModel.setCurrentView(ImdiFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
                             }
                         });
                         fieldViewsMenuItem.add(viewLabelMenuItem);
@@ -145,8 +163,26 @@ public class ImdiTable extends JTable {
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
+            @Override
+            public void mousePressed(MouseEvent evt) {
+//                System.out.println("mousePressed");
+                checkPopup(evt);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+//                System.out.println("mouseReleased");
+                checkPopup(evt);
+            }
+
+//            @Override
+//            public void mouseClicked(java.awt.event.MouseEvent evt) {
+//                System.out.println("mouseClicked");
+//                checkPopup(evt);
+//            }
+
+            private void checkPopup(java.awt.event.MouseEvent evt) {
+                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
                     // set the clicked cell selected
                     java.awt.Point p = evt.getPoint();
                     int clickedRow = rowAtPoint(p);
@@ -155,7 +191,7 @@ public class ImdiTable extends JTable {
 
                     if (!evt.isShiftDown() && !evt.isControlDown()) {
                         // if it is the right mouse button and there is already a selection then do not proceed in changing the selection
-                        if (!(((evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) && clickedRowAlreadySelected))) {
+                        if (!(((evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) && clickedRowAlreadySelected))) {
                             // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
                             getSelectionModel().clearSelection();
                             // make sure the clicked cell is selected
@@ -168,7 +204,7 @@ public class ImdiTable extends JTable {
                     }
                 }
 
-                if (evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
+                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
 //                    targetTable = (JTable) evt.getComponent();
 //                    System.out.println("set the current table");
                     JPopupMenu windowedTablePopupMenu;
