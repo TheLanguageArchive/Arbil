@@ -5,10 +5,18 @@
  */
 package mpi.linorg;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.util.Arrays;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Vector;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -37,13 +45,47 @@ public class LinorgHelp extends javax.swing.JPanel {
     /** Creates new form LinorgHelp */
     private LinorgHelp() {
         initComponents();
+        Vector<String> availablePages = new Vector();
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        File helpDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/html/help").getFile());
+//        try {
+//            //FileWriter fileWriter = new FileWriter(this.getClass().getResource("/mpi/linorg/resources/html/help/index.txt").getFile());
+//            FileWriter fileWriter = new FileWriter("/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/html/help/index.txt");
+//            BufferedWriter outFile = new BufferedWriter(fileWriter);
+//            File helpDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/html/help").getFile());
+//            scanDirectory(helpDirectory, outFile);
+//            outFile.close();
+//        } catch (Exception ex) {
+//            GuiHelper.linorgBugCatcher.logError(ex);
+//        }
+        try {
+            InputStream fileReader = (this.getClass().getResourceAsStream("/mpi/linorg/resources/html/help/index.txt"));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileReader));
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                availablePages.add(line);
+            }
+            bufferedReader.close();
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+
         rootContentsNode = new DefaultMutableTreeNode("Contents");
         helpTreeModel = new DefaultTreeModel(rootContentsNode, true);
         jTree1.setModel(helpTreeModel);
-        populateContentsPane(helpDirectory, helpTreeModel, rootContentsNode);
+        populateContentsPane(availablePages, helpTreeModel, rootContentsNode);
         jTree1.setSelectionRow(1);
+    }
+
+    private void scanDirectory(File helpDirectory, BufferedWriter outFile) throws IOException {
+        File[] directoryListingArray = helpDirectory.listFiles();
+        for (File currentFile : directoryListingArray) {
+            if (currentFile.isDirectory()) {
+                scanDirectory(currentFile, outFile);
+            } else if (!currentFile.getName().endsWith("index.txt")) {
+                System.out.println("currentFile: " + currentFile.getPath());
+                outFile.write(currentFile.getPath().split("/mpi/linorg/resources/html/help/")[1] + "\n");
+            }
+        }
     }
 
     private DefaultMutableTreeNode findNode(DefaultMutableTreeNode currentNode, String helpPage) {
@@ -79,34 +121,43 @@ public class LinorgHelp extends javax.swing.JPanel {
         }
     }
 
-    private void populateContentsPane(File currentDirectory, DefaultTreeModel helpTreeModel, DefaultMutableTreeNode currentNode) {
-        System.out.println("populateContentsPane: " + currentDirectory);
-        System.out.println("populateContentsPane: " + currentDirectory.exists());
-        File[] directoryListingArray = currentDirectory.listFiles();
-        System.out.println("populateContentsPane: " + directoryListingArray);
-        if (directoryListingArray != null) {
-//            Sort the directory listing
-            Arrays.sort(directoryListingArray, new Comparator() {
+    private void populateContentsPane(Vector<String> availablePages, DefaultTreeModel helpTreeModel, DefaultMutableTreeNode currentNode) {
+        System.out.println("populateContentsPane: " + availablePages);
+        if (availablePages != null) {
+//        Sort the directory listing
+            Collections.sort(availablePages, new Comparator() {
 
                 public int compare(Object object1, Object object2) {
-                    if (!(object1 instanceof File && object2 instanceof File)) {
-                        throw new IllegalArgumentException("not a File object");
-                    }
-                    String string1 = ((File) object1).getName();
-                    String string2 = ((File) object2).getName();
+                    String string1 = object1.toString();
+                    String string2 = object2.toString();
                     return string2.compareToIgnoreCase(string1);
                 }
             });
-            for (File currentFile : directoryListingArray) {
-                String currentName = currentFile.getName().replaceFirst("\\.html$", "");
-                if (currentFile.isDirectory()) {
-                    DefaultMutableTreeNode currentDirectoryNode = new DefaultMutableTreeNode(currentName, true);
-                    helpTreeModel.insertNodeInto(currentDirectoryNode, currentNode, currentDirectoryNode.getChildCount());
-                    populateContentsPane(currentFile, helpTreeModel, currentDirectoryNode);
-                } else {
-                    DefaultMutableTreeNode currentItemNode = new DefaultMutableTreeNode(new HelpNodeUserObject(currentName, currentFile), false);
-                    helpTreeModel.insertNodeInto(currentItemNode, currentNode, 0);
+
+            for (String currentFileName : availablePages) {
+                DefaultMutableTreeNode currentSearchNode = rootContentsNode;
+                System.out.println("currentFileName: " + currentFileName);
+                for (String pathPartString : currentFileName.split("/")) {
+                    boolean foundNode = false;
+                    for (Enumeration childEnum = currentSearchNode.children(); childEnum.hasMoreElements();) {
+                        DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) childEnum.nextElement();
+                        if (pathPartString.equals(childNode.getUserObject().toString())) {
+                            currentSearchNode = childNode;
+                            foundNode = true;
+                            break;
+                        }
+                    }
+                    if (!foundNode) {
+                        currentSearchNode.setAllowsChildren(true);
+                        DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(pathPartString);
+                        helpTreeModel.insertNodeInto(childNode, currentSearchNode, 0);
+                        currentSearchNode = childNode;
+                    }
                 }
+                URL currentURL = this.getClass().getResource("/mpi/linorg/resources/html/help/" + currentFileName);
+                String currentName = currentSearchNode.getUserObject().toString().replaceFirst("\\.html$", "");
+                currentSearchNode.setUserObject(new HelpNodeUserObject(currentName, currentURL));
+                currentSearchNode.setAllowsChildren(false);
             }
         }
     }
@@ -114,19 +165,19 @@ public class LinorgHelp extends javax.swing.JPanel {
     class HelpNodeUserObject {
 
         String nameString;
-        File helpFile;
+        URL helpURL;
 
-        public HelpNodeUserObject(String localNameString, File localHelpFile) {
+        public HelpNodeUserObject(String localNameString, URL localHelpFile) {
             nameString = localNameString;
-            helpFile = localHelpFile;
+            helpURL = localHelpFile;
         }
 
         public String toString() {
             return nameString;
         }
 
-        public File getHelpFile() {
-            return helpFile;
+        public URL getHelpURL() {
+            return helpURL;
         }
     }
 
@@ -150,7 +201,6 @@ public class LinorgHelp extends javax.swing.JPanel {
         jSplitPane1.setDividerLocation(200);
 
         jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 jTree1ValueChanged(evt);
             }
@@ -172,16 +222,22 @@ public class LinorgHelp extends javax.swing.JPanel {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
         if (node != null) {
-            Object nodeInfo = node.getUserObject();
-            if (node.isLeaf()) {
-                try {
-                    jTextPane1.setPage(((HelpNodeUserObject) nodeInfo).getHelpFile().toURL());
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+        Object nodeInfo = node.getUserObject();
+        if (node.isLeaf()) {
+            try {
+                if (((HelpNodeUserObject) nodeInfo).getHelpURL() != null) {
+                    jTextPane1.setPage(((HelpNodeUserObject) nodeInfo).getHelpURL());
+//                    jTextPane1.setPage(this.getClass().getResource("/mpi/linorg/resources/html/help/Searching.html"));
+                } else {
+                    jTextPane1.setText("Page not found");
                 }
+            } catch (Exception ex) {
+                jTextPane1.setText("Page not found error");
+//                GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
-    }//GEN-LAST:event_jTree1ValueChanged
+    }
+}//GEN-LAST:event_jTree1ValueChanged
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
