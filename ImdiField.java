@@ -52,14 +52,16 @@ public class ImdiField {
         return fieldValue;
     }
 
-    public void setFieldValue(String fieldValue) {
+    public void setFieldValue(String fieldValue, boolean updateUI) {
         if (!this.fieldValue.equals(fieldValue)) {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
             this.fieldValue = fieldValue;
             parentImdi.setImdiNeedsSaveToDisk(true);
             fieldNeedsSaveToDisk = true;
             isLongField = -1;
-            parentImdi.clearIcon();
+            if (updateUI) {
+                parentImdi.clearIcon();
+            }
         }
     }
 
@@ -71,7 +73,7 @@ public class ImdiField {
         return fieldAttributes.get("LanguageId");
     }
 
-    public void setLanguageId(String languageId) {
+    public void setLanguageId(String languageId, boolean updateUI) {
         String oldLanguageId = getLanguageId();
         if (!languageId.equals(oldLanguageId)) {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageId, "edit");
@@ -80,7 +82,9 @@ public class ImdiField {
             parentImdi.setImdiNeedsSaveToDisk(true);
             fieldNeedsSaveToDisk = true;
             isLongField = -1;
-            parentImdi.clearIcon();
+            if (updateUI) {
+                parentImdi.clearIcon();
+            }
         }
 
     }
