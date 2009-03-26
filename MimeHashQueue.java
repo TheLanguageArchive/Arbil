@@ -90,6 +90,7 @@ public class MimeHashQueue {
                                 GuiHelper.linorgBugCatcher.logError(currentPathString, e);
                             }
                         }
+                        currentImdiObject.isLoadingCount--;
                     }
                     if (changedSinceLastSave) {
                         saveMd5sumIndex();
@@ -302,6 +303,7 @@ public class MimeHashQueue {
             System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
             imdiObjectQueue.add(imdiObject);
+            imdiObject.isLoadingCount++;
 //            }
         }
     }
