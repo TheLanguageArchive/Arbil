@@ -260,7 +260,7 @@ public class ImdiSchema {
     }
 
     public String addFromTemplate(File destinationFile, String templateType) {
-        System.out.println("addFromTemplateFile: " + templateType + " : " + destinationFile);
+        System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
         String addedPathString = null;
         // copy the template to disk
         URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");
@@ -291,21 +291,23 @@ public class ImdiSchema {
         return null;
     }
 
+    public String getNodeTypeFromMimeType(String mimeType) {
+        for (String[] formatType : new String[][]{
+                    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+                    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile"}
+                }) {
+            if (ImdiField.imdiVocabularies.vocabularyContains(formatType[0], mimeType)) {
+//                    if (mimeType.equals("image/jpeg")) {
+                return formatType[1];
+            }
+        }
+        return null;
+    }
+
     public String insertFromTemplate(File destinationFile, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
         String addedPathString = null;
-        if (elementName == null) {
-            for (String[] formatType : new String[][]{
-                        {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-                        {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile"}
-                    }) {
-                if (ImdiField.imdiVocabularies.vocabularyContains(formatType[0], mimeType)) {
-//                    if (mimeType.equals("image/jpeg")) {
-                    elementName = formatType[1];
-                    break;
-                }
-            }
-        }
+
         try {
             URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml");
             // prepare the parent node
