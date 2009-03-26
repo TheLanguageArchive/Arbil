@@ -118,18 +118,18 @@ public class LinorgTemplates {
         return returnValue;
     }
 
-    public void mergeFromTemplate(String addedNodeUrl, String imdiTemplateUrl, boolean overwriteValues) {
-        System.out.println("mergeFromTemplate: " + addedNodeUrl + " : " + imdiTemplateUrl);
-        ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateUrl);
-        ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
+    public void mergeFromTemplate(ImdiTreeObject targetImdiObject, ImdiTreeObject templateImdiObject, boolean overwriteValues) {
+//        System.out.println("mergeFromTemplate: " + addedNodeUrl + " : " + imdiTemplateUrl);
+//        ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateObject);
+//        ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
         Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
         for (Enumeration<ImdiField[]> templateFeildEnum = templateImdiObject.getFields().elements(); templateFeildEnum.hasMoreElements();) {
             ImdiField[] currentTemplateFields = templateFeildEnum.nextElement();
             if (currentTemplateFields.length > 0) {
                 ImdiField[] targetNodeFields = targetFieldsHash.get(currentTemplateFields[0].getTranslateFieldName());
 
-//                System.out.println("TranslateFieldName: " + currentTemplateFields[0].getTranslateFieldName());
-//                System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading);
+                System.out.println("TranslateFieldName: " + currentTemplateFields[0].getTranslateFieldName());
+                System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading());
                 if (targetNodeFields != null) {
                     System.out.println("copy fields");
                     for (int fieldCounter = 0; fieldCounter < currentTemplateFields.length; fieldCounter++) {
@@ -137,7 +137,7 @@ public class LinorgTemplates {
                         if (targetNodeFields.length > fieldCounter) {// error here adding a template node
                             // copy to the exisiting fields
                             currentField = targetNodeFields[fieldCounter];
-                            currentField.setFieldValue(currentTemplateFields[fieldCounter].getFieldValue());
+                            currentField.setFieldValue(currentTemplateFields[fieldCounter].getFieldValue(), false);
                         } else {
                             // add sub nodes if they dont already exist
                             currentField = new ImdiField(targetImdiObject, currentTemplateFields[fieldCounter].xmlPath, currentTemplateFields[fieldCounter].getFieldValue());
@@ -146,12 +146,12 @@ public class LinorgTemplates {
                         }
                         String currentLanguageId = currentTemplateFields[fieldCounter].getLanguageId();
                         if (currentLanguageId != null) {
-                            currentField.setLanguageId(currentLanguageId);
+                            currentField.setLanguageId(currentLanguageId, false);
                         }
                     }
                 }
             }
         }
-        targetImdiObject.saveChangesToCache();
+//        targetImdiObject.saveChangesToCache();
     }
 }
