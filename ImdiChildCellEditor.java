@@ -111,7 +111,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
                 public void actionPerformed(ActionEvent e) {
                     ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                    cellField.setLanguageId((String) comboBox.getSelectedItem());
+                    cellField.setLanguageId((String) comboBox.getSelectedItem(), true);
                 }
             });
             return comboBox;
@@ -178,7 +178,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                         public void focusLost(FocusEvent e) {
                             ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
                             if (cellField.parentImdi.getParentDomNode().isLocal()) {
-                                cellField.setFieldValue(fieldEditors[cellFieldIndex].getText());
+                                cellField.setFieldValue(fieldEditors[cellFieldIndex].getText(), true);
                             }
                         }
                     });
@@ -222,9 +222,9 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         if (selectedField != -1) {
             if (editorComponent != null) {
                 if (editorComponent instanceof JComboBox) {
-                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JComboBox) editorComponent).getSelectedItem().toString());
+                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JComboBox) editorComponent).getSelectedItem().toString(), true);
                 } else if (editorComponent instanceof JTextField) {
-                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JTextField) editorComponent).getText());
+                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JTextField) editorComponent).getText(), true);
                 }
             }
             return cellValue[selectedField];
