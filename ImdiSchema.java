@@ -393,7 +393,7 @@ public class ImdiSchema {
         return addedPathString;
     }
 
-    public void iterateChildNodes(ImdiTreeObject parentNode, Vector childLinks, Node startNode, String nodePath) {
+    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
@@ -484,8 +484,8 @@ public class ImdiSchema {
                         linkPath = fieldToAdd.getFieldValue();
                     }
                     System.out.println("linkPath: " + linkPath);
-                    //linkPath = linkPath.replaceAll("/[^/]*/\\.\\./", "/");
-//                    System.out.println("linkPathCorrected: " + linkPath);
+                    linkPath = linkPath.replaceAll("/[^/]*/\\.\\./", "/");
+                    System.out.println("linkPathCorrected: " + linkPath);
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);

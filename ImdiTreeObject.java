@@ -50,7 +50,7 @@ public class ImdiTreeObject implements Comparable {
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
-    private Vector childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
+    private Vector<String[]> childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
     private Vector containersOfThisNode;
     public int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
@@ -476,8 +476,8 @@ public class ImdiTreeObject implements Comparable {
             imdiDataLoaded = true;
             if (!this.isSession()) {
                 //getImdiFieldLinks();
-                for (Enumeration childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-                    String currentChildPath = ((String[]) childLinksEnum.nextElement())[0];
+                for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+                    String currentChildPath = childLinksEnum.nextElement()[0];
                     ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
 //                    System.out.println("adding to list of child nodes 2: " + currentImdi);
                     childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
@@ -618,8 +618,8 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("Trying to delete: " + targetImdiNode + " from: " + this.toString());
             // retrieve the node id for the link
             String linkIdString = null;
-            for (Enumeration childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-                String[] currentLinkPair = ((String[]) childLinksEnum.nextElement());
+            for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+                String[] currentLinkPair = childLinksEnum.nextElement();
                 String currentChildPath = currentLinkPair[0];
 //                System.out.println("currentChildPath: " + currentChildPath);
 //                System.out.println("targetImdiNode :  " + targetImdiNode.getUrlString());
