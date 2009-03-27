@@ -63,9 +63,9 @@ public class TreeHelper {
     }
 
     public void setTrees(ImdiTree tempRemoteCorpusTree, ImdiTree tempLocalCorpusTree, ImdiTree tempLocalDirectoryTree) {
-        remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiIcons.serverIcon, JLabel.LEFT));
-        localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ImdiIcons.directoryIcon, JLabel.LEFT));
-        localDirectoryRootNode.setUserObject(new JLabel("Working Directories", UIManager.getIcon("FileView.computerIcon"), JLabel.LEFT));
+        remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiIcons.getSingleInstance().serverIcon, JLabel.LEFT));
+        localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ImdiIcons.getSingleInstance().directoryIcon, JLabel.LEFT));
+        localDirectoryRootNode.setUserObject(new JLabel("Working Directories", ImdiIcons.getSingleInstance().computerIcon, JLabel.LEFT));
 
         remoteCorpusTree = tempRemoteCorpusTree;
         localCorpusTree = tempLocalCorpusTree;

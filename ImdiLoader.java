@@ -87,6 +87,7 @@ public class ImdiLoader {
                                     if (templateUrlString != null) {
                                         GuiHelper.linorgTemplates.mergeFromTemplate(addedImdiObject, getImdiObject("", templateUrlString), true);
                                     }
+                                    addedImdiObject.clearIcon();
                                     GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
                                     GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedImdiObject);
                                 }

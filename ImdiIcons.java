@@ -16,10 +16,12 @@ import javax.swing.UIManager;
  * @author petwit
  */
 public class ImdiIcons {
+    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/LinorgIcon09.png"));
     // basic icons used in the gui
-    public static ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
-    public static ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
-    public static ImageIcon loadingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
+    public ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
+    public ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
+    public ImageIcon computerIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/computer16x16.png"));
+    public ImageIcon loadingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading01.png"));
     // complex icons used for the imdi files
 //    private ImageIcon corpusicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/corpusnode_color.png"));
     private ImageIcon localicon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/local.png"));
@@ -76,6 +78,20 @@ public class ImdiIcons {
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
     private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
 
+    
+    static private ImdiIcons singleInstance = null;
+
+    static synchronized public ImdiIcons getSingleInstance() {
+        System.out.println("LinorgHelp getSingleInstance");
+        if (singleInstance == null) {
+            singleInstance = new ImdiIcons();
+        }
+        return singleInstance;
+    }
+    
+    private ImdiIcons(){
+        
+    }
     public ImageIcon getIconForImdi(ImdiTreeObject[] imdiObjectArray) {
         int currentIconXPosition = 0;
         int width = 0;

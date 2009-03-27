@@ -30,9 +30,10 @@ import javax.swing.tree.TreeSelectionModel;
 public class LinorgHelp extends javax.swing.JPanel {
 
     static public String ShorCutKeysPage = "Short Cut Keys";
+    static public String IntroductionPage = "2. Where do I start";
     DefaultMutableTreeNode rootContentsNode;
     DefaultTreeModel helpTreeModel;
-    static public LinorgHelp singleInstance = null;
+    static private LinorgHelp singleInstance = null;
 
     static synchronized public LinorgHelp getSingleInstance() {
         System.out.println("LinorgHelp getSingleInstance");

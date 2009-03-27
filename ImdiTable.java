@@ -357,7 +357,7 @@ public class ImdiTable extends JTable {
                     return "";
                 }
             };
-            multiIconLabelRenderer.setIcon(ImdiTreeObject.imdiIcons.getIconForImdi((ImdiTreeObject[]) cellField));
+            multiIconLabelRenderer.setIcon(ImdiIcons.getSingleInstance().getIconForImdi((ImdiTreeObject[]) cellField));
             multiIconLabelRenderer.setText("");
             return multiIconLabelRenderer;
         } else if (cellField instanceof ImdiField[]) {

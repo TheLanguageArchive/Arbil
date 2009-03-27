@@ -28,6 +28,7 @@
         <jar destfile="linorg.jar">
             <fileset dir="classes" includes="mpi/linorg/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/images/*.png"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.*"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>

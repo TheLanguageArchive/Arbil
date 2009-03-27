@@ -31,7 +31,7 @@ public class MimeHashQueue {
     private boolean continueThread = false;
     private static mpi.bcarchive.typecheck.FileType fileType; //  used to check the file type
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType;
-    static public MimeHashQueue singleInstance = null;
+    static private MimeHashQueue singleInstance = null;
 
     static synchronized public MimeHashQueue getSingleInstance() {
         System.out.println("MimeHashQueue getSingleInstance");

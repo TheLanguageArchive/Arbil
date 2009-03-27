@@ -6,7 +6,6 @@
 package mpi.linorg;
 
 import java.awt.Component;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -39,6 +38,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
 
+        setIconImage(ImdiIcons.getSingleInstance().linorgIcon.getImage());
         initComponents();
         setupTreeMouseActions();
         GuiHelper.treeHelper.setTrees((ImdiTree) remoteCorpusTree, (ImdiTree) localCorpusTree, (ImdiTree) localDirectoryTree);

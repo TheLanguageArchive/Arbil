@@ -30,7 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
     public static IMDIDom api = new IMDIDom();
-    static ImdiIcons imdiIcons = new ImdiIcons();
+//    static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
     private Hashtable<String, ImdiField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
@@ -1181,7 +1181,7 @@ public class ImdiTreeObject implements Comparable {
         SwingUtilities.invokeLater(new Runnable() {
 
             public void run() {
-                icon = imdiIcons.getIconForImdi(ImdiTreeObject.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
+                icon = ImdiIcons.getSingleInstance().getIconForImdi(ImdiTreeObject.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
 //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
 //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
                 // here we need to cause an update in the tree and table gui so that the new icon can be loaded
@@ -1228,7 +1228,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public ImageIcon getIcon() {
         if (icon == null) {
-            icon = imdiIcons.getIconForImdi(this);
+            icon = ImdiIcons.getSingleInstance().getIconForImdi(this);
         }
         return icon;
     }

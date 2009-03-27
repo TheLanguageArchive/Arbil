@@ -260,7 +260,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             button.setText(((DefaultTableCellRenderer) table.getCellRenderer(row, column)).getText());
             button.setForeground(((DefaultTableCellRenderer) table.getCellRenderer(row, column)).getForeground());
         } else {
-            button.setIcon(ImdiTreeObject.imdiIcons.getIconForImdi((ImdiTreeObject[]) cellValue));
+            button.setIcon(ImdiIcons.getSingleInstance().getIconForImdi((ImdiTreeObject[]) cellValue));
             button.setText("");
         }
         editorPanel.setLayout(new BorderLayout());

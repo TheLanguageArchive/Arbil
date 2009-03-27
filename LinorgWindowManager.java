@@ -11,7 +11,6 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -27,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -97,7 +97,7 @@ public class LinorgWindowManager {
 //        String remoteUrl = "http://www.mpi.nl/tg/j2se/jnlp/linorg/Features.html";
 //        String cachePath = GuiHelper.linorgSessionStorage.updateCache(remoteUrl, true);
 //        System.out.println("cachePath: " + cachePath);
-        URL destinationUrl = null;
+//        URL destinationUrl = null;
 //        try {
 //            if (new File(cachePath).exists()) {
 //                destinationUrl = new File(cachePath).toURL();
@@ -105,10 +105,10 @@ public class LinorgWindowManager {
 //        } catch (Exception ex) {
 //        }
 //        if (destinationUrl == null) {
-        destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
-//        }
-        System.out.println("destinationUrl: " + destinationUrl);
-        openUrlWindowOnce("Features/Known Bugs", destinationUrl);
+//        destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
+////        }
+//        System.out.println("destinationUrl: " + destinationUrl);
+//        openUrlWindowOnce("Features/Known Bugs", destinationUrl);
 
         try {
             // load the saved windows
@@ -130,6 +130,14 @@ public class LinorgWindowManager {
         } catch (Exception ex) {
             windowStatesHashtable = new Hashtable();
             System.out.println("load windowStates failed: " + ex.getMessage());
+        }
+
+        if (GuiHelper.treeHelper.localCorpusTreeModel.getChildCount(GuiHelper.treeHelper.localCorpusTreeModel.getRoot()) == 0) {
+            LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
+            if (!focusWindow("Help")) {
+                createWindow("Help", helpComponent);
+            }
+            helpComponent.setCurrentPage(LinorgHelp.IntroductionPage);
         }
 
         startKeyListener();
