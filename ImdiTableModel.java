@@ -655,7 +655,7 @@ public class ImdiTableModel extends AbstractTableModel {
         //no matter where the cell appears onscreen.
         boolean returnValue = false;
         if (data[row][col] instanceof ImdiField) {
-            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal();
+            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal() && ((ImdiField) data[row][col]).parentImdi.isImdi();
         } else if (data[row][col] instanceof ImdiField[]) {
             returnValue = ((ImdiField[]) data[row][col])[0].parentImdi.isLocal();
         }
