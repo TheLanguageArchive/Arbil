@@ -297,6 +297,7 @@ public class ImdiDragDrop {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                                     ((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
                                 }
+                                return true; // we have achieved the drag so return true
                             }
                         }
                     }
@@ -306,9 +307,10 @@ public class ImdiDragDrop {
                         LinorgSplitPanel targetPanel = (LinorgSplitPanel) imdiSplitPanel;
                         ImdiTableModel dropTableModel = (ImdiTableModel) targetPanel.imdiTable.getModel();
                         dropTableModel.addImdiObjects(draggedImdiObjects);
+                        return true; // we have achieved the drag so return true
                     } else if (imdiSplitPanel instanceof JDesktopPane) {
                         GuiHelper.linorgWindowManager.openFloatingTable(new Vector(Arrays.asList(draggedImdiObjects)).elements(), "Selection");
-
+                        return true; // we have achieved the drag so return true
                     }
                 }
             }
