@@ -6,6 +6,8 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -78,7 +80,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         GuiHelper.linorgWindowManager.openIntroductionPage();
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
-        setTitle("Linorg (Testing version, not for production use) " + new LinorgVersion().compileDate);
+        setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
         showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
@@ -113,13 +115,32 @@ public class LinorgFrame extends javax.swing.JFrame {
 //                public void mouseClicked(java.awt.event.MouseEvent evt) {
 //                    treeMouseClick(evt);
 //                }
-
+                @Override
                 public void mousePressed(java.awt.event.MouseEvent evt) {
                     treeMousePressedReleased(evt);
                 }
 
+                @Override
                 public void mouseReleased(java.awt.event.MouseEvent evt) {
                     treeMousePressedReleased(evt);
+                }
+            });
+
+            currentTree.addKeyListener(new java.awt.event.KeyAdapter() { // TODO: this is failing to get the menu key event
+                
+                @Override
+                public void keyReleased(KeyEvent evt) {
+                    treeKeyTyped(evt);
+                }
+
+                @Override
+                public void keyTyped(java.awt.event.KeyEvent evt) {
+                    treeKeyTyped(evt);
+                }
+
+                @Override
+                public void keyPressed(java.awt.event.KeyEvent evt) {
+                    treeKeyTyped(evt);
                 }
             });
         }
@@ -148,9 +169,24 @@ public class LinorgFrame extends javax.swing.JFrame {
         return selectedNodes;
     }
 
+    private void treeKeyTyped(java.awt.event.KeyEvent evt) {
+        if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
+            GuiHelper.linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements(), "Selection");
+        }
+        if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
+//        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
+            GuiHelper.treeHelper.deleteNode((JTree) evt.getSource());
+        }
+        System.out.println("evt.getKeyChar(): " + evt.getKeyChar());
+        System.out.println("VK_CONTEXT_MENU: " + java.awt.event.KeyEvent.VK_CONTEXT_MENU);
+        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_CONTEXT_MENU) {
+//        DefaultMutableTreeNode leadSelection = (DefaultMutableTreeNode) ((JTree) evt.getSource()).getSelectionPath().getLastPathComponent();
+            Rectangle selectionBounds = ((JTree) evt.getSource()).getRowBounds(((JTree) evt.getSource()).getLeadSelectionRow());
+            showTreePopup(evt.getSource(), selectionBounds.x, selectionBounds.y);
+        }
+    }
 //    private void treeMouseClick(java.awt.event.MouseEvent evt) {
 //    }
-
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
 // TODO add your handling code here:
         // test if click was over a selected node
@@ -168,11 +204,17 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         }
         if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
-            boolean showContextMenu = true;
-            int selectionCount = ((javax.swing.JTree) evt.getSource()).getSelectionCount();
-            int nodeLevel = -1;
-            if (selectionCount > 0) {
-                nodeLevel = ((javax.swing.JTree) evt.getSource()).getSelectionPath().getPathCount();
+            showTreePopup(evt.getSource(), evt.getX(), evt.getY());
+        }
+    }
+
+    private void showTreePopup(Object eventSource, int posX, int posY) {
+
+        boolean showContextMenu = true;
+        int selectionCount = ((javax.swing.JTree) eventSource).getSelectionCount();
+        int nodeLevel = -1;
+        if (selectionCount > 0) {
+            nodeLevel = ((javax.swing.JTree) eventSource).getSelectionPath().getPathCount();
             }
             boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
             boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
@@ -201,13 +243,13 @@ public class LinorgFrame extends javax.swing.JFrame {
             sendToServerMenuItem.setVisible(false);
             validateMenuItem.setVisible(false);
 
-            if (evt.getSource() == remoteCorpusTree) {
-                removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
-                addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
-                copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
-            }
-            if (evt.getSource() == localCorpusTree) {
+        if (eventSource == remoteCorpusTree) {
+            removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
+            addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
+            copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
+        }
+        if (eventSource == localCorpusTree) {
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
                 removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
                 searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
@@ -244,29 +286,29 @@ public class LinorgFrame extends javax.swing.JFrame {
 //            addMenu.setEnabled(!nodeIsImdiChild);
                 showContextMenu = true; //nodeLevel != 1;
             }
-            if (evt.getSource() == localDirectoryTree) {
-                removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
-                addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
+        if (eventSource == localDirectoryTree) {
+            removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
+            addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
+        }
+        copyImdiUrlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);
+
+        viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
+        reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+
+        // hide show the separators
+        treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && eventSource != localDirectoryTree);
+        treePopupMenuSeparator1.setVisible(nodeLevel != 1 && eventSource != localDirectoryTree);
+
+        // store the event source
+        treePopupMenu.setInvoker((javax.swing.JTree) eventSource);
+
+        // show the context menu
+        if (showContextMenu) {
+            if (eventSource instanceof Component) {
+                treePopupMenu.setInvoker((Component) eventSource);
             }
-            copyImdiUrlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);
-
-            viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
-            reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-
-            // hide show the separators
-            treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && evt.getSource() != localDirectoryTree);
-            treePopupMenuSeparator1.setVisible(nodeLevel != 1 && evt.getSource() != localDirectoryTree);
-
-            // store the event source
-            treePopupMenu.setInvoker((javax.swing.JTree) evt.getSource());
-
-            // show the context menu
-            if (showContextMenu) {
-                if (evt.getSource() instanceof Component) {
-                    treePopupMenu.setInvoker((Component) evt.getSource());
-                }
-                treePopupMenu.show((java.awt.Component) evt.getSource(), evt.getX(), evt.getY());
-            }
+            treePopupMenu.show((java.awt.Component) eventSource, posX, posY);
+            treePopupMenu.requestFocusInWindow();
         }
     }
 
@@ -540,7 +582,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         treePopupMenu.add(exportMenuItem);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle("Linorg");
+        setTitle("Arbil");
 
         mainSplitPane.setDividerLocation(100);
         mainSplitPane.setDividerSize(5);
@@ -572,11 +614,6 @@ public class LinorgFrame extends javax.swing.JFrame {
                 treeMouseDragged(evt);
             }
         });
-        localDirectoryTree.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                treeKeyTyped(evt);
-            }
-        });
         jScrollPane2.setViewportView(localDirectoryTree);
 
         leftLocalSplitPane.setBottomComponent(jScrollPane2);
@@ -597,11 +634,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         localCorpusTree.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 treeMouseDragged(evt);
-            }
-        });
-        localCorpusTree.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                treeKeyTyped(evt);
             }
         });
         jScrollPane4.setViewportView(localCorpusTree);
@@ -628,11 +660,6 @@ public class LinorgFrame extends javax.swing.JFrame {
                 treeMouseDragged(evt);
             }
         });
-        remoteCorpusTree.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                treeKeyTyped(evt);
-            }
-        });
         jScrollPane3.setViewportView(remoteCorpusTree);
 
         leftSplitPane.setLeftComponent(jScrollPane3);
@@ -643,6 +670,8 @@ public class LinorgFrame extends javax.swing.JFrame {
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         rightSplitPane.setName("rightSplitPane"); // NOI18N
         rightSplitPane.setTopComponent(rightScrollPane);
+
+        jDesktopPane1.setBackground(new java.awt.Color(204, 204, 204));
         rightSplitPane.setRightComponent(jDesktopPane1);
 
         mainSplitPane.setRightComponent(rightSplitPane);
@@ -1037,17 +1066,6 @@ private void treeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_
     TransferHandler th = c.getTransferHandler();
     th.exportAsDrag(c, evt, TransferHandler.COPY);
 }//GEN-LAST:event_treeMouseDragged
-
-private void treeKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_treeKeyTyped
-// TODO add your handling code here:
-    if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
-        GuiHelper.linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements(), "Selection");
-    }
-    if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
-//        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
-        GuiHelper.treeHelper.deleteNode((JTree) evt.getSource());
-    }
-}//GEN-LAST:event_treeKeyTyped
 
 private void saveNodeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveNodeMenuItemActionPerformed
 // TODO add your handling code here:
