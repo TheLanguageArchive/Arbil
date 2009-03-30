@@ -90,6 +90,8 @@ public class ImdiLoader {
                                     addedImdiObject.clearIcon();
                                     GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
                                     GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedImdiObject);
+                                } else {
+                                    GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
                                 }
                                 currentImdiObject.isLoadingCount--;
                                 currentImdiObject.clearIcon();
