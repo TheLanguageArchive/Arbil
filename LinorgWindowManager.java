@@ -80,7 +80,7 @@ public class LinorgWindowManager {
                 "Revision: " + linorgVersion.currentRevision + "\n" +
                 linorgVersion.lastCommitDate + "\n" +
                 "Compile Date: " + linorgVersion.compileDate + "\n";
-        JOptionPane.showMessageDialog(linorgFrame, messageString, "About Linorg", JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
     }
 
     public void openIntroductionPage() {
