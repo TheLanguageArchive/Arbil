@@ -487,11 +487,12 @@ public class ImdiSchema {
                         linkPath = fieldToAdd.getFieldValue();
                     }
                     System.out.println("linkPath: " + linkPath);
-                    while (linkPath.contains("/./")) {
-                        linkPath = linkPath.replaceAll("/\\./", "/");
-                    }
+//                    linkPath = new URL(linkPath).getPath();
+                    // clean the path for the local file system
+                    linkPath = linkPath.replaceAll("/\\./", "/");
+                    linkPath = linkPath.substring(0, 6) + (linkPath.substring(6).replaceAll("[/]+/", "/"));
                     while (linkPath.contains("/../")) {
-                        linkPath = linkPath.replaceAll("/[^/]*/\\.\\./", "/");
+                        linkPath = linkPath.replaceAll("/[^/]+/\\.\\./", "/");
                     }
                     System.out.println("linkPathCorrected: " + linkPath);
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
