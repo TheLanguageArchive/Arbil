@@ -166,6 +166,14 @@ public class ImdiTreeObject implements Comparable {
                     this.isDirectory = fileObject.isDirectory();
                 }
                 nodeText = fileObject.getName();
+                ImdiField sizeField = new ImdiField(this, "size", (fileObject.length() / 1024) + "KB");
+                sizeField.fieldID = "x1";
+                addField(sizeField);
+                Date mtime = new Date(fileObject.lastModified());
+                String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+                ImdiField dateField = new ImdiField(this, "last modified", mTimeString);
+                dateField.fieldID = "x2";
+                addField(dateField);
             }
             if (!isImdi() && nodeText == null) {
                 nodeText = this.getUrlString();
@@ -182,7 +190,12 @@ public class ImdiTreeObject implements Comparable {
 
     public void reloadNode() {
         getParentDomNode().imdiNeedsSaveToDisk = false; // clear any changes
-        GuiHelper.imdiLoader.requestReload(getParentDomNode());
+        if (!this.isImdi()) {
+            initNodeVariables();
+            GuiHelper.treeHelper.updateTreeNodeChildren(this);
+        } else {
+            GuiHelper.imdiLoader.requestReload(getParentDomNode());
+        }
     }
 
 //    private void reloadImdiNode() {
