@@ -271,7 +271,8 @@ public class ImdiTreeObject implements Comparable {
         File nodeFile = this.getFile();
         dirLinkArray = nodeFile.list();
         for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
-            String currentLink = this.getUrlString() + dirLinkArray[linkCount];
+            String currentLink = this.getUrlString() + File.separatorChar + dirLinkArray[linkCount];
+//            System.out.println("currentLink: " + currentLink);
             childLinks.add(new String[]{currentLink, null});
         }
     }
