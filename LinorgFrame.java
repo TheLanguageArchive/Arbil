@@ -84,6 +84,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
+        copyNewResourcesCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("copyNewResources", true));
+        GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+        saveWindowsCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("saveWindows", true));
     }
 
     private void performCleanExit() {
@@ -98,10 +101,12 @@ public class LinorgFrame extends javax.swing.JFrame {
                     return;
             }
         }
-        guiHelper.saveState();
+        guiHelper.saveState(saveWindowsCheckBoxMenuItem.isSelected());
         try {
             GuiHelper.linorgSessionStorage.saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
             GuiHelper.linorgSessionStorage.saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
+            GuiHelper.linorgSessionStorage.saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
+            GuiHelper.linorgSessionStorage.saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -376,6 +381,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveWindowsCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         checkNewVersionAtStartCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
+        copyNewResourcesCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         viewMenu = new javax.swing.JMenu();
         windowMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
@@ -756,7 +762,6 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         saveWindowsCheckBoxMenuItem.setSelected(true);
         saveWindowsCheckBoxMenuItem.setText("Save Windows on Exit");
-        saveWindowsCheckBoxMenuItem.setEnabled(false);
         optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
         showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
@@ -772,6 +777,15 @@ public class LinorgFrame extends javax.swing.JFrame {
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(true);
         checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
         optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
+        copyNewResourcesCheckBoxMenuItem.setSelected(true);
+        copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
+        copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session copy the file into the local cache.");
+        copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                copyNewResourcesCheckBoxMenuItemItemStateChanged(evt);
+            }
+        });
+        optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
         jMenuBar1.add(optionsMenu);
 
@@ -1174,6 +1188,11 @@ private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     // export the tree, maybe adjusting resource links so that resource files do not need to be copied
 }//GEN-LAST:event_exportMenuItemActionPerformed
 
+private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
+// TODO add your handling code here:
+    GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+}//GEN-LAST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
+
 /**
      * @param args the command line arguments
      */
@@ -1200,6 +1219,7 @@ private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JMenuItem copyBranchMenuItem;
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
     private javax.swing.JMenuItem copyMenuItem;
+    private javax.swing.JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
     private javax.swing.JMenuItem deleteMenuItem;
     private javax.swing.JMenuItem editFieldViewsMenuItem;
     private javax.swing.JMenuItem editLocationsMenuItem;

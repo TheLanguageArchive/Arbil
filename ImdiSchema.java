@@ -30,6 +30,7 @@ public class ImdiSchema {
      * When complete this function will parse the imdi schema
      */
     static String imdiPathSeparator = ".";
+    public boolean copyNewResourcesToCache = true;
 
     public boolean nodeCanExistInNode(ImdiTreeObject parentImdiObject, ImdiTreeObject childImdiObject) {
         String parentPath = getNodePath((ImdiTreeObject) parentImdiObject);
@@ -324,20 +325,22 @@ public class ImdiSchema {
                 // copy the file to the imdi directory
                 try {
                     //// TODO: the resource should be optionaly copied or moved into the cache or hardlinked
-                    URL resourceUrl = new URL(resourcePath);
+                    if (copyNewResourcesToCache) {
+                        URL resourceUrl = new URL(resourcePath);
 //                    String resourcesDirName = "resources";
-                    File originalFile = new File(resourceUrl.getFile());
-                    int suffixIndex = originalFile.getName().lastIndexOf(".");
-                    String targetFilename = originalFile.getName().substring(0, suffixIndex);
-                    String targetSuffix = originalFile.getName().substring(suffixIndex);
+                        File originalFile = new File(resourceUrl.getFile());
+                        int suffixIndex = originalFile.getName().lastIndexOf(".");
+                        String targetFilename = originalFile.getName().substring(0, suffixIndex);
+                        String targetSuffix = originalFile.getName().substring(suffixIndex);
                     System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
                     File destinationDirectory = new File(destinationFile.getParentFile().getPath()); // + File.separatorChar + resourcesDirName);
-                    System.out.println("destinationDirectory: " + destinationDirectory.toString());
+                        System.out.println("destinationDirectory: " + destinationDirectory.toString());
 //                    destinationDirectory.mkdir();
-                    File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
-                    localFilePath = "./" + /*File.separatorChar + resourcesDirName +*/ /* File.separatorChar + */ destinationFileCopy.getName();
-                    copyToDisk(resourceUrl, destinationFileCopy);
-                    System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
+                        localFilePath = "./" + /*File.separatorChar + resourcesDirName +*/ /* File.separatorChar + */ destinationFileCopy.getName();
+                        copyToDisk(resourceUrl, destinationFileCopy);
+                        System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+                    }
                 } catch (Exception ex) {
                     //localFilePath = resourcePath; // link to the original file
                     GuiHelper.linorgBugCatcher.logError(ex);

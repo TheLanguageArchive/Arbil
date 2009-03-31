@@ -52,10 +52,13 @@ public class GuiHelper {
         treeHelper.loadLocationsList();
     }
 
-    public void saveState() {
+    public void saveState(boolean saveWindows) {
         ImdiFieldViews.getSingleInstance().saveViewsToFile();
+        // linorgTemplates.saveSelectedTemplates(); // no need to do here because the list is saved when templates are changed
         treeHelper.saveLocations();
-        linorgWindowManager.saveWindowStates();
+        if (saveWindows) {
+            linorgWindowManager.saveWindowStates();
+        }
     }
 
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
