@@ -19,6 +19,8 @@ public class ImdiLoader {
     private Vector<ImdiTreeObject> imdiLocalNodesToInit = new Vector();
     private Hashtable<String, ImdiTreeObject> imdiHashTable = new Hashtable();
     private Vector<ImdiTreeObject> nodesNeedingSave = new Vector();
+    int imdiFilesLoaded = 0;
+    int remoteImdiFilesLoaded = 0;
 
     public ImdiLoader() {
         System.out.println("ImdiLoader init");
@@ -46,6 +48,7 @@ public class ImdiLoader {
                                 currentImdiObject.loadImdiDom();
                                 currentImdiObject.isLoadingCount--;
                                 currentImdiObject.clearIcon();
+                                remoteImdiFilesLoaded++;
                             }
                             currentImdiObject = getNodeFromQueue(imdiRemoteNodesToInit);
                         }
@@ -88,13 +91,19 @@ public class ImdiLoader {
                                         GuiHelper.linorgTemplates.mergeFromTemplate(addedImdiObject, getImdiObject("", templateUrlString), true);
                                     }
                                     addedImdiObject.clearIcon();
+                                    currentImdiObject.loadChildNodes();
                                     GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
                                     GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedImdiObject);
                                 } else {
+                                    if (currentImdiObject.autoLoadChildNodes) {
+                                        currentImdiObject.loadChildNodes();
+                                    }
                                     GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
                                 }
                                 currentImdiObject.isLoadingCount--;
                                 currentImdiObject.clearIcon();
+                                imdiFilesLoaded++;
+                                System.out.println("remoteImdiFilesLoaded: " + remoteImdiFilesLoaded + " imdiFilesLoaded: " + imdiFilesLoaded);
                             }
                             currentImdiObject.lockedByLoadingThread = false;
                             currentImdiObject = getNodeFromQueue(imdiLocalNodesToInit);
@@ -136,8 +145,10 @@ public class ImdiLoader {
             if (currentImdiObject == null) {
                 System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
                 currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
+                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
                 imdiHashTable.put(localUrlString, currentImdiObject);
                 if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
+                    System.out.println("cause the parent node to be loaded");
                     // cause the parent node to be loaded
                     currentImdiObject.getParentDomNode();
                 } else if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
