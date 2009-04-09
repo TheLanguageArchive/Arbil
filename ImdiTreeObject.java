@@ -655,7 +655,7 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("attempting to remove link");
             api.removeIMDIElement(nodDom, target);
             api.writeDOM(nodDom, this.getFile(), false);
-            GuiHelper.imdiLoader.requestReload(getParentDomNode());
+            reloadNode();
 //            throw (new Exception("deleteCorpusLink not yet implemented"));
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
