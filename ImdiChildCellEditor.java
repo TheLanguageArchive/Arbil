@@ -102,16 +102,29 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         if (fieldLanguageId != null) {
             System.out.println("Has LanguageId");
             final JComboBox comboBox = new JComboBox();
+            final String defaultValue = "<select>";
+            ImdiVocabularies.VocabularyItem selectedItem = null;
             comboBox.setEditable(false);
-            for (Enumeration vocabularyList = cellField.getLanguageList(); vocabularyList.hasMoreElements();) {
-                comboBox.addItem(vocabularyList.nextElement());
+            for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = cellField.getLanguageList(); vocabularyList.hasMoreElements();) {
+                ImdiVocabularies.VocabularyItem currentItem = vocabularyList.nextElement();
+                comboBox.addItem(currentItem);
+                if (fieldLanguageId.equals(currentItem.languageCode)) {
+                    selectedItem = currentItem;
+                }
             }
-            comboBox.setSelectedItem(fieldLanguageId);
+            if (selectedItem != null) {
+                System.out.println("selectedItem: " + selectedItem);
+                comboBox.setSelectedItem(selectedItem);
+            } else {
+                comboBox.addItem(defaultValue);
+                comboBox.setSelectedItem(defaultValue);
+            }
             comboBox.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
                     ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                    cellField.setLanguageId((String) comboBox.getSelectedItem(), true);
+                    cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true);
+                    comboBox.removeItem(defaultValue);
                 }
             });
             return comboBox;
@@ -120,15 +133,15 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         }
     }
     private void startEditorMode(boolean ctrlDown) {
-        System.out.println("startEditorMode");
+        System.out.println("startEditorMode: " + selectedField);
         if (cellValue instanceof ImdiField[]) {
-            if (!ctrlDown && !((ImdiField) cellValue[selectedField]).isLongField() && selectedField != -1) {
+            if (!ctrlDown && selectedField != -1 && !((ImdiField) cellValue[selectedField]).isLongField()) {
                 if (((ImdiField) cellValue[selectedField]).hasVocabulary()) {
                     System.out.println("Has Vocabulary");
                     JComboBox comboBox = new JComboBox();
                     comboBox.setEditable(((ImdiField) cellValue[selectedField]).vocabularyIsOpen);
-                    for (Enumeration vocabularyList = ((ImdiField) cellValue[selectedField]).getVocabulary(); vocabularyList.hasMoreElements();) {
-                        comboBox.addItem(vocabularyList.nextElement());
+                    for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = ((ImdiField) cellValue[selectedField]).getVocabulary(); vocabularyList.hasMoreElements();) {
+                        comboBox.addItem(vocabularyList.nextElement().languageName);
                     }
                     // TODO: enable multiple selection for vocabulary lists
                     comboBox.setSelectedItem(cellValue[selectedField].toString());
