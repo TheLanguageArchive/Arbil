@@ -33,7 +33,7 @@ import org.w3c.dom.Document;
  *
  * @author petwit
  */
-public class ThreadedDialog {
+public class ImportExportDialog {
 
     private JDialog searchDialog;
     private JProgressBar progressBar;
@@ -78,7 +78,7 @@ public class ThreadedDialog {
         return false;
     }
 
-    public ThreadedDialog(Component targetComponent) {
+    public ImportExportDialog(Component targetComponent) {
         searchDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {
