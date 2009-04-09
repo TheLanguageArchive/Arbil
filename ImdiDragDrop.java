@@ -278,7 +278,7 @@ public class ImdiDragDrop {
                     }
                     JTree dropTree = (JTree) comp;
                     DefaultMutableTreeNode targetNode = GuiHelper.treeHelper.getLocalCorpusTreeSingleSelection();
-                    GuiHelper.treeHelper.getImdiChildNodes(targetNode);
+                    GuiHelper.treeHelper.updateTreeNodeChildren(targetNode);
                     Object dropTargetUserObject = targetNode.getUserObject();
                     System.out.println("to: " + dropTargetUserObject.toString());
                     if (dropTargetUserObject instanceof ImdiTreeObject) {
