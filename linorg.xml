@@ -73,6 +73,8 @@
         </java>
     </target>
     <target depends="setproperties" name="getsvnversion">
+        <property name="linorg.current.major" value="0"/>
+        <property name="linorg.current.minor" value="1"/>
        <!-- <exec executable="svn" output="version.info">
             <arg value="info"/>
         </exec>
@@ -122,6 +124,8 @@
         <exec outputproperty="linorg.build.date" executable="date" />
         <echo file="${SRCDIR}mpi/linorg/LinorgVersion.java" append="false">package mpi.linorg;
 public class LinorgVersion {
+    String currentMajor = "${linorg.current.major}";
+    String currentMinor = "${linorg.current.minor}";
     String currentRevision = "${linorg.current.revision}";
     String lastCommitDate = "${linorg.last.commit.date}";
     String compileDate = "${linorg.build.date}";
@@ -144,10 +148,10 @@ public class LinorgVersion {
         </echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw" />
-        <move file="linorg.jar" tofile="linorg${linorg.current.revision}.jar"/>
-        <scp file="linorg${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <move file="linorg.jar" tofile="arbil${linorg.current.revision}.jar"/>
+        <scp file="arbil${linorg.current.major}.${linorg.current.minor}.${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <scp file="currentversion.txt" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <move file="linorg${linorg.current.revision}.jar" tofile="linorg.jar"/>
+        <move file="arbil${linorg.current.revision}.jar" tofile="arbil.jar"/>
     </target>
 </project>
  
