@@ -48,12 +48,12 @@ public class ImdiTree extends JTree {
         return tip;
     }
 
-    public void scrollToNode(String imdiUrlString) {
-        System.out.println("scrollToNode: " + imdiUrlString);
-        // get imdi object 
-        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
-        scrollToNode(targetImdiNode);
-    }
+//    public void scrollToNode(String imdiUrlString) {
+//        System.out.println("scrollToNode: " + imdiUrlString);
+//        // get imdi object 
+//        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
+//        scrollToNode(targetImdiNode);
+//    }
 
     public void scrollToNode(ImdiTreeObject targetImdiNode) {
         System.out.println("scrollToNode: " + targetImdiNode);
