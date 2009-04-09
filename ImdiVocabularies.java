@@ -14,7 +14,7 @@ import java.util.Vector;
  */
 public class ImdiVocabularies {
 
-    Hashtable vocabulariesTable = new Hashtable();
+    Hashtable<String, Vector> vocabulariesTable = new Hashtable();
 
     public ImdiVocabularies() {
 //        parseRemoteFile("/home/petwit/IMDI-Tools/Profiles/local/DBD_Profile.Profile.xml");
@@ -40,25 +40,35 @@ public class ImdiVocabularies {
 //        System.out.println("Entries: "+cv.getEntries());      
 //    }
     public void addVocabularyEntry(String vocabularyLocation, String entryString) {
-        Vector tempVocab = (Vector) vocabulariesTable.get(vocabularyLocation);
+        Vector<VocabularyItem> tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (!tempVocab.contains(entryString)) {
-            tempVocab.add(entryString);
+            tempVocab.add(new VocabularyItem(entryString, null));
         }
+    }
+
+    private VocabularyItem findVocabularyItem(Enumeration<VocabularyItem> vocabularyEmun, String searchString) {
+        while (vocabularyEmun.hasMoreElements()) {
+            VocabularyItem currentVocabItem = vocabularyEmun.nextElement();
+            if (currentVocabItem.languageName.equals(searchString)) {
+                return currentVocabItem;
+            }
+        }
+        return null;
     }
 
     public boolean vocabularyContains(String vocabularyLocation, String valueString) {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
-        Vector tempVocab = (Vector) vocabulariesTable.get(vocabularyLocation);
+        Vector<VocabularyItem> tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
-            return tempVocab.contains(valueString);
+            return (findVocabularyItem(tempVocab.elements(), valueString) != null);
         } else {
             return false;
         }
     }
 
-    public Enumeration getVocabulary(String vocabularyLocation) {
+    public Enumeration<VocabularyItem> getVocabulary(String vocabularyLocation) {
         if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
             return null;
         }
@@ -78,7 +88,7 @@ public class ImdiVocabularies {
 //            vocabularyList.add("time: " + System.currentTimeMillis());
 //            vocabulariesTable.put(vocabularyLocation, vocabularyList);
 //        }
-        Vector tempVocab = (Vector) vocabulariesTable.get(vocabularyLocation);
+        Vector<VocabularyItem> tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
             return tempVocab.elements();
         } else {
@@ -106,7 +116,7 @@ public class ImdiVocabularies {
             //xmlReader = XMLReaderFactory.createXMLReader();
             xmlReader.setFeature("http://xml.org/sax/features/validation", false);
             xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
-            Vector vocabularyList = new Vector();
+            Vector<VocabularyItem> vocabularyList = new Vector();
             xmlReader.setContentHandler(new SaxVocabularyHandler(vocabularyList));
             xmlReader.parse(cachePath);
             vocabulariesTable.put(vocabRemoteUrl, vocabularyList);
@@ -127,9 +137,9 @@ public class ImdiVocabularies {
 
     private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
-        Vector collectedVocab;
+        Vector<VocabularyItem> collectedVocab;
 
-        public SaxVocabularyHandler(Vector vocabList) {
+        public SaxVocabularyHandler(Vector<VocabularyItem> vocabList) {
             super();
             collectedVocab = vocabList;
         }
@@ -144,11 +154,13 @@ public class ImdiVocabularies {
 //            System.out.println("End document");
 ////            vocabulariesTable
 //        }
+        @Override
         public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
             if (name.equals("Entry")) {
-                String vocabEntry = atts.getValue("Value");
-                if (vocabEntry != null) {
-                    collectedVocab.add(vocabEntry);
+                String vocabName = atts.getValue("Value");
+                String vocabCode = atts.getValue("Code");
+                if (vocabName != null) {
+                    collectedVocab.add(new VocabularyItem(vocabName, vocabCode));
                 }
             }
 //            if ("".equals(uri)) {
@@ -193,5 +205,21 @@ public class ImdiVocabularies {
 //            }
 //            System.out.print("\"\n");
 //        }
+    }
+
+    public class VocabularyItem {
+
+        public String languageName;
+        public String languageCode;
+
+        public VocabularyItem(String languageNameLocal, String languageCodeLocal) {
+            languageName = languageNameLocal;
+            languageCode = languageCodeLocal;
+        }
+
+        @Override
+        public String toString() {
+            return languageName;
+        }
     }
 }
