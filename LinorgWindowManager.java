@@ -77,7 +77,7 @@ public class LinorgWindowManager {
         String messageString = "Linguistic Organiser\n" +
                 "A local tool for organising linguistic data.\n" +
                 "Max Planck Institute for Psycholinguistics\n" +
-                "Revision: " + linorgVersion.currentRevision + "\n" +
+                "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n" +
                 linorgVersion.lastCommitDate + "\n" +
                 "Compile Date: " + linorgVersion.compileDate + "\n";
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
