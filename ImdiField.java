@@ -89,11 +89,12 @@ public class ImdiField {
 
     }
 
-    public Enumeration getLanguageList() { // TODO: move this url to somewhere appropriate
-        return imdiVocabularies.getVocabulary("http://www.mpi.nl/IMDI/Schema/LanguagesID.xml");
+    public Enumeration<ImdiVocabularies.VocabularyItem> getLanguageList() { // TODO: move this url to somewhere appropriate (preferably in the imdi file)
+//        return a list if objects 
+        return imdiVocabularies.getVocabulary("http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml");
     }
 
-    public Enumeration getVocabulary() {
+    public Enumeration<ImdiVocabularies.VocabularyItem> getVocabulary() {
         if (vocabularyKey == null) {
             return null;
         }
