@@ -148,10 +148,10 @@ public class LinorgVersion {
         </echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw" />
-        <move file="linorg.jar" tofile="arbil${linorg.current.revision}.jar"/>
-        <scp file="arbil${linorg.current.major}.${linorg.current.minor}.${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <move file="linorg.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
+        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <scp file="currentversion.txt" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <move file="arbil${linorg.current.revision}.jar" tofile="arbil.jar"/>
+        <move file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" tofile="arbil.jar"/>
     </target>
 </project>
  

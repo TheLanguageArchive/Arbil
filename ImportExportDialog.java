@@ -623,7 +623,9 @@ public class ImportExportDialog {
                         // prevent restart
                         selectedNodes.removeAllElements();
                         //TODO: prevent restart and probably make sure that done files are not redone if stopped
-                        removeEmptyDirectoryPaths(exportDestinationDirectory);
+                        if (exportDestinationDirectory != null) {
+                            removeEmptyDirectoryPaths(exportDestinationDirectory);
+                        }
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
