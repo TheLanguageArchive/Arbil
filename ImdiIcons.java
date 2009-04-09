@@ -82,7 +82,6 @@ public class ImdiIcons {
     static private ImdiIcons singleInstance = null;
 
     static synchronized public ImdiIcons getSingleInstance() {
-        System.out.println("LinorgHelp getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new ImdiIcons();
         }
