@@ -207,6 +207,7 @@ public class TreeHelper {
     // check that all child nodes are attached and sorted, removing any extranious nodes found
     public void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
         //TODO: find out why this leaves duplicate meta nodes when adding a imdi child node
+        Vector<DefaultMutableTreeNode> nodesToRemove = new Vector();
         DefaultTreeModel treeModel = getModelForNode(itemNode);
 //        boolean childrenChanged = false;
         // this could make sure the order is that of the supplied url list, er no it could not
@@ -217,6 +218,7 @@ public class TreeHelper {
             if (!childUrls.remove(childImdiObject.getUrlString())) {
                 System.out.println("updateTreeNodeChildren[]: removing extraneous node: " + childImdiObject.getUrlString());
                 // remove any extraneous nodes
+                nodesToRemove.add(currentChildNode);
                 removeAndDetatchDescendantNodes(currentChildNode);
 //                treeModel.removeNodeFromParent(currentChildNode);
 //                treeModel.nodeStructureChanged(itemNode);
@@ -235,6 +237,9 @@ public class TreeHelper {
             treeModel.nodeStructureChanged(itemNode);
         }
         sortChildNodes(itemNode);
+        while (!nodesToRemove.isEmpty()) {
+            treeModel.removeNodeFromParent(nodesToRemove.remove(0));
+        }
     }
 
     public void sortChildNodes(DefaultMutableTreeNode parentNode) {
