@@ -439,7 +439,7 @@ public class ImdiTable extends JTable {
 //            setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
             setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         } else {
-            System.out.println("AUTO_RESIZE_OFF");
+//            System.out.println("AUTO_RESIZE_OFF");
             setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
     }

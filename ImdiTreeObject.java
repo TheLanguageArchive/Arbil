@@ -488,12 +488,12 @@ public class ImdiTreeObject implements Comparable {
      * @return ImdiTreeObject[] array of child nodes
      */
     public ImdiTreeObject[] loadChildNodes() {
-        System.out.println("loadChildNodes: " + this.getUrlString());
-        autoLoadChildNodes = false;
+        System.out.println("loadChildNodes: " + this);
         if (!imdiDataLoaded) {
             // if this node has been loaded then do not load again
             // to refresh the node and its children the node should be nulled and recreated
             imdiDataLoaded = true;
+            autoLoadChildNodes = false;
             if (!this.isSession()) {
                 //getImdiFieldLinks();
                 for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
@@ -686,7 +686,6 @@ public class ImdiTreeObject implements Comparable {
             // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
             api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), targetImdiNode.toString(), nodeType, "");
             api.writeDOM(nodDom, this.getFile(), false);
-            GuiHelper.imdiLoader.requestReload(getParentDomNode());
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
@@ -1199,7 +1198,7 @@ public class ImdiTreeObject implements Comparable {
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
     public void clearIcon() {
-//        System.out.println("clearIcon: " + this.toString());
+        System.out.println("clearIcon: " + this);
 //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
         SwingUtilities.invokeLater(new Runnable() {
 

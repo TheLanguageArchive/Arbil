@@ -167,7 +167,7 @@ public class TreeHelper {
         for (Enumeration nodeContainersEnum = parentImdiNode.getRegisteredContainers(); nodeContainersEnum.hasMoreElements();) {
             Object currentContainer = nodeContainersEnum.nextElement();
             if (currentContainer instanceof DefaultMutableTreeNode) {
-//                System.out.println("updateTreeNodeChildren currentContainer: " + parentImdiNode + " : " + currentContainer.hashCode());
+                System.out.println("updateTreeNodeChildren currentContainer: " + parentImdiNode + " : " + currentContainer.hashCode());
                 updateTreeNodeChildren((DefaultMutableTreeNode) currentContainer);
             }
         }

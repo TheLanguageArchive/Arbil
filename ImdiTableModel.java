@@ -116,15 +116,15 @@ public class ImdiTableModel extends AbstractTableModel {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) nodesEnum.nextElement();
             if (!imdiTreeObject.isImdi() || imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
                 // on application reload a file may be readded to a table before the type checker gets a chance to run, since a file must have been checked for it to get here we bypass that check at this point
-                System.out.println("Adding to jlist: " + imdiTreeObject.toString());
+//                System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(imdiTreeObject)) {
                     listModel.addElement(imdiTreeObject);
                 }
             } else {
-                System.out.println("Not adding to jlist: " + imdiTreeObject.toString());
+//                System.out.println("Not adding to jlist: " + imdiTreeObject.toString());
             }
-            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
-            System.out.println("hasResource: " + imdiTreeObject.hasResource());
+//            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
+//            System.out.println("hasResource: " + imdiTreeObject.hasResource());
             for (Enumeration<String> fieldNames = imdiTreeObject.getFields().keys(); fieldNames.hasMoreElements();) {
                 String currentColumnName = fieldNames.nextElement().toString();
                 if (!allColumnNames.contains(currentColumnName)) {

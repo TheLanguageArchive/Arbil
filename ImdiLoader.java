@@ -84,15 +84,18 @@ public class ImdiLoader {
                                         resourceUrl = addRequestArrayString[3];
                                         mimeType = addRequestArrayString[4];
                                     }
-//                                    System.out.println("addRequestArrayString: " + nodeType + " : " + nodeTypeDisplayName + " : " + templateUrlString);
+                                    System.out.println("addQueue:-\nnodeType: " + nodeType + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\ntemplateUrlString: " + templateUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
                                     ImdiTreeObject addedImdiObject = GuiHelper.treeHelper.addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                     currentImdiObject.loadImdiDom();
                                     if (templateUrlString != null) {
+                                        // TODO: do this for all the descendants of the template
                                         GuiHelper.linorgTemplates.mergeFromTemplate(addedImdiObject, getImdiObject("", templateUrlString), true);
                                     }
-                                    addedImdiObject.clearIcon();
                                     currentImdiObject.loadChildNodes();
+                                    addedImdiObject.clearIcon();
                                     GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
+//                                    addedImdiObject.autoLoadChildNodes = true;
+//                                    addedImdiObject.loadChildNodes();
                                     GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedImdiObject);
                                 } else {
                                     if (currentImdiObject.autoLoadChildNodes) {
@@ -170,8 +173,11 @@ public class ImdiLoader {
             currentImdiObject = currentImdiObject.getParentDomNode();
         }
         if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
-            currentImdiObject.isLoadingCount++;
-            imdiLocalNodesToInit.add(currentImdiObject);
+            if (!imdiLocalNodesToInit.contains(currentImdiObject)) {
+                System.out.println("requestReload: " + currentImdiObject.getUrlString());
+                currentImdiObject.isLoadingCount++;
+                imdiLocalNodesToInit.add(currentImdiObject);
+            }
         }
     }
 
