@@ -55,11 +55,12 @@ public class ImdiTreeObject implements Comparable {
     public int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
     private boolean isTemplate;
+    public boolean autoLoadChildNodes = false;
     public Vector<String[]> addQueue;
 //    public Vector<ImdiTreeObject> mergeQueue;
-    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
+//    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
+    private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
 
-    // ImdiTreeObject parentImdi; // the parent imdi not the imdi child which display
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         containersOfThisNode = new Vector();
@@ -194,6 +195,9 @@ public class ImdiTreeObject implements Comparable {
             initNodeVariables();
             GuiHelper.treeHelper.updateTreeNodeChildren(this);
         } else {
+            if (getParentDomNode().isCorpus()) {
+                getParentDomNode().autoLoadChildNodes = true;
+            }
             GuiHelper.imdiLoader.requestReload(getParentDomNode());
         }
     }
@@ -484,6 +488,8 @@ public class ImdiTreeObject implements Comparable {
      * @return ImdiTreeObject[] array of child nodes
      */
     public ImdiTreeObject[] loadChildNodes() {
+        System.out.println("loadChildNodes: " + this.getUrlString());
+        autoLoadChildNodes = false;
         if (!imdiDataLoaded) {
             // if this node has been loaded then do not load again
             // to refresh the node and its children the node should be nulled and recreated
@@ -1083,7 +1089,10 @@ public class ImdiTreeObject implements Comparable {
      * @return ImdiTreeObject
      */
     public ImdiTreeObject getParentDomNode() {
-        return GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
+        if (domParentImdi == null) {
+            domParentImdi = GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
+        }
+        return domParentImdi;
     }
 
     public boolean isDirectory() {
@@ -1183,9 +1192,9 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void addJumpToInTreeRequest() {
-        jumpToRequested = true;
-    }
+//    public void addJumpToInTreeRequest() {
+//        jumpToRequested = true;
+//    }
     /**
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
