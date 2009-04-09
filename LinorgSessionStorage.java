@@ -111,7 +111,7 @@ public class LinorgSessionStorage {
         return resultValue;
     }
 
-     /**
+    /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
      * @param pathString Path of the remote file.
@@ -157,7 +157,24 @@ public class LinorgSessionStorage {
     }
 
     /**
+     * Removes the cache path component from a path string and appends it to the destination directory.
+     * Then tests for and creates the directory structure in the destination directory if requred.
+     * @param pathString Path of a file within the cache.
+     * @param destinationDirectory Path of the destination directory.
+     * @return The path of the file in the destination directory.
+     */
+    public String getExportPath(String pathString, String destinationDirectory) {
+        String cachePath = destinationDirectory + pathString.split(".linorg" + File.separatorChar + "imdicache")[1];
+        File tempFile = new File(cachePath);
+        if (!tempFile.getParentFile().exists()) {
+            tempFile.getParentFile().mkdirs();
+        }
+        return cachePath;
+    }
+
+    /**
      * Converts a String path from the remote location to the respective location in the cache.
+     * Then tests for and creates the directory structure in the cache if requred.
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
