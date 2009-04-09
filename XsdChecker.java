@@ -86,6 +86,24 @@ public class XsdChecker extends JSplitPane {
         }
     }
 
+    public String simpleCheck(File imdiFile, String sourceFile) {
+        String messageString;
+//        System.out.println("simpleCheck: " + imdiFile);
+        URL schemaFile = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
+        Source xmlFile = new StreamSource(imdiFile);
+        try {
+            Validator validator = createValidator(schemaFile);
+            validator.validate(xmlFile);
+            return null;
+        } catch (Exception e) {
+//            System.out.println(sourceFile + " is NOT valid");
+//            System.out.println("Reason: " + e.getLocalizedMessage());
+            messageString = sourceFile + " is NOT valid\n" +
+                    "Reason: " + e.getLocalizedMessage() + "\n";
+            return messageString;
+        }
+    }
+
     public void checkXML(ImdiTreeObject imdiObject) {
         encounteredAdditionalErrors = false;
         try {
