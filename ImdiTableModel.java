@@ -525,7 +525,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 }
                 rowCounter++;
             }
-            System.out.println("setting column widths: " + maxColumnWidths);
+//            System.out.println("setting column widths: " + maxColumnWidths);
 //            // display the column names use count for testing only
 //            Enumeration tempEnum = columnNameHash.elements();
 //            int tempColCount = 0;
@@ -655,9 +655,9 @@ public class ImdiTableModel extends AbstractTableModel {
         //no matter where the cell appears onscreen.
         boolean returnValue = false;
         if (data[row][col] instanceof ImdiField) {
-            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal() && ((ImdiField) data[row][col]).parentImdi.isImdi();
+            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal() && ((ImdiField) data[row][col]).parentImdi.isImdi() && ((ImdiField) data[row][col]).fieldID!= null;
         } else if (data[row][col] instanceof ImdiField[]) {
-            returnValue = ((ImdiField[]) data[row][col])[0].parentImdi.isLocal();
+            returnValue = ((ImdiField[]) data[row][col])[0].parentImdi.isLocal() && ((ImdiField[]) data[row][col])[0].fieldID != null;
         }
         System.out.println("Cell is ImdiField: " + returnValue);
 //        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
