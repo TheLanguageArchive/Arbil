@@ -107,8 +107,8 @@ class JListToolTip extends JToolTip {
         if (tempObject.imdiNeedsSaveToDisk) {
             addTabbedLabel("Unsaved changes");
         }
-        if (tempObject.isTemplate()) {
-            addTabbedLabel("Available in the templates menu");
+        if (tempObject.isFavorite()) {
+            addTabbedLabel("Available in the favourites menu");
         }
     }
 
