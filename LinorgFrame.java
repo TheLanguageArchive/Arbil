@@ -133,20 +133,20 @@ public class LinorgFrame extends javax.swing.JFrame {
 
             currentTree.addKeyListener(new java.awt.event.KeyAdapter() { // TODO: this is failing to get the menu key event
                 
-                @Override
-                public void keyReleased(KeyEvent evt) {
-                    treeKeyTyped(evt);
-                }
+//                @Override
+//                public void keyReleased(KeyEvent evt) {
+//                    treeKeyTyped(evt);
+//                }
 
                 @Override
                 public void keyTyped(java.awt.event.KeyEvent evt) {
                     treeKeyTyped(evt);
                 }
 
-                @Override
-                public void keyPressed(java.awt.event.KeyEvent evt) {
-                    treeKeyTyped(evt);
-                }
+//                @Override
+//                public void keyPressed(java.awt.event.KeyEvent evt) {
+//                    treeKeyTyped(evt);
+//                }
             });
         }
     }
@@ -241,8 +241,8 @@ public class LinorgFrame extends javax.swing.JFrame {
             deleteMenuItem.setVisible(false);
             viewSelectedNodesMenuItem.setVisible(false);
             viewSelectedNodesMenuItem.setText("View Selected");
-            templateMenu.setVisible(false);
-            mergeWithTemplateMenu.setEnabled(false);
+            favouritesMenu.setVisible(false);
+            mergeWithFavouritesMenu.setEnabled(false);
             saveMenuItem.setVisible(false);
             viewChangesMenuItem.setVisible(false);
             sendToServerMenuItem.setVisible(false);
@@ -257,13 +257,13 @@ public class LinorgFrame extends javax.swing.JFrame {
         }
         if (eventSource == localCorpusTree) {
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
-                removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
-                searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-                // a corpus can be added even at the root node
-                addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
+            //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
+            searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+            // a corpus can be added even at the root node
+            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
-                deleteMenuItem.setVisible(nodeLevel > 2);
+            deleteMenuItem.setVisible(nodeLevel > 1);
                 boolean nodeIsImdiChild = false;
                 Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
                 if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
@@ -279,17 +279,17 @@ public class LinorgFrame extends javax.swing.JFrame {
                     validateMenuItem.setVisible(true);
                 exportMenuItem.setVisible(true);
                     // set up the templates menu                
-                    templateMenu.setVisible(true);
-                    setAsTemplateMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus());
-                    if (((ImdiTreeObject) leadSelectedTreeObject).isTemplate()) {
-                        setAsTemplateMenuItem.setText("Remove From Templates List");
-                        setAsTemplateMenuItem.setActionCommand("false");
-                    } else {
-                        setAsTemplateMenuItem.setText("Add To Templates List");
-                        setAsTemplateMenuItem.setActionCommand("true");
-                    }
+                favouritesMenu.setVisible(true);
+                addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus());
+                if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
+                    addToFavouritesMenuItem.setText("Remove From Favourites List");
+                    addToFavouritesMenuItem.setActionCommand("false");
+                } else {
+                    addToFavouritesMenuItem.setText("Add To Favourites List");
+                    addToFavouritesMenuItem.setActionCommand("true");
                 }
-                deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
+            }
+            //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
 //            addMenu.setEnabled(!nodeIsImdiChild);
                 showContextMenu = true; //nodeLevel != 1;
             }
@@ -338,10 +338,10 @@ public class LinorgFrame extends javax.swing.JFrame {
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
         addMenu = new javax.swing.JMenu();
-        templateMenu = new javax.swing.JMenu();
-        setAsTemplateMenuItem = new javax.swing.JMenuItem();
-        addFromTemplateMenu = new javax.swing.JMenu();
-        mergeWithTemplateMenu = new javax.swing.JMenu();
+        favouritesMenu = new javax.swing.JMenu();
+        addToFavouritesMenuItem = new javax.swing.JMenuItem();
+        addFromFavouritesMenu = new javax.swing.JMenu();
+        mergeWithFavouritesMenu = new javax.swing.JMenu();
         deleteMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         copyImdiUrlMenuItem = new javax.swing.JMenuItem();
@@ -442,32 +442,34 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         treePopupMenu.add(addMenu);
 
-        templateMenu.setText("Templates");
+        favouritesMenu.setText("Favourites");
 
-        setAsTemplateMenuItem.setText("Set As Template");
-        setAsTemplateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        addToFavouritesMenuItem.setLabel("Set As Favourite");
+        addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                setAsTemplateMenuItemActionPerformed(evt);
+                addToFavouritesMenuItemActionPerformed(evt);
             }
         });
-        templateMenu.add(setAsTemplateMenuItem);
+        favouritesMenu.add(addToFavouritesMenuItem);
+        addToFavouritesMenuItem.getAccessibleContext().setAccessibleName("Set As Favourite");
 
-        addFromTemplateMenu.setText("Add From Template");
-        addFromTemplateMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        addFromFavouritesMenu.setText("Add From Favourites");
+        addFromFavouritesMenu.addMenuListener(new javax.swing.event.MenuListener() {
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
             public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                addFromTemplateMenuMenuSelected(evt);
+                addFromFavouritesMenuMenuSelected(evt);
             }
         });
-        templateMenu.add(addFromTemplateMenu);
+        favouritesMenu.add(addFromFavouritesMenu);
 
-        mergeWithTemplateMenu.setText("Merge With Template");
-        templateMenu.add(mergeWithTemplateMenu);
+        mergeWithFavouritesMenu.setText("Merge With Favourite");
+        mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
+        favouritesMenu.add(mergeWithFavouritesMenu);
 
-        treePopupMenu.add(templateMenu);
+        treePopupMenu.add(favouritesMenu);
 
         deleteMenuItem.setText("Delete");
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -971,11 +973,11 @@ private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEven
 
 private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
 // TODO add your handling code here:
-    DefaultMutableTreeNode selectedTreeNode = null;
-    if (localCorpusTree.getSelectionPath() != null) {
-        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
-    }
-    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
+//    DefaultMutableTreeNode selectedTreeNode = null;
+//    if (localCorpusTree.getSelectionPath() != null) {
+//        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
+//    }
+//    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
 }//GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
 
 private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
@@ -1172,15 +1174,15 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
     helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
 }//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
 
-private void setAsTemplateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setAsTemplateMenuItemActionPerformed
+private void addToFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToFavouritesMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: set the boolean correctly
-    GuiHelper.linorgTemplates.toggleTemplateList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), setAsTemplateMenuItem.getActionCommand().equals("true"));
-}//GEN-LAST:event_setAsTemplateMenuItemActionPerformed
+    GuiHelper.linorgFavourites.toggleFavouritesList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), addToFavouritesMenuItem.getActionCommand().equals("true"));
+}//GEN-LAST:event_addToFavouritesMenuItemActionPerformed
 
-private void addFromTemplateMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromTemplateMenuMenuSelected
+private void addFromFavouritesMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromFavouritesMenuMenuSelected
 // TODO add your handling code here:
-    guiHelper.initAddFromTemplateMenu(addFromTemplateMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));
+    guiHelper.initAddFromFavouritesMenu(addFromFavouritesMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));
 }//GEN-LAST:event_addFromTemplateMenuMenuSelected
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
@@ -1235,10 +1237,11 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem aboutMenuItem;
     private javax.swing.JMenuItem addDefaultLocationsMenuItem;
-    private javax.swing.JMenu addFromTemplateMenu;
+    private javax.swing.JMenu addFromFavouritesMenu;
     private javax.swing.JMenuItem addLocalDirectoryMenuItem;
     private javax.swing.JMenu addMenu;
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
+    private javax.swing.JMenuItem addToFavouritesMenuItem;
     private javax.swing.JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem;
     private javax.swing.JMenuItem copyBranchMenuItem;
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
@@ -1250,6 +1253,7 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenuItem exportMenuItem;
+    private javax.swing.JMenu favouritesMenu;
     private javax.swing.JMenuItem featuresMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenu helpMenu;
@@ -1266,7 +1270,7 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JTree localCorpusTree;
     private javax.swing.JTree localDirectoryTree;
     private javax.swing.JSplitPane mainSplitPane;
-    private javax.swing.JMenu mergeWithTemplateMenu;
+    private javax.swing.JMenu mergeWithFavouritesMenu;
     private javax.swing.JMenu optionsMenu;
     private javax.swing.JMenuItem pasteMenuItem;
     private javax.swing.JMenuItem redoMenuItem;
@@ -1282,10 +1286,8 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private javax.swing.JMenuItem searchSubnodesMenuItem;
     private javax.swing.JMenuItem sendToServerMenuItem;
-    private javax.swing.JMenuItem setAsTemplateMenuItem;
     private javax.swing.JMenuItem shortCutKeysjMenuItem;
     private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
-    private javax.swing.JMenu templateMenu;
     private javax.swing.JMenu templatesMenu;
     private javax.swing.JPopupMenu treePopupMenu;
     private javax.swing.JSeparator treePopupMenuSeparator1;
