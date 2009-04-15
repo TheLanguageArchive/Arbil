@@ -38,14 +38,14 @@ public class LinorgTemplates {
         }
     }
 
-    public void toggleTemplateList(Vector<ImdiTreeObject> imdiObjectVector, boolean setAsTempate) {
+    public void toggleFavouritesList(Vector<ImdiTreeObject> imdiObjectVector, boolean setAsTempate) {
         System.out.println("toggleTemplateList: " + setAsTempate);
         for (Enumeration<ImdiTreeObject> imdiObjectEnum = imdiObjectVector.elements(); imdiObjectEnum.hasMoreElements();) {
             ImdiTreeObject currentImdiObject = imdiObjectEnum.nextElement();
             if (setAsTempate) {
                 addAsTemplate(currentImdiObject.getUrlString());
             } else {
-                removeFromTemplates(currentImdiObject.getUrlString());
+                removeFromFavourites(currentImdiObject.getUrlString());
             }
             currentImdiObject.setTemplateStatus(setAsTempate);
         }
@@ -59,7 +59,7 @@ public class LinorgTemplates {
         }
     }
 
-    public void removeFromTemplates(String imdiUrlString) {
+    public void removeFromFavourites(String imdiUrlString) {
         while (selectedTemplates.contains(imdiUrlString)) {
             selectedTemplates.remove(imdiUrlString);
         }
@@ -75,7 +75,7 @@ public class LinorgTemplates {
         }
     }
 
-    public Enumeration listTemplatesFor(Object targetNodeUserObject) {
+    public Enumeration listFavouritesFor(Object targetNodeUserObject) {
         System.out.println("listTemplatesFor: " + targetNodeUserObject);
         Vector<String[]> validTemplates = new Vector<String[]>();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
@@ -118,8 +118,8 @@ public class LinorgTemplates {
         return returnValue;
     }
 
-    public void mergeFromTemplate(ImdiTreeObject targetImdiObject, ImdiTreeObject templateImdiObject, boolean overwriteValues) {
-//        System.out.println("mergeFromTemplate: " + addedNodeUrl + " : " + imdiTemplateUrl);
+    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject templateImdiObject, boolean overwriteValues) {
+//        System.out.println("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
 //        ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateObject);
 //        ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
         Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
