@@ -486,7 +486,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
             Enumeration imdiRowsEnum = imdiObjectHash.elements();
             int rowCounter = 0;
-            while (imdiRowsEnum.hasMoreElements()) {
+            while (imdiRowsEnum.hasMoreElements() && dataTemp.length > rowCounter) {
                 ImdiTreeObject currentNode = (ImdiTreeObject) imdiRowsEnum.nextElement();
                 System.out.println("currentNode: " + currentNode.toString());
                 Hashtable<String, ImdiField[]> fieldsHash = currentNode.getFields();
@@ -581,7 +581,11 @@ public class ImdiTableModel extends AbstractTableModel {
         Object[][] prevousData = data;
         data = dataTemp;
         if (previousColumnCount != getColumnCount() || prevousData.length != data.length) {
+            try {
             fireTableStructureChanged();
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
         } else {
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
                 for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
