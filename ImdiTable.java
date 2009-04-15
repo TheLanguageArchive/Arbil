@@ -405,7 +405,7 @@ public class ImdiTable extends JTable {
         int charPixWidth = 9; // this does not need to be accurate but must be more than the number of pixels used to render each character
         int maxColumnWidth = 100;
         int totalWidth = 0;
-        for (int columnCount = 0; columnCount < this.getModel().getColumnCount(); columnCount++) {
+        for (int columnCount = 0; columnCount < this.getColumnModel().getColumnCount(); columnCount++) {
 //            System.out.println("defaultPreferedWidth: " + this.getColumnModel().getColumn(columnCount).getPreferredWidth());
             // setPreferredWidth || setMinWidth
             int currentWidth = ((ImdiTableModel) this.getModel()).getColumnWidth(columnCount) * charPixWidth;
