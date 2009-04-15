@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -17,6 +18,10 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import mpi.util.OurURL;
 import org.w3c.dom.*;
 
@@ -29,8 +34,59 @@ public class ImdiSchema {
     /**
      * When complete this function will parse the imdi schema
      */
+    private String selectedTemplate = null;
     static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true;
+
+    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templatePath, String templateName) {
+        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
+        templateMenuItem.setText(templateName);
+        templateMenuItem.setName(templateName);
+        templateMenuItem.setActionCommand(templatePath);
+        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+//                        loadTemplates(evt.getActionCommand().toString());
+                } catch (Exception e) {
+                    GuiHelper.linorgBugCatcher.logError(e);
+                }
+            }
+        });
+        templatesMenuButtonGroup.add(templateMenuItem);
+        templateMenu.add(templateMenuItem);
+        if (selectedTemplate == null) {
+            selectedTemplate = templateName;
+        }
+        if (selectedTemplate.equals(templateName)) {
+            templateMenuItem.setSelected(true);
+        }
+    }
+
+    public void populateTemplatesMenu(JMenu templateMenu) {
+        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
+        File templatesDir = new File(GuiHelper.linorgSessionStorage.storageDirectory + "templates");
+        if (!templatesDir.exists()) {
+            templatesDir.mkdir();
+        }
+        String[] templatesList = templatesDir.list();
+        Arrays.sort(templatesList);
+        int templateCount = 0;
+        addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, "", "Default");
+        for (String currentTemplateName : templatesList) {
+            String templatePath = templatesDir.getPath() + File.separatorChar + currentTemplateName;
+            if (new File(templatePath).isDirectory()) {
+                addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, templatePath, currentTemplateName);
+                templateCount++;
+            }
+        }
+        if (templateCount == 0) {
+            JMenuItem noneMenuItem = new JMenuItem("<none installed>");
+            noneMenuItem.setEnabled(false);
+            templateMenu.add(noneMenuItem);
+        }
+    }
 
     public boolean nodeCanExistInNode(ImdiTreeObject parentImdiObject, ImdiTreeObject childImdiObject) {
         String parentPath = getNodePath((ImdiTreeObject) parentImdiObject);
@@ -59,18 +115,21 @@ public class ImdiSchema {
         Vector returnVector = new Vector();
         System.out.println("getSubnodesOf: " + nodepath);
         String[] templatesArray = {
-            "METATRANSCRIPT.Session.xml",
+            "METATRANSCRIPT.Corpus.Description.xml",
+            "METATRANSCRIPT.Corpus.xml",
+            "METATRANSCRIPT.Session.Description.xml",
+            "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
             "METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml",
             "METATRANSCRIPT.Session.Resources.MediaFile.xml",
-            "METATRANSCRIPT.Corpus.xml",
+            "METATRANSCRIPT.Session.Resources.Source.xml",
             "METATRANSCRIPT.Session.Resources.WrittenResource.xml",
-            "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
-            "METATRANSCRIPT.Session.Resources.Source.xml"
+            "METATRANSCRIPT.Session.xml"
         };
         try {
             File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
             if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
                 String[] testingListing = templatesDirectory.list();
+                Arrays.sort(testingListing);
                 int linesRead = 0;
                 for (String currentTemplate : templatesArray) {
                     if (testingListing != null) {
@@ -296,11 +355,13 @@ public class ImdiSchema {
     }
 
     public String getNodeTypeFromMimeType(String mimeType) {
+        System.out.println("getNodeTypeFromMimeType: " + mimeType);
         for (String[] formatType : new String[][]{
                     {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
                     {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile"}
                 }) {
             if (ImdiField.imdiVocabularies.vocabularyContains(formatType[0], mimeType)) {
+                System.out.println("NodeType: " + formatType[1]);
 //                    if (mimeType.equals("image/jpeg")) {
                 return formatType[1];
             }
@@ -386,12 +447,17 @@ public class ImdiSchema {
                 System.out.println("inserting before: " + insertBeforeNode.getNodeName());
                 targetNode.insertBefore(addableNode, insertBeforeNode);
             } else {
-                System.out.println("inserting anywhere");
+                System.out.println("inserting");
                 targetNode.appendChild(addableNode);
             }
             addedPathString = destinationFile.toURL().toString() + "#" + elementName;
             String childsMetaNode = pathIsChildNode(elementName);
-            addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
+            if (childsMetaNode != null) {
+                addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
+            } else {
+                // make sure elements like description show the parent node rather than trying to get a non existing node
+                addedPathString = destinationFile.toURL().toString();
+            }
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -409,6 +475,14 @@ public class ImdiSchema {
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
+            String xmlNodeId = null;
+            NamedNodeMap attributesMap = childNode.getAttributes();
+            if (attributesMap != null) {
+                Node xmlNodeIdAtt = attributesMap.getNamedItem("id");
+                if (xmlNodeIdAtt != null) {
+                    xmlNodeId = xmlNodeIdAtt.getNodeValue();
+                }// end get the xml node id
+            }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
@@ -425,6 +499,7 @@ public class ImdiSchema {
                 // add brackets to conform with the imdi api notation
                 siblingSpacer = "(" + (metaNodeImdiTreeObject.getChildCount() + 1) + ")";
                 ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
+                subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
                 parentNode.attachChildNode(metaNodeImdiTreeObject);
                 metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
                 destinationNode = subNodeImdiTreeObject;
