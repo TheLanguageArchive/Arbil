@@ -54,12 +54,13 @@ public class ImdiTreeObject implements Comparable {
     private Vector containersOfThisNode;
     public int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
-    private boolean isTemplate;
+    private boolean isFavourite;
     public boolean autoLoadChildNodes = false;
     public Vector<String[]> addQueue;
 //    public Vector<ImdiTreeObject> mergeQueue;
 //    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
     private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
+    public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
 
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
@@ -356,6 +357,20 @@ public class ImdiTreeObject implements Comparable {
     }
 
     /**
+     * Used to get all the imdi child nodes (all levels) of a session or all the nodes contained in a corpus (one level only).
+     * @param An empty vector, to which all the child nodes will be added.
+     */
+    public void getAllChildren(Vector allChildren) {
+        System.out.println("getAllChildren: " + this.getUrlString());
+        if (this.isSession() || this.isImdiChild()) {
+            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
+                ((ImdiTreeObject) childEnum.nextElement()).getAllChildren(allChildren);
+            }
+        }
+        allChildren.addAll(childrenHashtable.values());
+    }
+
+    /**
      * Used to populate the child list in the show child popup in the imditable.
      * @return An enumeration of the next level child nodes.
      */
@@ -629,6 +644,25 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public void deleteFromParentDom(String childNodeXmlId) {
+        System.out.println("deleteFromParentDom: " + childNodeXmlId);
+        if (this.isImdiChild()) {
+            this.domParentImdi.deleteFromParentDom(this.xmlNodeId);
+        } else {
+            System.out.println("attempting to remove node");
+            try {
+                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                Document nodDom;
+                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                IMDIElement target = new IMDIElement(null, childNodeXmlId);
+                api.removeIMDIElement(nodDom, target);
+                api.writeDOM(nodDom, this.getFile(), false);
+                reloadNode();
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+    }
     public void deleteCorpusLink(ImdiTreeObject targetImdiNode) {
         System.out.println("deleteCorpusLink: " + targetImdiNode.getUrlString());
         Document nodDom;
@@ -726,9 +760,9 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void requestAddNode(String nodeType, String nodeTypeDisplayName, String templateUrlString, String resourceUrl, String mimeType) {
+    public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
 //        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + templateUrlString + " : " + resourceUrl);
-        addQueue.add(new String[]{nodeType, nodeTypeDisplayName, templateUrlString, resourceUrl, mimeType});
+        addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
         GuiHelper.imdiLoader.requestReload(this);
     }
     /**
@@ -1222,6 +1256,10 @@ public class ImdiTreeObject implements Comparable {
                         DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
                         // set the allows children flag
 //                      System.out.println("clearIcon: canHaveChildren: " + this.canHaveChildren());
+                        if (!ImdiTreeObject.this.canHaveChildren() && currentTreeNode.getChildCount() > 0) {
+                            currentTreeNode.removeAllChildren();
+                            modelForNodes.nodeStructureChanged(currentTreeNode);
+                        }
                         currentTreeNode.setAllowsChildren(ImdiTreeObject.this.canHaveChildren());
                         modelForNodes.nodeChanged(currentTreeNode);
                         if (parentNode != null) {
@@ -1233,12 +1271,12 @@ public class ImdiTreeObject implements Comparable {
         });
     }
 
-    public boolean isTemplate() {
-        return isTemplate;
+    public boolean isFavorite() {
+        return isFavourite;
     }
 
-    public void setTemplateStatus(boolean templateStatus) {
-        isTemplate = templateStatus;
+    public void setTemplateStatus(boolean favouriteStatus) {
+        isFavourite = favouriteStatus;
         clearIcon();
     }
 
