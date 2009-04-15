@@ -212,12 +212,15 @@ public class TreeHelper {
 //        boolean childrenChanged = false;
         // this could make sure the order is that of the supplied url list, er no it could not
         for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
+//            System.out.println("updateTreeNodeChildren[]: checking for extraneous nodes");
             DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
             ImdiTreeObject childImdiObject = (ImdiTreeObject) currentChildNode.getUserObject();
 //            System.out.println("updateTreeNodeChildren[]: checking: " + childImdiObject.toString());
             if (!childUrls.remove(childImdiObject.getUrlString())) {
-                System.out.println("updateTreeNodeChildren[]: removing extraneous node: " + childImdiObject.getUrlString());
+//                System.out.println("updateTreeNodeChildren[]: removing extraneous node: " + childImdiObject.getUrlString());
                 // remove any extraneous nodes
+////                DefaultMutableTreeNode localParent = (DefaultMutableTreeNode)currentChildNode.getParent();
+////                int nodeIndex = itemNode.getIndex(currentChildNode);
                 nodesToRemove.add(currentChildNode);
                 removeAndDetatchDescendantNodes(currentChildNode);
 //                treeModel.removeNodeFromParent(currentChildNode);
@@ -270,7 +273,9 @@ public class TreeHelper {
                     System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
                 }
                 treeModel.insertNodeInto(sortedChildren.get(childCounter), parentNode, childCounter);
-                treeModel.nodeStructureChanged(parentNode);
+//                treeModel.nodeStructureChanged(parentNode);
+//                            treeModel.nodeChanged(itemNode);
+//            treeModel.nodeChanged(missingTreeNode);
             }
         }
     }
@@ -520,17 +525,46 @@ public class TreeHelper {
             javax.swing.tree.TreePath currentNodePath = ((ImdiTree) sourceObject).getSelectionPath();
             if (currentNodePath != null) {
                 selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
-                parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
-                ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
-                ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
-                if (childImdiNode.isImdiChild()) {
-                    System.out.println("cannot delete imdi child nodes yet");
-                } else if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION)) {
-                    parentImdiNode.deleteCorpusLink(childImdiNode);
-                    parentTreeNode.remove(selectedTreeNode);
-                    localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
+                if (currentNodePath.getPath().length == 2) {
+                    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
+                } else {
+                    parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
+                    ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
+                    ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
+                    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION)) {
+                        if (childImdiNode.isImdiChild()) {
+                            childImdiNode.deleteFromParentDom(null);
+//                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
+//                            localCorpusTreeModel.removeNodeFromParent(parentTreeNode);
+//                            localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
+                        } else {
+                            parentImdiNode.deleteCorpusLink(childImdiNode);
+//                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
+                        }
                 }
                 ((ImdiTree) sourceObject).setSelectionRow(selectedRow);
+                }
+                // remove the deleted node from the favourites list
+                Object userObject = selectedTreeNode.getUserObject();
+                if (userObject instanceof ImdiTreeObject) {
+                    GuiHelper.linorgFavourites.removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
+                }
+                // make a list of child nodes
+                Vector<ImdiTreeObject> imdiNodesToRemove = new Vector();
+                imdiNodesToRemove.add((ImdiTreeObject) userObject);
+                ((ImdiTreeObject) userObject).getAllChildren(imdiNodesToRemove);
+                for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
+                    // remove the deleted node from all tables
+                    ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
+                    Vector tempVector = new Vector();
+                    tempVector.add(currentDeletedNode);
+                    for (Enumeration nodeContainersEnum = currentDeletedNode.getRegisteredContainers(); nodeContainersEnum.hasMoreElements();) {
+                        Object currentContainer = nodeContainersEnum.nextElement();
+                        if (currentContainer instanceof ImdiTableModel) {
+                            ((ImdiTableModel) currentContainer).removeImdiObjects(tempVector.elements());
+                        }
+                    }
+                }
             }
         } else {
             System.out.println("cannot delete from this tree");
