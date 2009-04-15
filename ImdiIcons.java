@@ -16,7 +16,7 @@ import javax.swing.UIManager;
  * @author petwit
  */
 public class ImdiIcons {
-    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/LinorgIcon09.png"));
+    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/arbil128x128.png"));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
@@ -76,7 +76,8 @@ public class ImdiIcons {
 //    private ImageIcon loading02Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading02.png"));
 //    private ImageIcon loading03Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading03.png"));
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
-    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
+    private ImageIcon favouriteIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/favourite.png"));
+//    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
 
     
     static private ImdiIcons singleInstance = null;
@@ -218,8 +219,8 @@ public class ImdiIcons {
             }
         }
         // add icons for templates
-        if (imdiObject.isTemplate()) {
-            iconsVector.add(templateIcon);
+        if (imdiObject.isFavorite()) {
+            iconsVector.add(favouriteIcon);
         }
         // add icons for save state
         if (imdiObject.needsChangesSentToServer()) {
