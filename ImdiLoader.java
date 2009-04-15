@@ -75,21 +75,21 @@ public class ImdiLoader {
                                 }
                                 currentImdiObject.loadImdiDom();
                                 if (currentImdiObject.addQueue.size() > 0) { // add any child nodes requested
-                                    String nodeType, nodeTypeDisplayName, templateUrlString, resourceUrl, mimeType;
+                                    String nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType;
                                     {
                                         String[] addRequestArrayString = currentImdiObject.addQueue.remove(0);
                                         nodeType = addRequestArrayString[0];
                                         nodeTypeDisplayName = addRequestArrayString[1];
-                                        templateUrlString = addRequestArrayString[2];
+                                        favouriteUrlString = addRequestArrayString[2];
                                         resourceUrl = addRequestArrayString[3];
                                         mimeType = addRequestArrayString[4];
                                     }
-                                    System.out.println("addQueue:-\nnodeType: " + nodeType + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\ntemplateUrlString: " + templateUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
+                                    System.out.println("addQueue:-\nnodeType: " + nodeType + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
                                     ImdiTreeObject addedImdiObject = GuiHelper.treeHelper.addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                     currentImdiObject.loadImdiDom();
-                                    if (templateUrlString != null) {
+                                    if (favouriteUrlString != null) {
                                         // TODO: do this for all the descendants of the template
-                                        GuiHelper.linorgTemplates.mergeFromTemplate(addedImdiObject, getImdiObject("", templateUrlString), true);
+                                        GuiHelper.linorgFavourites.mergeFromFavourite(addedImdiObject, getImdiObject("", favouriteUrlString), true);
                                     }
                                     currentImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
