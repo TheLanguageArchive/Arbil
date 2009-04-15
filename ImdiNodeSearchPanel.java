@@ -131,6 +131,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
 
             public void run() {
                 threadRunning = true;
+                Vector<ImdiTreeObject> foundNodes = new Vector();
                 try {
                     if (totalNodesToSearch == -1) {
                         searchProgressBar.setIndeterminate(true);
@@ -151,6 +152,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                         if (currentElement instanceof ImdiTreeObject) {
                             ImdiTreeObject currentImdiNode = (ImdiTreeObject) currentElement;
                             if (currentImdiNode.isLoading()) {
+                                System.out.println("searching: " + currentImdiNode.getUrlString());
                                 System.out.println("still loading so putting back into the list: " + currentImdiNode);
                                 searchNodes.add(currentImdiNode);
                             } else {
@@ -192,7 +194,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 totalSearched++;
                                 // if the node has no fields it should still be added since it will only pass a search if for instance the search is for actors and in that case it should be shown even if blank
                                 if (nodePassedFilter) {
-                                    resultsTableModel.addSingleImdiObject(currentImdiNode);
+                                    foundNodes.add(currentImdiNode);
                                     searchProgressBar.setString("searched: " + totalSearched + " found: " + (++totalFound));
                                 }
 //                                if (totalNodesToSearch != -1) {
@@ -220,6 +222,8 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                 searchButton.setEnabled(true);
                 stopButton.setEnabled(false);
                 threadRunning = false;
+                resultsTableModel.addImdiObjects(foundNodes.elements());
+                foundNodes.removeAllElements();
             }
         }.start();
     }
