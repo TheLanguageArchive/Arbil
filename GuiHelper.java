@@ -26,7 +26,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class GuiHelper {
 
-    static LinorgTemplates linorgTemplates;
+    static LinorgTemplates linorgFavourites;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
@@ -48,7 +48,7 @@ public class GuiHelper {
 
     public GuiHelper() {
         //imdiHelper = new ImdiIcons();
-        linorgTemplates = new LinorgTemplates();
+        linorgFavourites = new LinorgTemplates();
         treeHelper.loadLocationsList();
     }
 
@@ -98,9 +98,9 @@ public class GuiHelper {
 
     }
 
-    public void initAddFromTemplateMenu(javax.swing.JMenu addFromTemplateMenu, Object targetNodeUserObject) {
-        addFromTemplateMenu.removeAll();
-        for (Enumeration menuItemName = linorgTemplates.listTemplatesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+    public void initAddFromFavouritesMenu(javax.swing.JMenu addFromFavouritesMenu, Object targetNodeUserObject) {
+        addFromFavouritesMenu.removeAll();
+        for (Enumeration menuItemName = linorgFavourites.listFavouritesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
             String[] currentField = (String[]) menuItemName.nextElement();
 //            System.out.println("MenuText: " + currentField[0]);
 //            System.out.println("ActionCommand: " + currentField[1]);
@@ -113,13 +113,13 @@ public class GuiHelper {
             addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    String imdiTemplateUrlString = evt.getActionCommand();
+                    String imdiFavouriteUrlString = evt.getActionCommand();
                     DefaultMutableTreeNode targetNode = treeHelper.getLocalCorpusTreeSingleSelection();
                     ImdiTreeObject imdiTreeObject;
                     if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
                         imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
 //                        imdiTreeObject.requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
-                        imdiTreeObject.requestAddNode(linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText(), imdiTemplateUrlString, null, null);
+                        imdiTreeObject.requestAddNode(linorgFavourites.getNodeType(imdiFavouriteUrlString), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
                     }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
@@ -136,7 +136,7 @@ public class GuiHelper {
 //                    treeHelper.reloadLocalCorpusTree(targetNode);
                 }
             });
-            addFromTemplateMenu.add(addMenuItem);
+            addFromFavouritesMenu.add(addMenuItem);
         }
     }
 
