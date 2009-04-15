@@ -3,14 +3,14 @@
     <Source>
         <Id/>
         <Format Link="http://www.mpi.nl/IMDI/Schema/Source-Format.xml" Type="OpenVocabulary"></Format>
-        <Quality></Quality>
+        <Quality>Unspecified</Quality>
         <CounterPosition>
-            <Start></Start>
-            <End></End>
+            <Start>Unspecified</Start>
+            <End>Unspecified</End>
         </CounterPosition>
         <TimePosition>
-            <Start></Start>
-            <End></End>
+            <Start>Unspecified</Start>
+            <End>Unspecified</End>
         </TimePosition>
         <Access>
             <Availability/>

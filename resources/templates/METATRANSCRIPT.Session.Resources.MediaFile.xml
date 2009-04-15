@@ -5,11 +5,11 @@
         <Type Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" Type="ClosedVocabulary" ></Type>
         <Format Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" Type="OpenVocabulary"></Format>
         <Size/>
-        <Quality></Quality>
+        <Quality>Unspecified</Quality>
         <RecordingConditions/>
         <TimePosition>
-            <Start></Start>
-            <End></End>
+            <Start>Unspecified</Start>
+            <End>Unspecified</End>
         </TimePosition>
         <Access>
             <Availability/>

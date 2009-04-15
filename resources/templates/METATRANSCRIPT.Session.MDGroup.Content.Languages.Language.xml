@@ -3,9 +3,9 @@
     <Language>
         <Id></Id>
         <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary">Standard Language</Name>
-        <Dominant></Dominant>
-        <SourceLanguage></SourceLanguage>
-        <TargetLanguage></TargetLanguage>
+        <Dominant>Unspecified</Dominant>
+        <SourceLanguage>Unspecified</SourceLanguage>
+        <TargetLanguage>Unspecified</TargetLanguage>
         <Description LanguageId="" Link=""/>
     </Language>
 </InsertableSection>

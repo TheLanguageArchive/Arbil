@@ -11,17 +11,17 @@
             <Language>
                 <Id></Id>
                 <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"></Name>
-                <MotherTongue></MotherTongue>
-                <PrimaryLanguage></PrimaryLanguage>
+                <MotherTongue>Unspecified</MotherTongue>
+                <PrimaryLanguage>Unspecified</PrimaryLanguage>
                 <Description LanguageId="" Link=""/>
             </Language>
         </Languages>
         <EthnicGroup/>
-        <Age></Age>
-        <BirthDate></BirthDate>
+        <Age>Unspecified</Age>
+        <BirthDate>Unspecified</BirthDate>
         <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" Type="ClosedVocabulary"></Sex>
-        <Education></Education>
-        <Anonymized></Anonymized>
+        <Education>Unspecified</Education>
+        <Anonymized>Unspecified</Anonymized>
         <Contact>
             <Name/>
             <Address/>

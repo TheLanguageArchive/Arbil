@@ -3,7 +3,7 @@
     <WrittenResource>
         <ResourceLink/>
         <MediaResourceLink/>
-        <Date></Date>
+        <Date>Unspecified</Date>
         <Type Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Type.xml" Type="OpenVocabulary"></Type>
         <SubType Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" Type="OpenVocabularyList"></SubType>
         <Format Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml" Type="OpenVocabulary"></Format>
@@ -12,17 +12,17 @@
             <Type Link="http://www.mpi.nl/IMDI/Schema/Validation-Type.xml" Type="ClosedVocabulary"></Type>
             <Methodology 
 		Link="http://www.mpi.nl/IMDI/Schema/Validation-Methodology.xml" Type="ClosedVocabulary"></Methodology>
-            <Level></Level>
+            <Level>Unspecified</Level>
             <Description LanguageId="" Link=""/>
         </Validation>
         <Derivation Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Derivation.xml" Type="ClosedVocabulary"></Derivation>
         <CharacterEncoding/>
         <ContentEncoding/>
         <LanguageId/>
-        <Anonymized></Anonymized>
+        <Anonymized>Unspecified</Anonymized>
         <Access>
             <Availability/>
-            <Date></Date>
+            <Date>Unspecified</Date>
             <Owner/>
             <Publisher/>
             <Contact>
