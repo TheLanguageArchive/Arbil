@@ -100,9 +100,14 @@ public class ImdiTableModel extends AbstractTableModel {
 
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
         if (imdiTreeObject != null) {
-            if (imdiTreeObject.isDirectory) {
-                // TODO: this could be made non recursive, but only if issues arrise
-                addImdiObjects(imdiTreeObject.loadChildNodes());
+            if (imdiTreeObject.isDirectory || imdiTreeObject.getFields().size() == 0) {
+                // add child nodes if there are no fields ie actors node will add all the actors
+                // add child nodes if it is a directory
+                // this is non recursive and does not reload the table
+                for (ImdiTreeObject currentChild : imdiTreeObject.loadChildNodes()) {
+                    imdiObjectHash.put(currentChild.getUrlString(), currentChild);
+                    currentChild.registerContainer(this);
+                }
             } else {
                 imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
                 imdiTreeObject.registerContainer(this);
