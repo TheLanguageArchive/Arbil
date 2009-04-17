@@ -76,8 +76,7 @@ public class ImdiTree extends JTree {
 //            }
 //        }
         // get tree node 
-        for (Enumeration registeredContainers = targetImdiNode.getRegisteredContainers(); registeredContainers.hasMoreElements();) {
-            Object currentContainer = registeredContainers.nextElement();
+        for (Object currentContainer : targetImdiNode.getRegisteredContainers()) {
             System.out.println("targetImdiNode registeredContainers: " + currentContainer);
             if (currentContainer instanceof DefaultMutableTreeNode) {
                 final TreePath targetTreePath = new TreePath(((DefaultMutableTreeNode) currentContainer).getPath());
