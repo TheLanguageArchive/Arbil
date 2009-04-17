@@ -24,9 +24,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -43,6 +43,8 @@ public class LinorgWindowManager {
     int nextWindowY = 50;
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
+    private Vector<String> messageDialogQueue = new Vector();
+    private boolean messagesCanBeShown = false;
 
     public void setComponents(JMenu jMenu, JFrame linorgFrameLocal, JDesktopPane jDesktopPane) {
         windowMenu = jMenu;
@@ -81,6 +83,28 @@ public class LinorgWindowManager {
                 linorgVersion.lastCommitDate + "\n" +
                 "Compile Date: " + linorgVersion.compileDate + "\n";
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    public void addMessageDialogToQueue(String messageString) {
+        messageDialogQueue.add(messageString);
+        showMessageDialogQueue();
+    }
+
+    private void showMessageDialogQueue() {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            public void run() {
+                if (messagesCanBeShown) {
+                    while (messageDialogQueue.size() > 0) {
+                        String messageString = messageDialogQueue.remove(0);
+                        if (messageString != null) {
+                            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, messageString);
+                        }
+                    }
+
+                }
+            }
+        });
     }
 
     public void openIntroductionPage() {
@@ -139,8 +163,9 @@ public class LinorgWindowManager {
             }
             helpComponent.setCurrentPage(LinorgHelp.IntroductionPage);
         }
-
         startKeyListener();
+        messagesCanBeShown = true;
+        showMessageDialogQueue();
     }
 
     public void loadSplitPlanes(Component targetComponent) {
