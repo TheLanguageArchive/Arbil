@@ -166,158 +166,167 @@ public class ImdiTable extends JTable {
             @Override
             public void mousePressed(MouseEvent evt) {
 //                System.out.println("mousePressed");
-                checkPopup(evt);
+                checkPopup(evt, true);
             }
 
             @Override
             public void mouseReleased(MouseEvent evt) {
 //                System.out.println("mouseReleased");
-                checkPopup(evt);
+                checkPopup(evt, true);
             }
-
+            
 //            @Override
 //            public void mouseClicked(java.awt.event.MouseEvent evt) {
 //                System.out.println("mouseClicked");
 //                checkPopup(evt);
 //            }
+        });
+    }
 
-            private void checkPopup(java.awt.event.MouseEvent evt) {
-                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
-                    // set the clicked cell selected
-                    java.awt.Point p = evt.getPoint();
-                    int clickedRow = rowAtPoint(p);
-                    int clickedColumn = columnAtPoint(p);
-                    boolean clickedRowAlreadySelected = isRowSelected(clickedRow);
+    public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {
+        System.out.println("checkPopup");
+        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+            // set the clicked cell selected
+            java.awt.Point p = evt.getPoint();
+            int clickedRow = rowAtPoint(p);
+            int clickedColumn = columnAtPoint(p);
+            boolean clickedRowAlreadySelected = isRowSelected(clickedRow);
 
-                    if (!evt.isShiftDown() && !evt.isControlDown()) {
-                        // if it is the right mouse button and there is already a selection then do not proceed in changing the selection
-                        if (!(((evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) && clickedRowAlreadySelected))) {
-                            // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
-                            getSelectionModel().clearSelection();
-                            // make sure the clicked cell is selected
-                            getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
-                            getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
-                        // make sure the clicked cell is the lead selection
+            if (checkSelection && !evt.isShiftDown() && !evt.isControlDown()) {
+                // if it is the right mouse button and there is already a selection then do not proceed in changing the selection
+                if (!(((evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) && clickedRowAlreadySelected))) {
+                    if (clickedRow > -1 & clickedRow > -1) {
+                        // if the modifier keys are down then leave the selection alone for the sake of more normal behaviour
+                        getSelectionModel().clearSelection();
+                        // make sure the clicked cell is selected
+//                        System.out.println("clickedRow: " + clickedRow + " clickedRow: " + clickedRow);
+                        getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
+                        getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
+                      // make sure the clicked cell is the lead selection
 //                    getSelectionModel().setLeadSelectionIndex(rowIndex);
 //                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
-                        }
-                    }
-                }
-
-                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
-//                    targetTable = (JTable) evt.getComponent();
-//                    System.out.println("set the current table");
-                    JPopupMenu windowedTablePopupMenu;
-                    windowedTablePopupMenu = new javax.swing.JPopupMenu();
-                    windowedTablePopupMenu.setName("windowedTablePopupMenu");
-
-                    if (getSelectedRow() != -1) {
-
-                        JMenuItem viewSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                        viewSelectedRowsMenuItem.setText("View Selected Rows");
-                        viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                viewSelectedTableRows();
-                            }
-                        });
-                        windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
-
-                        JMenuItem copySelectedRowsMenuItem = new javax.swing.JMenuItem();
-                        copySelectedRowsMenuItem.setText("Copy Selected Rows");
-                        copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                copySelectedTableRowsToClipBoard();
-                            }
-                        });
-                        windowedTablePopupMenu.add(copySelectedRowsMenuItem);
-
-                        JMenuItem pasteIntoSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                        pasteIntoSelectedRowsMenuItem.setText("Paste Into Selected Rows");
-                        pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                pasteIntoSelectedTableRowsToClipBoard();
-                            }
-                        });
-                        windowedTablePopupMenu.add(pasteIntoSelectedRowsMenuItem);
-
-                        JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
-                        matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
-                        matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                highlightMatchingRows();
-                            }
-                        });
-                        windowedTablePopupMenu.add(matchingRowsMenuItem);
-
-                        JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-                        showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
-                        showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                showRowChildData();
-                            }
-                        });
-                        windowedTablePopupMenu.add(showChildNodesMenuItem);
-
-                        JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                        removeSelectedRowsMenuItem.setText("Remove Selected Rows");
-                        removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                removeSelectedRowsFromTable();
-                            }
-                        });
-                        windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
-                    }
-
-
-                    if (getSelectedRow() != -1 && getSelectedColumn() != -1) {
-                        // add a divider for the cell functions
-                        windowedTablePopupMenu.add(new JSeparator());
-
-                        JMenuItem copyCellToColumnMenuItem = new javax.swing.JMenuItem();
-                        copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
-                        copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-                                if (0 == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
-                                    imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
-                                }
-                            }
-                        });
-                        windowedTablePopupMenu.add(copyCellToColumnMenuItem);
-
-                        JMenuItem matchingCellsMenuItem = new javax.swing.JMenuItem();
-                        matchingCellsMenuItem.setText("Highlight Matching Cells"); // NOI18N
-                        matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                imdiTableModel.highlightMatchingCells(getSelectedRow(), getSelectedColumn());
-                            }
-                        });
-                        windowedTablePopupMenu.add(matchingCellsMenuItem);
-
-                        JMenuItem clearCellColoursMenuItem = new javax.swing.JMenuItem();
-                        clearCellColoursMenuItem.setText("Clear Cell Highlight"); // NOI18N
-                        clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                imdiTableModel.clearCellColours();
-                            }
-                        });
-                        windowedTablePopupMenu.add(clearCellColoursMenuItem);
-                    }
-                    if (windowedTablePopupMenu.getComponentCount() > 0) {
-                        windowedTablePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
                     }
                 }
             }
-        });
+        }
+
+        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+//                    targetTable = (JTable) evt.getComponent();
+//                    System.out.println("set the current table");
+            JPopupMenu windowedTablePopupMenu;
+            windowedTablePopupMenu = new javax.swing.JPopupMenu();
+            windowedTablePopupMenu.setName("windowedTablePopupMenu");
+
+            if (getSelectedRow() != -1) {
+
+                JMenuItem viewSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                viewSelectedRowsMenuItem.setText("View Selected Rows");
+                viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        viewSelectedTableRows();
+                    }
+                });
+                windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
+
+                JMenuItem copySelectedRowsMenuItem = new javax.swing.JMenuItem();
+                copySelectedRowsMenuItem.setText("Copy Selected Rows");
+                copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        copySelectedTableRowsToClipBoard();
+                    }
+                });
+                windowedTablePopupMenu.add(copySelectedRowsMenuItem);
+
+                JMenuItem pasteIntoSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                pasteIntoSelectedRowsMenuItem.setText("Paste Into Selected Rows");
+                pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        pasteIntoSelectedTableRowsToClipBoard();
+                    }
+                });
+                windowedTablePopupMenu.add(pasteIntoSelectedRowsMenuItem);
+
+                JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
+                matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
+                matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        highlightMatchingRows();
+                    }
+                });
+                windowedTablePopupMenu.add(matchingRowsMenuItem);
+
+                JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+                showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
+                showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        showRowChildData();
+                    }
+                });
+                windowedTablePopupMenu.add(showChildNodesMenuItem);
+
+                JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                removeSelectedRowsMenuItem.setText("Remove Selected Rows");
+                removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        removeSelectedRowsFromTable();
+                    }
+                });
+                windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
+            }
+
+
+            if (getSelectedRow() != -1 && getSelectedColumn() != -1) {
+                // add a divider for the cell functions
+                windowedTablePopupMenu.add(new JSeparator());
+
+                JMenuItem copyCellToColumnMenuItem = new javax.swing.JMenuItem();
+                copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
+                copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+
+                        if (0 == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
+                            imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
+                        }
+                    }
+                });
+                windowedTablePopupMenu.add(copyCellToColumnMenuItem);
+
+                JMenuItem matchingCellsMenuItem = new javax.swing.JMenuItem();
+                matchingCellsMenuItem.setText("Highlight Matching Cells"); // NOI18N
+                matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        imdiTableModel.highlightMatchingCells(getSelectedRow(), getSelectedColumn());
+                    }
+                });
+                windowedTablePopupMenu.add(matchingCellsMenuItem);
+
+                JMenuItem clearCellColoursMenuItem = new javax.swing.JMenuItem();
+                clearCellColoursMenuItem.setText("Clear Cell Highlight"); // NOI18N
+                clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        imdiTableModel.clearCellColours();
+                    }
+                });
+                windowedTablePopupMenu.add(clearCellColoursMenuItem);
+            }
+            if (windowedTablePopupMenu.getComponentCount() > 0) {
+                windowedTablePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+            }
+        }
+    }
+
+    @Override
+    public boolean getScrollableTracksViewportHeight() {
+        return /*getParent() instanceof JViewport && */ getPreferredSize().height < getParent().getHeight();
     }
 
     @Override
