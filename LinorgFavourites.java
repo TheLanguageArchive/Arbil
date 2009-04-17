@@ -9,32 +9,42 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Document   : LinorgTemplates
+ * Document   : LinorgFavourites
  * Created on : Mar 3, 2009, 11:19:14 AM
  * @author petwit
  */
-public class LinorgTemplates {
+public class LinorgFavourites {
 
-    private Vector<String> selectedTemplates;
-    private Vector<ImdiTreeObject> imdiTemplateObjects;
+    private Hashtable<String, ImdiTreeObject> userFavourites;
 
-    public LinorgTemplates() {
+    static private LinorgFavourites singleInstance = null;
+
+    static synchronized public LinorgFavourites getSingleInstance() {
+        System.out.println("LinorgTemplates getSingleInstance");
+        if (singleInstance == null) {
+            singleInstance = new LinorgFavourites();
+        }
+        return singleInstance;
+    }
+    
+    private LinorgFavourites() {
         loadSelectedTemplates();
     }
 
     private void loadSelectedTemplates() {
+        Vector<String> userFavouritesStrings;
         try {
-            selectedTemplates = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("selectedTemplates");
+            userFavouritesStrings = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("selectedFavourites");
         } catch (Exception ex) {
-            System.out.println("load selectedTemplates failed: " + ex.getMessage());
-            selectedTemplates = new Vector<String>();
+            System.out.println("load selectedFavourites failed: " + ex.getMessage());
+            userFavouritesStrings = new Vector<String>();
         }
-        imdiTemplateObjects = new Vector<ImdiTreeObject>();
+        userFavourites = new Hashtable<String, ImdiTreeObject>();
         // loop templates and load the imdi objects then set the template flags for each
-        for (Enumeration<String> templatesEnum = selectedTemplates.elements(); templatesEnum.hasMoreElements();) {
+        for (Enumeration<String> templatesEnum = userFavouritesStrings.elements(); templatesEnum.hasMoreElements();) {
             ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObject("", templatesEnum.nextElement());
             currentImdiObject.setTemplateStatus(true);
-            imdiTemplateObjects.add(currentImdiObject);
+            userFavourites.put(currentImdiObject.getUrlString(), currentImdiObject);
         }
     }
 
@@ -52,16 +62,16 @@ public class LinorgTemplates {
     }
 
     public void addAsTemplate(String imdiUrlString) {
-        if (!selectedTemplates.contains(imdiUrlString)) {
-            selectedTemplates.add(imdiUrlString);
+        if (!userFavourites.containsKey(imdiUrlString)) {
+            userFavourites.put(imdiUrlString, GuiHelper.imdiLoader.getImdiObject("", imdiUrlString));
             saveSelectedTemplates();
             loadSelectedTemplates();
         }
     }
 
     public void removeFromFavourites(String imdiUrlString) {
-        while (selectedTemplates.contains(imdiUrlString)) {
-            selectedTemplates.remove(imdiUrlString);
+        while (userFavourites.containsKey(imdiUrlString)) {
+            userFavourites.remove(imdiUrlString);
         }
         saveSelectedTemplates();
         loadSelectedTemplates();
@@ -69,10 +79,14 @@ public class LinorgTemplates {
 
     public void saveSelectedTemplates() {
         try {
-            GuiHelper.linorgSessionStorage.saveObject(selectedTemplates, "selectedTemplates");
+            GuiHelper.linorgSessionStorage.saveObject(new Vector(userFavourites.keySet()), "selectedFavourites");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
+    }
+    
+    public Enumeration listAllFavourites() {
+        return userFavourites.elements();
     }
 
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
@@ -83,7 +97,7 @@ public class LinorgTemplates {
             boolean targetIsCorpus = targetImdiObject.isCorpus();
             boolean targetIsSession = targetImdiObject.isSession();
             boolean targetIsImdiChild = targetImdiObject.isImdiChild();
-            for (Enumeration<ImdiTreeObject> imdiObjectEnum = imdiTemplateObjects.elements(); imdiObjectEnum.hasMoreElements();) {
+            for (Enumeration<ImdiTreeObject> imdiObjectEnum = userFavourites.elements(); imdiObjectEnum.hasMoreElements();) {
                 ImdiTreeObject currentTemplateObject = imdiObjectEnum.nextElement();
                 boolean addThisTemplate = false;
                 if (targetIsCorpus && !currentTemplateObject.isImdiChild()) {
@@ -122,6 +136,16 @@ public class LinorgTemplates {
 //        System.out.println("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
 //        ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateObject);
 //        ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
+
+//        System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading);
+//        while (targetImdiObject.isLoading) {
+//            try {
+//                Thread.currentThread().sleep(500);
+//            } catch (InterruptedException ie) {
+//                GuiHelper.linorgBugCatcher.logError(ie);
+//            }
+//        }
+
         Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
         for (Enumeration<ImdiField[]> templateFeildEnum = templateImdiObject.getFields().elements(); templateFeildEnum.hasMoreElements();) {
             ImdiField[] currentTemplateFields = templateFeildEnum.nextElement();
@@ -152,6 +176,9 @@ public class LinorgTemplates {
                 }
             }
         }
+//        targetImdiObject.clearIcon();
 //        targetImdiObject.saveChangesToCache();
+    // loop the child nodes and add them accordingly
+
     }
 }
