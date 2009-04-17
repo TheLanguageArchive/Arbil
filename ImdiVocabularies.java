@@ -4,6 +4,8 @@
  */
 package mpi.linorg;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -96,42 +98,46 @@ public class ImdiVocabularies {
         }
     }
 
-    public void parseRemoteFile(String vocabRemoteUrl) {
-        String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
-
-        System.out.println("parseRemoteFile: " + cachePath);
-        try {
-//            javax.xml.parsers.SAXParserFactory factory = javax.xml.parsers.SAXParserFactory.newInstance();
-//            factory.setValidating(true);
-//            factory.setNamespaceAware(true);
-//            javax.xml.parsers.SAXParser parser = factory.newSAXParser();
-//
-//            org.xml.sax.XMLReader reader = parser.getXMLReader();
-//            reader.setErrorHandler(new saxVocabularyHandler());
-//            reader.parse(new org.xml.sax.InputSource(new java.io.FileReader(vocabUrl)));
-
-            javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
-            javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
-            org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
-            //xmlReader = XMLReaderFactory.createXMLReader();
-            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
-            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+    synchronized public void parseRemoteFile(String vocabRemoteUrl) {
+        if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
+            String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
+//            new File(cachePath).delete(); // TODO: remove me!!!
+            if (!new File(cachePath).exists()) {
+                URL backUp = this.getClass().getResource("/mpi/linorg/resources/IMDI/Schema/" + new File(cachePath).getName());
+                if (backUp != null) {
+                    cachePath = backUp.getFile();
+                }
+            }
+//            if (!new File(cachePath).exists()) {
+//                if (!missingVocabMessageShown && GuiHelper.linorgWindowManager.linorgFrame != null && GuiHelper.linorgWindowManager.linorgFrame.isShowing()) {
+//                    missingVocabMessageShown = true;
+//                    GuiHelper.linorgWindowManager.addMessageDialogToQueue("A controlled vocabulary could not be accessed.\nSome fields may not show all options.");
+//                }
+//            }
+            System.out.println("parseRemoteFile: " + cachePath);
             Vector<VocabularyItem> vocabularyList = new Vector();
-            xmlReader.setContentHandler(new SaxVocabularyHandler(vocabularyList));
-            xmlReader.parse(cachePath);
             vocabulariesTable.put(vocabRemoteUrl, vocabularyList);
-//            org.xml.sax.XMLReader xmlReader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
-//            saxVocabularyHandler handler = new saxVocabularyHandler();
-//            xmlReader.setContentHandler(handler);
-//            xmlReader.setErrorHandler(handler);
-//            java.io.FileReader r = new java.io.FileReader(vocabUrl);
-//            xmlReader.parse(new org.xml.sax.InputSource(r));
-        //xmlReader.parse(new BufferedInputStream(inputStreamFromURLConnection), saxDefaultHandler);
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        // if the vocab could not be loaded then add the key to prevent retries and set the value to null to indicate that there was an error
-        //vocabulariesTable.put(vocabUrl, null);
+            try {
+                javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
+                javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
+                org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
+                xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+                xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabularyList));
+                xmlReader.parse(cachePath);
+            } catch (Exception ex) {
+                GuiHelper.linorgWindowManager.addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.");
+//                    brokenVocabMessageShown = true;
+//                }
+            //GuiHelper.linorgBugCatcher.logError(ex);
+//                System.out.println("Deleting file presumed erroneous");
+//                new File(cachePath).delete(); // delete the file on the assumption that it is corrupt
+            // if the vocab could not be loaded then add the key to prevent retries and set the value to null to indicate that there was an error
+//                System.out.println("Inserting null vocab to prevent repeated server hits: " + vocabRemoteUrl);
+//                vocabulariesTable.put(vocabRemoteUrl, null); // prevent further attempts in this application instance
 //            System.out.println(ex.getMessage());
+            }
+            System.out.println("vocabularyList: " + vocabularyList);
         }
     }
 
@@ -143,17 +149,7 @@ public class ImdiVocabularies {
             super();
             collectedVocab = vocabList;
         }
-        ////////////////////////////////////////////////////////////////////
-        // Event handlers.
-        ////////////////////////////////////////////////////////////////////
-//        public void startDocument() {
-//            System.out.println("Start document");
-//        }
-//
-//        public void endDocument() {
-//            System.out.println("End document");
-////            vocabulariesTable
-//        }
+
         @Override
         public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
             if (name.equals("Entry")) {
@@ -163,48 +159,7 @@ public class ImdiVocabularies {
                     collectedVocab.add(new VocabularyItem(vocabName, vocabCode));
                 }
             }
-//            if ("".equals(uri)) {
-//                System.out.println("Start element: " + qName);
-//                //System.out.println("Start element atts: " + atts);
-//            } else {
-//                System.out.println("Start element: {" + uri + "}" + name);
-//                System.out.println("Start element atts: " + atts.getValue("Value"));
-//            }
         }
-//        public void endElement(String uri, String name, String qName) {
-//            if ("".equals(uri)) {
-//                System.out.println("End element: " + qName);
-//            } else {
-//                System.out.println("End element:   {" + uri + "}" + name);
-//            }
-//        }
-//
-//        public void characters(char ch[], int start, int length) {
-//            System.out.print("Characters:    \"");
-//            for (int i = start; i < start + length; i++) {
-//                switch (ch[i]) {
-//                    case '\\':
-//                        System.out.print("\\\\");
-//                        break;
-//                    case '"':
-//                        System.out.print("\\\"");
-//                        break;
-//                    case '\n':
-//                        System.out.print("\\n");
-//                        break;
-//                    case '\r':
-//                        System.out.print("\\r");
-//                        break;
-//                    case '\t':
-//                        System.out.print("\\t");
-//                        break;
-//                    default:
-//                        System.out.print(ch[i]);
-//                        break;
-//                }
-//            }
-//            System.out.print("\"\n");
-//        }
     }
 
     public class VocabularyItem {
