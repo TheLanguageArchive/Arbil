@@ -89,7 +89,7 @@ public class ImdiLoader {
                                     currentImdiObject.loadImdiDom();
                                     if (favouriteUrlString != null) {
                                         // TODO: do this for all the descendants of the template
-                                        GuiHelper.linorgFavourites.mergeFromFavourite(addedImdiObject, getImdiObject("", favouriteUrlString), true);
+                                        LinorgFavourites.getSingleInstance().mergeFromFavourite(addedImdiObject, getImdiObject("", favouriteUrlString), true);
                                     }
                                     currentImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
