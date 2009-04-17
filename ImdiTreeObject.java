@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -51,7 +52,7 @@ public class ImdiTreeObject implements Comparable {
     private ImageIcon icon;
     private boolean nodeEnabled;
     private Vector<String[]> childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
-    private Vector containersOfThisNode;
+    private HashSet containersOfThisNode;
     public int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
     private boolean isFavourite;
@@ -64,7 +65,7 @@ public class ImdiTreeObject implements Comparable {
 
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
-        containersOfThisNode = new Vector();
+        containersOfThisNode = new HashSet();
         addQueue = new Vector();
         nodeText = localNodeText;
         nodeUrl = conformStringToUrl(localUrlString);
@@ -761,9 +762,13 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
+        if (this.isImdiChild()) {
+            this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
+        } else {
 //        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + templateUrlString + " : " + resourceUrl);
-        addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
-        GuiHelper.imdiLoader.requestReload(this);
+            addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
+            GuiHelper.imdiLoader.requestReload(this);
+        }
     }
     /**
      * Saves the current changes from memory into a new imdi file on disk.
@@ -1199,8 +1204,8 @@ public class ImdiTreeObject implements Comparable {
         containersOfThisNode.add(containerToAdd);
     }
 
-    public Enumeration getRegisteredContainers() {
-        return containersOfThisNode.elements();
+    public Object[] getRegisteredContainers() {
+        return containersOfThisNode.toArray();
     }
 
     /**
@@ -1241,8 +1246,7 @@ public class ImdiTreeObject implements Comparable {
 //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
 //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
                 // here we need to cause an update in the tree and table gui so that the new icon can be loaded
-                for (Enumeration containersForNode = containersOfThisNode.elements(); containersForNode.hasMoreElements();) {
-                    Object currentContainer = containersForNode.nextElement();
+                for (Object currentContainer : containersOfThisNode.toArray()) {
 //                    System.out.println("currentContainer: " + currentContainer.toString());
                     if (currentContainer instanceof ImdiTableModel) {
                         ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
