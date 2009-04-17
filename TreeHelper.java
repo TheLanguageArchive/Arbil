@@ -543,11 +543,13 @@ public class TreeHelper {
                 }
                 ((ImdiTree) sourceObject).setSelectionRow(selectedRow);
                 }
-                // remove the deleted node from the favourites list
                 Object userObject = selectedTreeNode.getUserObject();
-                if (userObject instanceof ImdiTreeObject) {
-                    GuiHelper.linorgFavourites.removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
-                }
+                // remove the deleted node from the favourites list if it is an imdichild node
+//                if (userObject instanceof ImdiTreeObject) {
+//                    if (((ImdiTreeObject) userObject).isImdiChild()){
+//                    LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
+//                    }
+//                }
                 // make a list of child nodes
                 Vector<ImdiTreeObject> imdiNodesToRemove = new Vector();
                 imdiNodesToRemove.add((ImdiTreeObject) userObject);
