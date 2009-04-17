@@ -239,6 +239,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             addDefaultLocationsMenuItem.setVisible(false);
             addMenu.setVisible(false);
             deleteMenuItem.setVisible(false);
+        deleteMenuItem.setEnabled(true);
             viewSelectedNodesMenuItem.setVisible(false);
             viewSelectedNodesMenuItem.setText("View Selected");
             favouritesMenu.setVisible(false);
@@ -284,6 +285,7 @@ public class LinorgFrame extends javax.swing.JFrame {
                 if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
                     addToFavouritesMenuItem.setText("Remove From Favourites List");
                     addToFavouritesMenuItem.setActionCommand("false");
+                    deleteMenuItem.setEnabled(false);
                 } else {
                     addToFavouritesMenuItem.setText("Add To Favourites List");
                     addToFavouritesMenuItem.setActionCommand("true");
@@ -384,6 +386,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         optionsMenu = new javax.swing.JMenu();
         editLocationsMenuItem = new javax.swing.JMenuItem();
         templatesMenu = new javax.swing.JMenu();
+        viewFavouritesMenuItem = new javax.swing.JMenuItem();
         editFieldViewsMenuItem = new javax.swing.JMenuItem();
         saveWindowsCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
@@ -763,6 +766,14 @@ public class LinorgFrame extends javax.swing.JFrame {
         templatesMenu.setText("Templates");
         templatesMenu.setEnabled(false);
         optionsMenu.add(templatesMenu);
+
+        viewFavouritesMenuItem.setText("View Favourites");
+        viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewFavouritesMenuItemActionPerformed(evt);
+            }
+        });
+        optionsMenu.add(viewFavouritesMenuItem);
 
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.setEnabled(false);
@@ -1148,7 +1159,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
 private void addToFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToFavouritesMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: set the boolean correctly
-    GuiHelper.linorgFavourites.toggleFavouritesList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), addToFavouritesMenuItem.getActionCommand().equals("true"));
+    LinorgFavourites.getSingleInstance().toggleFavouritesList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), addToFavouritesMenuItem.getActionCommand().equals("true"));
 }//GEN-LAST:event_addToFavouritesMenuItemActionPerformed
 
 private void addFromFavouritesMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromFavouritesMenuMenuSelected
@@ -1189,6 +1200,11 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     // update the tree and reload the ui
     GuiHelper.treeHelper.applyRootLocations();
 }//GEN-LAST:event_importMenuItemActionPerformed
+
+private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
+// TODO add your handling code here:
+    GuiHelper.linorgWindowManager.openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
+}//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
 
 /**
      * @param args the command line arguments
@@ -1264,6 +1280,7 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JMenuItem undoMenuItem;
     private javax.swing.JMenuItem validateMenuItem;
     private javax.swing.JMenuItem viewChangesMenuItem;
+    private javax.swing.JMenuItem viewFavouritesMenuItem;
     private javax.swing.JMenu viewMenu;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
