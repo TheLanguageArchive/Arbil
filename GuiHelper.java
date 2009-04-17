@@ -26,7 +26,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class GuiHelper {
 
-    static LinorgTemplates linorgFavourites;
     static TreeHelper treeHelper = new TreeHelper();
     static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
@@ -48,7 +47,6 @@ public class GuiHelper {
 
     public GuiHelper() {
         //imdiHelper = new ImdiIcons();
-        linorgFavourites = new LinorgTemplates();
         treeHelper.loadLocationsList();
     }
 
@@ -94,13 +92,11 @@ public class GuiHelper {
 //                addMenuItem.setName(emptyMenuName);
 //                addMenuItem.setEnabled(false);
 //                addMenu.add(addMenuItem);
-//            }
-
     }
 
     public void initAddFromFavouritesMenu(javax.swing.JMenu addFromFavouritesMenu, Object targetNodeUserObject) {
         addFromFavouritesMenu.removeAll();
-        for (Enumeration menuItemName = linorgFavourites.listFavouritesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+        for (Enumeration menuItemName = LinorgFavourites.getSingleInstance().listFavouritesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
             String[] currentField = (String[]) menuItemName.nextElement();
 //            System.out.println("MenuText: " + currentField[0]);
 //            System.out.println("ActionCommand: " + currentField[1]);
@@ -119,7 +115,7 @@ public class GuiHelper {
                     if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
                         imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
 //                        imdiTreeObject.requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
-                        imdiTreeObject.requestAddNode(linorgFavourites.getNodeType(imdiFavouriteUrlString), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
+                        imdiTreeObject.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(imdiFavouriteUrlString), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
                     }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgTemplates.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
