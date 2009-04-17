@@ -5,6 +5,7 @@
 package mpi.linorg;
 
 import java.awt.Container;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
@@ -98,6 +99,16 @@ public class ImdiDragDrop {
         public boolean selectionContainsImdiChild = false;
         public boolean selectionContainsLocal = false;
         public boolean selectionContainsRemote = false;
+        @Override
+        public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
+            System.out.println("exportToClipboard: " + comp);
+            if (comp instanceof ImdiTable) {
+                ImdiTable sourceTable = (ImdiTable) comp;
+                sourceTable.copySelectedTableRowsToClipBoard();
+            } else {
+                super.exportToClipboard(comp, clip, action);
+            }
+        }
 
         @Override
         public int getSourceActions(JComponent c) {
