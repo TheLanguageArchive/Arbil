@@ -164,8 +164,7 @@ public class TreeHelper {
 
     public void updateTreeNodeChildren(ImdiTreeObject parentImdiNode) {
         System.out.println("updateTreeNodeChildren ImdiTreeObject: " + parentImdiNode);
-        for (Enumeration nodeContainersEnum = parentImdiNode.getRegisteredContainers(); nodeContainersEnum.hasMoreElements();) {
-            Object currentContainer = nodeContainersEnum.nextElement();
+        for (Object currentContainer : parentImdiNode.getRegisteredContainers()) {
             if (currentContainer instanceof DefaultMutableTreeNode) {
                 System.out.println("updateTreeNodeChildren currentContainer: " + parentImdiNode + " : " + currentContainer.hashCode());
                 updateTreeNodeChildren((DefaultMutableTreeNode) currentContainer);
@@ -558,8 +557,7 @@ public class TreeHelper {
                     ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
                     Vector tempVector = new Vector();
                     tempVector.add(currentDeletedNode);
-                    for (Enumeration nodeContainersEnum = currentDeletedNode.getRegisteredContainers(); nodeContainersEnum.hasMoreElements();) {
-                        Object currentContainer = nodeContainersEnum.nextElement();
+                    for (Object currentContainer : currentDeletedNode.getRegisteredContainers()) {
                         if (currentContainer instanceof ImdiTableModel) {
                             ((ImdiTableModel) currentContainer).removeImdiObjects(tempVector.elements());
                         }
