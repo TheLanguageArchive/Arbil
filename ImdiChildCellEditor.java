@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -38,6 +39,7 @@ import javax.swing.table.TableCellEditor;
  */
 class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor {
 
+    ImdiTable parentTable = null;
     ImdiTreeObject registeredOwner = null;
     JPanel editorPanel;
     JLabel button;
@@ -72,10 +74,23 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         });
         button.addMouseListener(new java.awt.event.MouseAdapter() {
 
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                parentTable.checkPopup(evt, false);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                parentTable.checkPopup(evt, false);
+            }
+        
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 boolean ctrlDown = evt.isControlDown();
-                if (evt.getClickCount() > 1) {
+                if (evt.getButton() == MouseEvent.BUTTON1) {
                     startEditorMode(ctrlDown);
+                } else {
+                    parentTable.checkPopup(evt, false);
+                    //super.mousePressed(evt);
                 }
             }
         });
@@ -252,6 +267,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             int row,
             int column) {
         receivedKeyDown = true;
+        parentTable = (ImdiTable)table;
         if (value instanceof ImdiField) {
             // TODO: get the whole array from the parent and select the correct tab for editing
             String fieldName = ((ImdiField) value).getTranslateFieldName();
