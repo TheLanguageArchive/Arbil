@@ -45,6 +45,19 @@ public class LinorgWindowManager {
     int nextWindowHeight = 600;
     private Vector<String> messageDialogQueue = new Vector();
     private boolean messagesCanBeShown = false;
+    static private LinorgWindowManager singleInstance = null;
+
+    static synchronized public LinorgWindowManager getSingleInstance() {
+        System.out.println("LinorgWindowManager getSingleInstance");
+        if (singleInstance == null) {
+            singleInstance = new LinorgWindowManager();
+        }
+        return singleInstance;
+    }
+    
+    private LinorgWindowManager(){
+        
+    }
 
     public void setComponents(JMenu jMenu, JFrame linorgFrameLocal, JDesktopPane jDesktopPane) {
         windowMenu = jMenu;
@@ -98,7 +111,7 @@ public class LinorgWindowManager {
                     while (messageDialogQueue.size() > 0) {
                         String messageString = messageDialogQueue.remove(0);
                         if (messageString != null) {
-                            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, messageString);
+                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, messageString);
                         }
                     }
 
