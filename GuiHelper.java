@@ -35,7 +35,7 @@ public class GuiHelper {
     static ImdiLoader imdiLoader = new ImdiLoader();
     private Hashtable selectedFilesList = new Hashtable(); // this is a list of the files currently displayed in the files window
 //    private JPanel selectedFilesPanel;
-    static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
+    //static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
     static ClipboardOwner clipboardOwner = new ClipboardOwner() {
 
@@ -55,7 +55,7 @@ public class GuiHelper {
         // linorgTemplates.saveSelectedTemplates(); // no need to do here because the list is saved when templates are changed
         treeHelper.saveLocations();
         if (saveWindows) {
-            linorgWindowManager.saveWindowStates();
+            LinorgWindowManager.getSingleInstance().saveWindowStates();
         }
     }
 
@@ -201,7 +201,7 @@ public class GuiHelper {
                     javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(this.getClass().getResource("/mpi/linorg/resources/xsl/IMDI_3_0_TO_WEB.xsl").toString()));
                     // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
                     transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeFile.getCanonicalPath() + ".html")));
-                    linorgWindowManager.openUrlWindowOnce(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());
+                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 //System.out.println(ex.getMessage());
@@ -209,7 +209,7 @@ public class GuiHelper {
                 }
             } else {
                 try {
-                    linorgWindowManager.openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
+                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 //System.out.println(ex.getMessage());
