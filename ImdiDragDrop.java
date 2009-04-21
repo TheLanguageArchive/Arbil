@@ -320,7 +320,7 @@ public class ImdiDragDrop {
                         dropTableModel.addImdiObjects(draggedImdiObjects);
                         return true; // we have achieved the drag so return true
                     } else if (imdiSplitPanel instanceof JDesktopPane) {
-                        GuiHelper.linorgWindowManager.openFloatingTable(new Vector(Arrays.asList(draggedImdiObjects)).elements(), "Selection");
+                        LinorgWindowManager.getSingleInstance().openFloatingTable(new Vector(Arrays.asList(draggedImdiObjects)).elements(), "Selection");
                         return true; // we have achieved the drag so return true
                     }
                 }
