@@ -120,7 +120,7 @@ public class ImportExportDialog {
         };
         fileChooser.addChoosableFileFilter(imdiFileFilter);
         fileChooser.setMultiSelectionEnabled(true);
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(GuiHelper.linorgWindowManager.linorgFrame, "Import")) {
+        if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Import")) {
             Vector importNodeVector = new Vector();
             for (File currentFile : fileChooser.getSelectedFiles()) {
                 ImdiTreeObject imdiToImport = GuiHelper.imdiLoader.getImdiObject(null, currentFile.getAbsolutePath());
@@ -150,14 +150,14 @@ public class ImportExportDialog {
         fileChooser.setMultiSelectionEnabled(false);
         boolean fileSelectDone = false;
         while (!fileSelectDone) {
-            if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(GuiHelper.linorgWindowManager.linorgFrame, "Export")) {
+            if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Export")) {
                 //Vector importNodeVector = new Vector();
                 File destinationDirectory = fileChooser.getSelectedFile();
                 if (destinationDirectory == null || destinationDirectory.list().length == 0) {
                     fileSelectDone = true;
                     exportFromCache(localCorpusSelectedNodes, destinationDirectory);
                 }else{
-                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "The export directory must be empty", searchDialog.getTitle(), 0);
+                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), 0);
                 }
             } else {
                 fileSelectDone = true;
@@ -169,7 +169,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -184,7 +184,7 @@ public class ImportExportDialog {
 //            performCopy();
             searchDialog.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
         }
     }
 
@@ -192,7 +192,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -206,7 +206,7 @@ public class ImportExportDialog {
 //            performCopy();
             searchDialog.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
         }
     }
 
@@ -236,7 +236,7 @@ public class ImportExportDialog {
     }
 
     public ImportExportDialog(Component targetComponent) {
-        searchDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
+        searchDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {
 
@@ -636,7 +636,7 @@ public class ImportExportDialog {
                 threadARunning = false;
                 setUItoStoppedState();
                 Object[] options = {"OK", "Details"};
-                int detailsOption = JOptionPane.showOptionDialog(GuiHelper.linorgWindowManager.linorgFrame,
+                int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
                         finalMessageString,
                         searchDialog.getTitle(),
                         JOptionPane.YES_NO_OPTION,
