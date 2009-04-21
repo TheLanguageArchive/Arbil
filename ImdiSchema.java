@@ -187,6 +187,7 @@ public class ImdiSchema {
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add(new String[]{"Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
                 childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
+                childTypes.add(new String[]{"Corpus Description", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus" + imdiPathSeparator + "Description"});
             }
 //            System.out.println("childTypes: " + childTypes);
         } else {
