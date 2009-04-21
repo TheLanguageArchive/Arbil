@@ -26,7 +26,7 @@ public class LinorgBugCatcher {
         try {
             Robot robot = new Robot();
             //BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-            BufferedImage screenShot = robot.createScreenCapture(GuiHelper.linorgWindowManager.linorgFrame.getBounds());
+            BufferedImage screenShot = robot.createScreenCapture(LinorgWindowManager.getSingleInstance().linorgFrame.getBounds());
             DecimalFormat myFormat = new DecimalFormat("000");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String formattedDate = formatter.format(new Date());
