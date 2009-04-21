@@ -24,7 +24,7 @@ public class LinorgHyperlinkListener implements HyperlinkListener {
 //            } catch (IOException e) {
 //                System.out.println(e.getMessage());
 //            }
-            GuiHelper.linorgWindowManager.openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
+            LinorgWindowManager.getSingleInstance().openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
         }
     }
 }
