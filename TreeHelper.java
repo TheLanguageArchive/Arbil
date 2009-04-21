@@ -370,8 +370,8 @@ public class TreeHelper {
 
     public void showLocationsDialog() {
         // TODO: it would be preferable to move all dialog creation and management into the linorgwindowmanager
-        JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame));
-        settingsjDialog.setLocationRelativeTo(GuiHelper.linorgWindowManager.linorgFrame);
+        JDialog settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame));
+        settingsjDialog.setLocationRelativeTo(LinorgWindowManager.getSingleInstance().linorgFrame);
         JTable locationSettingsTable = new JTable(getLocationsTableModel()) {
 
             public TableCellRenderer getCellRenderer(int row, int column) {
@@ -434,7 +434,7 @@ public class TreeHelper {
                 System.out.println("addedNodeUrl: " + addedNodeUrl);
                 System.out.println("addedImdi: " + addedImdi);
                 tempVector.add(addedImdi);
-                GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
+                LinorgWindowManager.getSingleInstance().openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
             // this will only happen on the local corpus tree so we can just address that here
 //                localCorpusTree.scrollToNode(addedImdi);
             }
@@ -447,7 +447,7 @@ public class TreeHelper {
             Vector tempVector = new Vector();
             addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
             tempVector.add(addedImdi);
-            GuiHelper.linorgWindowManager.openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName);
+            LinorgWindowManager.getSingleInstance().openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName);
         // this will only happen on the local corpus tree so we can just address that here
 //            localCorpusTree.scrollToNode(addedImdi); //TODO: this is failing because at this point the new node is probably not laoded. This must be done in the loading thread after load
         }
@@ -505,9 +505,9 @@ public class TreeHelper {
 
     public void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
         if (selectedTreeNode == null) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No node selected", "", 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No node selected", "", 0);
         } else {
-            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "Remove link to '" + selectedTreeNode + "?", "Remove", JOptionPane.YES_NO_OPTION)) {
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Remove link to '" + selectedTreeNode + "?", "Remove", JOptionPane.YES_NO_OPTION)) {
                 GuiHelper.treeHelper.removeLocation(selectedTreeNode.getUserObject());
                 GuiHelper.treeHelper.applyRootLocations();
             }
@@ -530,7 +530,7 @@ public class TreeHelper {
                     parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
                     ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
                     ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
-                    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION)) {
+                    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION)) {
                         if (childImdiNode.isImdiChild()) {
                             childImdiNode.deleteFromParentDom(null);
 //                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
