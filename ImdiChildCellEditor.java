@@ -292,6 +292,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             button.setIcon(ImdiIcons.getSingleInstance().getIconForImdi((ImdiTreeObject[]) cellValue));
             button.setText("");
         }
+        editorPanel.setBackground(table.getSelectionBackground());
         editorPanel.setLayout(new BorderLayout());
         editorPanel.add(button);
         //table.requestFocusInWindow();
