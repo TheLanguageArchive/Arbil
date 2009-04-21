@@ -34,6 +34,7 @@ public class LinorgSessionStorage {
         if (!storageFile.exists()) {
             storageFile.mkdir();
             if (!storageFile.exists()) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create working files in\n" + storageDirectory + "\nplease check user permissions and disk space");
                 System.out.println("failed to create: " + storageDirectory);
             }
         }
