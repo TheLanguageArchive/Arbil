@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited with XML Spy v4.2 U (http://www.xmlspy.com) by Daan Broeder (Max-Planck Institute for Psycholinguistics) -->
+<imdi:VocabularyDef xmlns:imdi="http://www.mpi.nl/IMDI/Schema/IMDI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd" Name="Content-Genre-Interactional" Date="2001-05-06" Link="http://www.mpi.nl/IMDI/Schema/Content-Genre-Interactional.xml">
+	<imdi:Description LanguageId="ISO639-2:eng">A list of values for the Genre.Interactional aspect</imdi:Description>
+	<imdi:Entry Value="Unknown"/>
+	<imdi:Entry Value="Unspecified"/>
+	<imdi:Entry Value="conversation"/>
+	<imdi:Entry Value="verbal-contest"/>
+	<imdi:Entry Value="interview"/>
+	<imdi:Entry Value="meeting"/>
+	<imdi:Entry Value="riddles">Definition:	A witty question to a respondent who is obligated to reply.</imdi:Entry>
+	<imdi:Entry Value="consultation"/>
+	<imdi:Entry Value="greetings"/>
+	<imdi:Entry Value="leavetakings"/>
+	<imdi:Entry Value="humor"/>
+</imdi:VocabularyDef>
