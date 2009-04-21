@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
@@ -46,6 +47,7 @@ public class ImdiTable extends JTable {
         }
         this.setModel(imdiTableModel);
         this.setName(frameTitle);
+        this.setCellSelectionEnabled(true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
@@ -468,10 +470,48 @@ public class ImdiTable extends JTable {
         }
         return tip;
     }
+    @Override
+    public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
+        if (imdiTableModel.horizontalView) {
+            boolean rowSelection = (imdiTableModel.getValueAt(rowIndex, columnIndex) instanceof ImdiTreeObject);
+//        System.out.println("rowSelection: " + rowSelection + ":" + clickedRow + ":" + clickedColumn);
+            if (!imdiTableModel.horizontalView) {
+                this.setRowSelectionAllowed(true);
+                this.setColumnSelectionAllowed(false);
+            } else {
+                if (rowSelection) {
+                    System.out.println("set row select mode");
+                    this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+                    this.setRowSelectionAllowed(true);
+                    this.setColumnSelectionAllowed(false);
+//                cellSelectionModeAsNotReturnedByJTable = false;
+                } else {
+                    System.out.println("set cell select mode");
+//                toggle = false;
+//                extend = true;
+                    this.setRowSelectionAllowed(true);
+                    this.setColumnSelectionAllowed(true);
+                    this.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+                }
+            }
+            System.out.println("coll select mode: " + this.getColumnSelectionAllowed());
+            System.out.println("cell select mode: " + this.getCellSelectionEnabled());
+            System.out.println("getSelectionMode: " + this.getSelectionModel().getSelectionMode());
+
+            super.changeSelection(rowIndex, columnIndex, toggle, extend);
+        } else {
+            this.setRowSelectionAllowed(true);
+            this.setColumnSelectionAllowed(false);
+            super.changeSelection(rowIndex, 1, toggle, extend);
+        }
+    }
+
+    @Override
 //Implement table header tool tips.
     protected JTableHeader createDefaultTableHeader() {
         return new JTableHeader(columnModel) {
 
+            @Override
             public String getToolTipText(MouseEvent e) {
                 String tip = null;
                 java.awt.Point p = e.getPoint();
@@ -486,16 +526,51 @@ public class ImdiTable extends JTable {
         int[] selectedRows = this.getSelectedRows();
         // only copy if there is at lease one row selected
         if (selectedRows.length > 0) {
-            imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
+            System.out.println("coll select mode: " + this.getColumnSelectionAllowed());
+            System.out.println("cell select mode: " + this.getCellSelectionEnabled());
+            if (this.getCellSelectionEnabled()) {
+                System.out.println("cell select mode");
+                ImdiField[] selectedFields = getSelectedFields();
+                if (selectedFields != null) {
+                    imdiTableModel.copyImdiFields(selectedFields, GuiHelper.clipboardOwner);
+                }
+            } else {
+                System.out.println("row select mode");
+                imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
+            }
         } else {
             JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Nothing to copy");
         }
     }
 
-    public void pasteIntoSelectedTableRowsToClipBoard() {
+    private ImdiField[] getSelectedFields() {
+        HashSet<ImdiField> selectedFields = new HashSet();
         int[] selectedRows = this.getSelectedRows();
         if (selectedRows.length > 0) {
-            String pasteResult = imdiTableModel.pasteIntoImdiRows(selectedRows, GuiHelper.clipboardOwner);
+            int[] selectedCols = this.getSelectedColumns();
+            for (int currentRow : selectedRows) {
+                for (int currentCol : selectedCols) {
+                    System.out.println("row/col: " + currentRow + " : " + currentCol);
+                    // this could be an imdifield array and must handled accortingly
+                    if (this.getValueAt(currentRow, currentCol) instanceof ImdiField) {
+                        selectedFields.add((ImdiField) this.getValueAt(currentRow, currentCol));
+                    } else if (this.getValueAt(currentRow, currentCol) instanceof ImdiField[]) {
+                        for (ImdiField currentField : (ImdiField[]) this.getValueAt(currentRow, currentCol)) {
+                            selectedFields.add(currentField);
+                        }
+                    }
+                }
+            }
+            return selectedFields.toArray(new ImdiField[]{});
+        } else {
+            return null;
+        }
+    }
+
+    public void pasteIntoSelectedTableRowsToClipBoard() {
+        ImdiField[] selectedFields = getSelectedFields();
+        if (selectedFields != null) {
+            String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields, GuiHelper.clipboardOwner);
             if (pasteResult != null) {
                 JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, pasteResult);
             }
