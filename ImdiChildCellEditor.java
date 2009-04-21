@@ -225,7 +225,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 }
                 registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
                 registeredOwner.registerContainer(this);
-                JInternalFrame editorFrame = GuiHelper.linorgWindowManager.createWindow(columnName + " in " + rowImdi, tabPane);
+                JInternalFrame editorFrame = LinorgWindowManager.getSingleInstance().createWindow(columnName + " in " + rowImdi, tabPane);
                 editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
                     @Override
@@ -241,7 +241,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 focusedTabTextArea.requestFocusInWindow();
             }
         } else {
-            GuiHelper.linorgWindowManager.openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
+            LinorgWindowManager.getSingleInstance().openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
         }
     }
 
