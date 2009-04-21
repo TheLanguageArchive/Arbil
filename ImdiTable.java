@@ -102,7 +102,7 @@ public class ImdiTable extends JTable {
                             // if the user did not cancel
                             if (fieldViewName != null) {
                                 if (!ImdiFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
-                                    JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "A View with the same name already exists, nothing saved");
+                                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "A View with the same name already exists, nothing saved");
                                 }
                             }
                         }
@@ -113,7 +113,7 @@ public class ImdiTable extends JTable {
 
                         public void actionPerformed(ActionEvent e) {
                             ImdiFieldViewTable fieldViewTable = new ImdiFieldViewTable(imdiTableModel);
-                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(GuiHelper.linorgWindowManager.linorgFrame), true);
+                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
                             editViewsDialog.setTitle("Editing Current View");
 
                             JScrollPane js = new JScrollPane(fieldViewTable);
@@ -302,7 +302,7 @@ public class ImdiTable extends JTable {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-                        if (0 == JOptionPane.showConfirmDialog(GuiHelper.linorgWindowManager.linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
+                        if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
                             imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
                         }
                     }
@@ -414,7 +414,7 @@ public class ImdiTable extends JTable {
 
     public void showRowChildData() {
         Object[] possibilities = ((ImdiTableModel) this.getModel()).getChildNames();
-        String selectionResult = (String) JOptionPane.showInputDialog(GuiHelper.linorgWindowManager.linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
+        String selectionResult = (String) JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 //      TODO: JOptionPane.show it would be good to have a miltiple select here
         if ((selectionResult != null) && (selectionResult.length() > 0)) {
             ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
@@ -553,7 +553,7 @@ public class ImdiTable extends JTable {
                 imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
             }
         } else {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Nothing to copy");
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Nothing to copy");
         }
     }
 
@@ -586,16 +586,16 @@ public class ImdiTable extends JTable {
         if (selectedFields != null) {
             String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields, GuiHelper.clipboardOwner);
             if (pasteResult != null) {
-                JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, pasteResult);
+                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, pasteResult);
             }
         } else {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No rows selected.");
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No rows selected.");
         }
     }
 
     public void viewSelectedTableRows() {
         int[] selectedRows = this.getSelectedRows();
-        GuiHelper.linorgWindowManager.openFloatingTable(new Vector(Arrays.asList(imdiTableModel.getSelectedImdiNodes(selectedRows))).elements(), "Selection");
+        LinorgWindowManager.getSingleInstance().openFloatingTable(new Vector(Arrays.asList(imdiTableModel.getSelectedImdiNodes(selectedRows))).elements(), "Selection");
     }
 
     public ImdiTreeObject[] getSelectedRowsFromTable() {
@@ -612,13 +612,13 @@ public class ImdiTable extends JTable {
         int selectedRow = this.getSelectedRow();
         //ImdiHelper.ImdiTableModel tempImdiTableModel = (ImdiHelper.ImdiTableModel) (targetTable.getModel());
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "No rows have been selected");
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No rows have been selected");
             return;
         }
         Vector foundRows = imdiTableModel.getMatchingRows(selectedRow);
         this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.getSelectionModel().clearSelection();
-        JOptionPane.showMessageDialog(GuiHelper.linorgWindowManager.linorgFrame, "Found " + foundRows.size() + " matching rows");
+        JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Found " + foundRows.size() + " matching rows");
         for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
             for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
                 // TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
