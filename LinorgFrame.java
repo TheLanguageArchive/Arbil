@@ -75,9 +75,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         //this.setExtendedState(Frame.MAXIMIZED_BOTH);
 
 
-        GuiHelper.linorgWindowManager.setComponents(windowMenu, this, jDesktopPane1);
+        LinorgWindowManager.getSingleInstance().setComponents(windowMenu, this, jDesktopPane1);
         setVisible(true);
-        GuiHelper.linorgWindowManager.openIntroductionPage();
+        LinorgWindowManager.getSingleInstance().openIntroductionPage();
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
         setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
@@ -176,7 +176,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
     private void treeKeyTyped(java.awt.event.KeyEvent evt) {
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
-            GuiHelper.linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements(), "Selection");
+            LinorgWindowManager.getSingleInstance().openFloatingTable(getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements(), "Selection");
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
@@ -983,7 +983,7 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.openSearchTable(getSelectedNodes(new JTree[]{localCorpusTree}), "Search");
+    LinorgWindowManager.getSingleInstance().openSearchTable(getSelectedNodes(new JTree[]{localCorpusTree}), "Search");
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
 private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
@@ -1027,7 +1027,7 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
 
 private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.saveSplitPlanes(this.getContentPane().getComponent(0));
+    LinorgWindowManager.getSingleInstance().saveSplitPlanes(this.getContentPane().getComponent(0));
     if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
             // remove the right split split and show only the jdesktoppane
 //            int lastPost = mainSplitPane.getDividerLocation();
@@ -1049,12 +1049,12 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
             guiHelper.removeAllFromGridData(previewTable.getModel());
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }
-        GuiHelper.linorgWindowManager.loadSplitPlanes(this.getContentPane().getComponent(0));
+        LinorgWindowManager.getSingleInstance().loadSplitPlanes(this.getContentPane().getComponent(0));
     }
 
 private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.openFloatingTable(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}).elements(), "Selection");
+    LinorgWindowManager.getSingleInstance().openFloatingTable(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}).elements(), "Selection");
 }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
 private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLocationsMenuItemActionPerformed
@@ -1111,7 +1111,7 @@ private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) 
 private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateMenuItemActionPerformed
 // TODO add your handling code here:
     XsdChecker xsdChecker = new XsdChecker();
-    GuiHelper.linorgWindowManager.createWindow("XsdChecker", xsdChecker);
+    LinorgWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
     xsdChecker.checkXML((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
     xsdChecker.setDividerLocation(0.5);
 }//GEN-LAST:event_validateMenuItemActionPerformed
@@ -1134,7 +1134,7 @@ private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 
 private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.openAboutPage();
+    LinorgWindowManager.getSingleInstance().openAboutPage();
 }//GEN-LAST:event_introductionMenuItemActionPerformed
 
 private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
@@ -1150,8 +1150,8 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
 // TODO add your handling code here:
     LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
-    if (!GuiHelper.linorgWindowManager.focusWindow("Help")) {
-        GuiHelper.linorgWindowManager.createWindow("Help", helpComponent);
+    if (!LinorgWindowManager.getSingleInstance().focusWindow("Help")) {
+        LinorgWindowManager.getSingleInstance().createWindow("Help", helpComponent);
     }
     helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
 }//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
@@ -1169,9 +1169,9 @@ private void addFromFavouritesMenuMenuSelected(javax.swing.event.MenuEvent evt) 
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
 // TODO add your handling code here:
-    if (!GuiHelper.linorgWindowManager.focusWindow("Help")) {
+    if (!LinorgWindowManager.getSingleInstance().focusWindow("Help")) {
         // forcus existing or create a new help window
-        GuiHelper.linorgWindowManager.createWindow("Help", LinorgHelp.getSingleInstance());
+        LinorgWindowManager.getSingleInstance().createWindow("Help", LinorgHelp.getSingleInstance());
     }
 }//GEN-LAST:event_helpMenuItemActionPerformed
 
@@ -1203,7 +1203,7 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 
 private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.linorgWindowManager.openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
+    LinorgWindowManager.getSingleInstance().openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
 }//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
 
 /**
