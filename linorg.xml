@@ -32,6 +32,7 @@
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.*"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xml"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsd/*.xsd"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.xsl"/>
             <manifest>
