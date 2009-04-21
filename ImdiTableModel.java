@@ -14,6 +14,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
@@ -180,6 +181,28 @@ public class ImdiTableModel extends AbstractTableModel {
         removeImdiObjects(nodesToRemove.elements());
     }
 
+    public void copyImdiFields(ImdiField[] selectedCells, ClipboardOwner clipBoardOwner) {
+        String csvSeparator = "\t"; // excel seems to work with tab but not comma 
+        String copiedString = "";
+        copiedString = copiedString + "\"" + singleNodeViewHeadings[0] + "\"" + csvSeparator;
+        copiedString = copiedString + "\"" + singleNodeViewHeadings[1] + "\"";
+        copiedString = copiedString + "\n";
+        boolean isFirstCol = true;
+        for (ImdiField currentField : selectedCells) {
+            if (!isFirstCol) {
+                copiedString = copiedString + csvSeparator;
+                isFirstCol = false;
+            }
+            copiedString = copiedString + "\"" + currentField.getTranslateFieldName() + "\"" + csvSeparator;
+            copiedString = copiedString + "\"" + currentField.getFieldValue() + "\"";
+            copiedString = copiedString + "\n";
+        }
+        System.out.println("copiedString: " + copiedString);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        StringSelection stringSelection = new StringSelection(copiedString);
+        clipboard.setContents(stringSelection, clipBoardOwner);
+    }
+    
     public void copyImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
@@ -213,7 +236,8 @@ public class ImdiTableModel extends AbstractTableModel {
         clipboard.setContents(stringSelection, clipBoardOwner);
     }
 
-    public String pasteIntoImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
+    public String pasteIntoImdiFields(ImdiField[] selectedCells, ClipboardOwner clipBoardOwner) {
+        boolean pastedFieldOverwritten = false;
         int pastedCount = 0;
         String resultMessage = null;
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -246,7 +270,7 @@ public class ImdiTableModel extends AbstractTableModel {
                     resultMessage = "Incorrect data to paste.\nFields must be copied from a table where only one IMDI file is displayed.";
                 }
                 if (singleNodeAxis) {
-                    Hashtable<String, Integer> fieldNamePasteCount = new Hashtable(); // used to count the field index in the fields array if there are multiple values of the same name
+                    HashSet<String> pastedFieldNames = new HashSet();
                     for (int lineCounter = 1 /* skip the header */; lineCounter < clipBoardLines.length; lineCounter++) {
                         String clipBoardLine = clipBoardLines[lineCounter];
                         System.out.println("clipBoardLine: " + clipBoardLine);
@@ -254,44 +278,32 @@ public class ImdiTableModel extends AbstractTableModel {
                         System.out.println("clipBoardCells.length: " + clipBoardCells.length);
                         if (clipBoardCells.length != 2) {
                             resultMessage = "Inconsistent number of columns in the data to paste.\nThe pasted data could be incorrect.";
-                        } else {//loop over the selected rows
+                        } else {
                             String currentFieldName = clipBoardCells[0].replaceAll(regexString, "");
                             String currentFieldValue = clipBoardCells[1].replaceAll(regexString, "");
-                            int currentFieldCounted = 0;
-                            if (fieldNamePasteCount.containsKey(currentFieldName)) {
-                                currentFieldCounted = fieldNamePasteCount.get(currentFieldName);
-                                fieldNamePasteCount.put(currentFieldName, ++currentFieldCounted);
+                            if (pastedFieldNames.contains(currentFieldName)) {
+                                pastedFieldOverwritten = true;
                             } else {
-                                fieldNamePasteCount.put(currentFieldName, currentFieldCounted);
+                                pastedFieldNames.add(currentFieldName);
                             }
-                            for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-                                //loop over all cells in the selected rows
-                                for (int selectedColCounter = 0; selectedColCounter < getColumnCount(); selectedColCounter++) {
-                                    // the cell contents could be either an imdifield or an array of imdifields or an imditreeobject or an array of imditreenodes or a string or null
-                                    // only imdifields or arrays of imdifield need to be handled here
-                                    ImdiField[] currentFieldArray = null;
-                                    if (data[selectedRows[selectedRowCounter]][selectedColCounter] instanceof ImdiField[]) {
-                                        currentFieldArray = (ImdiField[]) data[selectedRows[selectedRowCounter]][selectedColCounter];
-                                    }
-                                    if (data[selectedRows[selectedRowCounter]][selectedColCounter] instanceof ImdiField) {
-                                        if (((ImdiField) data[selectedRows[selectedRowCounter]][selectedColCounter]).getTranslateFieldName().equals(currentFieldName)) {
-                                            currentFieldArray = ((ImdiField) data[selectedRows[selectedRowCounter]][selectedColCounter]).parentImdi.getFields().get(currentFieldName);
-                                        }
-                                    }
-                                    // todo prevent field array paste different from table view to single view
-                                    if (currentFieldArray != null) {
-                                        System.out.println("current target Field: " + currentFieldArray[0].getTranslateFieldName());
-                                        if (currentFieldArray.length > currentFieldCounted) {
-                                            if (currentFieldArray[currentFieldCounted].getTranslateFieldName().equals(currentFieldName)) {
-                                                System.out.println("currentFieldName: " + currentFieldName + ":" + currentFieldCounted + ":" + currentFieldValue);
-                                                currentFieldArray[currentFieldCounted].setFieldValue(currentFieldValue, true); // while we could reduce ui updates, this may be a paste into multiple nodes, so to keep it simple the field does the ui update rather than saving it till last
-                                                pastedCount++;
-                                            }
-                                        }
+                            if (selectedCells != null) {
+                                for (ImdiField targetField : selectedCells) {
+                                    System.out.println("targetField: " + targetField.getTranslateFieldName());
+                                    if (currentFieldName.equals(targetField.getTranslateFieldName())) {
+                                        targetField.setFieldValue(currentFieldValue, true);
+                                        pastedCount++;
                                     }
                                 }
                             }
                         }
+                    }
+                    if (pastedFieldOverwritten) {
+                        if (resultMessage == null) {
+                            resultMessage = "";
+                        } else {
+                            resultMessage = resultMessage + "\n";
+                        }
+                        resultMessage = resultMessage + "Two fields of the same name were pasted, causing at least one field to be overwritten by another";
                     }
                 }
             } else {
@@ -655,11 +667,13 @@ public class ImdiTableModel extends AbstractTableModel {
         return cellColour[row][col];
     }
 
+    @Override
     // JTable uses this method to determine the default renderer
     public Class getColumnClass(int c) {
         return getValueAt(0, c).getClass();
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         //Note that the data/cell address is constant,
         //no matter where the cell appears onscreen.
@@ -680,6 +694,7 @@ public class ImdiTableModel extends AbstractTableModel {
         return (returnValue);
     }
 
+    @Override
     public void setValueAt(Object value, int row, int col) {
         System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
         if (data[row][col] instanceof ImdiField) {
