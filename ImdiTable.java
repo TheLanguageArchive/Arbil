@@ -332,6 +332,7 @@ public class ImdiTable extends JTable {
             }
             if (windowedTablePopupMenu.getComponentCount() > 0) {
                 windowedTablePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+                ImdiTable.this.getCellEditor().stopCellEditing();
             }
         }
     }
