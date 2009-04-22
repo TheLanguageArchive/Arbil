@@ -96,6 +96,22 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         });
     }
 
+    private void addFocusListener(Component editorComponent) {
+        editorComponent.addFocusListener(new FocusListener() {
+
+            public void focusGained(FocusEvent e) {
+            }
+
+            public void focusLost(FocusEvent e) {
+                if (e.getComponent().getParent() != null) {
+                    if (!e.getOppositeComponent().getParent().equals(editorPanel)) {
+                        ImdiChildCellEditor.this.stopCellEditing();
+                    }
+                }
+            }
+        });
+    }
+
     public void updateEditor(ImdiTreeObject parentImdiObject) {
         // this will only be called when the long field editor is shown
         // when an imdi node is edited or saved or reloaded this will be called to update the displayed values
@@ -162,6 +178,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     comboBox.setSelectedItem(cellValue[selectedField].toString());
                     editorPanel.remove(button);
                     editorPanel.add(comboBox);
+                    addFocusListener(comboBox);
                     editorPanel.doLayout();
                     comboBox.setPopupVisible(true);
                     comboBox.requestFocusInWindow();
@@ -172,9 +189,11 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     JTextField editorTextField = new JTextField(cellValue[selectedField].toString());
                     editorTextField.setMinimumSize(new Dimension(50, (int) editorTextField.getMinimumSize().getHeight()));
                     editorPanel.add(editorTextField);
+                    addFocusListener(editorTextField);
                     JComboBox fieldLanguageBox = getLanguageIdBox(selectedField);
                     if (fieldLanguageBox != null) {
                         editorPanel.add(fieldLanguageBox);
+                        addFocusListener(fieldLanguageBox);
                     }
                     editorPanel.doLayout();
                     editorTextField.requestFocusInWindow();
@@ -296,6 +315,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         editorPanel.setBackground(table.getSelectionBackground());
         editorPanel.setLayout(new BorderLayout());
         editorPanel.add(button);
+        addFocusListener(button);
         //table.requestFocusInWindow();
         SwingUtilities.invokeLater(new Runnable() {
 
