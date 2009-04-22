@@ -56,12 +56,9 @@ public class ImdiField {
         if (!this.fieldValue.equals(fieldValue)) {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
             this.fieldValue = fieldValue;
-            parentImdi.setImdiNeedsSaveToDisk(true);
+            parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
             isLongField = -1;
-            if (updateUI) {
-                parentImdi.clearIcon();
-            }
         }
     }
 
@@ -79,12 +76,9 @@ public class ImdiField {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageId, "edit");
             fieldAttributes.put("LanguageId", languageId);
 //            fieldLanguageId = languageId;
-            parentImdi.setImdiNeedsSaveToDisk(true);
+            parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
             isLongField = -1;
-            if (updateUI) {
-                parentImdi.clearIcon();
-            }
         }
 
     }
