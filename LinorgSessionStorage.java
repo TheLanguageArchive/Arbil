@@ -31,6 +31,7 @@ public class LinorgSessionStorage {
         String storageDirectoryArray[] = new String[]{
             // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
             //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
+            System.getenv("APPDATA") + File.separatorChar + ".linorg" + File.separatorChar,
             System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
             System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
             System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
