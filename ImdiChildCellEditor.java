@@ -239,6 +239,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     tabPane.setSelectedIndex(selectedField);
                 }
                 focusedTabTextArea.requestFocusInWindow();
+                fireEditingStopped();
             }
         } else {
             LinorgWindowManager.getSingleInstance().openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
