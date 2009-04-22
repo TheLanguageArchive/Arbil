@@ -118,10 +118,9 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk) {
+    public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk, boolean updateUI) {
         if (isImdiChild()) {
-            this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk);
-            this.getParentDomNode().clearIcon();
+            this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk, updateUI);
         } else {
             if (this.imdiNeedsSaveToDisk != imdiNeedsSaveToDisk) {
                 if (imdiNeedsSaveToDisk) {
@@ -132,6 +131,9 @@ public class ImdiTreeObject implements Comparable {
             }
         }
         this.imdiNeedsSaveToDisk = imdiNeedsSaveToDisk;
+        if (updateUI) {
+            this.clearIcon();
+        }
     }
 
     private void initNodeVariables() {
@@ -152,7 +154,7 @@ public class ImdiTreeObject implements Comparable {
         matchesRemote = 0;
         matchesLocalFileSystem = 0;
         fileNotFound = false;
-        setImdiNeedsSaveToDisk(false);
+        setImdiNeedsSaveToDisk(false, false);
 //    nodeText = null;
 //    urlString = null;
         resourceUrlString = null;
@@ -434,7 +436,7 @@ public class ImdiTreeObject implements Comparable {
     public String addChildNode(String nodeType, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
         if (imdiNeedsSaveToDisk) {
-            saveChangesToCache();
+            saveChangesToCache(true);
         }
         String addedNodePath = null;
         ImdiTreeObject destinationNode;
@@ -702,7 +704,7 @@ public class ImdiTreeObject implements Comparable {
         // if needs saving then save now while you can
         // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
         if (imdiNeedsSaveToDisk) {
-            saveChangesToCache();
+            saveChangesToCache(true);
         }
 
         Document nodDom;
@@ -774,9 +776,9 @@ public class ImdiTreeObject implements Comparable {
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history.
      */
-    public void saveChangesToCache() {
+    public void saveChangesToCache(boolean updateUI) {
         if (this.isImdiChild()) {
-            getParentDomNode().saveChangesToCache();
+            getParentDomNode().saveChangesToCache(updateUI);
             return;
         }
         System.out.println("saveChangesToCache");
@@ -784,7 +786,7 @@ public class ImdiTreeObject implements Comparable {
         OurURL inUrlLocal = null;
         if (nodeUrl.getProtocol().toLowerCase().startsWith("http")) {
             System.out.println("should not try to save remote files");
-            setImdiNeedsSaveToDisk(false);
+            setImdiNeedsSaveToDisk(false, updateUI);
             return;
         }
         System.out.println("tempUrlString: " + this.getFile());
@@ -864,14 +866,14 @@ public class ImdiTreeObject implements Comparable {
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order
                 // update the icon to indicate the change
-                setImdiNeedsSaveToDisk(false);
+                setImdiNeedsSaveToDisk(false, updateUI);
             }
         } catch (MalformedURLException mue) {
             GuiHelper.linorgBugCatcher.logError(mue);
 //            System.out.println("Invalid input URL: " + mue);
             nodeText = "Invalid input URL";
         }
-        clearIcon();
+//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
     /**
