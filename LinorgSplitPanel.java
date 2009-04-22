@@ -6,11 +6,15 @@ package mpi.linorg;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import javax.swing.JInternalFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.table.TableCellEditor;
 
 /**
  *
@@ -69,6 +73,19 @@ public class LinorgSplitPanel extends JPanel {
     public void doLayout() {
         imdiTable.doLayout();
         super.doLayout();
+    }
+    public void addFocusListener(JInternalFrame internalFrame) {
+        internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+
+            @Override
+            public void internalFrameDeactivated(InternalFrameEvent e) {
+                TableCellEditor tableCellEditor = imdiTable.getCellEditor();
+                if (tableCellEditor != null) {
+                    tableCellEditor.stopCellEditing();
+                }
+                super.internalFrameDeactivated(e);
+            }
+        });
     }
 }
 
