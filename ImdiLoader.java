@@ -71,7 +71,7 @@ public class ImdiLoader {
                             if (currentImdiObject != null) {
                                 System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
                                 if (currentImdiObject.imdiNeedsSaveToDisk) {
-                                    currentImdiObject.saveChangesToCache();
+                                    currentImdiObject.saveChangesToCache(false);
                                 }
                                 currentImdiObject.loadImdiDom();
                                 if (currentImdiObject.addQueue.size() > 0) { // add any child nodes requested
@@ -206,7 +206,9 @@ public class ImdiLoader {
 
     public void saveNodesNeedingSave() {
         while (nodesNeedingSave.size() > 0) {
-            nodesNeedingSave.get(0).saveChangesToCache(); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
+            // remove the node from the save list not in the save function because otherwise if the save fails the application will lock up
+            ImdiTreeObject currentNode = nodesNeedingSave.remove(0);
+            currentNode.saveChangesToCache(false); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
         }
     }
 }
