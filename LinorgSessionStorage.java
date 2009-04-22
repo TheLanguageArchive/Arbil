@@ -24,19 +24,49 @@ import java.util.Date;
  */
 public class LinorgSessionStorage {
 
-    public String storageDirectory = "";
+    public String storageDirectory = null;
     public String destinationDirectory;
 
     public LinorgSessionStorage() {
-        storageDirectory = System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar;
+        String storageDirectoryArray[] = new String[]{
+            // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
+            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
+            System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
+            System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
+            System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
+        };
 
-        File storageFile = new File(storageDirectory);
-        if (!storageFile.exists()) {
-            storageFile.mkdir();
-            if (!storageFile.exists()) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create working files in\n" + storageDirectory + "\nplease check user permissions and disk space");
-                System.out.println("failed to create: " + storageDirectory);
+        // look for an existing storage directory
+        for (String currentStorageDirectory : storageDirectoryArray) {
+            File storageFile = new File(currentStorageDirectory);
+            if (storageFile.exists()) {
+                System.out.println("existing storage directory found: " + currentStorageDirectory);
+                storageDirectory = currentStorageDirectory;
+                break;
             }
+        }
+        String testedStorageDirectories = "";
+        if (storageDirectory == null) {
+            for (String currentStorageDirectory : storageDirectoryArray) {
+                if (!currentStorageDirectory.startsWith("null")) {
+                    File storageFile = new File(currentStorageDirectory);
+                    if (!storageFile.exists()) {
+                        storageFile.mkdir();
+                        if (!storageFile.exists()) {
+                            testedStorageDirectories = testedStorageDirectories + currentStorageDirectory + "\n";
+                            System.out.println("failed to create: " + currentStorageDirectory);
+                        } else {
+                            System.out.println("created new storage directory: " + currentStorageDirectory);
+                            storageDirectory = currentStorageDirectory;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (storageDirectory == null) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.");
+            storageDirectory = ".linorg" + File.separatorChar;
         }
         System.out.println("storageDirectory: " + storageDirectory);
         System.out.println("cacheDirExists: " + cacheDirExists());
