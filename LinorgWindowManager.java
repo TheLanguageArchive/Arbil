@@ -498,12 +498,14 @@ public class LinorgWindowManager {
         JInternalFrame searchFrame = this.createWindow(frameTitle, imdiSplitPanel);
         searchFrame.add(new ImdiNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
         imdiSplitPanel.setSplitDisplay();
+        imdiSplitPanel.addFocusListener(searchFrame);
     }
 
     public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
         ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
-        this.createWindow(frameTitle, imdiSplitPanel);
+        JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.setSplitDisplay();
+        imdiSplitPanel.addFocusListener(tableFrame);
     }
 }
