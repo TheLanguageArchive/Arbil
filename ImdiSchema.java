@@ -186,13 +186,14 @@ public class ImdiSchema {
                 childTypes = getSubnodesFromTemplatesDir(xpath);
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add(new String[]{"Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
-                childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
                 childTypes.add(new String[]{"Corpus Description", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus" + imdiPathSeparator + "Description"});
+                childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
             }
 //            System.out.println("childTypes: " + childTypes);
         } else {
             // corpus can be added to the root node
             childTypes.add(new String[]{"Unattached Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
+            childTypes.add(new String[]{"Unattached Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
         }
         return childTypes.elements();
     }
