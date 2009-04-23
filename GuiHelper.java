@@ -341,14 +341,6 @@ public class GuiHelper {
             }
         }
     }
-
-    public void copyNodeUrlToClipboard(ImdiTreeObject selectedNode) {
-        if (selectedNode != null) {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            StringSelection stringSelection = new StringSelection(selectedNode.getUrlString());
-            clipboard.setContents(stringSelection, clipboardOwner);
-        }
-    }
 }
 
 
