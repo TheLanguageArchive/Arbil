@@ -236,7 +236,7 @@ public class ImdiTableModel extends AbstractTableModel {
         clipboard.setContents(stringSelection, clipBoardOwner);
     }
 
-    public String pasteIntoImdiFields(ImdiField[] selectedCells, ClipboardOwner clipBoardOwner) {
+    public String pasteIntoImdiFields(ImdiField[] selectedCells) {
         boolean pastedFieldOverwritten = false;
         int pastedCount = 0;
         String resultMessage = null;
