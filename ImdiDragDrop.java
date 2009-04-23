@@ -102,7 +102,13 @@ public class ImdiDragDrop {
         @Override
         public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
             System.out.println("exportToClipboard: " + comp);
-            if (comp instanceof ImdiTable) {
+            if (comp instanceof ImdiTree) {
+                ImdiTree sourceTree = (ImdiTree) comp;
+                Object selectedImdiNode = sourceTree.getSingleSelectedNode();
+                if (selectedImdiNode instanceof ImdiTreeObject) {
+                    sourceTree.copyNodeUrlToClipboard((ImdiTreeObject) selectedImdiNode);
+                }
+            } else if (comp instanceof ImdiTable) {
                 ImdiTable sourceTable = (ImdiTable) comp;
                 sourceTable.copySelectedTableRowsToClipBoard();
             } else {
