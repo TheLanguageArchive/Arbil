@@ -4,8 +4,12 @@
  */
 package mpi.linorg;
 
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
-import java.util.Enumeration;
+import java.util.Vector;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
@@ -48,6 +52,43 @@ public class ImdiTree extends JTree {
         return tip;
     }
 
+    public Vector getSelectedNodes() {
+        Vector selectedNodes = new Vector();
+        // iterate over allthe selected nodes in the available trees
+//        for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
+        for (int selectedCount = 0; selectedCount < this.getSelectionCount(); selectedCount++) {
+            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) this.getSelectionPaths()[selectedCount].getLastPathComponent();
+            if (parentNode.getUserObject() instanceof ImdiTreeObject) {
+                selectedNodes.add(parentNode.getUserObject());
+            }
+        }
+//        }
+        return selectedNodes;
+    }
+
+    public Object getSingleSelectedNode() {
+//        System.out.println("getSingleSelectedNode: " + sourceObject);
+
+        DefaultMutableTreeNode selectedTreeNode = null;
+        Object returnObject = null;
+        javax.swing.tree.TreePath currentNodePath = this.getSelectionPath();
+        if (currentNodePath != null) {
+            selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
+        }
+        if (selectedTreeNode != null) {
+            returnObject = selectedTreeNode.getUserObject();
+        }
+        return returnObject;
+    }
+
+    public void copyNodeUrlToClipboard(ImdiTreeObject selectedNode) {
+        if (selectedNode != null) {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection stringSelection = new StringSelection(selectedNode.getUrlString());
+            clipboard.setContents(stringSelection, GuiHelper.clipboardOwner);
+            System.out.println("copied: " + selectedNode.getUrlString());
+        }
+    }
 //    public void scrollToNode(String imdiUrlString) {
 //        System.out.println("scrollToNode: " + imdiUrlString);
 //        // get imdi object 
