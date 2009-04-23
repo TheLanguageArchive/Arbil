@@ -558,7 +558,7 @@ public class ImdiSchema {
 //                System.out.println("Parent: " + this.getUrlString());
                 String linkPath;
                 try {
-                    if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http")) {
+                    if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http:")) {
 //                    linkPath = parentPath /*+ File.separatorChar*/ + fieldToAdd.getFieldValue();
                         linkPath = parentPath + fieldToAdd.getFieldValue();
                     } else if (fieldToAdd.getFieldValue().toLowerCase().startsWith("&root;")) {
