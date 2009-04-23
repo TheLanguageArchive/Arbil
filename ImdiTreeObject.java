@@ -80,7 +80,7 @@ public class ImdiTreeObject implements Comparable {
         URL returnUrl = null;
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
-            if (!inputUrlString.toLowerCase().startsWith("http") && !inputUrlString.toLowerCase().startsWith("file")) {
+            if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:")) {
                 returnUrl = new File(inputUrlString).toURL();
             } else {
                 returnUrl = new URL(inputUrlString);
@@ -99,7 +99,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     static public boolean isStringLocal(String urlString) {
-        return (!urlString.startsWith("http://"));
+        return (!urlString.startsWith("http:"));
     }
 
     static public boolean isStringImdiHistoryFile(String urlString) {
