@@ -160,23 +160,10 @@ public class LinorgFrame extends javax.swing.JFrame {
     //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
     }
 
-    private Vector getSelectedNodes(JTree[] treesToSearch) {
-        Vector selectedNodes = new Vector();
-        // iterate over allthe selected nodes in the available trees
-        for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
-            for (int selectedCount = 0; selectedCount < treesToSearch[treeCount].getSelectionCount(); selectedCount++) {
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) treesToSearch[treeCount].getSelectionPaths()[selectedCount].getLastPathComponent();
-                if (parentNode.getUserObject() instanceof ImdiTreeObject) {
-                    selectedNodes.add(parentNode.getUserObject());
-                }
-            }
-        }
-        return selectedNodes;
-    }
 
     private void treeKeyTyped(java.awt.event.KeyEvent evt) {
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
-            LinorgWindowManager.getSingleInstance().openFloatingTable(getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements(), "Selection");
+            LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) evt.getSource()).getSelectedNodes().elements(), "Selection");
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
@@ -232,6 +219,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             addRemoteCorpusMenuItem.setVisible(false);
             copyBranchMenuItem.setVisible(false);
             copyImdiUrlMenuItem.setVisible(false);
+        pasteMenuItem1.setVisible(false);
             viewXmlMenuItem.setVisible(false);
             viewXmlMenuItem1.setVisible(false);
             searchSubnodesMenuItem.setVisible(false);
@@ -259,6 +247,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         if (eventSource == localCorpusTree) {
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
             //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
+            pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
             addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
@@ -266,7 +255,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 1);
                 boolean nodeIsImdiChild = false;
-                Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree);
+            Object leadSelectedTreeObject = ((ImdiTree) localCorpusTree).getSingleSelectedNode();
                 if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
                     nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
                     if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
@@ -298,7 +287,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         if (eventSource == localDirectoryTree) {
             removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
-            Object leadSelectedTreeObject = GuiHelper.treeHelper.getSingleSelectedNode(localDirectoryTree);
+            Object leadSelectedTreeObject = ((ImdiTree) localDirectoryTree).getSingleSelectedNode();
             if (leadSelectedTreeObject instanceof ImdiTreeObject) {
                 copyBranchMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isCorpus() || ((ImdiTreeObject) leadSelectedTreeObject).isSession());
             }
@@ -310,7 +299,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         // hide show the separators
         treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && eventSource != localDirectoryTree);
-        treePopupMenuSeparator1.setVisible(nodeLevel != 1 && eventSource != localDirectoryTree);
+        treePopupMenuSeparator1.setVisible(nodeLevel != 1 && eventSource == localCorpusTree);
 
         // store the event source
         treePopupMenu.setInvoker((javax.swing.JTree) eventSource);
@@ -336,6 +325,8 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         treePopupMenu = new javax.swing.JPopupMenu();
         viewSelectedNodesMenuItem = new javax.swing.JMenuItem();
+        copyImdiUrlMenuItem = new javax.swing.JMenuItem();
+        pasteMenuItem1 = new javax.swing.JMenuItem();
         copyBranchMenuItem = new javax.swing.JMenuItem();
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
@@ -346,7 +337,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         mergeWithFavouritesMenu = new javax.swing.JMenu();
         deleteMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
-        copyImdiUrlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItem1 = new javax.swing.JMenuItem();
         validateMenuItem = new javax.swing.JMenuItem();
@@ -406,6 +396,22 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
         treePopupMenu.add(viewSelectedNodesMenuItem);
+
+        copyImdiUrlMenuItem.setText("Copy");
+        copyImdiUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                copyImdiUrlMenuItemActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(copyImdiUrlMenuItem);
+
+        pasteMenuItem1.setText("Paste");
+        pasteMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pasteMenuItem1ActionPerformed(evt);
+            }
+        });
+        treePopupMenu.add(pasteMenuItem1);
 
         copyBranchMenuItem.setText("Import to Local Corpus");
         copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -479,14 +485,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         treePopupMenu.add(deleteMenuItem);
         treePopupMenu.add(treePopupMenuSeparator1);
-
-        copyImdiUrlMenuItem.setText("Copy Location to Clipboard");
-        copyImdiUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                copyImdiUrlMenuItemActionPerformed(evt);
-            }
-        });
-        treePopupMenu.add(copyImdiUrlMenuItem);
 
         viewXmlMenuItem.setText("View IMDI XML");
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -891,7 +889,7 @@ private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 // TODO add your handling code here:
     ImportExportDialog importExportDialog = new ImportExportDialog(treePopupMenu.getInvoker());
     if (treePopupMenu.getInvoker() instanceof JTree) {
-        importExportDialog.copyToCache(getSelectedNodes(new JTree[]{(JTree) treePopupMenu.getInvoker()}));
+        importExportDialog.copyToCache(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
     }
     // update the tree and reload the ui
     GuiHelper.treeHelper.applyRootLocations();
@@ -916,23 +914,24 @@ private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent
 
 private void viewXmlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlMenuItemActionPerformed
 // TODO add your handling code here:
-    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()), false);
+    guiHelper.openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), false);
 }//GEN-LAST:event_viewXmlMenuItemActionPerformed
 
 private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
 // TODO add your handling code here:
     //DefaultMutableTreeNode selectedTreeNode = null;
-    ImdiTreeObject selectedImdiNode = (ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker());
+    ImdiTree sourceTree = (ImdiTree) treePopupMenu.getInvoker();
+    ImdiTreeObject selectedImdiNode = (ImdiTreeObject) sourceTree.getSingleSelectedNode();
 
     if (selectedImdiNode == null) {
         if (localCorpusTree.getSelectionPath() != null) {
             JOptionPane.showMessageDialog(this, "Cannot copy from the cache", "", 0);
-            guiHelper.copyNodeUrlToClipboard(selectedImdiNode);
+            sourceTree.copyNodeUrlToClipboard(selectedImdiNode);
         } else {
             JOptionPane.showMessageDialog(this, "No node selected", "", 0);
         }
     } else {
-        guiHelper.copyNodeUrlToClipboard(selectedImdiNode);
+        sourceTree.copyNodeUrlToClipboard(selectedImdiNode);
     }
 }//GEN-LAST:event_copyImdiUrlMenuItemActionPerformed
 
@@ -983,7 +982,7 @@ private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEv
 
 private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgWindowManager.getSingleInstance().openSearchTable(getSelectedNodes(new JTree[]{localCorpusTree}), "Search");
+    LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) localCorpusTree).getSelectedNodes(), "Search");
 }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
 private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
@@ -1021,7 +1020,7 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
 //            guiHelper.addToGridData(previewTable.getModel(), nodesToAdd);  
 //        }
         guiHelper.removeAllFromGridData(previewTable.getModel());
-        guiHelper.addToGridData(previewTable.getModel(), GuiHelper.treeHelper.getSingleSelectedNode(evt.getSource()));
+        guiHelper.addToGridData(previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
     }
 }//GEN-LAST:event_jTreeValueChanged
 
@@ -1054,7 +1053,7 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
 
 private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgWindowManager.getSingleInstance().openFloatingTable(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}).elements(), "Selection");
+    LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes().elements(), "Selection");
 }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
 private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLocationsMenuItemActionPerformed
@@ -1069,12 +1068,12 @@ private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 
 private void addMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addMenuMenuSelected
 // TODO add your handling code here:
-    guiHelper.initAddMenu(addMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));
+    guiHelper.initAddMenu(addMenu, ((ImdiTree) localCorpusTree).getSingleSelectedNode());
 }//GEN-LAST:event_addMenuMenuSelected
 
 private void viewXmlXslMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewXmlXslMenuItemActionPerformed
 // TODO add your handling code here:
-    guiHelper.openImdiXmlWindow(GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()), true);
+    guiHelper.openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true);
 }//GEN-LAST:event_viewXmlXslMenuItemActionPerformed
 
 private void treeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMouseDragged
@@ -1089,7 +1088,7 @@ private void saveNodeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 // TODO add your handling code here:
 //    for (Enumeration nodesEnum = getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements();nodesEnum.hasMoreElements();){
 
-    for (Enumeration nodesEnum = getSelectedNodes(new JTree[]{localCorpusTree}).elements(); nodesEnum.hasMoreElements();) {
+    for (Enumeration nodesEnum = ((ImdiTree) localCorpusTree).getSelectedNodes().elements(); nodesEnum.hasMoreElements();) {
         Object userObject = nodesEnum.nextElement();
         System.out.println("userObject: " + userObject);
         if (userObject instanceof ImdiTreeObject) {
@@ -1112,7 +1111,7 @@ private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//
 // TODO add your handling code here:
     XsdChecker xsdChecker = new XsdChecker();
     LinorgWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
-    xsdChecker.checkXML((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker()));
+    xsdChecker.checkXML((ImdiTreeObject) ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
     xsdChecker.setDividerLocation(0.5);
 }//GEN-LAST:event_validateMenuItemActionPerformed
 
@@ -1124,7 +1123,7 @@ private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: this is inadequate and needs to be updated
-    ((ImdiTreeObject) GuiHelper.treeHelper.getSingleSelectedNode(treePopupMenu.getInvoker())).reloadNode();
+    ((ImdiTreeObject) ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode()).reloadNode();
 }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
 private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteMenuItemActionPerformed
@@ -1159,12 +1158,12 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
 private void addToFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addToFavouritesMenuItemActionPerformed
 // TODO add your handling code here:
     // TODO: set the boolean correctly
-    LinorgFavourites.getSingleInstance().toggleFavouritesList(getSelectedNodes(new JTree[]{((JTree) (treePopupMenu.getInvoker()))}), addToFavouritesMenuItem.getActionCommand().equals("true"));
+    LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
 }//GEN-LAST:event_addToFavouritesMenuItemActionPerformed
 
 private void addFromFavouritesMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromFavouritesMenuMenuSelected
 // TODO add your handling code here:
-    guiHelper.initAddFromFavouritesMenu(addFromFavouritesMenu, GuiHelper.treeHelper.getSingleSelectedNode(localCorpusTree));
+    guiHelper.initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) localCorpusTree).getSingleSelectedNode());
 }//GEN-LAST:event_addFromTemplateMenuMenuSelected
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
@@ -1182,7 +1181,7 @@ private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     // export the tree, maybe adjusting resource links so that resource files do not need to be copied
     
     ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
-    importExportDialog.exportImdiBranch(getSelectedNodes(new JTree[]{(JTree) treePopupMenu.getInvoker()}));
+    importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
     // update the tree and reload the ui
     GuiHelper.treeHelper.applyRootLocations();
     
@@ -1205,6 +1204,14 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
 // TODO add your handling code here:
     LinorgWindowManager.getSingleInstance().openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
 }//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
+
+private void pasteMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pasteMenuItem1ActionPerformed
+// TODO add your handling code here:
+    Object targetNode = ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode();
+    if (targetNode instanceof ImdiTreeObject && targetNode != null) {
+        ((ImdiTreeObject) targetNode).pasteIntoNode();
+    }
+}//GEN-LAST:event_pasteMenuItem1ActionPerformed
 
 /**
      * @param args the command line arguments
@@ -1258,6 +1265,7 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JMenu mergeWithFavouritesMenu;
     private javax.swing.JMenu optionsMenu;
     private javax.swing.JMenuItem pasteMenuItem;
+    private javax.swing.JMenuItem pasteMenuItem1;
     private javax.swing.JMenuItem redoMenuItem;
     private javax.swing.JMenuItem reloadSubnodesMenuItem;
     private javax.swing.JTree remoteCorpusTree;
