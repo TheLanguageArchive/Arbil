@@ -585,7 +585,7 @@ public class ImdiTable extends JTable {
     public void pasteIntoSelectedTableRowsToClipBoard() {
         ImdiField[] selectedFields = getSelectedFields();
         if (selectedFields != null) {
-            String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields, GuiHelper.clipboardOwner);
+            String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields);
             if (pasteResult != null) {
                 JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, pasteResult);
             }
