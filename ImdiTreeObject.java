@@ -4,6 +4,10 @@
  */
 package mpi.linorg;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
 import org.w3c.dom.Document;
@@ -763,6 +767,55 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public void pasteIntoNode() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Transferable transfer = clipboard.getContents(null);
+        try {
+            String clipBoardString = "";
+            Object clipBoardData = transfer.getTransferData(DataFlavor.stringFlavor);
+            if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
+                clipBoardString = clipBoardData.toString();
+                System.out.println("clipBoardString: " + clipBoardString);
+                if (this.isCorpus()) {
+                    if (ImdiTreeObject.isStringImdi(clipBoardString)) {
+                        ImdiTreeObject clipboardNode = GuiHelper.imdiLoader.getImdiObject("new child", clipBoardString);
+                        if (GuiHelper.linorgSessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
+                            if (!ImdiTreeObject.isStringImdiChild(clipBoardString)) {
+                                if (this.getFile().exists()) {
+                                    boolean linkAlreadyExists = false;
+                                    for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+                                        String[] currentLinkPair = childLinksEnum.nextElement();
+                                        String currentChildPath = currentLinkPair[0];
+                                        if (currentChildPath.equals(clipboardNode.getUrlString())) {
+                                            linkAlreadyExists = true;
+                                        }
+                                    }
+                                    if (!linkAlreadyExists) { // if link is not already there
+                                        this.addCorpusLink(clipboardNode);
+                                        this.reloadNode();
+                                    } else {
+                                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node already exists here");
+                                    }
+                                } else {
+                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist");
+                                }
+                            } else {
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session parts into a corpus");
+                            }
+                        } else {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache");
+                        }
+                    } else {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Pasted string is not and IMDI file");
+                    }
+                } else {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only corpus branches can be pasted into at this stage");
+                }
+            }
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+    }
     public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
         if (this.isImdiChild()) {
             this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
