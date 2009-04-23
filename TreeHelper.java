@@ -486,23 +486,6 @@ public class TreeHelper {
 //        }
 //    }
 
-    public Object getSingleSelectedNode(Object sourceObject) {
-//        System.out.println("getSingleSelectedNode: " + sourceObject);
-
-        DefaultMutableTreeNode selectedTreeNode = null;
-        Object returnObject = null;
-        if (sourceObject instanceof ImdiTree) {
-            javax.swing.tree.TreePath currentNodePath = ((ImdiTree) sourceObject).getSelectionPath();
-            if (currentNodePath != null) {
-                selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
-            }
-            if (selectedTreeNode != null) {
-                returnObject = selectedTreeNode.getUserObject();
-            }
-        }
-        return returnObject;
-    }
-
     public void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
         if (selectedTreeNode == null) {
             JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No node selected", "", 0);
