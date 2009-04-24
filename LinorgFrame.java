@@ -1,8 +1,3 @@
-/*
- * LinorgView.java
- * This version uses only a JFrame and does not require additional dependencies
- * Created on 23 September 2008, 17:23
- */
 package mpi.linorg;
 
 import java.awt.Component;
@@ -21,9 +16,11 @@ import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-/**
- *
- * @author  petwit
+/*
+ * LinorgView.java
+ * This version uses only a JFrame and does not require additional dependencies
+ * Created on 23 September 2008, 17:23
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgFrame extends javax.swing.JFrame {
 
@@ -40,7 +37,6 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
 
-        setIconImage(ImdiIcons.getSingleInstance().linorgIcon.getImage());
         initComponents();
         setupTreeMouseActions();
         GuiHelper.treeHelper.setTrees((ImdiTree) remoteCorpusTree, (ImdiTree) localCorpusTree, (ImdiTree) localDirectoryTree);
@@ -81,6 +77,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
 
         setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
+        setIconImage(ImdiIcons.getSingleInstance().linorgTestingIcon.getImage());
         showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
@@ -207,35 +204,35 @@ public class LinorgFrame extends javax.swing.JFrame {
         int nodeLevel = -1;
         if (selectionCount > 0) {
             nodeLevel = ((javax.swing.JTree) eventSource).getSelectionPath().getPathCount();
-            }
-            boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
-            boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
-            //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
-            // set up the contect menu
-            removeCachedCopyMenuItem.setVisible(false);
-            removeLocalDirectoryMenuItem.setVisible(false);
-            addLocalDirectoryMenuItem.setVisible(false);
-            removeRemoteCorpusMenuItem.setVisible(false);
-            addRemoteCorpusMenuItem.setVisible(false);
-            copyBranchMenuItem.setVisible(false);
-            copyImdiUrlMenuItem.setVisible(false);
+        }
+        boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
+        boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
+        //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
+        // set up the contect menu
+        removeCachedCopyMenuItem.setVisible(false);
+        removeLocalDirectoryMenuItem.setVisible(false);
+        addLocalDirectoryMenuItem.setVisible(false);
+        removeRemoteCorpusMenuItem.setVisible(false);
+        addRemoteCorpusMenuItem.setVisible(false);
+        copyBranchMenuItem.setVisible(false);
+        copyImdiUrlMenuItem.setVisible(false);
         pasteMenuItem1.setVisible(false);
-            viewXmlMenuItem.setVisible(false);
-            viewXmlMenuItem1.setVisible(false);
-            searchSubnodesMenuItem.setVisible(false);
-            reloadSubnodesMenuItem.setVisible(false);
-            addDefaultLocationsMenuItem.setVisible(false);
-            addMenu.setVisible(false);
-            deleteMenuItem.setVisible(false);
+        viewXmlMenuItem.setVisible(false);
+        viewXmlMenuItem1.setVisible(false);
+        searchSubnodesMenuItem.setVisible(false);
+        reloadSubnodesMenuItem.setVisible(false);
+        addDefaultLocationsMenuItem.setVisible(false);
+        addMenu.setVisible(false);
+        deleteMenuItem.setVisible(false);
         deleteMenuItem.setEnabled(true);
-            viewSelectedNodesMenuItem.setVisible(false);
-            viewSelectedNodesMenuItem.setText("View Selected");
-            favouritesMenu.setVisible(false);
-            mergeWithFavouritesMenu.setEnabled(false);
-            saveMenuItem.setVisible(false);
-            viewChangesMenuItem.setVisible(false);
-            sendToServerMenuItem.setVisible(false);
-            validateMenuItem.setVisible(false);
+        viewSelectedNodesMenuItem.setVisible(false);
+        viewSelectedNodesMenuItem.setText("View Selected");
+        favouritesMenu.setVisible(false);
+        mergeWithFavouritesMenu.setEnabled(false);
+        saveMenuItem.setVisible(false);
+        viewChangesMenuItem.setVisible(false);
+        sendToServerMenuItem.setVisible(false);
+        validateMenuItem.setVisible(false);
         exportMenuItem.setVisible(false);
 
         if (eventSource == remoteCorpusTree) {
@@ -245,7 +242,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
         }
         if (eventSource == localCorpusTree) {
-                viewSelectedNodesMenuItem.setText("View/Edit Selected");
+            viewSelectedNodesMenuItem.setText("View/Edit Selected");
             //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
@@ -254,21 +251,21 @@ public class LinorgFrame extends javax.swing.JFrame {
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 1);
-                boolean nodeIsImdiChild = false;
+            boolean nodeIsImdiChild = false;
             Object leadSelectedTreeObject = ((ImdiTree) localCorpusTree).getSingleSelectedNode();
-                if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
-                    nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
-                    if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
-                        saveMenuItem.setVisible(true);
-                    } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
-                        viewChangesMenuItem.setVisible(true);
-                        sendToServerMenuItem.setVisible(true);
-                    }
-                    viewXmlMenuItem.setVisible(true);
-                    viewXmlMenuItem1.setVisible(true);
-                    validateMenuItem.setVisible(true);
+            if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
+                nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
+                if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
+                    saveMenuItem.setVisible(true);
+                } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
+                    viewChangesMenuItem.setVisible(true);
+                    sendToServerMenuItem.setVisible(true);
+                }
+                viewXmlMenuItem.setVisible(true);
+                viewXmlMenuItem1.setVisible(true);
+                validateMenuItem.setVisible(true);
                 exportMenuItem.setVisible(true);
-                    // set up the templates menu                
+                // set up the favourites menu                
                 favouritesMenu.setVisible(true);
                 addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus());
                 if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
@@ -1122,7 +1119,7 @@ private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
 private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reloadSubnodesMenuItemActionPerformed
 // TODO add your handling code here:
-    // TODO: this is inadequate and needs to be updated
+    // this reload will first clear the save is required flag then reload
     ((ImdiTreeObject) ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode()).reloadNode();
 }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
@@ -1134,7 +1131,7 @@ private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
 // TODO add your handling code here:
     LinorgWindowManager.getSingleInstance().openAboutPage();
-}//GEN-LAST:event_introductionMenuItemActionPerformed
+}//GEN-LAST:event_aboutMenuItemActionPerformed
 
 private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
 // TODO add your handling code here:
@@ -1164,7 +1161,7 @@ private void addToFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent e
 private void addFromFavouritesMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_addFromFavouritesMenuMenuSelected
 // TODO add your handling code here:
     guiHelper.initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) localCorpusTree).getSingleSelectedNode());
-}//GEN-LAST:event_addFromTemplateMenuMenuSelected
+}//GEN-LAST:event_addFromFavouritesMenuMenuSelected
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
 // TODO add your handling code here:
@@ -1179,12 +1176,12 @@ private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
     // directory selection dialog
     // make sure the chosen directory is empty
     // export the tree, maybe adjusting resource links so that resource files do not need to be copied
-    
+
     ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
     importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
     // update the tree and reload the ui
     GuiHelper.treeHelper.applyRootLocations();
-    
+
 }//GEN-LAST:event_exportMenuItemActionPerformed
 
 private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
