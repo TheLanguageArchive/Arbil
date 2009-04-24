@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Graphics2D;
@@ -12,11 +8,13 @@ import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiIcons
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiIcons {
     public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/arbil128x128.png"));
+    public ImageIcon linorgTestingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/arbilTesting128x128.png"));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directory16x16.png"));
@@ -92,6 +90,7 @@ public class ImdiIcons {
     private ImdiIcons(){
         
     }
+    
     public ImageIcon getIconForImdi(ImdiTreeObject[] imdiObjectArray) {
         int currentIconXPosition = 0;
         int width = 0;
@@ -218,7 +217,7 @@ public class ImdiIcons {
                 iconsVector.add(tickBlueIcon);
             }
         }
-        // add icons for templates
+        // add icons for favourites
         if (imdiObject.isFavorite()) {
             iconsVector.add(favouriteIcon);
         }
