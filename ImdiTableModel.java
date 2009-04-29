@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Color;
@@ -21,13 +17,14 @@ import javax.swing.DefaultListModel;
 import javax.swing.table.AbstractTableModel;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiTableModel
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTableModel extends AbstractTableModel {
 
     private boolean showIcons = false;
-    private Hashtable imdiObjectHash = new Hashtable();
+    private Hashtable<String, ImdiTreeObject> imdiObjectHash = new Hashtable();
     private Vector allColumnNames = new Vector();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
@@ -117,22 +114,28 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
-    private void updateAllImdiObjects() {
+    private ImdiTreeObject[] updateAllImdiObjects() {
+        ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[imdiObjectHash.size()];
         allColumnNames.removeAllElements();
-        for (Enumeration nodesEnum = imdiObjectHash.elements(); nodesEnum.hasMoreElements();) {
-            ImdiTreeObject imdiTreeObject = (ImdiTreeObject) nodesEnum.nextElement();
-            if (!imdiTreeObject.isImdi() || imdiTreeObject.isArchivableFile() || imdiTreeObject.hasResource()) {
+        Enumeration<ImdiTreeObject> nodesEnum = imdiObjectHash.elements();
+        for (int imdiArrayCounter = 0; imdiArrayCounter < returnImdiArray.length; imdiArrayCounter++) {
+            if (nodesEnum.hasMoreElements()) {
+                returnImdiArray[imdiArrayCounter] = nodesEnum.nextElement();
+            } else {
+                returnImdiArray[imdiArrayCounter] = null;
+            }
+            if (!returnImdiArray[imdiArrayCounter].isImdi() || returnImdiArray[imdiArrayCounter].isArchivableFile() || returnImdiArray[imdiArrayCounter].hasResource()) {
                 // on application reload a file may be readded to a table before the type checker gets a chance to run, since a file must have been checked for it to get here we bypass that check at this point
 //                System.out.println("Adding to jlist: " + imdiTreeObject.toString());
-                if (!listModel.contains(imdiTreeObject)) {
-                    listModel.addElement(imdiTreeObject);
+                if (!listModel.contains(returnImdiArray[imdiArrayCounter])) {
+                    listModel.addElement(returnImdiArray[imdiArrayCounter]);
                 }
             } else {
 //                System.out.println("Not adding to jlist: " + imdiTreeObject.toString());
             }
 //            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
 //            System.out.println("hasResource: " + imdiTreeObject.hasResource());
-            for (Enumeration<String> fieldNames = imdiTreeObject.getFields().keys(); fieldNames.hasMoreElements();) {
+            for (Enumeration<String> fieldNames = returnImdiArray[imdiArrayCounter].getFields().keys(); fieldNames.hasMoreElements();) {
                 String currentColumnName = fieldNames.nextElement().toString();
                 if (!allColumnNames.contains(currentColumnName)) {
                     allColumnNames.add(currentColumnName);
@@ -140,6 +143,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 tableFieldView.addKnownColumn(currentColumnName);
             }
         }
+        return returnImdiArray;
     }
 
     public void removeAllImdiRows() {
@@ -202,7 +206,7 @@ public class ImdiTableModel extends AbstractTableModel {
         StringSelection stringSelection = new StringSelection(copiedString);
         clipboard.setContents(stringSelection, clipBoardOwner);
     }
-    
+
     public void copyImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
@@ -230,6 +234,7 @@ public class ImdiTableModel extends AbstractTableModel {
             }
             copiedString = copiedString + "\n";
         }
+        //System.out.println("copiedString: " + this.get getCellSelectionEnabled());
         System.out.println("copiedString: " + copiedString);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(copiedString);
@@ -297,6 +302,7 @@ public class ImdiTableModel extends AbstractTableModel {
                             }
                         }
                     }
+
                     if (pastedFieldOverwritten) {
                         if (resultMessage == null) {
                             resultMessage = "";
@@ -405,7 +411,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 try {
                     String baseValueA = ((ImdiField) ((Object[]) firstRowArray)[1]).fieldID;
                     String comparedValueA = ((ImdiField) (((Object[]) secondRowArray)[1])).fieldID;
-//                    if (baseValueA != null && comparedValueA != null) {
+//                    if (baseValueA != null && comparedValueA != null) { // if either id is null then check why it is being draw when it should be reloaded first
                     int baseIntA = Integer.parseInt(baseValueA.substring(1));
                     int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
                     int returnValue = baseIntA - comparedIntA;
@@ -434,11 +440,11 @@ public class ImdiTableModel extends AbstractTableModel {
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
 
-        updateAllImdiObjects();
+        ImdiTreeObject[] tableRowsImdiArray = updateAllImdiObjects();
 
         // set the view to either horizontal or vertical and set the default sort
         boolean lastHorizontalView = horizontalView;
-        horizontalView = imdiObjectHash.size() > 1;
+        horizontalView = tableRowsImdiArray.length > 1;
         if (!horizontalView) { // set the table for a single image if that is all that is shown
             //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
             // TODO: this does not account for when a resource is shown
@@ -500,12 +506,10 @@ public class ImdiTableModel extends AbstractTableModel {
 
             maxColumnWidths = new int[columnNamesTemp.length];
 
-            dataTemp = allocateCellData(imdiObjectHash.size(), columnNamesTemp.length);
+            dataTemp = allocateCellData(tableRowsImdiArray.length, columnNamesTemp.length);
 
-            Enumeration imdiRowsEnum = imdiObjectHash.elements();
             int rowCounter = 0;
-            while (imdiRowsEnum.hasMoreElements() && dataTemp.length > rowCounter) {
-                ImdiTreeObject currentNode = (ImdiTreeObject) imdiRowsEnum.nextElement();
+            for (ImdiTreeObject currentNode : tableRowsImdiArray) {
                 System.out.println("currentNode: " + currentNode.toString());
                 Hashtable<String, ImdiField[]> fieldsHash = currentNode.getFields();
                 if (showIcons) {
@@ -555,12 +559,11 @@ public class ImdiTableModel extends AbstractTableModel {
             // display the single node view
             maxColumnWidths = new int[2];
             columnNamesTemp = singleNodeViewHeadings;
-            if (imdiObjectHash.size() == 0) {
+            if (tableRowsImdiArray.length == 0) {
                 dataTemp = allocateCellData(0, 2);
             } else {
-                Enumeration imdiRowsEnum = imdiObjectHash.elements();
-                if (imdiRowsEnum.hasMoreElements()) {
-                    Hashtable<String, ImdiField[]> fieldsHash = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getFields();
+                if (tableRowsImdiArray[0] != null) {
+                    Hashtable<String, ImdiField[]> fieldsHash = tableRowsImdiArray[0].getFields();
                     // calculate the real number of rows
                     Vector<ImdiField> allRowFields = new Vector();
                     for (Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
@@ -600,7 +603,7 @@ public class ImdiTableModel extends AbstractTableModel {
         data = dataTemp;
         if (previousColumnCount != getColumnCount() || prevousData.length != data.length) {
             try {
-            fireTableStructureChanged();
+                fireTableStructureChanged();
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
@@ -609,7 +612,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
 //                    if (prevousData[rowCounter][colCounter] != data[rowCounter][colCounter]) {
 //                        System.out.println("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
-                        fireTableCellUpdated(rowCounter, colCounter);
+                    fireTableCellUpdated(rowCounter, colCounter);
 //                    }
                 }
             }
@@ -679,7 +682,7 @@ public class ImdiTableModel extends AbstractTableModel {
         //no matter where the cell appears onscreen.
         boolean returnValue = false;
         if (data[row][col] instanceof ImdiField) {
-            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal() && ((ImdiField) data[row][col]).parentImdi.isImdi() && ((ImdiField) data[row][col]).fieldID!= null;
+            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal() && ((ImdiField) data[row][col]).parentImdi.isImdi() && ((ImdiField) data[row][col]).fieldID != null;
         } else if (data[row][col] instanceof ImdiField[]) {
             returnValue = ((ImdiField[]) data[row][col])[0].parentImdi.isLocal() && ((ImdiField[]) data[row][col])[0].fieldID != null;
         }
