@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.AWTEvent;
@@ -29,8 +25,9 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
 /**
- *
- * @author petwit
+ * Document   : LinorgWindowManager
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgWindowManager {
 
@@ -54,7 +51,7 @@ public class LinorgWindowManager {
         }
         return singleInstance;
     }
-    
+
     private LinorgWindowManager(){
         
     }
@@ -157,7 +154,6 @@ public class LinorgWindowManager {
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
                 Vector imdiObjectsVector = new Vector();
                 for (Enumeration imdiURLsEnum = imdiURLs.elements(); imdiURLsEnum.hasMoreElements();) {
-                    // TODO: move all loading of imdi objects into a single class that makes sure only one instence of each URL is ever loaded
                     imdiObjectsVector.add(GuiHelper.imdiLoader.getImdiObject("", imdiURLsEnum.nextElement().toString()));
                 }
                 openFloatingTable(imdiObjectsVector.elements(), currentWindowName);
@@ -169,7 +165,7 @@ public class LinorgWindowManager {
             System.out.println("load windowStates failed: " + ex.getMessage());
         }
 
-        if (GuiHelper.treeHelper.localCorpusTreeModel.getChildCount(GuiHelper.treeHelper.localCorpusTreeModel.getRoot()) == 0) {
+        if (TreeHelper.getSingleInstance().localCorpusTreeModel.getChildCount(TreeHelper.getSingleInstance().localCorpusTreeModel.getRoot()) == 0) {
             LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
             if (!focusWindow("Help")) {
                 createWindow("Help", helpComponent);
