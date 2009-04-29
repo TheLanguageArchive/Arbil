@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -20,6 +21,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     int outputWidth = 200;
     int outputHeight = 130;
+    Hashtable<String, ImageIcon> thumbNailHash = new Hashtable();
 
     public ImageBoxRenderer() {
         setOpaque(true);
@@ -60,27 +62,32 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             }
 
             if (targetFile != null && targetFile.length() > 0) {
-                try {
+                ImageIcon thumbnailIcon = thumbNailHash.get(targetFile);
+                if (thumbnailIcon == null) {
+                    try {
 //                    System.out.println("targetFile: " + targetFile);
-                    ImageIcon nodeImage = new ImageIcon(new URL(targetFile).getFile());
-                    if (nodeImage != null) {
+                        ImageIcon nodeImage = new ImageIcon(new URL(targetFile).getFile());
+                        if (nodeImage != null) {
 //                        int outputWidth = 32;
 //                        int outputHeight = 32;
 //                        int outputWidth = getPreferredSize().width;
 //                        int outputHeight = getPreferredSize().height - 100;
-                        BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
-                        Graphics2D g2 = resizedImg.createGraphics();
-                        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                        g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
-                        g2.dispose();
-                        ImageIcon thumbnailIcon = new ImageIcon(resizedImg);
-                        setIcon(thumbnailIcon);
+                            BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
+                            Graphics2D g2 = resizedImg.createGraphics();
+                            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                            g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
+                            g2.dispose();
+                            thumbnailIcon = new ImageIcon(resizedImg);
+                            thumbNailHash.put(targetFile, thumbnailIcon);
+                        }
+                        setFont(list.getFont());
+                    } catch (Exception ex) {
+                        setText(value.toString() + " (failed to render image)");
+                        GuiHelper.linorgBugCatcher.logError(ex);
                     }
-
-                    setFont(list.getFont());
-                } catch (Exception ex) {
-                    setText(value.toString() + " (failed to render image)");
-                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+                if (thumbnailIcon != null) {
+                    setIcon(thumbnailIcon);
                 }
             }
         } else {
