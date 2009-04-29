@@ -1,10 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Component;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JInternalFrame;
@@ -13,7 +10,7 @@ import javax.swing.JLabel;
 /**
  * Document   : ImdiNodeSearchPanel
  * Created on : Feb 17, 2009, 4:42:59 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl 
  */
 public class ImdiNodeSearchPanel extends javax.swing.JPanel {
 
@@ -33,10 +30,10 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
     private boolean threadRunning = false;
     int totalNodesToSearch = -1;
 
-    public ImdiNodeSearchPanel(JInternalFrame parentFrameLocal, ImdiTableModel resultsTableModelLocal, Vector localSelectedNodes) {
+    public ImdiNodeSearchPanel(JInternalFrame parentFrameLocal, ImdiTableModel resultsTableModelLocal, ImdiTreeObject[] localSelectedNodes) {
         parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
-        selectedNodes = localSelectedNodes;
+        selectedNodes = new Vector(Arrays.asList(localSelectedNodes));
         searchTermsPanel = new javax.swing.JPanel();
         inputNodePanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
