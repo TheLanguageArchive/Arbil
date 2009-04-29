@@ -6,7 +6,6 @@ package mpi.linorg;
 
 import java.awt.Component;
 import java.io.IOException;
-import java.util.Enumeration;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
@@ -375,7 +374,7 @@ public class ContextMenu {
         if (treePopupMenu.getInvoker() instanceof JTree) {
             importExportDialog.copyToCache(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
 
-        }    
+        }
         // update the tree and reload the ui    
         TreeHelper.getSingleInstance().applyRootLocations();
 
@@ -501,7 +500,7 @@ public class ContextMenu {
     private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
         // TODO add your handling code here:   
-        LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes().elements(), "Selection");
+        LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), null);
 
     }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
@@ -521,16 +520,11 @@ public class ContextMenu {
     private void saveNodeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_saveNodeMenuItemActionPerformed
         // TODO add your handling code here:
-        //    for (Enumeration nodesEnum = getSelectedNodes(new JTree[]{(JTree) evt.getSource()}).elements();nodesEnum.hasMoreElements();){ 
-        for (Enumeration nodesEnum = ((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSelectedNodes().elements(); nodesEnum.hasMoreElements();) {
-            Object userObject = nodesEnum.nextElement();
+        for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().localCorpusTree.getSelectedNodes()) {
+            System.out.println("userObject: " + selectedNode);
+            // reloading will first check if a save is required then save and reload       
+            GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
 
-            System.out.println("userObject: " + userObject);
-
-            if (userObject instanceof ImdiTreeObject) {            // reloading will first check if a save is required then save and reload       
-                GuiHelper.imdiLoader.requestReload((ImdiTreeObject) userObject);
-
-            }
         }
     }//GEN-LAST:event_saveNodeMenuItemActionPerformed
 
