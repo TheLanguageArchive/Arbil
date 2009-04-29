@@ -138,6 +138,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     private void initNodeVariables() {
+        // loop any indichildnodes and init
         if (childrenHashtable != null) {
             for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
                 ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
@@ -163,7 +164,7 @@ public class ImdiTreeObject implements Comparable {
         icon = null;
         nodeEnabled = true;
         childLinks = new Vector();
-//        isLoading = true;
+//        isLoadingCount = true;
         isDirectory = false;
         if (nodeUrl != null) {
             if (!isImdi() && isLocal()) {
@@ -421,10 +422,10 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    /**
-     * Add a resource contained i an imdi object
-     * @return String path to the added node
-     */
+//    /**
+//     * Add a resource contained i an imdi object
+//     * @return String path to the added node
+//     */
 //    public String addChildNode(ImdiTreeObject nodeToAdd) {
 //        System.out.println("addChildNode: " + nodeToAdd);
 //        return addChildNode(null, nodeToAdd.getUrlString(), nodeToAdd.mpiMimeType);
@@ -667,6 +668,7 @@ public class ImdiTreeObject implements Comparable {
             }
         }
     }
+
     public void deleteCorpusLink(ImdiTreeObject targetImdiNode) {
         System.out.println("deleteCorpusLink: " + targetImdiNode.getUrlString());
         Document nodDom;
@@ -702,31 +704,43 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void addCorpusLink(ImdiTreeObject targetImdiNode) {
-        // if needs saving then save now while you can
-        // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
-        if (imdiNeedsSaveToDisk) {
-            saveChangesToCache(true);
-        }
-
-        Document nodDom;
-        try {
-            OurURL inUrlLocal = new OurURL(this.getFile().toURL());
-            nodDom = api.loadIMDIDocument(inUrlLocal, false);
-
-            int nodeType = WSNodeType.CORPUS;
-            if (targetImdiNode.isSession()) {
-                nodeType = WSNodeType.SESSION;            // url: IMDI location, for link normalization.  urlToLink: target URL
-            // linkName: for CorpusLink name / for InfoFile description
-            // linkType: WSNodeType value  spec: where to put the link in the IMDI,
-            // NOTE: spec should only be used for linkType InfoFile...
-            // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
+        boolean linkAlreadyExists = false;
+        for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+            String[] currentLinkPair = childLinksEnum.nextElement();
+            String currentChildPath = currentLinkPair[0];
+            if (currentChildPath.equals(targetImdiNode.getUrlString())) {
+                linkAlreadyExists = true;
             }
-            // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
-            api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), targetImdiNode.toString(), nodeType, "");
-            api.writeDOM(nodDom, this.getFile(), false);
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+        if (!linkAlreadyExists) { // if link is not already there
+            // if needs saving then save now while you can
+            // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
+            if (imdiNeedsSaveToDisk) {
+                saveChangesToCache(true);
+            }
+
+            Document nodDom;
+            try {
+                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+
+                int nodeType = WSNodeType.CORPUS;
+                if (targetImdiNode.isSession()) {
+                    nodeType = WSNodeType.SESSION;            // url: IMDI location, for link normalization.  urlToLink: target URL
+                // linkName: for CorpusLink name / for InfoFile description
+                // linkType: WSNodeType value  spec: where to put the link in the IMDI,
+                // NOTE: spec should only be used for linkType InfoFile...
+                // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
+                }
+                // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
+                api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), targetImdiNode.toString(), nodeType, "");
+                api.writeDOM(nodDom, this.getFile(), false);
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
+            }
+        } else {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again");
         }
     }
 
@@ -779,20 +793,8 @@ public class ImdiTreeObject implements Comparable {
                         if (GuiHelper.linorgSessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
                             if (!ImdiTreeObject.isStringImdiChild(clipBoardString)) {
                                 if (this.getFile().exists()) {
-                                    boolean linkAlreadyExists = false;
-                                    for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-                                        String[] currentLinkPair = childLinksEnum.nextElement();
-                                        String currentChildPath = currentLinkPair[0];
-                                        if (currentChildPath.equals(clipboardNode.getUrlString())) {
-                                            linkAlreadyExists = true;
-                                        }
-                                    }
-                                    if (!linkAlreadyExists) { // if link is not already there
-                                        this.addCorpusLink(clipboardNode);
-                                        this.reloadNode();
-                                    } else {
-                                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node already exists here");
-                                    }
+                                    this.addCorpusLink(clipboardNode);
+                                    this.reloadNode();
                                 } else {
                                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist");
                                 }
@@ -813,6 +815,7 @@ public class ImdiTreeObject implements Comparable {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
     }
+
     public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
         if (this.isImdiChild()) {
             this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
@@ -825,6 +828,7 @@ public class ImdiTreeObject implements Comparable {
     /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history.
+     * the caller is responsible for reloading the node if that is required
      */
     public void saveChangesToCache(boolean updateUI) {
         if (this.isImdiChild()) {
@@ -914,7 +918,7 @@ public class ImdiTreeObject implements Comparable {
                 }
                 api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
-                api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order
+                api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order                
                 // update the icon to indicate the change
                 setImdiNeedsSaveToDisk(false, updateUI);
             }
