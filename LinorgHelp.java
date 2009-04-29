@@ -1,8 +1,3 @@
-/*
- * LinorgHelp.java
- *
- * Created on March 9, 2009, 1:38 PM
- */
 package mpi.linorg;
 
 import java.io.BufferedReader;
@@ -24,13 +19,14 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 /**
- *
- * @author  petwit
+ * Document   : LinorgHelp.java
+ * Created on : March 9, 2009, 1:38 PM
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgHelp extends javax.swing.JPanel {
 
     static public String ShorCutKeysPage = "Short Cut Keys";
-    static public String IntroductionPage = "2. Where do I start";
+    static public String IntroductionPage = "2. Quick Introduction";
     DefaultMutableTreeNode rootContentsNode;
     DefaultTreeModel helpTreeModel;
     static private LinorgHelp singleInstance = null;
@@ -218,17 +214,16 @@ public class LinorgHelp extends javax.swing.JPanel {
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
+private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
 // TODO add your handling code here:
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
+    DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
-        if (node != null) {
+    if (node != null) {
         Object nodeInfo = node.getUserObject();
         if (node.isLeaf()) {
             try {
                 if (((HelpNodeUserObject) nodeInfo).getHelpURL() != null) {
                     jTextPane1.setPage(((HelpNodeUserObject) nodeInfo).getHelpURL());
-//                    jTextPane1.setPage(this.getClass().getResource("/mpi/linorg/resources/html/help/Searching.html"));
                 } else {
                     jTextPane1.setText("Page not found");
                 }
