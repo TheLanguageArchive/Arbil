@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Robot;
@@ -16,7 +12,7 @@ import javax.imageio.ImageIO;
 /**
  * Document   : LinorgBugCatcher
  * Created on : Dec 17, 2008, 10:35:56 AM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgBugCatcher {
 
