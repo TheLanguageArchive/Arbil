@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Toolkit;
@@ -29,8 +25,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiTreeObject
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
@@ -201,7 +198,7 @@ public class ImdiTreeObject implements Comparable {
         getParentDomNode().imdiNeedsSaveToDisk = false; // clear any changes
         if (!this.isImdi()) {
             initNodeVariables();
-            GuiHelper.treeHelper.updateTreeNodeChildren(this);
+            TreeHelper.getSingleInstance().updateTreeNodeChildren(this);
         } else {
             if (getParentDomNode().isCorpus()) {
                 getParentDomNode().autoLoadChildNodes = true;
@@ -1311,7 +1308,7 @@ public class ImdiTreeObject implements Comparable {
                     }
                     if (currentContainer instanceof DefaultMutableTreeNode) {
                         DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                        DefaultTreeModel modelForNodes = GuiHelper.treeHelper.getModelForNode(currentTreeNode);
+                        DefaultTreeModel modelForNodes = TreeHelper.getSingleInstance().getModelForNode(currentTreeNode);
                         DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
                         // set the allows children flag
 //                      System.out.println("clearIcon: canHaveChildren: " + this.canHaveChildren());
@@ -1322,7 +1319,7 @@ public class ImdiTreeObject implements Comparable {
                         currentTreeNode.setAllowsChildren(ImdiTreeObject.this.canHaveChildren());
                         modelForNodes.nodeChanged(currentTreeNode);
                         if (parentNode != null) {
-                            GuiHelper.treeHelper.sortChildNodes(parentNode);
+                            TreeHelper.getSingleInstance().sortChildNodes(parentNode);
                         }
                     }
                 }
