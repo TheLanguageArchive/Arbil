@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.BorderLayout;
@@ -13,9 +9,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -34,8 +28,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiChildCellEditor
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor {
 
@@ -83,14 +78,14 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             public void mousePressed(MouseEvent evt) {
                 parentTable.checkPopup(evt, false);
             }
-        
+
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 boolean ctrlDown = evt.isControlDown();
                 if (evt.getButton() == MouseEvent.BUTTON1) {
                     startEditorMode(ctrlDown);
                 } else {
                     parentTable.checkPopup(evt, false);
-                    //super.mousePressed(evt);
+                //super.mousePressed(evt);
                 }
             }
         });
@@ -127,6 +122,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
         }
     }
+
     private JComboBox getLanguageIdBox(final int cellFieldIndex) {
         ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
         String fieldLanguageId = cellField.getLanguageId();
@@ -163,6 +159,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             return null;
         }
     }
+
     private void startEditorMode(boolean ctrlDown) {
         System.out.println("startEditorMode: " + selectedField);
         if (cellValue instanceof ImdiField[]) {
@@ -187,6 +184,8 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     editorPanel.remove(button);
                     editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
                     JTextField editorTextField = new JTextField(cellValue[selectedField].toString());
+                    editorPanel.setBorder(null);
+                    editorTextField.setBorder(null);
                     editorTextField.setMinimumSize(new Dimension(50, (int) editorTextField.getMinimumSize().getHeight()));
                     editorPanel.add(editorTextField);
                     addFocusListener(editorTextField);
@@ -260,8 +259,14 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 focusedTabTextArea.requestFocusInWindow();
                 fireEditingStopped();
             }
+        } else if (cellValue instanceof ImdiTreeObject[]) {
+            LinorgWindowManager.getSingleInstance().openFloatingTable((ImdiTreeObject[]) cellValue, columnName + " in " + rowImdi);
         } else {
-            LinorgWindowManager.getSingleInstance().openFloatingTable((new Vector(Arrays.asList((Object[]) cellValue))).elements(), columnName + " in " + rowImdi);
+            try {
+                throw new Exception("Edit cell type not supported");
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
         }
     }
 
@@ -287,7 +292,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             int row,
             int column) {
         receivedKeyDown = true;
-        parentTable = (ImdiTable)table;
+        parentTable = (ImdiTable) table;
         if (value instanceof ImdiField) {
             // TODO: get the whole array from the parent and select the correct tab for editing
             String fieldName = ((ImdiField) value).getTranslateFieldName();
