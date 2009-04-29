@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Component;
@@ -16,8 +12,9 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 /**
- *
- * @author petwit
+ * Document   : ImageBoxRenderer
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
