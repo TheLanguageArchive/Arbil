@@ -200,11 +200,11 @@ public class ImdiLoader {
         return nodesNeedingSave.size() > 0;
     }
 
-    public void saveNodesNeedingSave() {
+    public void saveNodesNeedingSave(boolean updateIcons) {
         while (nodesNeedingSave.size() > 0) {
             // remove the node from the save list not in the save function because otherwise if the save fails the application will lock up
             ImdiTreeObject currentNode = nodesNeedingSave.remove(0);
-            currentNode.saveChangesToCache(false); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
+            currentNode.saveChangesToCache(updateIcons); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
         }
     }
 }
