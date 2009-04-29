@@ -1,12 +1,14 @@
 package mpi.linorg;
 
+import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Vector;
@@ -36,11 +38,11 @@ public class ImdiTable extends JTable {
     private ImdiTableModel imdiTableModel;
     JListToolTip listToolTip = new JListToolTip();
 
-    public ImdiTable(ImdiTableModel localImdiTableModel, Enumeration rowNodesEnum, String frameTitle) {
+    public ImdiTable(ImdiTableModel localImdiTableModel, ImdiTreeObject[] rowNodesArray, String frameTitle) {
         imdiTableModel = localImdiTableModel;
         imdiTableModel.setShowIcons(true);
-        if (rowNodesEnum != null) {
-            imdiTableModel.addImdiObjects(rowNodesEnum);
+        if (rowNodesArray != null) {
+            imdiTableModel.addImdiObjects(rowNodesArray);
         }
         this.setModel(imdiTableModel);
         this.setName(frameTitle);
@@ -518,6 +520,22 @@ public class ImdiTable extends JTable {
         } else {
             this.setRowSelectionAllowed(true);
             this.setColumnSelectionAllowed(false);
+            AWTEvent currentEvent = Toolkit.getDefaultToolkit().getSystemEventQueue().getCurrentEvent();
+            System.out.println("currentEvent: " + currentEvent);
+            if (currentEvent instanceof KeyEvent && currentEvent != null) {
+                {
+                    System.out.println("is KeyEvent");
+                    KeyEvent nextPress = (KeyEvent) currentEvent;
+                    if (nextPress.isShiftDown()) {
+                        System.out.println("VK_SHIFT");
+                        rowIndex--;
+                        if (rowIndex < 0) {
+                            rowIndex = getRowCount() - 1;
+                        }
+                    }
+                }
+            }
+            System.out.println("rowIndex: " + rowIndex);
             super.changeSelection(rowIndex, 1, toggle, extend);
         }
     }
@@ -597,7 +615,7 @@ public class ImdiTable extends JTable {
 
     public void viewSelectedTableRows() {
         int[] selectedRows = this.getSelectedRows();
-        LinorgWindowManager.getSingleInstance().openFloatingTable(new Vector(Arrays.asList(imdiTableModel.getSelectedImdiNodes(selectedRows))).elements(), "Selection");
+        LinorgWindowManager.getSingleInstance().openFloatingTable(imdiTableModel.getSelectedImdiNodes(selectedRows), null);
     }
 
     public ImdiTreeObject[] getSelectedRowsFromTable() {
