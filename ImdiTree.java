@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Rectangle;
@@ -19,11 +15,109 @@ import javax.swing.tree.TreePath;
 /**
  * Document   : ImdiTree
  * Created on : Feb 16, 2009, 3:58:50 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTree extends JTree {
 
     JListToolTip listToolTip = new JListToolTip();
+
+    public ImdiTree() {
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+
+//                public void mouseClicked(java.awt.event.MouseEvent evt) {
+//                    treeMouseClick(evt);
+//                }
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                treeMousePressedReleased(evt);
+            }
+
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                treeMousePressedReleased(evt);
+            }
+        });
+
+        this.addKeyListener(new java.awt.event.KeyAdapter() { // TODO: this is failing to get the menu key event
+
+//                @Override
+//                public void keyReleased(KeyEvent evt) {
+//                    treeKeyTyped(evt);
+//                }
+            @Override
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                treeKeyTyped(evt);
+            }//                @Override
+//                public void keyPressed(java.awt.event.KeyEvent evt) {
+//                    treeKeyTyped(evt);
+//                }
+            });
+    }
+    
+    private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
+// TODO add your handling code here:
+        // test if click was over a selected node
+        javax.swing.tree.TreePath clickedNodePath = ((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY());
+
+        int clickedNodeInt = ((javax.swing.JTree) evt.getSource()).getClosestRowForLocation(evt.getX(), evt.getY());
+        int leadSelectedInt = ((javax.swing.JTree) evt.getSource()).getLeadSelectionRow();
+
+        boolean clickedPathIsSelected = (((javax.swing.JTree) evt.getSource()).isPathSelected(clickedNodePath));
+        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+            // this is simplified and made to match the same type of actions as the imditable 
+            if (!evt.isShiftDown() && !evt.isControlDown() && !clickedPathIsSelected) {
+                ((javax.swing.JTree) evt.getSource()).clearSelection();
+                ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
+            }
+        }
+//    if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
+//        if (/*(*/evt.isPopupTrigger() /* !evt.isControlDown() /*&& evt.getButton() == 1*/ /*&& !evt.isShiftDown())*/ /* || ((evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) && !clickedPathIsSelected)*/) {
+//            System.out.println("alt not down so clearing selection");
+//            ((javax.swing.JTree) evt.getSource()).clearSelection();
+////        if (evt.getSource() != remoteCorpusTree) {
+////            remoteCorpusTree.clearSelection();
+////        }
+////        if (evt.getSource() != localCorpusTree) {
+////            localCorpusTree.clearSelection();
+////        }
+////        if (evt.getSource() != localDirectoryTree) {
+////            localDirectoryTree.clearSelection();
+////        }
+//            ((javax.swing.JTree) evt.getSource()).setSelectionPath(((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY()));
+//        } else if (clickedPathIsSelected) {
+//            System.out.println("alt down over selected node");
+//            ((javax.swing.JTree) evt.getSource()).removeSelectionPath(clickedNodePath);
+//        } else {
+//            System.out.println("alt down over unselected node");
+//            ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
+//        }
+//        if (evt.isShiftDown()) {
+//            System.out.println("shift down");
+//            ((javax.swing.JTree) evt.getSource()).addSelectionInterval(leadSelectedInt, clickedNodeInt);
+//        }
+//    }
+        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+            ContextMenu.getSingleInstance().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
+        }
+    }
+
+    private void treeKeyTyped(java.awt.event.KeyEvent evt) {
+        System.out.println(evt.paramString());
+        if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
+            LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) evt.getSource()).getSelectedNodes().elements(), "Selection");
+        }
+        if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
+//        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
+            TreeHelper.getSingleInstance().deleteNode((JTree) evt.getSource());
+        }
+        System.out.println("evt.getKeyChar(): " + evt.getKeyChar());
+        System.out.println("VK_CONTEXT_MENU: " + java.awt.event.KeyEvent.VK_CONTEXT_MENU);
+        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_CONTEXT_MENU) {
+//        DefaultMutableTreeNode leadSelection = (DefaultMutableTreeNode) ((JTree) evt.getSource()).getSelectionPath().getLastPathComponent();
+            Rectangle selectionBounds = ((JTree) evt.getSource()).getRowBounds(((JTree) evt.getSource()).getLeadSelectionRow());
+            ContextMenu.getSingleInstance().showTreePopup(evt.getSource(), selectionBounds.x, selectionBounds.y);
+        }
+    }
 
     public JToolTip createToolTip() {
         System.out.println("createToolTip");
