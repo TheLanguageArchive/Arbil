@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.BorderLayout;
@@ -37,8 +33,9 @@ import mpi.util.OurURL;
 import org.w3c.dom.Document;
 
 /**
- *
- * @author petwit
+  * Document   : ImportExportDialog
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImportExportDialog {
 
@@ -91,14 +88,14 @@ public class ImportExportDialog {
     }
 
     private void setLocalCacheToNodesPanel(JPanel nodePanel) {
-        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) GuiHelper.treeHelper.localCorpusTreeModel.getRoot();
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localCorpusTreeModel.getRoot();
         JLabel rootNodeLabel = (JLabel) rootNode.getUserObject();
         JLabel currentLabel = new JLabel(rootNodeLabel.getText(), rootNodeLabel.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
     }
 
     private void setLocalFileToNodesPanel(JPanel nodePanel, File destinationDirectory) {
-        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) GuiHelper.treeHelper.localDirectoryTreeModel.getRoot();
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localDirectoryTreeModel.getRoot();
         JLabel rootNodeLabel = (JLabel) rootNode.getUserObject();
         JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootNodeLabel.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
@@ -156,7 +153,7 @@ public class ImportExportDialog {
                 if (destinationDirectory == null || destinationDirectory.list().length == 0) {
                     fileSelectDone = true;
                     exportFromCache(localCorpusSelectedNodes, destinationDirectory);
-                }else{
+                } else {
                     JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), 0);
                 }
             } else {
@@ -596,14 +593,14 @@ public class ImportExportDialog {
                                     //appendToTaskOutput("would save location when done: " + newNodeLocation);
                                     //guiHelper.addLocation("file://" + newNodeLocation);
                                     // TODO: create an imdinode to contain the name and point to the location
-                                    if (!GuiHelper.treeHelper.addLocation("file://" + newNodeLocation)) {
+                                    if (!TreeHelper.getSingleInstance().addLocation("file://" + newNodeLocation)) {
                                         // alert the user when the node already exists and cannot be added again
                                         progressBar.setIndeterminate(false);
 //                                    progressLabel.setText("");
                                         finalMessageString = finalMessageString + "The location:\n" + newNodeLocation + "\nalready exists and cannot be added again\n";
                                     } else {
                                         //GuiHelper.linorgWindowManager.localCorpusTreeModel.reload();
-                                        GuiHelper.treeHelper.reloadLocalCorpusTree();
+                                        TreeHelper.getSingleInstance().reloadLocalCorpusTree();
                                     }
                                 }
                             }
