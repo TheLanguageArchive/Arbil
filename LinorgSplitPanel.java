@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.BorderLayout;
@@ -14,11 +10,14 @@ import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 
 /**
- *
- * @author petwit
+ * Document   : LinorgSplitPanel
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgSplitPanel extends JPanel {
 
@@ -48,6 +47,68 @@ public class LinorgSplitPanel extends JPanel {
         splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitPane.setDividerSize(5);
         tableScrollPane = new JScrollPane(imdiTable);
+        fileList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        fileList.addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent e) {
+                if (fileList.hasFocus()) {
+                    if (e.getSource() instanceof JList) {
+//                        System.out.println("JList");
+                        imdiTable.clearSelection();
+                        int minSelectedRow = -1;
+                        int maxSelectedRow = -1;
+                        for (Object selectedRow : ((JList) e.getSource()).getSelectedValues()) {
+                            imdiTable.setColumnSelectionAllowed(false);
+                            imdiTable.setRowSelectionAllowed(true);
+                            for (int rowCount = 0; rowCount < imdiTable.getRowCount(); rowCount++) {
+                                if (imdiTable.getValueAt(rowCount, 0).equals(selectedRow)) {
+                                    imdiTable.addRowSelectionInterval(rowCount, rowCount);
+                                    if (maxSelectedRow == -1 || maxSelectedRow < rowCount) {
+                                        maxSelectedRow = rowCount;
+                                    }
+                                    if (minSelectedRow == -1 || minSelectedRow > rowCount) {
+                                        minSelectedRow = rowCount;
+                                    }
+                                }
+                            }
+//                            System.out.println("selectedRow:" + selectedRow);
+                            if (maxSelectedRow != -1) {
+                                imdiTable.scrollRectToVisible(imdiTable.getCellRect(minSelectedRow, 0, true));
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        imdiTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent e) {
+                if (imdiTable.hasFocus()) {
+                    fileList.clearSelection();
+                    int minSelectedRow = -1;
+                    int maxSelectedRow = -1;
+                    for (Object selectedRow : imdiTable.getSelectedRowsFromTable()) {
+//                        System.out.println("selectedRow:" + selectedRow);
+                        for (int rowCount = 0; rowCount < fileList.getModel().getSize(); rowCount++) {
+//                            System.out.println("JList:" + fileList.getModel().getElementAt(rowCount));
+                            if (fileList.getModel().getElementAt(rowCount).equals(selectedRow)) {
+                                fileList.addSelectionInterval(rowCount, rowCount);
+//                                System.out.println("add selection");
+                                if (maxSelectedRow == -1 || maxSelectedRow < rowCount) {
+                                    maxSelectedRow = rowCount;
+                                }
+                                if (minSelectedRow == -1 || minSelectedRow > rowCount) {
+                                    minSelectedRow = rowCount;
+                                }
+                            }
+                        }
+                    }
+                    if (maxSelectedRow != -1) {
+                        fileList.scrollRectToVisible(fileList.getCellBounds(minSelectedRow, maxSelectedRow));
+                    }
+                }
+            }
+        });
     }
 
     public void setSplitDisplay() {
@@ -74,6 +135,7 @@ public class LinorgSplitPanel extends JPanel {
         imdiTable.doLayout();
         super.doLayout();
     }
+
     public void addFocusListener(JInternalFrame internalFrame) {
         internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
