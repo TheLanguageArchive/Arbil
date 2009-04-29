@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Color;
@@ -31,8 +27,9 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiTable
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTable extends JTable {
 
@@ -204,7 +201,7 @@ public class ImdiTable extends JTable {
 //                        System.out.println("clickedRow: " + clickedRow + " clickedRow: " + clickedRow);
                         getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
                         getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
-                      // make sure the clicked cell is the lead selection
+                    // make sure the clicked cell is the lead selection
 //                    getSelectionModel().setLeadSelectionIndex(rowIndex);
 //                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
                     }
@@ -242,52 +239,52 @@ public class ImdiTable extends JTable {
                 windowedTablePopupMenu.add(pasteIntoSelectedRowsMenuItem);
 
                 if (imdiTableModel.horizontalView) {
-                JMenuItem viewSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                viewSelectedRowsMenuItem.setText("View Selected Rows");
-                viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                    JMenuItem viewSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                    viewSelectedRowsMenuItem.setText("View Selected Rows");
+                    viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        viewSelectedTableRows();
-                    }
-                });
-                windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            viewSelectedTableRows();
+                        }
+                    });
+                    windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
                 }
 
                 if (imdiTableModel.horizontalView) {
-                JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
-                matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
-                matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                    JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
+                    matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
+                    matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        highlightMatchingRows();
-                    }
-                });
-                windowedTablePopupMenu.add(matchingRowsMenuItem);
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            highlightMatchingRows();
+                        }
+                    });
+                    windowedTablePopupMenu.add(matchingRowsMenuItem);
                 }
 
                 if (imdiTableModel.horizontalView) {
-                JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-                showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
-                showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                    JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+                    showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
+                    showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        showRowChildData();
-                    }
-                });
-                windowedTablePopupMenu.add(showChildNodesMenuItem);
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            showRowChildData();
+                        }
+                    });
+                    windowedTablePopupMenu.add(showChildNodesMenuItem);
                 }
 
                 if (imdiTableModel.horizontalView) {
-                JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                removeSelectedRowsMenuItem.setText("Remove Selected Rows");
-                removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                    JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
+                    removeSelectedRowsMenuItem.setText("Remove Selected Rows");
+                    removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        removeSelectedRowsFromTable();
-                    }
-                });
-                windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
-            }
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            removeSelectedRowsFromTable();
+                        }
+                    });
+                    windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
+                }
             }
 
 
@@ -296,18 +293,18 @@ public class ImdiTable extends JTable {
                 windowedTablePopupMenu.add(new JSeparator());
 
                 if (imdiTableModel.horizontalView) {
-                JMenuItem copyCellToColumnMenuItem = new javax.swing.JMenuItem();
-                copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
-                copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                    JMenuItem copyCellToColumnMenuItem = new javax.swing.JMenuItem();
+                    copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
+                    copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-                        if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
-                            imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
+                            if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
+                                imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
+                            }
                         }
-                    }
-                });
-                windowedTablePopupMenu.add(copyCellToColumnMenuItem);
+                    });
+                    windowedTablePopupMenu.add(copyCellToColumnMenuItem);
                 }
 
                 JMenuItem matchingCellsMenuItem = new javax.swing.JMenuItem();
@@ -332,7 +329,10 @@ public class ImdiTable extends JTable {
             }
             if (windowedTablePopupMenu.getComponentCount() > 0) {
                 windowedTablePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-                ImdiTable.this.getCellEditor().stopCellEditing();
+                TableCellEditor tableCellEditor = ImdiTable.this.getCellEditor();
+                if (tableCellEditor != null) {
+                    tableCellEditor.stopCellEditing();
+                }
             }
         }
     }
@@ -485,6 +485,7 @@ public class ImdiTable extends JTable {
         }
         return tip;
     }
+
     @Override
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
         if (imdiTableModel.horizontalView) {
