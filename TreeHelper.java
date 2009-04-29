@@ -446,12 +446,10 @@ public class TreeHelper {
             String addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
 //            updateTreeNodeChildren(imdiTreeObject);
             if (addedNodeUrl != null) {
-                Vector tempVector = new Vector();
                 addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
                 System.out.println("addedNodeUrl: " + addedNodeUrl);
                 System.out.println("addedImdi: " + addedImdi);
-                tempVector.add(addedImdi);
-                LinorgWindowManager.getSingleInstance().openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
+                LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
             // this will only happen on the local corpus tree so we can just address that here
 //                localCorpusTree.scrollToNode(addedImdi);
             }
@@ -461,10 +459,8 @@ public class TreeHelper {
             addLocation(addedNodeUrl);
             applyRootLocations();
             //refreshChildNodes(itemNode);
-            Vector tempVector = new Vector();
             addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
-            tempVector.add(addedImdi);
-            LinorgWindowManager.getSingleInstance().openFloatingTable(tempVector.elements(), "new " + nodeTypeDisplayName);
+            LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName);
         // this will only happen on the local corpus tree so we can just address that here
 //            localCorpusTree.scrollToNode(addedImdi); //TODO: this is failing because at this point the new node is probably not laoded. This must be done in the loading thread after load
         }
