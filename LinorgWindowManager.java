@@ -52,8 +52,7 @@ public class LinorgWindowManager {
         return singleInstance;
     }
 
-    private LinorgWindowManager(){
-        
+    private LinorgWindowManager() {
     }
 
     public void setComponents(JMenu jMenu, JFrame linorgFrameLocal, JDesktopPane jDesktopPane) {
@@ -152,11 +151,11 @@ public class LinorgWindowManager {
                 System.out.println("currentWindowName: " + currentWindowName);
                 Vector imdiURLs = (Vector) windowListHashtable.get(currentWindowName);
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
-                Vector imdiObjectsVector = new Vector();
-                for (Enumeration imdiURLsEnum = imdiURLs.elements(); imdiURLsEnum.hasMoreElements();) {
-                    imdiObjectsVector.add(GuiHelper.imdiLoader.getImdiObject("", imdiURLsEnum.nextElement().toString()));
+                ImdiTreeObject[] imdiObjectsArray = new ImdiTreeObject[imdiURLs.size()];
+                for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
+                    imdiObjectsArray[arrayCounter] = (GuiHelper.imdiLoader.getImdiObject("", imdiURLs.elementAt(arrayCounter).toString()));
                 }
-                openFloatingTable(imdiObjectsVector.elements(), currentWindowName);
+                openFloatingTable(imdiObjectsArray, currentWindowName);
             //openFloatingTable(null, currentWindowName);
             }
             System.out.println("done loading windowStates");
@@ -487,7 +486,7 @@ public class LinorgWindowManager {
         return htmlDisplay;
     }
 
-    public void openSearchTable(Vector selectedNodes, String frameTitle) {
+    public void openSearchTable(ImdiTreeObject[] selectedNodes, String frameTitle) {
         ImdiTableModel resultsTableModel = new ImdiTableModel();
         ImdiTable imdiTable = new ImdiTable(resultsTableModel, null, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
@@ -497,8 +496,15 @@ public class LinorgWindowManager {
         imdiSplitPanel.addFocusListener(searchFrame);
     }
 
-    public void openFloatingTable(Enumeration rowNodesEnum, String frameTitle) {
-        ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesEnum, frameTitle);
+    public void openFloatingTable(ImdiTreeObject[] rowNodesArray, String frameTitle) {
+        if (frameTitle == null) {
+            if (rowNodesArray.length == 1) {
+                frameTitle = rowNodesArray[0].toString();
+            } else {
+                frameTitle = "Selection";
+            }
+        }
+        ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesArray, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
         JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.setSplitDisplay();
