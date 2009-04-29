@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Component;
@@ -20,8 +16,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 /**
- *
- * @author petwit
+ * Document   : TreeHelper
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class TreeHelper {
 
@@ -32,11 +29,20 @@ public class TreeHelper {
     private DefaultMutableTreeNode remoteCorpusRootNode;
     private DefaultMutableTreeNode localDirectoryRootNode;
     public ImdiTree localCorpusTree;
-    private ImdiTree localDirectoryTree;
-    private ImdiTree remoteCorpusTree;
+    public ImdiTree localDirectoryTree;
+    public ImdiTree remoteCorpusTree;
     private Vector<String> locationsList; // this is the list of locations seen in the tree and the location settings
+    static private TreeHelper singleInstance = null;
 
-    public TreeHelper() {
+    static synchronized public TreeHelper getSingleInstance() {
+        System.out.println("TreeHelper getSingleInstance");
+        if (singleInstance == null) {
+            singleInstance = new TreeHelper();
+        }
+        return singleInstance;
+    }
+
+    private TreeHelper() {
         localCorpusRootNode = new DefaultMutableTreeNode();
         remoteCorpusRootNode = new DefaultMutableTreeNode();
         localDirectoryRootNode = new DefaultMutableTreeNode();
@@ -44,6 +50,7 @@ public class TreeHelper {
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
+        loadLocationsList();
     }
 
     public DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest) {
@@ -138,6 +145,15 @@ public class TreeHelper {
         }
     }
 
+    public void addLocationGui(String addableLocation) {
+        if (!addLocation(addableLocation)) {
+            // alert the user when the node already exists and cannot be added again
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The location already exists and cannot be added again", "Add location", JOptionPane.INFORMATION_MESSAGE);
+        }
+        applyRootLocations();
+    //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
+    }
+
     public boolean addLocation(String addedLocation) {
         System.out.println("addLocation" + addedLocation.toString());
         // make sure the added location url matches that of the imdi node format
@@ -162,6 +178,7 @@ public class TreeHelper {
         locationsList.remove(removeLocation);
     }
 
+    // this will load all imdi child nodes into the tree, and in the case of a session it will load all the imdi childnodes, the while the other updateTreeNodeChildren methods will not
     public void updateTreeNodeChildren(ImdiTreeObject parentImdiNode) {
         System.out.println("updateTreeNodeChildren ImdiTreeObject: " + parentImdiNode);
         for (Object currentContainer : parentImdiNode.getRegisteredContainers()) {
@@ -491,15 +508,14 @@ public class TreeHelper {
             JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No node selected", "", 0);
         } else {
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Remove link to '" + selectedTreeNode + "?", "Remove", JOptionPane.YES_NO_OPTION)) {
-                GuiHelper.treeHelper.removeLocation(selectedTreeNode.getUserObject());
-                GuiHelper.treeHelper.applyRootLocations();
+                removeLocation(selectedTreeNode.getUserObject());
+                applyRootLocations();
             }
         }
     }
 
     public void deleteNode(Object sourceObject) {
         System.out.println("deleteNode: " + sourceObject);
-
         DefaultMutableTreeNode selectedTreeNode = null;
         DefaultMutableTreeNode parentTreeNode = null;
         if (sourceObject == localCorpusTree) {
@@ -508,7 +524,7 @@ public class TreeHelper {
             if (currentNodePath != null) {
                 selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                 if (currentNodePath.getPath().length == 2) {
-                    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
+                    removeSelectedLocation(selectedTreeNode);
                 } else {
                     parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
                     ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
@@ -523,8 +539,8 @@ public class TreeHelper {
                             parentImdiNode.deleteCorpusLink(childImdiNode);
 //                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
                         }
-                }
-                ((ImdiTree) sourceObject).setSelectionRow(selectedRow);
+                    }
+                    ((ImdiTree) sourceObject).setSelectionRow(selectedRow);
                 }
                 Object userObject = selectedTreeNode.getUserObject();
                 // remove the deleted node from the favourites list if it is an imdichild node
