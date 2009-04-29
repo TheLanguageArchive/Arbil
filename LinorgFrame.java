@@ -90,7 +90,7 @@ public class LinorgFrame extends javax.swing.JFrame {
                 case JOptionPane.NO_OPTION:
                     break;
                 case JOptionPane.YES_OPTION:
-                    GuiHelper.imdiLoader.saveNodesNeedingSave();
+                    GuiHelper.imdiLoader.saveNodesNeedingSave(false);
                     break;
                 default:
                     return;
@@ -540,7 +540,7 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 
 private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.imdiLoader.saveNodesNeedingSave();
+    GuiHelper.imdiLoader.saveNodesNeedingSave(true);
 }//GEN-LAST:event_saveFileMenuItemActionPerformed
 
 private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_fileMenuMenuSelected
