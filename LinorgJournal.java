@@ -1,14 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.io.FileWriter;
 
 /**
- *
- * @author petwit
+ * Document   : LinorgJournal
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgJournal {
 
