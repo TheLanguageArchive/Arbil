@@ -53,7 +53,7 @@ public class ImdiTree extends JTree {
 //                }
             });
     }
-    
+
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
 // TODO add your handling code here:
         // test if click was over a selected node
@@ -104,7 +104,7 @@ public class ImdiTree extends JTree {
     private void treeKeyTyped(java.awt.event.KeyEvent evt) {
         System.out.println(evt.paramString());
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
-            LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) evt.getSource()).getSelectedNodes().elements(), "Selection");
+            LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) evt.getSource()).getSelectedNodes(), null);
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
@@ -146,14 +146,14 @@ public class ImdiTree extends JTree {
         return tip;
     }
 
-    public Vector getSelectedNodes() {
-        Vector selectedNodes = new Vector();
+    public ImdiTreeObject[] getSelectedNodes() {
+        ImdiTreeObject[] selectedNodes = new ImdiTreeObject[this.getSelectionCount()];
         // iterate over allthe selected nodes in the available trees
 //        for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
         for (int selectedCount = 0; selectedCount < this.getSelectionCount(); selectedCount++) {
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) this.getSelectionPaths()[selectedCount].getLastPathComponent();
             if (parentNode.getUserObject() instanceof ImdiTreeObject) {
-                selectedNodes.add(parentNode.getUserObject());
+                selectedNodes[selectedCount] = (ImdiTreeObject) parentNode.getUserObject();
             }
         }
 //        }
