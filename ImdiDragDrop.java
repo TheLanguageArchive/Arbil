@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Container;
@@ -19,8 +15,9 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- *
- * @author petwit
+ * Document   :  ImdiDragDrop
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiDragDrop {
 
@@ -99,6 +96,7 @@ public class ImdiDragDrop {
         public boolean selectionContainsImdiChild = false;
         public boolean selectionContainsLocal = false;
         public boolean selectionContainsRemote = false;
+
         @Override
         public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
             System.out.println("exportToClipboard: " + comp);
@@ -138,7 +136,7 @@ public class ImdiDragDrop {
         public boolean canImport(JComponent comp, DataFlavor flavor[]) {
             System.out.println("canImport: " + comp);
             if (comp instanceof JTree) {
-                if (!GuiHelper.treeHelper.componentIsTheLocalCorpusTree(comp)) {
+                if (!TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(comp)) {
                     System.out.println("not the localcorpustree so cannot drop here");
                     return false;
                 }
@@ -294,8 +292,8 @@ public class ImdiDragDrop {
                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                     }
                     JTree dropTree = (JTree) comp;
-                    DefaultMutableTreeNode targetNode = GuiHelper.treeHelper.getLocalCorpusTreeSingleSelection();
-                    GuiHelper.treeHelper.updateTreeNodeChildren(targetNode);
+                    DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
+                    TreeHelper.getSingleInstance().updateTreeNodeChildren(targetNode);
                     Object dropTargetUserObject = targetNode.getUserObject();
                     System.out.println("to: " + dropTargetUserObject.toString());
                     if (dropTargetUserObject instanceof ImdiTreeObject) {
