@@ -87,6 +87,7 @@ public class ImdiDragDrop {
 
         DataFlavor flavors[] = {imdiObjectFlavour};
         ImdiTreeObject[] draggedImdiObjects;
+        DefaultMutableTreeNode[] draggedTreeNodes;
         public boolean selectionContainsArchivableLocalFile = false;
         public boolean selectionContainsLocalFile = false;
         public boolean selectionContainsLocalDirectory = false;
@@ -150,12 +151,16 @@ public class ImdiDragDrop {
                 System.out.println("selectionContainsImdiChild: " + selectionContainsImdiChild);
                 System.out.println("selectionContainsLocal: " + selectionContainsLocal);
                 System.out.println("selectionContainsRemote: " + selectionContainsRemote);
-                if (selectionContainsLocalFile && selectionContainsArchivableLocalFile && // local files can be dropped to a tree
+//                if (selectionContainsImdiCorpus || selectionContainsImdiSession) {
+//                    return true;
+//                }
+                if (selectionContainsLocalFile && // local files can be dropped to a tree
+                        //                        selectionContainsArchivableLocalFile &&
                         //but nothing else
                         !selectionContainsLocalDirectory &&
                         !selectionContainsImdiResource &&
-                        !selectionContainsImdiCorpus &&
-                        !selectionContainsImdiSession &&
+                        //!selectionContainsImdiCorpus &&
+                        //!selectionContainsImdiSession &&
                         !selectionContainsImdiChild &&
                         selectionContainsLocal &&
                         !selectionContainsRemote) {
@@ -211,6 +216,7 @@ public class ImdiDragDrop {
         @Override
         public Transferable createTransferable(JComponent comp) {
             draggedImdiObjects = null;
+            draggedTreeNodes = null;
             selectionContainsArchivableLocalFile = false;
             selectionContainsLocalFile = false;
             selectionContainsLocalDirectory = false;
@@ -226,12 +232,14 @@ public class ImdiDragDrop {
                 //System.out.println("selectedCount: " + draggedTree.getSelectionCount());
                 //TreePath draggedPath[] = draggedTree.getSelectionPaths();
                 draggedImdiObjects = new ImdiTreeObject[draggedTree.getSelectionCount()];
+                draggedTreeNodes = new DefaultMutableTreeNode[draggedTree.getSelectionCount()];
                 for (int selectedCount = 0; selectedCount < draggedTree.getSelectionCount(); selectedCount++) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) draggedTree.getSelectionPaths()[selectedCount].getLastPathComponent();
                     //System.out.println("parentNode: " + parentNode.toString());
                     if (parentNode.getUserObject() instanceof ImdiTreeObject) {
                         //System.out.println("DraggedImdi: " + parentNode.getUserObject().toString());
                         draggedImdiObjects[selectedCount] = (ImdiTreeObject) (parentNode.getUserObject());
+                        draggedTreeNodes[selectedCount] = parentNode;
                         // classify the draggable bundle to help matching drop targets
                         selectionContainsArchivableLocalFile = draggedImdiObjects[selectedCount].isArchivableFile();
                         if (draggedImdiObjects[selectedCount].isLocal()) {
@@ -259,6 +267,7 @@ public class ImdiDragDrop {
                         }
                     } else {
                         draggedImdiObjects[selectedCount] = null;
+                        draggedTreeNodes[selectedCount] = null;
                     }
                 }
                 return this;
@@ -283,7 +292,7 @@ public class ImdiDragDrop {
 
         @Override
         public boolean importData(JComponent comp, Transferable t) {
-            //System.out.println("importData: " + comp.toString());
+            System.out.println("importData: " + comp.toString());
             //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
             if (draggedImdiObjects != null) {
                 if (comp instanceof JTree) {
@@ -314,6 +323,34 @@ public class ImdiDragDrop {
                                 }
                                 return true; // we have achieved the drag so return true
                             }
+                        } else if (((ImdiTreeObject) dropTargetUserObject).isCorpus()) {
+                            if (selectionContainsArchivableLocalFile == false &&
+                                    selectionContainsLocalFile == true &&
+                                    selectionContainsLocalDirectory == false &&
+                                    selectionContainsImdiResource == false &&
+                                    (selectionContainsImdiCorpus == false || selectionContainsImdiSession == false) &&
+                                    selectionContainsImdiChild == false &&
+                                    selectionContainsLocal == true &&
+                                    selectionContainsRemote == false) {
+                                System.out.println("ok to move local IMDI");
+                                for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
+                                    System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
+                                    //((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
+                                    ((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter]);
+                                    if (draggedTreeNodes[draggedCounter] != null) {
+                                        if (draggedTreeNodes[draggedCounter].equals(draggedTreeNodes[draggedCounter].getRoot())) {
+                                            System.out.println("dragged from root");
+                                        } else {
+                                            ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+                                            System.out.println("removeing from parent: " + parentImdi);
+                                            parentImdi.deleteCorpusLink(draggedImdiObjects[draggedCounter]);
+                                            parentImdi.reloadNode();
+                                        }
+                                    }
+                                }
+                                ((ImdiTreeObject) dropTargetUserObject).reloadNode();
+                                return true; // we have achieved the drag so return true
+                            }
                         }
                     }
                 } else {
@@ -324,7 +361,7 @@ public class ImdiDragDrop {
                         dropTableModel.addImdiObjects(draggedImdiObjects);
                         return true; // we have achieved the drag so return true
                     } else if (imdiSplitPanel instanceof JDesktopPane) {
-                        LinorgWindowManager.getSingleInstance().openFloatingTable(new Vector(Arrays.asList(draggedImdiObjects)).elements(), "Selection");
+                        LinorgWindowManager.getSingleInstance().openFloatingTable(draggedImdiObjects, null);
                         return true; // we have achieved the drag so return true
                     }
                 }
