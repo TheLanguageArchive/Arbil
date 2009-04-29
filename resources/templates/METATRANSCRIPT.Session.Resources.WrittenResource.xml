@@ -19,7 +19,7 @@
         <CharacterEncoding/>
         <ContentEncoding/>
         <LanguageId/>
-        <Anonymized>Unspecified</Anonymized>
+        <Anonymized Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</Anonymized>
         <Access>
             <Availability/>
             <Date>Unspecified</Date>

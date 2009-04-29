@@ -3,9 +3,9 @@
     <Language>
         <Id></Id>
         <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary">Standard Language</Name>
-        <Dominant>Unspecified</Dominant>
-        <SourceLanguage>Unspecified</SourceLanguage>
-        <TargetLanguage>Unspecified</TargetLanguage>
+        <Dominant Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</Dominant>
+        <SourceLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</SourceLanguage>
+        <TargetLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</TargetLanguage>
         <Description LanguageId="" Link=""/>
     </Language>
 </InsertableSection>
