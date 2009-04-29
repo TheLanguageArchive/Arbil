@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.BoxLayout;
@@ -33,7 +34,7 @@ import mpi.util.OurURL;
 import org.w3c.dom.Document;
 
 /**
-  * Document   : ImportExportDialog
+ * Document   : ImportExportDialog
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
@@ -127,7 +128,7 @@ public class ImportExportDialog {
         }
     }
 
-    public void exportImdiBranch(Vector localCorpusSelectedNodes) {
+    public void exportImdiBranch(ImdiTreeObject[] localCorpusSelectedNodes) {
         searchDialog.setTitle("Export Branch");
         JFileChooser fileChooser = new JFileChooser();
         FileFilter emptyDirectoryFilter = new FileFilter() {
@@ -152,7 +153,7 @@ public class ImportExportDialog {
                 File destinationDirectory = fileChooser.getSelectedFile();
                 if (destinationDirectory == null || destinationDirectory.list().length == 0) {
                     fileSelectDone = true;
-                    exportFromCache(localCorpusSelectedNodes, destinationDirectory);
+                    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
                 } else {
                     JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), 0);
                 }
@@ -183,6 +184,10 @@ public class ImportExportDialog {
         } else {
             JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
         }
+    }
+
+    public void copyToCache(ImdiTreeObject[] localSelectedNodes) {
+        copyToCache(new Vector(Arrays.asList(localSelectedNodes)));
     }
 
     public void copyToCache(Vector localSelectedNodes) {
@@ -448,6 +453,14 @@ public class ImportExportDialog {
 //        Enumeration selectedNodesEnum = selectedNodes.elements();
 //        while (selectedNodesEnum.hasMoreElements()) {
 //            Object currentElement = selectedNodesEnum.nextElement();
+//            if (currentElement instanceof ImdiTreeObject) {
+//                int[] tempChildCountArray = ((ImdiTreeObject) currentElement).getRecursiveChildCount();
+//                childrenToLoad += tempChildCountArray[0];
+//                loadedChildren += tempChildCountArray[1];
+//            }
+//        }
+//        return (new int[]{childrenToLoad, loadedChildren});
+//    }
     /////////////////////////////////////////
     // end functions called by the threads //
     /////////////////////////////////////////
