@@ -1,7 +1,3 @@
-/*
- * ImdiSchema is used to read the imdi schema 
- * and provide a list of valid fields and field constraints
- */
 package mpi.linorg;
 
 import java.io.File;
@@ -26,13 +22,14 @@ import mpi.util.OurURL;
 import org.w3c.dom.*;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiSchema
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiSchema {
 
     /**
-     * When complete this function will parse the imdi schema
+     * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     private String selectedTemplate = null;
     static String imdiPathSeparator = ".";
@@ -395,8 +392,8 @@ public class ImdiSchema {
                         int suffixIndex = originalFile.getName().lastIndexOf(".");
                         String targetFilename = originalFile.getName().substring(0, suffixIndex);
                         String targetSuffix = originalFile.getName().substring(suffixIndex);
-                    System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
-                    File destinationDirectory = new File(destinationFile.getParentFile().getPath()); // + File.separatorChar + resourcesDirName);
+                        System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
+                        File destinationDirectory = new File(destinationFile.getParentFile().getPath()); // + File.separatorChar + resourcesDirName);
                         System.out.println("destinationDirectory: " + destinationDirectory.toString());
 //                    destinationDirectory.mkdir();
                         File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
@@ -477,6 +474,7 @@ public class ImdiSchema {
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
+            // get the xml node id
             String xmlNodeId = null;
             NamedNodeMap attributesMap = childNode.getAttributes();
             if (attributesMap != null) {
@@ -541,7 +539,7 @@ public class ImdiSchema {
 //                    System.out.println("attributeName: " + attributeName);
 //                    System.out.println("attributeValue: " + attributeValue);
                     if (attributeValue != null /*&& attributeValue.length() > 0*/) {
-                        // only add attributes if they contain a value
+                        // always add attrubutes even if without a value providing they are not null
                         fieldToAdd.addAttribute(attributeName, attributeValue);
                     }
                 }
