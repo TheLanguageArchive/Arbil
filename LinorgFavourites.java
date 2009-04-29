@@ -1,9 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -11,12 +8,11 @@ import java.util.Vector;
 /**
  * Document   : LinorgFavourites
  * Created on : Mar 3, 2009, 11:19:14 AM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgFavourites {
 
     private Hashtable<String, ImdiTreeObject> userFavourites;
-
     static private LinorgFavourites singleInstance = null;
 
     static synchronized public LinorgFavourites getSingleInstance() {
@@ -26,7 +22,7 @@ public class LinorgFavourites {
         }
         return singleInstance;
     }
-    
+
     private LinorgFavourites() {
         loadSelectedTemplates();
     }
@@ -48,10 +44,9 @@ public class LinorgFavourites {
         }
     }
 
-    public void toggleFavouritesList(Vector<ImdiTreeObject> imdiObjectVector, boolean setAsTempate) {
+    public void toggleFavouritesList(ImdiTreeObject[] imdiObjectArray, boolean setAsTempate) {
         System.out.println("toggleTemplateList: " + setAsTempate);
-        for (Enumeration<ImdiTreeObject> imdiObjectEnum = imdiObjectVector.elements(); imdiObjectEnum.hasMoreElements();) {
-            ImdiTreeObject currentImdiObject = imdiObjectEnum.nextElement();
+        for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
             if (setAsTempate) {
                 addAsTemplate(currentImdiObject.getUrlString());
             } else {
@@ -84,9 +79,9 @@ public class LinorgFavourites {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
     }
-    
-    public Enumeration listAllFavourites() {
-        return userFavourites.elements();
+
+    public ImdiTreeObject[] listAllFavourites() {
+        return Arrays.asList(userFavourites.elements()).toArray(new ImdiTreeObject[userFavourites.size()]);
     }
 
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
