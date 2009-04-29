@@ -1,15 +1,19 @@
-Adding a new session.html
-Adding a corpus branch.html
-Searching.html
-What to do before going into the field.html
-Short Cut Keys.html
-Moving a session into a different corpus.html
+Editing_Viewing/Short Cut Keys.html
+Editing_Viewing/Adding a resource file to a session.html
+Editing_Viewing/Moving sessions.html
+Editing_Viewing/Highlighting cells.html
+Editing_Viewing/Icons.html
+Editing_Viewing/Adding a corpus branch.html
+Editing_Viewing/Adding a new session.html
+Editing_Viewing/Copy paste between tables.html
+Editing_Viewing/Searching.html
+Working_Offline/What to do before going into the field.html
+Working_Offline/Making an off line copy.html
+Templates_and_Favourites/Templates.html
+Templates_and_Favourites/Favourites.html
+External_Editors/Opening resources.html
+External_Editors/Copy paste to and from spread sheets.html
 1. Arbil.html
-Tables/Copying to and from a spreadsheat.html
-Tables/Highlighting cells.html
-Icons.html
-2. Where do I start.html
-Making an off line copy.html
+2. Quick Introduction.html
 Lamus/Uploading to the corpus server.html
 3. Work Flow.html
-Adding a resource file to a session.html
