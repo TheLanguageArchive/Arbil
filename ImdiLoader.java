@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.util.Hashtable;
@@ -10,7 +6,7 @@ import java.util.Vector;
 /**
  * Document   : ImdiLoader
  * Created on : Dec 30, 2008, 3:04:39 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl 
  */
 public class ImdiLoader {
 
@@ -85,23 +81,23 @@ public class ImdiLoader {
                                         mimeType = addRequestArrayString[4];
                                     }
                                     System.out.println("addQueue:-\nnodeType: " + nodeType + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
-                                    ImdiTreeObject addedImdiObject = GuiHelper.treeHelper.addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
+                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                     currentImdiObject.loadImdiDom();
                                     if (favouriteUrlString != null) {
-                                        // TODO: do this for all the descendants of the template
+                                        // TODO: do this for all the descendants of the favourite
                                         LinorgFavourites.getSingleInstance().mergeFromFavourite(addedImdiObject, getImdiObject("", favouriteUrlString), true);
                                     }
                                     currentImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
-                                    GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
+                                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject);
 //                                    addedImdiObject.autoLoadChildNodes = true;
 //                                    addedImdiObject.loadChildNodes();
-                                    GuiHelper.treeHelper.localCorpusTree.scrollToNode(addedImdiObject);
+                                    TreeHelper.getSingleInstance().localCorpusTree.scrollToNode(addedImdiObject);
                                 } else {
                                     if (currentImdiObject.autoLoadChildNodes) {
                                         currentImdiObject.loadChildNodes();
                                     }
-                                    GuiHelper.treeHelper.updateTreeNodeChildren(currentImdiObject);
+                                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject);
                                 }
                                 currentImdiObject.isLoadingCount--;
                                 currentImdiObject.clearIcon();
