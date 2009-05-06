@@ -10,6 +10,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -25,7 +26,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
     private boolean showIcons = false;
     private Hashtable<String, ImdiTreeObject> imdiObjectHash = new Hashtable();
-    private Vector allColumnNames = new Vector();
+    private HashMap<String, ImdiField> allColumnNames = new HashMap();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
     private int[] maxColumnWidths;
@@ -116,7 +117,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
     private ImdiTreeObject[] updateAllImdiObjects() {
         ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[imdiObjectHash.size()];
-        allColumnNames.removeAllElements();
+        allColumnNames.clear();
         Enumeration<ImdiTreeObject> nodesEnum = imdiObjectHash.elements();
         for (int imdiArrayCounter = 0; imdiArrayCounter < returnImdiArray.length; imdiArrayCounter++) {
             if (nodesEnum.hasMoreElements()) {
@@ -135,12 +136,20 @@ public class ImdiTableModel extends AbstractTableModel {
             }
 //            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
 //            System.out.println("hasResource: " + imdiTreeObject.hasResource());
-            for (Enumeration<String> fieldNames = returnImdiArray[imdiArrayCounter].getFields().keys(); fieldNames.hasMoreElements();) {
-                String currentColumnName = fieldNames.nextElement().toString();
-                if (!allColumnNames.contains(currentColumnName)) {
-                    allColumnNames.add(currentColumnName);
+            for (Enumeration<ImdiField[]> columnFields = returnImdiArray[imdiArrayCounter].getFields().elements(); columnFields.hasMoreElements();) {
+                for (ImdiField currentField : columnFields.nextElement()) {
+                    String currentColumnName = currentField.getTranslateFieldName();
+                    if (!allColumnNames.containsValue(currentColumnName)) {
+                        allColumnNames.put(currentColumnName, currentField);
+                    } else {
+                        // update the min id value
+                        ImdiField lastStoredField = allColumnNames.get(currentColumnName);
+                        if (lastStoredField.getFieldID() > currentField.getFieldID()) {
+                            allColumnNames.put(currentColumnName, currentField);
+                        }
+                    }
+                    tableFieldView.addKnownColumn(currentColumnName);
                 }
-                tableFieldView.addKnownColumn(currentColumnName);
             }
         }
         return returnImdiArray;
@@ -409,11 +418,9 @@ public class ImdiTableModel extends AbstractTableModel {
                 return returnValue;
             } else {
                 try {
-                    String baseValueA = ((ImdiField) ((Object[]) firstRowArray)[1]).fieldID;
-                    String comparedValueA = ((ImdiField) (((Object[]) secondRowArray)[1])).fieldID;
 //                    if (baseValueA != null && comparedValueA != null) { // if either id is null then check why it is being draw when it should be reloaded first
-                    int baseIntA = Integer.parseInt(baseValueA.substring(1));
-                    int comparedIntA = Integer.parseInt(comparedValueA.substring(1));
+                    int baseIntA = ((ImdiField) ((Object[]) firstRowArray)[1]).getFieldID();
+                    int comparedIntA = ((ImdiField) ((Object[]) secondRowArray)[1]).getFieldID();
                     int returnValue = baseIntA - comparedIntA;
                     return returnValue;
 //                    } else {
@@ -467,14 +474,21 @@ public class ImdiTableModel extends AbstractTableModel {
             // display the grid view
 
             // calculate which of the available columns to show
-            Enumeration columnNameEnum = allColumnNames.elements();
-            Vector displayedColumnNames = new Vector();
-            while (columnNameEnum.hasMoreElements()) {
-                String currentColumnString = (String) columnNameEnum.nextElement();
-                if (tableFieldView.viewShowsColumn(currentColumnString)) {
-                    displayedColumnNames.add(currentColumnString);
+            ImdiField[] displayedColumnNames = allColumnNames.values().toArray(new ImdiField[allColumnNames.size()]);
+            Arrays.sort(displayedColumnNames, new Comparator() {
+
+                public int compare(Object firstColumn, Object secondColumn) {
+                    try {
+                        int baseIntA = ((ImdiField) firstColumn).getFieldID();
+                        int comparedIntA = ((ImdiField) secondColumn).getFieldID();
+                        int returnValue = baseIntA - comparedIntA;
+                        return returnValue;
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                        return 1;
+                    }
                 }
-            }
+            });
             // end calculate which of the available columns to show
 
             // set the column offset to accomadate the icon which is not in the column hashtable
@@ -486,14 +500,14 @@ public class ImdiTableModel extends AbstractTableModel {
             }
 
             // create and populate the column names array and prepend the icon and append the imdinode
-            columnNamesTemp = new String[displayedColumnNames.size() + firstFreeColumn + childColumnNames.size()];
+            columnNamesTemp = new String[displayedColumnNames.length + firstFreeColumn + childColumnNames.size()];
             int columnPopulateCounter = firstFreeColumn;
             if (columnNamesTemp.length > 0) {
                 columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
             }
-            for (Enumeration currentColumnEnum = displayedColumnNames.elements(); currentColumnEnum.hasMoreElements();) {
+            for (ImdiField currentColumn : displayedColumnNames) {
 //                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
-                columnNamesTemp[columnPopulateCounter] = currentColumnEnum.nextElement().toString();
+                columnNamesTemp[columnPopulateCounter] = currentColumn.getTranslateFieldName();
                 columnPopulateCounter++;
             }
             // populate the child node column titles
