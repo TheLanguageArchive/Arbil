@@ -97,7 +97,7 @@ public class ImdiField {
     }
 
     public boolean isDisplayable() {
-        return (fieldValue != null && /*fieldValue.trim().length() > 0 && */ !xmlPath.contains("CorpusLink") && !xmlPath.endsWith(".Keys"));
+        return (fieldValue != null && /*fieldValue.trim().length() > 0 && */ !xmlPath.contains("CorpusLink") && !xmlPath.endsWith(".Keys")&& !xmlPath.endsWith(".History"));
     }
 
     public void finishLoading() {
