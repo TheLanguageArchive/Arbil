@@ -584,9 +584,10 @@ public class ImportExportDialog {
                                         appendToTaskOutput("done");
                                     }
                                 } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(ex);
+                                    GuiHelper.linorgBugCatcher.logError(currentTarget, ex);
                                     totalErrors++;
-                                    appendToTaskOutput("unable to process the file");
+                                    appendToTaskOutput("unable to process the file: " + currentTarget);
+                                    System.out.println("Error getting links from: " + currentTarget);
                                 }
                                 totalLoaded++;
 
@@ -597,6 +598,13 @@ public class ImportExportDialog {
                                 progressXmlErrorsLabel.setText(progressXmlErrorsLabelText + xsdErrors);
                                 resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
                                 progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
+
+//                                System.out.println("progressFound"+ (getList.size() + totalLoaded));
+//                                System.out.println("progressProcessed"+ totalLoaded);
+//                                System.out.println("progressAlreadyInCache" + totalExisting);
+//                                System.out.println("progressFailed"+totalErrors);
+//                                System.out.println("progressXmlErrors" + xsdErrors);
+//                                System.out.println("resourceCopyErrors" + resourceCopyErrors);
                             }
                             finalMessageString = finalMessageString + "Processed " + totalLoaded + " files.\n";
                             if (exportDestinationDirectory == null) {
@@ -645,6 +653,7 @@ public class ImportExportDialog {
 
                 threadARunning = false;
                 setUItoStoppedState();
+                System.out.println("finalMessageString: " + finalMessageString);
                 Object[] options = {"OK", "Details"};
                 int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
                         finalMessageString,
