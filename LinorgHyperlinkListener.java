@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import javax.swing.JEditorPane;
@@ -9,8 +5,9 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 /**
- *
- * @author petwit
+ * Document   : LinorgHyperlinkListener
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgHyperlinkListener implements HyperlinkListener {
 

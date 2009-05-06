@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.io.Serializable;
@@ -10,8 +6,9 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
- *
- * @author petwit
+ * Document   : LinorgFieldView
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 class LinorgFieldView implements Serializable {
 

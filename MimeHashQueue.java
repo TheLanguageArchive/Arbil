@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.io.File;
@@ -16,8 +12,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- *
- * @author petwit
+ * Document   : MimeHashQueue
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class MimeHashQueue {
     // stored across sessions
@@ -160,24 +157,24 @@ public class MimeHashQueue {
             for (Enumeration<String> duplicatesPathEnum = duplicatesPaths.elements(); duplicatesPathEnum.hasMoreElements();) {
                 String currentDupPath = duplicatesPathEnum.nextElement();
                 try {
-                File currentFile = new File(new URL(currentDupPath).getFile());
-                if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
-                    // get the currently loaded imdiobjects for the paths
-                    ImdiTreeObject currentImdiObject = currentlyLoadedImdiObjects.get(currentDupPath);
-                    if (currentImdiObject != null) {
-                        relevantImdiObjects.add(currentImdiObject);
+                    File currentFile = new File(new URL(currentDupPath).getFile());
+                    if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
+                        // get the currently loaded imdiobjects for the paths
+                        ImdiTreeObject currentImdiObject = currentlyLoadedImdiObjects.get(currentDupPath);
+                        if (currentImdiObject != null) {
+                            relevantImdiObjects.add(currentImdiObject);
+                        }
+                        if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentFile)) {
+                            matchesInCache++;
+                        } else {
+                            matchesLocalFileSystem++;
+                        }
+                        matchesRemote = 0;// TODO: set up the server md5sum query
                     }
-                    if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentFile)) {
-                        matchesInCache++;
-                    } else {
-                        matchesLocalFileSystem++;
-                    }
-                matchesRemote = 0;// TODO: set up the server md5sum query
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {
             }
-        }
-        for (Enumeration<ImdiTreeObject> relevantImdiEnum = relevantImdiObjects.elements(); relevantImdiEnum.hasMoreElements();) {
+            for (Enumeration<ImdiTreeObject> relevantImdiEnum = relevantImdiObjects.elements(); relevantImdiEnum.hasMoreElements();) {
                 ImdiTreeObject currentImdiObject = relevantImdiEnum.nextElement();
                 // update the values
                 currentImdiObject.matchesInCache = matchesInCache;
@@ -313,7 +310,7 @@ public class MimeHashQueue {
             }
         }
     }
-
+    
 //    public String getMimeResult(ImdiTreeObject imdiObject) {
 //        if (knownMimeTypes != null && imdiObject != null) {
 //            Object returnObject = knownMimeTypes.get(getFilePath(imdiObject));

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.Component;
@@ -11,8 +7,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiTreeRenderer
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
 

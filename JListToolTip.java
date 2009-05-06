@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.BorderLayout;
@@ -13,8 +9,9 @@ import javax.swing.JPanel;
 import javax.swing.JToolTip;
 
 /**
- *
- * @author petwit
+ * Document   : JListToolTip
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 class JListToolTip extends JToolTip {
 

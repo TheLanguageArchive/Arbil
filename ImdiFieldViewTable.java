@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.awt.event.MouseEvent;
@@ -16,7 +12,7 @@ import javax.swing.table.TableModel;
  * Document   : ImdiFieldViewTable
  * Used to edit the field view of an imdi table
  * Created on : Jan 5, 2009, 12:40:37 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiFieldViewTable extends JTable {
 
@@ -92,7 +88,7 @@ public class ImdiFieldViewTable extends JTable {
             }
         });
     }
-    
+
     @Override
     //Implement table cell tool tips.
     public String getToolTipText(MouseEvent e) {

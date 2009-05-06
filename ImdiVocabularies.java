@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.io.File;
@@ -11,8 +7,9 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiVocabularies
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiVocabularies {
 
@@ -111,7 +108,7 @@ public class ImdiVocabularies {
 //            if (!new File(cachePath).exists()) {
 //                if (!missingVocabMessageShown && GuiHelper.linorgWindowManager.linorgFrame != null && GuiHelper.linorgWindowManager.linorgFrame.isShowing()) {
 //                    missingVocabMessageShown = true;
-//                    GuiHelper.linorgWindowManager.addMessageDialogToQueue("A controlled vocabulary could not be accessed.\nSome fields may not show all options.");
+//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be accessed.\nSome fields may not show all options.");
 //                }
 //            }
             System.out.println("parseRemoteFile: " + cachePath);

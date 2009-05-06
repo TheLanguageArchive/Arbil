@@ -1,15 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiFieldViews
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiFieldViews {
 
@@ -87,7 +84,7 @@ public class ImdiFieldViews {
             GuiHelper.linorgSessionStorage.saveObject(currentGlobalViewName, "currentGlobalViewName");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-            //System.out.println("save savedFieldViews exception: " + ex.getMessage());
+        //System.out.println("save savedFieldViews exception: " + ex.getMessage());
         }
     }
 

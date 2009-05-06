@@ -76,7 +76,7 @@ public class ImdiIcons {
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
     private ImageIcon favouriteIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/favourite.png"));
 //    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
-
+    
     
     static private ImdiIcons singleInstance = null;
 
@@ -86,11 +86,10 @@ public class ImdiIcons {
         }
         return singleInstance;
     }
-    
-    private ImdiIcons(){
-        
+
+    private ImdiIcons() {
     }
-    
+
     public ImageIcon getIconForImdi(ImdiTreeObject[] imdiObjectArray) {
         int currentIconXPosition = 0;
         int width = 0;

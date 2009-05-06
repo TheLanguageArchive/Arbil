@@ -1,7 +1,3 @@
-/*
- * LinorgSessionStorage 
- * use to save and load objects from disk and to manage items in the local cache
- */
 package mpi.linorg;
 
 import java.io.File;
@@ -19,8 +15,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- *
- * @author petwit
+ * Document   : LinorgSessionStorage
+ * use to save and load objects from disk and to manage items in the local cache
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class LinorgSessionStorage {
 
@@ -46,6 +44,7 @@ public class LinorgSessionStorage {
                 break;
             }
         }
+
         String testedStorageDirectories = "";
         if (storageDirectory == null) {
             for (String currentStorageDirectory : storageDirectoryArray) {

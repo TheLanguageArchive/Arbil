@@ -1,12 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 /**
- *
- * @author petwit
+ * Document   : XsdChecker
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 import java.awt.Color;
 import java.io.File;

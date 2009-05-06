@@ -1,16 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.util.Enumeration;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * Document   : ImdiFieldViewTableModel
  * This table model is used to edit the field view for a given imdi table model
  * Split from ImdiFieldViews on : Dec 16, 2008, 10:27:30 AM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiFieldViewTableModel extends DefaultTableModel {
 

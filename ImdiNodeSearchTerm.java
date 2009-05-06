@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 /**
  * Document   : ImdiNodeSearchTerm
  * Created on : Feb 17, 2009, 3:11:54 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiNodeSearchTerm extends javax.swing.JPanel {
 

@@ -1,16 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 /**
- *
- * @author petwit
+ * Document   : 
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
+
 // Updates the split panel when there are resources or loose files in the list to display
 class ImdiListDataListener implements ListDataListener {
 
