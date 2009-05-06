@@ -1,15 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
- *
- * @author petwit
+ * Document   : ImdiField
+ * Created on : 
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiField {
 
@@ -152,6 +149,10 @@ public class ImdiField {
 //                return "check attributes";// fieldAttributes.keys().toString();
 //            }
         return fieldValue;
+    }
+
+    public int getFieldID() {
+        return Integer.parseInt(fieldID.substring(1));
     }
 
     public String getTranslateFieldName() {
