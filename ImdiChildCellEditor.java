@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
@@ -41,7 +42,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
     String columnName;
     Object rowImdi;
     Component editorComponent = null;
-    boolean receivedKeyDown = false;
+//    boolean receivedKeyDown = false;
     Object[] cellValue;
     int selectedField = -1;
     JTextArea fieldEditors[] = null;
@@ -56,15 +57,14 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
 
             public void keyPressed(KeyEvent evt) {
-                receivedKeyDown = true; // this is to prevent reopening the editor after a ctrl_w has closed the editor
+//                receivedKeyDown = true; // this is to prevent reopening the editor after a ctrl_w has closed the editor
             }
 
             public void keyReleased(KeyEvent evt) {
-                if (receivedKeyDown) {
-                    boolean ctrlDown = evt.isControlDown();
-                    startEditorMode(ctrlDown);
-                    receivedKeyDown = false;
-                }
+//                if (receivedKeyDown) {
+                startEditorMode(isStartLongFieldKey(evt));
+//                    receivedKeyDown = false;
+//                }
             }
         });
         button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -80,15 +80,22 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                boolean ctrlDown = evt.isControlDown();
                 if (evt.getButton() == MouseEvent.BUTTON1) {
-                    startEditorMode(ctrlDown);
+                    startEditorMode(isStartLongFieldModifier(evt));
                 } else {
                     parentTable.checkPopup(evt, false);
                 //super.mousePressed(evt);
                 }
             }
         });
+    }
+
+    private boolean isStartLongFieldKey(KeyEvent evt) {
+        return (isStartLongFieldModifier(evt) && evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER);
+    }
+
+    private boolean isStartLongFieldModifier(InputEvent evt) {
+        return ((evt.isShiftDown() || evt.isControlDown()));
     }
 
     private void addFocusListener(Component editorComponent) {
@@ -188,6 +195,21 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     editorTextField.setBorder(null);
                     editorTextField.setMinimumSize(new Dimension(50, (int) editorTextField.getMinimumSize().getHeight()));
                     editorPanel.add(editorTextField);
+
+                    editorTextField.addKeyListener(new java.awt.event.KeyListener() {
+
+                        public void keyTyped(KeyEvent evt) {
+                            if (isStartLongFieldKey(evt)) {
+                                startEditorMode(true);
+                            }
+                        }
+
+                        public void keyPressed(KeyEvent evt) {
+                        }
+
+                        public void keyReleased(KeyEvent evt) {
+                        }
+                    });
                     addFocusListener(editorTextField);
                     JComboBox fieldLanguageBox = getLanguageIdBox(selectedField);
                     if (fieldLanguageBox != null) {
@@ -199,6 +221,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     editorComponent = editorTextField;
                 }
             } else {
+                fireEditingStopped();
                 int titleCount = 1;
                 JTextArea focusedTabTextArea = null;
                 JTabbedPane tabPane = new JTabbedPane();
@@ -291,7 +314,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             boolean isSelected,
             int row,
             int column) {
-        receivedKeyDown = true;
+//        receivedKeyDown = true;
         parentTable = (ImdiTable) table;
         if (value instanceof ImdiField) {
             // TODO: get the whole array from the parent and select the correct tab for editing
