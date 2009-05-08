@@ -703,7 +703,7 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void addCorpusLink(ImdiTreeObject targetImdiNode) {
+    public boolean addCorpusLink(ImdiTreeObject targetImdiNode) {
         boolean linkAlreadyExists = false;
         for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
             String[] currentLinkPair = childLinksEnum.nextElement();
@@ -739,8 +739,10 @@ public class ImdiTreeObject implements Comparable {
                 GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
             }
+            return true;
         } else {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again");
+            return false;
         }
     }
 
