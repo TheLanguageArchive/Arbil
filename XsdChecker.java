@@ -62,14 +62,31 @@ public class XsdChecker extends JSplitPane {
         return schema.newValidator();
     }
 
-    private void alternateCheck(File imdiFile) throws Exception {
+    private URL getXsd() {
+        int daysTillExpire = 15;
+        String cachePath = GuiHelper.linorgSessionStorage.updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
+        URL schemaURL = null;
+        File schemaFile = new File(cachePath);
+        if (schemaFile.exists()) {
+            try {
+                schemaURL = schemaFile.toURL();
+            } catch (Exception e) {
+                System.out.println("error getting xsd from the server: " + e.getMessage());
+            }
+        }
+        if (schemaURL == null) {
+            schemaURL = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
+        }
+        // URL schemaFile = this.getClass().getResource("/mpi/imdi/resources/IMDI_3.0.xsd");        
+        return schemaURL;
+    }
 
-        URL schemaFile = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
-        // URL schemaFile = this.getClass().getResource("/mpi/imdi/resources/IMDI_3.0.xsd");
-        doc.insertString(doc.getLength(), "using schema file: " + schemaFile.getFile() + "\n\n", styleNormal);
+    private void alternateCheck(File imdiFile) throws Exception {
+        URL schemaURL = getXsd();
+        doc.insertString(doc.getLength(), "using schema file: " + schemaURL.getFile() + "\n\n", styleNormal);
         Source xmlFile = new StreamSource(imdiFile);
 
-        Validator validator = createValidator(schemaFile);
+        Validator validator = createValidator(schemaURL);
         try {
             validator.validate(xmlFile);
             System.out.println(xmlFile.getSystemId() + " is valid");
@@ -86,10 +103,10 @@ public class XsdChecker extends JSplitPane {
     public String simpleCheck(File imdiFile, String sourceFile) {
         String messageString;
 //        System.out.println("simpleCheck: " + imdiFile);
-        URL schemaFile = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
+        URL schemaURL = getXsd();
         Source xmlFile = new StreamSource(imdiFile);
         try {
-            Validator validator = createValidator(schemaFile);
+            Validator validator = createValidator(schemaURL);
             validator.validate(xmlFile);
             return null;
         } catch (Exception e) {
