@@ -166,8 +166,8 @@ public class LinorgWindowManager {
 
         if (TreeHelper.getSingleInstance().localCorpusTreeModel.getChildCount(TreeHelper.getSingleInstance().localCorpusTreeModel.getRoot()) == 0) {
             LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
-            if (!focusWindow("Help")) {
-                createWindow("Help", helpComponent);
+            if (!focusWindow(LinorgHelp.helpWindowTitle)) {
+                createWindow(LinorgHelp.helpWindowTitle, helpComponent);
             }
             helpComponent.setCurrentPage(LinorgHelp.IntroductionPage);
         }
