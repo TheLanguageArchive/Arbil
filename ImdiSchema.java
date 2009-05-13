@@ -256,32 +256,38 @@ public class ImdiSchema {
 
 // functions to extract the exif data from images
 // this will probably need to be moved to a more appropriate class
-    public Hashtable getExifMetadata(String resourcePath) {
-        Hashtable exifTags = new Hashtable();
-        System.out.println("tempGetExif: " + resourcePath);
+    public ImdiField[] getExifMetadata(ImdiTreeObject resourceImdi) {
+        Vector<ImdiField> exifTagFields = new Vector();
+        System.out.println("tempGetExif: " + resourceImdi.getFile());
         try {
-            URL url = new URL(resourcePath);
-            Iterator readers = ImageIO.getImageReadersBySuffix("jpeg");
-            ImageReader reader = (ImageReader) readers.next();
-            reader.setInput(ImageIO.createImageInputStream(url.openStream()));
-            IIOMetadata metadata = reader.getImageMetadata(0);
-            String[] names = metadata.getMetadataFormatNames();
-            for (int i = 0; i < names.length; ++i) {
-                System.out.println();
-                System.out.println("METADATA FOR FORMAT: " + names[i]);
-                decendExifTree(metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTags);
+            URL url = resourceImdi.getURL();
+            if (resourceImdi.getFile().getName().contains(".")) {
+                String fileSuffix = resourceImdi.getFile().getName().substring(resourceImdi.getFile().getName().lastIndexOf(".") + 1);
+                System.out.println("tempGetExifSuffix: " + fileSuffix);
+                Iterator readers = ImageIO.getImageReadersBySuffix(fileSuffix);
+                if (readers.hasNext()) {
+                    ImageReader reader = (ImageReader) readers.next();
+                    reader.setInput(ImageIO.createImageInputStream(url.openStream()));
+                    IIOMetadata metadata = reader.getImageMetadata(0);
+                    String[] names = metadata.getMetadataFormatNames();
+                    for (int i = 0; i < names.length; ++i) {
+                        System.out.println();
+                        System.out.println("METADATA FOR FORMAT: " + names[i]);
+                        decendExifTree(resourceImdi, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields);
+                    }
+                }
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
         }
         System.out.println("end tempGetExif");
-        return exifTags;
+        return exifTagFields.toArray(new ImdiField[]{});
     }
 
-    public void decendExifTree(Node node, String prefixString, Hashtable exifTags) {
+    public void decendExifTree(ImdiTreeObject resourceImdi, Node node, String prefixString, Vector<ImdiField> exifTagFields) {
         if (prefixString == null) {
-            prefixString = ""; // skip the first node name    
+            prefixString = "EXIF"; // skip the first node name    
         } else {
             prefixString = prefixString + imdiPathSeparator + node.getNodeName();
         }
@@ -290,13 +296,13 @@ public class ImdiSchema {
             for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                 String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                 String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                exifTags.put(prefixString + imdiPathSeparator + attributeName, attributeValue);
+                exifTagFields.add(new ImdiField(resourceImdi, prefixString + imdiPathSeparator + attributeName, attributeValue));
             }
         }
         if (node.hasChildNodes()) {
             NodeList children = node.getChildNodes();
             for (int i = 0, ub = children.getLength(); i < ub; ++i) {
-                decendExifTree(children.item(i), prefixString, exifTags);
+                decendExifTree(resourceImdi, children.item(i), prefixString, exifTagFields);
             }
         }
     }
@@ -365,6 +371,7 @@ public class ImdiSchema {
                 return formatType[1];
             }
         }
+        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"");
         return null;
     }
 
@@ -412,12 +419,13 @@ public class ImdiSchema {
             }
             if (mimeType != null) {
                 if (mimeType.equals("image/jpeg")) {
-                    Hashtable exifTags = getExifMetadata(resourcePath);
-                    String dateExifTag = "date";
-                    if (exifTags.contains(dateExifTag)) {
-                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:MediaFile/:Date");
-                        linkNode.setTextContent(exifTags.get(dateExifTag).toString());
-                    }
+                    // TODO: consider replacing this with exif imdifields in the original imdiobject and doing a merge
+//                    Hashtable exifTags = getExifMetadata(resourcePath);
+//                    String dateExifTag = "date";
+//                    if (exifTags.contains(dateExifTag)) {
+//                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:MediaFile/:Date");
+//                        linkNode.setTextContent(exifTags.get(dateExifTag).toString());
+//                    }
                 }
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
                 linkNode.setTextContent(mimeType);
