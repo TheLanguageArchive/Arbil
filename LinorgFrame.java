@@ -551,17 +551,17 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
 // TODO add your handling code here:
     LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
-    if (!LinorgWindowManager.getSingleInstance().focusWindow("Help")) {
-        LinorgWindowManager.getSingleInstance().createWindow("Help", helpComponent);
+    if (!LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+        LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, helpComponent);
     }
     helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
 }//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
 // TODO add your handling code here:
-    if (!LinorgWindowManager.getSingleInstance().focusWindow("Help")) {
+    if (!LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
         // forcus existing or create a new help window
-        LinorgWindowManager.getSingleInstance().createWindow("Help", LinorgHelp.getSingleInstance());
+        LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
     }
 }//GEN-LAST:event_helpMenuItemActionPerformed
 
