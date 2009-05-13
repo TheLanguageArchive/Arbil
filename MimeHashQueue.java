@@ -76,7 +76,7 @@ public class MimeHashQueue {
                                 System.out.println("run MimeHashQueue mtime: " + currentPathString);
                                 if (previousMTime != currentMTime) {
                                     System.out.println("run MimeHashQueue processing: " + currentPathString);
-                                    currentImdiObject.mpiMimeType = getMimeType(currentNodeUrl, currentPathString);
+                                    currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
                                     currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
                                     processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
                                     currentlyLoadedImdiObjects.put(currentPathString, currentImdiObject);
