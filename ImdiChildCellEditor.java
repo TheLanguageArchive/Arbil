@@ -11,6 +11,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
+import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
@@ -47,6 +48,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
     int selectedField = -1;
     JTextArea fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
+    Vector<Component> componentsWithFocusListners = new Vector();
 
     public ImdiChildCellEditor() {
         button = new JLabel("...");
@@ -98,14 +100,33 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         return ((evt.isShiftDown() || evt.isControlDown()));
     }
 
-    private void addFocusListener(Component editorComponent) {
-        editorComponent.addFocusListener(new FocusListener() {
+    private void removeAllFocusListners() {
+        while (componentsWithFocusListners.size() > 0) {
+            Component currentComponent = componentsWithFocusListners.remove(0);
+            if (currentComponent != null) {
+                System.out.println("removeAllFocusListners:currentComponent:" + currentComponent.getClass());
+                for (FocusListener currentListner : currentComponent.getFocusListeners()) {
+                    currentComponent.removeFocusListener(currentListner);
+                }
+            }
+        }
+    }
+
+    private void addFocusListener(Component targetComponent) {
+        componentsWithFocusListners.add(targetComponent);
+        targetComponent.addFocusListener(new FocusListener() {
 
             public void focusGained(FocusEvent e) {
             }
 
             public void focusLost(FocusEvent e) {
-                if (e.getComponent().getParent() != null) {
+                boolean oppositeIsParent = false;
+                try {
+                    oppositeIsParent = (e.getComponent().equals(e.getOppositeComponent().getParent()) || e.getComponent().getParent().equals(e.getOppositeComponent()));
+                } catch (Exception ex) {
+                    System.out.println("OppositeComponent or parent container not set");
+                }
+                if (!oppositeIsParent && e.getComponent().getParent() != null) {
                     if (!e.getOppositeComponent().getParent().equals(editorPanel)) {
                         ImdiChildCellEditor.this.stopCellEditing();
                     }
@@ -169,12 +190,12 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
     private void startEditorMode(boolean ctrlDown) {
         System.out.println("startEditorMode: " + selectedField);
+        removeAllFocusListners();
         if (cellValue instanceof ImdiField[]) {
             if (!ctrlDown && selectedField != -1 && !((ImdiField) cellValue[selectedField]).isLongField()) {
                 if (((ImdiField) cellValue[selectedField]).hasVocabulary()) {
                     System.out.println("Has Vocabulary");
                     JComboBox comboBox = new JComboBox();
-                    comboBox.setEditable(((ImdiField) cellValue[selectedField]).vocabularyIsOpen);
                     for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = ((ImdiField) cellValue[selectedField]).getVocabulary(); vocabularyList.hasMoreElements();) {
                         comboBox.addItem(vocabularyList.nextElement().languageName);
                     }
@@ -182,11 +203,17 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     comboBox.setSelectedItem(cellValue[selectedField].toString());
                     editorPanel.remove(button);
                     editorPanel.add(comboBox);
-                    addFocusListener(comboBox);
                     editorPanel.doLayout();
                     comboBox.setPopupVisible(true);
-                    comboBox.requestFocusInWindow();
+                    comboBox.setEditable(((ImdiField) cellValue[selectedField]).vocabularyIsOpen);
+                    if (((ImdiField) cellValue[selectedField]).vocabularyIsOpen) {
+                        comboBox.getEditor().getEditorComponent().requestFocusInWindow();
+                    } else {
+                        comboBox.requestFocusInWindow();
+                    }
                     editorComponent = comboBox;
+                    addFocusListener(comboBox);
+                    addFocusListener(comboBox.getEditor().getEditorComponent());
                 } else {
                     editorPanel.remove(button);
                     editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
