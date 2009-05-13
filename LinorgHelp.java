@@ -1,5 +1,6 @@
 package mpi.linorg;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,11 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.SwingUtilities;
+import javax.swing.text.html.HTMLDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -26,10 +29,12 @@ import javax.swing.tree.TreeSelectionModel;
 public class LinorgHelp extends javax.swing.JPanel {
 
     static public String ShorCutKeysPage = "Short Cut Keys";
-    static public String IntroductionPage = "2. Where do I start";
+    static public String IntroductionPage = "2. Quick Introduction";
     DefaultMutableTreeNode rootContentsNode;
     DefaultTreeModel helpTreeModel;
     static private LinorgHelp singleInstance = null;
+    private HelpNodeUserObject[] allHelpNodes;
+    static public String helpWindowTitle = "Help Viewer";
 
     static synchronized public LinorgHelp getSingleInstance() {
         System.out.println("LinorgHelp getSingleInstance");
@@ -42,6 +47,10 @@ public class LinorgHelp extends javax.swing.JPanel {
     /** Creates new form LinorgHelp */
     private LinorgHelp() {
         initComponents();
+
+        jTextPane1.setContentType("text/html");
+        ((HTMLDocument) jTextPane1.getDocument()).setBase(this.getClass().getResource("/mpi/linorg/resources/html/help/"));
+
         Vector<String> availablePages = new Vector();
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 //        try {
@@ -131,6 +140,8 @@ public class LinorgHelp extends javax.swing.JPanel {
                 }
             });
 
+            allHelpNodes = new HelpNodeUserObject[availablePages.size()];
+            int allHelpNodeCount = availablePages.size() - 1;
             for (String currentFileName : availablePages) {
                 DefaultMutableTreeNode currentSearchNode = rootContentsNode;
                 System.out.println("currentFileName: " + currentFileName);
@@ -153,7 +164,9 @@ public class LinorgHelp extends javax.swing.JPanel {
                 }
                 URL currentURL = this.getClass().getResource("/mpi/linorg/resources/html/help/" + currentFileName);
                 String currentName = currentSearchNode.getUserObject().toString().replaceFirst("\\.html$", "");
-                currentSearchNode.setUserObject(new HelpNodeUserObject(currentName, currentURL));
+                allHelpNodes[allHelpNodeCount] = new HelpNodeUserObject(currentName, currentURL);
+                currentSearchNode.setUserObject(allHelpNodes[allHelpNodeCount]);
+                allHelpNodeCount--;
                 currentSearchNode.setAllowsChildren(false);
             }
         }
@@ -176,6 +189,53 @@ public class LinorgHelp extends javax.swing.JPanel {
         public URL getHelpURL() {
             return helpURL;
         }
+    }
+
+    public void printAsOneFile() {
+        HelpTemplate helpTemplate = new HelpTemplate();
+        try {
+            StringBuilder completeHelpText = new StringBuilder();
+            completeHelpText.append(helpTemplate.startHead);
+            completeHelpText.append("Arbil Help");
+            completeHelpText.append(helpTemplate.startBody);
+            completeHelpText.append(helpTemplate.preContentTitle);
+            completeHelpText.append("Arbil Help");
+            completeHelpText.append(helpTemplate.postContentTitle);
+            for (HelpNodeUserObject currentHelpPage : allHelpNodes) {
+                URLConnection conn = currentHelpPage.getHelpURL().openConnection();
+                InputStream helpTemplateReader = new BufferedInputStream(conn.getInputStream());
+                BufferedReader bufferedHelpReader = new BufferedReader(new InputStreamReader(helpTemplateReader));
+//                InputStream helpTemplateReader = (this.getClass().getResourceAsStream("/mpi/linorg/resources/html/help/" + line));
+//                BufferedReader bufferedHelpReader = new BufferedReader(new InputStreamReader(helpTemplateReader));
+
+                // add the heading and then the help page contents
+                String sectionHeader = helpTemplate.preContentSubTitle + currentHelpPage.nameString + helpTemplate.postContentSubTitle;
+                for (String helpLine = sectionHeader; helpLine != null; helpLine = bufferedHelpReader.readLine()) {
+                    completeHelpText.append(helpLine);
+                }
+                bufferedHelpReader.close();
+            }
+            completeHelpText.append(helpTemplate.endContent);
+            completeHelpText.append(helpTemplate.endBody);
+            System.out.println(completeHelpText.toString());
+            jTextPane1.setText(completeHelpText.toString());
+            jTextPane1.setCaretPosition(0);
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+    }
+
+    private class HelpTemplate {
+        //<link media="handheld" type="text/css" href="/community/css/themes/mobile01.css" rel="stylesheet">
+        String startHead = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"><html><head><title>";
+        String startBody = "</title><STYLE TYPE=\"text/css\"><!-- .helpTitle { text-align: center; font-size:125%; background: #ede2cd; margin:0; padding:0; } .helpSubTitle { text-align: left; font-size:110%; background: #ede2cd; margin:0; padding:0; } .helpText { color:Black; font-family:Arial,Helvetica,sans-serif; font-size:100%; font-size-adjust:none; font-style:normal; font-variant:normal; font-weight:normal; line-height:1.25em; background: #F4F1EB; } --> </STYLE></head><body class=\"helpText\">";
+        //<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
+        String preContentTitle = "<table width=\"100%\" border=\"0\" cellpadding=\"10\" cellspacing=\"0\"><tr width=\"100%\" class=\"helpTitle\"><td width=\"100%\">";
+        String postContentTitle = "</td><td><img src=\"../../icons/arbil32x32.png\"></td></tr><tr><td width=\"100%\" height=\"100%\" colspan=\"2\" class=\"helpText\">";
+        String preContentSubTitle = "</td></tr><tr width=\"100%\" class=\"helpSubTitle\"><td width=\"100%\" colspan=\"2\">";
+        String postContentSubTitle = "</td></tr><tr width=\"100%\"><td width=\"100%\" height=\"100%\" colspan=\"2\" class=\"helpText\">";
+        String endContent = "</td></tr></table>";
+        String endBody = "</body></html>";
     }
 
     /** This method is called from within the constructor to
@@ -223,13 +283,33 @@ private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN
         if (node.isLeaf()) {
             try {
                 if (((HelpNodeUserObject) nodeInfo).getHelpURL() != null) {
-                    jTextPane1.setPage(((HelpNodeUserObject) nodeInfo).getHelpURL());
+                    HelpTemplate helpTemplate = new HelpTemplate();
+                    StringBuilder completeHelpText = new StringBuilder();
+                    completeHelpText.append(helpTemplate.startHead);
+                    completeHelpText.append(((HelpNodeUserObject) nodeInfo).nameString);
+                    completeHelpText.append(helpTemplate.startBody);
+                    completeHelpText.append(helpTemplate.preContentTitle);
+                    completeHelpText.append(((HelpNodeUserObject) nodeInfo).nameString);
+                    completeHelpText.append(helpTemplate.postContentTitle);
+
+                    URLConnection conn = ((HelpNodeUserObject) nodeInfo).getHelpURL().openConnection();
+                    InputStream helpTemplateReader = new BufferedInputStream(conn.getInputStream());
+                    BufferedReader bufferedHelpReader = new BufferedReader(new InputStreamReader(helpTemplateReader));
+                    // add the heading and then the help page contents
+                    for (String helpLine = bufferedHelpReader.readLine(); helpLine != null; helpLine = bufferedHelpReader.readLine()) {
+                        completeHelpText.append(helpLine);
+                    }
+                    bufferedHelpReader.close();
+                    completeHelpText.append(helpTemplate.endContent);
+                    completeHelpText.append(helpTemplate.endBody);
+                    jTextPane1.setText(completeHelpText.toString());
+                    jTextPane1.setCaretPosition(0);
                 } else {
                     jTextPane1.setText("Page not found");
                 }
             } catch (Exception ex) {
                 jTextPane1.setText("Page not found error");
-//                GuiHelper.linorgBugCatcher.logError(ex);
+                GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
     }
