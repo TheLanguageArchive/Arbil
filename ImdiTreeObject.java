@@ -137,6 +137,16 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public void setMimeType(String localMimeType) {
+        mpiMimeType = localMimeType;
+        if (!isImdi() && isLocal() && mpiMimeType != null) {
+            // add the mime type
+            ImdiField mimeTypeField = new ImdiField(this, "Format", this.mpiMimeType);
+            mimeTypeField.fieldID = "x" + fieldHashtable.size();
+            addField(mimeTypeField);
+        }
+    }
+
     private void initNodeVariables() {
         // loop any indichildnodes and init
         if (childrenHashtable != null) {
@@ -172,15 +182,23 @@ public class ImdiTreeObject implements Comparable {
                 if (fileObject != null) {
                     this.isDirectory = fileObject.isDirectory();
                 }
+                int currentFieldId = 1;
                 nodeText = fileObject.getName();
-                ImdiField sizeField = new ImdiField(this, "size", (fileObject.length() / 1024) + "KB");
-                sizeField.fieldID = "x1";
+                ImdiField sizeField = new ImdiField(this, "Size", (fileObject.length() / 1024) + "KB");
+                sizeField.fieldID = "x" + currentFieldId++;
                 addField(sizeField);
+                // add the modified date
                 Date mtime = new Date(fileObject.lastModified());
                 String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
                 ImdiField dateField = new ImdiField(this, "last modified", mTimeString);
-                dateField.fieldID = "x2";
+                dateField.fieldID = "x" + currentFieldId++;
                 addField(dateField);
+                // get exif tags
+                ImdiField[] exifFields = GuiHelper.imdiSchema.getExifMetadata(this);
+                for (ImdiField currentField : exifFields) {
+                    currentField.fieldID = "x" + currentFieldId++;
+                    addField(currentField);
+                }
             }
             if (!isImdi() && nodeText == null) {
                 nodeText = this.getUrlString();
@@ -712,7 +730,15 @@ public class ImdiTreeObject implements Comparable {
                 linkAlreadyExists = true;
             }
         }
-        if (!linkAlreadyExists) { // if link is not already there
+        if (targetImdiNode.getUrlString().equals(this.getUrlString())) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot link or move a node into itself");
+            return false;
+        }
+        if (linkAlreadyExists) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again");
+            return false;
+        } else {
+            // if link is not already there
             // if needs saving then save now while you can
             // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
             if (imdiNeedsSaveToDisk) {
@@ -740,9 +766,6 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("Exception: " + ex.getMessage());
             }
             return true;
-        } else {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again");
-            return false;
         }
     }
 
@@ -827,6 +850,7 @@ public class ImdiTreeObject implements Comparable {
             GuiHelper.imdiLoader.requestReload(this);
         }
     }
+
     /**
      * Saves the current changes from memory into a new imdi file on disk.
      * Previous imdi files are renamed and kept as a history.
