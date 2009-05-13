@@ -91,6 +91,7 @@ public class ImdiVocabularies {
         if (tempVocab != null) {
             return tempVocab.elements();
         } else {
+            System.out.println("vocabulary is null");
             return null;
         }
     }
