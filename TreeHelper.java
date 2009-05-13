@@ -281,17 +281,21 @@ public class TreeHelper {
         for (int childCounter = 0; childCounter < sortedChildren.size(); childCounter++) {
 //            System.out.println("sortChildNodes comparing: " + sortedChildren.get(childCounter));
 //            System.out.println("sortChildNodes to: " + parentNode.getChildAt(childCounter));
-            if (!sortedChildren.get(childCounter).equals(parentNode.getChildAt(childCounter))) {
-                System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
-                try {
-                    treeModel.removeNodeFromParent(sortedChildren.get(childCounter));
-                } catch (Exception e) {
-                    System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
-                }
-                treeModel.insertNodeInto(sortedChildren.get(childCounter), parentNode, childCounter);
+            try {
+                if (!sortedChildren.get(childCounter).equals(parentNode.getChildAt(childCounter))) {
+                    System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
+                    try {
+                        treeModel.removeNodeFromParent(sortedChildren.get(childCounter));
+                    } catch (Exception e) {
+                        System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
+                    }
+                    treeModel.insertNodeInto(sortedChildren.get(childCounter), parentNode, childCounter);
 //                treeModel.nodeStructureChanged(parentNode);
 //                            treeModel.nodeChanged(itemNode);
 //            treeModel.nodeChanged(missingTreeNode);
+                }
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
     }
