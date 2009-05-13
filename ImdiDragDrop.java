@@ -322,7 +322,10 @@ public class ImdiDragDrop {
                                 System.out.println("ok to add local file");
                                 for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                    ((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
+                                    String nodeType = GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType);
+                                    if (nodeType != null) {
+                                        ((ImdiTreeObject) dropTargetUserObject).requestAddNode(nodeType, "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
+                                    }
                                 }
                                 return true; // we have achieved the drag so return true
                             }
