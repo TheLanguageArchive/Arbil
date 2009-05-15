@@ -107,12 +107,13 @@ public class GuiHelper {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     String imdiFavouriteUrlString = evt.getActionCommand();
+                    ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiFavouriteUrlString);
                     DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
                     ImdiTreeObject imdiTreeObject;
                     if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
                         imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
 //                        imdiTreeObject.requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
-                        imdiTreeObject.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(imdiFavouriteUrlString), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
+                        imdiTreeObject.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(templateImdiObject), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
                     }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());

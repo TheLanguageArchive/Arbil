@@ -115,13 +115,17 @@ public class LinorgFavourites {
         return validTemplates.elements();
     }
 
-    public String getNodeType(String imdiTemplateUrlString) {
-        System.out.println("getNodeType: " + imdiTemplateUrlString);
+    public String getNodeType(ImdiTreeObject templateImdiObject) {
+        System.out.println("getNodeType: " + templateImdiObject);
         String returnValue;
-        if (imdiTemplateUrlString.contains("#")) {
-            returnValue = imdiTemplateUrlString.split("#")[1].split("\\(")[0];
-        } else {
+        if (templateImdiObject.isSession()) {
             returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session";
+        } else if (templateImdiObject.isCorpus()) {
+            returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus";
+        } else if (templateImdiObject.isImdiChild()) {
+            returnValue = templateImdiObject.getUrlString().split("#")[1].split("\\(")[0];
+        } else {
+            returnValue = null;
         }
         System.out.println("getNodeTypeReturnValue: " + returnValue);
         return returnValue;

@@ -818,8 +818,8 @@ public class ImdiTreeObject implements Comparable {
                         if (GuiHelper.linorgSessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
                             if (!ImdiTreeObject.isStringImdiChild(clipBoardString)) {
                                 if (this.getFile().exists()) {
-                                    this.addCorpusLink(clipboardNode);
-                                    this.reloadNode();
+                                    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
+                                    this.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(clipboardNode), "Copy of " + clipboardNode, clipboardNode.getUrlString(), null, null);
                                 } else {
                                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist");
                                 }
@@ -842,12 +842,16 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
-        if (this.isImdiChild()) {
-            this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
+        if (nodeType == null) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node");
         } else {
+            if (this.isImdiChild()) {
+                this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
+            } else {
 //        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + templateUrlString + " : " + resourceUrl);
-            addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
-            GuiHelper.imdiLoader.requestReload(this);
+                addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
+                GuiHelper.imdiLoader.requestReload(this);
+            }
         }
     }
 

@@ -16,14 +16,16 @@ public class ImdiFieldViewTableModel extends DefaultTableModel {
     public ImdiFieldViewTableModel(ImdiTableModel localImdiTableModel) {
         imdiTableModel = localImdiTableModel;
         //System.out.println("setting to: " + viewLabel);
-        setColumnIdentifiers(new String[]{"Column Name", "Column Description", "Show Only", "Hide"}); //, "Always Display"
+        // "Column Description",  is not relevant here because this is a list of column names not imdi fields
+        setColumnIdentifiers(new String[]{"Column Name", "Show Only", "Hide"}); //, "Always Display"
         // we want a table model even if it has no rows
         LinorgFieldView currentView = imdiTableModel.getFieldView();
         if (currentView != null) {
             // loop the known columns
             for (Enumeration knownColumnNames = ((LinorgFieldView) currentView).getKnownColumns(); knownColumnNames.hasMoreElements();) {
                 String currentFieldName = knownColumnNames.nextElement().toString();
-                this.addRow(new Object[]{currentFieldName, GuiHelper.imdiSchema.getHelpForField(currentFieldName),
+                this.addRow(new Object[]{currentFieldName,
+                            //GuiHelper.imdiSchema.getHelpForField(currentFieldName),
                             // set the show only fields
                             ((LinorgFieldView) currentView).isShowOnlyColumn(currentFieldName),
                             // set the hidden fields
@@ -36,12 +38,12 @@ public class ImdiFieldViewTableModel extends DefaultTableModel {
 
     }
     Class[] types = new Class[]{
-        java.lang.String.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
+        java.lang.String.class, /*java.lang.String.class,*/ java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
     };
     private int showOnlyEnabledCount = -1;
-    private int showOnlyColumn = 2;
-    private int fieldNameColumn = 0;
-    private int hideColumn = 3;
+    private final int showOnlyColumn = 1;
+    private final int fieldNameColumn = 0;
+    private final int hideColumn = 2;
 
     public Class getColumnClass(int columnIndex) {
         return types[columnIndex];
@@ -77,14 +79,14 @@ public class ImdiFieldViewTableModel extends DefaultTableModel {
         boolean booleanState = aValue.equals(true);
         String targetColumnName = getValueAt(row, fieldNameColumn).toString();
         switch (column) {
-            case 2:
+            case showOnlyColumn:
                 if (booleanState) {
                     imdiTableModel.getFieldView().addShowOnlyColumn(targetColumnName);
                 } else {
                     imdiTableModel.getFieldView().removeShowOnlyColumn(targetColumnName);
                 }
                 break;
-            case 3:
+            case hideColumn:
                 if (booleanState) {
                     imdiTableModel.getFieldView().addHiddenColumn(targetColumnName);
                 } else {

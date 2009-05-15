@@ -139,13 +139,17 @@ public class ImdiTableModel extends AbstractTableModel {
             for (Enumeration<ImdiField[]> columnFields = returnImdiArray[imdiArrayCounter].getFields().elements(); columnFields.hasMoreElements();) {
                 for (ImdiField currentField : columnFields.nextElement()) {
                     String currentColumnName = currentField.getTranslateFieldName();
-                    if (!allColumnNames.containsValue(currentColumnName)) {
-                        allColumnNames.put(currentColumnName, currentField);
-                    } else {
-                        // update the min id value
-                        ImdiField lastStoredField = allColumnNames.get(currentColumnName);
-                        if (lastStoredField.getFieldID() > currentField.getFieldID()) {
+                    if (tableFieldView.viewShowsColumn(currentColumnName)) {
+                        if (!allColumnNames.containsValue(currentColumnName)) {
                             allColumnNames.put(currentColumnName, currentField);
+                        } else {
+                            // update the min id value
+                            ImdiField lastStoredField = allColumnNames.get(currentColumnName);
+                            if (currentField.getFieldID() != -1) {
+                                if (lastStoredField.getFieldID() > currentField.getFieldID()) {
+                                    allColumnNames.put(currentColumnName, currentField);
+                                }
+                            }
                         }
                     }
                     tableFieldView.addKnownColumn(currentColumnName);
@@ -583,7 +587,9 @@ public class ImdiTableModel extends AbstractTableModel {
                     for (Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
                         ImdiField[] currentFieldArray = valuesEnum.nextElement();
                         for (ImdiField currentField : currentFieldArray) {
-                            allRowFields.add(currentField);
+                            if (tableFieldView.viewShowsColumn(currentField.getTranslateFieldName())) {
+                                allRowFields.add(currentField);
+                            }
                         }
                     }
                     dataTemp = allocateCellData(allRowFields.size(), 2);

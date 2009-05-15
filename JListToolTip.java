@@ -117,11 +117,17 @@ class JListToolTip extends JToolTip {
                 for (int childCounter = 0; childCounter < ((Object[]) targetObject).length; childCounter++) {
                     addIconLabel(((Object[]) targetObject)[childCounter]);
                 }
+                if (((Object[]) targetObject)[0] != null && ((Object[]) targetObject)[0] instanceof ImdiField) {
+                    addDetailLabel(GuiHelper.imdiSchema.getHelpForField(((ImdiField) ((Object[]) targetObject)[0]).xmlPath));
+                }
             } else if (targetObject instanceof ImdiTreeObject) {
                 addIconLabel(targetObject);
                 addLabelsForImdiObject((ImdiTreeObject) targetObject);
             } else {
                 addDetailLabel(targetObject.toString());
+                if (targetObject instanceof ImdiField) {
+                    addDetailLabel(GuiHelper.imdiSchema.getHelpForField(((ImdiField) targetObject).xmlPath));
+                }
             //JTextField
 //                JTextArea jTextArea = new JTextArea();
 //                jTextArea.setText(targetObject.toString());

@@ -378,7 +378,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(optionsMenu);
 
-        viewMenu.setText("View");
+        viewMenu.setText("Column Views");
         viewMenu.addMenuListener(new javax.swing.event.MenuListener() {
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }

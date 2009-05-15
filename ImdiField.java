@@ -97,7 +97,7 @@ public class ImdiField {
     }
 
     public boolean isDisplayable() {
-        return (fieldValue != null && /*fieldValue.trim().length() > 0 && */ !xmlPath.contains("CorpusLink") && !xmlPath.endsWith(".Keys")&& !xmlPath.endsWith(".History"));
+        return (fieldValue != null && /*fieldValue.trim().length() > 0 && */ !xmlPath.contains("CorpusLink") && !xmlPath.endsWith(".Keys") && !xmlPath.endsWith(".History"));
     }
 
     public void finishLoading() {
@@ -152,7 +152,11 @@ public class ImdiField {
     }
 
     public int getFieldID() {
-        return Integer.parseInt(fieldID.substring(1));
+        if (fieldID != null) {
+            return Integer.parseInt(fieldID.substring(1));
+        } else {
+            return -1;
+        }
     }
 
     public String getTranslateFieldName() {

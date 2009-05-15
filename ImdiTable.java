@@ -92,28 +92,28 @@ public class ImdiTable extends JTable {
                         }
                     });
 
-                    JMenuItem saveViewMenuItem = new JMenuItem("Save this view");
+                    JMenuItem saveViewMenuItem = new JMenuItem("Save this Column View");
                     saveViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
                             //System.out.println("saveViewNenuItem: " + targetTable.toString());
-                            String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this view as", "Save View", JOptionPane.PLAIN_MESSAGE);
+                            String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
                             // if the user did not cancel
                             if (fieldViewName != null) {
                                 if (!ImdiFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
-                                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "A View with the same name already exists, nothing saved");
+                                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "A Column View with the same name already exists, nothing saved");
                                 }
                             }
                         }
                     });
 
-                    JMenuItem editViewMenuItem = new JMenuItem("Edit this view");
+                    JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
                     editViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
                             ImdiFieldViewTable fieldViewTable = new ImdiFieldViewTable(imdiTableModel);
                             JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
-                            editViewsDialog.setTitle("Editing Current View");
+                            editViewsDialog.setTitle("Editing Current Column View");
 
                             JScrollPane js = new JScrollPane(fieldViewTable);
                             editViewsDialog.getContentPane().add(js);
@@ -137,7 +137,7 @@ public class ImdiTable extends JTable {
                     popupMenu.add(saveViewMenuItem);
                     popupMenu.add(hideColumnMenuItem);
                     // create the views sub menu
-                    JMenu fieldViewsMenuItem = new JMenu("Apply Saved View");
+                    JMenu fieldViewsMenuItem = new JMenu("Apply Saved Column View");
                     ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
                     //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
                     for (Enumeration savedViewsEnum = ImdiFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
@@ -551,7 +551,8 @@ public class ImdiTable extends JTable {
                 java.awt.Point p = e.getPoint();
                 int index = columnModel.getColumnIndexAtX(p.x);
                 //int realIndex = columnModel.getColumn(index).getModelIndex();
-                return GuiHelper.imdiSchema.getHelpForField(getColumnName(index));
+                //return GuiHelper.imdiSchema.getHelpForField(getColumnName(index));
+                return getColumnName(index);
             }
         };
     }
