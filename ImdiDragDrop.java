@@ -4,8 +4,6 @@ import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.util.Arrays;
-import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JList;
@@ -342,17 +340,31 @@ public class ImdiDragDrop {
                                 for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                     System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                                     //((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
-                                    if (((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter])) {
-                                        if (draggedTreeNodes[draggedCounter] != null) {
-                                            if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
-                                                System.out.println("dragged from root");
-                                                TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
-                                                TreeHelper.getSingleInstance().applyRootLocations();
-                                            } else {
-                                                ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-                                                System.out.println("removeing from parent: " + parentImdi);
-                                                parentImdi.deleteCorpusLink(draggedImdiObjects[draggedCounter]);
-                                                parentImdi.reloadNode();
+
+                                    // check that the node has not been dragged into itself
+                                    boolean draggedIntoSelf = false;
+                                    DefaultMutableTreeNode ancestorNode = targetNode;
+                                    while (ancestorNode != null) {
+                                        if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
+                                            draggedIntoSelf = true;
+                                            System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
+                                        }
+//                                        System.out.println("checking: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
+                                        ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
+                                    }
+                                    if (!draggedIntoSelf) {
+                                        if (((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter])) {
+                                            if (draggedTreeNodes[draggedCounter] != null) {
+                                                if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
+                                                    System.out.println("dragged from root");
+                                                    TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
+                                                    TreeHelper.getSingleInstance().applyRootLocations();
+                                                } else {
+                                                    ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+                                                    System.out.println("removeing from parent: " + parentImdi);
+                                                    parentImdi.deleteCorpusLink(draggedImdiObjects[draggedCounter]);
+                                                    parentImdi.reloadNode();
+                                                }
                                             }
                                         }
                                     }
