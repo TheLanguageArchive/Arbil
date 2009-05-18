@@ -16,6 +16,13 @@ import javax.imageio.ImageIO;
  */
 public class LinorgBugCatcher {
 
+    public LinorgBugCatcher() {
+        File errorLogFile = new File(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log");
+        if (errorLogFile.exists()) {
+            errorLogFile.delete();
+        }
+    }
+    
     private int captureCount = 0;
 
     public void grabApplicationShot() {
@@ -47,22 +54,23 @@ public class LinorgBugCatcher {
 //            System.err.println("failed to write to the error log: " + ex.getMessage());
 //        }
 //    }
-
+    
     public void logError(Exception exception) {
         logError("", exception);
     }
 
     public void logError(String messageString, Exception exception) {
         try {
+            LinorgVersion linorgVersion = new LinorgVersion();
             System.err.println("exception: " + exception.getMessage());
-            System.err.println(messageString);            
+            System.err.println(messageString);
             exception.printStackTrace();
-            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
+            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log", true);
 //            System.out.println("logCatch: " + messageString);
             errorLogFile.append(messageString + System.getProperty("line.separator"));
             errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
-            errorLogFile.append("Compile Date: " + new LinorgVersion().compileDate + System.getProperty("line.separator"));
-            errorLogFile.append("Current Revision: " + new LinorgVersion().currentRevision + System.getProperty("line.separator"));
+            errorLogFile.append("Compile Date: " + linorgVersion.compileDate + System.getProperty("line.separator"));
+            errorLogFile.append("Current Revision: " + linorgVersion.currentRevision + System.getProperty("line.separator"));
             errorLogFile.append("Exception Message: " + exception.getMessage() + System.getProperty("line.separator"));
             StackTraceElement[] stackTraceElements = exception.getStackTrace();
             for (StackTraceElement element : stackTraceElements) {
