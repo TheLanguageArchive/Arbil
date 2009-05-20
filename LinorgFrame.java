@@ -1,14 +1,10 @@
 package mpi.linorg;
 
-import java.awt.Component;
+import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.Enumeration;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -54,7 +50,10 @@ public class LinorgFrame extends javax.swing.JFrame {
         // set the default window dimensions
         // TODO: move this to the sessionstorage and load / save on exit
 
-        previewTable = new ImdiTable(new ImdiTableModel(), null, "Preview");
+        previewTable = new ImdiTable(new ImdiTableModel(), "Preview");
+        previewPanel.add(rightScrollPane, BorderLayout.CENTER);
+        previewPanel.add(previewHiddenColumnLabel, BorderLayout.SOUTH);
+        ((ImdiTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
         rightScrollPane.setViewportView(previewTable);
         mainSplitPane.setDividerLocation(0.25);
         // also set in showSelectionPreviewCheckBoxMenuItemActionPerformed
@@ -77,6 +76,8 @@ public class LinorgFrame extends javax.swing.JFrame {
         setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
         setIconImage(ImdiIcons.getSingleInstance().linorgTestingIcon.getImage());
         showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
+        trackTableSelectionCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("trackTableSelection", false));
+        TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
         copyNewResourcesCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("copyNewResources", true));
@@ -86,7 +87,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
     private void performCleanExit() {
         if (GuiHelper.imdiLoader.nodesNeedSave()) {
-            switch (JOptionPane.showConfirmDialog(this, "Save changes?")) {
+            switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 case JOptionPane.NO_OPTION:
                     break;
                 case JOptionPane.YES_OPTION:
@@ -99,6 +100,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
         try {
             GuiHelper.linorgSessionStorage.saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
+            GuiHelper.linorgSessionStorage.saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
             GuiHelper.linorgSessionStorage.saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
             GuiHelper.linorgSessionStorage.saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
             GuiHelper.linorgSessionStorage.saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
@@ -131,8 +133,10 @@ public class LinorgFrame extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         remoteCorpusTree = new ImdiTree();
         rightSplitPane = new javax.swing.JSplitPane();
-        rightScrollPane = new javax.swing.JScrollPane();
         jDesktopPane1 = new javax.swing.JDesktopPane();
+        previewPanel = new javax.swing.JPanel();
+        rightScrollPane = new javax.swing.JScrollPane();
+        previewHiddenColumnLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         saveFileMenuItem = new javax.swing.JMenuItem();
@@ -152,6 +156,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         checkNewVersionAtStartCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         copyNewResourcesCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
+        trackTableSelectionCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
         viewMenu = new javax.swing.JMenu();
         windowMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
@@ -247,10 +252,17 @@ public class LinorgFrame extends javax.swing.JFrame {
         rightSplitPane.setDividerSize(5);
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         rightSplitPane.setName("rightSplitPane"); // NOI18N
-        rightSplitPane.setTopComponent(rightScrollPane);
 
         jDesktopPane1.setBackground(new java.awt.Color(204, 204, 204));
         rightSplitPane.setRightComponent(jDesktopPane1);
+
+        previewPanel.setLayout(new java.awt.BorderLayout());
+        previewPanel.add(rightScrollPane, java.awt.BorderLayout.CENTER);
+
+        previewHiddenColumnLabel.setText(" ");
+        previewPanel.add(previewHiddenColumnLabel, java.awt.BorderLayout.PAGE_START);
+
+        rightSplitPane.setRightComponent(previewPanel);
 
         mainSplitPane.setRightComponent(rightSplitPane);
 
@@ -376,6 +388,14 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
+        trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
+        trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                trackTableSelectionCheckBoxMenuItemActionPerformed(evt);
+            }
+        });
+        optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
+
         jMenuBar1.add(optionsMenu);
 
         viewMenu.setText("Column Views");
@@ -499,7 +519,7 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
 //            int lastPost = mainSplitPane.getDividerLocation();
             mainSplitPane.remove(jDesktopPane1);
             mainSplitPane.setRightComponent(rightSplitPane);
-            rightSplitPane.setTopComponent(rightScrollPane);
+            rightSplitPane.setTopComponent(previewPanel);
             rightSplitPane.setBottomComponent(jDesktopPane1);
             rightSplitPane.setDividerLocation(0.1);
 //            mainSplitPane.setDividerLocation(lastPost);
@@ -583,6 +603,12 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     LinorgWindowManager.getSingleInstance().openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
 }//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
 
+
+private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
+// TODO add your handling code here:
+    TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
+}//GEN-LAST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
+
 /**
      * @param args the command line arguments
      */
@@ -623,6 +649,9 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JSplitPane mainSplitPane;
     private javax.swing.JMenu optionsMenu;
     private javax.swing.JMenuItem pasteMenuItem;
+    private javax.swing.JLabel previewHiddenColumnLabel;
+    private javax.swing.JPanel previewPanel;
+    private javax.swing.JMenuItem printHelpMenuItem;
     private javax.swing.JMenuItem redoMenuItem;
     private javax.swing.JTree remoteCorpusTree;
     private javax.swing.JScrollPane rightScrollPane;
@@ -632,6 +661,7 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     private javax.swing.JMenuItem shortCutKeysjMenuItem;
     private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private javax.swing.JMenu templatesMenu;
+    private javax.swing.JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
     private javax.swing.JMenuItem undoMenuItem;
     private javax.swing.JMenuItem viewFavouritesMenuItem;
     private javax.swing.JMenu viewMenu;
