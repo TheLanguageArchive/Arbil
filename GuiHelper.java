@@ -263,7 +263,7 @@ public class GuiHelper {
             ImdiTreeObject itemImdiTreeObject = (ImdiTreeObject) itemNode;
             String hashKey = itemImdiTreeObject.getUrlString();
             System.out.println("hashkey: " + hashKey);
-            if (itemImdiTreeObject.isImdi()) {
+            if (!itemImdiTreeObject.isDirectory()) {
                 ((ImdiTableModel) tableModel).addSingleImdiObject(itemImdiTreeObject);
             }
 //            if (!itemImdiTreeObject.isImdi() || itemImdiTreeObject.getResource() != null) {
