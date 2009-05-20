@@ -123,14 +123,15 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 boolean oppositeIsParent = false;
                 try {
                     oppositeIsParent = (e.getComponent().equals(e.getOppositeComponent().getParent()) || e.getComponent().getParent().equals(e.getOppositeComponent()));
+                    if (!oppositeIsParent && e.getComponent().getParent() != null) {
+                        if (!e.getOppositeComponent().getParent().equals(editorPanel)) {
+                            ImdiChildCellEditor.this.stopCellEditing();
+                        }
+                    }
                 } catch (Exception ex) {
                     System.out.println("OppositeComponent or parent container not set");
                 }
-                if (!oppositeIsParent && e.getComponent().getParent() != null) {
-                    if (!e.getOppositeComponent().getParent().equals(editorPanel)) {
-                        ImdiChildCellEditor.this.stopCellEditing();
-                    }
-                }
+
             }
         });
     }
