@@ -124,7 +124,7 @@ public class ImdiVocabularies {
                 xmlReader.setContentHandler(new SaxVocabularyHandler(vocabularyList));
                 xmlReader.parse(cachePath);
             } catch (Exception ex) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.");
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
 //                    brokenVocabMessageShown = true;
 //                }
             //GuiHelper.linorgBugCatcher.logError(ex);
