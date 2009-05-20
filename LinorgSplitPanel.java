@@ -3,6 +3,7 @@ package mpi.linorg;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,6 +27,8 @@ public class LinorgSplitPanel extends JPanel {
     private JScrollPane tableScrollPane;
     private JScrollPane listScroller;
     private JSplitPane splitPane;
+    private JLabel hiddenColumnsLabel;
+    private JPanel tableOuterPanel;
 
     public LinorgSplitPanel(ImdiTable localImdiTable) {
 //            setBackground(new Color(0xFF00FF));
@@ -33,7 +36,12 @@ public class LinorgSplitPanel extends JPanel {
 
         imdiTable = localImdiTable;
         splitPane = new JSplitPane();
-
+        hiddenColumnsLabel = new JLabel();
+        tableScrollPane = new JScrollPane(imdiTable);
+        tableOuterPanel = new JPanel(new BorderLayout());
+        tableOuterPanel.add(tableScrollPane, BorderLayout.CENTER);
+        tableOuterPanel.add(hiddenColumnsLabel, BorderLayout.SOUTH);
+        ((ImdiTableModel) localImdiTable.getModel()).setHiddenColumnsLabel(hiddenColumnsLabel);
         fileList = new JList(((ImdiTableModel) localImdiTable.getModel()).getListModel(this));
         fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         fileList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
@@ -46,7 +54,6 @@ public class LinorgSplitPanel extends JPanel {
         fileList.setCellRenderer(renderer);
         splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitPane.setDividerSize(5);
-        tableScrollPane = new JScrollPane(imdiTable);
         fileList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         fileList.addListSelectionListener(new ListSelectionListener() {
 
@@ -75,6 +82,10 @@ public class LinorgSplitPanel extends JPanel {
                             if (maxSelectedRow != -1) {
                                 imdiTable.scrollRectToVisible(imdiTable.getCellRect(minSelectedRow, 0, true));
                             }
+                        }
+                        if (TreeHelper.trackTableSelection) {
+                            Object selectedRow[] = ((JList) e.getSource()).getSelectedValues();
+                            TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ImdiTreeObject) selectedRow[0]);
                         }
                     }
                 }
@@ -106,6 +117,9 @@ public class LinorgSplitPanel extends JPanel {
                     if (maxSelectedRow != -1) {
                         fileList.scrollRectToVisible(fileList.getCellBounds(minSelectedRow, maxSelectedRow));
                     }
+                    if (TreeHelper.trackTableSelection) {
+                        TreeHelper.getSingleInstance().jumpToSelectionInTree(true, imdiTable.getImdiNodeForSelection());
+                    }
                 }
             }
         });
@@ -114,10 +128,10 @@ public class LinorgSplitPanel extends JPanel {
     public void setSplitDisplay() {
         this.removeAll();
         if (fileList.getModel().getSize() == 0) {
-            this.add(tableScrollPane);
+            this.add(tableOuterPanel);
         } else {
-            splitPane.setTopComponent(tableScrollPane);
-            splitPane.setTopComponent(tableScrollPane);
+            splitPane.setTopComponent(tableOuterPanel);
+//            splitPane.setTopComponent(tableScrollPane);
             splitPane.setBottomComponent(listScroller);
             GuiHelper.imdiDragDrop.addDrag(fileList);
             GuiHelper.imdiDragDrop.addTransferHandler(tableScrollPane);
