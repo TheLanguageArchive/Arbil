@@ -155,7 +155,7 @@ public class ImportExportDialog {
                     fileSelectDone = true;
                     exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
                 } else {
-                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), 0);
+                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
                 }
             } else {
                 fileSelectDone = true;
@@ -167,7 +167,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -182,7 +182,7 @@ public class ImportExportDialog {
 //            performCopy();
             searchDialog.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
         }
     }
 
@@ -194,7 +194,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -208,7 +208,7 @@ public class ImportExportDialog {
 //            performCopy();
             searchDialog.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), 0);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
         }
     }
 
@@ -659,7 +659,7 @@ public class ImportExportDialog {
                         finalMessageString,
                         searchDialog.getTitle(),
                         JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
+                        JOptionPane.PLAIN_MESSAGE,
                         null,
                         options,
                         options[0]);
