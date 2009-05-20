@@ -380,10 +380,21 @@ public class ImdiTreeObject implements Comparable {
     }
 
     /**
+     * Calls getAllChildren(Vector<ImdiTreeObject> allChildren) and returns the result as an array
+     * @return an array of all the child nodes 
+     */
+    public ImdiTreeObject[] getAllChildren() {
+        Vector<ImdiTreeObject> allChildren = new Vector();
+        getAllChildren(allChildren);
+        return allChildren.toArray(new ImdiTreeObject[]{});
+    }
+
+    /**
      * Used to get all the imdi child nodes (all levels) of a session or all the nodes contained in a corpus (one level only).
      * @param An empty vector, to which all the child nodes will be added.
      */
-    public void getAllChildren(Vector allChildren) {
+    public void getAllChildren(Vector<ImdiTreeObject> allChildren) {
+        // for the sake of the mergeFromFavourite use in the imdiloader this functin must return the nodes in order of parent to child not the other way around
         System.out.println("getAllChildren: " + this.getUrlString());
         if (this.isSession() || this.isImdiChild()) {
             for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
@@ -731,11 +742,11 @@ public class ImdiTreeObject implements Comparable {
             }
         }
         if (targetImdiNode.getUrlString().equals(this.getUrlString())) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot link or move a node into itself");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot link or move a node into itself", null);
             return false;
         }
         if (linkAlreadyExists) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again", null);
             return false;
         } else {
             // if link is not already there
@@ -821,19 +832,19 @@ public class ImdiTreeObject implements Comparable {
                                     // this must use merge like favoirite to prevent instances end endless loops in corpus branches
                                     this.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(clipboardNode), "Copy of " + clipboardNode, clipboardNode.getUrlString(), null, null);
                                 } else {
-                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist");
+                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist", null);
                                 }
                             } else {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session parts into a corpus");
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session parts into a corpus", null);
                             }
                         } else {
-                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache");
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache", null);
                         }
                     } else {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Pasted string is not and IMDI file");
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Pasted string is not and IMDI file", null);
                     }
                 } else {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only corpus branches can be pasted into at this stage");
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
                 }
             }
         } catch (Exception ex) {
@@ -843,7 +854,7 @@ public class ImdiTreeObject implements Comparable {
 
     public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
         if (nodeType == null) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
         } else {
             if (this.isImdiChild()) {
                 this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
