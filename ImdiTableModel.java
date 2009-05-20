@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -31,7 +32,8 @@ public class ImdiTableModel extends AbstractTableModel {
     LinorgFieldView tableFieldView;
     private int[] maxColumnWidths;
     boolean horizontalView = false;
-    int sortColumn = -1;
+    private int sortColumn = -1;
+    private JLabel hiddenColumnsLabel;
     boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
@@ -39,6 +41,10 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public ImdiTableModel() {
         tableFieldView = ImdiFieldViews.getSingleInstance().getCurrentGlobalView().clone();
+    }
+
+    public void setHiddenColumnsLabel(JLabel hiddenColumnsLabelLocal) {
+        hiddenColumnsLabel = hiddenColumnsLabelLocal;
     }
 
     public DefaultListModel getListModel(LinorgSplitPanel imdiSplitPanel) {
@@ -118,6 +124,7 @@ public class ImdiTableModel extends AbstractTableModel {
     private ImdiTreeObject[] updateAllImdiObjects() {
         ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[imdiObjectHash.size()];
         allColumnNames.clear();
+        int hiddenColumnCount = 0;
         Enumeration<ImdiTreeObject> nodesEnum = imdiObjectHash.elements();
         for (int imdiArrayCounter = 0; imdiArrayCounter < returnImdiArray.length; imdiArrayCounter++) {
             if (nodesEnum.hasMoreElements()) {
@@ -151,10 +158,16 @@ public class ImdiTableModel extends AbstractTableModel {
                                 }
                             }
                         }
+                    } else {
+                        hiddenColumnCount++;
                     }
                     tableFieldView.addKnownColumn(currentColumnName);
                 }
             }
+        }
+        if (hiddenColumnsLabel != null) {
+            hiddenColumnsLabel.setVisible(hiddenColumnCount > 0);
+            hiddenColumnsLabel.setText(hiddenColumnCount + " columns hidden (edit \"Column View\" in the table header to show)");
         }
         return returnImdiArray;
     }
