@@ -38,12 +38,12 @@ public class ImdiTable extends JTable {
     private ImdiTableModel imdiTableModel;
     JListToolTip listToolTip = new JListToolTip();
 
-    public ImdiTable(ImdiTableModel localImdiTableModel, ImdiTreeObject[] rowNodesArray, String frameTitle) {
+    public ImdiTable(ImdiTableModel localImdiTableModel, String frameTitle) {
         imdiTableModel = localImdiTableModel;
         imdiTableModel.setShowIcons(true);
-        if (rowNodesArray != null) {
-            imdiTableModel.addImdiObjects(rowNodesArray);
-        }
+//        if (rowNodesArray != null) {
+//            imdiTableModel.addImdiObjects(rowNodesArray);
+//        }
         this.setModel(imdiTableModel);
         this.setName(frameTitle);
         this.setCellSelectionEnabled(true);
@@ -101,7 +101,7 @@ public class ImdiTable extends JTable {
                             // if the user did not cancel
                             if (fieldViewName != null) {
                                 if (!ImdiFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
-                                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "A Column View with the same name already exists, nothing saved");
+                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
                                 }
                             }
                         }
@@ -301,7 +301,7 @@ public class ImdiTable extends JTable {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-                            if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION)) {
+                            if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                                 imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
                             }
                         }
@@ -318,6 +318,16 @@ public class ImdiTable extends JTable {
                     }
                 });
                 windowedTablePopupMenu.add(matchingCellsMenuItem);
+
+                JMenuItem jumpToNodeInTreeMenuItem = new javax.swing.JMenuItem();
+                jumpToNodeInTreeMenuItem.setText("Jump to in Tree"); // NOI18N
+                jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        TreeHelper.getSingleInstance().jumpToSelectionInTree(false, getImdiNodeForSelection());
+                    }
+                });
+                windowedTablePopupMenu.add(jumpToNodeInTreeMenuItem);
 
                 JMenuItem clearCellColoursMenuItem = new javax.swing.JMenuItem();
                 clearCellColoursMenuItem.setText("Clear Cell Highlight"); // NOI18N
@@ -574,7 +584,7 @@ public class ImdiTable extends JTable {
                 imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
             }
         } else {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Nothing to copy");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
         }
     }
 
@@ -607,16 +617,31 @@ public class ImdiTable extends JTable {
         if (selectedFields != null) {
             String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields);
             if (pasteResult != null) {
-                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, pasteResult);
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(pasteResult, "Paste into Table");
             }
         } else {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No rows selected.");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No rows selected", "Paste into Table");
         }
     }
 
     public void viewSelectedTableRows() {
         int[] selectedRows = this.getSelectedRows();
         LinorgWindowManager.getSingleInstance().openFloatingTable(imdiTableModel.getSelectedImdiNodes(selectedRows), null);
+    }
+
+    public ImdiTreeObject getImdiNodeForSelection() {
+        Object cellValue = imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn());
+        ImdiTreeObject cellImdiNode = null;
+        if (cellValue instanceof ImdiField) {
+            cellImdiNode = ((ImdiField) cellValue).parentImdi;
+        } else if (cellValue instanceof ImdiField[]) {
+            cellImdiNode = ((ImdiField[]) cellValue)[0].parentImdi;
+        } else if (cellValue instanceof ImdiTreeObject) {
+            cellImdiNode = (ImdiTreeObject) cellValue;
+        } else if (cellValue instanceof ImdiTreeObject[]) {
+            cellImdiNode = ((ImdiTreeObject[]) cellValue)[0];
+        }
+        return cellImdiNode;
     }
 
     public ImdiTreeObject[] getSelectedRowsFromTable() {
@@ -633,13 +658,13 @@ public class ImdiTable extends JTable {
         int selectedRow = this.getSelectedRow();
         //ImdiHelper.ImdiTableModel tempImdiTableModel = (ImdiHelper.ImdiTableModel) (targetTable.getModel());
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No rows have been selected");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
             return;
         }
         Vector foundRows = imdiTableModel.getMatchingRows(selectedRow);
         this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.getSelectionModel().clearSelection();
-        JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Found " + foundRows.size() + " matching rows");
+        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");
         for (int foundCount = 0; foundCount < foundRows.size(); foundCount++) {
             for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
                 // TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
