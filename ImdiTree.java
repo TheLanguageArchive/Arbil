@@ -190,7 +190,8 @@ public class ImdiTree extends JTree {
 //        scrollToNode(targetImdiNode);
 //    }
 
-    public void scrollToNode(ImdiTreeObject targetImdiNode) {
+    public boolean scrollToNode(ImdiTreeObject targetImdiNode) {
+        boolean returnValue = false;
         System.out.println("scrollToNode: " + targetImdiNode);
 //        DefaultTreeModel treeModel = 
         // get imdi object 
@@ -214,6 +215,7 @@ public class ImdiTree extends JTree {
         for (Object currentContainer : targetImdiNode.getRegisteredContainers()) {
             System.out.println("targetImdiNode registeredContainers: " + currentContainer);
             if (currentContainer instanceof DefaultMutableTreeNode) {
+                returnValue = true;
                 final TreePath targetTreePath = new TreePath(((DefaultMutableTreeNode) currentContainer).getPath());
 //                System.out.println("trying to scroll to" + targetTreePath);
                 SwingUtilities.invokeLater(new Runnable() {
@@ -226,5 +228,6 @@ public class ImdiTree extends JTree {
                 });
             }
         }
+        return returnValue;
     }
 }
