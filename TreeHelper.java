@@ -33,6 +33,7 @@ public class TreeHelper {
     public ImdiTree remoteCorpusTree;
     private Vector<String> locationsList; // this is the list of locations seen in the tree and the location settings
     static private TreeHelper singleInstance = null;
+    static public boolean trackTableSelection = false;
 
     static synchronized public TreeHelper getSingleInstance() {
         System.out.println("TreeHelper getSingleInstance");
@@ -148,7 +149,7 @@ public class TreeHelper {
     public void addLocationGui(String addableLocation) {
         if (!addLocation(addableLocation)) {
             // alert the user when the node already exists and cannot be added again
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The location already exists and cannot be added again", "Add location", JOptionPane.INFORMATION_MESSAGE);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
         }
         applyRootLocations();
     //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
@@ -439,34 +440,36 @@ public class TreeHelper {
 
     public ImdiTreeObject addImdiChildNode(ImdiTreeObject imdiTreeObject, String nodeType, String nodeTypeDisplayName, String resourcePath, String mimeType) {
         ImdiTreeObject addedImdi = null;
+        if (nodeType != null) {
 //        System.out.println("adding a new node to: " + itemNode);
-        System.out.println("adding nodeType: " + nodeType);
-        System.out.println("adding nodeTypeDisplayName: " + nodeTypeDisplayName);
-        if (imdiTreeObject.isImdi() && !imdiTreeObject.fileNotFound) {// if url is null (not an imdi) then the node is unattached
-            if (imdiTreeObject.isImdiChild()) {
-                imdiTreeObject = imdiTreeObject.getParentDomNode();
-            }
-            System.out.println("adding to imdi node");
-            String addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
+            System.out.println("adding nodeType: " + nodeType);
+            System.out.println("adding nodeTypeDisplayName: " + nodeTypeDisplayName);
+            if (imdiTreeObject.isImdi() && !imdiTreeObject.fileNotFound) {// if url is null (not an imdi) then the node is unattached
+                if (imdiTreeObject.isImdiChild()) {
+                    imdiTreeObject = imdiTreeObject.getParentDomNode();
+                }
+                System.out.println("adding to imdi node");
+                String addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
 //            updateTreeNodeChildren(imdiTreeObject);
-            if (addedNodeUrl != null) {
-                addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
-                System.out.println("addedNodeUrl: " + addedNodeUrl);
-                System.out.println("addedImdi: " + addedImdi);
-                LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
-            // this will only happen on the local corpus tree so we can just address that here
+                if (addedNodeUrl != null) {
+                    addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
+                    System.out.println("addedNodeUrl: " + addedNodeUrl);
+                    System.out.println("addedImdi: " + addedImdi);
+                    LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
+                // this will only happen on the local corpus tree so we can just address that here
 //                localCorpusTree.scrollToNode(addedImdi);
-            }
-        } else {
-            System.out.println("adding root imdi node");
-            String addedNodeUrl = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
-            addLocation(addedNodeUrl);
-            applyRootLocations();
-            //refreshChildNodes(itemNode);
-            addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
-            LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName);
-        // this will only happen on the local corpus tree so we can just address that here
+                }
+            } else {
+                System.out.println("adding root imdi node");
+                String addedNodeUrl = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
+                addLocation(addedNodeUrl);
+                applyRootLocations();
+                //refreshChildNodes(itemNode);
+                addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
+                LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName);
+            // this will only happen on the local corpus tree so we can just address that here
 //            localCorpusTree.scrollToNode(addedImdi); //TODO: this is failing because at this point the new node is probably not laoded. This must be done in the loading thread after load
+            }
         }
         return addedImdi;
     }
@@ -502,12 +505,11 @@ public class TreeHelper {
 //            }
 //        }
 //    }
-
     public void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
         if (selectedTreeNode == null) {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No node selected", "", 0);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Remove Link");
         } else {
-            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Remove link to '" + selectedTreeNode + "?", "Remove", JOptionPane.YES_NO_OPTION)) {
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Remove '" + selectedTreeNode + "' from list?", "Remove Link", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 removeLocation(selectedTreeNode.getUserObject());
                 applyRootLocations();
             }
@@ -529,7 +531,7 @@ public class TreeHelper {
                     parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
                     ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
                     ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
-                    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION)) {
+                    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                         if (childImdiNode.isImdiChild()) {
                             childImdiNode.deleteFromParentDom(null);
 //                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
@@ -567,6 +569,27 @@ public class TreeHelper {
             }
         } else {
             System.out.println("cannot delete from this tree");
+        }
+    }
+
+    public void jumpToSelectionInTree(boolean silent, ImdiTreeObject cellImdiNode) {
+        System.out.println("jumpToSelectionInTree: " + cellImdiNode);
+        if (cellImdiNode != null) {
+            TreeHelper.getSingleInstance().remoteCorpusTree.clearSelection();
+            TreeHelper.getSingleInstance().localCorpusTree.clearSelection();
+            TreeHelper.getSingleInstance().localDirectoryTree.clearSelection();
+            boolean foundInRemoteCorpus = TreeHelper.getSingleInstance().remoteCorpusTree.scrollToNode(cellImdiNode);
+            boolean foundInLocalCorpus = TreeHelper.getSingleInstance().localCorpusTree.scrollToNode(cellImdiNode);
+            boolean foundInLocalDirectory = TreeHelper.getSingleInstance().localDirectoryTree.scrollToNode(cellImdiNode);
+            if (!foundInRemoteCorpus && !foundInLocalCorpus && !foundInLocalDirectory) {
+                if (!silent) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The selected node has not been loaded in the tree.\nUntil a search is provided for this you will need to browse the tree to load the required node", "Jump to in Tree");
+                }
+            }
+        } else {
+            if (!silent) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The selected cell has not value or is not associated with a node in the tree", "Jump to in Tree");
+            }
         }
     }
 }
