@@ -65,7 +65,7 @@ public class LinorgSessionStorage {
             }
         }
         if (storageDirectory == null) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.", null);
             storageDirectory = ".linorg" + File.separatorChar;
         }
         System.out.println("storageDirectory: " + storageDirectory);
