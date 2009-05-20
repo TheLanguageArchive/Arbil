@@ -297,7 +297,7 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(removeCachedCopyMenuItem);
-        addLocalDirectoryMenuItem.setText("Add Local Directory");
+        addLocalDirectoryMenuItem.setText("Add Working Directory");
 
         addLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -308,7 +308,7 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(addLocalDirectoryMenuItem);
-        removeLocalDirectoryMenuItem.setText("Remove Local Directory");
+        removeLocalDirectoryMenuItem.setText("Remove Link to Directory");
 
         removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -387,7 +387,7 @@ public class ContextMenu {
         //fc.setDialogTitle(getResourceMap().getString(name + ".dialogTitle"));
         //String textFilesDesc = getResourceMap().getString("txtFileExtensionDescription");   
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
+        fc.setDialogTitle("Add Working Directory");
         int option = fc.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
 
         if (JFileChooser.APPROVE_OPTION == option) {
@@ -416,29 +416,19 @@ public class ContextMenu {
 
         ImdiTreeObject selectedImdiNode = (ImdiTreeObject) sourceTree.getSingleSelectedNode();
         if (selectedImdiNode == null) {
-            if (TreeHelper.getSingleInstance().localCorpusTree.getSelectionPath() != null) {
-                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Cannot copy from the cache", "", 0);
-
-                sourceTree.copyNodeUrlToClipboard(selectedImdiNode);
-
-            } else {
-                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No node selected", "", 0);
-
-            }
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Copy");
         } else {
             sourceTree.copyNodeUrlToClipboard(selectedImdiNode);
-
         }
     }//GEN-LAST:event_copyImdiUrlMenuItemActionPerformed
 
     private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_addRemoteCorpusMenuItemActionPerformed
         // TODO add your handling code here:    
-        String addableLocation = (String) JOptionPane.showInputDialog(this, "Enter the URL");
+        String addableLocation = (String) JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
         if ((addableLocation != null) && (addableLocation.length() > 0)) {
             TreeHelper.getSingleInstance().addLocationGui(addableLocation);
-
         }
     }//GEN-LAST:event_addRemoteCorpusMenuItemActionPerformed
 
@@ -450,7 +440,7 @@ public class ContextMenu {
 
         } else {
             // alert the user when the node already exists and cannot be added again       
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The defalut locations already exists and cannot be added again", "Add default locations", JOptionPane.INFORMATION_MESSAGE);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The defalut locations already exists and cannot be added again", "Add Default Locations");
 
         }
     }//GEN-LAST:event_addDefaultLocationsMenuItemActionPerformed
