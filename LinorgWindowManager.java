@@ -40,7 +40,7 @@ public class LinorgWindowManager {
     int nextWindowY = 50;
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
-    private Vector<String> messageDialogQueue = new Vector();
+    private Vector<String[]> messageDialogQueue = new Vector();
     private boolean messagesCanBeShown = false;
     static private LinorgWindowManager singleInstance = null;
 
@@ -94,8 +94,11 @@ public class LinorgWindowManager {
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
     }
 
-    public void addMessageDialogToQueue(String messageString) {
-        messageDialogQueue.add(messageString);
+    public void addMessageDialogToQueue(String messageString, String messageTitle) {
+        if (messageTitle == null) {
+            messageTitle = "Arbil";
+        }
+        messageDialogQueue.add(new String[]{messageString, messageTitle});
         showMessageDialogQueue();
     }
 
@@ -105,9 +108,9 @@ public class LinorgWindowManager {
             public void run() {
                 if (messagesCanBeShown) {
                     while (messageDialogQueue.size() > 0) {
-                        String messageString = messageDialogQueue.remove(0);
-                        if (messageString != null) {
-                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, messageString);
+                        String[] messageStringArray = messageDialogQueue.remove(0);
+                        if (messageStringArray != null) {
+                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, messageStringArray[0], messageStringArray[1], JOptionPane.PLAIN_MESSAGE);
                         }
                     }
 
@@ -488,7 +491,7 @@ public class LinorgWindowManager {
 
     public void openSearchTable(ImdiTreeObject[] selectedNodes, String frameTitle) {
         ImdiTableModel resultsTableModel = new ImdiTableModel();
-        ImdiTable imdiTable = new ImdiTable(resultsTableModel, null, frameTitle);
+        ImdiTable imdiTable = new ImdiTable(resultsTableModel, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
         JInternalFrame searchFrame = this.createWindow(frameTitle, imdiSplitPanel);
         searchFrame.add(new ImdiNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
@@ -504,8 +507,10 @@ public class LinorgWindowManager {
                 frameTitle = "Selection";
             }
         }
-        ImdiTable imdiTable = new ImdiTable(new ImdiTableModel(), rowNodesArray, frameTitle);
+        ImdiTableModel imdiTableModel = new ImdiTableModel();
+        ImdiTable imdiTable = new ImdiTable(imdiTableModel, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
+        imdiTableModel.addImdiObjects(rowNodesArray);
         JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.setSplitDisplay();
         imdiSplitPanel.addFocusListener(tableFrame);
