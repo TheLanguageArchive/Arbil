@@ -7,6 +7,7 @@ import java.awt.datatransfer.Transferable;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -353,17 +354,27 @@ public class ImdiDragDrop {
                                         ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
                                     }
                                     if (!draggedIntoSelf) {
-                                        if (((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter])) {
-                                            if (draggedTreeNodes[draggedCounter] != null) {
-                                                if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
-                                                    System.out.println("dragged from root");
-                                                    TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
-                                                    TreeHelper.getSingleInstance().applyRootLocations();
-                                                } else {
-                                                    ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-                                                    System.out.println("removeing from parent: " + parentImdi);
-                                                    parentImdi.deleteCorpusLink(draggedImdiObjects[draggedCounter]);
-                                                    parentImdi.reloadNode();
+                                        int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                                                "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString() + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNode.getUserObject().toString(),
+                                                "Arbil",
+                                                JOptionPane.YES_NO_OPTION,
+                                                JOptionPane.PLAIN_MESSAGE,
+                                                null,
+                                                new Object[]{"Move", "Cancel"},
+                                                "Cancel");
+                                        if (detailsOption == 0) {
+                                            if (((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter])) {
+                                                if (draggedTreeNodes[draggedCounter] != null) {
+                                                    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
+                                                        System.out.println("dragged from root");
+                                                        TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
+                                                        TreeHelper.getSingleInstance().applyRootLocations();
+                                                    } else {
+                                                        ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+                                                        System.out.println("removeing from parent: " + parentImdi);
+                                                        parentImdi.deleteCorpusLink(draggedImdiObjects[draggedCounter]);
+                                                        parentImdi.reloadNode();
+                                                    }
                                                 }
                                             }
                                         }
