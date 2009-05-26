@@ -15,6 +15,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * Created on 23 September 2008, 17:23
  * @author Peter.Withers@mpi.nl
  */
+import javax.swing.tree.ExpandVetoException;
+
 public class LinorgFrame extends javax.swing.JFrame {
 
     ImdiTable previewTable;
@@ -163,6 +165,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         aboutMenuItem = new javax.swing.JMenuItem();
         helpMenuItem = new javax.swing.JMenuItem();
         shortCutKeysjMenuItem = new javax.swing.JMenuItem();
+        printHelpMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Arbil");
@@ -182,6 +185,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         localDirectoryTree.setModel(TreeHelper.getSingleInstance().localDirectoryTreeModel);
         localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+                imdiTreeTreeWillCollapse(evt);
             }
             public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
                 remoteCorpusTreeTreeWillExpand(evt);
@@ -204,6 +208,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         localCorpusTree.setModel(TreeHelper.getSingleInstance().localCorpusTreeModel);
         localCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+                imdiTreeTreeWillCollapse(evt);
             }
             public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
                 remoteCorpusTreeTreeWillExpand(evt);
@@ -228,6 +233,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         remoteCorpusTree.setModel(TreeHelper.getSingleInstance().remoteCorpusTreeModel);
         remoteCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
+                imdiTreeTreeWillCollapse(evt);
             }
             public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
                 remoteCorpusTreeTreeWillExpand(evt);
@@ -440,6 +446,14 @@ public class LinorgFrame extends javax.swing.JFrame {
         });
         helpMenu.add(shortCutKeysjMenuItem);
 
+        printHelpMenuItem.setText("Print Help File");
+        printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                printHelpMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(printHelpMenuItem);
+
         jMenuBar1.add(helpMenu);
 
         setJMenuBar(jMenuBar1);
@@ -603,11 +617,27 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
     LinorgWindowManager.getSingleInstance().openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
 }//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
 
+private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printHelpMenuItemActionPerformed
+// TODO add your handling code here:
+    if (!LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+        // forcus existing or create a new help window
+        LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
+    }
+    LinorgHelp.getSingleInstance().printAsOneFile();
+}//GEN-LAST:event_printHelpMenuItemActionPerformed
 
 private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
     TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
 }//GEN-LAST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
+
+private void imdiTreeTreeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_imdiTreeTreeWillCollapse
+// TODO add your handling code here:
+    if (evt.getPath().getPathCount() == 1) {
+        System.out.println("root node cannot be collapsed");
+        throw new ExpandVetoException(evt, "root node cannot be collapsed");
+    }
+}//GEN-LAST:event_imdiTreeTreeWillCollapse
 
 /**
      * @param args the command line arguments
