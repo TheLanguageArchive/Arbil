@@ -220,6 +220,7 @@ public class LinorgHelp extends javax.swing.JPanel {
             System.out.println(completeHelpText.toString());
             jTextPane1.setText(completeHelpText.toString());
             jTextPane1.setCaretPosition(0);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Printing is not yet enabled, however this is roughly what will be printed", helpWindowTitle);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
