@@ -3,6 +3,7 @@ package mpi.linorg;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -37,6 +38,7 @@ import javax.swing.table.TableCellEditor;
 class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor {
 
     ImdiTable parentTable = null;
+    Rectangle parentCellRect = null;
     ImdiTreeObject registeredOwner = null;
     JPanel editorPanel;
     JLabel button;
@@ -64,7 +66,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
             public void keyReleased(KeyEvent evt) {
 //                if (receivedKeyDown) {
-                startEditorMode(isStartLongFieldKey(evt));
+                startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
 //                    receivedKeyDown = false;
 //                }
             }
@@ -83,7 +85,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (evt.getButton() == MouseEvent.BUTTON1) {
-                    startEditorMode(isStartLongFieldModifier(evt));
+                    startEditorMode(isStartLongFieldModifier(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
                 } else {
                     parentTable.checkPopup(evt, false);
                 //super.mousePressed(evt);
@@ -146,7 +148,6 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 fieldEditors[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getFieldValue());
                 if (fieldLanguageBoxs[cellFieldCounter] != null) {
                     fieldLanguageBoxs[cellFieldCounter].setSelectedItem(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
-                    ;
                 }
             }
         }
@@ -183,13 +184,37 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     comboBox.removeItem(defaultValue);
                 }
             });
+            comboBox.setPreferredSize(new Dimension(80, parentCellRect.height));
             return comboBox;
         } else {
             return null;
         }
     }
 
-    private void startEditorMode(boolean ctrlDown) {
+    private String getEditorText(int lastKeyInt, char lastKeyChar, String currentCellString) {
+        switch (lastKeyInt) {
+            case KeyEvent.VK_DELETE:
+                currentCellString = "";
+                break;
+            case KeyEvent.VK_BACK_SPACE:
+                currentCellString = "";
+                break;
+            case KeyEvent.VK_INSERT:
+                break;
+            case KeyEvent.VK_NUM_LOCK:
+                break;
+            case KeyEvent.VK_CAPS_LOCK:
+                break;
+            case KeyEvent.CHAR_UNDEFINED:
+                break;
+            default:
+                currentCellString = currentCellString + lastKeyChar;
+                break;
+        }
+        return currentCellString;
+    }
+
+    private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
         System.out.println("startEditorMode: " + selectedField);
         removeAllFocusListners();
         if (cellValue instanceof ImdiField[]) {
@@ -218,7 +243,8 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 } else {
                     editorPanel.remove(button);
                     editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
-                    JTextField editorTextField = new JTextField(cellValue[selectedField].toString());
+                    String currentCellString = cellValue[selectedField].toString();
+                    JTextField editorTextField = new JTextField(getEditorText(lastKeyInt, lastKeyChar, currentCellString));
                     editorPanel.setBorder(null);
                     editorTextField.setBorder(null);
                     editorTextField.setMinimumSize(new Dimension(50, (int) editorTextField.getMinimumSize().getHeight()));
@@ -228,7 +254,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
                         public void keyTyped(KeyEvent evt) {
                             if (isStartLongFieldKey(evt)) {
-                                startEditorMode(true);
+                                startEditorMode(true, evt.getKeyCode(), evt.getKeyChar());
                             }
                         }
 
@@ -279,7 +305,12 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                             }
                         }
                     });
-                    fieldEditors[cellFieldIndex].setText(((ImdiField) cellValue[cellFieldIndex]).getFieldValue());
+                    // insert the last key for only the selected field
+                    if (selectedField == cellFieldIndex) {
+                        fieldEditors[cellFieldIndex].setText(getEditorText(lastKeyInt, lastKeyChar, ((ImdiField) cellValue[cellFieldIndex]).getFieldValue()));
+                    } else {
+                        fieldEditors[cellFieldIndex].setText(((ImdiField) cellValue[cellFieldIndex]).getFieldValue());
+                    }
                     fieldEditors[cellFieldIndex].setLineWrap(true);
                     fieldEditors[cellFieldIndex].setWrapStyleWord(true);
 
@@ -344,6 +375,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             int column) {
 //        receivedKeyDown = true;
         parentTable = (ImdiTable) table;
+        parentCellRect = parentTable.getCellRect(row, column, false);
         if (value instanceof ImdiField) {
             // TODO: get the whole array from the parent and select the correct tab for editing
             String fieldName = ((ImdiField) value).getTranslateFieldName();
