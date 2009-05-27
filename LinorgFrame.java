@@ -63,6 +63,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         leftSplitPane.setDividerLocation(0.15);
         leftLocalSplitPane.setDividerLocation(0.2);
 
+        printHelpMenuItem.setVisible(false);
         //setSize(800, 600);
         //this.setExtendedState(Frame.MAXIMIZED_BOTH);
 
@@ -82,6 +83,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
+        if (checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
+            new LinorgVersionChecker().checkForUpdate(this);
+        }
         copyNewResourcesCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("copyNewResources", true));
         GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
         saveWindowsCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("saveWindows", true));
@@ -111,10 +115,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         }
         System.exit(0);
     }
-
-    
-
-    
 
     /** This method is called from within the constructor to
      * initialize the form.
