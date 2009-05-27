@@ -25,8 +25,8 @@ public class LinorgVersionChecker {
 //            System.out.println("currentRevision: " + localVersionString);
             System.out.println("currentRevision: " + linorgVersion.currentRevision);
             System.out.println("serverVersionString: " + serverVersionString);
-            // to keep it simple only exact version matches will be considered correct
-            return (linorgVersion.currentRevision.equals(serverVersionString));
+            // either exact or greater version matches will be considered correct because there will be cases where the txt file is older than the jar
+            return (linorgVersion.currentRevision.compareTo(serverVersionString) >= 0);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
