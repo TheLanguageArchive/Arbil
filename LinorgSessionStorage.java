@@ -210,7 +210,8 @@ public class LinorgSessionStorage {
      * @return The path in the cache for the file.
      */
     public String getSaveLocation(String pathString) {
-        String cachePath = GuiHelper.linorgSessionStorage.destinationDirectory + pathString.replace("://", "/");
+        String cachePath = GuiHelper.linorgSessionStorage.destinationDirectory + pathString.replace(":/", "/");
+        cachePath = cachePath.replace("//", "/");
         File tempFile = new File(cachePath);
         if (!tempFile.getParentFile().exists()) {
             tempFile.getParentFile().mkdirs();
