@@ -306,7 +306,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                         }
                     });
                     // insert the last key for only the selected field
-                    if (selectedField == cellFieldIndex) {
+                    if (selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0)) {
                         fieldEditors[cellFieldIndex].setText(getEditorText(lastKeyInt, lastKeyChar, ((ImdiField) cellValue[cellFieldIndex]).getFieldValue()));
                     } else {
                         fieldEditors[cellFieldIndex].setText(((ImdiField) cellValue[cellFieldIndex]).getFieldValue());
@@ -337,6 +337,8 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 });
                 if (selectedField != -1) {
                     tabPane.setSelectedIndex(selectedField);
+                } else {
+                    tabPane.setSelectedIndex(0);
                 }
                 focusedTabTextArea.requestFocusInWindow();
                 fireEditingStopped();
