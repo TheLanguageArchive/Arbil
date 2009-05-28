@@ -50,6 +50,7 @@ public class GuiHelper {
     }
 
     private GuiHelper() {
+        LinorgFavourites.getSingleInstance(); // cause the favourites imdi nodes to be loaded        
     }
 
     public void saveState(boolean saveWindows) {
