@@ -222,7 +222,7 @@ public class TreeHelper {
         }
     }
     // check that all child nodes are attached and sorted, removing any extranious nodes found
-    public void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
+    synchronized public void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
         //TODO: find out why this leaves duplicate meta nodes when adding a imdi child node
         Vector<DefaultMutableTreeNode> nodesToRemove = new Vector();
         DefaultTreeModel treeModel = getModelForNode(itemNode);
@@ -262,7 +262,7 @@ public class TreeHelper {
         }
     }
 
-    public void sortChildNodes(DefaultMutableTreeNode parentNode) {
+    private void sortChildNodes(DefaultMutableTreeNode parentNode) {
         System.out.println("sortChildNodes: " + parentNode.getUserObject().toString());
         // resort the branch since the node name may have changed
         DefaultTreeModel treeModel = getModelForNode(parentNode);
