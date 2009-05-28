@@ -81,7 +81,7 @@ public class LinorgFavourites {
     }
 
     public ImdiTreeObject[] listAllFavourites() {
-        return Arrays.asList(userFavourites.elements()).toArray(new ImdiTreeObject[userFavourites.size()]);
+        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
     }
 
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
