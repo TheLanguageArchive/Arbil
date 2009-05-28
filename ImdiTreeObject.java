@@ -67,7 +67,7 @@ public class ImdiTreeObject implements Comparable {
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         containersOfThisNode = new HashSet();
-        addQueue = new Vector();
+        addQueue = new Vector<String[]>();
         nodeText = localNodeText;
         nodeUrl = conformStringToUrl(localUrlString);
         initNodeVariables();
@@ -157,8 +157,8 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-        fieldHashtable = new Hashtable();
-        childrenHashtable = new Hashtable();
+        fieldHashtable = new Hashtable<String, ImdiField[]>();
+        childrenHashtable = new Hashtable<String, ImdiTreeObject>();
         imdiDataLoaded = false;
         hashString = null;
         mpiMimeType = null;
@@ -173,7 +173,7 @@ public class ImdiTreeObject implements Comparable {
         isDirectory = false;
         icon = null;
         nodeEnabled = true;
-        childLinks = new Vector();
+        childLinks = new Vector<String[]>();
 //        isLoadingCount = true;
         isDirectory = false;
         if (nodeUrl != null) {
@@ -384,7 +384,7 @@ public class ImdiTreeObject implements Comparable {
      * @return an array of all the child nodes 
      */
     public ImdiTreeObject[] getAllChildren() {
-        Vector<ImdiTreeObject> allChildren = new Vector();
+        Vector<ImdiTreeObject> allChildren = new Vector<ImdiTreeObject>();
         getAllChildren(allChildren);
         return allChildren.toArray(new ImdiTreeObject[]{});
     }
@@ -576,7 +576,7 @@ public class ImdiTreeObject implements Comparable {
         // END: this section uses the imdi.api to query the dom for available fields but it has been commented out in favour of the iterateChildNodes function
 
         }
-        Vector<ImdiTreeObject> tempImdiVector = new Vector();
+        Vector<ImdiTreeObject> tempImdiVector = new Vector<ImdiTreeObject>();
         Enumeration nodesToAddEnumeration = childrenHashtable.elements();
         while (nodesToAddEnumeration.hasMoreElements()) {
             tempImdiVector.add((ImdiTreeObject) nodesToAddEnumeration.nextElement());
@@ -917,7 +917,7 @@ public class ImdiTreeObject implements Comparable {
                 // TODO: make the changes to the dom before saving
                 // refer to: /data1/repos/trunk/src/java/mpi/imdi/api/TestDom.java
 
-                Vector<ImdiField[]> allFields = new Vector();
+                Vector<ImdiField[]> allFields = new Vector<ImdiField[]>();
                 getAllFields(allFields);
 
 
@@ -1021,7 +1021,7 @@ public class ImdiTreeObject implements Comparable {
         if (currentFieldsArray == null) {
             currentFieldsArray = new ImdiField[]{fieldToAdd};
         } else {
-            System.out.println("appendingField: " + fieldToAdd);
+//            System.out.println("appendingField: " + fieldToAdd);
             ImdiField[] appendedFieldsArray = new ImdiField[currentFieldsArray.length + 1];
             System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
             appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
@@ -1144,7 +1144,8 @@ public class ImdiTreeObject implements Comparable {
             if (lastNodeText.length() > 0) {
                 return lastNodeText;
             } else {
-                return "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
+                lastNodeText = "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
+                return lastNodeText;
             }
         }
         // Return text for display
@@ -1167,6 +1168,7 @@ public class ImdiTreeObject implements Comparable {
 //            } else {
         nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         lastNodeText = nodeText + nameText;
+        if (lastNodeText.length() == 0)lastNodeText = "      ";
         return lastNodeText;
 //            }
     }
@@ -1357,14 +1359,14 @@ public class ImdiTreeObject implements Comparable {
                         DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
                         // set the allows children flag
 //                      System.out.println("clearIcon: canHaveChildren: " + this.canHaveChildren());
-                        if (!ImdiTreeObject.this.canHaveChildren() && currentTreeNode.getChildCount() > 0) {
-                            currentTreeNode.removeAllChildren();
-                            modelForNodes.nodeStructureChanged(currentTreeNode);
-                        }
+//                        if (!ImdiTreeObject.this.canHaveChildren() && currentTreeNode.getChildCount() > 0) {
+//                            currentTreeNode.removeAllChildren(); // why is this being done!!!
+//                            modelForNodes.nodeStructureChanged(currentTreeNode);
+//                        }
                         currentTreeNode.setAllowsChildren(ImdiTreeObject.this.canHaveChildren());
                         modelForNodes.nodeChanged(currentTreeNode);
                         if (parentNode != null) {
-                            TreeHelper.getSingleInstance().sortChildNodes(parentNode);
+                            TreeHelper.getSingleInstance().updateTreeNodeChildren(parentNode);
                         }
                     }
                 }
