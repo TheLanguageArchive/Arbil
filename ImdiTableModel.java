@@ -541,7 +541,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
             int rowCounter = 0;
             for (ImdiTreeObject currentNode : tableRowsImdiArray) {
-                System.out.println("currentNode: " + currentNode.toString());
+//                System.out.println("currentNode: " + currentNode.toString());
                 Hashtable<String, ImdiField[]> fieldsHash = currentNode.getFields();
                 if (showIcons) {
                     //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
