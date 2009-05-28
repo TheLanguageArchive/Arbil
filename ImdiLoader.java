@@ -11,10 +11,10 @@ import java.util.Vector;
 public class ImdiLoader {
 
     private boolean continueThread = true;
-    private Vector<ImdiTreeObject> imdiRemoteNodesToInit = new Vector();
-    private Vector<ImdiTreeObject> imdiLocalNodesToInit = new Vector();
-    private Hashtable<String, ImdiTreeObject> imdiHashTable = new Hashtable();
-    private Vector<ImdiTreeObject> nodesNeedingSave = new Vector();
+    private Vector<ImdiTreeObject> imdiRemoteNodesToInit = new Vector<ImdiTreeObject>();
+    private Vector<ImdiTreeObject> imdiLocalNodesToInit = new Vector<ImdiTreeObject>();
+    private Hashtable<String, ImdiTreeObject> imdiHashTable = new Hashtable<String, ImdiTreeObject>();
+    private Vector<ImdiTreeObject> nodesNeedingSave = new Vector<ImdiTreeObject>();
     int imdiFilesLoaded = 0;
     int remoteImdiFilesLoaded = 0;
 
