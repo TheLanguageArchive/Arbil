@@ -71,33 +71,26 @@ public class LinorgFrame extends javax.swing.JFrame {
         previewPanel.add(previewHiddenColumnLabel, BorderLayout.SOUTH);
         mainSplitPane.setDividerLocation(0.25);
         leftSplitPane.setDividerLocation(0.15);
-        leftLocalSplitPane.setDividerLocation(0.2);
-
-        printHelpMenuItem.setVisible(false);
-        //setSize(800, 600);
-        //this.setExtendedState(Frame.MAXIMIZED_BOTH);
-
-        LinorgWindowManager.getSingleInstance().setComponents(windowMenu, this, jDesktopPane1);
-        setVisible(true);
-        LinorgWindowManager.getSingleInstance().openIntroductionPage();
-
-        // load the templates and populate the templates menu
-        GuiHelper.imdiSchema.populateTemplatesMenu(templatesMenu);
-        //guiHelper.initViewMenu(viewMenu); // moved to the view menu action
-
-        setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
-        setIconImage(ImdiIcons.getSingleInstance().linorgTestingIcon.getImage());
+        leftLocalSplitPane.setDividerLocation(0.2); 
         showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
         trackTableSelectionCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("trackTableSelection", false));
         TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
-        showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
-        if (checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
-            new LinorgVersionChecker().checkForUpdate(this);
-        }
         copyNewResourcesCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("copyNewResources", true));
         GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
         saveWindowsCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("saveWindows", true));
+        LinorgWindowManager.getSingleInstance().setComponents(windowMenu, this, jDesktopPane1);
+        showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not       
+        setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
+        setIconImage(ImdiIcons.getSingleInstance().linorgTestingIcon.getImage());
+        // load the templates and populate the templates menu
+        GuiHelper.imdiSchema.populateTemplatesMenu(templatesMenu);
+        printHelpMenuItem.setVisible(false);
+        setVisible(true);
+        LinorgWindowManager.getSingleInstance().openIntroductionPage();
+        if (checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
+            new LinorgVersionChecker().checkForUpdate(this);
+        }
     }
 
     private void performCleanExit() {
