@@ -4,7 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JComponent;
+import javax.swing.JDesktopPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -19,7 +23,11 @@ import javax.swing.tree.ExpandVetoException;
 
 public class LinorgFrame extends javax.swing.JFrame {
 
-    ImdiTable previewTable;
+    private ImdiTable previewTable;
+    private JScrollPane rightScrollPane;
+    private JLabel previewHiddenColumnLabel;
+    private JPanel previewPanel;
+    private JDesktopPane jDesktopPane1;
 
     public LinorgFrame() {
         this.addWindowListener(new WindowAdapter() {
@@ -52,21 +60,22 @@ public class LinorgFrame extends javax.swing.JFrame {
         // set the default window dimensions
         // TODO: move this to the sessionstorage and load / save on exit
 
+        jDesktopPane1 = new JDesktopPane();
+        jDesktopPane1.setBackground(new java.awt.Color(204, 204, 204));
+        previewHiddenColumnLabel = new javax.swing.JLabel(" ");
         previewTable = new ImdiTable(new ImdiTableModel(), "Preview");
+        ((ImdiTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
+        rightScrollPane = new JScrollPane(previewTable);
+        previewPanel = new JPanel(new java.awt.BorderLayout());
         previewPanel.add(rightScrollPane, BorderLayout.CENTER);
         previewPanel.add(previewHiddenColumnLabel, BorderLayout.SOUTH);
-        ((ImdiTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
-        rightScrollPane.setViewportView(previewTable);
         mainSplitPane.setDividerLocation(0.25);
-        // also set in showSelectionPreviewCheckBoxMenuItemActionPerformed
-        rightSplitPane.setDividerLocation(0.1);
         leftSplitPane.setDividerLocation(0.15);
         leftLocalSplitPane.setDividerLocation(0.2);
 
         printHelpMenuItem.setVisible(false);
         //setSize(800, 600);
         //this.setExtendedState(Frame.MAXIMIZED_BOTH);
-
 
         LinorgWindowManager.getSingleInstance().setComponents(windowMenu, this, jDesktopPane1);
         setVisible(true);
@@ -135,10 +144,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         remoteCorpusTree = new ImdiTree();
         rightSplitPane = new javax.swing.JSplitPane();
-        jDesktopPane1 = new javax.swing.JDesktopPane();
-        previewPanel = new javax.swing.JPanel();
-        rightScrollPane = new javax.swing.JScrollPane();
-        previewHiddenColumnLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         saveFileMenuItem = new javax.swing.JMenuItem();
@@ -258,18 +263,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         rightSplitPane.setDividerSize(5);
         rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         rightSplitPane.setName("rightSplitPane"); // NOI18N
-
-        jDesktopPane1.setBackground(new java.awt.Color(204, 204, 204));
-        rightSplitPane.setRightComponent(jDesktopPane1);
-
-        previewPanel.setLayout(new java.awt.BorderLayout());
-        previewPanel.add(rightScrollPane, java.awt.BorderLayout.CENTER);
-
-        previewHiddenColumnLabel.setText(" ");
-        previewPanel.add(previewHiddenColumnLabel, java.awt.BorderLayout.PAGE_START);
-
-        rightSplitPane.setRightComponent(previewPanel);
-
         mainSplitPane.setRightComponent(rightSplitPane);
 
         getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
@@ -522,21 +515,17 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
     LinorgWindowManager.getSingleInstance().saveSplitPlanes(this.getContentPane().getComponent(0));
     if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
             // remove the right split split and show only the jdesktoppane
-//            int lastPost = mainSplitPane.getDividerLocation();
             mainSplitPane.remove(rightSplitPane);
             mainSplitPane.setRightComponent(jDesktopPane1);
-//            mainSplitPane.setDividerLocation(lastPost);
             // clear the grid to keep things tidy
             GuiHelper.getSingleInstance().removeAllFromGridData(previewTable.getModel());
         } else {
             // put the jdesktoppane and the preview grid back into the right split pane
-//            int lastPost = mainSplitPane.getDividerLocation();
             mainSplitPane.remove(jDesktopPane1);
             mainSplitPane.setRightComponent(rightSplitPane);
             rightSplitPane.setTopComponent(previewPanel);
             rightSplitPane.setBottomComponent(jDesktopPane1);
             rightSplitPane.setDividerLocation(0.1);
-//            mainSplitPane.setDividerLocation(lastPost);
             // update the preview data grid
             GuiHelper.getSingleInstance().removeAllFromGridData(previewTable.getModel());
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
@@ -667,7 +656,6 @@ private void imdiTreeTreeWillCollapse(javax.swing.event.TreeExpansionEvent evt)t
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenuItem helpMenuItem;
     private javax.swing.JMenuItem importMenuItem;
-    private javax.swing.JDesktopPane jDesktopPane1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -679,12 +667,9 @@ private void imdiTreeTreeWillCollapse(javax.swing.event.TreeExpansionEvent evt)t
     private javax.swing.JSplitPane mainSplitPane;
     private javax.swing.JMenu optionsMenu;
     private javax.swing.JMenuItem pasteMenuItem;
-    private javax.swing.JLabel previewHiddenColumnLabel;
-    private javax.swing.JPanel previewPanel;
     private javax.swing.JMenuItem printHelpMenuItem;
     private javax.swing.JMenuItem redoMenuItem;
     private javax.swing.JTree remoteCorpusTree;
-    private javax.swing.JScrollPane rightScrollPane;
     private javax.swing.JSplitPane rightSplitPane;
     private javax.swing.JMenuItem saveFileMenuItem;
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
