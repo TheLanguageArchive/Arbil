@@ -34,6 +34,8 @@ public class TreeHelper {
     private Vector<String> locationsList; // this is the list of locations seen in the tree and the location settings
     static private TreeHelper singleInstance = null;
     static public boolean trackTableSelection = false;
+    Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
+    boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
 
     static synchronized public TreeHelper getSingleInstance() {
         System.out.println("TreeHelper getSingleInstance");
@@ -219,6 +221,9 @@ public class TreeHelper {
                 System.out.println("adding child to update list: " + childImdiObject.getUrlString());
             }
             updateTreeNodeChildren(parentTreeNode, childUrls);
+        } else {
+            // assume that this is a root node so update the root nodes
+            applyRootLocations();
         }
     }
     // check that all child nodes are attached and sorted, removing any extranious nodes found
@@ -256,9 +261,33 @@ public class TreeHelper {
             missingImdiNode.registerContainer(missingTreeNode);
             treeModel.nodeStructureChanged(itemNode);
         }
-        sortChildNodes(itemNode);
+//      Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
+        addToSortQueue(itemNode);
         while (!nodesToRemove.isEmpty()) {
             treeModel.removeNodeFromParent(nodesToRemove.remove(0));
+        }
+    }
+
+    synchronized private void addToSortQueue(DefaultMutableTreeNode currentTreeNode) {
+        if (!treeNodeSortQueue.contains(currentTreeNode)) {
+            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
+            treeNodeSortQueue.add(currentTreeNode);
+        }
+        if (!treeNodeSortQueueRunning) {
+            treeNodeSortQueueRunning = true;
+            new Thread() {
+
+                @Override
+                public void run() {
+                    while (treeNodeSortQueue.size() > 0) {
+                        DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
+                        if (currentTreeNode != null) {
+                            sortChildNodes(currentTreeNode);
+                        }
+                    }
+                    treeNodeSortQueueRunning = false;
+                }
+            }.start();
         }
     }
 
