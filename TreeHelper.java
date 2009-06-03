@@ -208,45 +208,24 @@ public class TreeHelper {
 
     public void updateTreeNodeChildren(DefaultMutableTreeNode parentTreeNode) {
         System.out.println("updateTreeNodeChildren DefaultMutableTreeNode: " + parentTreeNode.toString());
-//        System.out.println("updateTreeNodeChildren DefaultMutableTreeNode: " + parentTreeNode.hashCode());
-        Vector<String> childUrls = new Vector();
-        //DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) itemNode.getParent();
-        Object parentObject = parentTreeNode.getUserObject();
-        if (parentObject instanceof ImdiTreeObject) {
-            ImdiTreeObject parentImdiObject = (ImdiTreeObject) parentObject;
-            // make the list of child urls
-            for (Enumeration<ImdiTreeObject> childEnum = parentImdiObject.getChildEnum(); childEnum.hasMoreElements();) {
-                ImdiTreeObject childImdiObject = childEnum.nextElement();
-                childUrls.add(childImdiObject.getUrlString());
-                System.out.println("adding child to update list: " + childImdiObject.getUrlString());
-            }
-            updateTreeNodeChildren(parentTreeNode, childUrls);
+        if (parentTreeNode.getUserObject() instanceof ImdiTreeObject) {
+//          Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
+            addToSortQueue(parentTreeNode);
         } else {
             // assume that this is a root node so update the root nodes
             applyRootLocations();
         }
     }
     // check that all child nodes are attached and sorted, removing any extranious nodes found
-    synchronized public void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
-        //TODO: find out why this leaves duplicate meta nodes when adding a imdi child node
+    synchronized private void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
         Vector<DefaultMutableTreeNode> nodesToRemove = new Vector();
         DefaultTreeModel treeModel = getModelForNode(itemNode);
-//        boolean childrenChanged = false;
-        // this could make sure the order is that of the supplied url list, er no it could not
         for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
-//            System.out.println("updateTreeNodeChildren[]: checking for extraneous nodes");
             DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
             ImdiTreeObject childImdiObject = (ImdiTreeObject) currentChildNode.getUserObject();
-//            System.out.println("updateTreeNodeChildren[]: checking: " + childImdiObject.toString());
             if (!childUrls.remove(childImdiObject.getUrlString())) {
-//                System.out.println("updateTreeNodeChildren[]: removing extraneous node: " + childImdiObject.getUrlString());
-                // remove any extraneous nodes
-////                DefaultMutableTreeNode localParent = (DefaultMutableTreeNode)currentChildNode.getParent();
-////                int nodeIndex = itemNode.getIndex(currentChildNode);
                 nodesToRemove.add(currentChildNode);
                 removeAndDetatchDescendantNodes(currentChildNode);
-//                treeModel.removeNodeFromParent(currentChildNode);
-//                treeModel.nodeStructureChanged(itemNode);
             }
         }
         while (childUrls.size() > 0) {
@@ -262,7 +241,7 @@ public class TreeHelper {
             treeModel.nodeStructureChanged(itemNode);
         }
 //      Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
-        addToSortQueue(itemNode);
+        sortChildNodes(itemNode);
         while (!nodesToRemove.isEmpty()) {
             treeModel.removeNodeFromParent(nodesToRemove.remove(0));
         }
@@ -282,6 +261,20 @@ public class TreeHelper {
                     while (treeNodeSortQueue.size() > 0) {
                         DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
                         if (currentTreeNode != null) {
+                            Vector<String> childUrls = new Vector();
+                            //DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) itemNode.getParent();
+                            Object parentObject = currentTreeNode.getUserObject();
+                            if (parentObject instanceof ImdiTreeObject) {
+                                ImdiTreeObject parentImdiObject = (ImdiTreeObject) parentObject;
+//            parentTreeNode.setAllowsChildren(parentImdiObject.canHaveChildren());
+                                // make the list of child urls
+                                for (Enumeration<ImdiTreeObject> childEnum = parentImdiObject.getChildEnum(); childEnum.hasMoreElements();) {
+                                    ImdiTreeObject childImdiObject = childEnum.nextElement();
+                                    childUrls.add(childImdiObject.getUrlString());
+                                    System.out.println("adding child to update list: " + childImdiObject.getUrlString());
+                                }
+                                updateTreeNodeChildren(currentTreeNode, childUrls);
+                            }
                             sortChildNodes(currentTreeNode);
                         }
                     }
