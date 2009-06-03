@@ -167,7 +167,7 @@ public class LinorgWindowManager {
             System.out.println("load windowStates failed: " + ex.getMessage());
         }
 
-        if (TreeHelper.getSingleInstance().localCorpusTreeModel.getChildCount(TreeHelper.getSingleInstance().localCorpusTreeModel.getRoot()) == 0) {
+        if (!TreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
             LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
             if (!focusWindow(LinorgHelp.helpWindowTitle)) {
                 createWindow(LinorgHelp.helpWindowTitle, helpComponent);
