@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -38,7 +39,7 @@ public class TreeHelper {
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
 
     static synchronized public TreeHelper getSingleInstance() {
-        System.out.println("TreeHelper getSingleInstance");
+//        System.out.println("TreeHelper getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new TreeHelper();
         }
@@ -183,10 +184,10 @@ public class TreeHelper {
 
     // this will load all imdi child nodes into the tree, and in the case of a session it will load all the imdi childnodes, the while the other updateTreeNodeChildren methods will not
     public void updateTreeNodeChildren(ImdiTreeObject parentImdiNode) {
-        System.out.println("updateTreeNodeChildren ImdiTreeObject: " + parentImdiNode);
+//        System.out.println("updateTreeNodeChildren ImdiTreeObject: " + parentImdiNode);
         for (Object currentContainer : parentImdiNode.getRegisteredContainers()) {
             if (currentContainer instanceof DefaultMutableTreeNode) {
-                System.out.println("updateTreeNodeChildren currentContainer: " + parentImdiNode + " : " + currentContainer.hashCode());
+//                System.out.println("updateTreeNodeChildren currentContainer: " + parentImdiNode + " : " + currentContainer.hashCode());
                 updateTreeNodeChildren((DefaultMutableTreeNode) currentContainer);
             }
         }
@@ -207,150 +208,57 @@ public class TreeHelper {
     }
 
     public void updateTreeNodeChildren(DefaultMutableTreeNode parentTreeNode) {
-        System.out.println("updateTreeNodeChildren DefaultMutableTreeNode: " + parentTreeNode.toString());
-        if (parentTreeNode.getUserObject() instanceof ImdiTreeObject) {
-//          Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
-            addToSortQueue(parentTreeNode);
-        } else {
-            // assume that this is a root node so update the root nodes
-            applyRootLocations();
-        }
+//        System.out.println("updateTreeNodeChildren DefaultMutableTreeNode: " + parentTreeNode.toString());
+        addToSortQueue(parentTreeNode);
     }
     // check that all child nodes are attached and sorted, removing any extranious nodes found
-    synchronized private void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
-        Vector<DefaultMutableTreeNode> nodesToRemove = new Vector();
+    private void updateTreeNodeChildren(DefaultMutableTreeNode itemNode, Vector<String> childUrls) {
+        Vector<DefaultMutableTreeNode> nodesToRemove = new Vector<DefaultMutableTreeNode>();
+        Vector<ImdiTreeObject> imdiNodesToInsert = new Vector<ImdiTreeObject>();
         DefaultTreeModel treeModel = getModelForNode(itemNode);
+//      Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
+        sortChildNodes(itemNode);
         for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
             DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
             ImdiTreeObject childImdiObject = (ImdiTreeObject) currentChildNode.getUserObject();
             if (!childUrls.remove(childImdiObject.getUrlString())) {
                 nodesToRemove.add(currentChildNode);
-                removeAndDetatchDescendantNodes(currentChildNode);
             }
         }
         while (childUrls.size() > 0) {
             // add any missing child nodes
-            ImdiTreeObject missingImdiNode = GuiHelper.imdiLoader.getImdiObject(null, childUrls.remove(0));
-            System.out.println("updateTreeNodeChildren[]: add missing node: " + missingImdiNode.getUrlString());
-            DefaultMutableTreeNode missingTreeNode = new DefaultMutableTreeNode(missingImdiNode);
-            //itemNode.add(missingTreeNode);
+            imdiNodesToInsert.add(GuiHelper.imdiLoader.getImdiObject(null, childUrls.remove(0)));
             itemNode.setAllowsChildren(true);
+        }
+        Collections.sort(imdiNodesToInsert);
+        while (!imdiNodesToInsert.isEmpty()) {
+            ImdiTreeObject missingImdiNode = imdiNodesToInsert.remove(0);
+            DefaultMutableTreeNode missingTreeNode = new DefaultMutableTreeNode(missingImdiNode);
             missingTreeNode.setAllowsChildren(missingImdiNode.canHaveChildren());
-            treeModel.insertNodeInto(missingTreeNode, itemNode, itemNode.getChildCount());
+            int insertPosition = 0;
+//            // find the position to insert the new node into the tree branch at
+//            for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
+//                DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
+//                System.out.println(currentChildNode.getUserObject().toString() + " compareTo " + missingImdiNode.toString());
+//                if (0 < currentChildNode.getUserObject().toString().compareTo(missingImdiNode.toString())) {
+//                    System.out.println("match");
+//                    break;
+//                }
+//                insertPosition++;
+//            }
+            insertPosition = itemNode.getChildCount();
+            treeModel.insertNodeInto(missingTreeNode, itemNode, insertPosition);
             missingImdiNode.registerContainer(missingTreeNode);
             treeModel.nodeStructureChanged(itemNode);
         }
-//      Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
-        sortChildNodes(itemNode);
         while (!nodesToRemove.isEmpty()) {
-            treeModel.removeNodeFromParent(nodesToRemove.remove(0));
+            DefaultMutableTreeNode currentChildNode = nodesToRemove.remove(0);
+            treeModel.removeNodeFromParent(currentChildNode);
+            removeAndDetatchDescendantNodes(currentChildNode);
         }
     }
 
-    synchronized private void addToSortQueue(DefaultMutableTreeNode currentTreeNode) {
-        if (!treeNodeSortQueue.contains(currentTreeNode)) {
-            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
-            treeNodeSortQueue.add(currentTreeNode);
-        }
-        if (!treeNodeSortQueueRunning) {
-            treeNodeSortQueueRunning = true;
-            new Thread() {
-
-                @Override
-                public void run() {
-                    while (treeNodeSortQueue.size() > 0) {
-                        DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
-                        if (currentTreeNode != null) {
-                            Vector<String> childUrls = new Vector();
-                            //DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) itemNode.getParent();
-                            Object parentObject = currentTreeNode.getUserObject();
-                            if (parentObject instanceof ImdiTreeObject) {
-                                ImdiTreeObject parentImdiObject = (ImdiTreeObject) parentObject;
-//            parentTreeNode.setAllowsChildren(parentImdiObject.canHaveChildren());
-                                // make the list of child urls
-                                for (Enumeration<ImdiTreeObject> childEnum = parentImdiObject.getChildEnum(); childEnum.hasMoreElements();) {
-                                    ImdiTreeObject childImdiObject = childEnum.nextElement();
-                                    childUrls.add(childImdiObject.getUrlString());
-                                    System.out.println("adding child to update list: " + childImdiObject.getUrlString());
-                                }
-                                updateTreeNodeChildren(currentTreeNode, childUrls);
-                            }
-                            sortChildNodes(currentTreeNode);
-                        }
-                    }
-                    treeNodeSortQueueRunning = false;
-                }
-            }.start();
-        }
-    }
-
-    private void sortChildNodes(DefaultMutableTreeNode parentNode) {
-        System.out.println("sortChildNodes: " + parentNode.getUserObject().toString());
-        // resort the branch since the node name may have changed
-        DefaultTreeModel treeModel = getModelForNode(parentNode);
-        ArrayList<DefaultMutableTreeNode> sortedChildren = Collections.list(parentNode.children());
-        Collections.sort(sortedChildren, new Comparator() {
-
-            public int compare(Object object1, Object object2) {
-                if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
-                    throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
-                }
-                String string1 = ((DefaultMutableTreeNode) object1).getUserObject().toString();
-                String string2 = ((DefaultMutableTreeNode) object2).getUserObject().toString();
-                return string1.compareToIgnoreCase(string2);
-            }
-        });
-        // loop the child nodes comparing with the sorted array and move nodes only if required
-        for (int childCounter = 0; childCounter < sortedChildren.size(); childCounter++) {
-//            System.out.println("sortChildNodes comparing: " + sortedChildren.get(childCounter));
-//            System.out.println("sortChildNodes to: " + parentNode.getChildAt(childCounter));
-            try {
-                if (!sortedChildren.get(childCounter).equals(parentNode.getChildAt(childCounter))) {
-                    System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
-                    try {
-                        treeModel.removeNodeFromParent(sortedChildren.get(childCounter));
-                    } catch (Exception e) {
-                        System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
-                    }
-                    treeModel.insertNodeInto(sortedChildren.get(childCounter), parentNode, childCounter);
-//                treeModel.nodeStructureChanged(parentNode);
-//                            treeModel.nodeChanged(itemNode);
-//            treeModel.nodeChanged(missingTreeNode);
-                }
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
-            }
-        }
-    }
-
-//    public void refreshDescendantNodes(DefaultMutableTreeNode itemNode) {
-//        removeAndDetatchDescendantNodes(itemNode);
-//        loadDescendantNodes(itemNode);
-//    }
-    public void removeAndDetatchDescendantNodes(DefaultMutableTreeNode itemNode) {
-        System.out.println("removeDescendantNodes: " + itemNode);
-        for (Enumeration<DefaultMutableTreeNode> childNodesEnum = itemNode.children(); childNodesEnum.hasMoreElements();) {
-            removeAndDetatchDescendantNodes(childNodesEnum.nextElement());
-        }
-        Object childUserObject = itemNode.getUserObject();
-        // get the imdi node
-        if (childUserObject instanceof ImdiTreeObject) {
-            //deregister the tree node in the imdinode
-            ((ImdiTreeObject) childUserObject).removeContainer(itemNode);
-        }
-    }
-
-//    public void loadAndRefreshDescendantNodes(DefaultMutableTreeNode itemNode) {
-//        System.out.println("refreshChildNodes: " + itemNode);
-//        updateTreeNodeChildren(itemNode);
-//        for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
-//            DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
-//            loadAndRefreshDescendantNodes(currentChildNode);
-//        }
-//    }
-
-    public void applyRootLocations() {
-        System.out.println("applyRootLocations");
+    private void updateRootNodes() {
         Vector<String> remoteCorpusRootUrls = new Vector();
         Vector<String> localCorpusRootUrls = new Vector();
         Vector<String> localDirectoryRootUrls = new Vector();
@@ -378,10 +286,131 @@ public class TreeHelper {
         updateTreeNodeChildren(remoteCorpusRootNode, remoteCorpusRootUrls);
         updateTreeNodeChildren(localCorpusRootNode, localCorpusRootUrls);
         updateTreeNodeChildren(localDirectoryRootNode, localDirectoryRootUrls);
+    }
 
-//        localDirectoryTreeModel.reload();
-//        localCorpusTreeModel.reload();
-//        remoteCorpusTreeModel.reload();
+    synchronized private void addToSortQueue(DefaultMutableTreeNode currentTreeNode) {
+        if (!treeNodeSortQueue.contains(currentTreeNode)) {
+            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
+            treeNodeSortQueue.add(currentTreeNode);
+        }
+        if (!treeNodeSortQueueRunning) {
+            treeNodeSortQueueRunning = true;
+            new Thread() {
+
+                @Override
+                public void run() {
+                    while (treeNodeSortQueue.size() > 0) {
+                        DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
+                        if (currentTreeNode != null) {
+                            Vector<String> childUrls = new Vector();
+                            //DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) itemNode.getParent();
+                            Object parentObject = currentTreeNode.getUserObject();
+                            if (parentObject instanceof ImdiTreeObject) {
+                                ImdiTreeObject parentImdiObject = (ImdiTreeObject) parentObject;
+//            parentTreeNode.setAllowsChildren(parentImdiObject.canHaveChildren());
+                                // make the list of child urls
+                                for (Enumeration<ImdiTreeObject> childEnum = parentImdiObject.getChildEnum(); childEnum.hasMoreElements();) {
+                                    ImdiTreeObject childImdiObject = childEnum.nextElement();
+                                    childUrls.add(childImdiObject.getUrlString());
+//                                    System.out.println("adding child to update list: " + childImdiObject.getUrlString());
+                                }
+                                updateTreeNodeChildren(currentTreeNode, childUrls);
+                            } else {
+                                // assume that this is a root node so update the root nodes
+                                updateRootNodes();
+                            }
+//                                sortChildNodes(currentTreeNode);
+                        }
+                    }
+                    treeNodeSortQueueRunning = false;
+                }
+            }.start();
+        }
+    }
+
+    private void sortChildNodes(DefaultMutableTreeNode parentNode) {
+//        System.out.println("sortChildNodes: " + parentNode.getUserObject().toString());
+        // resort the branch since the node name may have changed
+        DefaultTreeModel treeModel = getModelForNode(parentNode);
+        ArrayList<DefaultMutableTreeNode> sortedChildren = Collections.list(parentNode.children());
+        Collections.sort(sortedChildren, new Comparator() {
+
+            public int compare(Object object1, Object object2) {
+                if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
+                    throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
+                }
+                String string1 = ((DefaultMutableTreeNode) object1).getUserObject().toString();
+                String string2 = ((DefaultMutableTreeNode) object2).getUserObject().toString();
+                return string1.compareToIgnoreCase(string2);
+            }
+        });
+        // loop the child nodes comparing with the sorted array and move nodes only if required
+        for (int childCounter = 0; childCounter < sortedChildren.size(); childCounter++) {
+//            System.out.println("sortChildNodes comparing: " + sortedChildren.get(childCounter));
+//            System.out.println("sortChildNodes to: " + parentNode.getChildAt(childCounter));
+            try {
+                if (!sortedChildren.get(childCounter).equals(parentNode.getChildAt(childCounter))) {
+//                    System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
+                    try {
+                        treeModel.removeNodeFromParent(sortedChildren.get(childCounter));
+                    } catch (Exception e) {
+                        GuiHelper.linorgBugCatcher.logError(e);
+//                        System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
+                    }
+                    treeModel.insertNodeInto(sortedChildren.get(childCounter), parentNode, childCounter);
+//                treeModel.nodeStructureChanged(parentNode);
+//                            treeModel.nodeChanged(itemNode);
+//            treeModel.nodeChanged(missingTreeNode);
+                }
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+    }
+
+//    public void refreshDescendantNodes(DefaultMutableTreeNode itemNode) {
+//        removeAndDetatchDescendantNodes(itemNode);
+//        loadDescendantNodes(itemNode);
+//    }
+    private void removeAndDetatchDescendantNodes(DefaultMutableTreeNode itemNode) {
+        System.out.println("removeDescendantNodes: " + itemNode);
+        for (Enumeration<DefaultMutableTreeNode> childNodesEnum = itemNode.children(); childNodesEnum.hasMoreElements();) {
+            removeAndDetatchDescendantNodes(childNodesEnum.nextElement());
+        }
+        Object childUserObject = itemNode.getUserObject();
+        // get the imdi node
+        if (childUserObject instanceof ImdiTreeObject) {
+            //deregister the tree node in the imdinode
+            ((ImdiTreeObject) childUserObject).removeContainer(itemNode);
+        }
+//        DefaultTreeModel treeModel = getModelForNode(itemNode);
+//        treeModel.nodeStructureChanged(itemNode);
+    }
+
+//    public void loadAndRefreshDescendantNodes(DefaultMutableTreeNode itemNode) {
+//        System.out.println("refreshChildNodes: " + itemNode);
+//        updateTreeNodeChildren(itemNode);
+//        for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
+//            DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
+//            loadAndRefreshDescendantNodes(currentChildNode);
+//        }
+//    }
+    public boolean locationsHaveBeenAdded() {
+        boolean returnValue = false;
+        for (String currentLocation : locationsList.toArray(new String[]{})) {
+            if (ImdiTreeObject.isStringLocal(currentLocation)) {
+                returnValue = true;
+                break;
+            }
+        }
+        return returnValue;
+    }
+
+    public void applyRootLocations() {
+        System.out.println("applyRootLocations");
+        addToSortQueue(remoteCorpusRootNode);
+        addToSortQueue(localCorpusRootNode);
+        addToSortQueue(localDirectoryRootNode);
     }
 
     public void redrawTrees() {
@@ -400,7 +429,6 @@ public class TreeHelper {
 ////         TODO: make sure the refreshed node is expanded 
 ////        localCorpusTree.expandPath(localCorpusTree.gettargetNode); 
 //    }
-
     public void reloadLocalCorpusTree() {
         javax.swing.tree.TreePath currentSelection = localCorpusTree.getSelectionPath();
         ((DefaultTreeModel) localCorpusTree.getModel()).reload();
@@ -543,40 +571,61 @@ public class TreeHelper {
         DefaultMutableTreeNode selectedTreeNode = null;
         DefaultMutableTreeNode parentTreeNode = null;
         if (sourceObject == localCorpusTree) {
-            int selectedRow = ((ImdiTree) sourceObject).getMinSelectionRow();
-            javax.swing.tree.TreePath currentNodePath = ((ImdiTree) sourceObject).getSelectionPath();
-            if (currentNodePath != null) {
-                selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
-                if (currentNodePath.getPath().length == 2) {
-                    removeSelectedLocation(selectedTreeNode);
-                } else {
-                    parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
-                    ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
-                    ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
-                    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete '" + childImdiNode + "' from '" + parentImdiNode + "'?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                        if (childImdiNode.isImdiChild()) {
-                            childImdiNode.deleteFromParentDom(null);
-//                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
-//                            localCorpusTreeModel.removeNodeFromParent(parentTreeNode);
-//                            localCorpusTreeModel.nodeStructureChanged(parentTreeNode);
+            javax.swing.tree.TreePath currentNodePaths[] = ((ImdiTree) sourceObject).getSelectionPaths();
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete " + currentNodePaths.length + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                Vector<ImdiTreeObject> imdiNodesToRemove = new Vector<ImdiTreeObject>();
+                Hashtable<ImdiTreeObject, Vector> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector>();
+                Hashtable<ImdiTreeObject, Vector> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector>();
+                for (javax.swing.tree.TreePath currentNodePath : currentNodePaths) {
+                    if (currentNodePath != null) {
+                        selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
+                        Object userObject = selectedTreeNode.getUserObject();
+                        System.out.println("trying to delete: " + userObject);
+                        if (currentNodePath.getPath().length == 2) {
+                            System.out.println("removing by location");
+                            removeSelectedLocation(selectedTreeNode);
                         } else {
-                            parentImdiNode.deleteCorpusLink(childImdiNode);
-//                            localCorpusTreeModel.removeNodeFromParent(selectedTreeNode);
+                            System.out.println("deleting from parent");
+                            parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
+                            if (parentTreeNode != null) {
+                                System.out.println("found parent to remove from");
+                                ImdiTreeObject parentImdiNode = (ImdiTreeObject) parentTreeNode.getUserObject();
+                                ImdiTreeObject childImdiNode = (ImdiTreeObject) selectedTreeNode.getUserObject();
+                                if (childImdiNode.isImdiChild()) {
+                                    // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
+                                    if (!imdiChildNodeDeleteList.containsKey(childImdiNode.getParentDomNode())) {
+                                        imdiChildNodeDeleteList.put(childImdiNode.getParentDomNode(), new Vector());
+                                    }
+                                    imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.xmlNodeId);
+                                } else {
+                                    // add the parent and the child node to the deletelist
+                                    if (!imdiNodesDeleteList.containsKey(parentImdiNode)) {
+                                        imdiNodesDeleteList.put(parentImdiNode, new Vector());
+                                    }
+                                    imdiNodesDeleteList.get(parentImdiNode).add(childImdiNode);
+                                }
+                            // remove the deleted node from the favourites list if it is an imdichild node
+//                            if (userObject instanceof ImdiTreeObject) {
+//                                if (((ImdiTreeObject) userObject).isImdiChild()){
+//                                LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
+//                                }
+//                            }
+                            }
                         }
+                        // make a list of all child nodes so that they can be removed from any tables etc
+                        imdiNodesToRemove.add((ImdiTreeObject) userObject);
+                        ((ImdiTreeObject) userObject).getAllChildren(imdiNodesToRemove);
                     }
-                    ((ImdiTree) sourceObject).setSelectionRow(selectedRow);
                 }
-                Object userObject = selectedTreeNode.getUserObject();
-                // remove the deleted node from the favourites list if it is an imdichild node
-//                if (userObject instanceof ImdiTreeObject) {
-//                    if (((ImdiTreeObject) userObject).isImdiChild()){
-//                    LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
-//                    }
-//                }
-                // make a list of child nodes
-                Vector<ImdiTreeObject> imdiNodesToRemove = new Vector();
-                imdiNodesToRemove.add((ImdiTreeObject) userObject);
-                ((ImdiTreeObject) userObject).getAllChildren(imdiNodesToRemove);
+                for (ImdiTreeObject currentParent : imdiChildNodeDeleteList.keySet()) {
+                    System.out.println("deleting by child xml id link");
+                    // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
+                    currentParent.deleteFromParentDom(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                }
+                for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
+                    System.out.println("deleting by corpus link");
+                    currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
+                }
                 for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
                     // remove the deleted node from all tables
                     ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
