@@ -26,8 +26,8 @@ import javax.swing.table.AbstractTableModel;
 public class ImdiTableModel extends AbstractTableModel {
 
     private boolean showIcons = false;
-    private Hashtable<String, ImdiTreeObject> imdiObjectHash = new Hashtable();
-    private HashMap<String, ImdiField> allColumnNames = new HashMap();
+    private Hashtable<String, ImdiTreeObject> imdiObjectHash = new Hashtable<String, ImdiTreeObject>();
+    private HashMap<String, ImdiField> allColumnNames = new HashMap<String, ImdiField>();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
     private int[] maxColumnWidths;
