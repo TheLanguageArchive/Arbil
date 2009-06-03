@@ -13,7 +13,7 @@ import java.util.Vector;
  */
 public class ImdiVocabularies {
 
-    Hashtable<String, Vector> vocabulariesTable = new Hashtable();
+    Hashtable<String, Vector> vocabulariesTable = new Hashtable<String, Vector>();
 
     public ImdiVocabularies() {
 //        parseRemoteFile("/home/petwit/IMDI-Tools/Profiles/local/DBD_Profile.Profile.xml");
@@ -39,7 +39,7 @@ public class ImdiVocabularies {
 //        System.out.println("Entries: "+cv.getEntries());      
 //    }
     public void addVocabularyEntry(String vocabularyLocation, String entryString) {
-        Vector<VocabularyItem> tempVocab = vocabulariesTable.get(vocabularyLocation);
+        Vector<VocabularyItem> tempVocab = (Vector<VocabularyItem>)vocabulariesTable.get(vocabularyLocation);
         if (!tempVocab.contains(entryString)) {
             tempVocab.add(new VocabularyItem(entryString, null));
         }
@@ -59,7 +59,7 @@ public class ImdiVocabularies {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
-        Vector<VocabularyItem> tempVocab = vocabulariesTable.get(vocabularyLocation);
+        Vector<VocabularyItem> tempVocab = (Vector<VocabularyItem>)vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
             return (findVocabularyItem(tempVocab.elements(), valueString) != null);
         } else {
@@ -113,7 +113,7 @@ public class ImdiVocabularies {
 //                }
 //            }
             System.out.println("parseRemoteFile: " + cachePath);
-            Vector<VocabularyItem> vocabularyList = new Vector();
+            Vector<VocabularyItem> vocabularyList = new Vector<VocabularyItem>();
             vocabulariesTable.put(vocabRemoteUrl, vocabularyList);
             try {
                 javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
@@ -135,7 +135,7 @@ public class ImdiVocabularies {
 //                vocabulariesTable.put(vocabRemoteUrl, null); // prevent further attempts in this application instance
 //            System.out.println(ex.getMessage());
             }
-            System.out.println("vocabularyList: " + vocabularyList);
+//            System.out.println("vocabularyList: " + vocabularyList);
         }
     }
 
