@@ -590,8 +590,6 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 // TODO add your handling code here:
     ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
     importExportDialog.importImdiBranch();
-    // update the tree and reload the ui
-    TreeHelper.getSingleInstance().applyRootLocations();
 }//GEN-LAST:event_importMenuItemActionPerformed
 
 private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
