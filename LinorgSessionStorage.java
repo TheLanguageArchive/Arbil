@@ -23,7 +23,7 @@ import java.util.Date;
 public class LinorgSessionStorage {
 
     public String storageDirectory = null;
-    public String destinationDirectory;
+    public String cacheDirectory;
 
     public LinorgSessionStorage() {
         String storageDirectoryArray[] = new String[]{
@@ -94,8 +94,8 @@ public class LinorgSessionStorage {
      * @return Boolean
      */
     public boolean cacheDirExists() {
-        destinationDirectory = storageDirectory + "imdicache" + File.separatorChar; // storageDirectory already has the file separator appended
-        File destinationFile = new File(destinationDirectory);
+        cacheDirectory = storageDirectory + "imdicache" + File.separatorChar; // storageDirectory already has the file separator appended
+        File destinationFile = new File(cacheDirectory);
         boolean cacheDirExists = destinationFile.exists();
         if (!cacheDirExists) {
             cacheDirExists = destinationFile.mkdir();
@@ -200,7 +200,7 @@ public class LinorgSessionStorage {
      * @return The path of the file in the destination directory.
      */
     public String getExportPath(String pathString, String destinationDirectory) {
-        String cachePath = destinationDirectory + pathString.split(".linorg" + File.separatorChar + "imdicache")[1];
+        String cachePath = destinationDirectory + File.separatorChar + pathString.split(cacheDirectory)[1];
         File tempFile = new File(cachePath);
         if (!tempFile.getParentFile().exists()) {
             tempFile.getParentFile().mkdirs();
@@ -215,8 +215,7 @@ public class LinorgSessionStorage {
      * @return The path in the cache for the file.
      */
     public String getSaveLocation(String pathString) {
-        String cachePath = GuiHelper.linorgSessionStorage.destinationDirectory + pathString.replace(":/", "/");
-        cachePath = cachePath.replace("//", "/");
+        String cachePath = cacheDirectory + pathString.replace(":/", "/").replace("//", "/");
         File tempFile = new File(cachePath);
         if (!tempFile.getParentFile().exists()) {
             tempFile.getParentFile().mkdirs();
