@@ -589,7 +589,7 @@ public class ImdiTable extends JTable {
     }
 
     private ImdiField[] getSelectedFields() {
-        HashSet<ImdiField> selectedFields = new HashSet();
+        HashSet<ImdiField> selectedFields = new HashSet<ImdiField>();
         int[] selectedRows = this.getSelectedRows();
         if (selectedRows.length > 0) {
             int[] selectedCols = this.getSelectedColumns();
