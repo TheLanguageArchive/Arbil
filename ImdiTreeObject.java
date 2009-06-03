@@ -678,18 +678,21 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void deleteFromParentDom(String childNodeXmlId) {
-        System.out.println("deleteFromParentDom: " + childNodeXmlId);
+    public void deleteFromParentDom(String[] childNodeXmlIdArray) {
+//        System.out.println("deleteFromParentDom: " + childNodeXmlIdArray);
+        // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
         if (this.isImdiChild()) {
-            this.domParentImdi.deleteFromParentDom(this.xmlNodeId);
+            this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
         } else {
-            System.out.println("attempting to remove node");
+//            System.out.println("attempting to remove nodes");
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
                 Document nodDom;
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
-                IMDIElement target = new IMDIElement(null, childNodeXmlId);
-                api.removeIMDIElement(nodDom, target);
+                for (String currentNodeXmlId : childNodeXmlIdArray) {
+                    IMDIElement target = new IMDIElement(null, currentNodeXmlId);
+                    api.removeIMDIElement(nodDom, target);
+                }
                 api.writeDOM(nodDom, this.getFile(), false);
                 reloadNode();
             } catch (Exception ex) {
@@ -698,8 +701,8 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void deleteCorpusLink(ImdiTreeObject targetImdiNode) {
-        System.out.println("deleteCorpusLink: " + targetImdiNode.getUrlString());
+    public void deleteCorpusLink(ImdiTreeObject[] targetImdiNodes) {
+//        System.out.println("deleteCorpusLink: " + targetImdiNodes.length);
         Document nodDom;
         try {
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
@@ -711,18 +714,18 @@ public class ImdiTreeObject implements Comparable {
                 String[] currentLinkPair = childLinksEnum.nextElement();
                 String currentChildPath = currentLinkPair[0];
 //                System.out.println("currentChildPath: " + currentChildPath);
-//                System.out.println("targetImdiNode :  " + targetImdiNode.getUrlString());
-                if (currentChildPath.equals(targetImdiNode.getUrlString())) {
-//                    System.out.println("currentLinkPair[1]: " + currentLinkPair[1]);
-                    linkIdString = currentLinkPair[1];
-                    break;
+                for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
+//                    System.out.println("targetImdiNode :  " + currentImdiNode.getUrlString());
+                    if (currentChildPath.equals(currentImdiNode.getUrlString())) {
+//                      System.out.println("currentLinkPair[1]: " + currentLinkPair[1]);
+                        linkIdString = currentLinkPair[1];
+                        IMDIElement target = new IMDIElement(null, linkIdString);
+//                      System.out.println("attempting to remove link");
+                        api.removeIMDIElement(nodDom, target);
+                    }
                 }
             }
-//            System.out.println("linkIdString: " + linkIdString);
-
-            IMDIElement target = new IMDIElement(null, linkIdString);
-//            System.out.println("attempting to remove link");
-            api.removeIMDIElement(nodDom, target);
+//          System.out.println("linkIdString: " + linkIdString);
             api.writeDOM(nodDom, this.getFile(), false);
             reloadNode();
 //            throw (new Exception("deleteCorpusLink not yet implemented"));
@@ -1168,7 +1171,9 @@ public class ImdiTreeObject implements Comparable {
 //            } else {
         nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         lastNodeText = nodeText + nameText;
-        if (lastNodeText.length() == 0)lastNodeText = "      ";
+        if (lastNodeText.length() == 0) {
+            lastNodeText = "      ";
+        }
         return lastNodeText;
 //            }
     }
