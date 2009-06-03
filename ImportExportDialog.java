@@ -75,7 +75,13 @@ public class ImportExportDialog {
     private boolean threadARunning = false;
     private boolean threadBRunning = false;
     private Vector selectedNodes;
+    ImdiTreeObject destinationNode = null;
     File exportDestinationDirectory = null;
+
+    private void setNodesPanel(ImdiTreeObject selectedNode, JPanel nodePanel) {
+        JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
+        nodePanel.add(currentLabel);
+    }
 
     private void setNodesPanel(Vector selectedNodes, JPanel nodePanel) {
 //            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
@@ -190,6 +196,12 @@ public class ImportExportDialog {
         copyToCache(new Vector(Arrays.asList(localSelectedNodes)));
     }
 
+    // sets the destination branch for the imported nodes
+    public void setDestinationNode(ImdiTreeObject localDestinationNode) {
+        destinationNode = localDestinationNode;
+        setNodesPanel(destinationNode, outputNodePanel);
+    }
+
     public void copyToCache(Vector localSelectedNodes) {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
@@ -198,7 +210,9 @@ public class ImportExportDialog {
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
-        setLocalCacheToNodesPanel(outputNodePanel);
+        if (destinationNode == null) {
+            setLocalCacheToNodesPanel(outputNodePanel);
+        }
         //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
 
         //exportDestinationDirectory = exportDestinationDirectory + File.separator + mirrorNameString;
@@ -237,6 +251,7 @@ public class ImportExportDialog {
         }
     }
 
+    // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) {
         searchDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
         //searchDialog.setUndecorated(true);
@@ -498,6 +513,7 @@ public class ImportExportDialog {
 //                    int[] childCount = countChildern();
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
                     Enumeration selectedNodesEnum = selectedNodes.elements();
+                    Vector<ImdiTreeObject> finishedTopNodes = new Vector<ImdiTreeObject>();
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
@@ -612,32 +628,46 @@ public class ImportExportDialog {
 //                                System.out.println("progressXmlErrors" + xsdErrors);
 //                                System.out.println("resourceCopyErrors" + resourceCopyErrors);
                             }
-                            finalMessageString = finalMessageString + "Processed " + totalLoaded + " files.\n";
-                            if (exportDestinationDirectory == null) {
-                                String newNodeLocation = GuiHelper.linorgSessionStorage.getSaveLocation(((ImdiTreeObject) currentElement).getUrlString());
+                            // add the completed node to the done list
+                            String newNodeLocation = GuiHelper.linorgSessionStorage.getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
+                            finishedTopNodes.add(GuiHelper.imdiLoader.getImdiObject(null, newNodeLocation));
+                        }
+                    }
+
+                    finalMessageString = finalMessageString + "Processed " + totalLoaded + " files.\n";
+                    if (exportDestinationDirectory == null) {
+//                        String newNodeLocation = GuiHelper.linorgSessionStorage.getSaveLocation(((ImdiTreeObject) currentElement).getUrlString());
 //                            String newNodeLocation = ((ImdiTreeObject) currentElement).loadImdiDom(); // save the first node which will not be saved by loadSomeChildren
-                                if (newNodeLocation != null && !stopSearch) { // make sure we dont add an incomplete location
-                                    //appendToTaskOutput("would save location when done: " + newNodeLocation);
-                                    //guiHelper.addLocation("file://" + newNodeLocation);
-                                    // TODO: create an imdinode to contain the name and point to the location
-                                    if (!TreeHelper.getSingleInstance().addLocation("file://" + newNodeLocation)) {
-                                        // alert the user when the node already exists and cannot be added again
-                                        progressBar.setIndeterminate(false);
-//                                    progressLabel.setText("");
-                                        finalMessageString = finalMessageString + "The location:\n" + newNodeLocation + "\nalready exists and cannot be added again\n";
-                                    } else {
-                                        //GuiHelper.linorgWindowManager.localCorpusTreeModel.reload();
-                                        TreeHelper.getSingleInstance().reloadLocalCorpusTree();
+                        if (!stopSearch) { // make sure we dont add an incomplete location
+                            //appendToTaskOutput("would save location when done: " + newNodeLocation);
+                            //guiHelper.addLocation("file://" + newNodeLocation);
+                            // TODO: create an imdinode to contain the name and point to the location
+                            for (ImdiTreeObject currentFinishedNode : finishedTopNodes.toArray(new ImdiTreeObject[]{})) {
+                                if (destinationNode != null) {
+                                    // add the nodes to their parent here
+                                    destinationNode.addCorpusLink(currentFinishedNode);
+                                } else {
+                                    // add the nodes to the local corpus root node here
+                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getUrlString())) {
+                                        // alert the user when the node already exists and cannot be added again                                        
+                                        finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and cannot be added again\n";
                                     }
                                 }
                             }
-                            if (totalErrors != 0) {
-                                finalMessageString = finalMessageString + "There were " + totalErrors + " errors, some files may not have been copied.\n";
-                            }
-                            if (xsdErrors != 0) {
-                                finalMessageString = finalMessageString + "There were " + xsdErrors + " files that failed to validate and have xml errors.\n";
-                            }
                         }
+                        if (destinationNode == null) {
+                            // update the tree and reload the ui    
+//                            TreeHelper.getSingleInstance().reloadLocalCorpusTree();
+                            TreeHelper.getSingleInstance().applyRootLocations();
+                        }
+                    }
+//                  progressLabel.setText("");
+                    progressBar.setIndeterminate(false);
+                    if (totalErrors != 0) {
+                        finalMessageString = finalMessageString + "There were " + totalErrors + " errors, some files may not have been copied.\n";
+                    }
+                    if (xsdErrors != 0) {
+                        finalMessageString = finalMessageString + "There were " + xsdErrors + " files that failed to validate and have xml errors.\n";
                     }
                     if (stopSearch) {
                         appendToTaskOutput("copy canceled");
