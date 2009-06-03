@@ -369,15 +369,10 @@ public class ContextMenu {
 
     private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
         // TODO add your handling code here:    
-        ImportExportDialog importExportDialog = new ImportExportDialog(treePopupMenu.getInvoker());
-
         if (treePopupMenu.getInvoker() instanceof JTree) {
+            ImportExportDialog importExportDialog = new ImportExportDialog(treePopupMenu.getInvoker());
             importExportDialog.copyToCache(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
-
         }
-        // update the tree and reload the ui    
-        TreeHelper.getSingleInstance().applyRootLocations();
-
     }//GEN-LAST:event_copyBranchMenuItemActionPerformed
 
     private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -580,9 +575,7 @@ public class ContextMenu {
         // make sure the chosen directory is empty   
         // export the tree, maybe adjusting resource links so that resource files do not need to be copied   
         ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().remoteCorpusTree);
-
-        importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());    // update the tree and reload the ui
-        TreeHelper.getSingleInstance().applyRootLocations();
+        importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
     }//GEN-LAST:event_exportMenuItemActionPerformed
 
     private void pasteMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
