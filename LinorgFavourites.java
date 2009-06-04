@@ -123,11 +123,25 @@ public class LinorgFavourites {
         } else if (templateImdiObject.isCorpus()) {
             returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus";
         } else if (templateImdiObject.isImdiChild()) {
-            returnValue = templateImdiObject.getUrlString().split("#")[1].split("\\(")[0];
+//            TODO: this may need to pass the (x) on in the return value
+            if (templateImdiObject.getUrlString().endsWith(")")) {
+                int firstHashIndex = templateImdiObject.getUrlString().lastIndexOf("#");
+                int lastBracketIndex = templateImdiObject.getUrlString().lastIndexOf(")");
+                returnValue = templateImdiObject.getUrlString().substring(firstHashIndex + 1, lastBracketIndex + 1);
+//                returnValue = returnValue.replaceAll("\\(\\d+\\)", "");
+            } else {
+//                try {
+//                    throw (new Exception("Unsupported node type for " + templateImdiObject.getUrlString().split("#")[1]));
+//                } catch (Exception ie) {
+//                    GuiHelper.linorgBugCatcher.logError(ie);
+//                }
+                returnValue = null;
+            }
         } else {
             returnValue = null;
         }
         System.out.println("getNodeTypeReturnValue: " + returnValue);
+        System.out.println("for : " + templateImdiObject.getUrlString());
         return returnValue;
     }
 
