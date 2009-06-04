@@ -466,6 +466,10 @@ public class ImdiTreeObject implements Comparable {
      */
     public String addChildNode(String nodeType, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
+        if (nodeType.endsWith(")")) {
+            nodeType = nodeType.replaceFirst("\\(\\d+\\)$", "");
+        }
+        System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
         if (imdiNeedsSaveToDisk) {
             saveChangesToCache(true);
         }
@@ -749,7 +753,7 @@ public class ImdiTreeObject implements Comparable {
             return false;
         }
         if (linkAlreadyExists) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and cannot be added again", null);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and will not be added again", null);
             return false;
         } else {
             // if link is not already there
