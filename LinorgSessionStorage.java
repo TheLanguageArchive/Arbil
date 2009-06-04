@@ -83,7 +83,12 @@ public class LinorgSessionStorage {
      */
     public boolean pathIsInsideCache(File fullTestFile) {
 //        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);    
-        File testFile = new File(fullTestFile.getPath().split("imdicache")[0]);
+        int foundPos = fullTestFile.getPath().indexOf("imdicache");
+        if (foundPos == -1) {
+            return false;
+        }
+        File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
+//                split("imdicache")[0]); // there is an issue using split because it parses the input string as a regex
         File storageFile = new File(storageDirectory);
 //        System.out.println("fileIsInsideCache" + storageFile + " : " + testFile);
         return storageFile.equals(testFile);
@@ -200,7 +205,7 @@ public class LinorgSessionStorage {
      * @return The path of the file in the destination directory.
      */
     public String getExportPath(String pathString, String destinationDirectory) {
-        String cachePath = destinationDirectory + File.separatorChar + pathString.split(cacheDirectory)[1];
+        String cachePath = destinationDirectory + /*File.separatorChar +*/ pathString.substring(pathString.indexOf("imdicache") + 9); // this path must be inside the cache for this to work correctly
         File tempFile = new File(cachePath);
         if (!tempFile.getParentFile().exists()) {
             tempFile.getParentFile().mkdirs();
