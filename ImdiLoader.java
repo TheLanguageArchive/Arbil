@@ -1,5 +1,8 @@
 package mpi.linorg;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -84,8 +87,54 @@ public class ImdiLoader {
                                     ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                     currentImdiObject.loadImdiDom();
                                     if (favouriteUrlString != null) {
-                                        // TODO: do this for all the descendants of the favourite
-                                        LinorgFavourites.getSingleInstance().mergeFromFavourite(addedImdiObject, getImdiObject("", favouriteUrlString), true);
+                                        ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList();
+                                        ImdiTreeObject favouriteImdiNode = getImdiObject("", favouriteUrlString);
+                                        nodesToMerge.add(new ImdiTreeObject[]{addedImdiObject, favouriteImdiNode});
+                                        ImdiTreeObject[] allChildNodes = favouriteImdiNode.getAllChildren();
+                                        Arrays.sort(allChildNodes, new Comparator() {
+
+                                            public int compare(Object firstColumn, Object secondColumn) {
+                                                try {
+                                                    String leftString = ((ImdiTreeObject) firstColumn).getUrlString();
+                                                    String rightString = ((ImdiTreeObject) secondColumn).getUrlString();
+                                                    int leftPathCount = leftString.split("\\.").length;
+                                                    int rightPathCount = rightString.split("\\.").length;
+                                                    if (leftPathCount == rightPathCount) {
+                                                        return leftString.compareTo(rightString);
+                                                    } else {
+                                                        return leftPathCount - rightPathCount;
+                                                    }
+                                                } catch (Exception ex) {
+                                                    GuiHelper.linorgBugCatcher.logError(ex);
+                                                    return 1;
+                                                }
+                                            }
+                                        });
+//                                        for (ImdiTreeObject currentFavChild : allChildNodes) {
+//                                            System.out.println("sort output: " + currentFavChild.getUrlString());
+//                                        }
+                                        for (ImdiTreeObject currentFavChild : allChildNodes) {
+                                            System.out.println("currentFavChild: " + currentFavChild.getUrlString());
+                                            if (currentFavChild.getFields().size() > 0) {
+                                                ImdiTreeObject addedChildImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild), nodeTypeDisplayName, resourceUrl, mimeType);
+                                                nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
+                                            } else {
+                                                System.out.println("omitting: " + currentFavChild);
+                                            }
+                                        }
+                                        currentImdiObject.loadImdiDom();
+                                        for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
+                                            if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
+                                                System.out.println("about to merge:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
+                                            }
+                                        }
+                                        for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
+                                            if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
+                                                System.out.println("merging:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
+                                                LinorgFavourites.getSingleInstance().mergeFromFavourite(currentMergeArray[0], currentMergeArray[1], true);
+                                            }
+                                        }
+//                                        currentImdiObject.saveChangesToCache(true);
                                     }
                                     currentImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
