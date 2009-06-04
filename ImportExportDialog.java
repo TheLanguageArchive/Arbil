@@ -46,6 +46,7 @@ public class ImportExportDialog {
     private JPanel outputNodePanel;
     private JCheckBox copyFilesCheckBox;
     private JCheckBox detailsCheckBox;
+    private JCheckBox overwriteCheckBox;
     private JProgressBar progressBar;
     JPanel detailsPanel;
     JPanel bottomPanel;
@@ -243,6 +244,7 @@ public class ImportExportDialog {
             detailsTabPane.setVisible(showFlag);
             bottomPanel.setVisible(showFlag);
             copyFilesCheckBox.setVisible(showFlag);
+            overwriteCheckBox.setVisible(showFlag);
             outputNodePanel.setVisible(false);
             inputNodePanel.setVisible(false);
             searchDialog.pack();
@@ -312,12 +314,15 @@ public class ImportExportDialog {
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.PAGE_AXIS));
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
+        overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
+
 //        JPanel copyFilesCheckBoxPanel = new JPanel();
 //        copyFilesCheckBoxPanel.setLayout(new BoxLayout(copyFilesCheckBoxPanel, BoxLayout.X_AXIS));
 //        copyFilesCheckBoxPanel.add(copyFilesCheckBox);
 //        copyFilesCheckBoxPanel.add(new JPanel());
 //        detailsPanel.add(copyFilesCheckBoxPanel, BorderLayout.NORTH);
         detailsPanel.add(copyFilesCheckBox, BorderLayout.NORTH);
+        detailsPanel.add(overwriteCheckBox, BorderLayout.NORTH);
 //        detailsPanel.add(new JPanel());
 
         detailsTabPane = new JTabbedPane();
@@ -570,11 +575,18 @@ public class ImportExportDialog {
 //                                            SystecurrentTree.m.out.println("getIMDILinks.getURL: " + links[linkCount].getURL().toString());
                                         }
                                     }
+                                    boolean replacingExitingFile = destinationFile.exists() && overwriteCheckBox.isSelected();
                                     if (destinationFile.exists()) {
                                         totalExisting++;
+                                    }
+                                    if (destinationFile.exists() && !overwriteCheckBox.isSelected()) {
                                         appendToTaskOutput("this destination file already exists, skipping file");
                                     } else {
-                                        appendToTaskOutput("saving to disk...");
+                                        if (replacingExitingFile) {
+                                            appendToTaskOutput("replacing existing file...");
+                                        } else {
+                                            appendToTaskOutput("saving to disk...");
+                                        }
                                         // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
                                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
                                         boolean removeIdAttributes = exportDestinationDirectory != null;
@@ -603,6 +615,10 @@ public class ImportExportDialog {
                                         // TODO: it will be best to change this to use the server api get mb5 sum when it is written
                                         // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
                                         //getHash(tempFile, this.getUrl());
+                                        if (replacingExitingFile) {
+                                            appendToTaskOutput("reloading existing data");
+                                            GuiHelper.imdiLoader.requestReloadOnlyIfLoaded(destinationFile.getCanonicalPath());
+                                        }
                                         appendToTaskOutput("done");
                                     }
                                 } catch (Exception ex) {
@@ -650,7 +666,7 @@ public class ImportExportDialog {
                                     // add the nodes to the local corpus root node here
                                     if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getUrlString())) {
                                         // alert the user when the node already exists and cannot be added again                                        
-                                        finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and cannot be added again\n";
+                                        finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
                                     }
                                 }
                             }
