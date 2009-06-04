@@ -572,7 +572,7 @@ public class ImdiSchema {
                     } else {
                         linkPath = fieldToAdd.getFieldValue();
                     }
-                    System.out.println("linkPath: " + linkPath);
+//                    System.out.println("linkPath: " + linkPath);
 //                    linkPath = new URL(linkPath).getPath();
                     // clean the path for the local file system
                     linkPath = linkPath.replaceAll("/\\./", "/");
@@ -580,7 +580,7 @@ public class ImdiSchema {
                     while (linkPath.contains("/../")) {
                         linkPath = linkPath.replaceAll("/[^/]+/\\.\\./", "/");
                     }
-                    System.out.println("linkPathCorrected: " + linkPath);
+//                    System.out.println("linkPathCorrected: " + linkPath);
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
