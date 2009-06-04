@@ -163,6 +163,15 @@ public class ImdiLoader {
         return currentImdiObject;
     }
 
+    // reload the node only if it has already been loaded otherwise ignore
+    public void requestReloadOnlyIfLoaded(String imdiUrl) {
+        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
+        ImdiTreeObject currentImdiObject = imdiHashTable.get(localUrlString);
+        if (currentImdiObject != null) {
+            requestReload(currentImdiObject);
+        }
+    }
+
     // reload the node or if it is an imdichild node then reload its parent
     public void requestReload(ImdiTreeObject currentImdiObject) {
         if (currentImdiObject.isImdiChild()) {
