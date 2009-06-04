@@ -65,10 +65,12 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
 
             public void keyReleased(KeyEvent evt) {
-//                if (receivedKeyDown) {
-                startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
-//                    receivedKeyDown = false;
-//                }
+                if (isStartLongFieldModifier(evt)) {
+                    // prevent ctrl key events getting through etc.
+                    startEditorMode(isStartLongFieldKey(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
+                } else {
+                    startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
+                }
             }
         });
         button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -254,7 +256,8 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 
                         public void keyTyped(KeyEvent evt) {
                             if (isStartLongFieldKey(evt)) {
-                                startEditorMode(true, evt.getKeyCode(), evt.getKeyChar());
+                                // if this is a long start long field event the we don't want that key appended so it is not passed on here
+                                startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
                             }
                         }
 
