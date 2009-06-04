@@ -109,7 +109,7 @@ public class ImdiSchema {
     }
 
     private Vector getSubnodesFromTemplatesDir(final String nodepath) {
-        Vector returnVector = new Vector();
+        Vector<String[]> returnVector = new Vector<String[]>();
         System.out.println("getSubnodesOf: " + nodepath);
         String[] templatesArray = {
             "METATRANSCRIPT.Corpus.Description.xml",
@@ -123,15 +123,18 @@ public class ImdiSchema {
             "METATRANSCRIPT.Session.xml"
         };
         try {
+//            System.out.println("get templatesDirectory");
             File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
             if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
                 String[] testingListing = templatesDirectory.list();
+                Arrays.sort(templatesArray);
                 Arrays.sort(testingListing);
                 int linesRead = 0;
                 for (String currentTemplate : templatesArray) {
+                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
                     if (testingListing != null) {
                         if (!testingListing[linesRead].equals(currentTemplate)) {
-                            System.out.println(testingListing[linesRead] + " : " + currentTemplate);
+                            System.out.println("error: " + currentTemplate + " : " + testingListing[linesRead]);
                             throw new Exception("error in the templates array");
                         }
                     }
@@ -378,13 +381,25 @@ public class ImdiSchema {
     public String insertFromTemplate(File destinationFile, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
         String addedPathString = null;
-
+        String targetXpath = null;
         try {
-            URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + elementName.substring(1) + ".xml");
+            String templateFileString = elementName.substring(1);
+            System.out.println("templateFileString: " + templateFileString);
+            templateFileString = templateFileString.replaceAll("\\([\\d]+\\)", "");
+            System.out.println("templateFileString: " + templateFileString);
+            URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateFileString + ".xml");
             // prepare the parent node
-            String targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
+            targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
             // convert to xpath for the api
             targetXpath = targetXpath.replace(".", "/:");
+            targetXpath = targetXpath.replace(")", "]");
+            targetXpath = targetXpath.replace("(", "[");
+            System.out.println("targetXpath: " + targetXpath);
+            System.out.println("templateUrl: " + templateUrl);
+            if (templateUrl == null) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), null);
+                return null;
+            }
             Document insertableSectionDoc = ImdiTreeObject.api.loadIMDIDocument(new OurURL(templateUrl), false);
             // insert values into the section that about to be added
             if (resourcePath != null) {
@@ -438,11 +453,10 @@ public class ImdiSchema {
             String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
             if (insertBeforeCSL != null && insertBeforeCSL.length() > 0) {
                 String[] insertBeforeArray = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore").split(",");
-                System.out.println("insertbefore: " + insertBeforeArray.toString());
-
                 // find the node to add the new section before
                 int insertBeforeCounter = 0;
                 while (insertBeforeNode == null & insertBeforeCounter < insertBeforeArray.length) {
+                    System.out.println("insertbefore: " + insertBeforeArray);
                     insertBeforeNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath + "/:" + insertBeforeArray[insertBeforeCounter]);
                     insertBeforeCounter++;
                 }
@@ -467,6 +481,7 @@ public class ImdiSchema {
             }
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
+            System.out.println("exception with targetXpath: " + targetXpath);
             GuiHelper.linorgBugCatcher.logError(ex);
         }
         return addedPathString;
