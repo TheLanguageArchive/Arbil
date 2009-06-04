@@ -277,7 +277,7 @@ public class TreeHelper {
             locationsList.add(currentImdiObject.getUrlString());
             if (!currentImdiObject.isLocal()) {
                 remoteCorpusRootUrls.add(currentImdiObject.getUrlString());
-            } else if (currentImdiObject.isImdi()) {
+            } else if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentImdiObject.getFile())) {
                 localCorpusRootUrls.add(currentImdiObject.getUrlString());
             } else {
                 localDirectoryRootUrls.add(currentImdiObject.getUrlString());
