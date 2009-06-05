@@ -200,7 +200,7 @@ public class GuiHelper {
                     javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(this.getClass().getResource("/mpi/linorg/resources/xsl/IMDI_3_0_TO_WEB.xsl").toString()));
                     // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
                     transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeFile.getCanonicalPath() + ".html")));
-                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());
+                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURI().toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 //System.out.println(ex.getMessage());
@@ -208,7 +208,7 @@ public class GuiHelper {
                 }
             } else {
                 try {
-                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
+                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeFile.toURI().toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 //System.out.println(ex.getMessage());
