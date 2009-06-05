@@ -542,7 +542,7 @@ public class ImportExportDialog {
                                     }
                                     File destinationFile = new File(destinationPath);
                                     appendToTaskOutput("destination path: " + destinationPath);
-                                    OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
+                                    OurURL destinationUrl = new OurURL(destinationFile.toURL());
 
                                     Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
                                     appendToTaskOutput("getting links...");

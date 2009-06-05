@@ -69,7 +69,7 @@ public class XsdChecker extends JSplitPane {
         File schemaFile = new File(cachePath);
         if (schemaFile.exists()) {
             try {
-                schemaURL = schemaFile.toURI().toURL();
+                schemaURL = schemaFile.toURL();
             } catch (Exception e) {
                 System.out.println("error getting xsd from the server: " + e.getMessage());
             }
@@ -133,7 +133,7 @@ public class XsdChecker extends JSplitPane {
             imdiObject.exportImdiFile(tempFile);
             alternateCheck(tempFile);
             try {
-                fileViewPane.setPage(tempFile.toURI().toURL());
+                fileViewPane.setPage(tempFile.toURL());
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
