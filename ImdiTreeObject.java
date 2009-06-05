@@ -78,7 +78,7 @@ public class ImdiTreeObject implements Comparable {
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
             if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:")) {
-                returnUrl = new File(inputUrlString).toURL();
+                returnUrl = new File(inputUrlString).toURI().toURL();
             } else {
                 returnUrl = new URL(inputUrlString);
             }
@@ -479,7 +479,7 @@ public class ImdiTreeObject implements Comparable {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
-                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                OurURL inUrlLocal = new OurURL(this.getFile().toURI().toURL());
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
@@ -690,7 +690,7 @@ public class ImdiTreeObject implements Comparable {
         } else {
 //            System.out.println("attempting to remove nodes");
             try {
-                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                OurURL inUrlLocal = new OurURL(this.getFile().toURI().toURL());
                 Document nodDom;
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 for (String currentNodeXmlId : childNodeXmlIdArray) {
@@ -709,7 +709,7 @@ public class ImdiTreeObject implements Comparable {
 //        System.out.println("deleteCorpusLink: " + targetImdiNodes.length);
         Document nodDom;
         try {
-            OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+            OurURL inUrlLocal = new OurURL(this.getFile().toURI().toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //            System.out.println("Trying to delete: " + targetImdiNode + " from: " + this.toString());
             // retrieve the node id for the link
@@ -765,7 +765,7 @@ public class ImdiTreeObject implements Comparable {
 
             Document nodDom;
             try {
-                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                OurURL inUrlLocal = new OurURL(this.getFile().toURI().toURL());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
 
                 int nodeType = WSNodeType.CORPUS;
@@ -791,7 +791,7 @@ public class ImdiTreeObject implements Comparable {
         System.out.println("updateImdiFileNodeIds");
         try {
 //            System.out.println("removing NodeIds");
-            OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+            OurURL inUrlLocal = new OurURL(this.getFile().toURI().toURL());
             Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             api.writeDOM(nodDom, this.getFile(), true);
 //            System.out.println("adding NodeIds");
@@ -814,7 +814,7 @@ public class ImdiTreeObject implements Comparable {
     public void exportImdiFile(File exportFile) {
         try {
             Document nodDom;
-            nodDom = api.loadIMDIDocument(new OurURL(this.getFile().toURL()), false);
+            nodDom = api.loadIMDIDocument(new OurURL(this.getFile().toURI().toURL()), false);
             api.writeDOM(nodDom, exportFile, true);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -896,7 +896,7 @@ public class ImdiTreeObject implements Comparable {
 //            if (!this.getFile().exists()) {
 //                createFileInCache();
 //            }
-            inUrlLocal = new OurURL(this.getFile().toURL());
+            inUrlLocal = new OurURL(this.getFile().toURI().toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
 
             if (nodDom == null) {
