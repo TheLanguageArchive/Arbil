@@ -46,6 +46,7 @@ public class MimeHashQueue {
         new Thread() {
 
             public void run() {
+                setPriority(Thread.MIN_PRIORITY);
                 System.out.println("MimeHashQueue run");
                 fileType = new mpi.bcarchive.typecheck.FileType(); //  used to check the file type
                 deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
