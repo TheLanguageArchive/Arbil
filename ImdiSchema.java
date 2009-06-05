@@ -354,7 +354,7 @@ public class ImdiSchema {
             }
             in.close();
             out.close();
-            return targetFile.toURL().toString();
+            return targetFile.toURI().toURL().toString();
         } catch (Exception ex) {
             System.out.println("copyToDisk: " + ex);
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -471,13 +471,13 @@ public class ImdiSchema {
                 System.out.println("inserting");
                 targetNode.appendChild(addableNode);
             }
-            addedPathString = destinationFile.toURL().toString() + "#" + elementName;
+            addedPathString = destinationFile.toURI().toURL().toString() + "#" + elementName;
             String childsMetaNode = pathIsChildNode(elementName);
             if (childsMetaNode != null) {
                 addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
             } else {
                 // make sure elements like description show the parent node rather than trying to get a non existing node
-                addedPathString = destinationFile.toURL().toString();
+                addedPathString = destinationFile.toURI().toURL().toString();
             }
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
