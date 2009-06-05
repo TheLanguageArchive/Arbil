@@ -127,6 +127,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         new Thread() {
 
             public void run() {
+                setPriority(Thread.NORM_PRIORITY - 1);
                 threadRunning = true;
                 Vector<ImdiTreeObject> foundNodes = new Vector();
                 try {
