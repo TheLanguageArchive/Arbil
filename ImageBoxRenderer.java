@@ -21,7 +21,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     int outputWidth = 200;
     int outputHeight = 130;
-    Hashtable<String, ImageIcon> thumbNailHash = new Hashtable();
+    Hashtable<String, ImageIcon> thumbNailHash = new Hashtable<String, ImageIcon>();
 
     public ImageBoxRenderer() {
         setOpaque(true);
