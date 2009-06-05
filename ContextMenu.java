@@ -171,13 +171,12 @@ public class ContextMenu {
 
         treePopupMenu.add(addMenu);
         favouritesMenu.setText("Favourites");
-        addToFavouritesMenuItem.setLabel("Set As Favourite");
+        addToFavouritesMenuItem.setText("Set As Favourite");
 
         addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addToFavouritesMenuItemActionPerformed(evt);
-
             }
         });
 
