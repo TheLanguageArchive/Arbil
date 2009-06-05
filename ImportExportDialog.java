@@ -449,16 +449,17 @@ public class ImportExportDialog {
         }
     }
 
-    private void removeEmptyDirectoryPaths(File currentDirectory) {
+    private void removeEmptyDirectoryPaths(File currentDirectory, File[] destinationFile) {
         File[] childDirectories = currentDirectory.listFiles();
         if (childDirectories != null && childDirectories.length == 1) {
-            removeEmptyDirectoryPaths(childDirectories[0]);
+            removeEmptyDirectoryPaths(childDirectories[0], destinationFile);
             if (childDirectories[0].isDirectory()) {
                 childDirectories[0].delete();
             }
         } else {
             try {
-                File tempFile = File.createTempFile(currentDirectory.getName(), "", exportDestinationDirectory);
+                File tempFile = destinationFile[0] = File.createTempFile(currentDirectory.getName(), "", exportDestinationDirectory);
+                destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
                 tempFile.delete();
                 if (!currentDirectory.renameTo(tempFile)) {
 //                    appendToTaskOutput("failed to tidy directory stucture");
@@ -539,7 +540,7 @@ public class ImportExportDialog {
                                     }
                                     File destinationFile = new File(destinationPath);
                                     appendToTaskOutput("destination path: " + destinationPath);
-                                    OurURL destinationUrl = new OurURL(destinationFile.toURL());
+                                    OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
 
                                     Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
                                     appendToTaskOutput("getting links...");
@@ -694,7 +695,9 @@ public class ImportExportDialog {
                         selectedNodes.removeAllElements();
                         //TODO: prevent restart and probably make sure that done files are not redone if stopped
                         if (exportDestinationDirectory != null) {
-                            removeEmptyDirectoryPaths(exportDestinationDirectory);
+                            File[] destinationFile = new File[2];
+                            removeEmptyDirectoryPaths(exportDestinationDirectory, destinationFile);
+                            destinationFile[0].renameTo(destinationFile[1]);
                         }
                     }
                 } catch (Exception ex) {
