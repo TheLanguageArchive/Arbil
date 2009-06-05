@@ -81,6 +81,10 @@ public class TreeHelper {
         localCorpusTree = tempLocalCorpusTree;
         localDirectoryTree = tempLocalDirectoryTree;
 
+        remoteCorpusTree.setLargeModel(true);
+        localCorpusTree.setLargeModel(true);
+        localDirectoryTree.setLargeModel(true);
+
         remoteCorpusTree.setName("RemoteCorpusTree");
         localCorpusTree.setName("LocalCorpusTree");
         localDirectoryTree.setName("LocalDirectoryTree");
@@ -220,12 +224,21 @@ public class TreeHelper {
         DefaultTreeModel treeModel = getModelForNode(parentNode);
 //      Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
         ArrayList<DefaultMutableTreeNode> sortedChildren = Collections.list(parentNode.children());
-
+        if (childUrls.size() == 0) {
+            System.out.println("no children");
+//            if (sortedChildren.size() > 0) {
+            System.out.println("removed all children");
+            treeModel.nodeStructureChanged(parentNode);
+            parentNode.removeAllChildren();
+//            }
+            return;
+        }
         for (DefaultMutableTreeNode currentChildNode : sortedChildren.toArray(new DefaultMutableTreeNode[]{})) {
 //            DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
             ImdiTreeObject childImdiObject = (ImdiTreeObject) currentChildNode.getUserObject();
             if (!childUrls.remove(childImdiObject.getUrlString())) {
                 nodesToRemove.add(currentChildNode);
+                sortedChildren.remove(currentChildNode);
             }
         }
         while (childUrls.size() > 0) {
@@ -237,34 +250,15 @@ public class TreeHelper {
             sortedChildren.add(missingTreeNode);
             parentNode.setAllowsChildren(true);
         }
-//        Collections.sort(imdiNodesToInsert);
-//        while (!imdiNodesToInsert.isEmpty()) {
-////            imdiNodesToInsert.remove(0);
-////            DefaultMutableTreeNode missingTreeNode = new DefaultMutableTreeNode(missingImdiNode);
-//
-////            int insertPosition = 0;
-////            // find the position to insert the new node into the tree branch at
-////            for (Enumeration<DefaultMutableTreeNode> childrenEnum = itemNode.children(); childrenEnum.hasMoreElements();) {
-////                DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
-////                System.out.println(currentChildNode.getUserObject().toString() + " compareTo " + missingImdiNode.toString());
-////                if (0 < currentChildNode.getUserObject().toString().compareTo(missingImdiNode.toString())) {
-////                    System.out.println("match");
-////                    break;
-////                }
-////                insertPosition++;
-////            }
-////            insertPosition = itemNode.getChildCount();
-////            treeModel.insertNodeInto(missingTreeNode, itemNode, insertPosition);
-////            missingImdiNode.registerContainer(missingTreeNode);
-////            treeModel.nodeStructureChanged(itemNode);
-//        }
         sortChildNodes(parentNode, sortedChildren);
         while (!nodesToRemove.isEmpty()) {
 //            TODO: are the nodes being removed when an actor is deleted ???
             DefaultMutableTreeNode currentChildNode = nodesToRemove.remove(0);
             System.out.println("nodesToRemove: " + currentChildNode);
             System.out.println("nodesToRemove: " + currentChildNode.getUserObject());
-            treeModel.removeNodeFromParent(currentChildNode);
+            if (currentChildNode.getParent() != null) {
+                treeModel.removeNodeFromParent(currentChildNode);
+            }
             removeAndDetatchDescendantNodes(currentChildNode);
         }
     }
@@ -304,6 +298,7 @@ public class TreeHelper {
 
                 @Override
                 public void run() {
+//                    setPriority(Thread.NORM_PRIORITY - 1);
                     while (treeNodeSortQueue.size() > 0) {
                         DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
                         if (currentTreeNode != null) {
