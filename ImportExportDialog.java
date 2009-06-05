@@ -438,6 +438,7 @@ public class ImportExportDialog {
     /////////////////////////////////////
     // functions called by the threads //
     /////////////////////////////////////
+
     private void waitTillVisible() {
         // this is to prevent deadlocks between the thread starting before the dialog is showing which causes the JTextArea to appear without the frame
         while (!searchDialog.isVisible()) {
@@ -502,6 +503,7 @@ public class ImportExportDialog {
         new Thread() {
 
             public void run() {
+//                setPriority(Thread.NORM_PRIORITY - 1);
                 int xsdErrors = 0;
                 int totalLoaded = 0;
                 int totalErrors = 0;
