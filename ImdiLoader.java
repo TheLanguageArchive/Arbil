@@ -30,6 +30,7 @@ public class ImdiLoader {
 
                 @Override
                 public void run() {
+                    setPriority(Thread.NORM_PRIORITY - 1);
                     while (continueThread) {
                         try {
                             sleep(500);
@@ -59,6 +60,7 @@ public class ImdiLoader {
 
                 @Override
                 public void run() {
+                    setPriority(Thread.NORM_PRIORITY - 1);
                     while (continueThread) {
                         try {
                             sleep(100);
@@ -182,7 +184,6 @@ public class ImdiLoader {
 //        localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
 //        return imdiHashTable.get(localUrlString);
 //    }
-    
     public ImdiTreeObject getImdiObject(String localNodeText, String localUrlString) {
 //        System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
         ImdiTreeObject currentImdiObject = null;
