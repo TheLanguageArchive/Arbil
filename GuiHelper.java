@@ -108,7 +108,7 @@ public class GuiHelper {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     String imdiFavouriteUrlString = evt.getActionCommand();
-                    ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiFavouriteUrlString);
+                    ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject(null, imdiFavouriteUrlString);
                     DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
                     ImdiTreeObject imdiTreeObject;
                     if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
