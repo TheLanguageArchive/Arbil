@@ -156,7 +156,7 @@ public class LinorgWindowManager {
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
                 ImdiTreeObject[] imdiObjectsArray = new ImdiTreeObject[imdiURLs.size()];
                 for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
-                    imdiObjectsArray[arrayCounter] = (GuiHelper.imdiLoader.getImdiObject("", imdiURLs.elementAt(arrayCounter).toString()));
+                    imdiObjectsArray[arrayCounter] = (GuiHelper.imdiLoader.getImdiObject(null, imdiURLs.elementAt(arrayCounter).toString()));
                 }
                 openFloatingTable(imdiObjectsArray, currentWindowName);
             //openFloatingTable(null, currentWindowName);
@@ -511,8 +511,8 @@ public class LinorgWindowManager {
         ImdiTable imdiTable = new ImdiTable(imdiTableModel, frameTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
         imdiTableModel.addImdiObjects(rowNodesArray);
-        JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.setSplitDisplay();
+        JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.addFocusListener(tableFrame);
     }
 }
