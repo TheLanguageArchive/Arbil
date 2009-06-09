@@ -90,7 +90,7 @@ public class ImdiLoader {
                                     currentImdiObject.loadImdiDom();
                                     if (favouriteUrlString != null) {
                                         ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList();
-                                        ImdiTreeObject favouriteImdiNode = getImdiObject("", favouriteUrlString);
+                                        ImdiTreeObject favouriteImdiNode = getImdiObject(null, favouriteUrlString);
                                         nodesToMerge.add(new ImdiTreeObject[]{addedImdiObject, favouriteImdiNode});
                                         ImdiTreeObject[] allChildNodes = favouriteImdiNode.getAllChildren();
                                         Arrays.sort(allChildNodes, new Comparator() {
@@ -208,6 +208,9 @@ public class ImdiLoader {
                         imdiRemoteNodesToInit.add(currentImdiObject);
                     }
                 }
+            } else if (localNodeText != null) {
+                // update the note text if it has been provided (will only change if not already set)
+                currentImdiObject.setNodeText(localNodeText);
             }
         }
         return currentImdiObject;
