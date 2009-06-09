@@ -85,11 +85,17 @@ public class ImdiSchema {
         }
     }
 
-    public boolean nodeCanExistInNode(ImdiTreeObject parentImdiObject, ImdiTreeObject childImdiObject) {
-        String parentPath = getNodePath((ImdiTreeObject) parentImdiObject);
+    public boolean nodeCanExistInNode(ImdiTreeObject targetImdiObject, ImdiTreeObject childImdiObject) {
+        String targetImdiPath = getNodePath((ImdiTreeObject) targetImdiObject);
         String childPath = getNodePath((ImdiTreeObject) childImdiObject);
-//        System.out.println("nodeCanExistInNode: " + parentPath + " : " + childPath);
-        return childPath.startsWith(parentPath);
+        targetImdiPath = targetImdiPath.replaceAll("\\(\\d\\)", "\\(x\\)");
+        childPath = childPath.replaceAll("\\(\\d\\)", "\\(x\\)");
+//        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
+        int targetBranchCount = targetImdiPath.replaceAll("[^(]*", "").length();
+        int childBranchCount = childPath.replaceAll("[^(]*", "").length();
+//        System.out.println("targetBranchCount: " + targetBranchCount + " childBranchCount: " + childBranchCount);
+        boolean hasCorrectSubNodeCount = childBranchCount - targetBranchCount < 2;
+        return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
     }
 
     private String getNodePath(ImdiTreeObject targetImdiObject) {
@@ -99,18 +105,22 @@ public class ImdiSchema {
 //        System.out.println("nodePath0: " + nodePathArray[0]);
         if (nodePathArray.length > 1) {
             String nodePath = nodePathArray[1].toString();
+            xpath = nodePath;
 //            System.out.println("nodePath1: " + nodePath);
-            // convert the dot path to xpath
-            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
+        // convert the dot path to xpath
+//            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
 //                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
 //            System.out.println("xpath: " + xpath);
         }
         return xpath;
     }
 
-    private Vector getSubnodesFromTemplatesDir(final String nodepath) {
+    private Vector getSubnodesFromTemplatesDir(String nodepath) {
         Vector<String[]> returnVector = new Vector<String[]>();
         System.out.println("getSubnodesOf: " + nodepath);
+        String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
+        nodepath = nodepath.replaceAll("\\(\\d\\)", "\\(x\\)");
+        System.out.println("targetNodePath: " + targetNodePath);
         String[] templatesArray = {
             "METATRANSCRIPT.Corpus.Description.xml",
             "METATRANSCRIPT.Corpus.xml",
@@ -154,9 +164,11 @@ public class ImdiSchema {
             currentTemplate = "." + currentTemplate;
             if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
                 if (currentTemplate.startsWith(nodepath)) {
-                    String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
-                    String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-                    returnVector.add(new String[]{currentTemplateName, currentTemplateXPath});
+                    if (targetNodePath.replaceAll("[^(]*", "").length() >= currentTemplate.replaceAll("[^(]*", "").length()) {
+                        String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
+                        String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
+                        returnVector.add(new String[]{currentTemplateName, currentTemplateXPath, targetNodePath});
+                    }
                 }
             }
         }
