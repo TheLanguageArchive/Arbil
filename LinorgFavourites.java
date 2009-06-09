@@ -38,7 +38,7 @@ public class LinorgFavourites {
         userFavourites = new Hashtable<String, ImdiTreeObject>();
         // loop templates and load the imdi objects then set the template flags for each
         for (Enumeration<String> templatesEnum = userFavouritesStrings.elements(); templatesEnum.hasMoreElements();) {
-            ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObject("", templatesEnum.nextElement());
+            ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObject(null, templatesEnum.nextElement());
             currentImdiObject.setTemplateStatus(true);
             userFavourites.put(currentImdiObject.getUrlString(), currentImdiObject);
         }
@@ -47,6 +47,10 @@ public class LinorgFavourites {
     public void toggleFavouritesList(ImdiTreeObject[] imdiObjectArray, boolean setAsTempate) {
         System.out.println("toggleTemplateList: " + setAsTempate);
         for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
+            if (currentImdiObject.getFields().size() == 0) {
+                // note: the way that favourites are shown in a table will not show meta nodes but their child nodes instead
+                setAsTempate = false;
+            }
             if (setAsTempate) {
                 addAsTemplate(currentImdiObject.getUrlString());
             } else {
@@ -56,15 +60,15 @@ public class LinorgFavourites {
         }
     }
 
-    public void addAsTemplate(String imdiUrlString) {
+    private void addAsTemplate(String imdiUrlString) {
         if (!userFavourites.containsKey(imdiUrlString)) {
-            userFavourites.put(imdiUrlString, GuiHelper.imdiLoader.getImdiObject("", imdiUrlString));
+            userFavourites.put(imdiUrlString, GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString));
             saveSelectedTemplates();
             loadSelectedTemplates();
         }
     }
 
-    public void removeFromFavourites(String imdiUrlString) {
+    private void removeFromFavourites(String imdiUrlString) {
         while (userFavourites.containsKey(imdiUrlString)) {
             userFavourites.remove(imdiUrlString);
         }
@@ -98,7 +102,7 @@ public class LinorgFavourites {
                 if (targetIsCorpus && !currentTemplateObject.isImdiChild()) {
                     addThisTemplate = true;
                 } else if (targetIsSession && currentTemplateObject.isImdiChild()) {
-                    addThisTemplate = true;
+                    addThisTemplate = GuiHelper.imdiSchema.nodeCanExistInNode(targetImdiObject, currentTemplateObject);
                 } else if (targetIsImdiChild && currentTemplateObject.isImdiChild()) {
                     addThisTemplate = GuiHelper.imdiSchema.nodeCanExistInNode(targetImdiObject, currentTemplateObject);
                 }
