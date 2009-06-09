@@ -73,6 +73,13 @@ public class ImdiTreeObject implements Comparable {
         initNodeVariables();
     }
 
+    // set the node text only if it is null
+    public void setNodeText(String localNodeText) {
+        if (nodeText == null) {
+            nodeText = localNodeText;
+        }
+    }
+
     static public URL conformStringToUrl(String inputUrlString) {
         URL returnUrl = null;
         try {
@@ -502,7 +509,7 @@ public class ImdiTreeObject implements Comparable {
             String targetFileName = currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi";
 
             addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType);
-            destinationNode = GuiHelper.imdiLoader.getImdiObject("new child", targetFileName);
+            destinationNode = GuiHelper.imdiLoader.getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
             }
@@ -832,7 +839,7 @@ public class ImdiTreeObject implements Comparable {
                 System.out.println("clipBoardString: " + clipBoardString);
                 if (this.isCorpus()) {
                     if (ImdiTreeObject.isStringImdi(clipBoardString)) {
-                        ImdiTreeObject clipboardNode = GuiHelper.imdiLoader.getImdiObject("new child", clipBoardString);
+                        ImdiTreeObject clipboardNode = GuiHelper.imdiLoader.getImdiObject(null, clipBoardString);
                         if (GuiHelper.linorgSessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
                             if (!ImdiTreeObject.isStringImdiChild(clipBoardString)) {
                                 if (this.getFile().exists()) {
