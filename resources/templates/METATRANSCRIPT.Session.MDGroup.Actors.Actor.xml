@@ -8,13 +8,6 @@
         <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" Type="OpenVocabularyList"></FamilySocialRole>
         <Languages>
             <Description LanguageId="" Link=""/>
-            <Language>
-                <Id></Id>
-                <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"></Name>
-                <MotherTongue Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</MotherTongue>
-                <PrimaryLanguage Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</PrimaryLanguage>
-                <Description LanguageId="" Link=""/>
-            </Language>
         </Languages>
         <EthnicGroup/>
         <Age>Unspecified</Age>
