@@ -81,9 +81,9 @@ public class TreeHelper {
         localCorpusTree = tempLocalCorpusTree;
         localDirectoryTree = tempLocalDirectoryTree;
 
-        remoteCorpusTree.setLargeModel(true);
-        localCorpusTree.setLargeModel(true);
-        localDirectoryTree.setLargeModel(true);
+//        remoteCorpusTree.setLargeModel(true); // the huge tree node issue has been seen while setLargeModel is set to true
+//        localCorpusTree.setLargeModel(true);
+//        localDirectoryTree.setLargeModel(true);
 
         remoteCorpusTree.setName("RemoteCorpusTree");
         localCorpusTree.setName("LocalCorpusTree");
@@ -219,20 +219,27 @@ public class TreeHelper {
 
     private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, Vector<String> childUrls) {
         System.out.println("updateTreeNodeChildren");
+        DefaultTreeModel treeModel = getModelForNode(parentNode);
+        if (parentNode.getUserObject() instanceof ImdiTreeObject && parentNode.getChildCount() > 0) {
+            // leave any realoading nodes alone if they already have child nodes in the tree
+            if (((ImdiTreeObject) parentNode.getUserObject()).getParentDomNode().isLoading()) {
+                treeModel.nodeChanged(parentNode);
+                return;
+            }
+        }
         Vector<DefaultMutableTreeNode> nodesToRemove = new Vector<DefaultMutableTreeNode>();
 //        Vector<ImdiTreeObject> imdiNodesToInsert = new Vector<ImdiTreeObject>();
-        DefaultTreeModel treeModel = getModelForNode(parentNode);
 //      Do the sorting in a threaded queue, this has been tested with the Beaver archive which has lots of sessions in single branches
         ArrayList<DefaultMutableTreeNode> sortedChildren = Collections.list(parentNode.children());
-        if (childUrls.size() == 0) {
-            System.out.println("no children");
-//            if (sortedChildren.size() > 0) {
-            System.out.println("removed all children");
-            treeModel.nodeStructureChanged(parentNode);
-            parentNode.removeAllChildren();
-//            }
-            return;
-        }
+//        if (childUrls.size() == 0) {
+//            System.out.println("no children");
+////            if (sortedChildren.size() > 0) {
+//            System.out.println("removed all children");
+//            treeModel.nodeStructureChanged(parentNode);
+//            parentNode.removeAllChildren();
+////            }
+//            return;
+//        }
         for (DefaultMutableTreeNode currentChildNode : sortedChildren.toArray(new DefaultMutableTreeNode[]{})) {
 //            DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
             ImdiTreeObject childImdiObject = (ImdiTreeObject) currentChildNode.getUserObject();
@@ -241,26 +248,25 @@ public class TreeHelper {
                 sortedChildren.remove(currentChildNode);
             }
         }
+        parentNode.setAllowsChildren(childUrls.size() > 0 || sortedChildren.size() > 0 || parentNode.getChildCount() > 0);
         while (childUrls.size() > 0) {
             // add any missing child nodes
             ImdiTreeObject missingImdiNode = GuiHelper.imdiLoader.getImdiObject(null, childUrls.remove(0));
             DefaultMutableTreeNode missingTreeNode = new DefaultMutableTreeNode(missingImdiNode);
             missingImdiNode.registerContainer(missingTreeNode);
-            missingTreeNode.setAllowsChildren(missingImdiNode.canHaveChildren());
             sortedChildren.add(missingTreeNode);
-            parentNode.setAllowsChildren(true);
         }
-        sortChildNodes(parentNode, sortedChildren);
         while (!nodesToRemove.isEmpty()) {
 //            TODO: are the nodes being removed when an actor is deleted ???
             DefaultMutableTreeNode currentChildNode = nodesToRemove.remove(0);
             System.out.println("nodesToRemove: " + currentChildNode);
             System.out.println("nodesToRemove: " + currentChildNode.getUserObject());
-            if (currentChildNode.getParent() != null) {
-                treeModel.removeNodeFromParent(currentChildNode);
-            }
+//            if (currentChildNode.getParent() != null) {
+//                treeModel.removeNodeFromParent(currentChildNode);
+//            }
             removeAndDetatchDescendantNodes(currentChildNode);
         }
+        sortChildNodes(parentNode, sortedChildren);
     }
 
     private void getRootNodeArrays(Vector<String> remoteCorpusRootUrls, Vector<String> localCorpusRootUrls, Vector<String> localDirectoryRootUrls) {
@@ -307,7 +313,6 @@ public class TreeHelper {
                             Object parentObject = currentTreeNode.getUserObject();
                             if (parentObject instanceof ImdiTreeObject) {
                                 ImdiTreeObject parentImdiObject = (ImdiTreeObject) parentObject;
-//            parentTreeNode.setAllowsChildren(parentImdiObject.canHaveChildren());
                                 // make the list of child urls
                                 for (Enumeration<ImdiTreeObject> childEnum = parentImdiObject.getChildEnum(); childEnum.hasMoreElements();) {
                                     ImdiTreeObject childImdiObject = childEnum.nextElement();
@@ -360,14 +365,17 @@ public class TreeHelper {
                 if (parentNode.getChildCount() > childCounter) {
                     rightUrlString = ((ImdiTreeObject) ((DefaultMutableTreeNode) parentNode.getChildAt(childCounter)).getUserObject()).getUrlString();
                 }
-                System.out.println("leftUrlString: " + leftUrlString);
-                System.out.println("rightUrlString: " + rightUrlString);
+//                System.out.println("leftUrlString: " + leftUrlString);
+//                System.out.println("rightUrlString: " + rightUrlString);
                 if (!leftUrlString.equals(rightUrlString)) {
 //                    System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
                     try {
                         if (currentChildren.get(childCounter).getParent() != null) {
                             System.out.println("removing");
                             treeModel.removeNodeFromParent(currentChildren.get(childCounter));
+                            if (!currentChildren.contains(currentChildren.get(childCounter))) {
+                                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
+                            }
                         }
                     } catch (Exception e) {
                         GuiHelper.linorgBugCatcher.logError(e);
@@ -382,7 +390,23 @@ public class TreeHelper {
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
+
+            // update the string and icon etc for each node
+            boolean childCanHaveChildren = ((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).canHaveChildren();
+            if (childCanHaveChildren) {
+                currentChildren.get(childCounter).setAllowsChildren(true);
+            }
+            treeModel.nodeChanged(currentChildren.get(childCounter));
         }
+        // update the string and icon etc for the parent node
+        treeModel.nodeChanged(parentNode);
+
+//        parentNode.removeAllChildren();
+//        // add the child nodes in order
+//        for (int childCounter = 0; childCounter < currentChildren.size(); childCounter++) {
+//            parentNode.add(currentChildren.get(childCounter));
+//            treeModel.nodeStructureChanged(parentNode);
+//        }
     }
 
 //    public void refreshDescendantNodes(DefaultMutableTreeNode itemNode) {
@@ -401,7 +425,11 @@ public class TreeHelper {
             ((ImdiTreeObject) childUserObject).removeContainer(itemNode);
         }
         DefaultTreeModel treeModel = getModelForNode(itemNode);
-        treeModel.nodeStructureChanged(itemNode);
+        if (itemNode.getParent() != null) {
+            treeModel.removeNodeFromParent(itemNode);
+        } else {
+            treeModel.nodeStructureChanged(itemNode);
+        }
     }
 
 //    public void loadAndRefreshDescendantNodes(DefaultMutableTreeNode itemNode) {
@@ -446,12 +474,11 @@ public class TreeHelper {
 ////         TODO: make sure the refreshed node is expanded 
 ////        localCorpusTree.expandPath(localCorpusTree.gettargetNode); 
 //    }
-    public void reloadLocalCorpusTree() {
-        javax.swing.tree.TreePath currentSelection = localCorpusTree.getSelectionPath();
-        ((DefaultTreeModel) localCorpusTree.getModel()).reload();
-//        localCorpusTree.expandPath(currentSelection); // this may be what is causing the tree draw issues
-    }
-
+//    public void reloadLocalCorpusTree() {
+//        javax.swing.tree.TreePath currentSelection = localCorpusTree.getSelectionPath();
+//        ((DefaultTreeModel) localCorpusTree.getModel()).reload();
+////        localCorpusTree.expandPath(currentSelection); // this may be what is causing the tree draw issues
+//    }
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
         System.out.println("localCorpusTree: " + localCorpusTree);
         return (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();

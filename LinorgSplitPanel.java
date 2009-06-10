@@ -146,7 +146,7 @@ public class LinorgSplitPanel extends JPanel {
 
     @Override
     public void doLayout() {
-        imdiTable.doLayout();
+//        imdiTable.doLayout();
         super.doLayout();
     }
 

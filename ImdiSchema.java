@@ -167,7 +167,17 @@ public class ImdiSchema {
                     if (targetNodePath.replaceAll("[^(]*", "").length() >= currentTemplate.replaceAll("[^(]*", "").length()) {
                         String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
                         String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-                        returnVector.add(new String[]{currentTemplateName, currentTemplateXPath, targetNodePath});
+                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
+                        System.out.println("targetNodePath: " + targetNodePath);
+                        String destinationXPath;
+                        if (currentTemplateXPath.contains(")")) {
+                            destinationXPath = targetNodePath + currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(")") + 1);
+                        } else {
+                            destinationXPath = currentTemplateXPath;
+                        }
+                        System.out.println("destinationXPath: " + destinationXPath);
+
+                        returnVector.add(new String[]{currentTemplateName, destinationXPath});
                     }
                 }
             }
@@ -397,7 +407,7 @@ public class ImdiSchema {
         try {
             String templateFileString = elementName.substring(1);
             System.out.println("templateFileString: " + templateFileString);
-            templateFileString = templateFileString.replaceAll("\\([\\d]+\\)", "");
+            templateFileString = templateFileString.replaceAll("\\([\\d]+\\)", "(x)");
             System.out.println("templateFileString: " + templateFileString);
             URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateFileString + ".xml");
             // prepare the parent node

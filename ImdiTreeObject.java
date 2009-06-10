@@ -18,9 +18,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -401,7 +399,6 @@ public class ImdiTreeObject implements Comparable {
      * @param An empty vector, to which all the child nodes will be added.
      */
     public void getAllChildren(Vector<ImdiTreeObject> allChildren) {
-        // for the sake of the mergeFromFavourite use in the imdiloader this functin must return the nodes in order of parent to child not the other way around
         System.out.println("getAllChildren: " + this.getUrlString());
         if (this.isSession() || this.isImdiChild()) {
             for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
@@ -784,6 +781,7 @@ public class ImdiTreeObject implements Comparable {
                 // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
                 }
                 // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
+                System.out.println("createIMDILink: " + targetImdiNode.getUrlString());
                 api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), targetImdiNode.toString(), nodeType, "");
                 api.writeDOM(nodDom, this.getFile(), false);
             } catch (Exception ex) {
@@ -873,7 +871,7 @@ public class ImdiTreeObject implements Comparable {
             if (this.isImdiChild()) {
                 this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
             } else {
-//        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + templateUrlString + " : " + resourceUrl);
+                System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
                 addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
                 GuiHelper.imdiLoader.requestReload(this);
             }
@@ -1351,43 +1349,36 @@ public class ImdiTreeObject implements Comparable {
     /**
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
-    public void clearIcon() {
+    synchronized public void clearIcon() {
         System.out.println("clearIcon: " + this);
 //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
-        SwingUtilities.invokeLater(new Runnable() {
+//        SwingUtilities.invokeLater(new Runnable() {
 
-            public void run() {
-                icon = ImdiIcons.getSingleInstance().getIconForImdi(ImdiTreeObject.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
+//            public void run() {
+        icon = ImdiIcons.getSingleInstance().getIconForImdi(ImdiTreeObject.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
 //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
 //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
-                // here we need to cause an update in the tree and table gui so that the new icon can be loaded
-                for (Object currentContainer : containersOfThisNode.toArray()) {
+        // here we need to cause an update in the tree and table gui so that the new icon can be loaded
+        for (Object currentContainer : containersOfThisNode.toArray()) {
 //                    System.out.println("currentContainer: " + currentContainer.toString());
-                    if (currentContainer instanceof ImdiTableModel) {
-                        ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
-                    }
-                    if (currentContainer instanceof ImdiChildCellEditor) {
-                        ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
-                    }
-                    if (currentContainer instanceof DefaultMutableTreeNode) {
-                        DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                        DefaultTreeModel modelForNodes = TreeHelper.getSingleInstance().getModelForNode(currentTreeNode);
-                        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                        // set the allows children flag
-//                      System.out.println("clearIcon: canHaveChildren: " + this.canHaveChildren());
-//                        if (!ImdiTreeObject.this.canHaveChildren() && currentTreeNode.getChildCount() > 0) {
-//                            currentTreeNode.removeAllChildren(); // why is this being done!!!
-//                            modelForNodes.nodeStructureChanged(currentTreeNode);
-//                        }
-                        currentTreeNode.setAllowsChildren(ImdiTreeObject.this.canHaveChildren());
-                        modelForNodes.nodeChanged(currentTreeNode);
-                        if (parentNode != null) {
-                            TreeHelper.getSingleInstance().updateTreeNodeChildren(parentNode);
-                        }
-                    }
+            if (currentContainer instanceof ImdiTableModel) {
+                ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
+            }
+            if (currentContainer instanceof ImdiChildCellEditor) {
+                ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
+            }
+            if (currentContainer instanceof DefaultMutableTreeNode) {
+                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
+                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
+                if (parentNode != null) {
+                    TreeHelper.getSingleInstance().updateTreeNodeChildren(parentNode);
+                } else {
+                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentTreeNode);
                 }
             }
-        });
+        }
+//            }
+//        });
     }
 
     public boolean isFavorite() {

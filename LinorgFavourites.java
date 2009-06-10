@@ -107,12 +107,12 @@ public class LinorgFavourites {
                     addThisTemplate = GuiHelper.imdiSchema.nodeCanExistInNode(targetImdiObject, currentTemplateObject);
                 }
                 if (addThisTemplate) {
-                    System.out.println("adding: " + currentTemplateObject);
+//                    System.out.println("adding: " + currentTemplateObject);
                     validTemplates.add(new String[]{currentTemplateObject.toString(), currentTemplateObject.getUrlString()});
                 } else {
                     // imdi child templates cannot be added to a corpus
                     // sessions cannot be added to a session
-                    System.out.println("omitting: " + currentTemplateObject);
+//                    System.out.println("omitting: " + currentTemplateObject);
                 }
             }
         }
