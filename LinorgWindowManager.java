@@ -354,31 +354,38 @@ public class LinorgWindowManager {
 //                            System.out.println("KeyEvent.paramString: " + ((KeyEvent) e).paramString());
 //                            System.out.println("KeyEvent.getWhen: " + ((KeyEvent) e).getWhen());
                             if (((KeyEvent) e).isControlDown() && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
-                                JInternalFrame focusedWindow = desktopPane.getSelectedFrame();
-                                if (focusedWindow != null) {
-                                    String windowName = focusedWindow.getName();
-                                    Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                                    if (windowAndMenu != null) {
-                                        windowMenu.remove(windowAndMenu[1]);
-                                    }
-                                    windowList.remove(windowName);
-                                    desktopPane.remove(focusedWindow);
-                                    try {
-                                        JInternalFrame[] allWindows = desktopPane.getAllFrames();
-                                        if (allWindows.length > 0) {
-                                            JInternalFrame topMostWindow = allWindows[0];
-                                            if (topMostWindow != null) {
-                                                System.out.println("topMostWindow: " + topMostWindow);
-                                                topMostWindow.setIcon(false);
-                                                topMostWindow.setSelected(true);
-                                            }
-                                        }
-                                    } catch (Exception ex) {
-                                        GuiHelper.linorgBugCatcher.logError(ex);
-//                                        System.out.println(ex.getMessage());
-                                    }
-                                    desktopPane.repaint();
+                                JInternalFrame[] windowsToClose;
+                                if (((KeyEvent) e).isShiftDown()) {
+                                    windowsToClose = desktopPane.getAllFrames();
+                                } else {
+                                    windowsToClose = new JInternalFrame[]{desktopPane.getSelectedFrame()};
                                 }
+                                for (JInternalFrame focusedWindow : windowsToClose) {
+                                    if (focusedWindow != null) {
+                                        String windowName = focusedWindow.getName();
+                                        Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+                                        if (windowAndMenu != null) {
+                                            windowMenu.remove(windowAndMenu[1]);
+                                        }
+                                        windowList.remove(windowName);
+                                        desktopPane.remove(focusedWindow);
+                                        try {
+                                            JInternalFrame[] allWindows = desktopPane.getAllFrames();
+                                            if (allWindows.length > 0) {
+                                                JInternalFrame topMostWindow = allWindows[0];
+                                                if (topMostWindow != null) {
+                                                    System.out.println("topMostWindow: " + topMostWindow);
+                                                    topMostWindow.setIcon(false);
+                                                    topMostWindow.setSelected(true);
+                                                }
+                                            }
+                                        } catch (Exception ex) {
+                                            GuiHelper.linorgBugCatcher.logError(ex);
+//                                        System.out.println(ex.getMessage());
+                                        }
+                                    }
+                                }
+                                desktopPane.repaint();
                             }
                             if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown()) {
                                 try {
