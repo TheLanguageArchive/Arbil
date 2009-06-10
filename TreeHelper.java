@@ -248,7 +248,11 @@ public class TreeHelper {
                 sortedChildren.remove(currentChildNode);
             }
         }
-        parentNode.setAllowsChildren(childUrls.size() > 0 || sortedChildren.size() > 0 || parentNode.getChildCount() > 0);
+        boolean parentCanHaveChildren = false;
+        if (parentNode.getUserObject() instanceof ImdiTreeObject) {
+            parentCanHaveChildren = ((ImdiTreeObject) parentNode.getUserObject()).canHaveChildren();
+        }
+        parentNode.setAllowsChildren(childUrls.size() > 0 || sortedChildren.size() > 0 || parentNode.getChildCount() > 0 || parentCanHaveChildren);
         while (childUrls.size() > 0) {
             // add any missing child nodes
             ImdiTreeObject missingImdiNode = GuiHelper.imdiLoader.getImdiObject(null, childUrls.remove(0));
@@ -393,9 +397,7 @@ public class TreeHelper {
 
             // update the string and icon etc for each node
             boolean childCanHaveChildren = ((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).canHaveChildren();
-            if (childCanHaveChildren) {
-                currentChildren.get(childCounter).setAllowsChildren(true);
-            }
+            currentChildren.get(childCounter).setAllowsChildren(childCanHaveChildren || currentChildren.get(childCounter).getChildCount() > 0);
             treeModel.nodeChanged(currentChildren.get(childCounter));
         }
         // update the string and icon etc for the parent node
@@ -479,6 +481,7 @@ public class TreeHelper {
 //        ((DefaultTreeModel) localCorpusTree.getModel()).reload();
 ////        localCorpusTree.expandPath(currentSelection); // this may be what is causing the tree draw issues
 //    }
+
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
         System.out.println("localCorpusTree: " + localCorpusTree);
         return (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
