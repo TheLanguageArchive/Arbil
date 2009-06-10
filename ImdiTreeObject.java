@@ -219,6 +219,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void reloadNode() {
+        System.out.println("reloadNode: " + isLoading());
         getParentDomNode().imdiNeedsSaveToDisk = false; // clear any changes
         if (!this.isImdi()) {
             initNodeVariables();
@@ -1349,7 +1350,7 @@ public class ImdiTreeObject implements Comparable {
     /**
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
-    synchronized public void clearIcon() {
+    public void clearIcon() {
         System.out.println("clearIcon: " + this);
 //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
 //        SwingUtilities.invokeLater(new Runnable() {
