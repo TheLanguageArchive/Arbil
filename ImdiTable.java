@@ -1,7 +1,6 @@
 package mpi.linorg;
 
 import java.awt.AWTEvent;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -23,7 +22,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -51,6 +49,7 @@ public class ImdiTable extends JTable {
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 //            public void mousePressed(java.awt.event.MouseEvent evt) {
+
             @Override
             public void mousePressed(MouseEvent evt) {
 //                System.out.println("mousePressed");
@@ -377,52 +376,9 @@ public class ImdiTable extends JTable {
     @Override
     public TableCellRenderer getCellRenderer(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
-        Object cellField = getModel().getValueAt(row, modelcolumn);
-        if (cellField instanceof ImdiTreeObject) {
-            DefaultTableCellRenderer iconLabelRenderer = new DefaultTableCellRenderer();
-            iconLabelRenderer.setIcon(((ImdiTreeObject) cellField).getIcon());
-            iconLabelRenderer.setText(((ImdiTreeObject) cellField).toString());
-            return iconLabelRenderer;
-        } else if (cellField instanceof ImdiTreeObject[]) {
-            DefaultTableCellRenderer multiIconLabelRenderer = new DefaultTableCellRenderer() {
-
-                @Override
-                public String getText() {
-                    return "";
-                }
-            };
-            multiIconLabelRenderer.setIcon(ImdiIcons.getSingleInstance().getIconForImdi((ImdiTreeObject[]) cellField));
-            multiIconLabelRenderer.setText("");
-            return multiIconLabelRenderer;
-        } else if (cellField instanceof ImdiField[]) {
-            System.out.println("adding ImdiField[] to cell");
-            DefaultTableCellRenderer multiFieldLabelRenderer = new DefaultTableCellRenderer() {
-
-                @Override
-                public String getText() {
-                    return "<multiple values>";
-                }
-
-                @Override
-                public Color getForeground() {
-                    int greyTone = 150;
-                    return new Color(greyTone, greyTone, greyTone);
-                }
-            };
-            return multiFieldLabelRenderer;
-        } else {
-            DefaultTableCellRenderer fieldLabelRenderer = new DefaultTableCellRenderer();
-            fieldLabelRenderer.setText(cellField.toString());
-            if (cellField instanceof String && cellField.equals("")) {
-                fieldLabelRenderer.setBackground(new Color(230, 230, 230)/*Color.lightGray*/);
-            } else {
-                fieldLabelRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
-            }
-            if (imdiTableModel.hasValueChanged(row, modelcolumn)) {
-                fieldLabelRenderer.setForeground(Color.blue);
-            }
-            return fieldLabelRenderer;
-        }
+        ImdiTableCellRenderer imdiCellRenderer = new ImdiTableCellRenderer();
+        imdiCellRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
+        return imdiCellRenderer;
     }
 
     public void showRowChildData() {
