@@ -27,7 +27,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
 /**
@@ -381,6 +380,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 //        receivedKeyDown = true;
         parentTable = (ImdiTable) table;
         parentCellRect = parentTable.getCellRect(row, column, false);
+        ImdiTableCellRenderer cellRenderer = new ImdiTableCellRenderer(value);
         if (value instanceof ImdiField) {
             // TODO: get the whole array from the parent and select the correct tab for editing
             String fieldName = ((ImdiField) value).getTranslateFieldName();
@@ -398,13 +398,9 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         }
         columnName = table.getColumnName(column);
         rowImdi = table.getValueAt(row, 0);
-        if (cellValue instanceof ImdiField[]) {
-            button.setText(((DefaultTableCellRenderer) table.getCellRenderer(row, column)).getText());
-            button.setForeground(((DefaultTableCellRenderer) table.getCellRenderer(row, column)).getForeground());
-        } else {
-            button.setIcon(ImdiIcons.getSingleInstance().getIconForImdi((ImdiTreeObject[]) cellValue));
-            button.setText("");
-        }
+        button.setText(cellRenderer.getText());
+        button.setForeground(cellRenderer.getForeground());
+        button.setIcon(cellRenderer.getIcon());
         editorPanel.setBackground(table.getSelectionBackground());
         editorPanel.setLayout(new BorderLayout());
         editorPanel.add(button);
