@@ -199,7 +199,7 @@ public class ImdiIcons {
                 iconsVector.add(corpusnodeColorIcon);
             //iconsVector.add(blankIcon);
             }
-        } else if (imdiObject.isDirectory) {
+        } else if (imdiObject.isDirectory()) {
             iconsVector.add(UIManager.getIcon("FileView.directoryIcon"));
         } else {
             iconsVector.add(fileIcon);
