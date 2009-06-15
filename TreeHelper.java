@@ -224,6 +224,8 @@ public class TreeHelper {
             // leave any realoading nodes alone if they already have child nodes in the tree
             if (((ImdiTreeObject) parentNode.getUserObject()).getParentDomNode().isLoading()) {
                 treeModel.nodeChanged(parentNode);
+                // since we have ingnored the loading node we must put it back on the list so that it gets sorted when it has loaded
+                addToSortQueue(parentNode);
                 return;
             }
         }
@@ -481,7 +483,6 @@ public class TreeHelper {
 //        ((DefaultTreeModel) localCorpusTree.getModel()).reload();
 ////        localCorpusTree.expandPath(currentSelection); // this may be what is causing the tree draw issues
 //    }
-
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
         System.out.println("localCorpusTree: " + localCorpusTree);
         return (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
