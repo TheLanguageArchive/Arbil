@@ -176,7 +176,7 @@ public class ContextMenu {
         addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addToFavouritesMenuItemActionPerformed(evt);
+                LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
             }
         });
 
@@ -192,8 +192,7 @@ public class ContextMenu {
             }
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                addFromFavouritesMenuMenuSelected(evt);
-
+                GuiHelper.getSingleInstance().initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSingleSelectedNode());
             }
         });
 
@@ -209,7 +208,7 @@ public class ContextMenu {
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteMenuItemActionPerformed(evt);
+                TreeHelper.getSingleInstance().deleteNode(treePopupMenu.getInvoker());
 
             }
         });
@@ -323,7 +322,11 @@ public class ContextMenu {
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveNodeMenuItemActionPerformed(evt);
+                for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().localCorpusTree.getSelectedNodes()) {
+                    System.out.println("userObject: " + selectedNode);
+                    // reloading will first check if a save is required then save and reload
+                    GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
+                }
 
             }
         });
@@ -334,7 +337,7 @@ public class ContextMenu {
         viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewChangesMenuItemActionPerformed(evt);
+//                LinorgWindowManager.getSingleInstance().openDiffWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
 
             }
         });
@@ -461,6 +464,7 @@ public class ContextMenu {
     //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
     }
     //GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
+
     private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
         // TODO add your handling code here: 
@@ -501,28 +505,11 @@ public class ContextMenu {
 
     }//GEN-LAST:event_viewXmlXslMenuItemActionPerformed
 
-    private void saveNodeMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_saveNodeMenuItemActionPerformed
-        // TODO add your handling code here:
-        for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().localCorpusTree.getSelectedNodes()) {
-            System.out.println("userObject: " + selectedNode);
-            // reloading will first check if a save is required then save and reload       
-            GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
-
-        }
-    }//GEN-LAST:event_saveNodeMenuItemActionPerformed
-
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_sendToServerMenuItemActionPerformed
         // TODO add your handling code here:
     }
     //GEN-LAST:event_sendToServerMenuItemActionPerformed
-    private void viewChangesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_viewChangesMenuItemActionPerformed
-        // TODO add your handling code here:   
-//        LinorgWindowManager.getSingleInstance().openDiffWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
-
-    }//GEN-LAST:event_viewChangesMenuItemActionPerformed
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_validateMenuItemActionPerformed
@@ -544,28 +531,6 @@ public class ContextMenu {
         ((ImdiTreeObject) ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode()).reloadNode();
 
     }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
-
-    private void deleteMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_deleteMenuItemActionPerformed
-        // TODO add your handling code here:    
-        TreeHelper.getSingleInstance().deleteNode(treePopupMenu.getInvoker());
-
-    }//GEN-LAST:event_deleteMenuItemActionPerformed
-
-    private void addToFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_addToFavouritesMenuItemActionPerformed
-        // TODO add your handling code here:   
-        // TODO: set the boolean correctly  
-        LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
-
-    }//GEN-LAST:event_addToFavouritesMenuItemActionPerformed
-
-    private void addFromFavouritesMenuMenuSelected(javax.swing.event.MenuEvent evt) {
-        //GEN-FIRST:event_addFromFavouritesMenuMenuSelected
-        // TODO add your handling code here:   
-        GuiHelper.getSingleInstance().initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSingleSelectedNode());
-
-    }//GEN-LAST:event_addFromFavouritesMenuMenuSelected
 
     private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_exportMenuItemActionPerformed
