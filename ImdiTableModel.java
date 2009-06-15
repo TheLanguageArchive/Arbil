@@ -53,6 +53,7 @@ public class ImdiTableModel extends AbstractTableModel {
         return listModel;
     }
     // end code related to the list display of resources and loose files
+
     public void setCurrentView(LinorgFieldView localFieldView) {
         LinorgFieldView tempFieldView = localFieldView.clone();
         for (Enumeration oldKnowenColoumns = tableFieldView.getKnownColumns(); oldKnowenColoumns.hasMoreElements();) {
@@ -106,7 +107,7 @@ public class ImdiTableModel extends AbstractTableModel {
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
         if (imdiTreeObject != null) {
             // on start up the previous windows are loaded and the imdi nodes will not be loaded hence they will have no fields, so we have to check for that here
-            if (imdiTreeObject.isDirectory || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.getFields().size() == 0)) {
+            if (imdiTreeObject.isDirectory() || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.getFields().size() == 0)) {
                 // add child nodes if there are no fields ie actors node will add all the actors
                 // add child nodes if it is a directory
                 // this is non recursive and does not reload the table
@@ -391,7 +392,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 // search the table for matching cells
                 for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
                     for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
-                        if (dataTemp[rowCounter][colCounter].toString().equals(currentText)) {
+                        if (new ImdiTableCellRenderer(dataTemp[rowCounter][colCounter]).getText().equals(currentText)) {
                             cellColourTemp[rowCounter][colCounter] = currentHighlightColur;
                         }
                     }
@@ -420,8 +421,8 @@ public class ImdiTableModel extends AbstractTableModel {
         public int compare(Object firstRowArray, Object secondRowArray) {
             if (sortColumn >= 0) {
                 // (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
-                String baseValueA = ((Object[]) firstRowArray)[sortColumn].toString();
-                String comparedValueA = ((Object[]) secondRowArray)[sortColumn].toString();
+                String baseValueA = new ImdiTableCellRenderer(((Object[]) firstRowArray)[sortColumn]).getText();
+                String comparedValueA = new ImdiTableCellRenderer(((Object[]) secondRowArray)[sortColumn]).getText();
                 // TODO: add the second or more sort column
 //            if (!(baseValueA.equals(comparedValueA))) {
 //                return baseValueB.compareTo(comparedValueB);
@@ -824,7 +825,7 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void highlightMatchingCells(int row, int col) {
-        highlightCells.add(data[row][col].toString());
+        highlightCells.add(new ImdiTableCellRenderer(data[row][col]).getText());
         cellColour = setCellColours(data);
         fireTableDataChanged();
     }
