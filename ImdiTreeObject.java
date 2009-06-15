@@ -180,7 +180,6 @@ public class ImdiTreeObject implements Comparable {
         nodeEnabled = true;
         childLinks = new Vector<String[]>();
 //        isLoadingCount = true;
-        isDirectory = false;
         if (nodeUrl != null) {
             if (!isImdi() && isLocal()) {
                 File fileObject = getFile();
@@ -215,6 +214,7 @@ public class ImdiTreeObject implements Comparable {
         }
         if (this.isDirectory()) {
             getDirectoryLinks();
+            clearIcon();
         }
     }
 
@@ -223,6 +223,8 @@ public class ImdiTreeObject implements Comparable {
         getParentDomNode().imdiNeedsSaveToDisk = false; // clear any changes
         if (!this.isImdi()) {
             initNodeVariables();
+            loadChildNodes();
+            clearIcon();
             TreeHelper.getSingleInstance().updateTreeNodeChildren(this);
         } else {
             if (getParentDomNode().isCorpus()) {
@@ -1175,6 +1177,9 @@ public class ImdiTreeObject implements Comparable {
         } else if (fieldHashtable.containsKey("ResourceLink")) {
             nodeText = "";
             nameText = /*") " +*/ fieldHashtable.get("ResourceLink")[0].toString();
+        } else if (fieldHashtable.containsKey("Id")) {
+            nodeText = "";
+            nameText = /*") " +*/ fieldHashtable.get("Id")[0].toString();
         }
 //            if (mpiMimeType != null) {
 //            return " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + nodeText + " : " + hashString + ":" + mpiMimeType + ":" + resourceUrlString;
@@ -1399,7 +1404,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public ImageIcon getIcon() {
         if (icon == null) {
-            icon = ImdiIcons.getSingleInstance().getIconForImdi(this);
+            return ImdiIcons.getSingleInstance().loadingIcon;
         }
         return icon;
     }
