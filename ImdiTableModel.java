@@ -731,23 +731,23 @@ public class ImdiTableModel extends AbstractTableModel {
         return (returnValue);
     }
 
-    @Override
-    public void setValueAt(Object value, int row, int col) {
-        System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
-        if (data[row][col] instanceof ImdiField) {
-            // multiple field colums will not be edited here or saved here
-            ImdiField currentField = ((ImdiField) data[row][col]);
-            currentField.setFieldValue(value.toString(), true);
-            fireTableCellUpdated(row, col);
-        } else if (data[row][col] instanceof Object[]) {
-            System.out.println("cell is a child list so do not edit");
-        } else {
-            // TODO: is this even valid, presumably this will be a string and therefore not saveable to the imdi
-//            data[row][col] = value;
-//            fireTableCellUpdated(row, col);
-        }
-        fireTableCellUpdated(row, col);
-    }
+//    @Override
+//    public void setValueAt(Object value, int row, int col) { // error here maybe return without doing anything
+//        System.out.println("setValueAt: " + value.toString() + " : " + row + " : " + col);
+////        if (data[row][col] instanceof ImdiField) {
+////            // multiple field colums will not be edited here or saved here
+////            ImdiField currentField = ((ImdiField) data[row][col]);
+////            currentField.setFieldValue(value.toString(), true);
+////            fireTableCellUpdated(row, col);
+////        } else if (data[row][col] instanceof Object[]) {
+////            System.out.println("cell is a child list so do not edit");
+////        } else {
+////            // TODO: is this even valid, presumably this will be a string and therefore not saveable to the imdi
+//////            data[row][col] = value;
+//////            fireTableCellUpdated(row, col);
+////        }
+////        fireTableCellUpdated(row, col);
+//    }
 
     public void sortByColumn(int columnIndex) {
         // TODO: sort columns
