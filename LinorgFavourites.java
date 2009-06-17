@@ -119,8 +119,8 @@ public class LinorgFavourites {
         return validTemplates.elements();
     }
 
-    public String getNodeType(ImdiTreeObject templateImdiObject) {
-        System.out.println("getNodeType: " + templateImdiObject);
+    public String getNodeType(ImdiTreeObject templateImdiObject, ImdiTreeObject targetImdiObject) {
+        System.out.println("getNodeType: \n" + templateImdiObject.getUrlString() + "\n" + targetImdiObject.getUrlString());
         String returnValue;
         if (templateImdiObject.isSession()) {
             returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session";
@@ -131,7 +131,37 @@ public class LinorgFavourites {
             if (templateImdiObject.getUrlString().endsWith(")")) {
                 int firstHashIndex = templateImdiObject.getUrlString().lastIndexOf("#");
                 int lastBracketIndex = templateImdiObject.getUrlString().lastIndexOf(")");
-                returnValue = templateImdiObject.getUrlString().substring(firstHashIndex + 1, lastBracketIndex + 1);
+                String templateNodePath = templateImdiObject.getUrlString().substring(firstHashIndex + 1, lastBracketIndex + 1);
+
+                firstHashIndex = targetImdiObject.getUrlString().lastIndexOf("#");
+                if (firstHashIndex > -1) {
+                    lastBracketIndex = targetImdiObject.getUrlString().lastIndexOf(")");
+                    if (lastBracketIndex == -1) {
+                        lastBracketIndex = targetImdiObject.getUrlString().length() - 1;
+                    }
+                    String targetNodePath = targetImdiObject.getUrlString().substring(firstHashIndex + 1, lastBracketIndex + 1);
+                    String[] splitTemplateNodePath = templateNodePath.split("\\)");
+                    String[] splitTargetNodePath = targetNodePath.split("\\)");
+                    System.out.println("splitTemplateNodePath: " + splitTemplateNodePath.length + " splitTargetNodePath: " + splitTargetNodePath.length);
+                    returnValue = "";
+                    if (splitTargetNodePath.length > 0) {
+                        for (int partCounter = 0; partCounter < splitTargetNodePath.length; partCounter++) {
+                            splitTemplateNodePath[partCounter] = splitTargetNodePath[partCounter];
+                        }
+                        for (String currentPart : splitTemplateNodePath) {
+                            returnValue = returnValue.concat(currentPart + ")");
+                        }
+                        System.out.println("getNodeType returnValue: " + returnValue);
+                    } else {
+                        returnValue = templateNodePath;
+                    }
+
+                } else {
+                    // TODO: prevent template nodes for sub sub nodes being added to non sud nodes
+//                    if (templateNodePath. count of ")" > 1)throw
+//                    else
+                    returnValue = templateNodePath;
+                }
 //                returnValue = returnValue.replaceAll("\\(\\d+\\)", "");
             } else {
 //                try {
