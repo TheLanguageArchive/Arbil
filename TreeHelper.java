@@ -225,7 +225,7 @@ public class TreeHelper {
             if (((ImdiTreeObject) parentNode.getUserObject()).getParentDomNode().isLoading()) {
                 treeModel.nodeChanged(parentNode);
                 // since we have ingnored the loading node we must put it back on the list so that it gets sorted when it has loaded
-                addToSortQueue(parentNode);
+//                addToSortQueue(parentNode);
                 return;
             }
         }
