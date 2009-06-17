@@ -49,6 +49,15 @@ public class ImdiField {
         return fieldValue;
     }
 
+    public String getFullXmlPath() {
+        String[] pathStringArray = this.parentImdi.getUrlString().split("#");
+        if (pathStringArray.length > 1) {
+            return pathStringArray[1] + this.xmlPath;
+        } else {
+            return this.xmlPath;
+        }
+    }
+
     public void setFieldValue(String fieldValue, boolean updateUI) {
         if (!this.fieldValue.equals(fieldValue)) {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
