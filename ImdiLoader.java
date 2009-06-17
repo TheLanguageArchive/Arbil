@@ -118,7 +118,7 @@ public class ImdiLoader {
                                         for (ImdiTreeObject currentFavChild : allChildNodes) {
                                             System.out.println("currentFavChild: " + currentFavChild.getUrlString());
                                             if (currentFavChild.getFields().size() > 0) {
-                                                ImdiTreeObject addedChildImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild), nodeTypeDisplayName, resourceUrl, mimeType);
+                                                ImdiTreeObject addedChildImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
                                                 nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
                                             } else {
                                                 System.out.println("omitting: " + currentFavChild);
