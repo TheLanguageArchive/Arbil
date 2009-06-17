@@ -126,6 +126,7 @@ public class ImdiSchema {
             "METATRANSCRIPT.Corpus.xml",
             "METATRANSCRIPT.Session.Description.xml",
             "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
+            "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml",
             "METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml",
             "METATRANSCRIPT.Session.Resources.MediaFile.xml",
             "METATRANSCRIPT.Session.Resources.Source.xml",
