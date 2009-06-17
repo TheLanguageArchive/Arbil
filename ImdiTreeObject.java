@@ -695,6 +695,9 @@ public class ImdiTreeObject implements Comparable {
         if (this.isImdiChild()) {
             this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
         } else {
+            if (imdiNeedsSaveToDisk) {
+                saveChangesToCache(false);
+            }
 //            System.out.println("attempting to remove nodes");
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
@@ -839,18 +842,18 @@ public class ImdiTreeObject implements Comparable {
                 clipBoardString = clipBoardData.toString();
                 System.out.println("clipBoardString: " + clipBoardString);
                 if (this.isCorpus()) {
-                    if (ImdiTreeObject.isStringImdi(clipBoardString)) {
+                    if (ImdiTreeObject.isStringImdi(clipBoardString) || ImdiTreeObject.isStringImdiChild(clipBoardString)) {
                         ImdiTreeObject clipboardNode = GuiHelper.imdiLoader.getImdiObject(null, clipBoardString);
                         if (GuiHelper.linorgSessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
-                            if (!ImdiTreeObject.isStringImdiChild(clipBoardString)) {
+                            if (!(ImdiTreeObject.isStringImdiChild(clipBoardString) && (!this.isSession() && !this.isImdiChild()))) {
                                 if (this.getFile().exists()) {
                                     // this must use merge like favoirite to prevent instances end endless loops in corpus branches
-                                    this.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(clipboardNode), "Copy of " + clipboardNode, clipboardNode.getUrlString(), null, null);
+                                    this.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(clipboardNode, this), "Copy of " + clipboardNode, clipboardNode.getUrlString(), null, null);
                                 } else {
                                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist", null);
                                 }
                             } else {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session parts into a corpus", null);
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
                             }
                         } else {
                             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache", null);
@@ -1163,27 +1166,24 @@ public class ImdiTreeObject implements Comparable {
                 return lastNodeText;
             }
         }
-        // Return text for display
-//        if (fieldHashtable.containsKey("Session" + ImdiSchema.imdiPathSeparator + "Name")) {
-//            nodeText = fieldHashtable.get("Session" + ImdiSchema.imdiPathSeparator + "Name").toString();
-//        } else if (fieldHashtable.containsKey("Corpus" + ImdiSchema.imdiPathSeparator + "Name")) {
-//            nodeText = fieldHashtable.get("Corpus" + ImdiSchema.imdiPathSeparator + "Name").toString();
-//        }
-
         String nameText = "";
-        if (fieldHashtable.containsKey("Name")) {
-            nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get("Name")[0].toString();
-        } else if (fieldHashtable.containsKey("ResourceLink")) {
-            nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get("ResourceLink")[0].toString();
-        } else if (fieldHashtable.containsKey("Id")) {
-            nodeText = "";
-            nameText = /*") " +*/ fieldHashtable.get("Id")[0].toString();
+//        TODO: move this to a list loaded from the templates or similar
+        String[] preferredNameFields = {"Name", "ResourceLink", "Id"};
+        for (String currentPreferredName : preferredNameFields) {
+            ImdiField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
+            if (currentFieldArray != null) {
+                for (ImdiField currentField : currentFieldArray) {
+                    if (currentField != null) {
+                        nodeText = "";
+                        nameText = currentField.toString();
+                        break;
+                    }
+                }
+                if (!nameText.equals("")) {
+                    break;
+                }
+            }
         }
-//            if (mpiMimeType != null) {
-//            return " [L:" + matchesLocal + " R:" + matchesRemote + " LR:" + matchesLocalResource + "]" + nodeText + " : " + hashString + ":" + mpiMimeType + ":" + resourceUrlString;
-//            } else {
         nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         lastNodeText = nodeText + nameText;
         if (lastNodeText.length() == 0) {
