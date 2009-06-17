@@ -947,7 +947,8 @@ public class ImdiTreeObject implements Comparable {
                                 IMDIElement changedElement;
                                 if (currentField.fieldID == null) {
                                     // if the field does not have an id attribite then it must now be created in the imdi file via the imdi api
-                                    String apiPath = currentField.xmlPath.replace(".METATRANSCRIPT.", "");
+                                    // Mangle the path to suit the imdi api
+                                    String apiPath = currentField.getFullXmlPath().replace(".METATRANSCRIPT.", "").replace(".MDGroup.", ".").replace(".Actors.", ".").replace(".Languages.", ".");
                                     System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
                                     changedElement = api.addIMDIElement(nodDom, apiPath);
                                 } else {
