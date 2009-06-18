@@ -466,6 +466,20 @@ public class ImdiTreeObject implements Comparable {
 //        System.out.println("addChildNode: " + nodeToAdd);
 //        return addChildNode(null, nodeToAdd.getUrlString(), nodeToAdd.mpiMimeType);
 //    }
+    // create a subdirectory based on the file name of the node
+    // if that fails then the current directory will be returned
+    public File getSubDirectory() {
+        String currentFileName = this.getFile().getParent();
+        if (this.getFile().getName().endsWith(".imdi")) {
+            currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
+            File destinationDir = new File(currentFileName);
+            if (!destinationDir.exists()) {
+                destinationDir.mkdir();
+            }
+            return destinationDir;
+        }
+        return new File(this.getFile().getParent());
+    }
 
     /**
      * Add a new node based on a template and optionally attach a resource
@@ -490,7 +504,7 @@ public class ImdiTreeObject implements Comparable {
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
-                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.getFile(), nodeType, nodDom, resourcePath, mimeType);
+                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.getFile(), getSubDirectory(), nodeType, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
@@ -502,12 +516,16 @@ public class ImdiTreeObject implements Comparable {
         } else {
             System.out.println("adding new node");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-            String currentFileName = this.getFile().getParent();
-//                if (currentFileName.endsWith(".imdi")) {
-            //currentFileName = currentFileName.substring(0, currentFileName.length() - 5);
+//            String currentFileName = this.getFile().getParent();
+//            if (this.getFile().getName().endsWith(".imdi")) {
+//                currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
+//                File destinationDir = new File(currentFileName);
+//                if (!destinationDir.exists()) {
+//                    destinationDir.mkdir();
 //                }
-            String targetFileName = currentFileName + File.separatorChar + formatter.format(new Date()) + ".imdi";
+//            }
 
+            String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + formatter.format(new Date()) + ".imdi";
             addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType);
             destinationNode = GuiHelper.imdiLoader.getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
