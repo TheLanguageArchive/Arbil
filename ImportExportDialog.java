@@ -138,35 +138,49 @@ public class ImportExportDialog {
     public void exportImdiBranch(ImdiTreeObject[] localCorpusSelectedNodes) {
         searchDialog.setTitle("Export Branch");
         JFileChooser fileChooser = new JFileChooser();
-        FileFilter emptyDirectoryFilter = new FileFilter() {
-
-            @Override
-            public String getDescription() {
-                return "Empty Directory";
-            }
-
-            @Override
-            public boolean accept(File selectedFile) {
-                return selectedFile.isDirectory(); // && selectedFile.list().length == 0;
-            }
-        };
-        fileChooser.addChoosableFileFilter(emptyDirectoryFilter);
+//        FileFilter emptyDirectoryFilter = new FileFilter() {
+//
+//            @Override
+//            public String getDescription() {
+//                return "Empty Directory";
+//            }
+//
+//            @Override
+//            public boolean accept(File selectedFile) {
+//                return selectedFile.isDirectory(); // && selectedFile.list().length == 0;
+//            }
+//        };
+//        fileChooser.addChoosableFileFilter(emptyDirectoryFilter);
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setMultiSelectionEnabled(false);
         boolean fileSelectDone = false;
-        while (!fileSelectDone) {
-            if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Export")) {
-                //Vector importNodeVector = new Vector();
-                File destinationDirectory = fileChooser.getSelectedFile();
-                if (destinationDirectory == null || destinationDirectory.list().length == 0) {
-                    fileSelectDone = true;
-                    exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
+        try {
+            while (!fileSelectDone) {
+                if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Export")) {
+                    File destinationDirectory = null;
+                    //Vector importNodeVector = new Vector();
+                    File parentDirectory = fileChooser.getSelectedFile();
+                    String newDirectoryName = JOptionPane.showInputDialog(searchDialog, "Enter Export Name", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
+                    try {
+                        destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
+                        destinationDirectory.mkdir();
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                    }
+                    if (destinationDirectory != null && destinationDirectory.exists()) {
+                        if (destinationDirectory.list().length == 0) {
+                            fileSelectDone = true;
+                            exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
+                        } else {
+                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                        }
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                    fileSelectDone = true;
                 }
-            } else {
-                fileSelectDone = true;
             }
+        } catch (Exception e) {
+            System.out.println("aborting export");
         }
     }
 
@@ -534,11 +548,14 @@ public class ImportExportDialog {
                                     appendToTaskOutput("connecting...");
                                     OurURL inUrlLocal = new OurURL(currentTarget);
                                     String destinationPath;
+                                    String journalActionString;
                                     if (exportDestinationDirectory == null) {
                                         destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(currentTarget);
+                                        journalActionString = "import";
                                     } else {
                                         //TODO: make sure this is correct then remove any directories that contain only one directory
                                         destinationPath = GuiHelper.linorgSessionStorage.getExportPath(currentTarget, exportDestinationDirectory.getPath());
+                                        journalActionString = "export";
                                     }
                                     File destinationFile = new File(destinationPath);
                                     appendToTaskOutput("destination path: " + destinationPath);
@@ -594,6 +611,7 @@ public class ImportExportDialog {
                                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
                                         boolean removeIdAttributes = exportDestinationDirectory != null;
                                         ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
+                                        GuiHelper.linorgJournal.saveJournalEntry(destinationPath, "", currentTarget, "", journalActionString);
                                         // validate the imdi file
                                         appendToTaskOutput("validating");
                                         String checkerResult;
