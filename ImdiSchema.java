@@ -120,16 +120,22 @@ public class ImdiSchema {
         System.out.println("getSubnodesOf: " + nodepath);
         String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
         nodepath = nodepath.replaceAll("\\(\\d\\)", "\\(x\\)");
+        System.out.println("nodepath: " + nodepath);
         System.out.println("targetNodePath: " + targetNodePath);
         String[] templatesArray = {
             "METATRANSCRIPT.Corpus.Description.xml",
             "METATRANSCRIPT.Corpus.xml",
             "METATRANSCRIPT.Session.Description.xml",
-            "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
+            "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml",
+            "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml",
             "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml",
+            "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
             "METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml",
+            "METATRANSCRIPT.Session.MDGroup.Keys.Key.xml",
             "METATRANSCRIPT.Session.Resources.MediaFile.xml",
+            "METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml",
             "METATRANSCRIPT.Session.Resources.Source.xml",
+            "METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml",
             "METATRANSCRIPT.Session.Resources.WrittenResource.xml",
             "METATRANSCRIPT.Session.xml"
         };
