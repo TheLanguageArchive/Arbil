@@ -148,7 +148,7 @@ public class ImdiSchema {
                 Arrays.sort(testingListing);
                 int linesRead = 0;
                 for (String currentTemplate : templatesArray) {
-                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
+//                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
                     if (testingListing != null) {
                         if (!testingListing[linesRead].equals(currentTemplate)) {
                             System.out.println("error: " + currentTemplate + " : " + testingListing[linesRead]);
@@ -174,15 +174,15 @@ public class ImdiSchema {
                     if (targetNodePath.replaceAll("[^(]*", "").length() >= currentTemplate.replaceAll("[^(]*", "").length()) {
                         String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
                         String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
-                        System.out.println("targetNodePath: " + targetNodePath);
+//                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
+//                        System.out.println("targetNodePath: " + targetNodePath);
                         String destinationXPath;
                         if (currentTemplateXPath.contains(")")) {
                             destinationXPath = targetNodePath + currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(")") + 1);
                         } else {
                             destinationXPath = currentTemplateXPath;
                         }
-                        System.out.println("destinationXPath: " + destinationXPath);
+//                        System.out.println("destinationXPath: " + destinationXPath);
 
                         returnVector.add(new String[]{currentTemplateName, destinationXPath});
                     }
@@ -339,6 +339,7 @@ public class ImdiSchema {
         }
     }
     // end functions to extract the exif data from images
+
     public boolean isImdiChildType(String childType) {
         if (childType == null) {
             return false;
@@ -355,6 +356,7 @@ public class ImdiSchema {
 //        // why put in the (x) when it is not representative of the data???
 //        return new String[]{"actors", "actor(1)", "name"};
 //    }
+
     public String getHelpForField(String fieldName) {
         return "Usage description for: " + fieldName;
     }
@@ -407,7 +409,7 @@ public class ImdiSchema {
         return null;
     }
 
-    public String insertFromTemplate(File destinationFile, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
+    public String insertFromTemplate(File destinationFile, File resourceDirectory, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
         String addedPathString = null;
         String targetXpath = null;
@@ -444,11 +446,15 @@ public class ImdiSchema {
                         String targetFilename = originalFile.getName().substring(0, suffixIndex);
                         String targetSuffix = originalFile.getName().substring(suffixIndex);
                         System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
-                        File destinationDirectory = new File(destinationFile.getParentFile().getPath()); // + File.separatorChar + resourcesDirName);
-                        System.out.println("destinationDirectory: " + destinationDirectory.toString());
-//                    destinationDirectory.mkdir();
-                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
-                        localFilePath = "./" + /*File.separatorChar + resourcesDirName +*/ /* File.separatorChar + */ destinationFileCopy.getName();
+                        ///////////////////////////////////////////////////////////////////////
+                        // use the nodes child directory
+                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDirectory);
+                        localFilePath = destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("//", "/");
+                        // for easy reading in the fields keep the file in the same directory
+//                        File destinationDirectory = new File(destinationFile.getParentFile().getPath());
+//                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
+//                        localFilePath = "./" + destinationFileCopy.getName();
+                        ///////////////////////////////////////////////////////////////////////
                         copyToDisk(resourceUrl, destinationFileCopy);
                         System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
                     }
