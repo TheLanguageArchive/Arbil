@@ -75,9 +75,8 @@ public class XsdChecker extends JSplitPane {
             }
         }
         if (schemaURL == null) {
-            schemaURL = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
+            schemaURL = this.getClass().getResource("/mpi/metadata/schemas/IMDI/IMDI_3_0_11.xsd");
         }
-        // URL schemaFile = this.getClass().getResource("/mpi/imdi/resources/IMDI_3.0.xsd");        
         return schemaURL;
     }
 
