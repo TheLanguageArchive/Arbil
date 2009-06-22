@@ -218,7 +218,7 @@ public class TreeHelper {
     // check that all child nodes are attached and sorted, removing any extranious nodes found
 
     private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, Vector<String> childUrls) {
-        System.out.println("updateTreeNodeChildren");
+//        System.out.println("updateTreeNodeChildren");
         DefaultTreeModel treeModel = getModelForNode(parentNode);
         if (parentNode.getUserObject() instanceof ImdiTreeObject && parentNode.getChildCount() > 0) {
             // leave any realoading nodes alone if they already have child nodes in the tree
@@ -538,36 +538,22 @@ public class TreeHelper {
 
     public ImdiTreeObject addImdiChildNode(ImdiTreeObject imdiTreeObject, String nodeType, String nodeTypeDisplayName, String resourcePath, String mimeType) {
         ImdiTreeObject addedImdi = null;
+        String addedNodeUrl = null;
         if (nodeType != null) {
-//        System.out.println("adding a new node to: " + itemNode);
-            System.out.println("adding nodeType: " + nodeType);
-            System.out.println("adding nodeTypeDisplayName: " + nodeTypeDisplayName);
             if (imdiTreeObject.isImdi() && !imdiTreeObject.fileNotFound) {// if url is null (not an imdi) then the node is unattached
                 if (imdiTreeObject.isImdiChild()) {
                     imdiTreeObject = imdiTreeObject.getParentDomNode();
                 }
-                System.out.println("adding to imdi node");
-                String addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
-//            updateTreeNodeChildren(imdiTreeObject);
-                if (addedNodeUrl != null) {
-                    addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
-                    System.out.println("addedNodeUrl: " + addedNodeUrl);
-                    System.out.println("addedImdi: " + addedImdi);
-                    LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName + " in " + imdiTreeObject.toString());
-                // this will only happen on the local corpus tree so we can just address that here
-//                localCorpusTree.scrollToNode(addedImdi);
-                }
+                addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
             } else {
-                System.out.println("adding root imdi node");
-                String addedNodeUrl = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
+                addedNodeUrl = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
                 addLocation(addedNodeUrl);
                 applyRootLocations();
-                //refreshChildNodes(itemNode);
-                addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
-                LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{addedImdi}, "new " + nodeTypeDisplayName);
-            // this will only happen on the local corpus tree so we can just address that here
-//            localCorpusTree.scrollToNode(addedImdi); //TODO: this is failing because at this point the new node is probably not laoded. This must be done in the loading thread after load
             }
+        }
+        if (addedNodeUrl != null) {
+            System.out.println("addedNodeUrl: " + addedNodeUrl);
+            addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
         }
         return addedImdi;
     }
