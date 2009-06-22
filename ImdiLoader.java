@@ -85,10 +85,14 @@ public class ImdiLoader {
                                         resourceUrl = addRequestArrayString[3];
                                         mimeType = addRequestArrayString[4];
                                     }
-                                    Vector<ImdiTreeObject> addedChildImdiObjects = new Vector<ImdiTreeObject>();
+                                    String newTableTitleString = "new " + nodeTypeDisplayName;
+                                    if (currentImdiObject.isImdi() && !currentImdiObject.fileNotFound) {
+                                        newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
+                                    }
+                                    ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTable(new ImdiTreeObject[]{}, newTableTitleString);
                                     System.out.println("addQueue:-\nnodeType: " + nodeType + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
                                     ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
-                                    addedChildImdiObjects.add(addedImdiObject);
+                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
                                     currentImdiObject.loadImdiDom();
                                     if (favouriteUrlString != null) {
                                         ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList();
@@ -121,7 +125,7 @@ public class ImdiLoader {
                                             System.out.println("currentFavChild: " + currentFavChild.getUrlString());
                                             if (currentFavChild.getFields().size() > 0) {
                                                 ImdiTreeObject addedChildImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
-                                                addedChildImdiObjects.add(addedChildImdiObject);
+                                                imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedChildImdiObject});
                                                 nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
                                             } else {
                                                 System.out.println("omitting: " + currentFavChild);
@@ -141,11 +145,7 @@ public class ImdiLoader {
                                         }
 //                                        currentImdiObject.saveChangesToCache(true);
                                     }
-                                    String newTableTitleString = "new " + nodeTypeDisplayName;
-                                    if (currentImdiObject.isImdi() && !currentImdiObject.fileNotFound) {
-                                        newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
-                                    }
-                                    LinorgWindowManager.getSingleInstance().openFloatingTable(addedChildImdiObjects.toArray(new ImdiTreeObject[]{}), newTableTitleString);
+
                                     currentImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
                                     TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject);
