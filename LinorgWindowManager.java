@@ -506,7 +506,7 @@ public class LinorgWindowManager {
         imdiSplitPanel.addFocusListener(searchFrame);
     }
 
-    public void openFloatingTable(ImdiTreeObject[] rowNodesArray, String frameTitle) {
+    public ImdiTableModel openFloatingTable(ImdiTreeObject[] rowNodesArray, String frameTitle) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
                 frameTitle = rowNodesArray[0].toString();
@@ -521,5 +521,6 @@ public class LinorgWindowManager {
         imdiSplitPanel.setSplitDisplay();
         JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
         imdiSplitPanel.addFocusListener(tableFrame);
+        return imdiTableModel;
     }
 }
