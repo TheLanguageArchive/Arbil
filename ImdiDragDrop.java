@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -333,79 +334,99 @@ public class ImdiDragDrop {
                                 }
                                 return true; // we have achieved the drag so return true
                             }
-                        } else if (((ImdiTreeObject) dropTargetUserObject).isCorpus()) {
-                            if (selectionContainsArchivableLocalFile == false &&
-//                                    selectionContainsLocalFile == true &&
-                                    selectionContainsLocalDirectory == false &&
-                                    selectionContainsImdiResource == false &&
-                                    (selectionContainsImdiCorpus == false || selectionContainsImdiSession == false) &&
-                                    selectionContainsImdiChild == false// &&
-//                                    selectionContainsLocal == true &&
-//                                    selectionContainsRemote == false
-                                    ) {
-                                System.out.println("ok to move local IMDI");
-                                for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
-                                    System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                    //((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
+                        }
+                    }
+                    if (!(dropTargetUserObject instanceof ImdiTreeObject) || ((ImdiTreeObject) dropTargetUserObject).isCorpus()) {
+                        if (selectionContainsArchivableLocalFile == false &&
+                                //                                    selectionContainsLocalFile == true &&
+                                selectionContainsLocalDirectory == false &&
+                                selectionContainsImdiResource == false &&
+                                (selectionContainsImdiCorpus == false || selectionContainsImdiSession == false) &&
+                                selectionContainsImdiChild == false// &&
+                                //                                    selectionContainsLocal == true &&
+                                //                                    selectionContainsRemote == false
+                                ) {
+                            System.out.println("ok to move local IMDI");
+                            for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
+                                System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
+                                //((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
-                                    // check that the node has not been dragged into itself
-                                    boolean draggedIntoSelf = false;
-                                    DefaultMutableTreeNode ancestorNode = targetNode;
-                                    while (ancestorNode != null) {
-                                        if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
-                                            draggedIntoSelf = true;
-                                            System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
-                                        }
-//                                        System.out.println("checking: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
-                                        ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
+                                // check that the node has not been dragged into itself
+                                boolean draggedIntoSelf = false;
+                                DefaultMutableTreeNode ancestorNode = targetNode;
+                                while (ancestorNode != null) {
+                                    if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
+                                        draggedIntoSelf = true;
+                                        System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
                                     }
-                                    if (!draggedIntoSelf) {
-                                        if (!GuiHelper.linorgSessionStorage.pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile())) {
-                                            importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
+//                                        System.out.println("checking: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
+                                    ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
+                                }
+                                if (!draggedIntoSelf) {
+                                    if (!GuiHelper.linorgSessionStorage.pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile())) {
+                                        importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
+                                    } else {
+                                        String targetNodeName;
+                                        if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                            targetNodeName = targetNode.getUserObject().toString();
                                         } else {
-                                            int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
-                                                    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString() + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNode.getUserObject().toString(),
-                                                    "Arbil",
-                                                    JOptionPane.YES_NO_OPTION,
-                                                    JOptionPane.PLAIN_MESSAGE,
-                                                    null,
-                                                    new Object[]{"Move", "Cancel"},
-                                                    "Cancel");
-                                            if (detailsOption == 0) {
-                                                if (((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter])) {
-                                                    if (draggedTreeNodes[draggedCounter] != null) {
-                                                        if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
-                                                            System.out.println("dragged from root");
-                                                            TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
-                                                            TreeHelper.getSingleInstance().applyRootLocations();
-                                                        } else {
-                                                            ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-                                                            System.out.println("removeing from parent: " + parentImdi);
-                                                            // add the parent and the child node to the deletelist
-                                                            if (!imdiNodesDeleteList.containsKey(parentImdi)) {
-                                                                imdiNodesDeleteList.put(parentImdi, new Vector());
-                                                            }
-                                                            imdiNodesDeleteList.get(parentImdi).add(draggedImdiObjects[draggedCounter]);
-//                                                            System.out.println("delete list: " + imdiNodesDeleteList.get(parentImdi).size());
+                                            targetNodeName = ((JLabel) targetNode.getUserObject()).getText();
+                                        }
+                                        int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                                                "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString() +
+                                                /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
+                                                "Arbil",
+                                                JOptionPane.YES_NO_OPTION,
+                                                JOptionPane.PLAIN_MESSAGE,
+                                                null,
+                                                new Object[]{"Move", "Cancel"},
+                                                "Cancel");
+                                        if (detailsOption == 0) {
+                                            boolean addNodeResult = true;
+                                            if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                                addNodeResult = ((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter]);
+                                            } else {
+                                                addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedImdiObjects[draggedCounter].getUrlString());
+                                            }
+                                            if (addNodeResult) {
+                                                if (draggedTreeNodes[draggedCounter] != null) {
+                                                    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
+                                                        System.out.println("dragged from root");
+                                                        TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
+                                                        TreeHelper.getSingleInstance().applyRootLocations();
+                                                    } else {
+                                                        ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+                                                        System.out.println("removeing from parent: " + parentImdi);
+                                                        // add the parent and the child node to the deletelist
+                                                        if (!imdiNodesDeleteList.containsKey(parentImdi)) {
+                                                            imdiNodesDeleteList.put(parentImdi, new Vector());
                                                         }
+                                                        imdiNodesDeleteList.get(parentImdi).add(draggedImdiObjects[draggedCounter]);
+//                                                            System.out.println("delete list: " + imdiNodesDeleteList.get(parentImdi).size());
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                if (importNodeList.size() > 0) {
-                                    ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
-                                    importExportDialog.setDestinationNode(((ImdiTreeObject) dropTargetUserObject));
-                                    importExportDialog.copyToCache(importNodeList);
-                                }
-                                for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
-                                    System.out.println("deleting by corpus link");
-                                    currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
-                                }
-                                ((ImdiTreeObject) dropTargetUserObject).reloadNode();
-                                return true; // we have achieved the drag so return true
                             }
+                            if (importNodeList.size() > 0) {
+                                ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
+                                if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                    importExportDialog.setDestinationNode(((ImdiTreeObject) dropTargetUserObject));
+                                }
+                                importExportDialog.copyToCache(importNodeList);
+                            }
+                            for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
+                                System.out.println("deleting by corpus link");
+                                currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
+                            }
+                            if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                ((ImdiTreeObject) dropTargetUserObject).reloadNode();
+                            } else {
+                                TreeHelper.getSingleInstance().applyRootLocations();
+                            }
+                            return true; // we have achieved the drag so return true
                         }
                     }
                 } else {
@@ -416,7 +437,7 @@ public class ImdiDragDrop {
                         dropTableModel.addImdiObjects(draggedImdiObjects);
                         return true; // we have achieved the drag so return true
                     } else if (imdiSplitPanel instanceof JDesktopPane) {
-                        LinorgWindowManager.getSingleInstance().openFloatingTable(draggedImdiObjects, null);
+                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(draggedImdiObjects, null);
                         return true; // we have achieved the drag so return true
                     }
                 }
