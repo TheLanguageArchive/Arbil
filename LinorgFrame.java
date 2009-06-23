@@ -594,7 +594,7 @@ private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GE
 
 private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgWindowManager.getSingleInstance().openFloatingTable(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
+    LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
 }//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
 
 private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printHelpMenuItemActionPerformed
