@@ -488,7 +488,7 @@ public class ContextMenu {
     private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
         // TODO add your handling code here:   
-        LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), null);
+        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), null);
 
     }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
