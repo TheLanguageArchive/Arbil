@@ -104,7 +104,7 @@ public class ImdiTree extends JTree {
     private void treeKeyTyped(java.awt.event.KeyEvent evt) {
         System.out.println(evt.paramString());
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
-            LinorgWindowManager.getSingleInstance().openFloatingTable(((ImdiTree) evt.getSource()).getSelectedNodes(), null);
+            LinorgWindowManager.getSingleInstance().openFloatingTableOnce(((ImdiTree) evt.getSource()).getSelectedNodes(), null);
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
