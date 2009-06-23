@@ -346,7 +346,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 fireEditingStopped();
             }
         } else if (cellValue instanceof ImdiTreeObject[]) {
-            LinorgWindowManager.getSingleInstance().openFloatingTable((ImdiTreeObject[]) cellValue, columnName + " in " + rowImdi);
+            LinorgWindowManager.getSingleInstance().openFloatingTableOnce((ImdiTreeObject[]) cellValue, columnName + " in " + rowImdi);
         } else {
             try {
                 throw new Exception("Edit cell type not supported");
