@@ -31,7 +31,7 @@ import javax.swing.event.InternalFrameEvent;
  */
 public class LinorgWindowManager {
 
-    Hashtable windowList = new Hashtable();
+    Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     Hashtable windowStatesHashtable;
     JMenu windowMenu;
     private JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
@@ -506,6 +506,43 @@ public class LinorgWindowManager {
         imdiSplitPanel.addFocusListener(searchFrame);
     }
 
+    public ImdiTableModel openFloatingTableOnce(ImdiTreeObject[] rowNodesArray, String frameTitle) {
+        // open find a table containing exactly the same nodes as requested or create a new table
+        for (Component[] currentWindow : windowList.values().toArray(new Component[][]{})) {
+            // loop through all the windows
+            for (Component childComponent : ((JInternalFrame) currentWindow[0]).getContentPane().getComponents()) {
+                // loop through all the child components in the window (there will probably only be one)
+                if (childComponent instanceof LinorgSplitPanel) {
+                    // only consider components with a LinorgSplitPanel
+                    ImdiTableModel currentTableModel = (ImdiTableModel) ((LinorgSplitPanel) childComponent).imdiTable.getModel();
+                    if (currentTableModel.getImdiNodeCount() == rowNodesArray.length) {
+                        // first check that the number of nodes in the table matches
+                        boolean tableMatches = true;
+                        for (ImdiTreeObject currentItem : rowNodesArray) {
+                            // compare each node for a verbatim match
+                            if (!currentTableModel.containsImdiNode(currentItem)) {
+//                              // ignore this window because the nodes do not match
+                                tableMatches = false;
+                                break;
+                            }
+                        }
+                        if (tableMatches) {
+//                            System.out.println("tableMatches");
+                            try {
+                                ((JInternalFrame) currentWindow[0]).setIcon(false);
+                                ((JInternalFrame) currentWindow[0]).setSelected(true);
+                                return currentTableModel;
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // if through the above process a table containing all and only the nodes requested has not been found then create a new table
+        return openFloatingTable(rowNodesArray, frameTitle);
+    }
     public ImdiTableModel openFloatingTable(ImdiTreeObject[] rowNodesArray, String frameTitle) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
