@@ -397,14 +397,18 @@ public class ImdiTable extends JTable {
         lastColumnCount = this.getModel().getColumnCount();
 
         int charPixWidth = 9; // this does not need to be accurate but must be more than the number of pixels used to render each character
-        int maxColumnWidth = 100;
+        int maxColumnWidth = 300;
         int totalWidth = 0;
+        int minWidth = 50;
         for (int columnCount = 0; columnCount < this.getColumnModel().getColumnCount(); columnCount++) {
 //            System.out.println("defaultPreferedWidth: " + this.getColumnModel().getColumn(columnCount).getPreferredWidth());
             // setPreferredWidth || setMinWidth
             int currentWidth = ((ImdiTableModel) this.getModel()).getColumnWidth(columnCount) * charPixWidth;
             if (currentWidth > maxColumnWidth) {
                 currentWidth = maxColumnWidth;
+            }
+            if (currentWidth < minWidth) {
+                currentWidth = minWidth;
             }
             if (resizeColumns) {
                 this.getColumnModel().getColumn(columnCount).setPreferredWidth(currentWidth);
@@ -582,7 +586,7 @@ public class ImdiTable extends JTable {
 
     public void viewSelectedTableRows() {
         int[] selectedRows = this.getSelectedRows();
-        LinorgWindowManager.getSingleInstance().openFloatingTable(imdiTableModel.getSelectedImdiNodes(selectedRows), null);
+        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(imdiTableModel.getSelectedImdiNodes(selectedRows), null);
     }
 
     public ImdiTreeObject getImdiNodeForSelection() {
