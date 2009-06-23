@@ -614,7 +614,7 @@ public class ImdiSchema {
 //                System.out.println("Parent: " + this.getUrlString());
                 String linkPath;
                 try {
-                    if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http:")) {
+                    if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http:") && !fieldToAdd.getFieldValue().toLowerCase().startsWith("file:")) {
 //                    linkPath = parentPath /*+ File.separatorChar*/ + fieldToAdd.getFieldValue();
                         linkPath = parentPath + fieldToAdd.getFieldValue();
                     } else if (fieldToAdd.getFieldValue().toLowerCase().startsWith("&root;")) {
@@ -628,7 +628,7 @@ public class ImdiSchema {
                     linkPath = linkPath.replaceAll("/\\./", "/");
                     linkPath = linkPath.substring(0, 6) + (linkPath.substring(6).replaceAll("[/]+/", "/"));
                     while (linkPath.contains("/../")) {
-                        linkPath = linkPath.replaceAll("/[^/]+/\\.\\./", "/");
+                        linkPath = linkPath.replaceFirst("/[^/]+/\\.\\./", "/");
                     }
 //                    System.out.println("linkPathCorrected: " + linkPath);
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
