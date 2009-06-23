@@ -71,6 +71,14 @@ public class ImdiTableModel extends AbstractTableModel {
         return selectedNodesArray;
     }
 
+    public boolean containsImdiNode(ImdiTreeObject findable) {
+        return imdiObjectHash.contains(findable);
+    }
+
+    public int getImdiNodeCount() {
+        return imdiObjectHash.size();
+    }
+
     public Enumeration getImdiNodes() {
         return imdiObjectHash.elements();
     }
