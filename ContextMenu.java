@@ -46,7 +46,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem viewChangesMenuItem;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
-    private javax.swing.JMenuItem viewXmlMenuItem1;
+    private javax.swing.JMenuItem viewXmlMenuItemFormatted;
     static private ContextMenu singleInstance = null;
 
     static synchronized public ContextMenu getSingleInstance() {
@@ -73,7 +73,7 @@ public class ContextMenu {
         deleteMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         viewXmlMenuItem = new javax.swing.JMenuItem();
-        viewXmlMenuItem1 = new javax.swing.JMenuItem();
+        viewXmlMenuItemFormatted = new javax.swing.JMenuItem();
         validateMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
         addRemoteCorpusMenuItem = new javax.swing.JMenuItem();
@@ -227,9 +227,9 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(viewXmlMenuItem);
-        viewXmlMenuItem1.setText("View IMDI Formatted");
+        viewXmlMenuItemFormatted.setText("View IMDI Formatted");
 
-        viewXmlMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        viewXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewXmlXslMenuItemActionPerformed(evt);
@@ -237,7 +237,7 @@ public class ContextMenu {
             }
         });
 
-        treePopupMenu.add(viewXmlMenuItem1);
+        treePopupMenu.add(viewXmlMenuItemFormatted);
         validateMenuItem.setText("Check IMDI format");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -372,8 +372,12 @@ public class ContextMenu {
     private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
         // TODO add your handling code here:    
         if (treePopupMenu.getInvoker() instanceof JTree) {
-            ImportExportDialog importExportDialog = new ImportExportDialog(treePopupMenu.getInvoker());
-            importExportDialog.copyToCache(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+            try {
+                ImportExportDialog importExportDialog = new ImportExportDialog(treePopupMenu.getInvoker());
+                importExportDialog.copyToCache(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
     }//GEN-LAST:event_copyBranchMenuItemActionPerformed
 
@@ -537,9 +541,13 @@ public class ContextMenu {
         // TODO add your handling code here:   
         // directory selection dialog   
         // make sure the chosen directory is empty   
-        // export the tree, maybe adjusting resource links so that resource files do not need to be copied   
-        ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().remoteCorpusTree);
-        importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+        // export the tree, maybe adjusting resource links so that resource files do not need to be copied
+        try {
+            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().remoteCorpusTree);
+            importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }//GEN-LAST:event_exportMenuItemActionPerformed
 
     private void pasteMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -573,7 +581,7 @@ public class ContextMenu {
         copyImdiUrlMenuItem.setVisible(false);
         pasteMenuItem1.setVisible(false);
         viewXmlMenuItem.setVisible(false);
-        viewXmlMenuItem1.setVisible(false);
+        viewXmlMenuItemFormatted.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
@@ -617,7 +625,7 @@ public class ContextMenu {
                     sendToServerMenuItem.setVisible(true);
                 }
                 viewXmlMenuItem.setVisible(true);
-                viewXmlMenuItem1.setVisible(true);
+                viewXmlMenuItemFormatted.setVisible(true);
                 validateMenuItem.setVisible(true);
                 exportMenuItem.setVisible(true);
                 // set up the favourites menu                
