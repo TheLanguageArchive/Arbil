@@ -268,7 +268,16 @@ public class ImportExportDialog {
     }
 
     // the targetComponent is used to place the import dialog
-    public ImportExportDialog(Component targetComponent) {
+    public ImportExportDialog(Component targetComponent) throws Exception {
+        if (GuiHelper.imdiLoader.nodesNeedSave()) {
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                    "There are unsaved changes.\nSave now?", "Save Changes",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+            } else {
+                throw new Exception("user canceled save action");
+            }
+        }
         searchDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {
