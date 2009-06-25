@@ -795,7 +795,6 @@ public class ImdiTreeObject implements Comparable {
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
-
                 int nodeType = WSNodeType.CORPUS;
                 if (targetImdiNode.isSession()) {
                     nodeType = WSNodeType.SESSION;            // url: IMDI location, for link normalization.  urlToLink: target URL
@@ -1168,7 +1167,14 @@ public class ImdiTreeObject implements Comparable {
         if (!(o instanceof ImdiTreeObject)) {
             throw new ClassCastException("ImdiTreeObject expected.");
         }
-        return this.toString().compareTo(((ImdiTreeObject) o).toString());
+        if (o instanceof ImdiTreeObject) {
+            if (((ImdiTreeObject) o).isDirectory && !this.isDirectory) {
+                return +1;
+            } else if (!((ImdiTreeObject) o).isDirectory && this.isDirectory) {
+                return -1;
+            }
+        }
+        return this.toString().compareToIgnoreCase(((ImdiTreeObject) o).toString());
     }
 
     public boolean isLoading() {
