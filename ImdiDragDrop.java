@@ -411,11 +411,15 @@ public class ImdiDragDrop {
                                 }
                             }
                             if (importNodeList.size() > 0) {
-                                ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
-                                if (dropTargetUserObject instanceof ImdiTreeObject) {
-                                    importExportDialog.setDestinationNode(((ImdiTreeObject) dropTargetUserObject));
+                                try {
+                                    ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
+                                    if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                        importExportDialog.setDestinationNode(((ImdiTreeObject) dropTargetUserObject));
+                                    }
+                                    importExportDialog.copyToCache(importNodeList);
+                                } catch (Exception e) {
+                                    System.out.println(e.getMessage());
                                 }
-                                importExportDialog.copyToCache(importNodeList);
                             }
                             for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
                                 System.out.println("deleting by corpus link");
