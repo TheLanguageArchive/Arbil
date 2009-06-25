@@ -39,7 +39,7 @@ public class TreeHelper {
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
 
     static synchronized public TreeHelper getSingleInstance() {
-//        System.out.println("TreeHelper getSingleInstance");
+        System.out.println("TreeHelper getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new TreeHelper();
         }
@@ -136,6 +136,7 @@ public class TreeHelper {
 
     public void loadLocationsList() {
         try {
+            System.out.println("loading locationsList");
             locationsList = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("locationsList");
         } catch (Exception ex) {
             System.out.println("load locationsList failed: " + ex.getMessage());
@@ -356,9 +357,13 @@ public class TreeHelper {
                 if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
                     throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
                 }
-                String string1 = ((DefaultMutableTreeNode) object1).getUserObject().toString();
-                String string2 = ((DefaultMutableTreeNode) object2).getUserObject().toString();
-                return string1.compareToIgnoreCase(string2);
+                Object userObject1 = ((DefaultMutableTreeNode) object1).getUserObject();
+                Object userObject2 = ((DefaultMutableTreeNode) object2).getUserObject();
+                if (userObject1 instanceof ImdiTreeObject && userObject2 instanceof ImdiTreeObject) {
+                    return ((ImdiTreeObject) userObject1).compareTo(userObject2);
+                } else {
+                    return userObject1.toString().compareToIgnoreCase(object2.toString());
+                }
             }
         });
         // loop the child nodes comparing with the sorted array and move nodes only if required
@@ -446,6 +451,7 @@ public class TreeHelper {
 //    }
     public boolean locationsHaveBeenAdded() {
         boolean returnValue = false;
+        System.out.println("locationsList.size: " + locationsList.size());
         for (String currentLocation : locationsList.toArray(new String[]{})) {
             if (ImdiTreeObject.isStringLocal(currentLocation)) {
                 returnValue = true;
