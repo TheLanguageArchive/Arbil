@@ -35,7 +35,7 @@ public class ImdiField {
     public boolean isLongField() {
         if (isLongField == -1) {
             // calculate length and count line breaks
-            // TODO: the length chosed in currently abitary and should relate to the length of the text field
+            // TODO: the length use to trigger a long field is currently quite abitary but should however relate to the length of the text field in the UI
             if (fieldValue.length() > 50 || fieldValue.contains("\n")) {
                 isLongField = 1;
             } else {
