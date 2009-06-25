@@ -127,7 +127,7 @@ public class LinorgFavourites {
         } else if (templateImdiObject.isCorpus()) {
             returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus";
         } else if (templateImdiObject.isImdiChild()) {
-//            TODO: this may need to pass the (x) on in the return value
+            // pass the (x) values on in the return value
             if (templateImdiObject.getUrlString().endsWith(")")) {
                 int firstHashIndex = templateImdiObject.getUrlString().lastIndexOf("#");
                 int lastBracketIndex = templateImdiObject.getUrlString().lastIndexOf(")");
