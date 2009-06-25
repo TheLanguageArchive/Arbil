@@ -88,6 +88,8 @@ public class LinorgWindowManager {
         String messageString = "Linguistic Organiser\n" +
                 "A local tool for organising linguistic data.\n" +
                 "Max Planck Institute for Psycholinguistics\n" +
+                "Application design and programming by Peter Withers\n" +
+                "IMDI API and Lamus Type Checker by Daan Broeder and Eric Auer\n" +
                 "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n" +
                 linorgVersion.lastCommitDate + "\n" +
                 "Compile Date: " + linorgVersion.compileDate + "\n";
@@ -168,8 +170,9 @@ public class LinorgWindowManager {
         }
 
         if (!TreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
+            System.out.println("no local locations found, showing help window");
             LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
-            if (!focusWindow(LinorgHelp.helpWindowTitle)) {
+            if (null == focusWindow(LinorgHelp.helpWindowTitle)) {
                 createWindow(LinorgHelp.helpWindowTitle, helpComponent);
             }
             helpComponent.setCurrentPage(LinorgHelp.IntroductionPage);
@@ -298,21 +301,21 @@ public class LinorgWindowManager {
         return currentWindowName;
     }
 
-    public boolean focusWindow(String windowName) {
+    public JInternalFrame focusWindow(String windowName) {
         if (windowList.containsKey(windowName)) {
             Object windowObject = ((Component[]) windowList.get(windowName))[0];
             try {
                 if (windowObject != null) {
                     ((JInternalFrame) windowObject).setIcon(false);
                     ((JInternalFrame) windowObject).setSelected(true);
-                    return true;
+                    return (JInternalFrame) windowObject;
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
             }
         }
-        return false;
+        return null;
     }
 
     private void startKeyListener() {
@@ -469,14 +472,6 @@ public class LinorgWindowManager {
     }
 
     public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
-        // TODO: this is not a good way to do this as it does not check the URL only the title
-        if (!focusWindow(frameTitle)) {
-            return openUrlWindow(frameTitle, locationUrl);
-        }
-        return null;
-    }
-
-    public JEditorPane openUrlWindow(String frameTitle, URL locationUrl) {
         JEditorPane htmlDisplay = new JEditorPane();
         htmlDisplay.setEditable(false);
         htmlDisplay.setContentType("text/html");
@@ -489,10 +484,17 @@ public class LinorgWindowManager {
             GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
         }
-        JScrollPane jScrollPane6;
-        jScrollPane6 = new javax.swing.JScrollPane();
-        jScrollPane6.setViewportView(htmlDisplay);
-        createWindow(frameTitle, jScrollPane6);
+
+        JInternalFrame existingWindow = focusWindow(frameTitle);
+        if (existingWindow == null) {
+//            return openUrlWindow(frameTitle, htmlDisplay);
+            JScrollPane jScrollPane6;
+            jScrollPane6 = new javax.swing.JScrollPane();
+            jScrollPane6.setViewportView(htmlDisplay);
+            createWindow(frameTitle, jScrollPane6);
+        } else {
+            ((JScrollPane) existingWindow.getContentPane().getComponent(0)).setViewportView(htmlDisplay);
+        }
         return htmlDisplay;
     }
 
@@ -543,6 +545,7 @@ public class LinorgWindowManager {
         // if through the above process a table containing all and only the nodes requested has not been found then create a new table
         return openFloatingTable(rowNodesArray, frameTitle);
     }
+
     public ImdiTableModel openFloatingTable(ImdiTreeObject[] rowNodesArray, String frameTitle) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
