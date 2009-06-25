@@ -567,7 +567,7 @@ private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:
 private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
 // TODO add your handling code here:
     LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
-    if (!LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+    if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
         LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, helpComponent);
     }
     helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
@@ -575,7 +575,7 @@ private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt
 
 private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
 // TODO add your handling code here:
-    if (!LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+    if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
         // forcus existing or create a new help window
         LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
     }
@@ -588,8 +588,12 @@ private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.Ite
 
 private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importMenuItemActionPerformed
 // TODO add your handling code here:
-    ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
-    importExportDialog.importImdiBranch();
+    try {
+        ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
+        importExportDialog.importImdiBranch();
+    } catch (Exception e) {
+        System.out.println(e.getMessage());
+    }
 }//GEN-LAST:event_importMenuItemActionPerformed
 
 private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
@@ -599,7 +603,7 @@ private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent ev
 
 private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printHelpMenuItemActionPerformed
 // TODO add your handling code here:
-    if (!LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+    if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
         // forcus existing or create a new help window
         LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
     }
@@ -619,7 +623,7 @@ private void imdiTreeTreeWillCollapse(javax.swing.event.TreeExpansionEvent evt)t
     }
 }//GEN-LAST:event_imdiTreeTreeWillCollapse
 
-/**
+    /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
