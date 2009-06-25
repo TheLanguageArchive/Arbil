@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -189,6 +190,13 @@ public class GuiHelper {
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml) {
         if (userObject instanceof ImdiTreeObject) {
+            if (((ImdiTreeObject) (userObject)).imdiNeedsSaveToDisk) {
+                if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                    ((ImdiTreeObject) (userObject)).saveChangesToCache(true);
+                } else {
+                    return;
+                }
+            }
             File nodeFile = ((ImdiTreeObject) (userObject)).getFile();
             System.out.println("openImdiXmlWindow: " + nodeFile);
             String nodeName = ((ImdiTreeObject) (userObject)).toString();
