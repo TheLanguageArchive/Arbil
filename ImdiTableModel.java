@@ -472,6 +472,7 @@ public class ImdiTableModel extends AbstractTableModel {
         int previousColumnCount = getColumnCount();
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
+        int[] maxColumnWidthsTemp;
 
         ImdiTreeObject[] tableRowsImdiArray = updateAllImdiObjects();
 
@@ -544,8 +545,7 @@ public class ImdiTableModel extends AbstractTableModel {
 
             // end create the column names array and prepend the icon and append the imdinode
 
-            maxColumnWidths = new int[columnNamesTemp.length];
-
+            maxColumnWidthsTemp = new int[columnNamesTemp.length];
             dataTemp = allocateCellData(tableRowsImdiArray.length, columnNamesTemp.length);
 
             int rowCounter = 0;
@@ -555,7 +555,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 if (showIcons) {
                     //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
                     dataTemp[rowCounter][0] = currentNode;
-                    maxColumnWidths[0] = currentNode.toString().length();
+                    maxColumnWidthsTemp[0] = currentNode.toString().length();
                 }
                 for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
@@ -581,13 +581,13 @@ public class ImdiTableModel extends AbstractTableModel {
 
                     //record the column string lengths 
                     int currentLength = (dataTemp[rowCounter][columnCounter].toString()).length();
-                    if (maxColumnWidths[columnCounter] < currentLength) {
-                        maxColumnWidths[columnCounter] = currentLength;
+                    if (maxColumnWidthsTemp[columnCounter] < currentLength) {
+                        maxColumnWidthsTemp[columnCounter] = currentLength;
                     }
                 }
                 rowCounter++;
             }
-//            System.out.println("setting column widths: " + maxColumnWidths);
+//            System.out.println("setting column widths: " + maxColumnWidthsTemp);
 //            // display the column names use count for testing only
 //            Enumeration tempEnum = columnNameHash.elements();
 //            int tempColCount = 0;
@@ -597,7 +597,7 @@ public class ImdiTableModel extends AbstractTableModel {
 //            }
         } else {
             // display the single node view
-            maxColumnWidths = new int[2];
+            maxColumnWidthsTemp = new int[2];
             columnNamesTemp = singleNodeViewHeadings;
             if (tableRowsImdiArray.length == 0) {
                 dataTemp = allocateCellData(0, 2);
@@ -624,12 +624,12 @@ public class ImdiTableModel extends AbstractTableModel {
                         dataTemp[rowCounter][1] = currentField;
                         //record the column string lengths 
                         int currentLength = (dataTemp[rowCounter][0].toString()).length();
-                        if (maxColumnWidths[0] < currentLength) {
-                            maxColumnWidths[0] = currentLength;
+                        if (maxColumnWidthsTemp[0] < currentLength) {
+                            maxColumnWidthsTemp[0] = currentLength;
                         }
                         currentLength = (dataTemp[rowCounter][1].toString()).length();
-                        if (maxColumnWidths[1] < currentLength) {
-                            maxColumnWidths[1] = currentLength;
+                        if (maxColumnWidthsTemp[1] < currentLength) {
+                            maxColumnWidthsTemp[1] = currentLength;
                         }
                         rowCounter++;
                     }
@@ -641,6 +641,7 @@ public class ImdiTableModel extends AbstractTableModel {
         sortTableRows(columnNamesTemp, dataTemp);
         cellColour = setCellColours(dataTemp);
         columnNames = columnNamesTemp;
+        maxColumnWidths = maxColumnWidthsTemp;
         Object[][] prevousData = data;
         data = dataTemp;
         if (previousColumnCount != getColumnCount() || prevousData.length != data.length) {
