@@ -449,7 +449,7 @@ public class ImdiSchema {
                         ///////////////////////////////////////////////////////////////////////
                         // use the nodes child directory
                         File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDirectory);
-                        localFilePath = destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("//", "/");
+                        localFilePath = destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
                         // for easy reading in the fields keep the file in the same directory
 //                        File destinationDirectory = new File(destinationFile.getParentFile().getPath());
 //                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
