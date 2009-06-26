@@ -243,19 +243,21 @@ public class LinorgSessionStorage {
             System.out.println("this resource is already in the cache");
         } else {
             try {
-                URL u = new URL(targetUrlString);
-                URLConnection yc = u.openConnection();
-                HttpURLConnection h = (HttpURLConnection) yc;
-                //h.setFollowRedirects(false);
-
-                System.out.println("Code: " + h.getResponseCode() + ", Message: " + h.getResponseMessage());
-                if (h.getResponseCode() != 200) {
+                URL targetUrl = new URL(targetUrlString);
+                URLConnection urlConnection = targetUrl.openConnection();
+                HttpURLConnection httpConnection = null;
+                if (urlConnection instanceof HttpURLConnection) {
+                    httpConnection = (HttpURLConnection) urlConnection;
+                    //h.setFollowRedirects(false);
+                    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+                }
+                if (httpConnection != null && httpConnection.getResponseCode() != 200) {
                     System.out.println("non 200 response, skipping file");
                 } else {
                     int bufferLength = 1024 * 4;
                     FileOutputStream fout = new FileOutputStream(destinationPath); //targetUrlString
                     System.out.println("getting file");
-                    InputStream stream = yc.getInputStream();
+                    InputStream stream = urlConnection.getInputStream();
                     byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
                     int bytesread = 0;
                     int totalRead = 0;
