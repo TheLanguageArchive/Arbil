@@ -586,7 +586,14 @@ public class ImportExportDialog {
                                                     appendToTaskOutput("getting: " + links[linkCount].getType());
                                                     resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
                                                     resourceCopyOutput.append(currentLink + "\n");
-                                                    String downloadLocation = GuiHelper.linorgSessionStorage.updateCache(currentLink, false);
+                                                    String downloadLocation;
+                                                    if (exportDestinationDirectory == null) {
+                                                        downloadLocation = GuiHelper.linorgSessionStorage.updateCache(currentLink, false);
+                                                    } else {
+                                                        downloadLocation = GuiHelper.linorgSessionStorage.getExportPath(currentLink, exportDestinationDirectory.getPath());
+//                                                        System.out.println("downloadLocation: " + downloadLocation);
+                                                        GuiHelper.linorgSessionStorage.saveRemoteResource(currentLink, downloadLocation, true);
+                                                    }
                                                     resourceCopyOutput.append(downloadLocation + "\n");
                                                     File downloadedFile = new File(downloadLocation);
                                                     if (downloadedFile.exists()) {
