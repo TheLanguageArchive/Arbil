@@ -115,7 +115,7 @@
     </target>
     <target depends="setproperties" name="getsvnversion">
         <property name="linorg.current.major" value="0"/>
-        <property name="linorg.current.minor" value="2"/>
+        <property name="linorg.current.minor" value="3"/>
        <!-- <exec executable="svn" output="version.info">
             <arg value="info"/>
         </exec>
