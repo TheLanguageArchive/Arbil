@@ -333,6 +333,7 @@ public class ContextMenu {
 
         treePopupMenu.add(saveMenuItem);
         viewChangesMenuItem.setText("View Changes");
+        viewChangesMenuItem.setEnabled(false);
 
         viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -624,10 +625,10 @@ public class ContextMenu {
                     viewChangesMenuItem.setVisible(true);
                     sendToServerMenuItem.setVisible(true);
                 }
-                viewXmlMenuItem.setVisible(true);
-                viewXmlMenuItemFormatted.setVisible(true);
-                validateMenuItem.setVisible(true);
-                exportMenuItem.setVisible(true);
+                viewXmlMenuItem.setVisible(!nodeIsImdiChild);
+                viewXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
+                validateMenuItem.setVisible(!nodeIsImdiChild);
+                exportMenuItem.setVisible(!nodeIsImdiChild);
                 // set up the favourites menu                
                 favouritesMenu.setVisible(true);
                 addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus());
