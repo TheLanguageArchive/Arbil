@@ -168,6 +168,28 @@ public class ImdiField {
         }
     }
 
+    public String getKeyName() {
+        return fieldAttributes.get("Name");
+    }
+
+    public void setKeyName(String keyName, boolean updateUI) {
+        System.out.println("setKeyName: " + keyName);
+        String lastValue = getKeyName();
+        System.out.println("lastValue: " + lastValue);
+        if (lastValue != null) {
+            if (!lastValue.equals(keyName)) { // only if the value is different
+//                if (fieldAttributes.contains("Name")) { // only if there is already a key name
+                    // TODO: resolve how to log key name changes
+                    GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyName, "editkeyname");
+                    fieldAttributes.put("Name", keyName);
+                    parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
+                    fieldNeedsSaveToDisk = true;
+                    getTranslateFieldName();
+//                }
+            }
+        }
+    }
+
     public String getTranslateFieldName() {
         if (translatedPath == null) {
             String fieldName = xmlPath;
