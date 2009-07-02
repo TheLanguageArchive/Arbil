@@ -48,6 +48,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
     Object[] cellValue;
     int selectedField = -1;
     JTextArea fieldEditors[] = null;
+    JTextField keyEditorFields[] = null;
     JComboBox fieldLanguageBoxs[] = null;
     Vector<Component> componentsWithFocusListners = new Vector();
 
@@ -149,6 +150,9 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 fieldEditors[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getFieldValue());
                 if (fieldLanguageBoxs[cellFieldCounter] != null) {
                     fieldLanguageBoxs[cellFieldCounter].setSelectedItem(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
+                }
+                if (keyEditorFields[cellFieldCounter] != null) {
+                    keyEditorFields[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getKeyName());
                 }
             }
         }
@@ -283,6 +287,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 JTabbedPane tabPane = new JTabbedPane();
 
                 fieldEditors = new JTextArea[cellValue.length];
+                keyEditorFields = new JTextField[cellValue.length];
                 fieldLanguageBoxs = new JComboBox[cellValue.length];
 
                 for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
@@ -295,7 +300,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                         focusedTabTextArea = fieldEditors[cellFieldIndex];
                     }
                     fieldEditors[cellFieldIndex].setEditable(((ImdiField) cellValue[cellFieldIndex]).parentImdi.getParentDomNode().isLocal());
-                    fieldEditors[cellFieldIndex].addFocusListener(new FocusListener() {
+                    FocusListener editorFocusListener = new FocusListener() {
 
                         public void focusGained(FocusEvent e) {
                         }
@@ -304,9 +309,13 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                             ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
                             if (cellField.parentImdi.getParentDomNode().isLocal()) {
                                 cellField.setFieldValue(fieldEditors[cellFieldIndex].getText(), true);
+                                if (keyEditorFields[cellFieldIndex] != null) {
+                                    cellField.setKeyName(keyEditorFields[cellFieldIndex].getText(), true);
+                                }
                             }
                         }
-                    });
+                    };
+                    fieldEditors[cellFieldIndex].addFocusListener(editorFocusListener);
                     // insert the last key for only the selected field
                     if (selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0)) {
                         fieldEditors[cellFieldIndex].setText(getEditorText(lastKeyInt, lastKeyChar, ((ImdiField) cellValue[cellFieldIndex]).getFieldValue()));
@@ -321,6 +330,13 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     fieldLanguageBoxs[cellFieldIndex] = getLanguageIdBox(cellFieldIndex);
                     if (fieldLanguageBoxs[cellFieldIndex] != null) {
                         tabPanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.PAGE_START);
+                    }
+                    String keyName = ((ImdiField) cellValue[cellFieldIndex]).getKeyName();
+                    if (keyName != null) { // if this is a key type field then show the editing options
+                        keyEditorFields[cellFieldIndex] = new JTextField(((ImdiField[]) cellValue)[cellFieldCounter].getKeyName());
+                        keyEditorFields[cellFieldIndex].addFocusListener(editorFocusListener);
+                        keyEditorFields[cellFieldIndex].setEditable(((ImdiField) cellValue[cellFieldIndex]).parentImdi.getParentDomNode().isLocal());
+                        tabPanel.add(keyEditorFields[cellFieldIndex], BorderLayout.PAGE_START);
                     }
                     tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
                     tabPane.add(((ImdiField) cellValue[cellFieldIndex]).getTranslateFieldName() + " " + titleCount++, tabPanel);
