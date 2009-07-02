@@ -101,7 +101,9 @@ public class ImdiVocabularies {
             String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
 //            new File(cachePath).delete(); // TODO: remove me!!!
             if (!new File(cachePath).exists()) {
-                URL backUp = this.getClass().getResource("/mpi/linorg/resources/IMDI/Fallback/" + new File(cachePath).getName());
+                String backupPath = "/mpi/linorg/resources/IMDI/FallBack/" + new File(cachePath).getName();
+                System.out.println("backupPath: " + backupPath);
+                URL backUp = this.getClass().getResource(backupPath);
                 if (backUp != null) {
                     cachePath = backUp.getFile();
                 }
