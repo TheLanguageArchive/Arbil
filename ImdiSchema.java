@@ -522,6 +522,29 @@ public class ImdiSchema {
         return addedPathString;
     }
 
+    public String correctLinkPath(String parentPath, String linkString) {
+        String linkPath;
+        if (!linkString.toLowerCase().startsWith("http:") && !linkString.toLowerCase().startsWith("file:")) {
+//                    linkPath = parentPath /*+ File.separatorChar*/ + fieldToAdd.getFieldValue();
+            linkPath = parentPath + linkString;
+        } else if (linkString.toLowerCase().startsWith("&root;")) {
+            linkPath = parentPath + linkString.substring(6);
+        } else {
+            linkPath = linkString;
+        }
+//                    System.out.println("linkPath: " + linkPath);
+//                    linkPath = new URL(linkPath).getPath();
+        // clean the path for the local file system
+        linkPath = linkPath.replaceAll("/\\./", "/");
+        linkPath = linkPath.substring(0, 6) + (linkPath.substring(6).replaceAll("[/]+/", "/"));
+        while (linkPath.contains("/../")) {
+//                        System.out.println("linkPath: " + linkPath);
+            linkPath = linkPath.replaceFirst("/[^/]+/\\.\\./", "/");
+        }
+//                    System.out.println("linkPathCorrected: " + linkPath);
+        return linkPath;
+    }
+
     public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
@@ -540,6 +563,11 @@ public class ImdiSchema {
                 if (xmlNodeIdAtt != null) {
                     xmlNodeId = xmlNodeIdAtt.getNodeValue();
                 }// end get the xml node id
+                Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
+                if (catalogueLinkAtt != null) {
+                    String catalogueLink = catalogueLinkAtt.getNodeValue();
+                    childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), catalogueLink), "CatalogueLink"});
+                }
             }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
@@ -600,6 +628,11 @@ public class ImdiSchema {
                         // always add attrubutes even if without a value providing they are not null
                         fieldToAdd.addAttribute(attributeName, attributeValue);
                     }
+                    if (fieldToAdd.xmlPath.endsWith("Description")) {
+                        if (attributeName.equals("Link") && attributeValue.length() > 0) {
+                            childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), attributeValue), fieldToAdd.fieldID});
+                        }
+                    }
                 }
             }
             if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
@@ -608,29 +641,11 @@ public class ImdiSchema {
 //                fieldToAdd.translateFieldName(siblingNodePath);
                 destinationNode.addField(fieldToAdd);
             } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
-                String parentPath = destinationNode.getParentDirectory();
 //                System.out.println("LinkValue: " + fieldValue);
 //                System.out.println("ParentPath: " + parentPath);
 //                System.out.println("Parent: " + this.getUrlString());
-                String linkPath;
                 try {
-                    if (!fieldToAdd.getFieldValue().toLowerCase().startsWith("http:") && !fieldToAdd.getFieldValue().toLowerCase().startsWith("file:")) {
-//                    linkPath = parentPath /*+ File.separatorChar*/ + fieldToAdd.getFieldValue();
-                        linkPath = parentPath + fieldToAdd.getFieldValue();
-                    } else if (fieldToAdd.getFieldValue().toLowerCase().startsWith("&root;")) {
-                        linkPath = parentPath + fieldToAdd.getFieldValue().substring(6);
-                    } else {
-                        linkPath = fieldToAdd.getFieldValue();
-                    }
-//                    System.out.println("linkPath: " + linkPath);
-//                    linkPath = new URL(linkPath).getPath();
-                    // clean the path for the local file system
-                    linkPath = linkPath.replaceAll("/\\./", "/");
-                    linkPath = linkPath.substring(0, 6) + (linkPath.substring(6).replaceAll("[/]+/", "/"));
-                    while (linkPath.contains("/../")) {
-                        linkPath = linkPath.replaceFirst("/[^/]+/\\.\\./", "/");
-                    }
-//                    System.out.println("linkPathCorrected: " + linkPath);
+                    String linkPath = correctLinkPath(parentNode.getParentDirectory(), fieldToAdd.getFieldValue());
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
