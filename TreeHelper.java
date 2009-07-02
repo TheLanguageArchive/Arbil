@@ -283,13 +283,13 @@ public class TreeHelper {
             locationImdiNodes.add(GuiHelper.imdiLoader.getImdiObject(null, locationEnum.nextElement().toString()));
         }
         // remove all locations from the list so they can be replaced in a format that matches the imdi url format
-        locationsList.removeAllElements();
+//        locationsList.removeAllElements();
         Collections.sort(locationImdiNodes);
         for (Enumeration<ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
             ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
             System.out.println("root location: " + currentImdiObject.getUrlString());
             // add the locations back to the list so they matches the imdi url format
-            locationsList.add(currentImdiObject.getUrlString());
+//            locationsList.add(currentImdiObject.getUrlString());
             if (!currentImdiObject.isLocal()) {
                 remoteCorpusRootUrls.add(currentImdiObject.getUrlString());
             } else if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentImdiObject.getFile())) {
@@ -384,9 +384,9 @@ public class TreeHelper {
                         if (currentChildren.get(childCounter).getParent() != null) {
                             System.out.println("removing");
                             treeModel.removeNodeFromParent(currentChildren.get(childCounter));
-                            if (!currentChildren.contains(currentChildren.get(childCounter))) {
-                                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
-                            }
+//                            if (!currentChildren.contains(currentChildren.get(childCounter))) {
+//                                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
+//                            }
                         }
                     } catch (Exception e) {
                         GuiHelper.linorgBugCatcher.logError(e);
