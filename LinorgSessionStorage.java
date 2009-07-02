@@ -238,8 +238,8 @@ public class LinorgSessionStorage {
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
         System.out.println("saveRemoteResource: " + targetUrlString);
         System.out.println("destinationPath: " + destinationPath);
-        File tempFile = new File(destinationPath);
-        if (tempFile.exists() && !expireCacheCopy) {
+        File destinationFile = new File(destinationPath);
+        if (destinationFile.exists() && !expireCacheCopy && destinationFile.length() > 0) {
             System.out.println("this resource is already in the cache");
         } else {
             try {
@@ -254,8 +254,9 @@ public class LinorgSessionStorage {
                 if (httpConnection != null && httpConnection.getResponseCode() != 200) {
                     System.out.println("non 200 response, skipping file");
                 } else {
+                    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
                     int bufferLength = 1024 * 4;
-                    FileOutputStream fout = new FileOutputStream(destinationPath); //targetUrlString
+                    FileOutputStream outFile = new FileOutputStream(tempFile); //targetUrlString
                     System.out.println("getting file");
                     InputStream stream = urlConnection.getInputStream();
                     byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
@@ -269,7 +270,14 @@ public class LinorgSessionStorage {
                         if (bytesread == -1) {
                             break;
                         }
-                        fout.write(buffer, 0, bytesread);
+                        outFile.write(buffer, 0, bytesread);
+                    }
+                    outFile.close();
+                    if (tempFile.length() > 0) {
+                        if (destinationFile.exists()) {
+                            destinationFile.delete();
+                        }
+                        tempFile.renameTo(destinationFile);
                     }
                     System.out.println("Downloaded: " + totalRead / 1048576 + " Mbs");
                 }
