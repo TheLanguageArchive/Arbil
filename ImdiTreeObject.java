@@ -930,23 +930,6 @@ public class ImdiTreeObject implements Comparable {
             if (nodDom == null) {
                 System.out.println("Could not load IMDI");
             } else {
-                //String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
-                int versionCounter = 0;
-                while (new File(this.getFile() + "." + versionCounter).exists()) {
-                    versionCounter++;
-                }
-                while (versionCounter >= 0) {
-                    File lastFile = new File(this.getFile().getPath() + "." + versionCounter);
-                    versionCounter--;
-                    File nextFile = new File(this.getFile().getPath() + "." + versionCounter);
-                    if (versionCounter >= 0) {
-                        nextFile.renameTo(lastFile);
-                        System.out.println("renaming: " + nextFile + " : " + lastFile);
-                    } else {
-                        this.getFile().renameTo(lastFile);
-                        System.out.println("renaming: " + this.getFile() + " : " + lastFile);
-                    }
-                }
                 System.out.println("writeDOM");
                 // make the required changes to the dom
                 // TODO: make the changes to the dom before saving
@@ -975,6 +958,19 @@ public class ImdiTreeObject implements Comparable {
 
                                 }
                                 changedElement.setValue(currentField.getFieldValue());
+                                String keyName = currentField.getKeyName();
+                                if (keyName != null) {
+                                    System.out.println("Warning: cannot save key name values");
+                                    // there appears to be no other way to do this via the api
+                                    //changedElement.
+//                                    String elementSpec = changedElement.getSpec();
+//                                    System.out.println("elementSpec: " + elementSpec);
+//                                    elementSpec = elementSpec + ".Name";
+//                                    System.out.println("elementSpec: " + elementSpec);
+//                                    IMDIElement keyNameElement = api.getIMDIElement(nodDom, elementSpec);
+//                                    System.out.println("keyNameElement: " + keyNameElement);
+//                                    keyNameElement.setValue(keyName);
+                                }
                                 IMDIElement ie = api.setIMDIElement(nodDom, changedElement);
 //                                System.out.println("ie.id: " + ie.getDomId());
 //                                System.out.println("ie.spec: " + ie.getSpec());
@@ -993,6 +989,27 @@ public class ImdiTreeObject implements Comparable {
                         }
                     }
                 }
+                //////
+                // update the files version number
+                //String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
+                //TODO: the template add does not create a new history file so move this into a common area for both
+                int versionCounter = 0;
+                while (new File(this.getFile() + "." + versionCounter).exists()) {
+                    versionCounter++;
+                }
+                while (versionCounter >= 0) {
+                    File lastFile = new File(this.getFile().getPath() + "." + versionCounter);
+                    versionCounter--;
+                    File nextFile = new File(this.getFile().getPath() + "." + versionCounter);
+                    if (versionCounter >= 0) {
+                        nextFile.renameTo(lastFile);
+                        System.out.println("renaming: " + nextFile + " : " + lastFile);
+                    } else {
+                        this.getFile().renameTo(lastFile);
+                        System.out.println("renaming: " + this.getFile() + " : " + lastFile);
+                    }
+                }
+                //////
                 api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order                
