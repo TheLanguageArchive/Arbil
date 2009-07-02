@@ -239,6 +239,10 @@ public class LinorgSessionStorage {
         System.out.println("saveRemoteResource: " + targetUrlString);
         System.out.println("destinationPath: " + destinationPath);
         File destinationFile = new File(destinationPath);
+        if (destinationFile.length() == 0) {
+            // if the file is zero length then is presumably should either be replaced or the version in the jar used.
+            destinationFile.delete();
+        }
         if (destinationFile.exists() && !expireCacheCopy && destinationFile.length() > 0) {
             System.out.println("this resource is already in the cache");
         } else {
