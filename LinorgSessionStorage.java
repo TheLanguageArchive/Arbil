@@ -191,9 +191,7 @@ public class LinorgSessionStorage {
     public String updateCache(String pathString, boolean expireCacheCopy) {
         //TODO: There will need to be a way to expire the files in the cache.
         String cachePath = getSaveLocation(pathString);
-        if (!new File(cachePath).exists() || expireCacheCopy) {
-            GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath, expireCacheCopy);
-        }
+        GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath, expireCacheCopy);
         return cachePath;
     }
 
