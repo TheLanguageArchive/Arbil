@@ -1,44 +1,83 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 
-<!--
-    Document   : METATRANSCRIPT.Catalogue.xml
-    Created on : July 3, 2009, 11:48 AM
-    Author     : petwit
-    Description:
-        Purpose of the document follows.
--->
-<!--
-    this is a testing file only and must be updated to become useful
-    the api appears not to add "domids" to catalogue files and as a result the files will not be editable in Arbil
--->
-<imdi:METATRANSCRIPT  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns:imdi='http://www.mpi.nl/IMDI/Schema/IMDI'
-   xsi:schemaLocation='http://www.mpi.nl/IMDI/Schema/IMDI file:/data1/repos/DesktopApplication1/WithoutApplictionFramework/build/classes/mpi/metadata/schemas/IMDI/IMDI_3_0_11.xsd' Profile="" Date="" Originator="" Version="" FormatId="" History="" Type="" ArchiveHandle="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend="">
-    <imdi:History XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:History>
-    <imdi:Catalogue>
-        <imdi:Name XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Name>
-        <imdi:Title XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Title>
-        <imdi:Date XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Date>
-        <imdi:ExternalResourceReference XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend="">
-            <imdi:Type Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Type>
-            <imdi:SubType Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:SubType>
-            <imdi:Format Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Format>
-            <imdi:Link></imdi:Link>
-        </imdi:ExternalResourceReference>
-        <imdi:ExternalResourceReference XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend="">
-            <imdi:Type Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Type>
-            <imdi:SubType Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:SubType>
-            <imdi:Format Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Format>
-            <imdi:Link></imdi:Link>
-        </imdi:ExternalResourceReference>
-        <imdi:ExternalResourceReference XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend="">
-            <imdi:Type Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Type>
-            <imdi:SubType Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:SubType>
-            <imdi:Format Type="OpenVocabulary" DefaultLink="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Format>
-            <imdi:Link></imdi:Link>
-        </imdi:ExternalResourceReference>
-        <imdi:Description LanguageId="" Name="" ArchiveHandle="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Description>
-        <imdi:Description LanguageId="" Name="" ArchiveHandle="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Description>
-        <imdi:Description LanguageId="" Name="" ArchiveHandle="" Link="" XXX-Type="" XXX-Multiple="" XXX-Visible="" XXX-Tag="" XXX-HelpText="" XXX-FollowUpDepend=""></imdi:Description>
-    </imdi:Catalogue>
-</imdi:METATRANSCRIPT>
+<METATRANSCRIPT xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Date="" FormatId="IMDI 3.0" Originator="admin" Type="CATALOGUE" Version="12" xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+	<History/>
+	<Catalogue>
+		<Name/>
+		<Title/>
+		<Id/>
+		<Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+		<DocumentLanguages>
+			<!--Description: minOccurs=0 maxOccurs=unbounded-->
+			<Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+			<!--Language: minOccurs=0 maxOccurs=unbounded-->
+			<Language>
+				<Id/>
+				<Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"/>
+			</Language>
+		</DocumentLanguages>
+		<SubjectLanguages>
+			<!--Description: minOccurs=0 maxOccurs=unbounded-->
+			<Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+			<!--Language: minOccurs=0 maxOccurs=unbounded-->
+			<Language>
+				<Id/>
+				<Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"/>
+				<Dominant/><!--Boolean-->
+				<SourceLanguage/><!--Boolean-->
+				<TargetLanguage/><!--Boolean-->
+				<!--Description: minOccurs=0 maxOccurs=unbounded-->
+				<Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+			</Language>
+		</SubjectLanguages>
+		<Location>
+			<Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="OpenVocabulary"/>
+			<Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"/>
+			<Region/>
+			<Address/>
+		</Location>
+		<!--ContentType: minOccurs=1 maxOccurs=unbounded-->
+		<ContentType/>
+		<Format>
+			<Text/>
+			<Audio/>
+			<Video/>
+		</Format>
+		<Quality/>
+		<SmallestAnnotationUnit/>
+		<Applications/>
+		<Date/>
+		<Project>
+			<Name/>
+			<Title/>
+			<Id/>
+			<Contact/>
+			<!--Description: minOccurs=0 maxOccurs=unbounded-->
+			<Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+		</Project>
+		<!--Publisher: maxOccurs=unbounded-->
+		<Publisher/>
+		<Authors/>
+		<Size/>
+		<DistributionForm/>
+		<Access>
+			<Availability/>
+			<Date/>
+			<Owner/>
+			<Publisher/>
+			<Contact/>
+			<!--Description: minOccurs=0 maxOccurs=unbounded-->
+			<Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+		</Access>
+		<Pricing/>
+		<ContactPerson/>
+		<BeginYear/>
+		<EndYear/>
+		<ReferenceLink/>
+		<MetadataLink/>
+		<Publications/>
+		<Keys>
+		</Keys>
+  </Catalogue>
+</METATRANSCRIPT>
+
