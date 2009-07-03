@@ -50,6 +50,7 @@ public class ImdiIcons {
 //    private ImageIcon sessionColorLocalIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color-local.png"));
 //    private ImageIcon directoryclosed16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/directoryclosed16x16.png"));
     private ImageIcon sessionColorIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color.png"));
+    private ImageIcon catalogueColorIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/catalogue.png"));
     private ImageIcon exclamationBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-blue.png"));
 //    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/session_color-serverlocal.png"));
 //    private ImageIcon exclamationGreenIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/exclamation-green.png"));
@@ -192,6 +193,8 @@ public class ImdiIcons {
                 }
             } else if (imdiObject.isSession()) {
                 iconsVector.add(sessionColorIcon);
+            } else if (imdiObject.isCatalogue()) {
+                iconsVector.add(catalogueColorIcon);
             } else if (imdiObject.isCorpus()) {
                 iconsVector.add(corpusnodeColorIcon);
             } else {
