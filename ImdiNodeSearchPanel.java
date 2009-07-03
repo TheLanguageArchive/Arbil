@@ -169,6 +169,8 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                         termPassedFilter = currentImdiNode.isCorpus();
                                     } else if (currentTermPanel.nodeType.equals("Session")) {
                                         termPassedFilter = currentImdiNode.isSession();
+                                    } else if (currentTermPanel.nodeType.equals("Catalogue")) {
+                                        termPassedFilter = currentImdiNode.isCatalogue();
                                     } else if (!currentTermPanel.nodeType.equals("All")) {
                                         termPassedFilter = currentImdiNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*\\)$");
                                     }
