@@ -1326,6 +1326,15 @@ public class ImdiTreeObject implements Comparable {
         return false;
     }
 
+    public boolean isCatalogue() {
+        // test if this node is a catalogue
+        ImdiField[] nameFields = fieldHashtable.get("Name");
+        if (nameFields != null) {
+            return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Catalogue" + ImdiSchema.imdiPathSeparator + "Name");
+        }
+        return false;
+    }
+
     public boolean isCorpus() {
         // test if this node is a session
         ImdiField[] nameFields = fieldHashtable.get("Name");
