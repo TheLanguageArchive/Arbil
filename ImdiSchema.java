@@ -123,6 +123,7 @@ public class ImdiSchema {
         System.out.println("nodepath: " + nodepath);
         System.out.println("targetNodePath: " + targetNodePath);
         String[] templatesArray = {
+            "METATRANSCRIPT.Catalogue.xml",
             "METATRANSCRIPT.Corpus.Description.xml",
             "METATRANSCRIPT.Corpus.xml",
             "METATRANSCRIPT.Session.Description.xml",
@@ -216,6 +217,7 @@ public class ImdiSchema {
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
                 childTypes.add(new String[]{"Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
                 childTypes.add(new String[]{"Corpus Description", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus" + imdiPathSeparator + "Description"});
+                childTypes.add(new String[]{"Catalogue", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue"});
                 childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
             }
 //            System.out.println("childTypes: " + childTypes);
@@ -344,7 +346,7 @@ public class ImdiSchema {
         if (childType == null) {
             return false;
         }
-        return !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus");
+        return !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue");
     }
 //    public boolean nodesChildrenCanHaveSiblings(String xmlPath) {
 //        System.out.println("xmlPath: " + xmlPath);
