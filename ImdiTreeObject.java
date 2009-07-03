@@ -802,10 +802,12 @@ public class ImdiTreeObject implements Comparable {
                 // linkType: WSNodeType value  spec: where to put the link in the IMDI,
                 // NOTE: spec should only be used for linkType InfoFile...
                 // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
+                } else if (targetImdiNode.isCatalogue()) {
+                    nodeType = WSNodeType.CATALOGUE;
                 }
                 // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
                 System.out.println("createIMDILink: " + targetImdiNode.getUrlString());
-                api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), targetImdiNode.toString(), nodeType, "");
+                api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), /*targetImdiNode.toString()*/ "", nodeType, "");
                 api.writeDOM(nodDom, this.getFile(), false);
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -961,8 +963,8 @@ public class ImdiTreeObject implements Comparable {
                                 String keyName = currentField.getKeyName();
                                 if (keyName != null) {
                                     System.out.println("Warning: cannot save key name values");
-                                    // there appears to be no other way to do this via the api
-                                    //changedElement.
+                                // there appears to be no other way to do this via the api
+                                //changedElement.
 //                                    String elementSpec = changedElement.getSpec();
 //                                    System.out.println("elementSpec: " + elementSpec);
 //                                    elementSpec = elementSpec + ".Name";
@@ -1204,7 +1206,7 @@ public class ImdiTreeObject implements Comparable {
             if (lastNodeText.length() > 0) {
                 return lastNodeText;
             } else {
-                lastNodeText = "loading imdi..."; // note that this is different from the text shown my treehelper "adding..."
+                lastNodeText = "loading imdi..."; // note that this is different from the text shown by treehelper "adding..."
                 return lastNodeText;
             }
         }
