@@ -5,7 +5,11 @@
 package mpi.linorg;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
@@ -46,6 +50,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem viewChangesMenuItem;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
+    private javax.swing.JMenuItem viewInBrrowserMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItemFormatted;
     static private ContextMenu singleInstance = null;
 
@@ -74,6 +79,7 @@ public class ContextMenu {
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         viewXmlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItemFormatted = new javax.swing.JMenuItem();
+        viewInBrrowserMenuItem = new javax.swing.JMenuItem();
         validateMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
         addRemoteCorpusMenuItem = new javax.swing.JMenuItem();
@@ -216,6 +222,15 @@ public class ContextMenu {
         treePopupMenu.add(deleteMenuItem);
 
         treePopupMenu.add(treePopupMenuSeparator1);
+        viewInBrrowserMenuItem.setText("Open in External Application");
+        viewInBrrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                openFileInBrowser(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+
+            }
+        });
+        treePopupMenu.add(viewInBrrowserMenuItem);
         viewXmlMenuItem.setText("View IMDI XML");
 
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -537,6 +552,25 @@ public class ContextMenu {
 
     }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
+    private void openFileInBrowser(ImdiTreeObject[] selectedNodes) {
+        try {
+            for (ImdiTreeObject currentNode : selectedNodes) {
+                URI targetUri = null;
+                if (currentNode.hasResource()) {
+                    targetUri = new URI(currentNode.getFullResourcePath());
+                } else {
+                    currentNode.getURL().toURI();
+                }
+                Desktop.getDesktop().browse(targetUri);
+            }
+        } catch (MalformedURLException muE) {
+            muE.printStackTrace();
+        } catch (IOException ioE) {
+            ioE.printStackTrace();
+        } catch (URISyntaxException usE) {
+            usE.printStackTrace();
+        }
+    }
     private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_exportMenuItemActionPerformed
         // TODO add your handling code here:   
@@ -583,6 +617,7 @@ public class ContextMenu {
         pasteMenuItem1.setVisible(false);
         viewXmlMenuItem.setVisible(false);
         viewXmlMenuItemFormatted.setVisible(false);
+        viewInBrrowserMenuItem.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
@@ -653,6 +688,7 @@ public class ContextMenu {
                 copyBranchMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isCorpus() || ((ImdiTreeObject) leadSelectedTreeObject).isSession());
             }
         }
+        viewInBrrowserMenuItem.setVisible(nodeLevel > 1);
         copyImdiUrlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);
 
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
