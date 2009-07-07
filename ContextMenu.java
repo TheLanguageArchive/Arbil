@@ -553,22 +553,35 @@ public class ContextMenu {
     }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
     private void openFileInBrowser(ImdiTreeObject[] selectedNodes) {
-        try {
-            for (ImdiTreeObject currentNode : selectedNodes) {
+        boolean success = false;
+        for (ImdiTreeObject currentNode : selectedNodes) {
+            try {
                 URI targetUri = null;
                 if (currentNode.hasResource()) {
                     targetUri = new URI(currentNode.getFullResourcePath());
                 } else {
-                    currentNode.getURL().toURI();
+                    targetUri = currentNode.getURL().toURI();
                 }
-                Desktop.getDesktop().browse(targetUri);
+                try {
+                    Desktop.getDesktop().browse(targetUri);
+                    success = true;
+                } catch (MalformedURLException muE) {
+                    muE.printStackTrace();
+                } catch (IOException ioE) {
+                    ioE.printStackTrace();
+                }
+                if (!success) {
+                    try {
+                        // this is only good for mac
+                        Process p = Runtime.getRuntime().exec("open \"" + targetUri + "\"");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        break; // there is nothing else to try atm so exit the loop
+                    }
+                }
+            } catch (URISyntaxException usE) {
+                usE.printStackTrace();
             }
-        } catch (MalformedURLException muE) {
-            muE.printStackTrace();
-        } catch (IOException ioE) {
-            ioE.printStackTrace();
-        } catch (URISyntaxException usE) {
-            usE.printStackTrace();
         }
     }
     private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
