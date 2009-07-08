@@ -5,11 +5,13 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
-import java.util.Vector;
+import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
 /**
@@ -51,6 +53,50 @@ public class ImdiTree extends JTree {
 //                public void keyPressed(java.awt.event.KeyEvent evt) {
 //                    treeKeyTyped(evt);
 //                }
+            });
+
+        this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                System.out.println("jTree1MouseDragged");
+                JComponent c = (JComponent) evt.getSource();
+                TransferHandler th = c.getTransferHandler();
+                th.exportAsDrag(c, evt, TransferHandler.COPY);
+            }
+        });
+
+        this.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
+
+            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
+                if (evt.getPath().getPathCount() == 1) {
+                    System.out.println("root node cannot be collapsed");
+                    throw new ExpandVetoException(evt, "root node cannot be collapsed");
+                }
+            }
+
+            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
+                DefaultMutableTreeNode parentNode = null;
+                if (evt.getPath() == null) {
+                    //There is no selection.
+                } else {
+                    parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
+                    // load imdi data if not already loaded
+                    TreeHelper.getSingleInstance().loadTreeNodeChildren(parentNode);
+                }
+            }
+        });
+
+        this.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                if (LinorgFrame.previewTable != null) {
+                    // we assume that if the preview table is created then the check box is also
+                    if (LinorgFrame.showSelectionPreviewCheckBoxMenuItem.getState()) {
+                        GuiHelper.getSingleInstance().removeAllFromGridData(LinorgFrame.previewTable.getModel());
+                        GuiHelper.getSingleInstance().addToGridData(LinorgFrame.previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
+                    }
+                }
+            }
             });
     }
 
