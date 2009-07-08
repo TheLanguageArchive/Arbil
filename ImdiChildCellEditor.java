@@ -227,7 +227,11 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 if (((ImdiField) cellValue[selectedField]).hasVocabulary()) {
                     System.out.println("Has Vocabulary");
                     JComboBox comboBox = new JComboBox();
-                    for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = ((ImdiField) cellValue[selectedField]).getVocabulary(); vocabularyList.hasMoreElements();) {
+                    ImdiVocabularies.Vocabulary fieldsVocabulary = ((ImdiField) cellValue[selectedField]).getVocabulary();
+                    if (null == fieldsVocabulary.findVocabularyItem(((ImdiField) cellValue[selectedField]).fieldValue)) {
+                        comboBox.addItem(((ImdiField) cellValue[selectedField]).fieldValue);
+                    }
+                    for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = fieldsVocabulary.vocabularyItems.elements(); vocabularyList.hasMoreElements();) {
                         comboBox.addItem(vocabularyList.nextElement().languageName);
                     }
                     // TODO: enable multiple selection for vocabulary lists
