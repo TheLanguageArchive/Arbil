@@ -430,12 +430,11 @@ public class ContextMenu {
         // TODO add your handling code here:    
         //DefaultMutableTreeNode selectedTreeNode = null;   
         ImdiTree sourceTree = (ImdiTree) treePopupMenu.getInvoker();
-
-        ImdiTreeObject selectedImdiNode = (ImdiTreeObject) sourceTree.getSingleSelectedNode();
-        if (selectedImdiNode == null) {
+        ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
+        if (selectedImdiNodes == null) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Copy");
         } else {
-            sourceTree.copyNodeUrlToClipboard(selectedImdiNode);
+            sourceTree.copyNodeUrlToClipboard(selectedImdiNodes);
         }
     }//GEN-LAST:event_copyImdiUrlMenuItemActionPerformed
 
@@ -553,7 +552,14 @@ public class ContextMenu {
     }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
     private void openFileInBrowser(ImdiTreeObject[] selectedNodes) {
-        boolean success = false;
+        boolean awtDesktopFound = false;
+        try {
+            Class.forName("java.awt.Desktop");
+            awtDesktopFound = true;
+        } catch (ClassNotFoundException cnfE) {
+            awtDesktopFound = false;
+            System.out.println("java.awt.Desktop class not found");
+        }
         for (ImdiTreeObject currentNode : selectedNodes) {
             try {
                 URI targetUri = null;
@@ -562,15 +568,15 @@ public class ContextMenu {
                 } else {
                     targetUri = currentNode.getURL().toURI();
                 }
-                try {
-                    Desktop.getDesktop().browse(targetUri);
-                    success = true;
-                } catch (MalformedURLException muE) {
-                    muE.printStackTrace();
-                } catch (IOException ioE) {
-                    ioE.printStackTrace();
-                }
-                if (!success) {
+                if (awtDesktopFound) {
+                    try {
+                        Desktop.getDesktop().browse(targetUri);
+                    } catch (MalformedURLException muE) {
+                        muE.printStackTrace();
+                    } catch (IOException ioE) {
+                        ioE.printStackTrace();
+                    }
+                } else {
                     try {
                         // this is only good for mac
                         Process p = Runtime.getRuntime().exec("open \"" + targetUri + "\"");
@@ -702,7 +708,7 @@ public class ContextMenu {
             }
         }
         viewInBrrowserMenuItem.setVisible(nodeLevel > 1);
-        copyImdiUrlMenuItem.setVisible(selectionCount == 1 && nodeLevel > 1);
+        copyImdiUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1); // show the copy menu providing some nodes are selected and the root node is not the only one selected
 
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
