@@ -105,9 +105,9 @@ public class ImdiDragDrop {
             System.out.println("exportToClipboard: " + comp);
             if (comp instanceof ImdiTree) {
                 ImdiTree sourceTree = (ImdiTree) comp;
-                Object selectedImdiNode = sourceTree.getSingleSelectedNode();
-                if (selectedImdiNode instanceof ImdiTreeObject) {
-                    sourceTree.copyNodeUrlToClipboard((ImdiTreeObject) selectedImdiNode);
+                ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
+                if (selectedImdiNodes != null) {
+                    sourceTree.copyNodeUrlToClipboard(selectedImdiNodes);
                 }
             } else if (comp instanceof ImdiTable) {
                 ImdiTable sourceTable = (ImdiTable) comp;
