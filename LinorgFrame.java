@@ -3,15 +3,12 @@ package mpi.linorg;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ToolTipManager;
-import javax.swing.TransferHandler;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /*
  * LinorgView.java
@@ -19,11 +16,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * Created on 23 September 2008, 17:23
  * @author Peter.Withers@mpi.nl
  */
-import javax.swing.tree.ExpandVetoException;
-
 public class LinorgFrame extends javax.swing.JFrame {
 
-    private ImdiTable previewTable;
+    static public ImdiTable previewTable = null;
     private JScrollPane rightScrollPane;
     private JLabel previewHiddenColumnLabel;
     private JPanel previewPanel;
@@ -181,47 +176,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         leftLocalSplitPane.setName("leftLocalSplitPane"); // NOI18N
 
         localDirectoryTree.setModel(TreeHelper.getSingleInstance().localDirectoryTreeModel);
-        localDirectoryTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
-            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                imdiTreeTreeWillCollapse(evt);
-            }
-            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                remoteCorpusTreeTreeWillExpand(evt);
-            }
-        });
-        localDirectoryTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                jTreeValueChanged(evt);
-            }
-        });
-        localDirectoryTree.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                treeMouseDragged(evt);
-            }
-        });
         jScrollPane2.setViewportView(localDirectoryTree);
 
         leftLocalSplitPane.setBottomComponent(jScrollPane2);
 
         localCorpusTree.setModel(TreeHelper.getSingleInstance().localCorpusTreeModel);
-        localCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
-            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                imdiTreeTreeWillCollapse(evt);
-            }
-            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                remoteCorpusTreeTreeWillExpand(evt);
-            }
-        });
-        localCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                jTreeValueChanged(evt);
-            }
-        });
-        localCorpusTree.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                treeMouseDragged(evt);
-            }
-        });
         jScrollPane4.setViewportView(localCorpusTree);
 
         leftLocalSplitPane.setLeftComponent(jScrollPane4);
@@ -229,24 +188,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         leftSplitPane.setBottomComponent(leftLocalSplitPane);
 
         remoteCorpusTree.setModel(TreeHelper.getSingleInstance().remoteCorpusTreeModel);
-        remoteCorpusTree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
-            public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                imdiTreeTreeWillCollapse(evt);
-            }
-            public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {
-                remoteCorpusTreeTreeWillExpand(evt);
-            }
-        });
-        remoteCorpusTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                jTreeValueChanged(evt);
-            }
-        });
-        remoteCorpusTree.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                treeMouseDragged(evt);
-            }
-        });
         jScrollPane3.setViewportView(remoteCorpusTree);
 
         leftSplitPane.setLeftComponent(jScrollPane3);
@@ -332,7 +273,6 @@ public class LinorgFrame extends javax.swing.JFrame {
         optionsMenu.add(editLocationsMenuItem);
 
         templatesMenu.setText("Templates");
-        templatesMenu.setEnabled(false);
         optionsMenu.add(templatesMenu);
 
         viewFavouritesMenuItem.setText("View Favourites");
@@ -451,23 +391,6 @@ private void editFieldViewsMenuItemActionPerformed(java.awt.event.ActionEvent ev
 // TODO add your handling code here:
 }//GEN-LAST:event_editFieldViewsMenuItemActionPerformed
 
-private void remoteCorpusTreeTreeWillExpand(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_remoteCorpusTreeTreeWillExpand
-// TODO add your handling code here:
-    DefaultMutableTreeNode parentNode = null;
-    if (evt.getPath() == null) {
-        //There is no selection.
-    } else {
-        parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
-        // load imdi data if not already loaded
-        TreeHelper.getSingleInstance().loadTreeNodeChildren(parentNode);
-    }
-//remoteCorpusTree.scrollPathToVisible(evt.getPath());
-}//GEN-LAST:event_remoteCorpusTreeTreeWillExpand
-
-private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTreeValueChanged
-// TODO add your handling code here:
-    if (showSelectionPreviewCheckBoxMenuItem.getState()) {
-        // count the total number of selected nodes across all trees
 //        int selectedNodesCount = remoteCorpusTree.getSelectionCount();
 //        selectedNodesCount += localCorpusTree.getSelectionCount();
 //        selectedNodesCount += localDirectoryTree.getSelectionCount();
@@ -498,11 +421,6 @@ private void jTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-
 //            guiHelper.removeFromGridData(previewTable.getModel(), nodesToRemove);
 //            guiHelper.addToGridData(previewTable.getModel(), nodesToAdd);  
 //        }
-        GuiHelper.getSingleInstance().removeAllFromGridData(previewTable.getModel());
-        GuiHelper.getSingleInstance().addToGridData(previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
-    }
-}//GEN-LAST:event_jTreeValueChanged
-
 private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
     LinorgWindowManager.getSingleInstance().saveSplitPlanes(this.getContentPane().getComponent(0));
@@ -534,14 +452,6 @@ private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt
 private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_viewMenuMenuSelected
 // TODO add your handling code here:
     GuiHelper.getSingleInstance().initViewMenu(viewMenu);
-}//GEN-LAST:event_viewMenuMenuSelected
-
-private void treeMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMouseDragged
-// TODO add your handling code here:
-    System.out.println("jTree1MouseDragged");
-    JComponent c = (JComponent) evt.getSource();
-    TransferHandler th = c.getTransferHandler();
-    th.exportAsDrag(c, evt, TransferHandler.COPY);
 }//GEN-LAST:event_treeMouseDragged
 
 private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -615,14 +525,6 @@ private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.A
     TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
 }//GEN-LAST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
 
-private void imdiTreeTreeWillCollapse(javax.swing.event.TreeExpansionEvent evt)throws javax.swing.tree.ExpandVetoException {//GEN-FIRST:event_imdiTreeTreeWillCollapse
-// TODO add your handling code here:
-    if (evt.getPath().getPathCount() == 1) {
-        System.out.println("root node cannot be collapsed");
-        throw new ExpandVetoException(evt, "root node cannot be collapsed");
-    }
-}//GEN-LAST:event_imdiTreeTreeWillCollapse
-
     /**
      * @param args the command line arguments
      */
@@ -669,7 +571,7 @@ private void imdiTreeTreeWillCollapse(javax.swing.event.TreeExpansionEvent evt)t
     private javax.swing.JMenuItem saveFileMenuItem;
     private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private javax.swing.JMenuItem shortCutKeysjMenuItem;
-    private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
+    public static javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private javax.swing.JMenu templatesMenu;
     private javax.swing.JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
     private javax.swing.JMenuItem undoMenuItem;
