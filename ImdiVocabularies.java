@@ -13,7 +13,7 @@ import java.util.Vector;
  */
 public class ImdiVocabularies {
 
-    Hashtable<String, Vector> vocabulariesTable = new Hashtable<String, Vector>();
+    Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
 
     public ImdiVocabularies() {
 //        parseRemoteFile("/home/petwit/IMDI-Tools/Profiles/local/DBD_Profile.Profile.xml");
@@ -38,36 +38,20 @@ public class ImdiVocabularies {
 //        System.out.println("DescriptionEntries: "+cv.getDescriptionEntries());
 //        System.out.println("Entries: "+cv.getEntries());      
 //    }
-    public void addVocabularyEntry(String vocabularyLocation, String entryString) {
-        Vector<VocabularyItem> tempVocab = (Vector<VocabularyItem>)vocabulariesTable.get(vocabularyLocation);
-        if (!tempVocab.contains(entryString)) {
-            tempVocab.add(new VocabularyItem(entryString, null));
-        }
-    }
-
-    private VocabularyItem findVocabularyItem(Enumeration<VocabularyItem> vocabularyEmun, String searchString) {
-        while (vocabularyEmun.hasMoreElements()) {
-            VocabularyItem currentVocabItem = vocabularyEmun.nextElement();
-            if (currentVocabItem.languageName.equals(searchString)) {
-                return currentVocabItem;
-            }
-        }
-        return null;
-    }
 
     public boolean vocabularyContains(String vocabularyLocation, String valueString) {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
-        Vector<VocabularyItem> tempVocab = (Vector<VocabularyItem>)vocabulariesTable.get(vocabularyLocation);
+        Vocabulary tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
-            return (findVocabularyItem(tempVocab.elements(), valueString) != null);
+            return (null != tempVocab.findVocabularyItem(valueString));
         } else {
             return false;
         }
     }
 
-    public Enumeration<VocabularyItem> getVocabulary(String vocabularyLocation) {
+    public Vocabulary getVocabulary(ImdiTreeObject containingImdiObject, String vocabularyLocation) {
         if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
             return null;
         }
@@ -87,9 +71,34 @@ public class ImdiVocabularies {
 //            vocabularyList.add("time: " + System.currentTimeMillis());
 //            vocabulariesTable.put(vocabularyLocation, vocabularyList);
 //        }
-        Vector<VocabularyItem> tempVocab = vocabulariesTable.get(vocabularyLocation);
+        Vocabulary tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
-            return tempVocab.elements();
+            Vocabulary returnValue = null;
+            if (tempVocab.vocabularyRedirectField != null) {
+                for (ImdiField[] tempField : containingImdiObject.getFields().values().toArray(new ImdiField[][]{})) {
+                    if (tempVocab.vocabularyRedirectField != null) {
+                        if (tempField[0].xmlPath.equals(tempVocab.vocabularyRedirectField)) {
+                            String redirectFieldString = tempField[0].toString();
+                            Vocabulary tempVocabulary = tempField[0].getVocabulary();
+                            VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
+                            System.out.println("redirectFieldString: " + redirectFieldString);
+                            if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
+                                System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
+                                String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
+                                returnValue = getVocabulary(containingImdiObject, correctedUrl);
+                            }
+                        }
+                    }
+//                    System.out.println("tempVocab.vocabularyRedirectField: " + tempVocab.vocabularyRedirectField);
+//                    System.out.println("tempField: " + tempField[0]);
+//                    System.out.println("tempField: " + tempField[0].xmlPath);
+//                    System.out.println("tempField: " + tempField[0].getTranslateFieldName());
+                }
+            }
+            if (returnValue == null) {
+                returnValue = tempVocab;
+            }
+            return returnValue;
         } else {
             System.out.println("vocabulary is null");
             return null;
@@ -115,15 +124,15 @@ public class ImdiVocabularies {
 //                }
 //            }
             System.out.println("parseRemoteFile: " + cachePath);
-            Vector<VocabularyItem> vocabularyList = new Vector<VocabularyItem>();
-            vocabulariesTable.put(vocabRemoteUrl, vocabularyList);
+            Vocabulary vocabulary = new Vocabulary(vocabRemoteUrl);
+            vocabulariesTable.put(vocabRemoteUrl, vocabulary);
             try {
                 javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
                 javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
                 org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
                 xmlReader.setFeature("http://xml.org/sax/features/validation", false);
                 xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
-                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabularyList));
+                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
                 xmlReader.parse(cachePath);
             } catch (Exception ex) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
@@ -143,33 +152,80 @@ public class ImdiVocabularies {
 
     private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
-        Vector<VocabularyItem> collectedVocab;
+        Vocabulary collectedVocab;
 
-        public SaxVocabularyHandler(Vector<VocabularyItem> vocabList) {
+        public SaxVocabularyHandler(Vocabulary vocabList) {
             super();
             collectedVocab = vocabList;
         }
 
         @Override
         public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
+            if (name.equals("VocabularyRedirect")) { // or should this be Redirect
+                // when getting the list check attribute in the field X for the vocab location
+                collectedVocab.vocabularyRedirectField = atts.getValue("SourceFieldName");
+                System.out.println("VocabularyRedirect: " + collectedVocab.vocabularyRedirectField);
+            }
             if (name.equals("Entry")) {
                 String vocabName = atts.getValue("Value");
                 String vocabCode = atts.getValue("Code");
+                String followUpVocab = atts.getValue("FollowUp");
                 if (vocabName != null) {
-                    collectedVocab.add(new VocabularyItem(vocabName, vocabCode));
+                    collectedVocab.vocabularyItems.add(new VocabularyItem(vocabName, vocabCode, followUpVocab));
                 }
             }
         }
     }
 
+    public class Vocabulary {
+
+        public Vector<VocabularyItem> vocabularyItems = new Vector<VocabularyItem>();
+        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
+        public String vocabularyUrlRedirected = null; // the url of the vocabulary indicated by the value of the vocabularyRedirectField
+        private String vocabularyUrl = null;
+
+        public Vocabulary(String locationUrl) {
+            vocabularyUrl = locationUrl;
+        }
+
+        public void addEntry(String entryString) {
+            boolean itemExistsInVocab = false;
+            for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
+                if (currentVocabularyItem.languageName.equals(entryString)) {
+                    itemExistsInVocab = true;
+                }
+            }
+            if (!itemExistsInVocab) {
+                vocabularyItems.add(new VocabularyItem(entryString, null, null));
+            }
+        }
+        public VocabularyItem findVocabularyItem(String searchString) {
+            for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
+                if (currentVocabularyItem.languageName.equals(searchString)) {
+                    return currentVocabularyItem;
+                }
+            }
+            return null;
+        }
+
+        public String resolveFollowUpUrl(String folowUpString) {
+            vocabularyUrlRedirected = folowUpString;
+            String vocabUrlDirectory = vocabularyUrl.substring(0, vocabularyUrl.lastIndexOf("/") + 1);
+            System.out.println("vocabUrlDirectory: " + vocabUrlDirectory);
+            return (vocabUrlDirectory + folowUpString);
+        }
+    }
     public class VocabularyItem {
 
         public String languageName;
         public String languageCode;
+        public String followUpVocabulary;
+        public String descriptionString;
 
-        public VocabularyItem(String languageNameLocal, String languageCodeLocal) {
+        public VocabularyItem(String languageNameLocal, String languageCodeLocal, String followUpVocabularyLocal) {
             languageName = languageNameLocal;
             languageCode = languageCodeLocal;
+            followUpVocabulary = followUpVocabularyLocal;
         }
 
         @Override
