@@ -6,7 +6,9 @@ package mpi.linorg;
 
 import java.awt.Component;
 import java.awt.Desktop;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -578,8 +580,28 @@ public class ContextMenu {
                     }
                 } else {
                     try {
-                        // this is only good for mac
-                        Process p = Runtime.getRuntime().exec("open \"" + targetUri + "\"");
+                        String osNameString = System.getProperty("os.name").toLowerCase();
+                        String openCommand = "";
+                        if (osNameString.indexOf("windows") != -1 || osNameString.indexOf("nt") != -1) {
+                            openCommand = "cmd /c start ";
+                        }
+                        if (osNameString.equals("windows 95") || osNameString.equals("windows 98")) {
+                            openCommand = "command.com /C start ";
+                        }
+                        if (osNameString.indexOf("mac") != -1) {
+                            openCommand = "open ";
+                        }
+                        if (osNameString.indexOf("linux") != -1) {
+                            openCommand = "gnome-open ";
+                        }
+                        String execString = openCommand + targetUri;
+                        System.out.println(execString);
+                        Process launchedProcess = Runtime.getRuntime().exec(execString);
+                        BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                        String line;
+                        while ((line = errorStreamReader.readLine()) != null) {
+                            System.out.println("Launched process error stream: \"" + line + "\"");
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                         break; // there is nothing else to try atm so exit the loop
