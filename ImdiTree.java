@@ -175,12 +175,27 @@ public class ImdiTree extends JTree {
         return returnObject;
     }
 
-    public void copyNodeUrlToClipboard(ImdiTreeObject selectedNode) {
-        if (selectedNode != null) {
+    public void copyNodeUrlToClipboard(ImdiTreeObject[] selectedNodes) {
+        if (selectedNodes != null) {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            StringSelection stringSelection = new StringSelection(selectedNode.getUrlString());
+            String copiedNodeUrls = null;
+            for (ImdiTreeObject currentNode : selectedNodes) {
+                if (currentNode != null) {
+                    if (copiedNodeUrls == null) {
+                        copiedNodeUrls = "";
+                    } else {
+                        copiedNodeUrls = copiedNodeUrls.concat("\n");
+                    }
+                    if (currentNode.hasResource()) {
+                        copiedNodeUrls = copiedNodeUrls.concat(currentNode.getFullResourcePath());
+                    } else {
+                        copiedNodeUrls = copiedNodeUrls.concat(currentNode.getUrlString());
+                    }
+                }
+            }
+            StringSelection stringSelection = new StringSelection(copiedNodeUrls);
             clipboard.setContents(stringSelection, GuiHelper.clipboardOwner);
-            System.out.println("copied: " + selectedNode.getUrlString());
+            System.out.println("copied: \n" + copiedNodeUrls);
         }
     }
 //    public void scrollToNode(String imdiUrlString) {
