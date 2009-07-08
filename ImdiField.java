@@ -91,18 +91,18 @@ public class ImdiField {
 
     public Enumeration<ImdiVocabularies.VocabularyItem> getLanguageList() { // TODO: move this url to somewhere appropriate (preferably in the imdi file)
 //        return a list if objects 
-        return imdiVocabularies.getVocabulary("http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml");
+        return imdiVocabularies.getVocabulary(parentImdi, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").vocabularyItems.elements();
     }
 
-    public Enumeration<ImdiVocabularies.VocabularyItem> getVocabulary() {
+    public ImdiVocabularies.Vocabulary getVocabulary() {
         if (vocabularyKey == null) {
             return null;
         }
         // make sure that the current value is in the list if it is an open vocabulary (this could be done in a better place ie on first load whe all the values are available)
-        if (vocabularyIsOpen) {
-            imdiVocabularies.addVocabularyEntry(vocabularyKey, fieldValue);
-        }
-        return imdiVocabularies.getVocabulary(vocabularyKey);
+//        if (vocabularyIsOpen && fieldValue != null && fieldValue.length() > 0) {
+//            imdiVocabularies.addVocabularyEntry(parentImdi, vocabularyKey, fieldValue);
+//        }
+        return imdiVocabularies.getVocabulary(parentImdi, vocabularyKey);
     }
 
     public boolean isDisplayable() {
@@ -115,7 +115,7 @@ public class ImdiField {
             Object linkAttribute = fieldAttributes.get("Link");
             if (linkAttribute != null) {
                 vocabularyKey = linkAttribute.toString();
-                imdiVocabularies.getVocabulary(vocabularyKey);
+                imdiVocabularies.getVocabulary(parentImdi, vocabularyKey);
             }
         }
     // end set up the vocabularies
