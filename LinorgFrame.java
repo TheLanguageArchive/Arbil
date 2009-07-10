@@ -66,7 +66,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         previewPanel.add(previewHiddenColumnLabel, BorderLayout.SOUTH);
         mainSplitPane.setDividerLocation(0.25);
         leftSplitPane.setDividerLocation(0.15);
-        leftLocalSplitPane.setDividerLocation(0.2); 
+        leftLocalSplitPane.setDividerLocation(0.2);
         showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
         trackTableSelectionCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("trackTableSelection", false));
         TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
@@ -203,10 +203,13 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         fileMenu.setText("File");
         fileMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
+
             public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
+
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 fileMenuMenuSelected(evt);
             }
@@ -216,6 +219,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         saveFileMenuItem.setText("Save Changes");
         saveFileMenuItem.setEnabled(false);
         saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveFileMenuItemActionPerformed(evt);
             }
@@ -224,6 +228,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         importMenuItem.setText("Import");
         importMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 importMenuItemActionPerformed(evt);
             }
@@ -232,6 +237,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitMenuItemActionPerformed(evt);
             }
@@ -266,6 +272,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         editLocationsMenuItem.setText("Locations");
         editLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editLocationsMenuItemActionPerformed(evt);
             }
@@ -277,6 +284,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         viewFavouritesMenuItem.setText("View Favourites");
         viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewFavouritesMenuItemActionPerformed(evt);
             }
@@ -286,6 +294,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.setEnabled(false);
         editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editFieldViewsMenuItemActionPerformed(evt);
             }
@@ -300,6 +309,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         showSelectionPreviewCheckBoxMenuItem.setSelected(true);
         showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
         showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 showSelectionPreviewCheckBoxMenuItemActionPerformed(evt);
             }
@@ -314,6 +324,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
         copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session copy the file into the local cache.");
         copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
+
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 copyNewResourcesCheckBoxMenuItemItemStateChanged(evt);
             }
@@ -322,6 +333,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
         trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 trackTableSelectionCheckBoxMenuItemActionPerformed(evt);
             }
@@ -332,10 +344,13 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         viewMenu.setText("Column Views");
         viewMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
             }
+
             public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
+
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 viewMenuMenuSelected(evt);
             }
@@ -349,6 +364,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         aboutMenuItem.setText("About");
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 aboutMenuItemActionPerformed(evt);
             }
@@ -358,6 +374,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         helpMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
         helpMenuItem.setText("Help");
         helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 helpMenuItemActionPerformed(evt);
             }
@@ -366,6 +383,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         shortCutKeysjMenuItem.setText("Short Cut Keys");
         shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 shortCutKeysjMenuItemActionPerformed(evt);
             }
@@ -374,6 +392,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         printHelpMenuItem.setText("Print Help File");
         printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 printHelpMenuItemActionPerformed(evt);
             }
@@ -387,9 +406,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void editFieldViewsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editFieldViewsMenuItemActionPerformed
+    private void editFieldViewsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editFieldViewsMenuItemActionPerformed
 // TODO add your handling code here:
-}//GEN-LAST:event_editFieldViewsMenuItemActionPerformed
+    }//GEN-LAST:event_editFieldViewsMenuItemActionPerformed
 
 //        int selectedNodesCount = remoteCorpusTree.getSelectionCount();
 //        selectedNodesCount += localCorpusTree.getSelectionCount();
@@ -421,15 +440,15 @@ private void editFieldViewsMenuItemActionPerformed(java.awt.event.ActionEvent ev
 //            guiHelper.removeFromGridData(previewTable.getModel(), nodesToRemove);
 //            guiHelper.addToGridData(previewTable.getModel(), nodesToAdd);  
 //        }
-private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
+    private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgWindowManager.getSingleInstance().saveSplitPlanes(this.getContentPane().getComponent(0));
-    if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
+        LinorgWindowManager.getSingleInstance().saveSplitPlanes(this.getContentPane().getComponent(0));
+        if (!showSelectionPreviewCheckBoxMenuItem.getState()) {//GEN-LAST:event_showSelectionPreviewCheckBoxMenuItemActionPerformed
             // remove the right split split and show only the jdesktoppane
             mainSplitPane.remove(rightSplitPane);
             mainSplitPane.setRightComponent(jDesktopPane1);
             // clear the grid to keep things tidy
-            GuiHelper.getSingleInstance().removeAllFromGridData(previewTable.getModel());
+            ((ImdiTableModel) LinorgFrame.previewTable.getModel()).removeAllImdiRows();
         } else {
             // put the jdesktoppane and the preview grid back into the right split pane
             mainSplitPane.remove(jDesktopPane1);
@@ -438,98 +457,99 @@ private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.
             rightSplitPane.setBottomComponent(jDesktopPane1);
             rightSplitPane.setDividerLocation(0.1);
             // update the preview data grid
-            GuiHelper.getSingleInstance().removeAllFromGridData(previewTable.getModel());
+            ((ImdiTableModel) LinorgFrame.previewTable.getModel()).removeAllImdiRows();
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }
         LinorgWindowManager.getSingleInstance().loadSplitPlanes(this.getContentPane().getComponent(0));
     }
 
-private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLocationsMenuItemActionPerformed
+    private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editLocationsMenuItemActionPerformed
 // TODO add your handling code here:
-    TreeHelper.getSingleInstance().showLocationsDialog();
-}//GEN-LAST:event_editLocationsMenuItemActionPerformed
+        TreeHelper.getSingleInstance().showLocationsDialog();
+    }//GEN-LAST:event_editLocationsMenuItemActionPerformed
 
-private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_viewMenuMenuSelected
+    private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_viewMenuMenuSelected
 // TODO add your handling code here:
-    GuiHelper.getSingleInstance().initViewMenu(viewMenu);
-}//GEN-LAST:event_treeMouseDragged
+        GuiHelper.getSingleInstance().initViewMenu(viewMenu);
+    }//GEN-LAST:event_treeMouseDragged
 
-private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
+    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
 // TODO add your handling code here:
-    performCleanExit();
-}//GEN-LAST:event_exitMenuItemActionPerformed
+        performCleanExit();
+    }//GEN-LAST:event_exitMenuItemActionPerformed
 
-private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
+    private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgWindowManager.getSingleInstance().openAboutPage();
-}//GEN-LAST:event_aboutMenuItemActionPerformed
+        LinorgWindowManager.getSingleInstance().openAboutPage();
+    }//GEN-LAST:event_aboutMenuItemActionPerformed
 
-private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
+    private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveFileMenuItemActionPerformed
 // TODO add your handling code here:
-    GuiHelper.imdiLoader.saveNodesNeedingSave(true);
-}//GEN-LAST:event_saveFileMenuItemActionPerformed
+        GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+    }//GEN-LAST:event_saveFileMenuItemActionPerformed
 
-private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_fileMenuMenuSelected
+    private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {//GEN-FIRST:event_fileMenuMenuSelected
 // TODO add your handling code here:
-    saveFileMenuItem.setEnabled(GuiHelper.imdiLoader.nodesNeedSave());
-}//GEN-LAST:event_fileMenuMenuSelected
+        saveFileMenuItem.setEnabled(GuiHelper.imdiLoader.nodesNeedSave());
+    }//GEN-LAST:event_fileMenuMenuSelected
 
-private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
+    private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shortCutKeysjMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
-    if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
-        LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, helpComponent);
-    }
-    helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
-}//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
+        LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
+        if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+            LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, helpComponent);
+        }
+        helpComponent.setCurrentPage(LinorgHelp.ShorCutKeysPage);
+    }//GEN-LAST:event_shortCutKeysjMenuItemActionPerformed
 
-private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
+    private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
 // TODO add your handling code here:
-    if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
-        // forcus existing or create a new help window
-        LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
-    }
-}//GEN-LAST:event_helpMenuItemActionPerformed
+        if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+            // forcus existing or create a new help window
+            LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
+        }
+    }//GEN-LAST:event_helpMenuItemActionPerformed
 
-private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
+    private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
 // TODO add your handling code here:
-    GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
-}//GEN-LAST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
+        GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+    }//GEN-LAST:event_copyNewResourcesCheckBoxMenuItemItemStateChanged
 
-private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importMenuItemActionPerformed
+    private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importMenuItemActionPerformed
 // TODO add your handling code here:
-    try {
-        ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
-        importExportDialog.importImdiBranch();
-    } catch (Exception e) {
-        System.out.println(e.getMessage());
-    }
-}//GEN-LAST:event_importMenuItemActionPerformed
+        try {
+            ImportExportDialog importExportDialog = new ImportExportDialog(remoteCorpusTree);
+            importExportDialog.importImdiBranch();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }//GEN-LAST:event_importMenuItemActionPerformed
 
-private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
+    private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFavouritesMenuItemActionPerformed
 // TODO add your handling code here:
-    LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
-}//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
+        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
+    }//GEN-LAST:event_viewFavouritesMenuItemActionPerformed
 
-private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printHelpMenuItemActionPerformed
+    private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printHelpMenuItemActionPerformed
 // TODO add your handling code here:
-    if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
-        // forcus existing or create a new help window
-        LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
-    }
-    LinorgHelp.getSingleInstance().printAsOneFile();
-}//GEN-LAST:event_printHelpMenuItemActionPerformed
+        if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
+            // forcus existing or create a new help window
+            LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
+        }
+        LinorgHelp.getSingleInstance().printAsOneFile();
+    }//GEN-LAST:event_printHelpMenuItemActionPerformed
 
-private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
+    private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
 // TODO add your handling code here:
-    TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
-}//GEN-LAST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
+        TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
+    }//GEN-LAST:event_trackTableSelectionCheckBoxMenuItemActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 try {
                     new LinorgFrame();
@@ -579,5 +599,4 @@ private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.A
     private javax.swing.JMenu viewMenu;
     private javax.swing.JMenu windowMenu;
     // End of variables declaration//GEN-END:variables
-
 }
