@@ -92,12 +92,12 @@ public class ImdiTree extends JTree {
                 if (LinorgFrame.previewTable != null) {
                     // we assume that if the preview table is created then the check box is also
                     if (LinorgFrame.showSelectionPreviewCheckBoxMenuItem.getState()) {
-                        GuiHelper.getSingleInstance().removeAllFromGridData(LinorgFrame.previewTable.getModel());
+                        ((ImdiTableModel) LinorgFrame.previewTable.getModel()).removeAllImdiRows();
                         GuiHelper.getSingleInstance().addToGridData(LinorgFrame.previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
                     }
                 }
             }
-            });
+        });
     }
 
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
@@ -172,6 +172,7 @@ public class ImdiTree extends JTree {
         return listToolTip;
     }
 //
+
     public String getToolTipText(MouseEvent event) {
         String tip = null;
         java.awt.Point p = event.getPoint();
