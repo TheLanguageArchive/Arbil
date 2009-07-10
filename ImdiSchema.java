@@ -32,6 +32,7 @@ public class ImdiSchema {
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     private String selectedTemplate = null;
+    public File selectedTemplateDirectory = null;
     static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true;
 
@@ -45,7 +46,8 @@ public class ImdiSchema {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-//                        loadTemplates(evt.getActionCommand().toString());
+                    System.out.println("setting template: " + evt.getActionCommand());
+                    selectedTemplateDirectory = new File(evt.getActionCommand());
                 } catch (Exception e) {
                     GuiHelper.linorgBugCatcher.logError(e);
                 }
