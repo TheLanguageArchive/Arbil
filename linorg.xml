@@ -64,7 +64,23 @@
         <get src="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Modalities.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MediaFile-Format.xml"/>
     </target>
-    <target name="jar" depends="compile, getFallbackFiles" description="create a Jar file">
+    <target name="copyFilesForXSL">
+        <copy todir="${SRCDIR}mpi/linorg/resources/xsl/">
+            <fileset dir="${SRCDIR}../html/imdi-viewer/">
+                <include name="imdi-viewer-open.gif"/>
+                <include name="imdi-viewer-closed.gif"/>
+                <include name="imdi-viewer.js"/>
+                <include name="imdi-viewer.css"/>
+                <include name="imdi-viewer.xsl"/>
+            </fileset>
+            <fileset dir="${SRCDIR}../../webapps/addit/web">
+                <include name="additTooltip.js"/>
+                <include name="additPopup.js"/>
+                <include name="additTooltip.css"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL" description="create a Jar file">
         <jar destfile="linorg.jar">
             <fileset dir="classes" includes="mpi/linorg/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
@@ -74,10 +90,11 @@
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xsd"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xml"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.xsl"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.*"/>
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan.jar lib/xercesImpl-2.9.0.jar"/>
+                <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan.jar lib/xercesImpl-2.9.0.jar lib/saxon8.jar"/>
+                <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
         </jar>
     </target>
