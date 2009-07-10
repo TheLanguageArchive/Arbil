@@ -220,12 +220,12 @@ public class GuiHelper {
                     }
                     if (xslFile != null && xslFile.exists()) {
                         xslUrl = xslFile.toURL();
-                        tempHtmlFile = File.createTempFile(nodeFile.getName(), ".html", xslFile.getParentFile());
+                        tempHtmlFile = File.createTempFile("tmp", ".html", xslFile.getParentFile());
                         tempHtmlFile.deleteOnExit();
                     } else {
                         // copy any dependent files from the jar
                         String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "additTooltip.js", "additPopup.js", "imdi-viewer.css", "additTooltip.css"};
-                        tempHtmlFile = File.createTempFile(nodeFile.getName(), ".html");
+                        tempHtmlFile = File.createTempFile("tmp", ".html");
                         tempHtmlFile.deleteOnExit();
                         for (String dependantFileString : dependentFiles) {
                             File tempDependantFile = new File(tempHtmlFile.getParent() + File.separatorChar + dependantFileString);
@@ -249,9 +249,9 @@ public class GuiHelper {
                     }
                     javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
                     // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(tempHtmlFile));
+                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(tempHtmlFile.getCanonicalPath())));
                     if (!launchInBrowser) {
-                        LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-transformed", tempHtmlFile.toURL());
+                        LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
                     } else {
                         openFileInExternalApplication(tempHtmlFile.toURI());
                     }
