@@ -54,6 +54,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem viewXmlMenuItem;
     private javax.swing.JMenuItem viewInBrrowserMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItemFormatted;
+    private javax.swing.JMenuItem openXmlMenuItemFormatted;
     static private ContextMenu singleInstance = null;
 
     static synchronized public ContextMenu getSingleInstance() {
@@ -81,6 +82,7 @@ public class ContextMenu {
         treePopupMenuSeparator1 = new javax.swing.JSeparator();
         viewXmlMenuItem = new javax.swing.JMenuItem();
         viewXmlMenuItemFormatted = new javax.swing.JMenuItem();
+        openXmlMenuItemFormatted = new javax.swing.JMenuItem();
         viewInBrrowserMenuItem = new javax.swing.JMenuItem();
         validateMenuItem = new javax.swing.JMenuItem();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
@@ -238,8 +240,7 @@ public class ContextMenu {
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewXmlMenuItemActionPerformed(evt);
-
+                GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), false, false);
             }
         });
 
@@ -249,12 +250,19 @@ public class ContextMenu {
         viewXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewXmlXslMenuItemActionPerformed(evt);
-
+                GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, false);
             }
         });
 
         treePopupMenu.add(viewXmlMenuItemFormatted);
+        openXmlMenuItemFormatted.setText("Open IMDI Formatted");
+        openXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, true);
+            }
+        });
+        treePopupMenu.add(openXmlMenuItemFormatted);
         validateMenuItem.setText("Check IMDI format");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -418,13 +426,6 @@ public class ContextMenu {
 //            System.out.println("Error adding location: " + ex.getMessage());
             }
         }
-    }//GEN-LAST:event_addLocalDirectoryMenuItemActionPerformed
-
-    private void viewXmlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_viewXmlMenuItemActionPerformed
-        // TODO add your handling code here:  
-        GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), false);
-
     }//GEN-LAST:event_viewXmlMenuItemActionPerformed
 
     private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -519,13 +520,6 @@ public class ContextMenu {
 
     }//GEN-LAST:event_addMenuMenuSelected
 
-    private void viewXmlXslMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_viewXmlXslMenuItemActionPerformed
-        // TODO add your handling code here:   
-        GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true);
-
-    }//GEN-LAST:event_viewXmlXslMenuItemActionPerformed
-
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_sendToServerMenuItemActionPerformed
         // TODO add your handling code here:
@@ -554,14 +548,6 @@ public class ContextMenu {
     }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
 
     private void openFileInBrowser(ImdiTreeObject[] selectedNodes) {
-        boolean awtDesktopFound = false;
-        try {
-            Class.forName("java.awt.Desktop");
-            awtDesktopFound = true;
-        } catch (ClassNotFoundException cnfE) {
-            awtDesktopFound = false;
-            System.out.println("java.awt.Desktop class not found");
-        }
         for (ImdiTreeObject currentNode : selectedNodes) {
             try {
                 URI targetUri = null;
@@ -570,43 +556,7 @@ public class ContextMenu {
                 } else {
                     targetUri = currentNode.getURL().toURI();
                 }
-                if (awtDesktopFound) {
-                    try {
-                        Desktop.getDesktop().browse(targetUri);
-                    } catch (MalformedURLException muE) {
-                        muE.printStackTrace();
-                    } catch (IOException ioE) {
-                        ioE.printStackTrace();
-                    }
-                } else {
-                    try {
-                        String osNameString = System.getProperty("os.name").toLowerCase();
-                        String openCommand = "";
-                        if (osNameString.indexOf("windows") != -1 || osNameString.indexOf("nt") != -1) {
-                            openCommand = "cmd /c start ";
-                        }
-                        if (osNameString.equals("windows 95") || osNameString.equals("windows 98")) {
-                            openCommand = "command.com /C start ";
-                        }
-                        if (osNameString.indexOf("mac") != -1) {
-                            openCommand = "open ";
-                        }
-                        if (osNameString.indexOf("linux") != -1) {
-                            openCommand = "gnome-open ";
-                        }
-                        String execString = openCommand + targetUri;
-                        System.out.println(execString);
-                        Process launchedProcess = Runtime.getRuntime().exec(execString);
-                        BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
-                        String line;
-                        while ((line = errorStreamReader.readLine()) != null) {
-                            System.out.println("Launched process error stream: \"" + line + "\"");
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        break; // there is nothing else to try atm so exit the loop
-                    }
-                }
+                GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
             } catch (URISyntaxException usE) {
                 usE.printStackTrace();
             }
@@ -658,6 +608,7 @@ public class ContextMenu {
         pasteMenuItem1.setVisible(false);
         viewXmlMenuItem.setVisible(false);
         viewXmlMenuItemFormatted.setVisible(false);
+        openXmlMenuItemFormatted.setVisible(false);
         viewInBrrowserMenuItem.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
@@ -703,6 +654,7 @@ public class ContextMenu {
                 }
                 viewXmlMenuItem.setVisible(!nodeIsImdiChild);
                 viewXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
+                openXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
                 validateMenuItem.setVisible(!nodeIsImdiChild);
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 // set up the favourites menu                
