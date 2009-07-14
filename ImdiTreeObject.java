@@ -29,6 +29,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
  */
 public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
+
     public static IMDIDom api = new IMDIDom();
 //    static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
@@ -57,6 +58,7 @@ public class ImdiTreeObject implements Comparable {
     private boolean isFavourite;
     public boolean autoLoadChildNodes = false;
     public Vector<String[]> addQueue;
+    public boolean scrollToRequested = false;
 //    public Vector<ImdiTreeObject> mergeQueue;
 //    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
     private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
