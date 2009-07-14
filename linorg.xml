@@ -96,7 +96,7 @@
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.*"/>
             <manifest>
                 <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure-1.5.jar lib/imdiapi-1.0.5.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
+                <attribute name="Class-Path" value="lib/corpusstructure-1.5.jar lib/imdiapi-1.0.5.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
                 <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
         </jar>
