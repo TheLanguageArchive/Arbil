@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/linorg/" href="arbil-testing.jnlp">
+    <information>
+        <title>Arbil Testing</title>
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/linorg/arbilTesting128x128.png" />
+        <offline-allowed/>
+        <shortcut online="false">
+            <desktop/>
+            <menu submenu="Max Planck Institute for Psycholinguistics"/>
+        </shortcut>
+        <vendor>Max Planck Institute for Psycholinguistics</vendor>
+        <homepage href=""/>
+        <description>Arbil is a local metadata organising tool for researchers</description>
+        <description kind="short">Linguistic Organiser</description>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+"/>
+        <jar href="arbil-0-3-15670M.jar" main="true" download="eager"/>
+        <jar href="lib/corpusstructure-1.5.jar" download="eager"/>
+        <jar href="lib/imdiapi-1.0.5.jar" download="eager"/>
+        <jar href="lib/log4j-1.2.14.jar" download="eager"/>
+        <jar href="lib/saxon8.jar" download="eager"/>
+        <jar href="lib/saxon8-dom.jar" download="eager"/>
+        <jar href="lib/typecheck.jar" download="eager"/>
+        <jar href="lib/xalan-2.6.0.jar" download="eager"/>
+        <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
+    </resources>
+    <application-desc main-class="mpi.linorg.LinorgFrame">
+    </application-desc>
+</jnlp>
