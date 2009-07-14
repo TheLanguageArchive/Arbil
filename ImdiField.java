@@ -10,11 +10,9 @@ import java.util.Hashtable;
  */
 public class ImdiField {
 
-    static public ImdiVocabularies imdiVocabularies = new ImdiVocabularies();
     public ImdiTreeObject parentImdi;
     public String xmlPath;
     private String translatedPath = null;
-//        public String nodeName;
     public String fieldValue = "";
     public String fieldID;
     private String vocabularyKey;
@@ -29,7 +27,6 @@ public class ImdiField {
         parentImdi = localParentImdi;
         fieldValue = tempValue;
         xmlPath = tempPath;
-    //translatedPath = translateFieldName(tempPath + siblingSpacer);
     }
 
     public boolean isLongField() {
@@ -62,6 +59,7 @@ public class ImdiField {
         if (!this.fieldValue.equals(fieldValue)) {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
             this.fieldValue = fieldValue;
+            new FieldChangeTriggers().actOnChange(this);
             parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
             isLongField = -1;
@@ -91,7 +89,7 @@ public class ImdiField {
 
     public Enumeration<ImdiVocabularies.VocabularyItem> getLanguageList() { // TODO: move this url to somewhere appropriate (preferably in the imdi file)
 //        return a list if objects 
-        return imdiVocabularies.getVocabulary(parentImdi, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").vocabularyItems.elements();
+        return ImdiVocabularies.getSingleInstance().getVocabulary(this, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").vocabularyItems.elements();
     }
 
     public ImdiVocabularies.Vocabulary getVocabulary() {
@@ -102,7 +100,18 @@ public class ImdiField {
 //        if (vocabularyIsOpen && fieldValue != null && fieldValue.length() > 0) {
 //            imdiVocabularies.addVocabularyEntry(parentImdi, vocabularyKey, fieldValue);
 //        }
-        return imdiVocabularies.getVocabulary(parentImdi, vocabularyKey);
+        return ImdiVocabularies.getSingleInstance().getVocabulary(this, vocabularyKey);
+    }
+
+    public ImdiField[] getSiblingField(String pathString) {
+        System.out.println("getSiblingField: " + pathString);
+        for (ImdiField[] tempField : parentImdi.getFields().values().toArray(new ImdiField[][]{})) {
+            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
+            if (tempField[0].getFullXmlPath().equals(pathString)) {
+                return tempField;
+            }
+        }
+        return null;
     }
 
     public boolean isDisplayable() {
@@ -115,7 +124,7 @@ public class ImdiField {
             Object linkAttribute = fieldAttributes.get("Link");
             if (linkAttribute != null) {
                 vocabularyKey = linkAttribute.toString();
-                imdiVocabularies.getVocabulary(parentImdi, vocabularyKey);
+                ImdiVocabularies.getSingleInstance().getVocabulary(this, vocabularyKey);
             }
         }
     // end set up the vocabularies
@@ -179,12 +188,12 @@ public class ImdiField {
         if (lastValue != null) {
             if (!lastValue.equals(keyName)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name
-                    // TODO: resolve how to log key name changes
-                    GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyName, "editkeyname");
-                    fieldAttributes.put("Name", keyName);
-                    parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
-                    fieldNeedsSaveToDisk = true;
-                    getTranslateFieldName();
+                // TODO: resolve how to log key name changes
+                GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyName, "editkeyname");
+                fieldAttributes.put("Name", keyName);
+                parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
+                fieldNeedsSaveToDisk = true;
+                getTranslateFieldName();
 //                }
             }
         }
