@@ -251,45 +251,4 @@ public class ImdiTree extends JTree {
 //        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
 //        scrollToNode(targetImdiNode);
 //    }
-
-    public boolean scrollToNode(ImdiTreeObject targetImdiNode) {
-        boolean returnValue = false;
-        System.out.println("scrollToNode: " + targetImdiNode);
-//        DefaultTreeModel treeModel = 
-        // get imdi object 
-//        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
-//        if (targetImdiNode.isImdiChild()) {
-//            // get the dom parent
-//            ImdiTreeObject parentImdiNode = targetImdiNode.getParentDomNode();
-//            System.out.println("parentImdiNode: " + parentImdiNode);
-//            // get parent tree node 
-//            for (Enumeration registeredContainers = parentImdiNode.getRegisteredContainers(); registeredContainers.hasMoreElements();) {
-//                Object currentContainer = registeredContainers.nextElement();
-//                System.out.println("parentImdiNode registeredContainers: " + currentContainer);
-//                if (currentContainer instanceof DefaultMutableTreeNode) {
-//                    // refresh the tree for the node
-//                    // refresh the parent tree (including the target node)
-//                    GuiHelper.treeHelper.loadAndRefreshDescendantNodes((DefaultMutableTreeNode) currentContainer);
-//                }
-//            }
-//        }
-        // get tree node 
-        for (Object currentContainer : targetImdiNode.getRegisteredContainers()) {
-            System.out.println("targetImdiNode registeredContainers: " + currentContainer);
-            if (currentContainer instanceof DefaultMutableTreeNode) {
-                returnValue = true;
-                final TreePath targetTreePath = new TreePath(((DefaultMutableTreeNode) currentContainer).getPath());
-//                System.out.println("trying to scroll to" + targetTreePath);
-                SwingUtilities.invokeLater(new Runnable() {
-
-                    public void run() {
-                        System.out.println("scrollToNode targetTreePath: " + targetTreePath);
-                        scrollPathToVisible(targetTreePath);
-                        setSelectionPath(targetTreePath);
-                    }
-                });
-            }
-        }
-        return returnValue;
-    }
 }
