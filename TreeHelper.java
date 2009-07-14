@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 
 /**
  * Document   : TreeHelper
@@ -55,6 +56,16 @@ public class TreeHelper {
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
         loadLocationsList();
+    }
+
+    public ImdiTree getTreeForNode(DefaultMutableTreeNode nodeToTest) {
+        if (nodeToTest.getRoot().equals(remoteCorpusRootNode)) {
+            return remoteCorpusTree;
+        }
+        if (nodeToTest.getRoot().equals(localCorpusRootNode)) {
+            return localCorpusTree;
+        }
+        return localDirectoryTree;
     }
 
     public DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest) {
@@ -196,10 +207,11 @@ public class TreeHelper {
                 updateTreeNodeChildren((DefaultMutableTreeNode) currentContainer);
             }
         }
-        if (parentImdiNode.isSession() || parentImdiNode.isImdiChild()) {
-            // recursively load the tree nodes of the children
-            for (Enumeration<ImdiTreeObject> childNodesEnum = parentImdiNode.getChildEnum(); childNodesEnum.hasMoreElements();) {
-                updateTreeNodeChildren(childNodesEnum.nextElement());
+        for (Enumeration<ImdiTreeObject> childNodesEnum = parentImdiNode.getChildEnum(); childNodesEnum.hasMoreElements();) {
+            // recursively load the tree nodes of the child nodes
+            ImdiTreeObject currentChild = childNodesEnum.nextElement();
+            if (currentChild.isImdiChild()) {
+                updateTreeNodeChildren(currentChild);
             }
         }
     }
@@ -218,7 +230,7 @@ public class TreeHelper {
     }
     // check that all child nodes are attached and sorted, removing any extranious nodes found
 
-    private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, Vector<String> childUrls) {
+    private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, Vector<String> childUrls, Vector<DefaultMutableTreeNode> scrollToRequests) {
 //        System.out.println("updateTreeNodeChildren");
         DefaultTreeModel treeModel = getModelForNode(parentNode);
         if (parentNode.getUserObject() instanceof ImdiTreeObject && parentNode.getChildCount() > 0) {
@@ -273,7 +285,7 @@ public class TreeHelper {
 //            }
             removeAndDetatchDescendantNodes(currentChildNode);
         }
-        sortChildNodes(parentNode, sortedChildren);
+        sortChildNodes(parentNode, sortedChildren, scrollToRequests);
     }
 
     private void getRootNodeArrays(Vector<String> remoteCorpusRootUrls, Vector<String> localCorpusRootUrls, Vector<String> localDirectoryRootUrls) {
@@ -311,6 +323,7 @@ public class TreeHelper {
 
                 @Override
                 public void run() {
+                    Vector<DefaultMutableTreeNode> scrollToRequests = new Vector<DefaultMutableTreeNode>();
 //                    setPriority(Thread.NORM_PRIORITY - 1);
                     while (treeNodeSortQueue.size() > 0) {
                         DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
@@ -326,18 +339,34 @@ public class TreeHelper {
                                     childUrls.add(childImdiObject.getUrlString());
 //                                    System.out.println("adding child to update list: " + childImdiObject.getUrlString());
                                 }
-                                updateTreeNodeChildren(currentTreeNode, childUrls);
+                                updateTreeNodeChildren(currentTreeNode, childUrls, scrollToRequests);
                             } else {
                                 // assume that this is a root node so update the root nodes                              
                                 Vector<String> remoteCorpusRootUrls = new Vector();
                                 Vector<String> localCorpusRootUrls = new Vector();
                                 Vector<String> localDirectoryRootUrls = new Vector();
                                 getRootNodeArrays(remoteCorpusRootUrls, localCorpusRootUrls, localDirectoryRootUrls);
-                                updateTreeNodeChildren(remoteCorpusRootNode, remoteCorpusRootUrls);
-                                updateTreeNodeChildren(localCorpusRootNode, localCorpusRootUrls);
-                                updateTreeNodeChildren(localDirectoryRootNode, localDirectoryRootUrls);
+                                updateTreeNodeChildren(remoteCorpusRootNode, remoteCorpusRootUrls, scrollToRequests);
+                                updateTreeNodeChildren(localCorpusRootNode, localCorpusRootUrls, scrollToRequests);
+                                updateTreeNodeChildren(localDirectoryRootNode, localDirectoryRootUrls, scrollToRequests);
                             }
 //                                sortChildNodes(currentTreeNode);
+                        }
+                    }
+                    if (scrollToRequests.size() > 0) {
+                        // clear the tree selection
+                        TreeHelper.getSingleInstance().remoteCorpusTree.clearSelection();
+                        TreeHelper.getSingleInstance().localCorpusTree.clearSelection();
+                        TreeHelper.getSingleInstance().localDirectoryTree.clearSelection();
+                    }
+                    for (DefaultMutableTreeNode currentScrollToNode : scrollToRequests) {
+                        TreePath targetTreePath = new TreePath((currentScrollToNode).getPath());
+                        if (targetTreePath != null) {
+                            System.out.println("scrollToNode targetTreePath: " + targetTreePath);
+                            ImdiTree imdiTree = getTreeForNode(currentScrollToNode);
+                            imdiTree.expandPath(targetTreePath.getParentPath());
+                            imdiTree.addSelectionPath(targetTreePath);
+                            imdiTree.scrollPathToVisible(targetTreePath);
                         }
                     }
                     treeNodeSortQueueRunning = false;
@@ -346,7 +375,7 @@ public class TreeHelper {
         }
     }
 
-    private void sortChildNodes(DefaultMutableTreeNode parentNode, ArrayList<DefaultMutableTreeNode> currentChildren) {
+    private void sortChildNodes(DefaultMutableTreeNode parentNode, ArrayList<DefaultMutableTreeNode> currentChildren, Vector<DefaultMutableTreeNode> scrollToRequests) {
 //        System.out.println("sortChildNodes: " + parentNode.getUserObject().toString());
         // resort the branch since the node name may have changed
         DefaultTreeModel treeModel = getModelForNode(parentNode);
@@ -406,6 +435,14 @@ public class TreeHelper {
             boolean childCanHaveChildren = ((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).canHaveChildren();
             currentChildren.get(childCounter).setAllowsChildren(childCanHaveChildren || currentChildren.get(childCounter).getChildCount() > 0);
             treeModel.nodeChanged(currentChildren.get(childCounter));
+            if (((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).scrollToRequested) {
+                scrollToRequests.add((DefaultMutableTreeNode) currentChildren.get(childCounter));
+                ((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).scrollToRequested = false;
+            }
+        }
+        if (parentNode.getUserObject() instanceof ImdiTreeObject && ((ImdiTreeObject) parentNode.getUserObject()).scrollToRequested) {
+            scrollToRequests.add(parentNode);
+            ((ImdiTreeObject) parentNode.getUserObject()).scrollToRequested = false;
         }
         // update the string and icon etc for the parent node
         treeModel.nodeChanged(parentNode);
@@ -686,17 +723,9 @@ public class TreeHelper {
     public void jumpToSelectionInTree(boolean silent, ImdiTreeObject cellImdiNode) {
         System.out.println("jumpToSelectionInTree: " + cellImdiNode);
         if (cellImdiNode != null) {
-            TreeHelper.getSingleInstance().remoteCorpusTree.clearSelection();
-            TreeHelper.getSingleInstance().localCorpusTree.clearSelection();
-            TreeHelper.getSingleInstance().localDirectoryTree.clearSelection();
-            boolean foundInRemoteCorpus = TreeHelper.getSingleInstance().remoteCorpusTree.scrollToNode(cellImdiNode);
-            boolean foundInLocalCorpus = TreeHelper.getSingleInstance().localCorpusTree.scrollToNode(cellImdiNode);
-            boolean foundInLocalDirectory = TreeHelper.getSingleInstance().localDirectoryTree.scrollToNode(cellImdiNode);
-            if (!foundInRemoteCorpus && !foundInLocalCorpus && !foundInLocalDirectory) {
-                if (!silent) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The selected node has not been loaded in the tree.\nUntil a search is provided for this you will need to browse the tree to load the required node", "Jump to in Tree");
-                }
-            }
+            cellImdiNode.scrollToRequested = true;
+//            cellImdiNode.clearIcon();
+            updateTreeNodeChildren(cellImdiNode);
         } else {
             if (!silent) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The selected cell has not value or is not associated with a node in the tree", "Jump to in Tree");
