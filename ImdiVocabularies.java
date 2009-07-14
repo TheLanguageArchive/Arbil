@@ -2,7 +2,6 @@ package mpi.linorg;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -15,20 +14,10 @@ public class ImdiVocabularies {
 
     Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
 
-    public ImdiVocabularies() {
-//        parseRemoteFile("/home/petwit/IMDI-Tools/Profiles/local/DBD_Profile.Profile.xml");
-//        parseRemoteFile("http://www.mpi.nl/world/corpus/HTMLcorpusContent.html");
-//        parseRemoteFile("http:///www.mpi.nl/world/corpus/HTMLcorpusContent.html");
-//        parseRemoteFile("http:////www.mpi.nl/world/corpus/HTMLcorpusContent.html");
-//        getVocabulary("http://www.mpi.nl/IMDI/Schema/Continents.xml");
-//        System.exit(0);
-    }
-
-//    private void useIMDIVocab(String vocabularyLocation) {        
-    // this has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
+    // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
     // every time this is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else 
-//        mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
-    //cv.cslist2array(vocabularyLocation)
+    // mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
+    // cv.cslist2array(vocabularyLocation)
     // the output of the following looks similar however they differ slightly and only a few have comments
 //        System.out.println("CVentries: "+cv.getCVentries());
 //        System.out.println("NameEntries: "+cv.getNameEntries());
@@ -38,6 +27,14 @@ public class ImdiVocabularies {
 //        System.out.println("DescriptionEntries: "+cv.getDescriptionEntries());
 //        System.out.println("Entries: "+cv.getEntries());      
 //    }
+    static private ImdiVocabularies singleInstance = null;
+
+    static synchronized public ImdiVocabularies getSingleInstance() {
+        if (singleInstance == null) {
+            singleInstance = new ImdiVocabularies();
+        }
+        return singleInstance;
+    }
 
     public boolean vocabularyContains(String vocabularyLocation, String valueString) {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
@@ -51,48 +48,29 @@ public class ImdiVocabularies {
         }
     }
 
-    public Vocabulary getVocabulary(ImdiTreeObject containingImdiObject, String vocabularyLocation) {
+    public Vocabulary getVocabulary(ImdiField originatingImdiField, String vocabularyLocation) {
         if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
             return null;
         }
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
-//        Vector vocabularyList;
-//        if (vocabulariesTable.containsKey(vocabularyLocation)) {
-//            return (Vector) vocabulariesTable.get(vocabularyLocation);
-//        } else {
-//            vocabularyList = new Vector();
-//            vocabularyList.add("time: " + System.currentTimeMillis());
-//            vocabularyList.add("time: " + System.currentTimeMillis());
-//            vocabularyList.add("time: " + System.currentTimeMillis());
-//            vocabularyList.add("time: " + System.currentTimeMillis());
-//            vocabularyList.add("time: " + System.currentTimeMillis());
-//            vocabularyList.add("time: " + System.currentTimeMillis());
-//            vocabulariesTable.put(vocabularyLocation, vocabularyList);
-//        }
         Vocabulary tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
             Vocabulary returnValue = null;
             if (tempVocab.vocabularyRedirectField != null) {
-                for (ImdiField[] tempField : containingImdiObject.getFields().values().toArray(new ImdiField[][]{})) {
-                    if (tempVocab.vocabularyRedirectField != null) {
-                        if (tempField[0].xmlPath.equals(tempVocab.vocabularyRedirectField)) {
-                            String redirectFieldString = tempField[0].toString();
-                            Vocabulary tempVocabulary = tempField[0].getVocabulary();
-                            VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
-                            System.out.println("redirectFieldString: " + redirectFieldString);
-                            if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
-                                System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
-                                String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
-                                returnValue = getVocabulary(containingImdiObject, correctedUrl);
-                            }
-                        }
+                if (tempVocab.vocabularyRedirectField != null) {
+                    ImdiField[] tempField = originatingImdiField.getSiblingField(tempVocab.vocabularyRedirectField);
+                    String redirectFieldString = tempField[0].toString();
+                    // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
+                    Vocabulary tempVocabulary = tempField[0].getVocabulary();
+                    VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
+                    System.out.println("redirectFieldString: " + redirectFieldString);
+                    if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
+                        System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
+                        String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
+                        returnValue = getVocabulary(originatingImdiField, correctedUrl);
                     }
-//                    System.out.println("tempVocab.vocabularyRedirectField: " + tempVocab.vocabularyRedirectField);
-//                    System.out.println("tempField: " + tempField[0]);
-//                    System.out.println("tempField: " + tempField[0].xmlPath);
-//                    System.out.println("tempField: " + tempField[0].getTranslateFieldName());
                 }
             }
             if (returnValue == null) {
@@ -108,7 +86,6 @@ public class ImdiVocabularies {
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
             String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
-//            new File(cachePath).delete(); // TODO: remove me!!!
             if (!new File(cachePath).exists()) {
                 String backupPath = "/mpi/linorg/resources/IMDI/FallBack/" + new File(cachePath).getName();
                 System.out.println("backupPath: " + backupPath);
@@ -117,12 +94,6 @@ public class ImdiVocabularies {
                     cachePath = backUp.getFile();
                 }
             }
-//            if (!new File(cachePath).exists()) {
-//                if (!missingVocabMessageShown && GuiHelper.linorgWindowManager.linorgFrame != null && GuiHelper.linorgWindowManager.linorgFrame.isShowing()) {
-//                    missingVocabMessageShown = true;
-//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be accessed.\nSome fields may not show all options.");
-//                }
-//            }
             System.out.println("parseRemoteFile: " + cachePath);
             Vocabulary vocabulary = new Vocabulary(vocabRemoteUrl);
             vocabulariesTable.put(vocabRemoteUrl, vocabulary);
@@ -136,27 +107,34 @@ public class ImdiVocabularies {
                 xmlReader.parse(cachePath);
             } catch (Exception ex) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
-//                    brokenVocabMessageShown = true;
-//                }
-            //GuiHelper.linorgBugCatcher.logError(ex);
-//                System.out.println("Deleting file presumed erroneous");
-//                new File(cachePath).delete(); // delete the file on the assumption that it is corrupt
-            // if the vocab could not be loaded then add the key to prevent retries and set the value to null to indicate that there was an error
-//                System.out.println("Inserting null vocab to prevent repeated server hits: " + vocabRemoteUrl);
-//                vocabulariesTable.put(vocabRemoteUrl, null); // prevent further attempts in this application instance
-//            System.out.println(ex.getMessage());
             }
-//            System.out.println("vocabularyList: " + vocabularyList);
         }
     }
 
     private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
         Vocabulary collectedVocab;
+        VocabularyItem currentVocabItem = null;
 
         public SaxVocabularyHandler(Vocabulary vocabList) {
             super();
             collectedVocab = vocabList;
+        }
+
+        @Override
+        public void characters(char[] charArray, int start, int length) {
+            if (currentVocabItem != null) {
+                String nodeContents = "";
+                for (int charCounter = start; charCounter < start + length; charCounter++) {
+                    nodeContents = nodeContents + charArray[charCounter];
+                }
+                currentVocabItem.descriptionString = nodeContents;
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) {
+            currentVocabItem = null;
         }
 
         @Override
@@ -170,9 +148,8 @@ public class ImdiVocabularies {
                 String vocabName = atts.getValue("Value");
                 String vocabCode = atts.getValue("Code");
                 String followUpVocab = atts.getValue("FollowUp");
-                if (vocabName != null) {
-                    collectedVocab.vocabularyItems.add(new VocabularyItem(vocabName, vocabCode, followUpVocab));
-                }
+                currentVocabItem = new VocabularyItem(vocabName, vocabCode, followUpVocab);
+                collectedVocab.vocabularyItems.add(currentVocabItem);
             }
         }
     }
