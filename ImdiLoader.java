@@ -148,10 +148,8 @@ public class ImdiLoader {
 
                                     currentImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
-                                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject);
-//                                    addedImdiObject.autoLoadChildNodes = true;
-//                                    addedImdiObject.loadChildNodes();
-                                    TreeHelper.getSingleInstance().localCorpusTree.scrollToNode(addedImdiObject);
+                                    addedImdiObject.scrollToRequested = true;
+                                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
                                 } else {
                                     if (currentImdiObject.autoLoadChildNodes) {
                                         currentImdiObject.loadChildNodes();
