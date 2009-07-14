@@ -194,8 +194,8 @@ public class LinorgFavourites {
 //        }
 
         Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
-        for (Enumeration<ImdiField[]> templateFeildEnum = templateImdiObject.getFields().elements(); templateFeildEnum.hasMoreElements();) {
-            ImdiField[] currentTemplateFields = templateFeildEnum.nextElement();
+        for (Enumeration<ImdiField[]> templateFieldEnum = templateImdiObject.getFields().elements(); templateFieldEnum.hasMoreElements();) {
+            ImdiField[] currentTemplateFields = templateFieldEnum.nextElement();
             if (currentTemplateFields.length > 0) {
                 ImdiField[] targetNodeFields = targetFieldsHash.get(currentTemplateFields[0].getTranslateFieldName());
 
