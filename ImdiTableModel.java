@@ -38,6 +38,9 @@ public class ImdiTableModel extends AbstractTableModel {
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
     String[] singleNodeViewHeadings = new String[]{"IMDI Field", "Value"};
+    private String[] columnNames = new String[0];
+    private Object[][] data = new Object[0][0];
+    Color cellColour[][] = new Color[0][0];
 
     public ImdiTableModel() {
         tableFieldView = ImdiFieldViews.getSingleInstance().getCurrentGlobalView().clone();
@@ -639,9 +642,9 @@ public class ImdiTableModel extends AbstractTableModel {
         // update the table model, note that this could be more specific, ie. just row or all it the columns have changed
         //fireTableDataChanged();
         sortTableRows(columnNamesTemp, dataTemp);
-        cellColour = setCellColours(dataTemp);
         columnNames = columnNamesTemp;
         maxColumnWidths = maxColumnWidthsTemp;
+        cellColour = setCellColours(dataTemp);
         Object[][] prevousData = data;
         data = dataTemp;
         if (previousColumnCount != getColumnCount() || prevousData.length != data.length) {
@@ -661,9 +664,6 @@ public class ImdiTableModel extends AbstractTableModel {
             }
         }
     }
-    private String[] columnNames = new String[0];
-    private Object[][] data = new Object[0][0];
-    Color cellColour[][] = new Color[0][0];
 
     public int getColumnCount() {
         return columnNames.length;
@@ -757,7 +757,6 @@ public class ImdiTableModel extends AbstractTableModel {
 ////        }
 ////        fireTableCellUpdated(row, col);
 //    }
-
     public void sortByColumn(int columnIndex) {
         // TODO: sort columns
 //        System.out.println("sortByColumn: " + columnIndex);
