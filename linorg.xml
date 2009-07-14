@@ -5,7 +5,7 @@
         <property name="BUILDDIR" value="classes"/>
         <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
     </target>
-    <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run" description="clean, build, jar and run">
+    <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run, getCurrentJnlp" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
     <target name="clean" description="remove intermediate files">
@@ -23,6 +23,10 @@
                 <fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>
             </classpath>
         </javac>
+    </target>
+    <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp from the web server (this is only only used so that the copy in svn is kept up to date)">
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil.jnlp" dest="${SRCDIR}mpi/linorg/arbil.jnlp"/>
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp" dest="${SRCDIR}mpi/linorg/arbil-testing.jnlp"/>
     </target>
     <target name="getFallbackFiles" description="download the latest schema and controlled vocabularies from the web server">
         <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
