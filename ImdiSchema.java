@@ -119,11 +119,11 @@ public class ImdiSchema {
 
     private Vector getSubnodesFromTemplatesDir(String nodepath) {
         Vector<String[]> returnVector = new Vector<String[]>();
-        System.out.println("getSubnodesOf: " + nodepath);
+//        System.out.println("getSubnodesOf: " + nodepath);
         String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
         nodepath = nodepath.replaceAll("\\(\\d\\)", "\\(x\\)");
-        System.out.println("nodepath: " + nodepath);
-        System.out.println("targetNodePath: " + targetNodePath);
+//        System.out.println("nodepath: " + nodepath);
+//        System.out.println("targetNodePath: " + targetNodePath);
         String[] templatesArray = {
             "METATRANSCRIPT.Catalogue.xml",
             "METATRANSCRIPT.Corpus.Description.xml",
@@ -403,7 +403,7 @@ public class ImdiSchema {
                     {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
                     {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile"}
                 }) {
-            if (ImdiField.imdiVocabularies.vocabularyContains(formatType[0], mimeType)) {
+            if (ImdiVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
                 System.out.println("NodeType: " + formatType[1]);
 //                    if (mimeType.equals("image/jpeg")) {
                 return formatType[1];
@@ -695,6 +695,9 @@ public class ImdiSchema {
         }
         if (nodePath.contains(".METATRANSCRIPT.Session.Resources.Source")) {
             return "Sources";
+        }
+        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.LexiconResource")) {
+            return "LexiconResource";
         }
         return null;
     }
