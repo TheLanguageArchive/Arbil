@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
@@ -89,15 +89,19 @@ public class ImdiTree extends JTree {
         this.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
 
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                if (LinorgFrame.previewTable != null) {
-                    // we assume that if the preview table is created then the check box is also
-                    if (LinorgFrame.showSelectionPreviewCheckBoxMenuItem.getState()) {
-                        ((ImdiTableModel) LinorgFrame.previewTable.getModel()).removeAllImdiRows();
-                        GuiHelper.getSingleInstance().addToGridData(LinorgFrame.previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
-                    }
+                if (PreviewSplitPanel.previewTableShown && PreviewSplitPanel.previewTable != null) {
+                    ((ImdiTableModel) PreviewSplitPanel.previewTable.getModel()).removeAllImdiRows();
+                    GuiHelper.getSingleInstance().addToGridData(PreviewSplitPanel.previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
                 }
             }
         });
+
+        // enable tool tips.
+        ToolTipManager.sharedInstance().registerComponent(this);
+        // enable the tree icons
+        this.setCellRenderer(new ImdiTreeRenderer());
+        // enable drag and drop
+        GuiHelper.imdiDragDrop.addDrag(this);
     }
 
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
