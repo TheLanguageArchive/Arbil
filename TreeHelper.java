@@ -299,7 +299,7 @@ public class TreeHelper {
         Collections.sort(locationImdiNodes);
         for (Enumeration<ImdiTreeObject> locationNodesEnum = locationImdiNodes.elements(); locationNodesEnum.hasMoreElements();) {
             ImdiTreeObject currentImdiObject = locationNodesEnum.nextElement();
-            System.out.println("root location: " + currentImdiObject.getUrlString());
+//            System.out.println("root location: " + currentImdiObject.getUrlString());
             // add the locations back to the list so they matches the imdi url format
 //            locationsList.add(currentImdiObject.getUrlString());
             if (!currentImdiObject.isLocal()) {
