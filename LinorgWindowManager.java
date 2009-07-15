@@ -15,9 +15,9 @@ import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
@@ -33,8 +33,7 @@ public class LinorgWindowManager {
 
     Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     Hashtable windowStatesHashtable;
-    JMenu windowMenu;
-    private JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
+    public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
     public JFrame linorgFrame;
     int nextWindowX = 50;
     int nextWindowY = 50;
@@ -53,12 +52,13 @@ public class LinorgWindowManager {
     }
 
     private LinorgWindowManager() {
+        desktopPane = new JDesktopPane();
+        desktopPane.setBackground(new java.awt.Color(204, 204, 204));
+        GuiHelper.imdiDragDrop.addTransferHandler(desktopPane);
     }
 
-    public void setComponents(JMenu jMenu, JFrame linorgFrameLocal, JDesktopPane jDesktopPane) {
-        windowMenu = jMenu;
+    public void loadGuiState(JFrame linorgFrameLocal) {
         linorgFrame = linorgFrameLocal;
-        desktopPane = jDesktopPane;
         try {
             // load the saved states
             windowStatesHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("windowStates");
@@ -80,7 +80,6 @@ public class LinorgWindowManager {
         }
         // set the split pane positions
         loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
-        GuiHelper.imdiDragDrop.addTransferHandler(desktopPane);
     }
 
     public void openAboutPage() {
@@ -202,6 +201,11 @@ public class LinorgWindowManager {
                 loadSplitPlanes(childComponent);
             }
         }
+        if (targetComponent instanceof JPanel) {
+            for (Component childComponent : ((JPanel) targetComponent).getComponents()) {
+                loadSplitPlanes(childComponent);
+            }
+        }
     }
 
     public void saveSplitPlanes(Component targetComponent) {
@@ -213,12 +217,17 @@ public class LinorgWindowManager {
                 saveSplitPlanes(childComponent);
             }
         }
+        if (targetComponent instanceof JPanel) {
+            for (Component childComponent : ((JPanel) targetComponent).getComponents()) {
+                saveSplitPlanes(childComponent);
+            }
+        }
     }
 
     public void saveWindowStates() {
         // loop windowList and make a hashtable of window names with a vector of the imdinodes displayed, then save the hashtable
         try {
-            // collect the main window size and position for saving             
+            // collect the main window size and position for saving
             if (linorgFrame.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
                 windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
             }
@@ -291,13 +300,17 @@ public class LinorgWindowManager {
             public void internalFrameClosed(InternalFrameEvent e) {
                 String windowName = e.getInternalFrame().getName();
                 Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                windowMenu.remove(windowAndMenu[1]);
+                if (ArbilMenuBar.windowMenu != null) {
+                    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+                }
                 windowList.remove(windowName);
                 super.internalFrameClosed(e);
             }
         });
         windowList.put(currentWindowName, new Component[]{windowFrame, windowMenuItem});
-        windowMenu.add(windowMenuItem);
+        if (ArbilMenuBar.windowMenu != null) {
+            ArbilMenuBar.windowMenu.add(windowMenuItem);
+        }
         return currentWindowName;
     }
 
@@ -367,8 +380,8 @@ public class LinorgWindowManager {
                                     if (focusedWindow != null) {
                                         String windowName = focusedWindow.getName();
                                         Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                                        if (windowAndMenu != null) {
-                                            windowMenu.remove(windowAndMenu[1]);
+                                        if (windowAndMenu != null && ArbilMenuBar.windowMenu != null) {
+                                            ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
                                         }
                                         windowList.remove(windowName);
                                         desktopPane.remove(focusedWindow);
