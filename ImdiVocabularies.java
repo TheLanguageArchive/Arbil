@@ -36,6 +36,9 @@ public class ImdiVocabularies {
         return singleInstance;
     }
 
+    private ImdiVocabularies() {
+    }
+
     public boolean vocabularyContains(String vocabularyLocation, String valueString) {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
@@ -61,15 +64,17 @@ public class ImdiVocabularies {
             if (tempVocab.vocabularyRedirectField != null) {
                 if (tempVocab.vocabularyRedirectField != null) {
                     ImdiField[] tempField = originatingImdiField.getSiblingField(tempVocab.vocabularyRedirectField);
-                    String redirectFieldString = tempField[0].toString();
-                    // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
-                    Vocabulary tempVocabulary = tempField[0].getVocabulary();
-                    VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
-                    System.out.println("redirectFieldString: " + redirectFieldString);
-                    if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
-                        System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
-                        String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
-                        returnValue = getVocabulary(originatingImdiField, correctedUrl);
+                    if (tempField != null) {
+                        String redirectFieldString = tempField[0].toString();
+                        // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
+                        Vocabulary tempVocabulary = tempField[0].getVocabulary();
+                        VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
+                        System.out.println("redirectFieldString: " + redirectFieldString);
+                        if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
+                            System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
+                            String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
+                            returnValue = getVocabulary(originatingImdiField, correctedUrl);
+                        }
                     }
                 }
             }
@@ -85,7 +90,7 @@ public class ImdiVocabularies {
 
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
-            String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
+            String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
             if (!new File(cachePath).exists()) {
                 String backupPath = "/mpi/linorg/resources/IMDI/FallBack/" + new File(cachePath).getName();
                 System.out.println("backupPath: " + backupPath);
