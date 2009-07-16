@@ -179,7 +179,7 @@ public class LinorgSessionStorage {
             System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
         }
         System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
-        return updateCache(pathString, fileNeedsUpdate);
+        return updateCache(pathString, fileNeedsUpdate, new DownloadAbortFlag());
     }
 
     /**
@@ -188,10 +188,10 @@ public class LinorgSessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public String updateCache(String pathString, boolean expireCacheCopy) {
+    public String updateCache(String pathString, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
         //TODO: There will need to be a way to expire the files in the cache.
         String cachePath = getSaveLocation(pathString);
-        GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath, expireCacheCopy);
+        GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath, expireCacheCopy, abortFlag);
         return cachePath;
     }
 
@@ -231,7 +231,7 @@ public class LinorgSessionStorage {
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
      */
-    public void saveRemoteResource(String targetUrlString, String destinationPath, boolean expireCacheCopy) {
+    public void saveRemoteResource(String targetUrlString, String destinationPath, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
 //        String targetUrlString = getFullResourcePath();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
         System.out.println("saveRemoteResource: " + targetUrlString);
@@ -257,14 +257,15 @@ public class LinorgSessionStorage {
                     System.out.println("non 200 response, skipping file");
                 } else {
                     File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
-                    int bufferLength = 1024 * 4;
+                    tempFile.deleteOnExit();
+                    int bufferLength = 1024 * 3;
                     FileOutputStream outFile = new FileOutputStream(tempFile); //targetUrlString
                     System.out.println("getting file");
                     InputStream stream = urlConnection.getInputStream();
                     byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
                     int bytesread = 0;
                     int totalRead = 0;
-                    while (bytesread >= 0) {
+                    while (bytesread >= 0 && !abortFlag.abortDownload) {
                         bytesread = stream.read(buffer);
                         totalRead += bytesread;
 //                        System.out.println("bytesread: " + bytesread);
@@ -275,7 +276,7 @@ public class LinorgSessionStorage {
                         outFile.write(buffer, 0, bytesread);
                     }
                     outFile.close();
-                    if (tempFile.length() > 0) {
+                    if (tempFile.length() > 0 && !abortFlag.abortDownload) {
                         if (destinationFile.exists()) {
                             destinationFile.delete();
                         }
