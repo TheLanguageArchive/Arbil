@@ -48,6 +48,7 @@ public class ImportExportDialog {
     private JCheckBox detailsCheckBox;
     private JCheckBox overwriteCheckBox;
     private JProgressBar progressBar;
+    private JLabel diskSpaceLabel;
     JPanel detailsPanel;
     JPanel bottomPanel;
     private JLabel progressFoundLabel;
@@ -62,6 +63,7 @@ public class ImportExportDialog {
     String progressFailedLabelText = "Copy Errors: ";
     String progressXmlErrorsLabelText = "XML Errors: ";
     String resourceCopyErrorsLabelText = "Resource Errors: ";
+    String diskFreeLabelText = "Total Disk Free: ";
     private JButton stopButton;
     private JButton startButton;
 //    JPanel searchPanel;
@@ -78,6 +80,7 @@ public class ImportExportDialog {
     private Vector selectedNodes;
     ImdiTreeObject destinationNode = null;
     File exportDestinationDirectory = null;
+    DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
 
     private void setNodesPanel(ImdiTreeObject selectedNode, JPanel nodePanel) {
         JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
@@ -284,6 +287,7 @@ public class ImportExportDialog {
 
             public void windowClosing(WindowEvent e) {
                 stopSearch = true;
+                downloadAbortFlag.abortDownload = true;
 //                while (threadARunning || threadBRunning) {
 //                    try {
 //                        Thread.sleep(100);
@@ -376,6 +380,7 @@ public class ImportExportDialog {
         progressFailedLabel = new JLabel(progressFailedLabelText);
         progressXmlErrorsLabel = new JLabel(progressXmlErrorsLabelText);
         resourceCopyErrorsLabel = new JLabel(resourceCopyErrorsLabelText);
+        diskSpaceLabel = new JLabel(diskFreeLabelText);
 
         progressAlreadyInCacheLabel.setForeground(Color.darkGray);
         progressFailedLabel.setForeground(Color.red);
@@ -388,6 +393,7 @@ public class ImportExportDialog {
         bottomPanel.add(progressFailedLabel);
         bottomPanel.add(progressXmlErrorsLabel);
         bottomPanel.add(resourceCopyErrorsLabel);
+        bottomPanel.add(diskSpaceLabel);
 
 //        bottomPanel = new JPanel();
 //        bottomPanel.setLayout(new java.awt.GridLayout());
@@ -428,8 +434,9 @@ public class ImportExportDialog {
 
             public void actionPerformed(ActionEvent e) {
                 stopSearch = true;
+                downloadAbortFlag.abortDownload = true;
                 stopButton.setEnabled(false);
-                startButton.setEnabled(true);
+                startButton.setEnabled(false);
             }
         });
     }
@@ -457,6 +464,7 @@ public class ImportExportDialog {
         startButton.setEnabled(selectedNodes.size() > 0);
         // TODO: add a close button?
         stopSearch = false;
+        downloadAbortFlag.abortDownload = false;
     }
     /////////////////////////////////////
     // functions called by the threads //
@@ -527,12 +535,19 @@ public class ImportExportDialog {
 
             public void run() {
 //                setPriority(Thread.NORM_PRIORITY - 1);
+                int freeGbWarningPoint = 3;
                 int xsdErrors = 0;
                 int totalLoaded = 0;
                 int totalErrors = 0;
                 int totalExisting = 0;
                 int resourceCopyErrors = 0;
                 String finalMessageString = "";
+                File directoryForSizeTest;
+                if (exportDestinationDirectory != null) {
+                    directoryForSizeTest = exportDestinationDirectory;
+                } else {
+                    directoryForSizeTest = new File(GuiHelper.linorgSessionStorage.cacheDirectory);
+                }
                 try {
 //                    boolean saveToCache = true;
                     File tempFileForValidator = File.createTempFile("linorg", ".imdi");
@@ -576,7 +591,7 @@ public class ImportExportDialog {
                                     links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
 //                                        links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.CORPUS);
                                     if (links != null) {
-                                        for (int linkCount = 0; linkCount < links.length; linkCount++) {
+                                        for (int linkCount = 0; linkCount < links.length && !stopSearch; linkCount++) {
                                             System.out.println("Link: " + links[linkCount].getRawURL());
                                             String currentLink = links[linkCount].getRawURL().toString();
                                             if (ImdiTreeObject.isStringImdi(currentLink)) {
@@ -588,11 +603,11 @@ public class ImportExportDialog {
                                                     resourceCopyOutput.append(currentLink + "\n");
                                                     String downloadLocation;
                                                     if (exportDestinationDirectory == null) {
-                                                        downloadLocation = GuiHelper.linorgSessionStorage.updateCache(currentLink, false);
+                                                        downloadLocation = GuiHelper.linorgSessionStorage.updateCache(currentLink, false, downloadAbortFlag);
                                                     } else {
                                                         downloadLocation = GuiHelper.linorgSessionStorage.getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                        GuiHelper.linorgSessionStorage.saveRemoteResource(currentLink, downloadLocation, true);
+                                                        GuiHelper.linorgSessionStorage.saveRemoteResource(currentLink, downloadLocation, true, downloadAbortFlag);
                                                     }
                                                     resourceCopyOutput.append(downloadLocation + "\n");
                                                     File downloadedFile = new File(downloadLocation);
@@ -674,6 +689,21 @@ public class ImportExportDialog {
                                 resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
                                 progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
 
+                                int diskFreePercent = (int) (directoryForSizeTest.getFreeSpace() / directoryForSizeTest.getTotalSpace() * 100);
+                                int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
+                                //diskSpaceLabel.setText("Total Disk Use: " + diskFreePercent + "%");
+                                diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
+                                if (freeGbWarningPoint > freeGBytes) {
+                                    progressBar.setIndeterminate(false);
+                                    if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                                            "There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(),
+                                            JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                                        freeGbWarningPoint = freeGBytes - 1;
+                                    } else {
+                                        stopSearch = true;
+                                    }
+                                    progressBar.setIndeterminate(true);
+                                }
 //                                System.out.println("progressFound"+ (getList.size() + totalLoaded));
 //                                System.out.println("progressProcessed"+ totalLoaded);
 //                                System.out.println("progressAlreadyInCache" + totalExisting);
