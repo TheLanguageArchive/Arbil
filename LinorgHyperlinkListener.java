@@ -21,7 +21,9 @@ public class LinorgHyperlinkListener implements HyperlinkListener {
 //            } catch (IOException e) {
 //                System.out.println(e.getMessage());
 //            }
-            LinorgWindowManager.getSingleInstance().openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
+            if (!evt.getURL().toString().toLowerCase().startsWith("javascript")) {
+                LinorgWindowManager.getSingleInstance().openUrlWindowOnce(evt.getURL().toString(), evt.getURL());
+            }
         }
     }
 }
