@@ -213,6 +213,8 @@ public class ImdiLoader {
                     } else {
                         imdiRemoteNodesToInit.add(currentImdiObject);
                     }
+                } else if (!ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString())) {
+                    currentImdiObject.clearIcon();
                 }
             } else if (localNodeText != null) {
                 // update the note text if it has been provided (will only change if not already set)
