@@ -117,10 +117,10 @@ public class MimeHashQueue {
     private void loadMd5sumIndex() {
         System.out.println("MimeHashQueue loadMd5sumIndex");
         try {
-            knownMimeTypes = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("knownMimeTypes");
-            pathToMd5Sums = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("pathToMd5Sums");
-            processedFilesMTimes = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("processedFilesMTimes");
-            md5SumToDuplicates = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("md5SumToDuplicates");
+            knownMimeTypes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("knownMimeTypes");
+            pathToMd5Sums = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("pathToMd5Sums");
+            processedFilesMTimes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("processedFilesMTimes");
+            md5SumToDuplicates = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("md5SumToDuplicates");
             System.out.println("loaded md5 and mime from disk");
         } catch (Exception ex) {
             knownMimeTypes = new Hashtable();
@@ -134,10 +134,10 @@ public class MimeHashQueue {
     private void saveMd5sumIndex() {
         System.out.println("MimeHashQueue saveMd5sumIndex");
         try {
-            GuiHelper.linorgSessionStorage.saveObject(knownMimeTypes, "knownMimeTypes");
-            GuiHelper.linorgSessionStorage.saveObject(pathToMd5Sums, "pathToMd5Sums");
-            GuiHelper.linorgSessionStorage.saveObject(processedFilesMTimes, "processedFilesMTimes");
-            GuiHelper.linorgSessionStorage.saveObject(md5SumToDuplicates, "md5SumToDuplicates");
+            LinorgSessionStorage.getSingleInstance().saveObject(knownMimeTypes, "knownMimeTypes");
+            LinorgSessionStorage.getSingleInstance().saveObject(pathToMd5Sums, "pathToMd5Sums");
+            LinorgSessionStorage.getSingleInstance().saveObject(processedFilesMTimes, "processedFilesMTimes");
+            LinorgSessionStorage.getSingleInstance().saveObject(md5SumToDuplicates, "md5SumToDuplicates");
             System.out.println("saveMd5sumIndex");
         } catch (IOException ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -165,7 +165,7 @@ public class MimeHashQueue {
                         if (currentImdiObject != null) {
                             relevantImdiObjects.add(currentImdiObject);
                         }
-                        if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentFile)) {
+                        if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentFile)) {
                             matchesInCache++;
                         } else {
                             matchesLocalFileSystem++;
