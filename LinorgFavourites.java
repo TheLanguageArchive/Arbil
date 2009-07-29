@@ -30,7 +30,7 @@ public class LinorgFavourites {
     private void loadSelectedTemplates() {
         Vector<String> userFavouritesStrings;
         try {
-            userFavouritesStrings = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("selectedFavourites");
+            userFavouritesStrings = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("selectedFavourites");
         } catch (Exception ex) {
             System.out.println("load selectedFavourites failed: " + ex.getMessage());
             userFavouritesStrings = new Vector<String>();
@@ -78,7 +78,7 @@ public class LinorgFavourites {
 
     public void saveSelectedTemplates() {
         try {
-            GuiHelper.linorgSessionStorage.saveObject(new Vector(userFavourites.keySet()), "selectedFavourites");
+            LinorgSessionStorage.getSingleInstance().saveObject(new Vector(userFavourites.keySet()), "selectedFavourites");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
