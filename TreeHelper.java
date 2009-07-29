@@ -137,7 +137,7 @@ public class TreeHelper {
 
     public void saveLocations() {
         try {
-            GuiHelper.linorgSessionStorage.saveObject(locationsList, "locationsList");
+            LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
             System.out.println("saved locationsList");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -148,7 +148,7 @@ public class TreeHelper {
     public void loadLocationsList() {
         try {
             System.out.println("loading locationsList");
-            locationsList = (Vector<String>) GuiHelper.linorgSessionStorage.loadObject("locationsList");
+            locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
         } catch (Exception ex) {
             System.out.println("load locationsList failed: " + ex.getMessage());
             locationsList = new Vector<String>();
@@ -304,7 +304,7 @@ public class TreeHelper {
 //            locationsList.add(currentImdiObject.getUrlString());
             if (!currentImdiObject.isLocal()) {
                 remoteCorpusRootUrls.add(currentImdiObject.getUrlString());
-            } else if (GuiHelper.linorgSessionStorage.pathIsInsideCache(currentImdiObject.getFile())) {
+            } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentImdiObject.getFile())) {
                 localCorpusRootUrls.add(currentImdiObject.getUrlString());
             } else {
                 localDirectoryRootUrls.add(currentImdiObject.getUrlString());
@@ -589,7 +589,7 @@ public class TreeHelper {
                 }
                 addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
             } else {
-                addedNodeUrl = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
+                addedNodeUrl = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
                 addLocation(addedNodeUrl);
                 applyRootLocations();
             }
