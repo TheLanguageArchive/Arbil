@@ -15,6 +15,7 @@ import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -61,7 +62,7 @@ public class LinorgWindowManager {
         linorgFrame = linorgFrameLocal;
         try {
             // load the saved states
-            windowStatesHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("windowStates");
+            windowStatesHashtable = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("windowStates");
             // set the main window position and size
             linorgFrame.setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
             if (linorgFrame.getExtendedState() == JFrame.ICONIFIED) {
@@ -149,7 +150,7 @@ public class LinorgWindowManager {
 
         try {
             // load the saved windows
-            Hashtable windowListHashtable = (Hashtable) GuiHelper.linorgSessionStorage.loadObject("openWindows");
+            Hashtable windowListHashtable = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("openWindows");
             for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
                 String currentWindowName = windowNamesEnum.nextElement().toString();
                 System.out.println("currentWindowName: " + currentWindowName);
@@ -235,7 +236,7 @@ public class LinorgWindowManager {
             // collect the split pane positions for saving
             saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
             // save the collected states
-            GuiHelper.linorgSessionStorage.saveObject(windowStatesHashtable, "windowStates");
+            LinorgSessionStorage.getSingleInstance().saveObject(windowStatesHashtable, "windowStates");
             // save the windows
             Hashtable windowListHashtable = new Hashtable();
             //(Hashtable) windowList.clone();
@@ -268,7 +269,7 @@ public class LinorgWindowManager {
                 }
             }
             // save the windows
-            GuiHelper.linorgSessionStorage.saveObject(windowListHashtable, "openWindows");
+            LinorgSessionStorage.getSingleInstance().saveObject(windowListHashtable, "openWindows");
 
             System.out.println("saved windowStates");
         } catch (Exception ex) {
