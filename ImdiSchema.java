@@ -6,10 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
@@ -45,6 +41,7 @@ public class ImdiSchema {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
                     //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
                     System.out.println("setting template: " + evt.getActionCommand());
                     selectedTemplateDirectory = new File(evt.getActionCommand());
@@ -64,8 +61,9 @@ public class ImdiSchema {
     }
 
     public void populateTemplatesMenu(JMenu templateMenu) {
+        templateMenu.removeAll();
         ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
-        File templatesDir = new File(GuiHelper.linorgSessionStorage.storageDirectory + "templates");
+        File templatesDir = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "templates");
         if (!templatesDir.exists()) {
             templatesDir.mkdir();
         }
@@ -100,9 +98,16 @@ public class ImdiSchema {
         return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
     }
 
-    private String getNodePath(ImdiTreeObject targetImdiObject) {
+    public static String getNodePath(ImdiTreeObject targetImdiObject) {
+        //TODO: this should probably be moved into the imditreeobject
         String xpath;
-        xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session";
+        if (targetImdiObject.isSession()) {
+            xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session";
+        } else if (targetImdiObject.isCatalogue()) {
+            xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue";
+        } else {
+            xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus";
+        }
         Object[] nodePathArray = ((ImdiTreeObject) targetImdiObject).getUrlString().split("#");
 //        System.out.println("nodePath0: " + nodePathArray[0]);
         if (nodePathArray.length > 1) {
@@ -115,120 +120,6 @@ public class ImdiSchema {
 //            System.out.println("xpath: " + xpath);
         }
         return xpath;
-    }
-
-    private Vector getSubnodesFromTemplatesDir(String nodepath) {
-        Vector<String[]> returnVector = new Vector<String[]>();
-//        System.out.println("getSubnodesOf: " + nodepath);
-        String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
-        nodepath = nodepath.replaceAll("\\(\\d\\)", "\\(x\\)");
-//        System.out.println("nodepath: " + nodepath);
-//        System.out.println("targetNodePath: " + targetNodePath);
-        String[] templatesArray = {
-            "METATRANSCRIPT.Catalogue.xml",
-            "METATRANSCRIPT.Corpus.Description.xml",
-            "METATRANSCRIPT.Corpus.xml",
-            "METATRANSCRIPT.Session.Description.xml",
-            "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml",
-            "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml",
-            "METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml",
-            "METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml",
-            "METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml",
-            "METATRANSCRIPT.Session.MDGroup.Keys.Key.xml",
-            "METATRANSCRIPT.Session.Resources.MediaFile.xml",
-            "METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml",
-            "METATRANSCRIPT.Session.Resources.Source.xml",
-            "METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml",
-            "METATRANSCRIPT.Session.Resources.WrittenResource.xml",
-            "METATRANSCRIPT.Session.xml"
-        };
-        try {
-//            System.out.println("get templatesDirectory");
-            File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
-            if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
-                String[] testingListing = templatesDirectory.list();
-                Arrays.sort(templatesArray);
-                Arrays.sort(testingListing);
-                int linesRead = 0;
-                for (String currentTemplate : templatesArray) {
-//                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
-                    if (testingListing != null) {
-                        if (!testingListing[linesRead].equals(currentTemplate)) {
-                            System.out.println("error: " + currentTemplate + " : " + testingListing[linesRead]);
-                            throw new Exception("error in the templates array");
-                        }
-                    }
-                    linesRead++;
-                }
-                if (testingListing != null) {
-                    if (testingListing.length != linesRead) {
-                        System.out.println(testingListing[linesRead]);
-                        throw new Exception("error missing line in the templates array");
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
-        for (String currentTemplate : templatesArray) {
-            currentTemplate = "." + currentTemplate;
-            if (!currentTemplate.endsWith("Session.xml")) { // sessions cannot be added to a session
-                if (currentTemplate.startsWith(nodepath)) {
-                    if (targetNodePath.replaceAll("[^(]*", "").length() >= currentTemplate.replaceAll("[^(]*", "").length()) {
-                        String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
-                        String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
-//                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
-//                        System.out.println("targetNodePath: " + targetNodePath);
-                        String destinationXPath;
-                        if (currentTemplateXPath.contains(")")) {
-                            destinationXPath = targetNodePath + currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(")") + 1);
-                        } else {
-                            destinationXPath = currentTemplateXPath;
-                        }
-//                        System.out.println("destinationXPath: " + destinationXPath);
-
-                        returnVector.add(new String[]{currentTemplateName, destinationXPath});
-                    }
-                }
-            }
-        }
-        Collections.sort(returnVector, new Comparator() {
-
-            public int compare(Object o1, Object o2) {
-                String value1 = ((String[]) o1)[0];
-                String value2 = ((String[]) o2)[0];
-                return value1.compareTo(value2);
-            }
-        });
-        return returnVector;
-    }
-
-    /**
-     * This function is only a place holder and will be replaced.
-     * @param targetNodeUserObject The imdi node that will receive the new child.
-     * @return An enumeration of Strings for the available child types, one of which will be passed to "listFieldsFor()".
-     */
-    public Enumeration listTypesFor(Object targetNodeUserObject) {
-        // temp method for testing until replaced
-        // TODO: implement this using data from the xsd on the server (server version needs to be updated)
-        Vector childTypes = new Vector();
-        if (targetNodeUserObject instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) targetNodeUserObject).isSession() || ((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
-                String xpath = getNodePath((ImdiTreeObject) targetNodeUserObject);
-                childTypes = getSubnodesFromTemplatesDir(xpath);
-            } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
-                childTypes.add(new String[]{"Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
-                childTypes.add(new String[]{"Corpus Description", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus" + imdiPathSeparator + "Description"});
-                childTypes.add(new String[]{"Catalogue", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue"});
-                childTypes.add(new String[]{"Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
-            }
-//            System.out.println("childTypes: " + childTypes);
-        } else {
-            // corpus can be added to the root node
-            childTypes.add(new String[]{"Unattached Corpus Branch", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus"});
-            childTypes.add(new String[]{"Unattached Session", imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session"});
-        }
-        return childTypes.elements();
     }
 
     /** 
@@ -413,7 +304,7 @@ public class ImdiSchema {
         return null;
     }
 
-    public String insertFromTemplate(File destinationFile, File resourceDirectory, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
+    public String insertFromTemplate(ArbilTemplateManager.ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
         String addedPathString = null;
         String targetXpath = null;
@@ -511,7 +402,7 @@ public class ImdiSchema {
                 targetNode.appendChild(addableNode);
             }
             addedPathString = destinationFile.toURL().toString() + "#" + elementName;
-            String childsMetaNode = pathIsChildNode(elementName);
+            String childsMetaNode = currentTemplate.pathIsChildNode(elementName);
             if (childsMetaNode != null) {
                 addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
             } else {
@@ -572,12 +463,17 @@ public class ImdiSchema {
                     String catalogueLink = catalogueLinkAtt.getNodeValue();
                     childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), catalogueLink), "CatalogueLink"});
                 }
+                Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
+                if (templateOriginatorAtt != null) {
+                    String templateOriginator = templateOriginatorAtt.getNodeValue();
+                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator);
+                }
             }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
-            String childsMetaNode = pathIsChildNode(siblingNodePath);
+            String childsMetaNode = parentNode.currentTemplate.pathIsChildNode(siblingNodePath);
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 String siblingSpacer = "";
@@ -674,31 +570,5 @@ public class ImdiSchema {
             fieldToAdd.finishLoading();
             iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath);
         }
-    }
-
-    public String pathIsChildNode(String nodePath) {
-        // TODO: change this to use a master list of types and populate it from the schema
-        if (nodePath.contains(".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language")) {
-            return "Languages";
-        }
-        if (nodePath.contains(".Languages.Language")) {
-            return "Languages";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.MDGroup.Actors.Actor")) {
-            return "Actors";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.MediaFile")) {
-            return "MediaFiles";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.WrittenResource")) {
-            return "WrittenResources";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.Source")) {
-            return "Sources";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.LexiconResource")) {
-            return "LexiconResource";
-        }
-        return null;
     }
 }
