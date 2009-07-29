@@ -363,7 +363,7 @@ public class ImdiDragDrop {
                                     ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
                                 }
                                 if (!draggedIntoSelf) {
-                                    if (!GuiHelper.linorgSessionStorage.pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile())) {
+                                    if (!LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile())) {
                                         importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
                                     } else {
                                         String targetNodeName;
