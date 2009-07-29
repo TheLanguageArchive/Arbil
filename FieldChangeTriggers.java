@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mpi.linorg;
 
 /**
@@ -12,17 +8,11 @@ package mpi.linorg;
 public class FieldChangeTriggers {
     // the following strings need to be read from a template file or a vocaulary etc
 
-    String[][] triggersArray = {
-//        TODO: read this array from a file int the teplates directory
-        {".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Id", "description"},
-        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id", "description"}
-    };
-
     public void actOnChange(ImdiField changedImdiField) {
         String fieldPath = changedImdiField.getFullXmlPath();
         fieldPath = fieldPath.replaceAll("\\(\\d\\)", "(x)");
         System.out.println("fieldPath: " + fieldPath);
-        for (String[] currentTrigger : triggersArray) {
+        for (String[] currentTrigger : changedImdiField.parentImdi.currentTemplate.triggersArray) {
             if (fieldPath.equals(currentTrigger[0])) {
                 // we now have the path for two fields:
                 // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id
