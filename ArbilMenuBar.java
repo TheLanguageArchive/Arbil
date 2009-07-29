@@ -1,80 +1,91 @@
 package mpi.linorg;
 
+import java.util.Arrays;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 /**
  * ArbilMenuBar.java
  * Created on Jul 9, 2009, 12:01:02 PM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilMenuBar extends javax.swing.JMenuBar {
+public class ArbilMenuBar extends JMenuBar {
 
-    private javax.swing.JMenuItem saveFileMenuItem;
-    private javax.swing.JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
-    private javax.swing.JMenuItem shortCutKeysjMenuItem;
-    private javax.swing.JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
-    private javax.swing.JMenu templatesMenu;
-    private javax.swing.JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
-    private javax.swing.JMenuItem undoMenuItem;
-    private javax.swing.JMenuItem viewFavouritesMenuItem;
-    private javax.swing.JMenu viewMenu;
-    static public javax.swing.JMenu windowMenu;
-    private javax.swing.JMenu optionsMenu;
-    private javax.swing.JMenuItem pasteMenuItem;
-    private javax.swing.JMenuItem printHelpMenuItem;
-    private javax.swing.JMenuItem redoMenuItem;
-    private javax.swing.JMenuItem aboutMenuItem;
-    public javax.swing.JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem;
-    private javax.swing.JMenuItem copyMenuItem;
-    private javax.swing.JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
-    private javax.swing.JMenuItem editFieldViewsMenuItem;
-    private javax.swing.JMenuItem editLocationsMenuItem;
-    private javax.swing.JMenu editMenu;
-    private javax.swing.JMenuItem exitMenuItem;
-    private javax.swing.JMenu fileMenu;
-    private javax.swing.JMenu helpMenu;
-    private javax.swing.JMenuItem helpMenuItem;
-    private javax.swing.JMenuItem importMenuItem;
+    private JMenuItem saveFileMenuItem;
+    private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
+    private JMenuItem shortCutKeysjMenuItem;
+    private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
+    private JMenu templatesMenu;
+    private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
+    private JMenuItem undoMenuItem;
+    private JMenuItem viewFavouritesMenuItem;
+    private JMenu setStorageDirectoryMenu;
+    private JMenu viewMenu;
+    static public JMenu windowMenu;
+    private JMenu optionsMenu;
+    private JMenuItem pasteMenuItem;
+    private JMenuItem printHelpMenuItem;
+    private JMenuItem redoMenuItem;
+    private JMenuItem aboutMenuItem;
+    public JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem;
+    private JMenuItem copyMenuItem;
+    private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
+    private JMenuItem editFieldViewsMenuItem;
+    private JMenuItem editLocationsMenuItem;
+    private JMenu editMenu;
+    private JMenuItem exitMenuItem;
+    private JMenu fileMenu;
+    private JMenu helpMenu;
+    private JMenuItem helpMenuItem;
+    private JMenuItem importMenuItem;
     private PreviewSplitPanel previewSplitPanel;
 
     public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal) {
         previewSplitPanel = previewSplitPanelLocal;
-        fileMenu = new javax.swing.JMenu();
-        saveFileMenuItem = new javax.swing.JMenuItem();
-        importMenuItem = new javax.swing.JMenuItem();
-        exitMenuItem = new javax.swing.JMenuItem();
-        editMenu = new javax.swing.JMenu();
-        copyMenuItem = new javax.swing.JMenuItem();
-        pasteMenuItem = new javax.swing.JMenuItem();
-        undoMenuItem = new javax.swing.JMenuItem();
-        redoMenuItem = new javax.swing.JMenuItem();
-        optionsMenu = new javax.swing.JMenu();
-        editLocationsMenuItem = new javax.swing.JMenuItem();
-        templatesMenu = new javax.swing.JMenu();
-        viewFavouritesMenuItem = new javax.swing.JMenuItem();
-        editFieldViewsMenuItem = new javax.swing.JMenuItem();
-        saveWindowsCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
-        showSelectionPreviewCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
-        checkNewVersionAtStartCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
-        copyNewResourcesCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
-        trackTableSelectionCheckBoxMenuItem = new javax.swing.JCheckBoxMenuItem();
-        viewMenu = new javax.swing.JMenu();
-        windowMenu = new javax.swing.JMenu();
-        helpMenu = new javax.swing.JMenu();
-        aboutMenuItem = new javax.swing.JMenuItem();
-        helpMenuItem = new javax.swing.JMenuItem();
-        shortCutKeysjMenuItem = new javax.swing.JMenuItem();
-        printHelpMenuItem = new javax.swing.JMenuItem();
+        fileMenu = new JMenu();
+        saveFileMenuItem = new JMenuItem();
+        importMenuItem = new JMenuItem();
+        exitMenuItem = new JMenuItem();
+        editMenu = new JMenu();
+        copyMenuItem = new JMenuItem();
+        pasteMenuItem = new JMenuItem();
+        undoMenuItem = new JMenuItem();
+        redoMenuItem = new JMenuItem();
+        optionsMenu = new JMenu();
+        editLocationsMenuItem = new JMenuItem();
+        templatesMenu = new JMenu();
+        viewFavouritesMenuItem = new JMenuItem();
+        setStorageDirectoryMenu = new JMenu();
+        editFieldViewsMenuItem = new JMenuItem();
+        saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
+        showSelectionPreviewCheckBoxMenuItem = new JCheckBoxMenuItem();
+        checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
+        copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
+        trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
+        viewMenu = new JMenu();
+        windowMenu = new JMenu();
+        helpMenu = new JMenu();
+        aboutMenuItem = new JMenuItem();
+        helpMenuItem = new JMenuItem();
+        shortCutKeysjMenuItem = new JMenuItem();
+        printHelpMenuItem = new JMenuItem();
         fileMenu.setText("File");
-        fileMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        fileMenu.addMenuListener(new MenuListener() {
 
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
 
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 fileMenuMenuSelected(evt);
             }
         });
@@ -144,6 +155,18 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
 
         templatesMenu.setText("Templates");
         optionsMenu.add(templatesMenu);
+        templatesMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                GuiHelper.imdiSchema.populateTemplatesMenu(templatesMenu);
+            }
+        });
 
         viewFavouritesMenuItem.setText("View Favourites");
         viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -154,6 +177,21 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         });
         optionsMenu.add(viewFavouritesMenuItem);
 
+        setStorageDirectoryMenu.setText("Storage Directory");
+        setStorageDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                populateStorageLocationMenu(setStorageDirectoryMenu);
+
+            }
+        });
+        optionsMenu.add(setStorageDirectoryMenu);
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.setEnabled(false);
 //        editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -206,15 +244,15 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         this.add(optionsMenu);
 
         viewMenu.setText("Column Views");
-        viewMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenu.addMenuListener(new MenuListener() {
 
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
 
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 viewMenuMenuSelected(evt);
             }
         });
@@ -263,16 +301,15 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         helpMenu.add(printHelpMenuItem);
         this.add(helpMenu);
 
-        showSelectionPreviewCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("showSelectionPreview", true));
+        showSelectionPreviewCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("showSelectionPreview", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null);
-        trackTableSelectionCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("trackTableSelection", false));
+        trackTableSelectionCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("trackTableSelection", false));
         TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
-        checkNewVersionAtStartCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("checkNewVersionAtStart", true));
-        copyNewResourcesCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("copyNewResources", true));
+        checkNewVersionAtStartCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
+        copyNewResourcesCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("copyNewResources", true));
         GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
-        saveWindowsCheckBoxMenuItem.setSelected(GuiHelper.linorgSessionStorage.loadBoolean("saveWindows", true));
+        saveWindowsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
-        GuiHelper.imdiSchema.populateTemplatesMenu(templatesMenu);
         printHelpMenuItem.setVisible(false);
     }
 
@@ -281,7 +318,7 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         TreeHelper.getSingleInstance().showLocationsDialog();
     }
 
-    private void viewMenuMenuSelected(javax.swing.event.MenuEvent evt) {
+    private void viewMenuMenuSelected(MenuEvent evt) {
 // TODO add your handling code here:
         GuiHelper.getSingleInstance().initViewMenu(viewMenu);
     }
@@ -301,7 +338,7 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         GuiHelper.imdiLoader.saveNodesNeedingSave(true);
     }
 
-    private void fileMenuMenuSelected(javax.swing.event.MenuEvent evt) {
+    private void fileMenuMenuSelected(MenuEvent evt) {
 // TODO add your handling code here:
         saveFileMenuItem.setEnabled(GuiHelper.imdiLoader.nodesNeedSave());
     }
@@ -358,6 +395,34 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
     }
 
+    private void populateStorageLocationMenu(JMenu storageMenu) {
+        storageMenu.removeAll();
+        ButtonGroup storageMenuButtonGroup = new ButtonGroup();
+        String[] storageLocaations = LinorgSessionStorage.getSingleInstance().getLocationOptions();
+        Arrays.sort(storageLocaations);
+        for (String currentTemplateName : storageLocaations) {
+            if (!currentTemplateName.startsWith("null")) {
+                JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
+                templateMenuItem.setText(currentTemplateName);
+                templateMenuItem.setName(currentTemplateName);
+                templateMenuItem.setActionCommand(currentTemplateName);
+                templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        try {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
+                        } catch (Exception e) {
+                            GuiHelper.linorgBugCatcher.logError(e);
+                        }
+                    }
+                });
+                templateMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().storageDirectory.equals(currentTemplateName));
+                storageMenuButtonGroup.add(templateMenuItem);
+                storageMenu.add(templateMenuItem);
+            }
+        }
+    }
+
     public void performCleanExit() { // TODO: this should be moved into a utility class
         if (GuiHelper.imdiLoader.nodesNeedSave()) {
             switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
@@ -372,11 +437,11 @@ public class ArbilMenuBar extends javax.swing.JMenuBar {
         }
         GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
         try {
-            GuiHelper.linorgSessionStorage.saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
-            GuiHelper.linorgSessionStorage.saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
-            GuiHelper.linorgSessionStorage.saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
-            GuiHelper.linorgSessionStorage.saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
-            GuiHelper.linorgSessionStorage.saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
+            LinorgSessionStorage.getSingleInstance().saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
+            LinorgSessionStorage.getSingleInstance().saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
+            LinorgSessionStorage.getSingleInstance().saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
+            LinorgSessionStorage.getSingleInstance().saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
+            LinorgSessionStorage.getSingleInstance().saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
