@@ -90,7 +90,7 @@ public class ImdiVocabularies {
 
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
-            String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
+            String cachePath = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
             if (!new File(cachePath).exists()) {
                 String backupPath = "/mpi/linorg/resources/IMDI/FallBack/" + new File(cachePath).getName();
                 System.out.println("backupPath: " + backupPath);
