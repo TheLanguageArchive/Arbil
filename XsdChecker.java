@@ -56,7 +56,7 @@ public class XsdChecker extends JSplitPane {
         StyleConstants.setForeground(styleFatalError, Color.RED);
     }
 
-    private Validator createValidator(URL schemaFile) throws SAXException, ParserConfigurationException {
+    private Validator createValidator(URL schemaFile) throws Exception /*SAXException, ParserConfigurationException*/ {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(schemaFile);
         return schema.newValidator();
@@ -64,7 +64,7 @@ public class XsdChecker extends JSplitPane {
 
     private URL getXsd() {
         int daysTillExpire = 15;
-        String cachePath = GuiHelper.linorgSessionStorage.updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
+        String cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
         URL schemaURL = null;
         File schemaFile = new File(cachePath);
         if (schemaFile.exists()) {
@@ -111,7 +111,7 @@ public class XsdChecker extends JSplitPane {
         } catch (Exception e) {
 //            System.out.println(sourceFile + " is NOT valid");
 //            System.out.println("Reason: " + e.getLocalizedMessage());
-            messageString = sourceFile + " is NOT valid\n" +
+            messageString = "Error validating " + sourceFile + "\n" +
                     "Reason: " + e.getLocalizedMessage() + "\n";
             return messageString;
         }
