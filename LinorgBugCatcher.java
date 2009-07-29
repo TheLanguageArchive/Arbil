@@ -17,7 +17,7 @@ import javax.imageio.ImageIO;
 public class LinorgBugCatcher {
 
     public LinorgBugCatcher() {
-        File errorLogFile = new File(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log");
+        File errorLogFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "linorgerror.log");
         if (errorLogFile.exists()) {
             errorLogFile.delete();
         }
@@ -34,7 +34,7 @@ public class LinorgBugCatcher {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String formattedDate = formatter.format(new Date());
             String formattedCount = myFormat.format(new Integer(captureCount));
-            ImageIO.write(screenShot, "JPG", new File(GuiHelper.linorgSessionStorage.storageDirectory + "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
+            ImageIO.write(screenShot, "JPG", new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
             captureCount++;
         } catch (Exception e) {
         }
@@ -65,7 +65,7 @@ public class LinorgBugCatcher {
             System.err.println("exception: " + exception.getMessage());
             System.err.println(messageString);
             exception.printStackTrace();
-            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log", true);
+            FileWriter errorLogFile = new FileWriter(LinorgSessionStorage.getSingleInstance().storageDirectory + "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log", true);
 //            System.out.println("logCatch: " + messageString);
             errorLogFile.append(messageString + System.getProperty("line.separator"));
             errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
