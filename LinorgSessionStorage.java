@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
 import java.util.Date;
+//import javax.swing.JDialog;
 
 /**
  * Document   : LinorgSessionStorage
@@ -24,21 +25,18 @@ public class LinorgSessionStorage {
 
     public String storageDirectory = null;
     public String cacheDirectory;
+    static private LinorgSessionStorage singleInstance = null;
+//    JDialog settingsjDialog;
 
-    public LinorgSessionStorage() {
-        String storageDirectoryArray[] = new String[]{
-            // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
-            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
-            System.getenv("APPDATA") + File.separatorChar + ".arbil" + File.separatorChar,
-            System.getProperty("user.home") + File.separatorChar + ".arbil" + File.separatorChar,
-            System.getenv("USERPROFILE") + File.separatorChar + ".arbil" + File.separatorChar,
-            System.getProperty("user.dir") + File.separatorChar + ".arbil" + File.separatorChar,
-            // keep checking for linorg for users with old data
-            System.getenv("APPDATA") + File.separatorChar + ".linorg" + File.separatorChar,
-            System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
-            System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
-            System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
-        };
+    static synchronized public LinorgSessionStorage getSingleInstance() {
+        if (singleInstance == null) {
+            singleInstance = new LinorgSessionStorage();
+        }
+        return singleInstance;
+    }
+
+    private LinorgSessionStorage() {
+        String storageDirectoryArray[] = getLocationOptions();
 
         // look for an existing storage directory
         for (String currentStorageDirectory : storageDirectoryArray) {
@@ -76,6 +74,70 @@ public class LinorgSessionStorage {
         System.out.println("storageDirectory: " + storageDirectory);
         System.out.println("cacheDirExists: " + cacheDirExists());
     }
+
+    public String[] getLocationOptions() {
+        return new String[]{
+                    // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
+                    //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
+                    System.getenv("APPDATA") + File.separatorChar + ".arbil" + File.separatorChar,
+                    System.getProperty("user.home") + File.separatorChar + ".arbil" + File.separatorChar,
+                    System.getenv("USERPROFILE") + File.separatorChar + ".arbil" + File.separatorChar,
+                    System.getProperty("user.dir") + File.separatorChar + ".arbil" + File.separatorChar,
+                    // keep checking for linorg for users with old data
+                    System.getenv("APPDATA") + File.separatorChar + ".linorg" + File.separatorChar,
+                    System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
+                    System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
+                    System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
+                };
+    }
+
+//    public void showDirectorySelectionDialogue() {
+//        settingsjDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame));
+//        settingsjDialog.setLocationRelativeTo(LinorgWindowManager.getSingleInstance().linorgFrame);
+//        JPanel optionsPanel = new JPanel();
+//        optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.PAGE_AXIS));
+//        ButtonGroup group = new ButtonGroup();
+//        for (String currentLocation : getLocationOptions()) {
+//            if (!currentLocation.startsWith("null")) {
+//                JRadioButton locationButton = new JRadioButton(currentLocation);
+//                locationButton.setActionCommand(currentLocation);
+//                locationButton.setSelected(storageDirectory.equals(currentLocation));
+//                group.add(locationButton);
+//                optionsPanel.add(locationButton);
+////            birdButton.addActionListener(this);
+//            }
+//        }
+//        JPanel buttonsPanel = new JPanel();
+//        buttonsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 30));
+//        JButton moveButton = new JButton("Move");
+//        moveButton.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//
+//                settingsjDialog.dispose();
+//                settingsjDialog = null;
+//            }
+//        });
+//        JButton cancelButton = new JButton("Cancel");
+//        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                settingsjDialog.dispose();
+//                settingsjDialog = null;
+//            }
+//        });
+//        moveButton.setEnabled(false);
+//        buttonsPanel.add(moveButton);
+//        buttonsPanel.add(cancelButton);
+//        optionsPanel.add(buttonsPanel);
+//        settingsjDialog.add(optionsPanel);
+////        optionsPanel.setBackground(Color.BLUE);
+////        buttonsPanel.setBackground(Color.GREEN);
+//        settingsjDialog.setTitle("Storage Directory Location");
+////        settingsjDialog.setMinimumSize(new Dimension(400, 300));
+//        settingsjDialog.pack();
+//        settingsjDialog.setVisible(true);
+//    }
 
     /**
      * Tests if the a string points to a flie that is in the cache directory.
@@ -144,7 +206,7 @@ public class LinorgSessionStorage {
     public boolean loadBoolean(String filename, boolean defaultValue) {
         boolean resultValue = false;
         try {
-            resultValue = (Boolean) GuiHelper.linorgSessionStorage.loadObject(filename);
+            resultValue = (Boolean) loadObject(filename);
         } catch (Exception ex) {
             System.out.println("load " + filename + " failed: " + ex.getMessage());
             resultValue = defaultValue;
@@ -191,7 +253,7 @@ public class LinorgSessionStorage {
     public String updateCache(String pathString, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
         //TODO: There will need to be a way to expire the files in the cache.
         String cachePath = getSaveLocation(pathString);
-        GuiHelper.linorgSessionStorage.saveRemoteResource(pathString, cachePath, expireCacheCopy, abortFlag);
+        saveRemoteResource(pathString, cachePath, expireCacheCopy, abortFlag);
         return cachePath;
     }
 
