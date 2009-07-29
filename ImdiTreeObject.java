@@ -31,6 +31,7 @@ public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
 
     public static IMDIDom api = new IMDIDom();
+    public ArbilTemplateManager.ArbilTemplate currentTemplate;
 //    static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
@@ -163,6 +164,10 @@ public class ImdiTreeObject implements Comparable {
                     currentNode.initNodeVariables();
                 }
             }
+        }
+        if (currentTemplate == null) {
+            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
+            currentTemplate = ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
         }
         fieldHashtable = new Hashtable<String, ImdiField[]>();
         childrenHashtable = new Hashtable<String, ImdiTreeObject>();
@@ -506,7 +511,7 @@ public class ImdiTreeObject implements Comparable {
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
-                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.getFile(), getSubDirectory(), nodeType, nodDom, resourcePath, mimeType);
+                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
@@ -865,7 +870,7 @@ public class ImdiTreeObject implements Comparable {
                 if (this.isCorpus()) {
                     if (ImdiTreeObject.isStringImdi(clipBoardString) || ImdiTreeObject.isStringImdiChild(clipBoardString)) {
                         ImdiTreeObject clipboardNode = GuiHelper.imdiLoader.getImdiObject(null, clipBoardString);
-                        if (GuiHelper.linorgSessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
+                        if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(clipboardNode.getFile())) {
                             if (!(ImdiTreeObject.isStringImdiChild(clipBoardString) && (!this.isSession() && !this.isImdiChild()))) {
                                 if (this.getFile().exists()) {
                                     // this must use merge like favoirite to prevent instances end endless loops in corpus branches
