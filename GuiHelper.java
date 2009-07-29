@@ -31,7 +31,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class GuiHelper {
 
-    static LinorgSessionStorage linorgSessionStorage = new LinorgSessionStorage();
     static ImdiDragDrop imdiDragDrop = new ImdiDragDrop();
     static LinorgJournal linorgJournal = new LinorgJournal();
     static ImdiSchema imdiSchema = new ImdiSchema();
@@ -73,7 +72,13 @@ public class GuiHelper {
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
-        for (Enumeration menuItemName = imdiSchema.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+        ArbilTemplateManager.ArbilTemplate currentTemplate;
+        if (targetNodeUserObject instanceof ImdiTreeObject) {
+            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
+        } else {
+            currentTemplate = ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
+        }
+        for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
             String[] currentField = (String[]) menuItemName.nextElement();
 //            System.out.println("MenuText: " + currentField[0]);
 //            System.out.println("ActionCommand: " + currentField[1]);
@@ -91,7 +96,7 @@ public class GuiHelper {
                     if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
                         imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
                     } else {
-                        imdiTreeObject = new ImdiTreeObject("temp root node", GuiHelper.linorgSessionStorage.getSaveLocation("unattachedcorpus.imdi"));
+                        imdiTreeObject = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation("unattachedcorpus.imdi"));
                     }
                     imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText(), null, null, null);
                 }
