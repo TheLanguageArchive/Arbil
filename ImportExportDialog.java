@@ -202,7 +202,7 @@ public class ImportExportDialog {
         //exportDestinationDirectory = exportDestinationDirectory + File.separator + mirrorNameString;
         //boolean branchDirCreated = (new File(exportDestinationDirectory)).mkdir();
         // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
-        if (GuiHelper.linorgSessionStorage.cacheDirExists()) {
+        if (LinorgSessionStorage.getSingleInstance().cacheDirExists()) {
 //            performCopy();
             searchDialog.setVisible(true);
         } else {
@@ -236,7 +236,7 @@ public class ImportExportDialog {
         //exportDestinationDirectory = exportDestinationDirectory + File.separator + mirrorNameString;
         //boolean branchDirCreated = (new File(exportDestinationDirectory)).mkdir();
         // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
-        if (GuiHelper.linorgSessionStorage.cacheDirExists()) {
+        if (LinorgSessionStorage.getSingleInstance().cacheDirExists()) {
 //            performCopy();
             searchDialog.setVisible(true);
         } else {
@@ -546,7 +546,7 @@ public class ImportExportDialog {
                 if (exportDestinationDirectory != null) {
                     directoryForSizeTest = exportDestinationDirectory;
                 } else {
-                    directoryForSizeTest = new File(GuiHelper.linorgSessionStorage.cacheDirectory);
+                    directoryForSizeTest = new File(LinorgSessionStorage.getSingleInstance().cacheDirectory);
                 }
                 try {
 //                    boolean saveToCache = true;
@@ -574,11 +574,11 @@ public class ImportExportDialog {
                                     String destinationPath;
                                     String journalActionString;
                                     if (exportDestinationDirectory == null) {
-                                        destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(currentTarget);
+                                        destinationPath = LinorgSessionStorage.getSingleInstance().getSaveLocation(currentTarget);
                                         journalActionString = "import";
                                     } else {
                                         //TODO: make sure this is correct then remove any directories that contain only one directory
-                                        destinationPath = GuiHelper.linorgSessionStorage.getExportPath(currentTarget, exportDestinationDirectory.getPath());
+                                        destinationPath = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget, exportDestinationDirectory.getPath());
                                         journalActionString = "export";
                                     }
                                     File destinationFile = new File(destinationPath);
@@ -603,11 +603,11 @@ public class ImportExportDialog {
                                                     resourceCopyOutput.append(currentLink + "\n");
                                                     String downloadLocation;
                                                     if (exportDestinationDirectory == null) {
-                                                        downloadLocation = GuiHelper.linorgSessionStorage.updateCache(currentLink, false, downloadAbortFlag);
+                                                        downloadLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, false, downloadAbortFlag);
                                                     } else {
-                                                        downloadLocation = GuiHelper.linorgSessionStorage.getExportPath(currentLink, exportDestinationDirectory.getPath());
+                                                        downloadLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                        GuiHelper.linorgSessionStorage.saveRemoteResource(currentLink, downloadLocation, true, downloadAbortFlag);
+                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(currentLink, downloadLocation, true, downloadAbortFlag);
                                                     }
                                                     resourceCopyOutput.append(downloadLocation + "\n");
                                                     File downloadedFile = new File(downloadLocation);
@@ -712,7 +712,7 @@ public class ImportExportDialog {
 //                                System.out.println("resourceCopyErrors" + resourceCopyErrors);
                             }
                             // add the completed node to the done list
-                            String newNodeLocation = GuiHelper.linorgSessionStorage.getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
+                            String newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
                             finishedTopNodes.add(GuiHelper.imdiLoader.getImdiObject(null, newNodeLocation));
                         }
                     }
