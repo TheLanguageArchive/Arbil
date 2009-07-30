@@ -54,7 +54,7 @@ public class ImdiTreeObject implements Comparable {
     private boolean nodeEnabled;
     private Vector<String[]> childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
     private HashSet containersOfThisNode;
-    public int isLoadingCount = 0;
+    private int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
     private boolean isFavourite;
     public boolean autoLoadChildNodes = false;
@@ -764,6 +764,11 @@ public class ImdiTreeObject implements Comparable {
                     }
                 }
             }
+            for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
+                if (currentImdiNode.isCatalogue()) {
+                    api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
+                }
+            }
 //          System.out.println("linkIdString: " + linkIdString);
             api.writeDOM(nodDom, this.getFile(), false);
             reloadNode();
@@ -779,6 +784,18 @@ public class ImdiTreeObject implements Comparable {
         for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
             String[] currentLinkPair = childLinksEnum.nextElement();
             String currentChildPath = currentLinkPair[0];
+            if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", null);
+                return false;
+            }
+            if (targetImdiNode.isCatalogue()) {
+                ImdiTreeObject childNode = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
+                childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must also wait here
+                if (childNode.isCatalogue()) { // prevent adding a second catalogue file
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only one catalogue can be added", null);
+                    return false;
+                }
+            }
             if (currentChildPath.equals(targetImdiNode.getUrlString())) {
                 linkAlreadyExists = true;
             }
@@ -1203,6 +1220,23 @@ public class ImdiTreeObject implements Comparable {
         return this.toString().compareToIgnoreCase(((ImdiTreeObject) o).toString());
     }
 
+    synchronized boolean waitTillLoaded() {
+        if (isLoading()) {
+            try {
+                this.wait();
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    synchronized void updateLoadingState(int countChange) {
+        isLoadingCount += countChange;
+        if (!isLoading()) {
+            this.notifyAll();
+        }
+    }
     public boolean isLoading() {
         return isLoadingCount > 0;
     }
