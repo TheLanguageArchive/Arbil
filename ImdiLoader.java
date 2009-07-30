@@ -46,7 +46,7 @@ public class ImdiLoader {
                             if (currentImdiObject != null) {
                                 System.out.println("run RemoteImdiLoader processing: " + currentImdiObject.getUrlString());
                                 currentImdiObject.loadImdiDom();
-                                currentImdiObject.isLoadingCount--;
+                                currentImdiObject.updateLoadingState(-1);
                                 currentImdiObject.clearIcon();
                                 remoteImdiFilesLoaded++;
                             }
@@ -157,7 +157,7 @@ public class ImdiLoader {
                                     }
                                     TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject);
                                 }
-                                currentImdiObject.isLoadingCount--;
+                                currentImdiObject.updateLoadingState(-1);
                                 currentImdiObject.clearIcon();
                                 imdiFilesLoaded++;
                                 System.out.println("remoteImdiFilesLoaded: " + remoteImdiFilesLoaded + " imdiFilesLoaded: " + imdiFilesLoaded);
@@ -208,7 +208,7 @@ public class ImdiLoader {
                     // cause the parent node to be loaded
                     currentImdiObject.getParentDomNode();
                 } else if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
-                    currentImdiObject.isLoadingCount++;
+                    currentImdiObject.updateLoadingState(+1);
                     if (ImdiTreeObject.isStringLocal(currentImdiObject.getUrlString())) {
                         imdiLocalNodesToInit.add(currentImdiObject);
                     } else {
@@ -242,7 +242,7 @@ public class ImdiLoader {
         if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
             if (!imdiLocalNodesToInit.contains(currentImdiObject)) {
                 System.out.println("requestReload: " + currentImdiObject.getUrlString());
-                currentImdiObject.isLoadingCount++;
+                currentImdiObject.updateLoadingState(+1);
                 imdiLocalNodesToInit.add(currentImdiObject);
             }
         }
