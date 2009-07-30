@@ -535,6 +535,7 @@ public class ImportExportDialog {
 
             public void run() {
 //                setPriority(Thread.NORM_PRIORITY - 1);
+                boolean testFreeSpace = true;
                 int freeGbWarningPoint = 3;
                 int xsdErrors = 0;
                 int totalLoaded = 0;
@@ -688,21 +689,27 @@ public class ImportExportDialog {
                                 progressXmlErrorsLabel.setText(progressXmlErrorsLabelText + xsdErrors);
                                 resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
                                 progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
-
-                                int diskFreePercent = (int) (directoryForSizeTest.getFreeSpace() / directoryForSizeTest.getTotalSpace() * 100);
-                                int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
-                                //diskSpaceLabel.setText("Total Disk Use: " + diskFreePercent + "%");
-                                diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
-                                if (freeGbWarningPoint > freeGBytes) {
-                                    progressBar.setIndeterminate(false);
-                                    if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
-                                            "There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(),
-                                            JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                                        freeGbWarningPoint = freeGBytes - 1;
-                                    } else {
-                                        stopSearch = true;
+                                if (testFreeSpace) {
+                                    try {
+                                        int diskFreePercent = (int) (directoryForSizeTest.getFreeSpace() / directoryForSizeTest.getTotalSpace() * 100);
+                                        int freeGBytes = (int) (directoryForSizeTest.getFreeSpace() / 1073741824);
+                                        //diskSpaceLabel.setText("Total Disk Use: " + diskFreePercent + "%");
+                                        diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
+                                        if (freeGbWarningPoint > freeGBytes) {
+                                            progressBar.setIndeterminate(false);
+                                            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                                                    "There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(),
+                                                    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                                                freeGbWarningPoint = freeGBytes - 1;
+                                            } else {
+                                                stopSearch = true;
+                                            }
+                                            progressBar.setIndeterminate(true);
+                                        }
+                                    } catch (Exception ex) {
+                                        diskSpaceLabel.setText(diskFreeLabelText + "N/A");
+                                        testFreeSpace = false;
                                     }
-                                    progressBar.setIndeterminate(true);
                                 }
 //                                System.out.println("progressFound"+ (getList.size() + totalLoaded));
 //                                System.out.println("progressProcessed"+ totalLoaded);
