@@ -144,7 +144,8 @@ public class ImdiTableModel extends AbstractTableModel {
             } else {
                 returnImdiArray[imdiArrayCounter] = null;
             }
-            if (!returnImdiArray[imdiArrayCounter].isImdi() || returnImdiArray[imdiArrayCounter].isArchivableFile() || returnImdiArray[imdiArrayCounter].hasResource()) {
+            if (ImageBoxRenderer.canDisplay(returnImdiArray[imdiArrayCounter])) {
+                //if (!returnImdiArray[imdiArrayCounter].isImdi() || returnImdiArray[imdiArrayCounter].isArchivableFile() || returnImdiArray[imdiArrayCounter].hasResource()) {
                 // on application reload a file may be readded to a table before the type checker gets a chance to run, since a file must have been checked for it to get here we bypass that check at this point
 //                System.out.println("Adding to jlist: " + imdiTreeObject.toString());
                 if (!listModel.contains(returnImdiArray[imdiArrayCounter])) {
