@@ -89,7 +89,7 @@ public class MimeHashQueue {
                                 System.out.println("MalformedURLException: " + currentPathString + " : " + e);
                             }
                         }
-                        currentImdiObject.isLoadingCount--;
+                        currentImdiObject.updateLoadingState(-1);
                         currentImdiObject.clearIcon();
                     }
                     if (changedSinceLastSave) {
@@ -306,7 +306,7 @@ public class MimeHashQueue {
             System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
             if (!imdiObjectQueue.contains(imdiObject)) {
-                imdiObject.isLoadingCount++;
+                imdiObject.updateLoadingState(+1);
                 imdiObjectQueue.add(imdiObject);
             }
         }
