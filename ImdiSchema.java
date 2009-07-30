@@ -461,7 +461,9 @@ public class ImdiSchema {
                 Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
                 if (catalogueLinkAtt != null) {
                     String catalogueLink = catalogueLinkAtt.getNodeValue();
-                    childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), catalogueLink), "CatalogueLink"});
+                    if (catalogueLink.length() > 0) {
+                        childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), catalogueLink), "CatalogueLink"});
+                    }
                 }
                 Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
                 if (templateOriginatorAtt != null) {
