@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!--
+ * linorg.xml
+ * Created on 10 September 2008, 10:03
+ * @author Peter.Withers@mpi.nl
+-->
 <project name="Linorg" default="compile">
 
 <!-- start package creation -->
