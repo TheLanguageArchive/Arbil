@@ -536,6 +536,10 @@ public class ImportExportDialog {
             public void run() {
 //                setPriority(Thread.NORM_PRIORITY - 1);
                 boolean testFreeSpace = true;
+                String javaVersionString = System.getProperty("java.version");
+                if (javaVersionString.startsWith("1.4.") || javaVersionString.startsWith("1.5.")) {
+                    testFreeSpace = false;
+                }
                 int freeGbWarningPoint = 3;
                 int xsdErrors = 0;
                 int totalLoaded = 0;
