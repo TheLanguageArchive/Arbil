@@ -1,5 +1,52 @@
 <?xml version="1.0"?>
 <project name="Linorg" default="compile">
+
+<!-- start package creation -->
+    <path id="ant-deb.classpath">
+        <fileset dir="./ant-deb-jar/" includes="*.jar"/>
+    </path>
+
+    <!-- http://code.google.com/p/ant-deb-task/ -->
+    <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-deb.classpath"/>
+    <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
+    <target name="makeDebPackage" depends="signlinorg" description="build the deb file">
+        <property name="package.name" value="arbil"/>
+        <property name="package.jarname" value="linorg.jar"/>
+        <property name="package.iconname" value="arbil128x128.png"/>
+        <property name="distributionDirectory" value="${SRCDIR}mpi/linorg/distribution"/>
+        <mkdir dir="${distributionDirectory}"/>
+        <desktopEntry
+            toFile="${distributionDirectory}/${package.name}.desktop"
+            name="${package.name}"
+            comment="Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving."
+            exec="java -jar /usr/share/${package.name}/${package.jarname}"
+            path="/usr/share/${package.name}/"
+            icon="/usr/share/${package.name}/${package.iconname}"
+            categories="Utility;FileTools;Java"
+        />
+        <deb
+            todir="${distributionDirectory}"
+            package="${package.name}"
+            section="devel"
+            depends="sun-java5-jre | sun-java6-jre"
+        >
+            <version upstream="${linorg.current.major}.${linorg.current.minor}" debian="${linorg.current.revision}"/>
+            <maintainer name="Peter Withers" email="Peter.Withers@mpi.nl"/>
+            <description synopsis="Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving.">
+Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving.  Arbil is designed so that it can be used off line in remote locations. The data can be entered at any stage in part or as a whole. When an internet connection is available the work can then be transferred to the main archive via Lamus.
+
+http://www.lat-mpi.eu/tools/imdi/Arbil/
+            </description>
+            <tarfileset file="${SRCDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
+            <tarfileset file="${SRCDIR}/mpi/linorg/resources/icons/${package.iconname}" prefix="usr/share/${package.name}"/>
+            <tarfileset dir="${SRCDIR}/mpi/linorg/lib" prefix="usr/share/${package.name}/lib">
+                <include name="*.jar"/>
+            </tarfileset>
+            <tarfileset file="${distributionDirectory}/${package.name}.desktop" prefix="usr/share/${package.name}"/>
+        </deb>
+    </target>
+<!-- end package creation -->
+
     <target name="setproperties">
         <property name="SRCDIR" value="../../../../src/java/"/>
         <property name="BUILDDIR" value="classes"/>
