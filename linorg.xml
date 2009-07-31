@@ -255,7 +255,7 @@ public class LinorgVersion {
         keystore="/data1/repos/trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
     </target>
-    <target depends="signlinorg" name="scp_to_lux09">
+    <target depends="signlinorg, makeDebPackage" name="scp_to_lux09">
         <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw" />
