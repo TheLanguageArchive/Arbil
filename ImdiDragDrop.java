@@ -426,6 +426,8 @@ public class ImdiDragDrop {
                                 currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
                             }
                             if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
+                                ((ImdiTreeObject) dropTargetUserObject).saveChangesToCache(false);
                                 ((ImdiTreeObject) dropTargetUserObject).reloadNode();
                             } else {
                                 TreeHelper.getSingleInstance().applyRootLocations();
