@@ -96,6 +96,7 @@ public class ImdiTreeObject implements Comparable {
         return returnUrl;
     }
     // static methods for testing imdi file and object types
+
     static public boolean isImdiNode(Object unknownObj) {
         if (unknownObj == null) {
             return false;
@@ -121,6 +122,7 @@ public class ImdiTreeObject implements Comparable {
         return urlString.contains("#.METATRANSCRIPT");
     }
     // end static methods for testing imdi file and object types
+
     private void debugOut(String messageString) {
         if (debugOn) {
             System.out.println(messageString);
@@ -779,22 +781,34 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public boolean hasCatalogue() {
+        for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+            String[] currentLinkPair = childLinksEnum.nextElement();
+            String currentChildPath = currentLinkPair[0];
+            ImdiTreeObject childNode = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
+            childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
+            if (childNode.isCatalogue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean addCorpusLink(ImdiTreeObject targetImdiNode) {
         boolean linkAlreadyExists = false;
+        if (targetImdiNode.isCatalogue()) {
+            if (this.hasCatalogue()) {
+//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only one catalogue can be added", null);
+                // prevent adding a second catalogue file
+                return false;
+            }
+        }
         for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
             String[] currentLinkPair = childLinksEnum.nextElement();
             String currentChildPath = currentLinkPair[0];
             if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", null);
                 return false;
-            }
-            if (targetImdiNode.isCatalogue()) {
-                ImdiTreeObject childNode = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
-                childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must also wait here
-                if (childNode.isCatalogue()) { // prevent adding a second catalogue file
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only one catalogue can be added", null);
-                    return false;
-                }
             }
             if (currentChildPath.equals(targetImdiNode.getUrlString())) {
                 linkAlreadyExists = true;
@@ -1237,6 +1251,7 @@ public class ImdiTreeObject implements Comparable {
             this.notifyAll();
         }
     }
+
     public boolean isLoading() {
         return isLoadingCount > 0;
     }
