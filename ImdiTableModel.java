@@ -75,6 +75,9 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public boolean containsImdiNode(ImdiTreeObject findable) {
+        if (findable == null) {
+            return false;
+        }
         return imdiObjectHash.contains(findable);
     }
 
