@@ -163,19 +163,23 @@ public class ImportExportDialog {
                     File destinationDirectory = null;
                     //Vector importNodeVector = new Vector();
                     File parentDirectory = fileChooser.getSelectedFile();
-                    String newDirectoryName = JOptionPane.showInputDialog(searchDialog, "Enter Export Name", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
-                    try {
-                        destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
-                        destinationDirectory.mkdir();
-                    } catch (Exception e) {
-                        JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
-                    }
-                    if (destinationDirectory != null && destinationDirectory.exists()) {
-                        if (destinationDirectory.list().length == 0) {
-                            fileSelectDone = true;
-                            exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
-                        } else {
-                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                    if (!parentDirectory.exists()) {
+                        JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory\n\"" + parentDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        String newDirectoryName = JOptionPane.showInputDialog(searchDialog, "Enter Export Name", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
+                        try {
+                            destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
+                            destinationDirectory.mkdir();
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                        }
+                        if (destinationDirectory != null && destinationDirectory.exists()) {
+                            if (destinationDirectory.list().length == 0) {
+                                fileSelectDone = true;
+                                exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
+                            } else {
+                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                            }
                         }
                     }
                 } else {
