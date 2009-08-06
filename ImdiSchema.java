@@ -304,20 +304,37 @@ public class ImdiSchema {
         return null;
     }
 
-    public String insertFromTemplate(ArbilTemplateManager.ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, Document targetImdiDom, String resourcePath, String mimeType) {
+    public String insertFromTemplate(ArbilTemplateManager.ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, String targetXmlPath, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
+        System.out.println("targetXpath: " + targetXmlPath);
         String addedPathString = null;
-        String targetXpath = null;
+//        System.out.println("targetImdiDom: " + targetImdiDom.getTextContent());
+        String targetXpath = targetXmlPath;
         try {
             String templateFileString = elementName.substring(1);
             System.out.println("templateFileString: " + templateFileString);
-            templateFileString = templateFileString.replaceAll("\\([\\d]+\\)", "(x)");
-            System.out.println("templateFileString: " + templateFileString);
+            templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
+            System.out.println("templateFileString(x): " + templateFileString);
+            templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
             URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateFileString + ".xml");
             // prepare the parent node
-            targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
+            if (targetXpath == null) {
+                targetXpath = elementName;
+            } else {
+                // make sure we have a complete path
+                // for instance METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
+                // requires /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[6].Languages
+                // not /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[6]
+                // the last path component (.Language) will be removed later
+                targetXpath = targetXpath + elementName.substring(targetXpath.length());
+            }
+//            if (!targetXpath.endsWith(")")) {
+            targetXpath = targetXpath.substring(0, elementName.lastIndexOf("."));
+//            }
             // convert to xpath for the api
             targetXpath = targetXpath.replace(".", "/:");
+//            targetXpath = targetXpath.replace(")", "]");
+//            targetXpath = targetXpath.replace("(", "[position()=");
             targetXpath = targetXpath.replace(")", "]");
             targetXpath = targetXpath.replace("(", "[");
             System.out.println("targetXpath: " + targetXpath);
@@ -401,7 +418,7 @@ public class ImdiSchema {
                 System.out.println("inserting");
                 targetNode.appendChild(addableNode);
             }
-            addedPathString = destinationFile.toURL().toString() + "#" + elementName;
+            addedPathString = destinationFile.toURL().toString() + "#" + elementName.replaceAll("\\(\\d*?\\)$", "");
             String childsMetaNode = currentTemplate.pathIsChildNode(elementName);
             if (childsMetaNode != null) {
                 addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
@@ -414,6 +431,7 @@ public class ImdiSchema {
             System.out.println("exception with targetXpath: " + targetXpath);
             GuiHelper.linorgBugCatcher.logError(ex);
         }
+        System.out.println("addedPathString: " + addedPathString);
         return addedPathString;
     }
 
