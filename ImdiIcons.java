@@ -177,6 +177,8 @@ public class ImdiIcons {
                 iconsVector.add(writtenresourceIcon);
             } else if (imdiObject.mpiMimeType.contains("pdf")) {
                 iconsVector.add(writtenresourceIcon);
+            } else if (imdiObject.mpiMimeType.contains("kml")) {
+                iconsVector.add(writtenresourceIcon);
             } else {
                 iconsVector.add(questionRedIcon);
                 GuiHelper.linorgBugCatcher.logError(imdiObject.mpiMimeType, new Exception("Icon not found for file"));
