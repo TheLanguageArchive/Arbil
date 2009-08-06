@@ -579,27 +579,28 @@ public class TreeHelper {
         };
     }
 
-    public ImdiTreeObject addImdiChildNode(ImdiTreeObject imdiTreeObject, String nodeType, String nodeTypeDisplayName, String resourcePath, String mimeType) {
-        ImdiTreeObject addedImdi = null;
-        String addedNodeUrl = null;
-        if (nodeType != null) {
-            if (imdiTreeObject.isImdi() && !imdiTreeObject.fileNotFound) {// if url is null (not an imdi) then the node is unattached
-                if (imdiTreeObject.isImdiChild()) {
-                    imdiTreeObject = imdiTreeObject.getParentDomNode();
-                }
-                addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
-            } else {
-                addedNodeUrl = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
-                addLocation(addedNodeUrl);
-                applyRootLocations();
-            }
-        }
-        if (addedNodeUrl != null) {
-            System.out.println("addedNodeUrl: " + addedNodeUrl);
-            addedImdi = GuiHelper.imdiLoader.getImdiObject(null, addedNodeUrl);
-        }
-        return addedImdi;
-    }
+//    public ImdiTreeObject addImdiChildNode(ImdiTreeObject imdiTreeObject, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String resourcePath, String mimeType) {
+//        ImdiTreeObject addedImdi = null;
+//        String addedNodeUrl = null;
+//        if (nodeType != null) {
+////            String targetXmlPath = imdiTreeObject.getURL().getRef();
+//            if (imdiTreeObject.isImdi() && !imdiTreeObject.fileNotFound) {// if url is null (not an imdi) then the node is unattached
+//                if (imdiTreeObject.isImdiChild()) {
+//                    imdiTreeObject = imdiTreeObject.getParentDomNode();
+//                }
+//                addedNodeUrl = imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType);
+//            } else {
+//                addedNodeUrl = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation("unattachedcorpus")).addChildNode(nodeType, null, null);
+//                addLocation(addedNodeUrl);
+//                applyRootLocations();
+//            }
+//        }
+//        if (addedNodeUrl != null) {
+//            System.out.println("addedNodeUrl: " + addedNodeUrl);
+//            addedImdi = GuiHelper.imdiLoader.getImdiObject(null, imdiTreeObject.addChildNode(nodeType, resourcePath, mimeType));
+//        }
+//        return addedImdi;
+//    }
 
 //    public void getImdiChildNodes(DefaultMutableTreeNode itemNode) {
 //        System.out.println("getImdiChildNodes:" + itemNode.getUserObject());
