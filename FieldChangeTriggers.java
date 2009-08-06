@@ -9,8 +9,7 @@ public class FieldChangeTriggers {
     // the following strings need to be read from a template file or a vocaulary etc
 
     public void actOnChange(ImdiField changedImdiField) {
-        String fieldPath = changedImdiField.getFullXmlPath();
-        fieldPath = fieldPath.replaceAll("\\(\\d\\)", "(x)");
+        String fieldPath = changedImdiField.getGenericFullXmlPath();
         System.out.println("fieldPath: " + fieldPath);
         for (String[] currentTrigger : changedImdiField.parentImdi.currentTemplate.triggersArray) {
             if (fieldPath.equals(currentTrigger[0])) {
