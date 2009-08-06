@@ -494,11 +494,8 @@ public class ImdiTreeObject implements Comparable {
      * Add a new node based on a template and optionally attach a resource
      * @return String path to the added node
      */
-    public String addChildNode(String nodeType, String resourcePath, String mimeType) {
+    public String addChildNode(String nodeType, String targetXmlPath, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
-        if (nodeType.endsWith(")")) {
-            nodeType = nodeType.replaceFirst("\\(\\d+\\)$", "");
-        }
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
         if (imdiNeedsSaveToDisk) {
             saveChangesToCache(true);
@@ -513,7 +510,7 @@ public class ImdiTreeObject implements Comparable {
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
-                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, nodDom, resourcePath, mimeType);
+                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
@@ -539,6 +536,10 @@ public class ImdiTreeObject implements Comparable {
             destinationNode = GuiHelper.imdiLoader.getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
+            } else {
+                // TODO: this should not really be here
+                TreeHelper.getSingleInstance().addLocation(destinationNode.getUrlString());
+                TreeHelper.getSingleInstance().applyRootLocations();
             }
 //            destinationNode.saveChangesToCache();
 //            destinationNode.imdiNeedsSaveToDisk = true;
@@ -928,16 +929,18 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
+        String targetXmlPath = this.getURL().getRef();
         if (nodeType == null) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
         } else {
-            if (this.isImdiChild()) {
-                this.domParentImdi.requestAddNode(nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
-            } else {
-                System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
-                addQueue.add(new String[]{nodeType, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
-                GuiHelper.imdiLoader.requestReload(this);
-            }
+//            if (this.isImdiChild()) {
+//                System.out.println("requestAddNodeChild: " + this.getUrlString());
+//                this.domParentImdi.requestAddNode(nodeType, this.nodeUrl.getRef(), nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
+//            } else {
+            System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
+            this.getParentDomNode().addQueue.add(new String[]{nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
+            GuiHelper.imdiLoader.requestReload(this);
+//            }
         }
     }
 
