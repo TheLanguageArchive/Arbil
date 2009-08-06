@@ -46,6 +46,11 @@ public class ImdiField {
         return fieldValue;
     }
 
+    // returns the full xml path with the path indexes replaced by x's
+    public String getGenericFullXmlPath() {
+        return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)");
+    }
+
     public String getFullXmlPath() {
         String[] pathStringArray = this.parentImdi.getUrlString().split("#");
         if (pathStringArray.length > 1) {
