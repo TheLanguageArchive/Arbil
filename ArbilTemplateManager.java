@@ -114,7 +114,11 @@ public class ArbilTemplateManager {
         public String[][] triggersArray = {
             //        TODO: read this array from a file in the teplates directory
             {".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Id", "description"},
-            {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id", "description"}
+            {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id", "description"},
+            {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id", "description"},
+            {".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name", ".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id", "description"},
+            {".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name", ".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id", "description"}//,
+//            this LexiconResource field has no related id field {".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language", ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Id", "description"},
         };
 
         public String pathIsChildNode(String nodePath) {
