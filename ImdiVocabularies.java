@@ -55,6 +55,23 @@ public class ImdiVocabularies {
         if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
             return null;
         }
+        // testing code for checking the language fields have the required triggers
+        if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
+            boolean foundTrigger = false;
+            System.out.println("vocabularyLocation: " + vocabularyLocation);
+            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
+            String fieldPath = originatingImdiField.getGenericFullXmlPath();
+            for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.triggersArray) {
+                if (fieldPath.equals(currentTrigger[0])) {
+                    foundTrigger = true;
+                }
+            }
+            if (!foundTrigger) {
+                if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
+                    GuiHelper.linorgBugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingImdiField.parentImdi.getUrlString()));
+                }
+            }
+        }
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
