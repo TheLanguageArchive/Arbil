@@ -15,7 +15,7 @@ public class ImdiVocabularies {
     Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
 
     // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
-    // every time this is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else 
+    // every time IMDIVocab in the API is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else
     // mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
     // cv.cslist2array(vocabularyLocation)
     // the output of the following looks similar however they differ slightly and only a few have comments
@@ -52,15 +52,15 @@ public class ImdiVocabularies {
     }
 
     public Vocabulary getVocabulary(ImdiField originatingImdiField, String vocabularyLocation) {
-        if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
+        if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
             return null;
         }
+        String fieldPath = originatingImdiField.getGenericFullXmlPath();
         // testing code for checking the language fields have the required triggers
         if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
             boolean foundTrigger = false;
             System.out.println("vocabularyLocation: " + vocabularyLocation);
             System.out.println("Field: " + originatingImdiField.getFullXmlPath());
-            String fieldPath = originatingImdiField.getGenericFullXmlPath();
             for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.triggersArray) {
                 if (fieldPath.equals(currentTrigger[0])) {
                     foundTrigger = true;
@@ -72,36 +72,39 @@ public class ImdiVocabularies {
                 }
             }
         }
-        if (!vocabulariesTable.containsKey(vocabularyLocation)) {
-            parseRemoteFile(vocabularyLocation);
+        ///////////////////////////////
+        // look for genre / sub genre redirects in the template
+        String vocabularyRedirectField = null;
+        for (String[] currentRedirect : originatingImdiField.parentImdi.currentTemplate.genreSubgenreArray) {
+            if (fieldPath.equals(currentRedirect[0])) {
+                vocabularyRedirectField = currentRedirect[1];
+            }
         }
-        Vocabulary tempVocab = vocabulariesTable.get(vocabularyLocation);
-        if (tempVocab != null) {
-            Vocabulary returnValue = null;
-            if (tempVocab.vocabularyRedirectField != null) {
-                if (tempVocab.vocabularyRedirectField != null) {
-                    ImdiField[] tempField = originatingImdiField.getSiblingField(tempVocab.vocabularyRedirectField);
-                    if (tempField != null) {
-                        String redirectFieldString = tempField[0].toString();
-                        // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
-                        Vocabulary tempVocabulary = tempField[0].getVocabulary();
-                        VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
-                        System.out.println("redirectFieldString: " + redirectFieldString);
-                        if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
-                            System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
-                            String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
-                            returnValue = getVocabulary(originatingImdiField, correctedUrl);
-                        }
-                    }
+        if (vocabularyRedirectField != null) {
+            ImdiField[] tempField = originatingImdiField.getSiblingField(vocabularyRedirectField);
+            if (tempField != null) {
+                String redirectFieldString = tempField[0].toString();
+                // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
+                Vocabulary tempVocabulary = tempField[0].getVocabulary();
+                VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
+                System.out.println("redirectFieldString: " + redirectFieldString);
+                if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
+                    System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
+                    String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
+                    // change the requested vocabulary string to the redirected value
+                    vocabularyLocation = correctedUrl;
+                    System.out.println("redirected vocabularyLocation: " + vocabularyLocation);
                 }
             }
-            if (returnValue == null) {
-                returnValue = tempVocab;
-            }
-            return returnValue;
-        } else {
-            System.out.println("vocabulary is null");
+        }
+        ///////////////////////////////
+        if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
             return null;
+        } else {
+            if (!vocabulariesTable.containsKey(vocabularyLocation)) {
+                parseRemoteFile(vocabularyLocation);
+            }
+            return vocabulariesTable.get(vocabularyLocation);
         }
     }
 
@@ -161,11 +164,13 @@ public class ImdiVocabularies {
 
         @Override
         public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
-            if (name.equals("VocabularyRedirect")) { // or should this be Redirect
-                // when getting the list check attribute in the field X for the vocab location
-                collectedVocab.vocabularyRedirectField = atts.getValue("SourceFieldName");
-                System.out.println("VocabularyRedirect: " + collectedVocab.vocabularyRedirectField);
-            }
+//            System.out.println("startElement: " + name);
+//            this VocabularyRedirect code has been replaced by the templates
+//            if (name.equals("VocabularyRedirect")) { // or should this be Redirect
+//                // when getting the list check attribute in the field X for the vocab location
+//                collectedVocab.vocabularyRedirectField = atts.getValue("SourceFieldName");
+//                System.out.println("VocabularyRedirect: " + collectedVocab.vocabularyRedirectField);
+//            }
             if (name.equals("Entry")) {
                 String vocabName = atts.getValue("Value");
                 String vocabCode = atts.getValue("Code");
@@ -179,7 +184,8 @@ public class ImdiVocabularies {
     public class Vocabulary {
 
         public Vector<VocabularyItem> vocabularyItems = new Vector<VocabularyItem>();
-        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
+//        this VocabularyRedirect code has been replaced by the templates
+//        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
         public String vocabularyUrlRedirected = null; // the url of the vocabulary indicated by the value of the vocabularyRedirectField
         private String vocabularyUrl = null;
 
@@ -198,6 +204,7 @@ public class ImdiVocabularies {
                 vocabularyItems.add(new VocabularyItem(entryString, null, null));
             }
         }
+
         public VocabularyItem findVocabularyItem(String searchString) {
             for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
                 if (currentVocabularyItem.languageName.equals(searchString)) {
@@ -214,6 +221,7 @@ public class ImdiVocabularies {
             return (vocabUrlDirectory + folowUpString);
         }
     }
+
     public class VocabularyItem {
 
         public String languageName;
