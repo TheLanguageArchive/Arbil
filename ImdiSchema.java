@@ -310,6 +310,7 @@ public class ImdiSchema {
         String addedPathString = null;
 //        System.out.println("targetImdiDom: " + targetImdiDom.getTextContent());
         String targetXpath = targetXmlPath;
+        String targetRef;
         try {
             String templateFileString = elementName.substring(1);
             System.out.println("templateFileString: " + templateFileString);
@@ -321,15 +322,56 @@ public class ImdiSchema {
             if (targetXpath == null) {
                 targetXpath = elementName;
             } else {
+                ///////////////////////////////
+//                insertFromTemplate: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language : null
+//                targetXpath: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(2).Languages.Language
+//                templateFileString: METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
+//                templateFileString(x): METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
+//                targetXpath: /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[2]/:Languages
+                ///////////////////////////////
+//                insertFromTemplate: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language : null
+//                targetXpath: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)
+//                templateFileString: METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
+//                templateFileString(x): METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
+//                targetXpath: /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[2]/:Languages
+                ///////////////////////////////
+//                insertFromTemplate: .METATRANSCRIPT.Session.MDGroup.Actors.Actor : null
+//                targetXpath: .METATRANSCRIPT.Session.MDGroup.Actors.Actor
+//                templateFileString: METATRANSCRIPT.Session.MDGroup.Actors.Actor
+//                templateFileString(x): METATRANSCRIPT.Session.MDGroup.Actors.Actor
+//                targetXpath: /:METATRANSCRIPT/:Session/:MDGroup/:Actors
+                ///////////////////////////////
+//                insertFromTemplate: .METATRANSCRIPT.Session.MDGroup.Actors.Actor : null
+//                targetXpath: null
+//                templateFileString: METATRANSCRIPT.Session.MDGroup.Actors.Actor
+//                templateFileString(x): METATRANSCRIPT.Session.MDGroup.Actors.Actor
+//                targetXpath: /:METATRANSCRIPT/:Session/:MDGroup/:Actors
+                ///////////////////////////////
+//                insertFromTemplate: .METATRANSCRIPT.Session.Resources.MediaFile : null
+//                targetXpath: .METATRANSCRIPT.Session.Resources.MediaFile(1)
+//                templateFileString: METATRANSCRIPT.Session.Resources.MediaFile
+//                templateFileString(x): METATRANSCRIPT.Session.Resources.MediaFile
+                ///////////////////////////////
                 // make sure we have a complete path
                 // for instance METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language
                 // requires /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[6].Languages
                 // not /:METATRANSCRIPT/:Session/:MDGroup/:Actors/:Actor[6]
                 // the last path component (.Language) will be removed later
-                targetXpath = targetXpath + elementName.substring(targetXpath.length());
+                String[] targetXpathArray = targetXpath.split("\\)");
+                String[] elementNameArray = elementName.split("\\)");
+                targetXpath = "";
+                for (int partCounter = 0; partCounter < elementNameArray.length; partCounter++) {
+                    if (targetXpathArray.length > partCounter) {
+                        targetXpath = targetXpath + targetXpathArray[partCounter] + ")";
+                    } else {
+                        targetXpath = targetXpath + elementNameArray[partCounter] + ")";
+                    }
+                }
+                targetXpath = targetXpath.replaceAll("\\)$", "");
             }
+            targetRef = targetXpath.replaceAll("\\(\\d*?$", ""); // clean up the end of the string
 //            if (!targetXpath.endsWith(")")) {
-            targetXpath = targetXpath.substring(0, elementName.lastIndexOf("."));
+            targetXpath = targetXpath.substring(0, targetXpath.lastIndexOf("."));
 //            }
             // convert to xpath for the api
             targetXpath = targetXpath.replace(".", "/:");
@@ -418,7 +460,7 @@ public class ImdiSchema {
                 System.out.println("inserting");
                 targetNode.appendChild(addableNode);
             }
-            addedPathString = destinationFile.toURL().toString() + "#" + elementName.replaceAll("\\(\\d*?\\)$", "");
+            addedPathString = destinationFile.toURL().toString() + "#" + targetRef;
             String childsMetaNode = currentTemplate.pathIsChildNode(elementName);
             if (childsMetaNode != null) {
                 addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
