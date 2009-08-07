@@ -19,7 +19,10 @@ public class FieldChangeTriggers {
                 // and we need to put the (\d) back into the (x)
                 String originalFieldPath = changedImdiField.getFullXmlPath();
                 int lastBracketPos = originalFieldPath.lastIndexOf(")");
-                String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(lastBracketPos);
+                // care must me taken here to prevet issues with child nodes greater than 9 ie (12), (x) etc.
+                String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(currentTrigger[1].lastIndexOf(")"));
+                System.out.println("originalFieldPath: " + originalFieldPath);
+                System.out.println("targetFieldPath: " + targetFieldPath);
                 ImdiField[] targetField = changedImdiField.getSiblingField(targetFieldPath);
                 ImdiVocabularies.VocabularyItem vocabItem = changedImdiField.getVocabulary().findVocabularyItem(changedImdiField.fieldValue);
                 String valueForTargetField = null;
