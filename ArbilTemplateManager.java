@@ -120,6 +120,10 @@ public class ArbilTemplateManager {
             {".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name", ".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id", "description"}//,
 //            this LexiconResource field has no related id field {".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language", ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Id", "description"},
         };
+        public String[][] genreSubgenreArray = {
+            //        TODO: read this array from a file in the teplates directory
+            {".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.MDGroup.Content.Genre", "description"}
+        };
 
         public String pathIsChildNode(String nodePath) {
             // TODO: change this to use a master list of types and populate it from the schema
