@@ -120,62 +120,66 @@ public class LinorgFavourites {
     }
 
     public String getNodeType(ImdiTreeObject templateImdiObject, ImdiTreeObject targetImdiObject) {
-        System.out.println("getNodeType: \n" + templateImdiObject.getUrlString() + "\n" + targetImdiObject.getUrlString());
+        // takes the source path and destination path and creates a complete combined path
+        // in:
+        // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(12).Languages.Language(5)
+        // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27)
+        // out: 
+        // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27).Languages.Language
+
+        String templateXmlPath = templateImdiObject.getURL().getRef();
+        String targetXmlPath = targetImdiObject.getURL().getRef();
+        System.out.println("getNodeType: \ntemplateXmlPath: " + templateXmlPath + "\ntargetXmlPath:" + targetXmlPath);
         String returnValue;
         if (templateImdiObject.isSession()) {
             returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session";
         } else if (templateImdiObject.isCorpus()) {
             returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus";
         } else if (templateImdiObject.isImdiChild()) {
-            // pass the (x) values on in the return value
-            if (templateImdiObject.getUrlString().endsWith(")")) {
-                int firstHashIndex = templateImdiObject.getUrlString().lastIndexOf("#");
-                int lastBracketIndex = templateImdiObject.getUrlString().lastIndexOf(")");
-                String templateNodePath = templateImdiObject.getUrlString().substring(firstHashIndex + 1, lastBracketIndex + 1);
-
-                firstHashIndex = targetImdiObject.getUrlString().lastIndexOf("#");
-                if (firstHashIndex > -1) {
-                    lastBracketIndex = targetImdiObject.getUrlString().lastIndexOf(")");
-                    if (lastBracketIndex == -1) {
-                        lastBracketIndex = targetImdiObject.getUrlString().length() - 1;
-                    }
-                    String targetNodePath = targetImdiObject.getUrlString().substring(firstHashIndex + 1, lastBracketIndex + 1);
-                    String[] splitTemplateNodePath = templateNodePath.split("\\)");
-                    String[] splitTargetNodePath = targetNodePath.split("\\)");
-                    System.out.println("splitTemplateNodePath: " + splitTemplateNodePath.length + " splitTargetNodePath: " + splitTargetNodePath.length);
-                    returnValue = "";
-                    if (splitTargetNodePath.length > 0) {
-                        for (int partCounter = 0; partCounter < splitTargetNodePath.length; partCounter++) {
-                            splitTemplateNodePath[partCounter] = splitTargetNodePath[partCounter];
-                        }
-                        for (String currentPart : splitTemplateNodePath) {
-                            returnValue = returnValue.concat(currentPart + ")");
-                        }
-                        System.out.println("getNodeType returnValue: " + returnValue);
-                    } else {
-                        returnValue = templateNodePath;
-                    }
-
-                } else {
-                    // TODO: prevent template nodes for sub sub nodes being added to non sud nodes
-//                    if (templateNodePath. count of ")" > 1)throw
-//                    else
-                    returnValue = templateNodePath;
-                }
-//                returnValue = returnValue.replaceAll("\\(\\d+\\)", "");
+            if (targetXmlPath == null) {
+                returnValue = templateXmlPath.replaceAll("\\(\\d*?\\)$", "");
             } else {
-//                try {
-//                    throw (new Exception("Unsupported node type for " + templateImdiObject.getUrlString().split("#")[1]));
-//                } catch (Exception ie) {
-//                    GuiHelper.linorgBugCatcher.logError(ie);
-//                }
-                returnValue = null;
+                // pass the (x) values on in the return value
+                System.out.println("targetXmlPath: " + targetXmlPath);
+                System.out.println("templateXmlPath: " + templateXmlPath);
+                templateXmlPath = templateXmlPath.replaceAll("\\(\\d*?\\)$", "");
+                String[] splitTemplateXmlPath = templateXmlPath.split("\\)");
+                String[] splitTargetXmlPath = targetXmlPath.split("\\)");
+                System.out.println("splitTemplateXmlPath: " + splitTemplateXmlPath.length + " splitTargetXmlPath: " + splitTargetXmlPath.length);
+                returnValue = "";
+                for (int partCounter = 0; partCounter < splitTemplateXmlPath.length; partCounter++) {
+                    if (splitTargetXmlPath.length > partCounter) {
+                        returnValue = returnValue.concat(splitTargetXmlPath[partCounter] + ")");
+                    } else {
+                        returnValue = returnValue.concat(splitTemplateXmlPath[partCounter] + ")");
+                    }
+                }
+                returnValue = returnValue.replaceAll("\\)$", "");
             }
+//            System.out.println("getNodeType returnValue: " + returnValue);
+//                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                        // preserve the child node path
+//                        if (targetNodePath.replaceAll("[^(]*", "").length() >= templateNodePath.replaceAll("[^(]*", "").length()) {
+//                        String currentTemplateXPath = currentTemplate.replaceFirst("\\.xml$", "");
+//                        String currentTemplateName = currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(".") + 1);
+//                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
+//                        System.out.println("targetNodePath: " + targetNodePath);
+//                        String destinationXPath;
+//                        if (currentTemplateXPath.contains(")")) {
+//                            destinationXPath = targetNodePath + currentTemplateXPath.substring(currentTemplateXPath.lastIndexOf(")") + 1);
+//                        } else {
+//                            destinationXPath = currentTemplateXPath;
+//                        }
+//                        }
+//                        // end preserve the child node path
+//                        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//                returnValue = returnValue.replaceAll("\\(\\d+\\)", "");
         } else {
             returnValue = null;
         }
         System.out.println("getNodeTypeReturnValue: " + returnValue);
-        System.out.println("for : " + templateImdiObject.getUrlString());
+//        System.out.println("for : " + templateXmlPath);
         return returnValue;
     }
 
