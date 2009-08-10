@@ -247,7 +247,7 @@ public class ImdiTreeObject implements Comparable {
 //        System.out.println("reloadImdiNode: " + this + childrenHashtable.size());
 //
 //    }
-    public void loadImdiDom() {
+    synchronized public void loadImdiDom() {
         System.out.println("loadImdiDom: " + this.getFile().getName());
         initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
         Document nodDom = null;
