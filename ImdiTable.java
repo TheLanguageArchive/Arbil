@@ -1,6 +1,7 @@
 package mpi.linorg;
 
 import java.awt.AWTEvent;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -46,6 +47,7 @@ public class ImdiTable extends JTable {
         this.setName(frameTitle);
         this.setCellSelectionEnabled(true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        this.setGridColor(Color.LIGHT_GRAY);
 
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 //            public void mousePressed(java.awt.event.MouseEvent evt) {
