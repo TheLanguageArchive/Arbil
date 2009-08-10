@@ -163,15 +163,24 @@ public class ImportExportDialog {
                     File destinationDirectory = null;
                     //Vector importNodeVector = new Vector();
                     File parentDirectory = fileChooser.getSelectedFile();
+                    boolean createdDirectory = false;
+                    if (!parentDirectory.exists() && parentDirectory.getParentFile().exists()) {
+                        // create the directory provided that the parent directory exists
+                        // ths is here due the the way the mac file select gui leads the user to type in a new directory name
+                        createdDirectory = parentDirectory.mkdir();
+                        destinationDirectory = parentDirectory;
+                    }
                     if (!parentDirectory.exists()) {
                         JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory\n\"" + parentDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
                     } else {
-                        String newDirectoryName = JOptionPane.showInputDialog(searchDialog, "Enter Export Name", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
-                        try {
-                            destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
-                            destinationDirectory.mkdir();
-                        } catch (Exception e) {
-                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                        if (!createdDirectory) {
+                            String newDirectoryName = JOptionPane.showInputDialog(searchDialog, "Enter Export Name", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
+                            try {
+                                destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
+                                destinationDirectory.mkdir();
+                            } catch (Exception e) {
+                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+                            }
                         }
                         if (destinationDirectory != null && destinationDirectory.exists()) {
                             if (destinationDirectory.list().length == 0) {
