@@ -11,9 +11,9 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-//import javax.swing.JDialog;
 
 /**
  * Document   : LinorgSessionStorage
@@ -271,6 +271,11 @@ public class LinorgSessionStorage {
             tempFile.getParentFile().mkdirs();
         }
         return cachePath;
+    }
+
+    public String getNewImdiFileName() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        return formatter.format(new Date()) + ".imdi";
     }
 
     /**
