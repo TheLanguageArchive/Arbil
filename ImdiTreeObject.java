@@ -521,17 +521,7 @@ public class ImdiTreeObject implements Comparable {
 //            imdiNeedsSaveToDisk = true;
         } else {
             System.out.println("adding new node");
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-//            String currentFileName = this.getFile().getParent();
-//            if (this.getFile().getName().endsWith(".imdi")) {
-//                currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
-//                File destinationDir = new File(currentFileName);
-//                if (!destinationDir.exists()) {
-//                    destinationDir.mkdir();
-//                }
-//            }
-
-            String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + formatter.format(new Date()) + ".imdi";
+            String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + LinorgSessionStorage.getSingleInstance().getNewImdiFileName();
             addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType);
             destinationNode = GuiHelper.imdiLoader.getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
