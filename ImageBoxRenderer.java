@@ -1,7 +1,9 @@
 package mpi.linorg;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -124,6 +126,14 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     private void drawFileText(Graphics2D targegGraphics, URL targetURL) {
         int linePosY = textStartY;
+        targegGraphics.setBackground(Color.white);
+        targegGraphics.clearRect(0, 0, outputWidth, outputHeight);
+        targegGraphics.setColor(Color.BLACK);
+        targegGraphics.drawRect(0, 0, outputWidth - 1, outputHeight - 1);
+        targegGraphics.setColor(Color.DARK_GRAY);
+        Font currentFont = targegGraphics.getFont();
+        Font renderFont = new Font(currentFont.getFontName(), currentFont.getStyle(), 11);
+        targegGraphics.setFont(renderFont);
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetURL.openStream()));
             String textToDraw;
@@ -135,7 +145,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 if (textToDraw.length() > 0) {
                     double lineHeight = targegGraphics.getFont().getStringBounds(textToDraw, targegGraphics.getFontRenderContext()).getHeight();
                     linePosY = linePosY + (int) lineHeight;
-                    targegGraphics.drawString(textToDraw, textStartX, linePosY);
+                    targegGraphics.drawString(textToDraw, textStartX + 2, linePosY);
                 }
             }
         } catch (Exception ex) {
