@@ -71,10 +71,14 @@ public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
                     return value1.compareToIgnoreCase(value2);
                 }
             });
+            boolean hasAddedValues = false;
             for (ImdiTreeObject currentImdiTreeObject : (ImdiTreeObject[]) cellObject) {
                 cellText = cellText + "[" + currentImdiTreeObject.toString() + "],";
+                hasAddedValues = true;
             }
-            cellText = cellText.substring(0, cellText.length() - 1);
+            if (hasAddedValues) {
+                cellText = cellText.substring(0, cellText.length() - 1);
+            }
             return (cellText);
         } else if (cellObject instanceof ImdiField[]) {
             return "<multiple values>";
