@@ -147,16 +147,6 @@ public class ImdiTableModel extends AbstractTableModel {
             } else {
                 returnImdiArray[imdiArrayCounter] = null;
             }
-            if (ImageBoxRenderer.canDisplay(returnImdiArray[imdiArrayCounter])) {
-                //if (!returnImdiArray[imdiArrayCounter].isImdi() || returnImdiArray[imdiArrayCounter].isArchivableFile() || returnImdiArray[imdiArrayCounter].hasResource()) {
-                // on application reload a file may be readded to a table before the type checker gets a chance to run, since a file must have been checked for it to get here we bypass that check at this point
-//                System.out.println("Adding to jlist: " + imdiTreeObject.toString());
-                if (!listModel.contains(returnImdiArray[imdiArrayCounter])) {
-                    listModel.addElement(returnImdiArray[imdiArrayCounter]);
-                }
-            } else {
-//                System.out.println("Not adding to jlist: " + imdiTreeObject.toString());
-            }
 //            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
 //            System.out.println("hasResource: " + imdiTreeObject.hasResource());
             for (Enumeration<ImdiField[]> columnFields = returnImdiArray[imdiArrayCounter].getFields().elements(); columnFields.hasMoreElements();) {
@@ -186,6 +176,20 @@ public class ImdiTableModel extends AbstractTableModel {
             hiddenColumnsLabel.setText(hiddenColumnCount + " columns hidden (edit \"Column View\" in the table header to show)");
         }
         return returnImdiArray;
+    }
+
+    private void updateImageDisplayPanel() {
+        listModel.removeAllElements();
+        for (int rowCounter = 0; rowCounter < data.length; rowCounter++) {
+            ImdiTreeObject currentRowImdiObject = getImdiNodeFromRow(rowCounter);
+            if (currentRowImdiObject != null) {
+                if (ImageBoxRenderer.canDisplay(currentRowImdiObject)) {
+                    if (!listModel.contains(currentRowImdiObject)) {
+                        listModel.addElement(currentRowImdiObject);
+                    }
+                }
+            }
+        }
     }
 
     public void removeAllImdiRows() {
@@ -667,6 +671,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 }
             }
         }
+        updateImageDisplayPanel(); // update the image panel now the rows have been sorted and the data array updated
     }
 
     public int getColumnCount() {
