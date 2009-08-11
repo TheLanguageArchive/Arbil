@@ -29,6 +29,7 @@ public class LinorgSplitPanel extends JPanel {
     private JSplitPane splitPane;
     private JLabel hiddenColumnsLabel;
     private JPanel tableOuterPanel;
+    boolean selectionChangeInProcess = false; // this is to stop looping selection changes
 
     public LinorgSplitPanel(ImdiTable localImdiTable) {
 //            setBackground(new Color(0xFF00FF));
@@ -58,7 +59,8 @@ public class LinorgSplitPanel extends JPanel {
         fileList.addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if (fileList.hasFocus()) {
+                if (!selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
+                    selectionChangeInProcess = true;
                     if (e.getSource() instanceof JList) {
 //                        System.out.println("JList");
                         imdiTable.clearSelection();
@@ -88,13 +90,15 @@ public class LinorgSplitPanel extends JPanel {
                             TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ImdiTreeObject) selectedRow[0]);
                         }
                     }
+                    selectionChangeInProcess = false;
                 }
             }
         });
         imdiTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if (imdiTable.hasFocus()) {
+                if (!selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
+                    selectionChangeInProcess = true;
                     fileList.clearSelection();
                     int minSelectedRow = -1;
                     int maxSelectedRow = -1;
@@ -120,6 +124,7 @@ public class LinorgSplitPanel extends JPanel {
                     if (TreeHelper.trackTableSelection) {
                         TreeHelper.getSingleInstance().jumpToSelectionInTree(true, imdiTable.getImdiNodeForSelection());
                     }
+                    selectionChangeInProcess = false;
                 }
             }
         });
