@@ -378,23 +378,10 @@ public class TreeHelper {
     private void sortChildNodes(DefaultMutableTreeNode parentNode, ArrayList<DefaultMutableTreeNode> currentChildren, Vector<DefaultMutableTreeNode> scrollToRequests) {
 //        System.out.println("sortChildNodes: " + parentNode.getUserObject().toString());
         // resort the branch since the node name may have changed
+        boolean childNodesOrderChanged = false;
         DefaultTreeModel treeModel = getModelForNode(parentNode);
 //        ArrayList<DefaultMutableTreeNode> sortedChildren = Collections.list(parentNode.children());
-        Collections.sort(currentChildren, new Comparator() {
-
-            public int compare(Object object1, Object object2) {
-                if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
-                    throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
-                }
-                Object userObject1 = ((DefaultMutableTreeNode) object1).getUserObject();
-                Object userObject2 = ((DefaultMutableTreeNode) object2).getUserObject();
-                if (userObject1 instanceof ImdiTreeObject && userObject2 instanceof ImdiTreeObject) {
-                    return ((ImdiTreeObject) userObject1).compareTo(userObject2);
-                } else {
-                    return userObject1.toString().compareToIgnoreCase(object2.toString());
-                }
-            }
-        });
+        Collections.sort(currentChildren, new ImdiTreeNodeSorter());
         // loop the child nodes comparing with the sorted array and move nodes only if required
         for (int childCounter = 0; childCounter < currentChildren.size(); childCounter++) {
 //            System.out.println("sortChildNodes comparing: " + sortedChildren.get(childCounter));
@@ -409,20 +396,22 @@ public class TreeHelper {
 //                System.out.println("rightUrlString: " + rightUrlString);
                 if (!leftUrlString.equals(rightUrlString)) {
 //                    System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
-                    try {
-                        if (currentChildren.get(childCounter).getParent() != null) {
-                            System.out.println("removing");
-                            treeModel.removeNodeFromParent(currentChildren.get(childCounter));
+//                    try {
+//                        if (currentChildren.get(childCounter).getParent() != null) {
+//                            System.out.println("removing");
+//                            currentChildren.get(childCounter).removeFromParent();
 //                            if (!currentChildren.contains(currentChildren.get(childCounter))) {
 //                                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
 //                            }
-                        }
-                    } catch (Exception e) {
-                        GuiHelper.linorgBugCatcher.logError(e);
-//                        System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
-                    }
-                    System.out.println("inserting");
+//                        }
+//                    } catch (Exception e) {
+//                        GuiHelper.linorgBugCatcher.logError(e);
+////                        System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
+//                    }
+//                    if (!((ImdiTreeObject) currentChildren.get(childCounter).getUserObject()).isLoading()) {
+//                    System.out.println("inserting: " + currentChildren.get(childCounter).getUserObject() + " into: " + parentNode.getUserObject());
                     treeModel.insertNodeInto(currentChildren.get(childCounter), parentNode, childCounter);
+                    childNodesOrderChanged = true;
 //                treeModel.nodeStructureChanged(parentNode);
 //                            treeModel.nodeChanged(itemNode);
 //            treeModel.nodeChanged(missingTreeNode);
@@ -443,6 +432,10 @@ public class TreeHelper {
         if (parentNode.getUserObject() instanceof ImdiTreeObject && ((ImdiTreeObject) parentNode.getUserObject()).scrollToRequested) {
             scrollToRequests.add(parentNode);
             ((ImdiTreeObject) parentNode.getUserObject()).scrollToRequested = false;
+        }
+        if (childNodesOrderChanged) {
+            // refresh the child nodes
+            treeModel.nodeStructureChanged(parentNode);
         }
         // update the string and icon etc for the parent node
         treeModel.nodeChanged(parentNode);
