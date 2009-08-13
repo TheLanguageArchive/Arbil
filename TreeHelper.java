@@ -38,6 +38,7 @@ public class TreeHelper {
     static public boolean trackTableSelection = false;
     Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
+    public boolean showHiddenFilesInTree = false;
 
     static synchronized public TreeHelper getSingleInstance() {
         System.out.println("TreeHelper getSingleInstance");
@@ -163,6 +164,17 @@ public class TreeHelper {
             addDefaultCorpusLocations();
             System.out.println("created new locationsList");
         }
+        showHiddenFilesInTree = LinorgSessionStorage.getSingleInstance().loadBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
+    }
+
+    public void setShowHiddenFilesInTree(boolean showState) {
+        showHiddenFilesInTree = showState;
+        clearIconsInTree(localDirectoryRootNode);
+        try {
+            LinorgSessionStorage.getSingleInstance().saveObject(showHiddenFilesInTree, "showHiddenFilesInTree");
+        } catch (Exception ex) {
+            System.out.println("save showHiddenFilesInTree failed");
+        }
     }
 
     public void addLocationGui(String addableLocation) {
@@ -196,6 +208,17 @@ public class TreeHelper {
     public void removeLocation(String removeLocation) {
         System.out.println("removeLocation: " + removeLocation);
         locationsList.remove(removeLocation);
+    }
+
+    private void clearIconsInTree(DefaultMutableTreeNode parentTreeNode) {
+        // this will reload all nodes in a tree but not create any new child nodes
+        for (Enumeration<DefaultMutableTreeNode> childNodesEnum = parentTreeNode.children(); childNodesEnum.hasMoreElements();) {
+            clearIconsInTree(childNodesEnum.nextElement());
+        }
+        if (parentTreeNode.getUserObject() instanceof ImdiTreeObject) {
+            // this will also update the child nodes in the tree without adding any new branches
+            ((ImdiTreeObject) parentTreeNode.getUserObject()).clearIcon();
+        }
     }
 
     // this will load all imdi child nodes into the tree, and in the case of a session it will load all the imdi childnodes, the while the other updateTreeNodeChildren methods will not
@@ -336,7 +359,13 @@ public class TreeHelper {
                                 // make the list of child urls
                                 for (Enumeration<ImdiTreeObject> childEnum = parentImdiObject.getChildEnum(); childEnum.hasMoreElements();) {
                                     ImdiTreeObject childImdiObject = childEnum.nextElement();
-                                    childUrls.add(childImdiObject.getUrlString());
+                                    boolean showChild = true;
+                                    if (!showHiddenFilesInTree && childImdiObject.isLocal() && childImdiObject.getFile().isHidden()) {
+                                        showChild = false;
+                                    }
+                                    if (showChild) {
+                                        childUrls.add(childImdiObject.getUrlString());
+                                    }
 //                                    System.out.println("adding child to update list: " + childImdiObject.getUrlString());
                                 }
                                 updateTreeNodeChildren(currentTreeNode, childUrls, scrollToRequests);
@@ -722,7 +751,7 @@ public class TreeHelper {
             updateTreeNodeChildren(cellImdiNode);
         } else {
             if (!silent) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The selected cell has not value or is not associated with a node in the tree", "Jump to in Tree");
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The selected cell has no value or is not associated with a node in the tree", "Jump to in Tree");
             }
         }
     }
