@@ -59,7 +59,7 @@ public class LinorgSplitPanel extends JPanel {
         fileList.addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if (!selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
+                if (!e.getValueIsAdjusting() && !selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
                     selectionChangeInProcess = true;
                     if (e.getSource() instanceof JList) {
 //                        System.out.println("JList");
@@ -86,8 +86,7 @@ public class LinorgSplitPanel extends JPanel {
                             }
                         }
                         if (TreeHelper.trackTableSelection) {
-                            Object selectedRow[] = ((JList) e.getSource()).getSelectedValues();
-                            TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ImdiTreeObject) selectedRow[0]);
+                            TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ImdiTreeObject) ((JList) e.getSource()).getSelectedValue());
                         }
                     }
                     selectionChangeInProcess = false;
@@ -97,7 +96,7 @@ public class LinorgSplitPanel extends JPanel {
         imdiTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-                if (!selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
+                if (!e.getValueIsAdjusting() && !selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
                     selectionChangeInProcess = true;
                     fileList.clearSelection();
                     int minSelectedRow = -1;
