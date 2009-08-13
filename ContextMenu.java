@@ -19,6 +19,7 @@ public class ContextMenu {
 
     private javax.swing.JMenu addFromFavouritesMenu;
     private javax.swing.JMenuItem addLocalDirectoryMenuItem;
+    private javax.swing.JCheckBoxMenuItem showHiddenFilesMenuItem;
     private javax.swing.JMenuItem addDefaultLocationsMenuItem;
     private javax.swing.JMenu addMenu;
     private javax.swing.JMenuItem addRemoteCorpusMenuItem;
@@ -83,6 +84,7 @@ public class ContextMenu {
         removeRemoteCorpusMenuItem = new javax.swing.JMenuItem();
         removeCachedCopyMenuItem = new javax.swing.JMenuItem();
         addLocalDirectoryMenuItem = new javax.swing.JMenuItem();
+        showHiddenFilesMenuItem = new javax.swing.JCheckBoxMenuItem();
         removeLocalDirectoryMenuItem = new javax.swing.JMenuItem();
         saveMenuItem = new javax.swing.JMenuItem();
         viewChangesMenuItem = new javax.swing.JMenuItem();
@@ -167,7 +169,6 @@ public class ContextMenu {
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 addMenuMenuSelected(evt);
-
             }
         });
 
@@ -218,6 +219,7 @@ public class ContextMenu {
         treePopupMenu.add(deleteMenuItem);
 
         treePopupMenu.add(treePopupMenuSeparator1);
+
         viewInBrrowserMenuItem.setText("Open in External Application");
         viewInBrrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -227,6 +229,7 @@ public class ContextMenu {
             }
         });
         treePopupMenu.add(viewInBrrowserMenuItem);
+
         viewXmlMenuItem.setText("View IMDI XML");
 
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -255,6 +258,7 @@ public class ContextMenu {
             }
         });
         treePopupMenu.add(openXmlMenuItemFormatted);
+
         validateMenuItem.setText("Check IMDI format");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -323,6 +327,16 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(addLocalDirectoryMenuItem);
+
+        showHiddenFilesMenuItem.setText("Show Hidden Files");
+        showHiddenFilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TreeHelper.getSingleInstance().setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
+            }
+        });
+        treePopupMenu.add(showHiddenFilesMenuItem);
+
         removeLocalDirectoryMenuItem.setText("Remove Link to Directory");
 
         removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -593,6 +607,7 @@ public class ContextMenu {
         removeCachedCopyMenuItem.setVisible(false);
         removeLocalDirectoryMenuItem.setVisible(false);
         addLocalDirectoryMenuItem.setVisible(false);
+        showHiddenFilesMenuItem.setVisible(false);
         removeRemoteCorpusMenuItem.setVisible(false);
         addRemoteCorpusMenuItem.setVisible(false);
         copyBranchMenuItem.setVisible(false);
@@ -667,6 +682,10 @@ public class ContextMenu {
         }
         if (eventSource == TreeHelper.getSingleInstance().localDirectoryTree) {
             removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
+            if (showAddLocationsTasks) {
+                showHiddenFilesMenuItem.setState(TreeHelper.getSingleInstance().showHiddenFilesInTree);
+                showHiddenFilesMenuItem.setVisible(true);
+            }
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
             Object leadSelectedTreeObject = ((ImdiTree) TreeHelper.getSingleInstance().localDirectoryTree).getSingleSelectedNode();
             if (leadSelectedTreeObject instanceof ImdiTreeObject) {
