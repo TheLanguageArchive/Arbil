@@ -16,9 +16,9 @@
     <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
     <target name="makeDebPackage" depends="signlinorg" description="build the deb file">
         <property name="package.name" value="arbil"/>
-        <property name="package.jarname" value="linorg.jar"/>
+        <property name="package.jarname" value="arbil.jar"/>
         <property name="package.iconname" value="arbil128x128.png"/>
-        <property name="distributionDirectory" value="${SRCDIR}mpi/linorg/distribution"/>
+        <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
         <desktopEntry
             toFile="${distributionDirectory}/${package.name}.desktop"
@@ -42,7 +42,7 @@ Arbil is an application for arranging research material and associated metadata 
 
 http://www.lat-mpi.eu/tools/imdi/Arbil/
             </description>
-            <tarfileset file="${SRCDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
+            <tarfileset file="${OUTPUTDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
             <tarfileset file="${SRCDIR}/mpi/linorg/resources/icons/${package.iconname}" prefix="usr/share/${package.name}"/>
             <tarfileset dir="${SRCDIR}/mpi/linorg/lib" prefix="usr/share/${package.name}/lib">
                 <include name="*.jar"/>
@@ -54,18 +54,19 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
 
     <target name="setproperties">
         <property name="SRCDIR" value="../../../../src/java/"/>
-        <property name="BUILDDIR" value="classes"/>
+        <property name="OUTPUTDIR" value="LinorgBuild/"/>
+        <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
     </target>
     <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run, getCurrentJnlp" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
-    <target name="clean" description="remove intermediate files">
+    <target name="clean" description="remove intermediate files" depends="setproperties">
         <delete dir="${BUILDDIR}"/>
         <mkdir dir="${BUILDDIR}"/>
     </target>
     <target name="clobber" depends="clean" description="remove all artifact files">
-        <delete file="linorg.jar"/>
+        <delete file="${OUTPUTDIR}/arbil.jar"/>
     </target>
     <!-- target compile (this is included by build.all) -->
     <target name="compile" description="compile the linorg source code to class files">
@@ -83,43 +84,44 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="getFallbackFiles" description="download the latest schema and controlled vocabularies from the web server">
         <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
+        <mkdir dir="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/"/>
         <!-- get the latest schema -->
-        <get src="http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/IMDI_3.0.xsd"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/IMDI_3.0.xsd"/>
         <!-- get the latest controlled vocabularies -->
-        <get src="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Actor-FamilySocialRole.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-PlanningType.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MediaFile-Type.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Actor-Role.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SocialContext.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MPI-Languages.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Actor-Sex.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Discourse.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SubGenre-Discourse.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Source-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Source-Format.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Boolean.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Boolean.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Stimuli.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SubGenre-Stimuli.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Methodology.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Validation-Methodology.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Channel.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SubGenre.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Type.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Validation-Type.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-EventStructure.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Subject.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Derivation.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-Derivation.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Discursive.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Genre-Discursive.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Task.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-Format.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Interactional.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Genre-Interactional.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Continents.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Continents.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType-Annotation.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-SubType-Annotation.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Genre.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Countries.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Countries.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-SubType.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Interactivity.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/ISO639-2Languages.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Type.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-Type.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Involvement.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/LanguagesID.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/LanguagesID.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Modalities.xml"/>
-        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MediaFile-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Actor-FamilySocialRole.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-PlanningType.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/MediaFile-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Actor-Role.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-SocialContext.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/MPI-Languages.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Actor-Sex.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Discourse.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-SubGenre-Discourse.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Source-Format.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Source-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Boolean.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Boolean.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Stimuli.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-SubGenre-Stimuli.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Methodology.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Validation-Methodology.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Channel.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-SubGenre.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Type.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Validation-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-EventStructure.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Subject.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Derivation.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/WrittenResource-Derivation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Discursive.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Genre-Discursive.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Task.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/WrittenResource-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Interactional.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Genre-Interactional.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Continents.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Continents.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType-Annotation.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/WrittenResource-SubType-Annotation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Genre.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Countries.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Countries.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/WrittenResource-SubType.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Interactivity.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/ISO639-2Languages.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Type.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/WrittenResource-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Involvement.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/LanguagesID.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/LanguagesID.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/Content-Modalities.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${BUILDDIR}/mpi/linorg/resources/IMDI/FallBack/MediaFile-Format.xml"/>
     </target>
     <target name="copyFilesForXSL">
         <copy todir="${SRCDIR}mpi/linorg/resources/xsl/">
@@ -141,8 +143,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </copy>
     </target>
     <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL" description="create a Jar file">
-        <jar destfile="linorg.jar">
-            <fileset dir="classes" includes="mpi/linorg/**/*.class"/>
+        <jar destfile="${OUTPUTDIR}/arbil.jar">
+            <fileset dir="${OUTPUTDIR}/classes" includes="mpi/linorg/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/images/*.png"/>
             <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
@@ -187,7 +189,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                     <file name="xercesImpl.jar" />
                     -->
                <!-- </filelist>-->
-                <pathelement location="linorg.jar"/>
+                <pathelement location="${OUTPUTDIR}/arbil.jar"/>
             </classpath>
         </java>
     </target>
@@ -258,15 +260,15 @@ public class LinorgVersion {
                 <fileset dir="lib" includes="**/*.jar" />
             </path>
         </signjar>-->
-        <signjar jar="linorg.jar"
-        keystore="/data1/repos/trunk/cert/mpi.keystore"
+        <signjar jar="${OUTPUTDIR}/arbil.jar"
+        keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
     </target>
     <target depends="signlinorg, makeDebPackage" name="scp_to_lux09">
         <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw" />
-        <move file="linorg.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
+        <move file="${OUTPUTDIR}/arbil.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
         <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <move file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" tofile="arbil.jar"/>
