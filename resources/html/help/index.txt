@@ -12,6 +12,7 @@ Editing_Viewing/Copy paste between tables.html
 Editing_Viewing/Searching.html
 Technical_Details/The Journal File.html
 Technical_Details/Error Logs.html
+Technical_Details/Templates.html
 Working_Offline/What to do before going into the field.html
 Working_Offline/Making an off line copy.html
 Templates_and_Favourites/Templates.html
