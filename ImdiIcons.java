@@ -13,6 +13,7 @@ import javax.swing.UIManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ImdiIcons {
+
     public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/arbil128x128.png"));
     public ImageIcon linorgTestingIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/arbilTesting128x128.png"));
     // basic icons used in the gui
@@ -77,8 +78,7 @@ public class ImdiIcons {
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/loading04.png"));
     private ImageIcon favouriteIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/favourite.png"));
 //    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/mpi/linorg/resources/icons/template.png"));
-    
-    
+
     static private ImdiIcons singleInstance = null;
 
     static synchronized public ImdiIcons getSingleInstance() {
