@@ -6,7 +6,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 /**
  * ImdiTreeNodeSorter.java
  * Created on Aug 11, 2009, 11:08:48 AM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTreeNodeSorter implements Comparator {
 
