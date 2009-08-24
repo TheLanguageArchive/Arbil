@@ -72,7 +72,7 @@ public class GuiHelper {
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
-        ArbilTemplateManager.ArbilTemplate currentTemplate;
+        ArbilTemplate currentTemplate;
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
         } else {
