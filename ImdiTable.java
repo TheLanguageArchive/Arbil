@@ -48,7 +48,7 @@ public class ImdiTable extends JTable {
         this.setCellSelectionEnabled(true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.setGridColor(Color.LIGHT_GRAY);
-
+        
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 //            public void mousePressed(java.awt.event.MouseEvent evt) {
 
