@@ -97,7 +97,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
     }
 
     private boolean isStartLongFieldKey(KeyEvent evt) {
-        return (isStartLongFieldModifier(evt) && evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER);
+        return (isStartLongFieldModifier(evt) && evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER);
     }
 
     private boolean isStartLongFieldModifier(InputEvent evt) {
