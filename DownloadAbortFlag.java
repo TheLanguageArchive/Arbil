@@ -7,7 +7,7 @@ package mpi.linorg;
 /**
  * DownloadAbortFlag.java
  * Created on Jul 16, 2009, 3:03:10 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class DownloadAbortFlag {
 
