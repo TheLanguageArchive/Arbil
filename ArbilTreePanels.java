@@ -3,7 +3,7 @@ package mpi.linorg;
 /**
  * ArbilTreePanels.java
  * Created on Jul 14, 2009, 2:30:03 PM
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ArbilTreePanels extends javax.swing.JSplitPane {
 
