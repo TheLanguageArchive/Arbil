@@ -12,7 +12,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
- * @author petwit
+ * @author Peter.Withers@mpi.nl
  */
 public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
 
@@ -82,6 +82,9 @@ public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
             return (cellText);
         } else if (cellObject instanceof ImdiField[]) {
             return "<multiple values>";
+        } else if (cellObject instanceof ImdiField && ((ImdiField) cellObject).isRequiredField() && ((ImdiField) cellObject).toString().length() == 0) {
+            super.setForeground(Color.RED);
+            return "<required field>";
         } else {
             return super.getText();
         }
