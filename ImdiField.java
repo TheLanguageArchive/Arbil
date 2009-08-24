@@ -22,6 +22,7 @@ public class ImdiField {
     public boolean fieldNeedsSaveToDisk = false;
     private Hashtable<String, String> fieldAttributes = new Hashtable();
     private int isLongField = -1;
+    private int isRequiredField = -1;
 
     public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
         parentImdi = localParentImdi;
@@ -40,6 +41,19 @@ public class ImdiField {
             }
         }
         return isLongField == 1;
+    }
+
+    public boolean isRequiredField() {
+        if (isRequiredField < 0) {
+            isRequiredField = 0;
+            for (String currentRequiredField : parentImdi.currentTemplate.requiredFields) {
+                if (currentRequiredField.equals(xmlPath)) {
+                    isRequiredField = 1;
+                    break;
+                }
+            }
+        }
+        return isRequiredField == 1;
     }
 
     public String getFieldValue() {
