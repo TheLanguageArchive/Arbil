@@ -5,15 +5,10 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
-import javax.swing.ButtonGroup;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
 import mpi.util.OurURL;
 import org.w3c.dom.*;
 
@@ -27,63 +22,9 @@ public class ImdiSchema {
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
-    private String selectedTemplate = null;
     public File selectedTemplateDirectory = null;
     static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true;
-
-    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templatePath, String templateName) {
-        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
-        templateMenuItem.setText(templateName);
-        templateMenuItem.setName(templateName);
-        templateMenuItem.setActionCommand(templatePath);
-        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
-                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-                    System.out.println("setting template: " + evt.getActionCommand());
-                    selectedTemplateDirectory = new File(evt.getActionCommand());
-                } catch (Exception e) {
-                    GuiHelper.linorgBugCatcher.logError(e);
-                }
-            }
-        });
-        templatesMenuButtonGroup.add(templateMenuItem);
-        templateMenu.add(templateMenuItem);
-        if (selectedTemplate == null) {
-            selectedTemplate = templateName;
-        }
-        if (selectedTemplate.equals(templateName)) {
-            templateMenuItem.setSelected(true);
-        }
-    }
-
-    public void populateTemplatesMenu(JMenu templateMenu) {
-        templateMenu.removeAll();
-        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
-        File templatesDir = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "templates");
-        if (!templatesDir.exists()) {
-            templatesDir.mkdir();
-        }
-        String[] templatesList = templatesDir.list();
-        Arrays.sort(templatesList);
-        int templateCount = 0;
-        addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, "", "Default");
-        for (String currentTemplateName : templatesList) {
-            String templatePath = templatesDir.getPath() + File.separatorChar + currentTemplateName;
-            if (new File(templatePath).isDirectory()) {
-                addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, templatePath, currentTemplateName);
-                templateCount++;
-            }
-        }
-        if (templateCount == 0) {
-            JMenuItem noneMenuItem = new JMenuItem("<none installed>");
-            noneMenuItem.setEnabled(false);
-            templateMenu.add(noneMenuItem);
-        }
-    }
 
     public boolean nodeCanExistInNode(ImdiTreeObject targetImdiObject, ImdiTreeObject childImdiObject) {
         String targetImdiPath = getNodePath((ImdiTreeObject) targetImdiObject);
@@ -304,7 +245,7 @@ public class ImdiSchema {
         return null;
     }
 
-    public String insertFromTemplate(ArbilTemplateManager.ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, String targetXmlPath, Document targetImdiDom, String resourcePath, String mimeType) {
+    public String insertFromTemplate(ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, String targetXmlPath, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
         System.out.println("targetXpath: " + targetXmlPath);
         String addedPathString = null;
