@@ -210,7 +210,7 @@ public class ImdiIcons {
             iconsVector.add(fileIcon);
         }
         // add missing file icon
-        if ((imdiObject.fileNotFound) || (imdiObject.hasResource() && imdiObject.hashString == null)) {
+        if ((imdiObject.fileNotFound) || (imdiObject.hasLocalResource() && imdiObject.hashString == null)) {
             iconsVector.add(missingRedIcon);
         }
         // add a file attached to a session icon
