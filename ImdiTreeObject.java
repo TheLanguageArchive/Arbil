@@ -1296,11 +1296,28 @@ public class ImdiTreeObject implements Comparable {
     }
 
     /**
-     * Tests if a resource file is associated with this node.
+     * Tests if a resource file (local or remote) is associated with this node.
      * @return boolean
      */
     public boolean hasResource() {
         return resourceUrlString != null;
+    }
+
+    /**
+     * Tests if a local resource file is associated with this node.
+     * @return boolean
+     */
+    public boolean hasLocalResource() {
+        if (resourceUrlString == null) {
+            return false;
+        }
+        if (resourceUrlString.toLowerCase().startsWith("http")) {
+            return false;
+        }
+        if (resourceUrlString.toLowerCase().startsWith(".") && !this.isLocal()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1319,7 +1336,7 @@ public class ImdiTreeObject implements Comparable {
         String targetUrlString = resourceUrlString;
         if (targetUrlString.startsWith(".")) {
             targetUrlString = this.getParentDirectory() + targetUrlString;
-        //targetUrlString = targetUrlString.replace("/./", "/");
+            //targetUrlString = targetUrlString.replace("/./", "/");
         }
         return targetUrlString;
     }
