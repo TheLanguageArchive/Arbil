@@ -31,7 +31,7 @@ public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
 
     public static IMDIDom api = new IMDIDom();
-    public ArbilTemplateManager.ArbilTemplate currentTemplate;
+    public ArbilTemplate currentTemplate;
 //    static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
@@ -45,7 +45,7 @@ public class ImdiTreeObject implements Comparable {
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
     public boolean imdiNeedsSaveToDisk;
-    private String nodeText,  lastNodeText = "";
+    private String nodeText, lastNodeText = "";
     private boolean nodeTextChanged = false;
     private URL nodeUrl;
     private String resourceUrlString;
