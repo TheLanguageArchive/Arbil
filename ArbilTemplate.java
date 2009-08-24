@@ -27,7 +27,7 @@ public class ArbilTemplate{
         //        TODO: read this array from a file in the teplates directory
         {".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.MDGroup.Content.Genre", "description"}
     };
-    public String[] requiredFields = {".METATRANSCRIPT.Session.MDGroup.Content.Genre", ".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", ".METATRANSCRIPT.Session.MDGroup.Project.Title", ".METATRANSCRIPT.Corpus.Title", ".METATRANSCRIPT.Session.Title", ".METATRANSCRIPT.Session.MDGroup.Project.Id"};
+    public String[] requiredFields = {".METATRANSCRIPT.Session.MDGroup.Project.Title", ".METATRANSCRIPT.Corpus.Title", ".METATRANSCRIPT.Session.Title"};
 
     public String pathIsChildNode(String nodePath) {
         // TODO: change this to use a master list of types and populate it from the schema
