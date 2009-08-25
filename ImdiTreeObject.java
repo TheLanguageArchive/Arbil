@@ -1510,7 +1510,7 @@ public class ImdiTreeObject implements Comparable {
         return isFavourite;
     }
 
-    public void setTemplateStatus(boolean favouriteStatus) {
+    public void setFavouriteStatus(boolean favouriteStatus) {
         isFavourite = favouriteStatus;
         clearIcon();
     }
