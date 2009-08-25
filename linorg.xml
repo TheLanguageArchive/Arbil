@@ -142,28 +142,43 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </fileset>
         </copy>
     </target>
-    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL" description="create a Jar file">
-        <jar destfile="${OUTPUTDIR}/arbil.jar">
-            <fileset dir="${OUTPUTDIR}/classes" includes="mpi/linorg/**/*.class"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/images/*.png"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.*"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xsd"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xml"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.*"/>
-            <manifest>
-                <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure-1.5.jar lib/imdiapi-1.0.5.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
+    <target name="copyJarFilesToLib">
+        <mkdir dir="${OUTPUTDIR}/lib/"/>
+            <copy todir="${OUTPUTDIR}/lib/">
+                <fileset dir="${SRCDIR}../../webapps/lib/">
+                    <include name="corpusstructure-1.5.jar"/>
+                    <include name="imdiapi-1.0.5.jar"/>
+                    <include name="log4j-1.2.14.jar"/>
+                    <include name="saxon8.jar"/>
+                    <include name="saxon8-dom.jar"/>
+                    <include name="typecheck.jar"/>
+                    <include name="xalan-2.6.0.jar"/>
+                    <include name="xercesImpl-2.9.0.jar"/>
+                </fileset>
+            </copy>
+        </target>
+        <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
+            <jar destfile="${OUTPUTDIR}/arbil.jar">
+                <fileset dir="${OUTPUTDIR}/classes" includes="mpi/linorg/**/*.class"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/images/*.png"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.*"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xsd"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xml"/>
+                <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.*"/>
+                <manifest>
+                    <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
+                    <attribute name="Class-Path" value="lib/corpusstructure-1.5.jar lib/imdiapi-1.0.5.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
                 <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
                 <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
-            </manifest>
-        </jar>
-    </target>
-    <target name="run" description="run the application">
-        <java classname="mpi.linorg.Linorg">
-            <classpath>
+                </manifest>
+            </jar>
+        </target>
+        <target name="run" description="run the application">
+            <java classname="mpi.linorg.Linorg">
+                <classpath>
                 <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
                 <!--<filelist dir="${WEBAPPS_LIB}">
                     <file name="imdiapi.jar" />
@@ -189,13 +204,13 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                     <file name="xercesImpl.jar" />
                     -->
                <!-- </filelist>-->
-                <pathelement location="${OUTPUTDIR}/arbil.jar"/>
-            </classpath>
-        </java>
-    </target>
-    <target depends="setproperties" name="getsvnversion">
-        <property name="linorg.current.major" value="0"/>
-        <property name="linorg.current.minor" value="3"/>
+                    <pathelement location="${OUTPUTDIR}/arbil.jar"/>
+                </classpath>
+            </java>
+        </target>
+        <target depends="setproperties" name="getsvnversion">
+            <property name="linorg.current.major" value="0"/>
+            <property name="linorg.current.minor" value="3"/>
        <!-- <exec executable="svn" output="version.info">
             <arg value="info"/>
         </exec>
@@ -205,45 +220,45 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <arg value="version.info"/>
         </exec>-->
         <!--<exec executable="date" output="version.date" />-->
-        <exec outputproperty="linorg.current.revision" executable="svnversion">
-            <arg line="-n -c" />
-            <arg line="${SRCDIR}mpi/linorg/" />
-            <redirector>
-                <outputfilterchain>
-                    <tokenfilter>
-                        <replaceregex pattern="^[0-9]*:?" replace="" flags="g"/>
-                    </tokenfilter>
-                </outputfilterchain>
-            </redirector>
-        </exec>
-        <exec outputproperty="linorg.info.all" executable="svn">
-            <arg line="info" />
-            <arg line="${SRCDIR}mpi/linorg/" />
-            <redirector>
-                <outputfilterchain>
-                    <tokenfilter>
-                        <replaceregex pattern="^" replace="\\\\n" flags="g"/>
-                    </tokenfilter>
-                    <striplinebreaks/>
-                </outputfilterchain>
-            </redirector>
-        </exec>
-        <exec outputproperty="linorg.last.commit.date" executable="svn">
-            <arg line="info" />
-            <arg line="${SRCDIR}mpi/linorg/" />
-            <redirector>
-                <outputfilterchain>
-                    <linecontainsregexp>
-                        <regexp pattern="^Last Changed Date:" />
-                    </linecontainsregexp>
-                    <tokenfilter>
-                        <replaceregex pattern=".*\/([^\/]+)$" replace="\1" flags="g"/>
-                    </tokenfilter>
-                </outputfilterchain>
-            </redirector>
-        </exec>
-        <exec outputproperty="linorg.build.date" executable="date" />
-        <echo file="${SRCDIR}mpi/linorg/LinorgVersion.java" append="false">package mpi.linorg;
+            <exec outputproperty="linorg.current.revision" executable="svnversion">
+                <arg line="-n -c" />
+                <arg line="${SRCDIR}mpi/linorg/" />
+                <redirector>
+                    <outputfilterchain>
+                        <tokenfilter>
+                            <replaceregex pattern="^[0-9]*:?" replace="" flags="g"/>
+                        </tokenfilter>
+                    </outputfilterchain>
+                </redirector>
+            </exec>
+            <exec outputproperty="linorg.info.all" executable="svn">
+                <arg line="info" />
+                <arg line="${SRCDIR}mpi/linorg/" />
+                <redirector>
+                    <outputfilterchain>
+                        <tokenfilter>
+                            <replaceregex pattern="^" replace="\\\\n" flags="g"/>
+                        </tokenfilter>
+                        <striplinebreaks/>
+                    </outputfilterchain>
+                </redirector>
+            </exec>
+            <exec outputproperty="linorg.last.commit.date" executable="svn">
+                <arg line="info" />
+                <arg line="${SRCDIR}mpi/linorg/" />
+                <redirector>
+                    <outputfilterchain>
+                        <linecontainsregexp>
+                            <regexp pattern="^Last Changed Date:" />
+                        </linecontainsregexp>
+                        <tokenfilter>
+                            <replaceregex pattern=".*\/([^\/]+)$" replace="\1" flags="g"/>
+                        </tokenfilter>
+                    </outputfilterchain>
+                </redirector>
+            </exec>
+            <exec outputproperty="linorg.build.date" executable="date" />
+            <echo file="${SRCDIR}mpi/linorg/LinorgVersion.java" append="false">package mpi.linorg;
 public class LinorgVersion {
     String currentMajor = "${linorg.current.major}";
     String currentMinor = "${linorg.current.minor}";
@@ -252,27 +267,27 @@ public class LinorgVersion {
     String compileDate = "${linorg.build.date}";
     String fullInfo = "${linorg.info.all}";
 }
-        </echo>
-    </target>
-    <target depends="setproperties, getsvnversion, clean, clobber, compile, jar" name="signlinorg">
+            </echo>
+        </target>
+        <target depends="setproperties, getsvnversion, clean, clobber, compile, jar" name="signlinorg">
         <!--<signjar keystore="/data1/repos/trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
             <path>
                 <fileset dir="lib" includes="**/*.jar" />
             </path>
         </signjar>-->
-        <signjar jar="${OUTPUTDIR}/arbil.jar"
+            <signjar jar="${OUTPUTDIR}/arbil.jar"
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
-    </target>
-    <target depends="signlinorg, makeDebPackage" name="scp_to_lux09">
-        <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
-        <input message="Please enter lux09 username:" addproperty="lux09.user" />
-        <input message="Please enter lux09 password:" addproperty="lux09.pw" />
-        <move file="${OUTPUTDIR}/arbil.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
-        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <move file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" tofile="arbil.jar"/>
-        <scp file="${distributionDirectory}/arbil_${linorg.current.major}.${linorg.current.minor}-${linorg.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-    </target>
-</project>
+        </target>
+        <target depends="signlinorg, makeDebPackage" name="scp_to_lux09">
+            <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
+            <input message="Please enter lux09 username:" addproperty="lux09.user" />
+            <input message="Please enter lux09 password:" addproperty="lux09.pw" />
+            <move file="${OUTPUTDIR}/arbil.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
+            <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+            <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+            <move file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" tofile="arbil.jar"/>
+            <scp file="${distributionDirectory}/arbil_${linorg.current.major}.${linorg.current.minor}-${linorg.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        </target>
+    </project>
  
