@@ -368,7 +368,7 @@ public class ArbilMenuBar extends JMenuBar {
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 // TODO add your handling code here:
         try {
-            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().remoteCorpusTree);
+            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
             importExportDialog.importImdiBranch();
         } catch (Exception e) {
             System.out.println(e.getMessage());
