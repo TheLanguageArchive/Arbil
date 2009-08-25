@@ -9,9 +9,10 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
 
     public ArbilTreePanels() {
         leftLocalSplitPane = new javax.swing.JSplitPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        localDirectoryScrollPane = new javax.swing.JScrollPane();
+        localCorpusScrollPane = new javax.swing.JScrollPane();
+        remoteCorpusScrollPane = new javax.swing.JScrollPane();
+        favouritesScrollPane = new javax.swing.JScrollPane();
 
         this.setDividerSize(5);
         this.setDividerLocation(0.15);
@@ -26,29 +27,41 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         remoteCorpusTree = new ImdiTree();
         localDirectoryTree = new ImdiTree();
         localCorpusTree = new ImdiTree();
+        favouritesTree = new ImdiTree();
 
         remoteCorpusTree.setModel(TreeHelper.getSingleInstance().remoteCorpusTreeModel);
-        jScrollPane3.setViewportView(remoteCorpusTree);
+        remoteCorpusScrollPane.setViewportView(remoteCorpusTree);
 
         localCorpusTree.setModel(TreeHelper.getSingleInstance().localCorpusTreeModel);
-        jScrollPane4.setViewportView(localCorpusTree);
+        localCorpusScrollPane.setViewportView(localCorpusTree);
 
         localDirectoryTree.setModel(TreeHelper.getSingleInstance().localDirectoryTreeModel);
-        jScrollPane2.setViewportView(localDirectoryTree);
+        localDirectoryScrollPane.setViewportView(localDirectoryTree);
 
-        leftLocalSplitPane.setBottomComponent(jScrollPane2);
-        leftLocalSplitPane.setLeftComponent(jScrollPane4);
+        favouritesTree.setModel(TreeHelper.getSingleInstance().favouritesTreeModel);
+        favouritesScrollPane.setViewportView(favouritesTree);
+
+
+        leftLocalSplitPane.setBottomComponent(localDirectoryScrollPane);
+        leftLocalSplitPane.setLeftComponent(localCorpusScrollPane);
 
         this.setBottomComponent(leftLocalSplitPane);
-        this.setLeftComponent(jScrollPane3);
+        this.setLeftComponent(remoteCorpusScrollPane);
 
-        TreeHelper.getSingleInstance().setTrees(remoteCorpusTree, localCorpusTree, localDirectoryTree);
+        TreeHelper.getSingleInstance().setTrees(this);
     }
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
+
+    public ImdiTree[] getTreeArray() {
+        return new ImdiTree[]{localCorpusTree, localDirectoryTree, remoteCorpusTree, favouritesTree};
+    }
+    
+    private javax.swing.JScrollPane localDirectoryScrollPane;
+    private javax.swing.JScrollPane remoteCorpusScrollPane;
+    private javax.swing.JScrollPane localCorpusScrollPane;
+    private javax.swing.JScrollPane favouritesScrollPane;
     private javax.swing.JSplitPane leftLocalSplitPane;
-    private ImdiTree localCorpusTree;
-    private ImdiTree localDirectoryTree;
-    private ImdiTree remoteCorpusTree;
+    public ImdiTree localCorpusTree;
+    public ImdiTree localDirectoryTree;
+    public ImdiTree remoteCorpusTree;
+    public ImdiTree favouritesTree;
 }
