@@ -157,6 +157,20 @@ public class LinorgSessionStorage {
     }
 
     /**
+     * Checks for the existance of the favourites directory exists and creates it if it does not.
+     * @return File pointing to the favourites directory
+     */
+    public File getFavouritesDir() {
+        cacheDirectory = storageDirectory + "favourites" + File.separatorChar; // storageDirectory already has the file separator appended
+        File destinationFile = new File(cacheDirectory);
+        boolean cacheDirExists = destinationFile.exists();
+        if (!cacheDirExists) {
+            cacheDirExists = destinationFile.mkdir();
+        }
+        return destinationFile;
+    }
+
+    /**
      * Tests that the cache directory exists and creates it if it does not.
      * @return Boolean
      */
