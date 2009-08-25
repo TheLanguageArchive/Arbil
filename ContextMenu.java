@@ -195,7 +195,7 @@ public class ContextMenu {
             }
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                GuiHelper.getSingleInstance().initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSingleSelectedNode());
+                GuiHelper.getSingleInstance().initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSingleSelectedNode());
             }
         });
 
@@ -353,7 +353,7 @@ public class ContextMenu {
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().localCorpusTree.getSelectedNodes()) {
+                for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectedNodes()) {
                     System.out.println("userObject: " + selectedNode);
                     // reloading will first check if a save is required then save and reload
                     GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
@@ -474,8 +474,8 @@ public class ContextMenu {
         //GEN-FIRST:event_removeRemoteCorpusMenuItemActionPerformed// TODO add your handling code here:   
         DefaultMutableTreeNode selectedTreeNode = null;
 
-        if (TreeHelper.getSingleInstance().remoteCorpusTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().remoteCorpusTree.getSelectionPath().getLastPathComponent();
+        if (TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath() != null) {
+            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath().getLastPathComponent();
 
         }
         TreeHelper.getSingleInstance().removeSelectedLocation(selectedTreeNode);
@@ -498,8 +498,8 @@ public class ContextMenu {
         // TODO add your handling code here: 
         DefaultMutableTreeNode selectedTreeNode = null;
 
-        if (TreeHelper.getSingleInstance().localDirectoryTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localDirectoryTree.getSelectionPath().getLastPathComponent();
+        if (TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath() != null) {
+            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath().getLastPathComponent();
 
         }
         TreeHelper.getSingleInstance().removeSelectedLocation(selectedTreeNode);
@@ -509,7 +509,7 @@ public class ContextMenu {
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
         // TODO add your handling code here:    
-        LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSelectedNodes(), "Search");
+        LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSelectedNodes(), "Search");
 
     }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
@@ -522,7 +522,7 @@ public class ContextMenu {
 
     private void addMenuMenuSelected(javax.swing.event.MenuEvent evt) {
         //GEN-FIRST:event_addMenuMenuSelected// TODO add your handling code here:  
-        GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSingleSelectedNode());
+        GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSingleSelectedNode());
 
     }//GEN-LAST:event_addMenuMenuSelected
 
@@ -576,7 +576,7 @@ public class ContextMenu {
         // make sure the chosen directory is empty   
         // export the tree, maybe adjusting resource links so that resource files do not need to be copied
         try {
-            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().remoteCorpusTree);
+            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
             importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -601,6 +601,7 @@ public class ContextMenu {
         if (selectionCount > 0) {
             nodeLevel = ((javax.swing.JTree) eventSource).getSelectionPath().getPathCount();
         }
+        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
         boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
         boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
         //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
@@ -634,24 +635,23 @@ public class ContextMenu {
         validateMenuItem.setVisible(false);
         exportMenuItem.setVisible(false);
 
-        if (eventSource == TreeHelper.getSingleInstance().remoteCorpusTree) {
+        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree) {
             removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
             addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
             copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
         }
-        if (eventSource == TreeHelper.getSingleInstance().localCorpusTree) {
+        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
             viewSelectedNodesMenuItem.setText("View/Edit Selected");
             //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
-            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes 
+            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 1);
             boolean nodeIsImdiChild = false;
-            Object leadSelectedTreeObject = ((ImdiTree) TreeHelper.getSingleInstance().localCorpusTree).getSingleSelectedNode();
             if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
                 nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
                 if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
@@ -681,14 +681,13 @@ public class ContextMenu {
 //            addMenu.setEnabled(!nodeIsImdiChild);
             showContextMenu = true; //nodeLevel != 1;
         }
-        if (eventSource == TreeHelper.getSingleInstance().localDirectoryTree) {
+        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree) {
             removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
             if (showAddLocationsTasks) {
                 showHiddenFilesMenuItem.setState(TreeHelper.getSingleInstance().showHiddenFilesInTree);
                 showHiddenFilesMenuItem.setVisible(true);
             }
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
-            Object leadSelectedTreeObject = ((ImdiTree) TreeHelper.getSingleInstance().localDirectoryTree).getSingleSelectedNode();
             if (leadSelectedTreeObject instanceof ImdiTreeObject) {
                 copyBranchMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isCorpus() || ((ImdiTreeObject) leadSelectedTreeObject).isSession());
             }
@@ -700,8 +699,8 @@ public class ContextMenu {
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
 
         // hide show the separators
-        treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && eventSource != TreeHelper.getSingleInstance().localDirectoryTree);
-        treePopupMenuSeparator1.setVisible(nodeLevel != 1 && eventSource == TreeHelper.getSingleInstance().localCorpusTree);
+        treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && eventSource != TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree);
+        treePopupMenuSeparator1.setVisible(nodeLevel != 1 && eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree);
 
         // store the event source
         treePopupMenu.setInvoker((javax.swing.JTree) eventSource);
