@@ -3,7 +3,6 @@ package mpi.linorg;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -27,12 +26,12 @@ public class TreeHelper {
     public DefaultTreeModel localCorpusTreeModel;
     public DefaultTreeModel remoteCorpusTreeModel;
     public DefaultTreeModel localDirectoryTreeModel;
+    public DefaultTreeModel favouritesTreeModel;
     private DefaultMutableTreeNode localCorpusRootNode;
     private DefaultMutableTreeNode remoteCorpusRootNode;
     private DefaultMutableTreeNode localDirectoryRootNode;
-    public ImdiTree localCorpusTree;
-    public ImdiTree localDirectoryTree;
-    public ImdiTree remoteCorpusTree;
+    private DefaultMutableTreeNode favouritesRootNode;
+    public ArbilTreePanels arbilTreePanel;
     private Vector<String> locationsList; // this is the list of locations seen in the tree and the location settings
     static private TreeHelper singleInstance = null;
     static public boolean trackTableSelection = false;
@@ -52,21 +51,26 @@ public class TreeHelper {
         localCorpusRootNode = new DefaultMutableTreeNode();
         remoteCorpusRootNode = new DefaultMutableTreeNode();
         localDirectoryRootNode = new DefaultMutableTreeNode();
+        favouritesRootNode = new DefaultMutableTreeNode();
 
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
+        favouritesTreeModel = new DefaultTreeModel(favouritesRootNode, true);
         loadLocationsList();
     }
 
     public ImdiTree getTreeForNode(DefaultMutableTreeNode nodeToTest) {
         if (nodeToTest.getRoot().equals(remoteCorpusRootNode)) {
-            return remoteCorpusTree;
+            return arbilTreePanel.remoteCorpusTree;
         }
         if (nodeToTest.getRoot().equals(localCorpusRootNode)) {
-            return localCorpusTree;
+            return arbilTreePanel.localCorpusTree;
         }
-        return localDirectoryTree;
+        if (nodeToTest.getRoot().equals(localDirectoryRootNode)) {
+            return arbilTreePanel.localDirectoryTree;
+        }
+        return arbilTreePanel.favouritesTree;
     }
 
     public DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest) {
@@ -76,30 +80,29 @@ public class TreeHelper {
         if (nodeToTest.getRoot().equals(localCorpusRootNode)) {
             return localCorpusTreeModel;
         }
-        return localDirectoryTreeModel;
+        if (nodeToTest.getRoot().equals(localDirectoryRootNode)) {
+            return localDirectoryTreeModel;
+        }
+        return favouritesTreeModel;
     }
 
     public boolean componentIsTheLocalCorpusTree(Component componentToTest) {
-        return componentToTest.equals(localCorpusTree);
-    //return localCorpusTree.getName().equals(componentToTest.getName());
+        return componentToTest.equals(arbilTreePanel.localCorpusTree);
+        //return localCorpusTree.getName().equals(componentToTest.getName());
     }
 
-    public void setTrees(ImdiTree tempRemoteCorpusTree, ImdiTree tempLocalCorpusTree, ImdiTree tempLocalDirectoryTree) {
+    public void setTrees(ArbilTreePanels arbilTreePanelLocal) {
+        arbilTreePanel = arbilTreePanelLocal;
+//            ImdiTree tempRemoteCorpusTree, ImdiTree tempLocalCorpusTree, ImdiTree tempLocalDirectoryTree) {
         remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ImdiIcons.getSingleInstance().serverIcon, JLabel.LEFT));
         localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ImdiIcons.getSingleInstance().directoryIcon, JLabel.LEFT));
         localDirectoryRootNode.setUserObject(new JLabel("Working Directories", ImdiIcons.getSingleInstance().computerIcon, JLabel.LEFT));
+        favouritesRootNode.setUserObject(new JLabel("Favourites", ImdiIcons.getSingleInstance().favouriteIcon, JLabel.LEFT));
 
-        remoteCorpusTree = tempRemoteCorpusTree;
-        localCorpusTree = tempLocalCorpusTree;
-        localDirectoryTree = tempLocalDirectoryTree;
-
-//        remoteCorpusTree.setLargeModel(true); // the huge tree node issue has been seen while setLargeModel is set to true
-//        localCorpusTree.setLargeModel(true);
-//        localDirectoryTree.setLargeModel(true);
-
-        remoteCorpusTree.setName("RemoteCorpusTree");
-        localCorpusTree.setName("LocalCorpusTree");
-        localDirectoryTree.setName("LocalDirectoryTree");
+        arbilTreePanel.remoteCorpusTree.setName("RemoteCorpusTree");
+        arbilTreePanel.localCorpusTree.setName("LocalCorpusTree");
+        arbilTreePanel.localDirectoryTree.setName("LocalDirectoryTree");
+        arbilTreePanel.favouritesTree.setName("FavouritesTree");
 
         applyRootLocations();
     }
@@ -378,15 +381,17 @@ public class TreeHelper {
                                 updateTreeNodeChildren(remoteCorpusRootNode, remoteCorpusRootUrls, scrollToRequests);
                                 updateTreeNodeChildren(localCorpusRootNode, localCorpusRootUrls, scrollToRequests);
                                 updateTreeNodeChildren(localDirectoryRootNode, localDirectoryRootUrls, scrollToRequests);
+                                updateTreeNodeChildren(favouritesRootNode, LinorgFavourites.getSingleInstance().getArrayOfFavourites(), scrollToRequests);
                             }
 //                                sortChildNodes(currentTreeNode);
                         }
                     }
                     if (scrollToRequests.size() > 0) {
                         // clear the tree selection
-                        TreeHelper.getSingleInstance().remoteCorpusTree.clearSelection();
-                        TreeHelper.getSingleInstance().localCorpusTree.clearSelection();
-                        TreeHelper.getSingleInstance().localDirectoryTree.clearSelection();
+                        arbilTreePanel.remoteCorpusTree.clearSelection();
+                        arbilTreePanel.localCorpusTree.clearSelection();
+                        arbilTreePanel.localDirectoryTree.clearSelection();
+                        arbilTreePanel.favouritesTree.clearSelection();
                     }
                     for (DefaultMutableTreeNode currentScrollToNode : scrollToRequests) {
                         TreePath targetTreePath = new TreePath((currentScrollToNode).getPath());
@@ -525,15 +530,14 @@ public class TreeHelper {
         addToSortQueue(remoteCorpusRootNode);
         addToSortQueue(localCorpusRootNode);
         addToSortQueue(localDirectoryRootNode);
+        addToSortQueue(favouritesRootNode);
     }
 
     public void redrawTrees() {
-        localCorpusTree.invalidate();
-        localDirectoryTree.invalidate();
-        remoteCorpusTree.invalidate();
-        localCorpusTree.repaint();
-        localDirectoryTree.repaint();
-        remoteCorpusTree.repaint();
+        for (ImdiTree currentTree : arbilTreePanel.getTreeArray()) {
+            currentTree.invalidate();
+            currentTree.repaint();
+        }
     }
 
 //    public void reloadLocalCorpusTree(DefaultMutableTreeNode targetNode) {
@@ -549,8 +553,8 @@ public class TreeHelper {
 ////        localCorpusTree.expandPath(currentSelection); // this may be what is causing the tree draw issues
 //    }
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
-        System.out.println("localCorpusTree: " + localCorpusTree);
-        return (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
+        System.out.println("localCorpusTree: " + arbilTreePanel.localCorpusTree);
+        return (DefaultMutableTreeNode) arbilTreePanel.localCorpusTree.getSelectionPath().getLastPathComponent();
     }
 
     public void showLocationsDialog() {
@@ -670,7 +674,7 @@ public class TreeHelper {
         System.out.println("deleteNode: " + sourceObject);
         DefaultMutableTreeNode selectedTreeNode = null;
         DefaultMutableTreeNode parentTreeNode = null;
-        if (sourceObject == localCorpusTree) {
+        if (sourceObject == arbilTreePanel.localCorpusTree) {
             javax.swing.tree.TreePath currentNodePaths[] = ((ImdiTree) sourceObject).getSelectionPaths();
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete " + currentNodePaths.length + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 Vector<ImdiTreeObject> imdiNodesToRemove = new Vector<ImdiTreeObject>();
