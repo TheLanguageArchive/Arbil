@@ -78,21 +78,21 @@ public class ArbilTemplateManager {
         return returnTemplate;
     }
 
-    public void readTemplate(String templatePath) {
-        try {
-            javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
-            javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
-            org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
-            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
-            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+//    public void readTemplate(String templatePath) {
+//        try {
+//            javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
+//            javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
+//            org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
+//            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+//            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
 //            xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
 //            xmlReader.parse(cachePath);
-        } catch (Exception ex) {
+//        } catch (Exception ex) {
 //            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
-        }
-    }
+//        }
+//    }
 
-    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
+//    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
 //        Vocabulary collectedVocab;
 //        VocabularyItem currentVocabItem = null;
@@ -134,5 +134,5 @@ public class ArbilTemplateManager {
 //                collectedVocab.vocabularyItems.add(currentVocabItem);
 //            }
 //        }
-    }
+//    }
 }
