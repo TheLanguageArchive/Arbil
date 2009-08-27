@@ -140,7 +140,8 @@ public class ArbilMenuBar extends JMenuBar {
         redoMenuItem.setEnabled(false);
         editMenu.add(redoMenuItem);
 
-        this.add(editMenu);
+        // TODO: when the undo / redo is done this can be readded, node that copy paste from this menu may not be a good idea due to the many simultainous selections possible
+        //this.add(editMenu);
 
         optionsMenu.setText("Options");
 
