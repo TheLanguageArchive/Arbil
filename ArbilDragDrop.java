@@ -97,9 +97,13 @@ public class ArbilDragDrop {
                     ImdiTree dropTree = (ImdiTree) evt.getSource();
 //                    DropTarget dropTarget = dropTree.getDropTarget();
                     Object currentLeadSelection = dropTree.getSingleSelectedNode();
-                    System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
-                    if (currentLeadSelection instanceof ImdiTreeObject) {
-                        dropAllowed = canDropToTarget((ImdiTreeObject) currentLeadSelection);
+                    if (currentLeadSelection != null) {
+                        System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
+                        if (currentLeadSelection instanceof ImdiTreeObject) {
+                            dropAllowed = canDropToTarget((ImdiTreeObject) currentLeadSelection);
+                        } else {
+                            dropAllowed = false;
+                        }
                     } else {
                         dropAllowed = false;
                     }
@@ -204,7 +208,8 @@ public class ArbilDragDrop {
                 }
             } else {
                 // search through al the parent nodes to see if we can find a drop target
-                return (null != findImdiDropableTarget(comp));
+                dropAllowed = (null != findImdiDropableTarget(comp));
+                return dropAllowed;
             }
             System.out.println("canImport false");
             return false;
@@ -214,7 +219,6 @@ public class ArbilDragDrop {
             while (tempCom != null) {
                 if (tempCom instanceof LinorgSplitPanel || tempCom instanceof JDesktopPane) {
                     System.out.println("canImport true");
-                    dropAllowed = true;
                     return tempCom;
                 }
                 tempCom = tempCom.getParent();
