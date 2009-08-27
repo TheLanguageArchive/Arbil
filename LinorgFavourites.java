@@ -116,7 +116,7 @@ public class LinorgFavourites {
         }
     }
 
-    public Vector getArrayOfFavourites() {
+    public Vector getFavouritesAsUrls() {
         return new Vector(userFavourites.keySet());
     }
 
