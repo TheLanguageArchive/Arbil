@@ -381,7 +381,7 @@ public class TreeHelper {
                                 updateTreeNodeChildren(remoteCorpusRootNode, remoteCorpusRootUrls, scrollToRequests);
                                 updateTreeNodeChildren(localCorpusRootNode, localCorpusRootUrls, scrollToRequests);
                                 updateTreeNodeChildren(localDirectoryRootNode, localDirectoryRootUrls, scrollToRequests);
-                                updateTreeNodeChildren(favouritesRootNode, LinorgFavourites.getSingleInstance().getArrayOfFavourites(), scrollToRequests);
+                                updateTreeNodeChildren(favouritesRootNode, LinorgFavourites.getSingleInstance().getFavouritesAsUrls(), scrollToRequests);
                             }
 //                                sortChildNodes(currentTreeNode);
                         }
