@@ -85,6 +85,9 @@ public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
         } else if (cellObject instanceof ImdiField && ((ImdiField) cellObject).isRequiredField() && ((ImdiField) cellObject).toString().length() == 0) {
             super.setForeground(Color.RED);
             return "<required field>";
+        } else if (cellObject instanceof ImdiField && !((ImdiField) cellObject).fieldValueValidatesToTemplate()) {
+            super.setForeground(Color.RED);
+            return super.getText();
         } else {
             return super.getText();
         }
