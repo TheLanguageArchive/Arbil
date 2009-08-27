@@ -23,6 +23,7 @@ public class ImdiField {
     private Hashtable<String, String> fieldAttributes = new Hashtable();
     private int isLongField = -1;
     private int isRequiredField = -1;
+    private int canValidateField = -1;
 
     public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
         parentImdi = localParentImdi;
@@ -56,6 +57,20 @@ public class ImdiField {
         return isRequiredField == 1;
     }
 
+    public boolean fieldValueValidatesToTemplate() {
+        boolean isValidValue = true;
+        if (canValidateField != 0) { // only do this the first time or once a field constraint has been found
+            canValidateField = 0;
+            for (String[] currentRequiredField : parentImdi.currentTemplate.fieldConstraints) {
+                if (currentRequiredField[0].equals(xmlPath)) {
+                    canValidateField = 1;
+                    isValidValue = (fieldValue.matches(currentRequiredField[1]));
+                    break;
+                }
+            }
+        }
+        return isValidValue;
+    }
     public String getFieldValue() {
         return fieldValue;
     }
@@ -66,12 +81,14 @@ public class ImdiField {
     }
 
     public String getFullXmlPath() {
+        String returnValue;
         String[] pathStringArray = this.parentImdi.getUrlString().split("#");
         if (pathStringArray.length > 1) {
-            return pathStringArray[1] + this.xmlPath;
+            returnValue = pathStringArray[1] + this.xmlPath;
         } else {
-            return this.xmlPath;
+            returnValue = this.xmlPath;
         }
+        return returnValue;
     }
 
     public void setFieldValue(String fieldValue, boolean updateUI) {
