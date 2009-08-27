@@ -252,8 +252,12 @@ public class ImdiSchema {
 //        System.out.println("targetImdiDom: " + targetImdiDom.getTextContent());
         String targetXpath = targetXmlPath;
         String targetRef;
+        String templateFileString = null;
         try {
-            String templateFileString = elementName.substring(1);
+            if (targetImdiDom == null) {
+                throw (new Exception("targetImdiDom is null"));
+            }
+            templateFileString = elementName.substring(1);//TODO: this level of path change should not be done here but in the original caller
             System.out.println("templateFileString: " + templateFileString);
             templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
             System.out.println("templateFileString(x): " + templateFileString);
@@ -324,7 +328,7 @@ public class ImdiSchema {
             System.out.println("templateUrl: " + templateUrl);
             if (templateUrl == null) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), null);
-                return null;
+                throw (new Exception("No template found for: " + elementName.substring(1)));
             }
             Document insertableSectionDoc = ImdiTreeObject.api.loadIMDIDocument(new OurURL(templateUrl), false);
             // insert values into the section that about to be added
@@ -376,8 +380,12 @@ public class ImdiSchema {
                 linkNode.setTextContent(mimeType);
             }
 
+            Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
+            if (insertableNode == null) {
+                throw (new Exception("InsertableSection not found in the template"));
+            }
             // import the new section to the target dom
-            Node addableNode = targetImdiDom.importNode(org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*"), true);
+            Node addableNode = targetImdiDom.importNode(insertableNode, true);
 
             Node insertBeforeNode = null;
             String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
@@ -412,7 +420,8 @@ public class ImdiSchema {
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
             System.out.println("exception with targetXpath: " + targetXpath);
-            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("templateUrl: " + templateUrl);
+            GuiHelper.linorgBugCatcher.logError("exception with targetXpath: " + targetXpath + "\ntemplateFileString: " + templateFileString, ex);
         }
         System.out.println("addedPathString: " + addedPathString);
         return addedPathString;
