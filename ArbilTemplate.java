@@ -12,7 +12,7 @@ import java.util.Vector;
  * Created on Aug 14, 2009, 11:30:20 AM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilTemplate{
+public class ArbilTemplate {
 
     public String[][] triggersArray = {
         //        TODO: read this array from a file in the teplates directory
@@ -20,14 +20,26 @@ public class ArbilTemplate{
         {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id", "description"},
         {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id", "description"},
         {".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name", ".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id", "description"},
-        {".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name", ".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id", "description"}//,
+        {".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name", ".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id", "description"}
 //            this LexiconResource field has no related id field {".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language", ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Id", "description"},
     };
     public String[][] genreSubgenreArray = {
         //        TODO: read this array from a file in the teplates directory
         {".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.MDGroup.Content.Genre", "description"}
     };
-    public String[] requiredFields = {".METATRANSCRIPT.Session.MDGroup.Project.Title", ".METATRANSCRIPT.Corpus.Title", ".METATRANSCRIPT.Session.Title"};
+    public String[] requiredFields = {".METATRANSCRIPT.Session.MDGroup.Content.Genre", ".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", ".METATRANSCRIPT.Session.MDGroup.Project.Title", ".METATRANSCRIPT.Corpus.Title", ".METATRANSCRIPT.Session.Title", ".METATRANSCRIPT.Session.MDGroup.Project.Id"};
+    public String[][] fieldConstraints = {
+        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(15).BirthDate", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
+        {".METATRANSCRIPT.Session.Date", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
+        {".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
+        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(3).BirthDate", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
+        {".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", "([.]+)@([.]+)"}
+//        (ISO639(-1|-2|-3)?:.*)?"/>
+//			<xsd:pattern value="(RFC3066:.*)?"/>
+//			<xsd:pattern value="(RFC1766:.*)?"/>
+//			<xsd:pattern value="(SIL:.*)?"/>
+//                        "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified"
+    };
 
     public String pathIsChildNode(String nodePath) {
         // TODO: change this to use a master list of types and populate it from the schema
