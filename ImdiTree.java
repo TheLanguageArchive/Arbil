@@ -101,7 +101,7 @@ public class ImdiTree extends JTree {
         // enable the tree icons
         this.setCellRenderer(new ImdiTreeRenderer());
         // enable drag and drop
-        GuiHelper.imdiDragDrop.addDrag(this);
+        GuiHelper.arbilDragDrop.addDrag(this);
     }
 
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
