@@ -55,7 +55,7 @@ public class LinorgWindowManager {
     private LinorgWindowManager() {
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(new java.awt.Color(204, 204, 204));
-        GuiHelper.imdiDragDrop.addTransferHandler(desktopPane);
+        GuiHelper.arbilDragDrop.addTransferHandler(desktopPane);
     }
 
     public void loadGuiState(JFrame linorgFrameLocal) {
