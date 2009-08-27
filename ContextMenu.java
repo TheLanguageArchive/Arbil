@@ -183,7 +183,7 @@ public class ContextMenu {
             }
         });
 
-        favouritesMenu.add(addToFavouritesMenuItem);
+        treePopupMenu.add(addToFavouritesMenuItem);
         addFromFavouritesMenu.setText("Add From Favourites");
 
         addFromFavouritesMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -401,17 +401,17 @@ public class ContextMenu {
         treePopupMenu.add(exportMenuItem);
     }
 
-    private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyBranchMenuItemActionPerformed
+    private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:    
         if (treePopupMenu.getInvoker() instanceof JTree) {
             try {
                 ImportExportDialog importExportDialog = new ImportExportDialog(treePopupMenu.getInvoker());
                 importExportDialog.copyToCache(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
-    }//GEN-LAST:event_copyBranchMenuItemActionPerformed
+    }
 
     private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_addLocalDirectoryMenuItemActionPerformed
@@ -432,7 +432,7 @@ public class ContextMenu {
 //            System.out.println("Error adding location: " + ex.getMessage());
             }
         }
-    }//GEN-LAST:event_viewXmlMenuItemActionPerformed
+    }
 
     private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
@@ -486,10 +486,10 @@ public class ContextMenu {
         //GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
         // TODO add your handling code here://    
         DefaultMutableTreeNode selectedTreeNode = null;
-    //    if (localCorpusTree.getSelectionPath() != null) {
-    //        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
-    //    }
-    //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
+        //    if (localCorpusTree.getSelectionPath() != null) {
+        //        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
+        //    }
+        //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
     }
     //GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
 
@@ -564,7 +564,7 @@ public class ContextMenu {
                 }
                 GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
             } catch (URISyntaxException usE) {
-                usE.printStackTrace();
+                GuiHelper.linorgBugCatcher.logError(usE);
             }
         }
     }
@@ -578,8 +578,8 @@ public class ContextMenu {
         try {
             ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
             importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
         }
     }//GEN-LAST:event_exportMenuItemActionPerformed
 
@@ -667,15 +667,6 @@ public class ContextMenu {
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 // set up the favourites menu                
                 favouritesMenu.setVisible(true);
-                addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus());
-                if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
-                    addToFavouritesMenuItem.setText("Remove From Favourites List");
-                    addToFavouritesMenuItem.setActionCommand("false");
-                    deleteMenuItem.setEnabled(false);
-                } else {
-                    addToFavouritesMenuItem.setText("Add To Favourites List");
-                    addToFavouritesMenuItem.setActionCommand("true");
-                }
             }
             //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
 //            addMenu.setEnabled(!nodeIsImdiChild);
@@ -691,6 +682,21 @@ public class ContextMenu {
             if (leadSelectedTreeObject instanceof ImdiTreeObject) {
                 copyBranchMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isCorpus() || ((ImdiTreeObject) leadSelectedTreeObject).isSession());
             }
+        }
+        if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
+            addToFavouritesMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isImdi());
+            addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus() && ((ImdiTreeObject) leadSelectedTreeObject).isImdi());
+            if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
+                addToFavouritesMenuItem.setText("Remove From Favourites List");
+                addToFavouritesMenuItem.setActionCommand("false");
+                deleteMenuItem.setEnabled(false);
+            } else {
+
+                addToFavouritesMenuItem.setText("Add To Favourites List");
+                addToFavouritesMenuItem.setActionCommand("true");
+            }
+        } else {
+            addToFavouritesMenuItem.setVisible(false);
         }
         viewInBrrowserMenuItem.setVisible(nodeLevel > 1);
         copyImdiUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1); // show the copy menu providing some nodes are selected and the root node is not the only one selected
