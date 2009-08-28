@@ -61,7 +61,7 @@ public class ImdiVocabularies {
             boolean foundTrigger = false;
             System.out.println("vocabularyLocation: " + vocabularyLocation);
             System.out.println("Field: " + originatingImdiField.getFullXmlPath());
-            for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.triggersArray) {
+            for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.fieldTriggersArray) {
                 if (fieldPath.equals(currentTrigger[0])) {
                     foundTrigger = true;
                 }
