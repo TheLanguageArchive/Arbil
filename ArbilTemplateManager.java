@@ -23,8 +23,8 @@ public class ArbilTemplateManager {
         return singleInstance;
     }
 
-    public File getCurrentTemplateFile() {
-        File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + getCurrentTemplate() + File.separatorChar + "template.xml");
+    public File getTemplateFile(String currentTemplate) {
+        File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "template.xml");
         if (!currentTemplateFile.getParentFile().exists()) {
             currentTemplateFile.getParentFile().mkdir();
         }
@@ -68,6 +68,7 @@ public class ArbilTemplateManager {
             if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
                 returnTemplate = new ArbilTemplate();
+                returnTemplate.readTemplate(getTemplateFile(templateName));
                 templatesHashTable.put(templateName, returnTemplate);
             } else {
                 returnTemplate = templatesHashTable.get(templateName);
