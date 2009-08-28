@@ -1,11 +1,13 @@
 package mpi.linorg;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Vector;
+import org.xml.sax.SAXException;
 
 /**
  * ArbilTemplate.java
@@ -14,32 +16,59 @@ import java.util.Vector;
  */
 public class ArbilTemplate {
 
-    public String[][] triggersArray = {
-        //        TODO: read this array from a file in the teplates directory
-        {".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Id", "description"},
-        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id", "description"},
-        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name", ".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id", "description"},
-        {".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name", ".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id", "description"},
-        {".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name", ".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id", "description"}
-//            this LexiconResource field has no related id field {".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language", ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Id", "description"},
-    };
-    public String[][] genreSubgenreArray = {
-        //        TODO: read this array from a file in the teplates directory
-        {".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.MDGroup.Content.Genre", "description"}
-    };
-    public String[] requiredFields = {".METATRANSCRIPT.Session.MDGroup.Content.Genre", ".METATRANSCRIPT.Session.MDGroup.Content.SubGenre", ".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", ".METATRANSCRIPT.Session.MDGroup.Project.Title", ".METATRANSCRIPT.Corpus.Title", ".METATRANSCRIPT.Session.Title", ".METATRANSCRIPT.Session.MDGroup.Project.Id"};
-    public String[][] fieldConstraints = {
-        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(15).BirthDate", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
-        {".METATRANSCRIPT.Session.Date", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
-        {".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
-        {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(3).BirthDate", "([0-9]+)((-[0-9]+)(-[0-9]+)?)?"},
-        {".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", "([.]+)@([.]+)"}
+    public String[][] fieldTriggersArray;
+    /*
+    <FieldTriggers>
+    <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
+    <comment>The primary use fof these triggers are to set the corresponding language code when the language name field is changed is set</comment>
+    <comment>The SourceFieldValue sets the source of the data to be inserted into the target field from the source fields controlled vocabulary. Possible values relate to the vocabulary xml format and include: "Content" "Value" "Code" "FollowUp".</comment>
+    <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Id" SourceFieldValue = "Content" />
+    <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id" SourceFieldValue = "Content" />
+    <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id" SourceFieldValue = "Content" />
+    <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id" SourceFieldValue = "Content" />
+    <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id" SourceFieldValue = "Content" />
+    <comment>The LexiconResource field has no related id field and so is excluded from this list ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language"</comment>
+    </FieldTriggers>
+     */
+    public String[][] genreSubgenreArray;
+    /*        
+    <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
+    <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content.Genre" Description="description" />
+     */
+    public String[] requiredFields;
+    /*  
+    <?xml version="1.0" encoding="UTF-8"?>
+    <template>
+    <comment>The fields listed here as required fields will be highlighted in the application until they have a value entered</comment>
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Genre" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Title" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Title" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
+    <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Id" />
+    </template>
+     */
+    public String[][] fieldConstraints;
 //        (ISO639(-1|-2|-3)?:.*)?"/>
 //			<xsd:pattern value="(RFC3066:.*)?"/>
 //			<xsd:pattern value="(RFC1766:.*)?"/>
 //			<xsd:pattern value="(SIL:.*)?"/>
 //                        "[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified"
-    };
+    //   };
+    /*
+    <FieldConstraints>
+    <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
+    <FieldConstraint FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(15).BirthDate", Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?">
+    <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Date", Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?">
+    <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date", Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?">
+    <FieldConstraint FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(3).BirthDate", Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?">
+    <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", Constraint="([.]+)@([.]+)">
+    </FieldConstraints>        
+     */
 
     public String pathIsChildNode(String nodePath) {
         // TODO: change this to use a master list of types and populate it from the schema
@@ -214,5 +243,59 @@ public class ArbilTemplate {
             childTypes.add(new String[]{"Unattached Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
         }
         return childTypes.elements();
+    }
+
+    public void readTemplate(File templateConfigFile) {
+        try {
+            javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
+            javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
+            org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
+            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+            xmlReader.setContentHandler(new org.xml.sax.helpers.DefaultHandler() {
+
+                ArrayList<String> requiredFieldsList = new ArrayList<String>();
+                ArrayList<String[]> genreSubgenreList = new ArrayList<String[]>();
+                ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
+                ArrayList<String[]> fieldTriggersList = new ArrayList<String[]>();
+
+                @Override
+                public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
+                    if (name.equals("RequiredField")) {
+                        String vocabName = atts.getValue("FieldPath");
+                        requiredFieldsList.add(vocabName);
+                    }
+                    if (name.equals("GenreSubgenre")) {
+                        String subgenre = atts.getValue("Subgenre");
+                        String genre = atts.getValue("Genre");
+                        String description = atts.getValue("Description");
+                        genreSubgenreList.add(new String[]{subgenre, genre, description});
+                    }
+                    if (name.equals("FieldConstraint")) {
+                        String fieldPath = atts.getValue("FieldPath");
+                        String constraint = atts.getValue("Constraint");
+                        fieldConstraintList.add(new String[]{fieldPath, constraint});
+                    }
+                    if (name.equals("FieldTrigger")) {
+                        String sourceFieldPath = atts.getValue("SourceFieldPath");
+                        String targetFieldPath = atts.getValue("TargetFieldPath");
+                        String description = atts.getValue("SourceFieldValue");
+                        fieldTriggersList.add(new String[]{sourceFieldPath, targetFieldPath, description});
+                    }
+                }
+
+                @Override
+                public void endDocument() throws SAXException {
+                    super.endDocument();
+                    requiredFields = requiredFieldsList.toArray(new String[]{});
+                    genreSubgenreArray = genreSubgenreList.toArray(new String[][]{});
+                    fieldConstraints = fieldConstraintList.toArray(new String[][]{});
+                    fieldTriggersArray = fieldTriggersList.toArray(new String[][]{});
+                }
+            });
+            xmlReader.parse(templateConfigFile.getPath());
+        } catch (Exception ex) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), "Load Template");
+        }
     }
 }
