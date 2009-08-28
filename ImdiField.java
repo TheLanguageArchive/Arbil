@@ -5,7 +5,7 @@ import java.util.Hashtable;
 
 /**
  * Document   : ImdiField
- * Created on : 
+ * Created on : Wed Dec 03 13:29:30 CET 2008
  * @author Peter.Withers@mpi.nl
  */
 public class ImdiField {
