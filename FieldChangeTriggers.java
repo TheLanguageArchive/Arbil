@@ -11,7 +11,7 @@ public class FieldChangeTriggers {
     public void actOnChange(ImdiField changedImdiField) {
         String fieldPath = changedImdiField.getGenericFullXmlPath();
         System.out.println("fieldPath: " + fieldPath);
-        for (String[] currentTrigger : changedImdiField.parentImdi.currentTemplate.triggersArray) {
+        for (String[] currentTrigger : changedImdiField.parentImdi.currentTemplate.fieldTriggersArray) {
             if (fieldPath.equals(currentTrigger[0])) {
                 // we now have the path for two fields:
                 // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id
@@ -26,7 +26,7 @@ public class FieldChangeTriggers {
                 ImdiField[] targetField = changedImdiField.getSiblingField(targetFieldPath);
                 ImdiVocabularies.VocabularyItem vocabItem = changedImdiField.getVocabulary().findVocabularyItem(changedImdiField.fieldValue);
                 String valueForTargetField = null;
-                if (currentTrigger[2].equals("description")) {
+                if (currentTrigger[2].equals("Content")) {
                     valueForTargetField = vocabItem.descriptionString;
                 } else if (currentTrigger[2].equals("Value")) {
                     valueForTargetField = vocabItem.languageName;
