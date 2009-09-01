@@ -370,17 +370,17 @@ public class ImportExportDialog {
         taskOutput = new JTextArea(5, 20);
         taskOutput.setMargin(new Insets(5, 5, 5, 5));
         taskOutput.setEditable(false);
-        detailsTabPane.add("Details", new JScrollPane(taskOutput));
+        detailsTabPane.add("Import Details", new JScrollPane(taskOutput));
 
         xmlOutput = new JTextArea(5, 20);
         xmlOutput.setMargin(new Insets(5, 5, 5, 5));
         xmlOutput.setEditable(false);
-        detailsTabPane.add("XML Validator Output", new JScrollPane(xmlOutput));
+        detailsTabPane.add("Validation Results", new JScrollPane(xmlOutput));
 
         resourceCopyOutput = new JTextArea(5, 20);
         resourceCopyOutput.setMargin(new Insets(5, 5, 5, 5));
         resourceCopyOutput.setEditable(false);
-        detailsTabPane.add("Resource Copy Output", new JScrollPane(resourceCopyOutput));
+        detailsTabPane.add("Resource Copy Details", new JScrollPane(resourceCopyOutput));
 
         detailsPanel.add(detailsTabPane, BorderLayout.CENTER);
 
@@ -452,6 +452,10 @@ public class ImportExportDialog {
                 startButton.setEnabled(false);
             }
         });
+
+        taskOutput.append("The details of the import / export process will be displayed here.\n");
+        xmlOutput.append("When the IMDI files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
+        resourceCopyOutput.append("If copying of resource files is selected, the details of the files copied will be displayed here.\n");
     }
 
     private void appendToTaskOutput(String lineOfText) {
@@ -566,6 +570,12 @@ public class ImportExportDialog {
                 } else {
                     directoryForSizeTest = new File(LinorgSessionStorage.getSingleInstance().cacheDirectory);
                 }
+                if (copyFilesCheckBox.isSelected()) {
+                    resourceCopyOutput.append("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
+                } else {
+                    resourceCopyOutput.append("'Copy Resource Files' is not selected: No resource files will be downloaded, however they will be still accessible via the web server." + "\n");
+                }
+
                 try {
 //                    boolean saveToCache = true;
                     File tempFileForValidator = File.createTempFile("linorg", ".imdi");
@@ -616,7 +626,7 @@ public class ImportExportDialog {
                                                 getList.add(currentLink);
                                             } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
                                                 if (copyFilesCheckBox.isSelected()) {
-                                                    appendToTaskOutput("getting: " + links[linkCount].getType());
+                                                    appendToTaskOutput("getting resource file: " + links[linkCount].getType());
                                                     resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
                                                     resourceCopyOutput.append(currentLink + "\n");
                                                     String downloadLocation;
