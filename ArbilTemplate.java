@@ -69,38 +69,31 @@ public class ArbilTemplate {
     <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", Constraint="([.]+)@([.]+)">
     </FieldConstraints>        
      */
+    String[][] childNodePaths;
 
     public String pathIsChildNode(String nodePath) {
-        // TODO: change this to use a master list of types and populate it from the schema
-        if (nodePath.contains(".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language")) {
-            return "Languages";
-        }
-        if (nodePath.contains(".Languages.Language")) {
-            return "Languages";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.MDGroup.Actors.Actor")) {
-            return "Actors";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.MediaFile")) {
-            return "MediaFiles";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.WrittenResource")) {
-            return "WrittenResources";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.Source")) {
-            return "Sources";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Session.Resources.LexiconResource")) {
-            return "LexiconResource";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Catalogue.Location")) {
-            return "Location";
-        }
-        if (nodePath.contains(".METATRANSCRIPT.Catalogue.SubjectLanguages.Language")) {
-            return "SubjectLanguages";
+        for (String[] pathString : childNodePaths) {
+            if (pathString[0].equals((nodePath))) {
+                return pathString[1];
+            }
         }
         return null;
+        /*
+        <ChildNodePaths>
+        <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
+        <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Sources" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
+        </ChildNodePaths>
+         */
     }
+    String[][] templatesArray;
 
     private Vector getSubnodesFromTemplatesDir(String nodepath) {
         Vector<String[]> returnVector = new Vector<String[]>();
@@ -109,39 +102,7 @@ public class ArbilTemplate {
         nodepath = nodepath.replaceAll("\\(\\d\\)", "\\(x\\)");
         System.out.println("nodepath: " + nodepath);
         System.out.println("targetNodePath: " + targetNodePath);
-        String[][] templatesArray = {
-            {"METATRANSCRIPT.Catalogue.Access.Description.xml", "Access Description"},
-            {"METATRANSCRIPT.Catalogue.Author.xml", "Author"},
-            {"METATRANSCRIPT.Catalogue.ContentType.xml", "ContentType"},
-            {"METATRANSCRIPT.Catalogue.Description.xml", "Description"},
-            {"METATRANSCRIPT.Catalogue.DocumentLanguages.Description.xml", "Document Languages Description"},
-            {"METATRANSCRIPT.Catalogue.DocumentLanguages.Language.xml", "Document Languages Language"},
-            {"METATRANSCRIPT.Catalogue.Keys.Key.xml", "Key"},
-            {"METATRANSCRIPT.Catalogue.Location.xml", "Location"},
-            {"METATRANSCRIPT.Catalogue.Project.Author.xml", "Project Author"},
-            {"METATRANSCRIPT.Catalogue.Project.Description.xml", "Project Description"},
-            {"METATRANSCRIPT.Catalogue.Publisher.xml", "Publisher"},
-            {"METATRANSCRIPT.Catalogue.SubjectLanguages.Description.xml", "Subject Languages Description"},
-            {"METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Description.xml", "Subject Languages Language Description"},
-            {"METATRANSCRIPT.Catalogue.SubjectLanguages.Language.xml", "Subject Languages Language"},
-            {"METATRANSCRIPT.Catalogue.xml", "Catalogue"},
-            {"METATRANSCRIPT.Corpus.Description.xml", "Description"},
-            {"METATRANSCRIPT.Corpus.xml", "Corpus"},
-            {"METATRANSCRIPT.Session.Description.xml", "Description"},
-            {"METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml", "Actor Description"},
-            {"METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml", "Actor Key"},
-            {"METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml", "Actor Language"},
-            {"METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml", "Actor"},
-            {"METATRANSCRIPT.Session.MDGroup.Content.Keys.Key.xml", "Content Key"},
-            {"METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml", "Content Language"},
-            {"METATRANSCRIPT.Session.MDGroup.Keys.Key.xml", "Key"},
-            {"METATRANSCRIPT.Session.Resources.MediaFile.xml", "MediaFile"},
-            {"METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml", "Source Key"},
-            {"METATRANSCRIPT.Session.Resources.Source.xml", "Source"},
-            {"METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml", "WrittenResource Key"},
-            {"METATRANSCRIPT.Session.Resources.WrittenResource.xml", "WrittenResource"},
-            {"METATRANSCRIPT.Session.xml", "Session"}
-        };
+
         try {
 //            System.out.println("get templatesDirectory");
             File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
@@ -245,7 +206,7 @@ public class ArbilTemplate {
         return childTypes.elements();
     }
 
-    public void readTemplate(File templateConfigFile) {
+    public boolean readTemplate(File templateConfigFile) {
         try {
             javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
             javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -258,6 +219,8 @@ public class ArbilTemplate {
                 ArrayList<String[]> genreSubgenreList = new ArrayList<String[]>();
                 ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
                 ArrayList<String[]> fieldTriggersList = new ArrayList<String[]>();
+                ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
+                ArrayList<String[]> templateComponentList = new ArrayList<String[]>();
 
                 @Override
                 public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
@@ -282,6 +245,16 @@ public class ArbilTemplate {
                         String description = atts.getValue("SourceFieldValue");
                         fieldTriggersList.add(new String[]{sourceFieldPath, targetFieldPath, description});
                     }
+                    if (name.equals("ChildNodePath")) {
+                        String childPath = atts.getValue("ChildPath");
+                        String subNodeName = atts.getValue("SubNodeName");
+                        childNodePathsList.add(new String[]{childPath, subNodeName});
+                    }
+                    if (name.equals("TemplateComponent")) {
+                        String fileName = atts.getValue("FileName");
+                        String displayName = atts.getValue("DisplayName");
+                        templateComponentList.add(new String[]{fileName, displayName});
+                    }
                 }
 
                 @Override
@@ -291,11 +264,16 @@ public class ArbilTemplate {
                     genreSubgenreArray = genreSubgenreList.toArray(new String[][]{});
                     fieldConstraints = fieldConstraintList.toArray(new String[][]{});
                     fieldTriggersArray = fieldTriggersList.toArray(new String[][]{});
+                    childNodePaths = childNodePathsList.toArray(new String[][]{});
+                    templatesArray = templateComponentList.toArray(new String[][]{});
                 }
             });
             xmlReader.parse(templateConfigFile.getPath());
+            return true;
         } catch (Exception ex) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), "Load Template");
+            GuiHelper.linorgBugCatcher.logError("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), ex);
+            return false;
         }
     }
 }
