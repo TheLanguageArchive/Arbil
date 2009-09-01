@@ -404,7 +404,10 @@ public class LinorgWindowManager {
                                 }
                                 desktopPane.repaint();
                             }
-                            if (((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown()) {
+                            if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown())
+                            // the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
+                            // || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
+                                    ){
                                 try {
                                     JInternalFrame[] allWindows = desktopPane.getAllFrames();
                                     int targetLayerInt;
@@ -431,7 +434,7 @@ public class LinorgWindowManager {
     public JInternalFrame createWindow(String windowTitle, Component contentsComponent) {
         JInternalFrame currentInternalFrame = new javax.swing.JInternalFrame();
         currentInternalFrame.setLayout(new BorderLayout());
-        //        GuiHelper.imdiDragDrop.addTransferHandler(currentInternalFrame);
+        //        GuiHelper.arbilDragDrop.addTransferHandler(currentInternalFrame);
         currentInternalFrame.add(contentsComponent, BorderLayout.CENTER);
         windowTitle = addWindowToList(windowTitle, currentInternalFrame);
 
