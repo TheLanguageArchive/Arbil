@@ -288,8 +288,8 @@ public class ArbilTemplate {
             xmlReader.parse(templateConfigFile.getPath());
             return true;
         } catch (Exception ex) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), "Load Template");
-            GuiHelper.linorgBugCatcher.logError("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), ex);
+            //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), "Load Template");
+            //GuiHelper.linorgBugCatcher.logError("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), ex);
             return false;
         }
     }
