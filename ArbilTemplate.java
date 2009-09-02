@@ -79,20 +79,20 @@ public class ArbilTemplate {
             }
         }
         return null;
-        /*
-        <ChildNodePaths>
-        <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
-        <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Sources" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
-        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
-        </ChildNodePaths>
-         */
+    /*
+    <ChildNodePaths>
+    <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
+    <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Sources" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
+    <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
+    </ChildNodePaths>
+     */
     }
     String[][] templatesArray;
 
@@ -115,6 +115,12 @@ public class ArbilTemplate {
                 for (String itemString : testingListing) {
                     System.out.println("\"" + itemString + "\",");
                 }
+                Arrays.sort(templatesArray, new Comparator() {
+
+                    public int compare(Object obj1, Object obj2) {
+                        return ((String[]) obj1)[1].compareToIgnoreCase(((String[]) obj2)[1]);
+                    }
+                });
                 int linesRead = 0;
                 for (String[] currentTemplate : templatesArray) {
 //                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
@@ -126,12 +132,6 @@ public class ArbilTemplate {
                     }
                     linesRead++;
                 }
-                Arrays.sort(templatesArray, new Comparator() {
-
-                    public int compare(Object obj1, Object obj2) {
-                        return ((String[]) obj1)[1].compareToIgnoreCase(((String[]) obj2)[1]);
-                    }
-                });
                 if (testingListing != null) {
                     if (testingListing.length != linesRead) {
                         System.out.println(testingListing[linesRead]);
@@ -285,11 +285,15 @@ public class ArbilTemplate {
                     fieldUsageArray = fieldUsageList.toArray(new String[][]{});
                 }
             });
-            xmlReader.parse(templateConfigFile.getPath());
+            if (templateConfigFile.exists()) {
+                xmlReader.parse(templateConfigFile.getPath());
+            } else {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "The default template will be used instead.", "Load Template");
+                xmlReader.parse(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/template.xml").toExternalForm());
+            }
             return true;
         } catch (Exception ex) {
-            //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), "Load Template");
-            //GuiHelper.linorgBugCatcher.logError("A template could not be read.\n" + templateConfigFile.getAbsolutePath(), ex);
+            GuiHelper.linorgBugCatcher.logError("A template could not be read.", ex);
             return false;
         }
     }
