@@ -68,7 +68,9 @@ public class ArbilTemplateManager {
             if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
                 returnTemplate = new ArbilTemplate();
-                returnTemplate.readTemplate(getTemplateFile(templateName));
+                if (!returnTemplate.readTemplate(getTemplateFile(templateName))) {
+                    returnTemplate.readTemplate(new File(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/template.xml").getFile()));
+                }
                 templatesHashTable.put(templateName, returnTemplate);
             } else {
                 returnTemplate = templatesHashTable.get(templateName);
