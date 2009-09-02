@@ -193,9 +193,6 @@ public class ImdiSchema {
 //        return new String[]{"actors", "actor(1)", "name"};
 //    }
 
-    public String getHelpForField(String fieldName) {
-        return "Usage description for: " + fieldName;
-    }
 
     public String addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
