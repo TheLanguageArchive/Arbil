@@ -118,7 +118,7 @@ class JListToolTip extends JToolTip {
                     addIconLabel(((Object[]) targetObject)[childCounter]);
                 }
                 if (((Object[]) targetObject)[0] != null && ((Object[]) targetObject)[0] instanceof ImdiField) {
-                    addDetailLabel(GuiHelper.imdiSchema.getHelpForField(((ImdiField) ((Object[]) targetObject)[0]).xmlPath));
+                    addDetailLabel(((ImdiField) ((Object[]) targetObject)[0]).parentImdi.currentTemplate.getHelpStringForField(((ImdiField) ((Object[]) targetObject)[0]).getFullXmlPath()));
                 }
             } else if (targetObject instanceof ImdiTreeObject) {
                 addIconLabel(targetObject);
@@ -126,7 +126,7 @@ class JListToolTip extends JToolTip {
             } else {
                 addDetailLabel(targetObject.toString());
                 if (targetObject instanceof ImdiField) {
-                    addDetailLabel(GuiHelper.imdiSchema.getHelpForField(((ImdiField) targetObject).xmlPath));
+                    addDetailLabel(((ImdiField) targetObject).parentImdi.currentTemplate.getHelpStringForField(((ImdiField) targetObject).getFullXmlPath()));
                 }
             //JTextField
 //                JTextArea jTextArea = new JTextArea();
