@@ -70,6 +70,7 @@ public class ArbilTemplate {
     </FieldConstraints>        
      */
     String[][] childNodePaths;
+    String[][] fieldUsageArray;
 
     public String pathIsChildNode(String nodePath) {
         for (String[] pathString : childNodePaths) {
@@ -206,6 +207,15 @@ public class ArbilTemplate {
         return childTypes.elements();
     }
 
+    public String getHelpStringForField(String fieldName) {
+        for (String[] currentUsageArray : fieldUsageArray) {
+            if (currentUsageArray[0].equals(fieldName)) {
+                return currentUsageArray[1];
+            }
+        }
+        return "No usage description found in this template for: " + fieldName;
+    }
+
     public boolean readTemplate(File templateConfigFile) {
         try {
             javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
@@ -221,6 +231,7 @@ public class ArbilTemplate {
                 ArrayList<String[]> fieldTriggersList = new ArrayList<String[]>();
                 ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
                 ArrayList<String[]> templateComponentList = new ArrayList<String[]>();
+                ArrayList<String[]> fieldUsageList = new ArrayList<String[]>();
 
                 @Override
                 public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
@@ -255,6 +266,11 @@ public class ArbilTemplate {
                         String displayName = atts.getValue("DisplayName");
                         templateComponentList.add(new String[]{fileName, displayName});
                     }
+                    if (name.equals("FieldUsage")) {
+                        String fieldPath = atts.getValue("FieldPath");
+                        String fieldDescription = atts.getValue("FieldDescription");
+                        fieldUsageList.add(new String[]{fieldPath, fieldDescription});
+                    }
                 }
 
                 @Override
@@ -266,6 +282,7 @@ public class ArbilTemplate {
                     fieldTriggersArray = fieldTriggersList.toArray(new String[][]{});
                     childNodePaths = childNodePathsList.toArray(new String[][]{});
                     templatesArray = templateComponentList.toArray(new String[][]{});
+                    fieldUsageArray = fieldUsageList.toArray(new String[][]{});
                 }
             });
             xmlReader.parse(templateConfigFile.getPath());
