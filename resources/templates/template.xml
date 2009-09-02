@@ -90,4 +90,12 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource.xml" DisplayName="WrittenResource" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
     </AvailableTemplateComponents>
+    <FieldUsageDescriptions>
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="The title of this session" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Name" FieldDescription="The name of this session (also used to name the session in various applications)" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Description" FieldDescription="The general desciption of this session" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Title" FieldDescription="The title of this Corpus" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Name" FieldDescription="The name of this corpus (also used to name this corpus in various applications)" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Description" FieldDescription="The general description of this corpus" />
+    </FieldUsageDescriptions>
 </template>
