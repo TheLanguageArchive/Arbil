@@ -78,6 +78,7 @@ class JListToolTip extends JToolTip {
                     addTabbedLabel("Archivable file");
                 } else {
                     addTabbedLabel("Not archivable");
+                    addTabbedLabel("Type checker message:\n\"" + tempObject.typeCheckerMessage + "\"");
                 }
             }
         }
