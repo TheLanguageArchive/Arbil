@@ -213,7 +213,9 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             case KeyEvent.CHAR_UNDEFINED:
                 break;
             default:
-                currentCellString = currentCellString + lastKeyChar;
+                if (lastKeyChar != KeyEvent.CHAR_UNDEFINED) {
+                    currentCellString = currentCellString + lastKeyChar;
+                }
                 break;
         }
         return currentCellString;
