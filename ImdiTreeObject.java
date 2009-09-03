@@ -40,6 +40,7 @@ public class ImdiTreeObject implements Comparable {
     private boolean imdiDataLoaded;
     public String hashString;
     public String mpiMimeType;
+    public String typeCheckerMessage;
     public int matchesInCache;
     public int matchesRemote;
     public int matchesLocalFileSystem;
@@ -147,8 +148,9 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void setMimeType(String localMimeType) {
-        mpiMimeType = localMimeType;
+    public void setMimeType(String[] typeCheckerMessageArray) {
+        mpiMimeType = typeCheckerMessageArray[0];
+        typeCheckerMessage = typeCheckerMessageArray[1];
         if (!isImdi() && isLocal() && mpiMimeType != null) {
             // add the mime type
             ImdiField mimeTypeField = new ImdiField(this, "Format", this.mpiMimeType);
