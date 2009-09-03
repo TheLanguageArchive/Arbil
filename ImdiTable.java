@@ -295,14 +295,15 @@ public class ImdiTable extends JTable {
                 // add a divider for the cell functions
                 windowedTablePopupMenu.add(new JSeparator());
 
-                if (imdiTableModel.horizontalView) {
+                if (imdiTableModel.horizontalView && getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
                     JMenuItem copyCellToColumnMenuItem = new javax.swing.JMenuItem();
                     copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
                     copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-                            if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                            if (!(imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) instanceof ImdiField)) {
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
+                            } else if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                                 imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
                             }
                         }
