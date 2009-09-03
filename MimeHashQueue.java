@@ -19,12 +19,12 @@ import java.util.Vector;
 public class MimeHashQueue {
     // stored across sessions
     private Hashtable<String, Long> processedFilesMTimes; // make this a vector and maybe remove or maybe make file path and file mtime
-    private Hashtable<String, String> knownMimeTypes; // imdi path/file path, mime type : maybe sould only be file path
+    private Hashtable<String, String[]> knownMimeTypes; // imdi path/file path, mime type : maybe sould only be file path
     private Hashtable<String, Vector<String>> md5SumToDuplicates;
     private Hashtable<String, String> pathToMd5Sums;
     // not stored across sessions
     private Vector<ImdiTreeObject> imdiObjectQueue;
-    private Hashtable<String, ImdiTreeObject> currentlyLoadedImdiObjects;
+//    private Hashtable<String, ImdiTreeObject> currentlyLoadedImdiObjects;
     private boolean continueThread = false;
     private static mpi.bcarchive.typecheck.FileType fileType; //  used to check the file type
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType;
@@ -54,7 +54,7 @@ public class MimeHashQueue {
                 boolean changedSinceLastSave = false;
                 while (continueThread) {
                     try {
-                        Thread.currentThread().sleep(500);//sleep for 100 ms
+                        sleep(500);//sleep for 100 ms
                     } catch (InterruptedException ie) {
                         GuiHelper.linorgBugCatcher.logError(ie);
 //                        System.err.println("run MimeHashQueue: " + ie.getMessage());
@@ -74,7 +74,8 @@ public class MimeHashQueue {
                                 }
                                 long currentMTime = currentFile.lastModified();
                                 System.out.println("run MimeHashQueue mtime: " + currentPathString);
-                                if (previousMTime != currentMTime) {
+                                String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
+                                if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
                                     System.out.println("run MimeHashQueue processing: " + currentPathString);
                                     currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
                                     currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
@@ -82,7 +83,7 @@ public class MimeHashQueue {
                                     changedSinceLastSave = true;
                                 } else {
                                     currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
-                                    currentImdiObject.setMimeType(knownMimeTypes.get(currentPathString));
+                                    currentImdiObject.setMimeType(lastCheckedMimeArray);
                                 }
                                 updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
                             } catch (MalformedURLException e) {
@@ -118,9 +119,9 @@ public class MimeHashQueue {
     private void loadMd5sumIndex() {
         System.out.println("MimeHashQueue loadMd5sumIndex");
         try {
-            knownMimeTypes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("knownMimeTypes");
+            knownMimeTypes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("knownMimeTypesV2");
             pathToMd5Sums = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("pathToMd5Sums");
-            processedFilesMTimes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("processedFilesMTimes");
+            processedFilesMTimes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("processedFilesMTimeV2");
             md5SumToDuplicates = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("md5SumToDuplicates");
             System.out.println("loaded md5 and mime from disk");
         } catch (Exception ex) {
@@ -135,9 +136,9 @@ public class MimeHashQueue {
     private void saveMd5sumIndex() {
         System.out.println("MimeHashQueue saveMd5sumIndex");
         try {
-            LinorgSessionStorage.getSingleInstance().saveObject(knownMimeTypes, "knownMimeTypes");
+            LinorgSessionStorage.getSingleInstance().saveObject(knownMimeTypes, "knownMimeTypesV2");
             LinorgSessionStorage.getSingleInstance().saveObject(pathToMd5Sums, "pathToMd5Sums");
-            LinorgSessionStorage.getSingleInstance().saveObject(processedFilesMTimes, "processedFilesMTimes");
+            LinorgSessionStorage.getSingleInstance().saveObject(processedFilesMTimes, "processedFilesMTimesV2");
             LinorgSessionStorage.getSingleInstance().saveObject(md5SumToDuplicates, "md5SumToDuplicates");
             System.out.println("saveMd5sumIndex");
         } catch (IOException ex) {
@@ -187,13 +188,15 @@ public class MimeHashQueue {
         }
     }
 
-    private String getMimeType(URL fileUrl, String nodePath) {
+    private String[] getMimeType(URL fileUrl, String nodePath) {
         System.out.println("getMimeType: " + fileUrl);
         String mpiMimeType;
+        String typeCheckerMessage;
         // here we also want to check the magic number but the mpi api has a function similar to that so we
         // use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
         // because the api uses null to indicate non archivable we cant return other strings
         mpiMimeType = null;//"unreadable";
+        typeCheckerMessage = null;
         boolean deep = true;
         if (!new File(fileUrl.getFile()).exists()) {
             System.out.println("File does not exist: " + fileUrl);
@@ -204,27 +207,28 @@ public class MimeHashQueue {
                 if (inputStream != null) {
                     String pamperUrl = fileUrl.getFile().replace("//", "/");
                     if (deep) {
-                        mpiMimeType = deepFileType.checkStream(inputStream, pamperUrl);
+                        typeCheckerMessage = deepFileType.checkStream(inputStream, pamperUrl);
                     } else {
-                        mpiMimeType = fileType.checkStream(inputStream, pamperUrl);
+                        typeCheckerMessage = fileType.checkStream(inputStream, pamperUrl);
                     }
-                    System.out.println("mpiMimeType: " + mpiMimeType);
+                    System.out.println("mpiMimeType: " + typeCheckerMessage);
                 }
-                mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(mpiMimeType);
+                mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(typeCheckerMessage);
             } catch (Exception ioe) {
 //                GuiHelper.linorgBugCatcher.logError(ioe);
                 System.out.println("Cannot read file at URL: " + fileUrl + " ioe: " + ioe.getMessage());
             }
             System.out.println(mpiMimeType);
         }
+        String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
         // if non null then it is an archivable file type
-        if (mpiMimeType != null) {
-            knownMimeTypes.put(nodePath, mpiMimeType);
-        } else {
-            // because the api uses null to indicate non archivable we cant return other strings
-            //knownMimeTypes.put(filePath, "nonarchivable");
-        }
-        return mpiMimeType;
+//        if (mpiMimeType != null) {
+        knownMimeTypes.put(nodePath, resultArray);
+//        } else {
+        // because the api uses null to indicate non archivable we cant return other strings
+        //knownMimeTypes.put(filePath, "nonarchivable");
+//        }
+        return resultArray;
     }
 
     private String getHash(URL fileUrl, String nodePath) {
