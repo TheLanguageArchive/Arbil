@@ -218,7 +218,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // in the case that the icon and sting are not displayed then try to get the imdifield in order to get the imdinode
             // TODO: this will fail if the imdiobject for the row does not have a field to display for the first column because there will be no imdi nor field in the first coloumn
             return ((ImdiField) data[rowNumber][columnNames.length - 1]).parentImdi;
-        //throw new UnsupportedOperationException("Not supported yet.");
+            //throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 
@@ -835,7 +835,10 @@ public class ImdiTableModel extends AbstractTableModel {
         System.out.println("copyCellToColumn for row: " + row + " col: " + col);
         for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
             if (rowCounter != row) {
-                setValueAt(data[row][col].toString(), rowCounter, col);
+                // TODO: a user may want to copy fields with multiple values to the whole column eg descritions in multiple languages
+                if (data[rowCounter][col] instanceof ImdiField) {
+                    ((ImdiField) data[rowCounter][col]).setFieldValue(((ImdiField) data[row][col]).getFieldValue(), false);
+                }
                 fireTableCellUpdated(rowCounter, col);
             }
         }
