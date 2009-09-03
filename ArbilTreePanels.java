@@ -1,5 +1,7 @@
 package mpi.linorg;
 
+import javax.swing.JTabbedPane;
+
 /**
  * ArbilTreePanels.java
  * Created on Jul 14, 2009, 2:30:03 PM
@@ -41,8 +43,11 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         favouritesTree.setModel(TreeHelper.getSingleInstance().favouritesTreeModel);
         favouritesScrollPane.setViewportView(favouritesTree);
 
+        JTabbedPane treeTabPane = new JTabbedPane();
+        treeTabPane.add("Files", localDirectoryScrollPane);
+        treeTabPane.add("Favourites", favouritesScrollPane);
 
-        leftLocalSplitPane.setBottomComponent(localDirectoryScrollPane);
+        leftLocalSplitPane.setBottomComponent(treeTabPane);
         leftLocalSplitPane.setLeftComponent(localCorpusScrollPane);
 
         this.setBottomComponent(leftLocalSplitPane);
