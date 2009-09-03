@@ -44,6 +44,7 @@ public class LinorgFavourites {
             currentImdiObject.setFavouriteStatus(true);
             userFavourites.put(currentImdiObject.getUrlString(), currentImdiObject);
         }
+        TreeHelper.getSingleInstance().applyRootLocations();
     }
 
     public void toggleFavouritesList(ImdiTreeObject[] imdiObjectArray, boolean setAsTempate) {
