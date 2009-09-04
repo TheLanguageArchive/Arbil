@@ -57,12 +57,12 @@ public class ImportExportDialog {
     private JLabel progressFailedLabel;
     private JLabel progressXmlErrorsLabel;
     private JLabel resourceCopyErrorsLabel;
-    String progressFoundLabelText = "Total Found: ";
-    String progressProcessedLabelText = "Total Processed: ";
-    String progressAlreadyInCacheLabelText = "Already in Local Corpus: ";
-    String progressFailedLabelText = "Copy Errors: ";
-    String progressXmlErrorsLabelText = "XML Errors: ";
-    String resourceCopyErrorsLabelText = "Resource Errors: ";
+    String progressFoundLabelText = "Total Metadata Files Found: ";
+    String progressProcessedLabelText = "Total Metadata Files Processed: ";
+    String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
+    String progressFailedLabelText = "Metadata File Copy Errors: ";
+    String progressXmlErrorsLabelText = "Metadata File Validation Errors: ";
+    String resourceCopyErrorsLabelText = "Resource File Copy Errors: ";
     String diskFreeLabelText = "Total Disk Free: ";
     private JButton stopButton;
     private JButton startButton;
@@ -454,7 +454,7 @@ public class ImportExportDialog {
         });
 
         taskOutput.append("The details of the import / export process will be displayed here.\n");
-        xmlOutput.append("When the IMDI files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
+        xmlOutput.append("When the metadata files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
         resourceCopyOutput.append("If copying of resource files is selected, the details of the files copied will be displayed here.\n");
     }
 
@@ -625,6 +625,7 @@ public class ImportExportDialog {
                                             if (ImdiTreeObject.isStringImdi(currentLink)) {
                                                 getList.add(currentLink);
                                             } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
+                                                boolean resourceFileCopied = false;
                                                 if (copyFilesCheckBox.isSelected()) {
                                                     appendToTaskOutput("getting resource file: " + links[linkCount].getType());
                                                     resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
@@ -640,13 +641,15 @@ public class ImportExportDialog {
                                                     resourceCopyOutput.append(downloadLocation + "\n");
                                                     File downloadedFile = new File(downloadLocation);
                                                     if (downloadedFile.exists()) {
-                                                        resourceCopyOutput.append(downloadedFile.length() + "\n");
+                                                        resourceFileCopied = true;
+                                                        resourceCopyOutput.append("Copied " + downloadedFile.length() + "b\n");
                                                     } else {
                                                         resourceCopyOutput.append("Failed" + "\n");
                                                         resourceCopyErrors++;
                                                     }
                                                     resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
-                                                } else {
+                                                }
+                                                if (!resourceFileCopied) {
                                                     ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, links[linkCount]);
                                                 }
                                             }
@@ -751,7 +754,7 @@ public class ImportExportDialog {
                         }
                     }
 
-                    finalMessageString = finalMessageString + "Processed " + totalLoaded + " files.\n";
+                    finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
                     if (exportDestinationDirectory == null) {
 //                        String newNodeLocation = GuiHelper.linorgSessionStorage.getSaveLocation(((ImdiTreeObject) currentElement).getUrlString());
 //                            String newNodeLocation = ((ImdiTreeObject) currentElement).loadImdiDom(); // save the first node which will not be saved by loadSomeChildren
@@ -809,7 +812,7 @@ public class ImportExportDialog {
                 threadARunning = false;
                 setUItoStoppedState();
                 System.out.println("finalMessageString: " + finalMessageString);
-                Object[] options = {"OK", "Details"};
+                Object[] options = {"Close", "Details"};
                 int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
                         finalMessageString,
                         searchDialog.getTitle(),
