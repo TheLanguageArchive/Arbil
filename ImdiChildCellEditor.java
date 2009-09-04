@@ -68,7 +68,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 if (isStartLongFieldModifier(evt)) {
                     // prevent ctrl key events getting through etc.
                     startEditorMode(isStartLongFieldKey(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-                } else {
+                } else if (evt.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
                     startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
                 }
             }
