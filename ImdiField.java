@@ -92,6 +92,7 @@ public class ImdiField {
     }
 
     public void setFieldValue(String fieldValue, boolean updateUI) {
+        fieldValue = fieldValue.trim();
         if (!this.fieldValue.equals(fieldValue)) {
             GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
             this.fieldValue = fieldValue;
