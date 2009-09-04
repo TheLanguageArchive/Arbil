@@ -55,41 +55,41 @@ public class ImdiTable extends JTable {
             @Override
             public void mousePressed(MouseEvent evt) {
 //                System.out.println("mousePressed");
-                checkPopup(evt);
+                checkTableHeaderPopup(evt);
             }
 
             @Override
             public void mouseReleased(MouseEvent evt) {
 //                System.out.println("mouseReleased");
-                checkPopup(evt);
+                checkTableHeaderPopup(evt);
             }
 
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 System.out.println("mouseClicked");
                 System.out.println("table header click");
-                targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
                 //targetTable = ((JTableHeader) evt.getComponent()).getTable();
                 if (evt.getButton() == MouseEvent.BUTTON1) {
-                    imdiTableModel.sortByColumn(targetColumn);
+                    imdiTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
                 }
-                checkPopup(evt);
+                checkTableHeaderPopup(evt);
             }
 
-            private void checkPopup(java.awt.event.MouseEvent evt) {
-                System.out.println("columnIndex: " + targetColumn);
+            private void checkTableHeaderPopup(java.awt.event.MouseEvent evt) {
                 if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
                     //targetTable = ((JTableHeader) evt.getComponent()).getTable();
+                    int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
                     System.out.println("columnIndex: " + targetColumn);
 
                     JPopupMenu popupMenu = new JPopupMenu();
 
                     JMenuItem hideColumnMenuItem = new JMenuItem("Hide column: \"" + imdiTableModel.getColumnName(targetColumn) + "\"");
+                    hideColumnMenuItem.setActionCommand("" + targetColumn);
                     hideColumnMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
                             //System.out.println("hideColumnMenuItem: " + targetTable.toString());
-                            imdiTableModel.hideColumn(targetColumn);
+                            imdiTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
                         }
                     });
 
@@ -202,8 +202,9 @@ public class ImdiTable extends JTable {
                         getSelectionModel().clearSelection();
                         // make sure the clicked cell is selected
 //                        System.out.println("clickedRow: " + clickedRow + " clickedRow: " + clickedRow);
-                        getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
-                        getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
+//                        getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
+//                        getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
+                        changeSelection(clickedRow, clickedColumn, false, evt.isShiftDown());
                     // make sure the clicked cell is the lead selection
 //                    getSelectionModel().setLeadSelectionIndex(rowIndex);
 //                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
@@ -444,7 +445,7 @@ public class ImdiTable extends JTable {
             setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
     }
-    private int targetColumn;
+    //private int targetColumn;
     //Implement table cell tool tips.
     public String getToolTipText(MouseEvent e) {
         String tip = null;
