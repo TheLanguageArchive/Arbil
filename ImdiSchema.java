@@ -324,7 +324,7 @@ public class ImdiSchema {
             System.out.println("targetXpath: " + targetXpath);
             System.out.println("templateUrl: " + templateUrl);
             if (templateUrl == null) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), null);
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
                 throw (new Exception("No template found for: " + elementName.substring(1)));
             }
             Document insertableSectionDoc = ImdiTreeObject.api.loadIMDIDocument(new OurURL(templateUrl), false);
