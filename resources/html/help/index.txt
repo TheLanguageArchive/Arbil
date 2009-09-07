@@ -16,6 +16,7 @@ Technical_Details/Templates.html
 Working_Offline/What to do before going into the field.html
 Working_Offline/Making an off line copy.html
 Templates_and_Favourites/Templates.html
+Templates_and_Favourites/Importing IMDI Editor Profiles.html
 Templates_and_Favourites/Favourites.html
 External_Editors/Opening resources.html
 External_Editors/Copy paste to and from spread sheets.html
