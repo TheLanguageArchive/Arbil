@@ -15,13 +15,11 @@ import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
@@ -40,8 +38,9 @@ public class LinorgWindowManager {
     int nextWindowY = 50;
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
-    private Vector<String[]> messageDialogQueue = new Vector();
+    private Hashtable<String, String> messageDialogQueue = new Hashtable<String, String>();
     private boolean messagesCanBeShown = false;
+    boolean showMessageThreadrunning = false;
     static private LinorgWindowManager singleInstance = null;
 
     static synchronized public LinorgWindowManager getSingleInstance() {
@@ -100,25 +99,39 @@ public class LinorgWindowManager {
         if (messageTitle == null) {
             messageTitle = "Arbil";
         }
-        messageDialogQueue.add(new String[]{messageString, messageTitle});
+        String currentMessage = messageDialogQueue.get(messageTitle);
+        if (currentMessage != null) {
+            messageString = messageString + "\n-------------------------------\n" + currentMessage;
+        }
+        messageDialogQueue.put(messageTitle, messageString);
         showMessageDialogQueue();
     }
 
-    private void showMessageDialogQueue() {
-        SwingUtilities.invokeLater(new Runnable() {
+    private synchronized void showMessageDialogQueue() {
+        if (!showMessageThreadrunning) {
+            new Thread() {
 
             public void run() {
+                    try {
+                        sleep(100);
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                    showMessageThreadrunning = true;
                 if (messagesCanBeShown) {
                     while (messageDialogQueue.size() > 0) {
-                        String[] messageStringArray = messageDialogQueue.remove(0);
-                        if (messageStringArray != null) {
-                            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, messageStringArray[0], messageStringArray[1], JOptionPane.PLAIN_MESSAGE);
+                            String messageTitle = messageDialogQueue.keys().nextElement();
+                            String messageText = messageDialogQueue.remove(messageTitle);
+                            if (messageText != null) {
+                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
                         }
                     }
 
                 }
+                    showMessageThreadrunning = false;
             }
-        });
+            }.start();
+        }
     }
 
     public void openIntroductionPage() {
