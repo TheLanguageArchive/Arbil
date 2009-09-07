@@ -673,7 +673,7 @@ public class ImportExportDialog {
                                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
                                         boolean removeIdAttributes = exportDestinationDirectory != null;
                                         ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-                                        GuiHelper.linorgJournal.saveJournalEntry(destinationPath, "", currentTarget, "", journalActionString);
+                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationPath, "", currentTarget, "", journalActionString);
                                         // validate the imdi file
                                         appendToTaskOutput("validating");
                                         String checkerResult;
