@@ -341,7 +341,7 @@ public class ImdiTableModel extends AbstractTableModel {
                                 for (ImdiField targetField : selectedCells) {
                                     System.out.println("targetField: " + targetField.getTranslateFieldName());
                                     if (currentFieldName.equals(targetField.getTranslateFieldName())) {
-                                        targetField.setFieldValue(currentFieldValue, true);
+                                        targetField.setFieldValue(currentFieldValue, true, false);
                                         pastedCount++;
                                     }
                                 }
@@ -837,7 +837,7 @@ public class ImdiTableModel extends AbstractTableModel {
             if (rowCounter != row) {
                 // TODO: a user may want to copy fields with multiple values to the whole column eg descritions in multiple languages
                 if (data[rowCounter][col] instanceof ImdiField) {
-                    ((ImdiField) data[rowCounter][col]).setFieldValue(((ImdiField) data[row][col]).getFieldValue(), false);
+                    ((ImdiField) data[rowCounter][col]).setFieldValue(((ImdiField) data[row][col]).getFieldValue(), false, false);
                 }
                 fireTableCellUpdated(rowCounter, col);
             }
