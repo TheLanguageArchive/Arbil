@@ -1010,7 +1010,7 @@ public class ImdiTreeObject implements Comparable {
 //                                System.out.println("ie.id: " + ie.getDomId());
 //                                System.out.println("ie.spec: " + ie.getSpec());
                                 currentField.fieldNeedsSaveToDisk = false;
-                                GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
+                                LinorgJournal.getSingleInstance().saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
                                 String fieldLanguageId = currentField.getLanguageId();
                                 if (fieldLanguageId != null) {
                                     IMDILink changedLink;
@@ -1018,7 +1018,7 @@ public class ImdiTreeObject implements Comparable {
                                     System.out.println("trying to save language id: " + fieldLanguageId);
                                     changedLink.setLanguageId(fieldLanguageId);
                                     api.changeIMDILink(nodDom, null, changedLink);
-                                    GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath + ":LanguageId", fieldLanguageId, "", "save");
+                                    LinorgJournal.getSingleInstance().saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath + ":LanguageId", fieldLanguageId, "", "save");
                                 }
                             }
                         }
