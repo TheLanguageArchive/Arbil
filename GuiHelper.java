@@ -32,7 +32,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class GuiHelper {
 
     static ArbilDragDrop arbilDragDrop = new ArbilDragDrop();
-    static LinorgJournal linorgJournal = new LinorgJournal();
     static ImdiSchema imdiSchema = new ImdiSchema();
     static LinorgBugCatcher linorgBugCatcher = new LinorgBugCatcher();
     static ImdiLoader imdiLoader = new ImdiLoader();
