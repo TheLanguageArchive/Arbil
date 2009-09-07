@@ -121,27 +121,51 @@ public class ArbilMenuBar extends JMenuBar {
         this.add(fileMenu);
 
         editMenu.setText("Edit");
+        editMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                undoMenuItem.setEnabled(LinorgJournal.getSingleInstance().canUndo());
+                redoMenuItem.setEnabled(LinorgJournal.getSingleInstance().canRedo());
+            }
+        });
 
         copyMenuItem.setText("Copy");
         copyMenuItem.setEnabled(false);
-        editMenu.add(copyMenuItem);
+//        editMenu.add(copyMenuItem);
 
         pasteMenuItem.setText("Paste");
         pasteMenuItem.setEnabled(false);
-        editMenu.add(pasteMenuItem);
+//        editMenu.add(pasteMenuItem);
 
         undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
         undoMenuItem.setText("Undo");
         undoMenuItem.setEnabled(false);
+        undoMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LinorgJournal.getSingleInstance().undoFromFieldChangeHistory();
+            }
+        });
         editMenu.add(undoMenuItem);
 
         redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         redoMenuItem.setText("Redo");
         redoMenuItem.setEnabled(false);
+        redoMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LinorgJournal.getSingleInstance().redoFromFieldChangeHistory();
+            }
+        });
         editMenu.add(redoMenuItem);
 
-        // TODO: when the undo / redo is done this can be readded, node that copy paste from this menu may not be a good idea due to the many simultainous selections possible
-        //this.add(editMenu);
+        this.add(editMenu);
 
         optionsMenu.setText("Options");
 
