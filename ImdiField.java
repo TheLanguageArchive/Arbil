@@ -91,11 +91,14 @@ public class ImdiField {
         return returnValue;
     }
 
-    public void setFieldValue(String fieldValue, boolean updateUI) {
-        fieldValue = fieldValue.trim();
-        if (!this.fieldValue.equals(fieldValue)) {
-            GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValue, "edit");
-            this.fieldValue = fieldValue;
+    public void setFieldValue(String fieldValueToBe, boolean updateUI, boolean excludeFromUndoHistory) {
+        fieldValueToBe = fieldValueToBe.trim();
+        if (!this.fieldValue.equals(fieldValueToBe)) {
+            if (!excludeFromUndoHistory) {
+                LinorgJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe);
+            }
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValueToBe, "edit");
+            this.fieldValue = fieldValueToBe;
             new FieldChangeTriggers().actOnChange(this);
             parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
@@ -114,7 +117,7 @@ public class ImdiField {
     public void setLanguageId(String languageId, boolean updateUI) {
         String oldLanguageId = getLanguageId();
         if (!languageId.equals(oldLanguageId)) {
-            GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageId, "edit");
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageId, "edit");
             fieldAttributes.put("LanguageId", languageId);
 //            fieldLanguageId = languageId;
             parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
@@ -226,7 +229,7 @@ public class ImdiField {
             if (!lastValue.equals(keyName)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name
                 // TODO: resolve how to log key name changes
-                GuiHelper.linorgJournal.saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyName, "editkeyname");
+                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyName, "editkeyname");
                 fieldAttributes.put("Name", keyName);
                 parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
                 fieldNeedsSaveToDisk = true;
