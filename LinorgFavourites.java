@@ -217,7 +217,7 @@ public class LinorgFavourites {
                         if (targetNodeFields.length > fieldCounter) {
                             // copy to the exisiting fields
                             currentField = targetNodeFields[fieldCounter];
-                            currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false);
+                            currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, false);
                         } else {
                             // add sub nodes if they dont already exist
                             currentField = new ImdiField(targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, currentFavouriteFields[fieldCounter].getFieldValue());
