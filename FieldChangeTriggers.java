@@ -36,7 +36,7 @@ public class FieldChangeTriggers {
                     valueForTargetField = vocabItem.followUpVocabulary;
                 }
                 if (valueForTargetField != null) {
-                    targetField[0].setFieldValue(valueForTargetField, true);
+                    targetField[0].setFieldValue(valueForTargetField, true, false);
                 }
             }
         }
