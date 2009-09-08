@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited with XML Spy v3.5 NT (http://www.xmlspy.com) by Daan Broeder (Max-Planck Institute for Psycholinguistics) -->
+<imdi:VocabularyDef 
+	xmlns:imdi="http://www.mpi.nl/IMDI/Schema/IMDI" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd" 
+	Name="WrittenResource-Format" 
+	Date="2005-03-22" 
+	Link="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml">
+    <imdi:Description LanguageID="ISO639-2:eng">A list of formats for written resources</imdi:Description>
+    <imdi:Entry Value="application/pdf">Portable Document Format</imdi:Entry>  
+    <imdi:Entry Value="text/html">Web page</imdi:Entry>
+    <imdi:Entry Value="text/plain">Plain text</imdi:Entry>
+    <imdi:Entry Value="text/xml">XML file</imdi:Entry>
+    <imdi:Entry Value="text/x-chat">Childes Annotation Format</imdi:Entry>
+    <imdi:Entry Value="text/x-cut">Childes Lexicon</imdi:Entry>    
+    <imdi:Entry Value="text/x-eaf+xml">Eudico Annotation Format</imdi:Entry>
+    <imdi:Entry Value="text/x-esf">Format used in European Science Foundation project on second language acquisition</imdi:Entry>
+    <imdi:Entry Value="text/x-lexus-config+xml">LEXUS Configuration</imdi:Entry>
+    <imdi:Entry Value="text/x-lexus-resource+xml">LEXUS Resource</imdi:Entry>
+    <imdi:Entry Value="text/x-lmf+xml">Lexical Markup Framework</imdi:Entry>
+    <imdi:Entry Value="text/x-shoebox-language">Shoebox Language</imdi:Entry>    
+    <imdi:Entry Value="text/x-shoebox-text">Shoebox Annotation</imdi:Entry>
+    <imdi:Entry Value="text/x-shoebox-type">Shoebox Type</imdi:Entry>   
+    <imdi:Entry Value="text/x-shoebox-lexicon">Shoebox Lexicon</imdi:Entry>
+    <imdi:Entry Value="text/x-toolbox-text">Toolbox Annotation</imdi:Entry>   
+    <imdi:Entry Value="text/x-toolbox-lexicon">Toolbox Lexicon</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-bpt+xml">CGN annotation bpt</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-lxk+xml">CGN annotation lxk</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-pri+xml">CGN annotation pri</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-prx+xml">CGN annotation prx</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-skp+xml">CGN annotation skp</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-tag+xml">CGN annotation tag</imdi:Entry>
+    <imdi:Entry Value="text/x-cgn-tig+xml">CGN annotation tig</imdi:Entry>
+    <imdi:Entry Value="AIF">ATLAS Interchange Format</imdi:Entry>
+    <imdi:Entry Value="BAS"></imdi:Entry>    
+    <imdi:Entry Value="MT">Media-Tagger format</imdi:Entry>    
+    <imdi:Entry Value="TRS"></imdi:Entry>
+    <imdi:Entry Value="Unknown"></imdi:Entry>
+    <imdi:Entry Value="Unspecified"></imdi:Entry>    
+</imdi:VocabularyDef>
