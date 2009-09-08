@@ -289,7 +289,8 @@ public class ImdiLoader {
         return nodesNeedingSave.size() > 0;
     }
 
-    public void saveNodesNeedingSave(boolean updateIcons) {
+    public synchronized void saveNodesNeedingSave(boolean updateIcons) {
+        // this is syncronised to avoid issues from the key repeat on linux which fails to destinguish between key up events and key repeat events
         while (nodesNeedingSave.size() > 0) {
             // remove the node from the save list not in the save function because otherwise if the save fails the application will lock up
             ImdiTreeObject currentNode = nodesNeedingSave.remove(0);
