@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -709,68 +710,104 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void deleteFromParentDom(String[] childNodeXmlIdArray) {
-//        System.out.println("deleteFromParentDom: " + childNodeXmlIdArray);
-        // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
-        if (this.isImdiChild()) {
-            this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
-        } else {
-            if (imdiNeedsSaveToDisk) {
-                saveChangesToCache(false);
-            }
-//            System.out.println("attempting to remove nodes");
-            try {
-                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
-                Document nodDom;
-                nodDom = api.loadIMDIDocument(inUrlLocal, false);
-                for (String currentNodeXmlId : childNodeXmlIdArray) {
-                    IMDIElement target = new IMDIElement(null, currentNodeXmlId);
-                    api.removeIMDIElement(nodDom, target);
+//    public void deleteFromParentDom(String[] childNodeXmlIdArray) {
+////        System.out.println("deleteFromParentDom: " + childNodeXmlIdArray);
+//        if (this.isImdiChild()) {
+//            this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
+//        } else {
+//            // save the node if it need saving
+//            if (imdiNeedsSaveToDisk) {
+//                saveChangesToCache(false);
+//            }
+////            System.out.println("attempting to remove nodes");
+//            try {
+//                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+//                Document nodDom;
+//                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+//                for (String currentNodeXmlId : childNodeXmlIdArray) {
+//                    IMDIElement target = new IMDIElement(null, currentNodeXmlId);
+//                    api.removeIMDIElement(nodDom, target);
+//                }
+//                api.writeDOM(nodDom, this.getFile(), false);
+//                reloadNode();
+//            } catch (Exception ex) {
+//                GuiHelper.linorgBugCatcher.logError(ex);
+//            }
+//        }
+//    }
+    public void deleteFeilds(ImdiField[] targetImdiFields) {
+        ArrayList<String> domIdList = new ArrayList<String>();
+        for (ImdiField currentField : targetImdiFields) {
+            domIdList.add(currentField.fieldID);
+        }
+        deleteFromDomViaId(domIdList.toArray(new String[]{}));
+    }
+
+    // this is used to delete an IMDI node from a corpus branch
+    public void deleteCorpusLink(ImdiTreeObject[] targetImdiNodes) {
+        // retrieve the node id for the link
+        ArrayList<String> fieldIdList = new ArrayList<String>();
+        String linkIdString = null;
+        for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+            String[] currentLinkPair = childLinksEnum.nextElement();
+            String currentChildPath = currentLinkPair[0];
+//                System.out.println("currentChildPath: " + currentChildPath);
+            for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
+//                    System.out.println("targetImdiNode :  " + currentImdiNode.getUrlString());
+                if (currentChildPath.equals(currentImdiNode.getUrlString())) {
+//                      System.out.println("currentLinkPair[1]: " + currentLinkPair[1]);
+                    linkIdString = currentLinkPair[1];
+                    fieldIdList.add(linkIdString);
                 }
-                api.writeDOM(nodDom, this.getFile(), false);
-                reloadNode();
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+        if (fieldIdList.size() > 0) {
+            deleteFromDomViaId(fieldIdList.toArray(new String[]{}));
+        }
+        for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
+            if (currentImdiNode.isCatalogue()) {
+                // the catalogue implemention in the imdi api requires special treatment and so must be done in this way not via deleteFromDomViaId
+                // do this last because it might change the domid ordering
+                deleteCatalogueLink();
             }
         }
     }
 
-    public void deleteCorpusLink(ImdiTreeObject[] targetImdiNodes) {
-//        System.out.println("deleteCorpusLink: " + targetImdiNodes.length);
+    public void deleteCatalogueLink() {
+        // the catalogue implemention in the imdi api requires special treatment and so must be done in this way not via deleteFromDomViaId 
         Document nodDom;
         try {
+            if (imdiNeedsSaveToDisk) {
+                saveChangesToCache(false);
+            }
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
-//            System.out.println("Trying to delete: " + targetImdiNode + " from: " + this.toString());
-            // retrieve the node id for the link
-            String linkIdString = null;
-            for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-                String[] currentLinkPair = childLinksEnum.nextElement();
-                String currentChildPath = currentLinkPair[0];
-//                System.out.println("currentChildPath: " + currentChildPath);
-                for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
-//                    System.out.println("targetImdiNode :  " + currentImdiNode.getUrlString());
-                    if (currentChildPath.equals(currentImdiNode.getUrlString())) {
-//                      System.out.println("currentLinkPair[1]: " + currentLinkPair[1]);
-                        linkIdString = currentLinkPair[1];
-                        IMDIElement target = new IMDIElement(null, linkIdString);
-//                      System.out.println("attempting to remove link");
-                        api.removeIMDIElement(nodDom, target);
-                    }
-                }
-            }
-            for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
-                if (currentImdiNode.isCatalogue()) {
-                    api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
-                }
-            }
-//          System.out.println("linkIdString: " + linkIdString);
+            api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
             api.writeDOM(nodDom, this.getFile(), false);
             reloadNode();
-//            throw (new Exception("deleteCorpusLink not yet implemented"));
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-//            System.out.println("Exception: " + ex.getMessage());
+        }
+    }
+
+    // this is used to delete imdi child nodes and to delete individual fields
+    public void deleteFromDomViaId(String[] domIdArray) {
+        // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
+        Document nodDom;
+        try {
+            if (imdiNeedsSaveToDisk) {
+                saveChangesToCache(false);
+            }
+            OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+            nodDom = api.loadIMDIDocument(inUrlLocal, false);
+            for (String currentImdiDomId : domIdArray) {
+                IMDIElement target = new IMDIElement(null, currentImdiDomId);
+                api.removeIMDIElement(nodDom, target);
+            }
+            api.writeDOM(nodDom, this.getFile(), false);
+            reloadNode();
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
         }
     }
 
@@ -800,7 +837,7 @@ public class ImdiTreeObject implements Comparable {
             String[] currentLinkPair = childLinksEnum.nextElement();
             String currentChildPath = currentLinkPair[0];
             if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", null);
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
                 return false;
             }
             if (currentChildPath.equals(targetImdiNode.getUrlString())) {
@@ -829,14 +866,14 @@ public class ImdiTreeObject implements Comparable {
                 int nodeType = WSNodeType.CORPUS;
                 if (targetImdiNode.isSession()) {
                     nodeType = WSNodeType.SESSION;            // url: IMDI location, for link normalization.  urlToLink: target URL
-                // linkName: for CorpusLink name / for InfoFile description
-                // linkType: WSNodeType value  spec: where to put the link in the IMDI,
-                // NOTE: spec should only be used for linkType InfoFile...
-                // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
+                    // linkName: for CorpusLink name / for InfoFile description
+                    // linkType: WSNodeType value  spec: where to put the link in the IMDI,
+                    // NOTE: spec should only be used for linkType InfoFile...
+                    // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
                 } else if (targetImdiNode.isCatalogue()) {
                     nodeType = WSNodeType.CATALOGUE;
                 }
-                // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
+// TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
                 System.out.println("createIMDILink: " + targetImdiNode.getUrlString());
                 api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), /*targetImdiNode.toString()*/ "", nodeType, "");
                 api.writeDOM(nodDom, this.getFile(), false);
@@ -947,6 +984,7 @@ public class ImdiTreeObject implements Comparable {
             return;
         }
         System.out.println("saveChangesToCache");
+        LinorgJournal.getSingleInstance().clearFieldChangeHistory();
         Document nodDom;
         OurURL inUrlLocal = null;
         if (nodeUrl.getProtocol().toLowerCase().startsWith("http")) {
@@ -973,52 +1011,87 @@ public class ImdiTreeObject implements Comparable {
                 Vector<ImdiField[]> allFields = new Vector<ImdiField[]>();
                 getAllFields(allFields);
 
-
+                Vector<ImdiField> addedFields = new Vector<ImdiField>();
                 for (Enumeration<ImdiField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
                     {
                         ImdiField[] currentFieldArray = fieldsEnum.nextElement();
-                        for (ImdiField currentField : currentFieldArray) {
+                        for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
+                            ImdiField currentField = currentFieldArray[fieldCounter];
                             if (currentField.fieldNeedsSaveToDisk) {
-                                IMDIElement changedElement;
                                 if (currentField.fieldID == null) {
-                                    // if the field does not have an id attribite then it must now be created in the imdi file via the imdi api
-                                    // Mangle the path to suit the imdi api
-                                    String apiPath = currentField.getFullXmlPath().replace(".METATRANSCRIPT.", "").replace(".MDGroup.", ".").replace(".Actors.", ".").replace(".Languages.", ".");
-                                    System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
-                                    changedElement = api.addIMDIElement(nodDom, apiPath);
+                                    addedFields.add(currentField);
                                 } else {
-                                    // set value
-                                    System.out.println("trying to save: " + currentField.fieldID + " : " + currentField.getFieldValue());
-                                    changedElement = new IMDIElement(null, currentField.fieldID);
+                                    //////////////////////////////////////////////////
 
-                                }
-                                changedElement.setValue(currentField.getFieldValue());
-                                String keyName = currentField.getKeyName();
-                                if (keyName != null) {
-                                    System.out.println("Warning: cannot save key name values");
-                                // there appears to be no other way to do this via the api
-                                //changedElement.
-//                                    String elementSpec = changedElement.getSpec();
-//                                    System.out.println("elementSpec: " + elementSpec);
-//                                    elementSpec = elementSpec + ".Name";
-//                                    System.out.println("elementSpec: " + elementSpec);
-//                                    IMDIElement keyNameElement = api.getIMDIElement(nodDom, elementSpec);
-//                                    System.out.println("keyNameElement: " + keyNameElement);
-//                                    keyNameElement.setValue(keyName);
-                                }
-                                IMDIElement ie = api.setIMDIElement(nodDom, changedElement);
-//                                System.out.println("ie.id: " + ie.getDomId());
-//                                System.out.println("ie.spec: " + ie.getSpec());
-                                currentField.fieldNeedsSaveToDisk = false;
-                                LinorgJournal.getSingleInstance().saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
-                                String fieldLanguageId = currentField.getLanguageId();
-                                if (fieldLanguageId != null) {
-                                    IMDILink changedLink;
-                                    changedLink = api.getIMDILink(nodDom, null, ie.getDomId());
-                                    System.out.println("trying to save language id: " + fieldLanguageId);
-                                    changedLink.setLanguageId(fieldLanguageId);
-                                    api.changeIMDILink(nodDom, null, changedLink);
-                                    LinorgJournal.getSingleInstance().saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath + ":LanguageId", fieldLanguageId, "", "save");
+                                    System.out.println("trying to save: " + currentField.fieldID + " : " + currentField.getFieldValue());
+                                    String keyName = currentField.getKeyName();
+                                    if (keyName != null) {
+                                        api.setKeyValuePair(nodDom, currentField.fieldID, keyName, currentField.getFieldValue());
+//                                        changedElement = new IMDIElement(null, currentField.fieldID);
+//                                        changedElement.setSpec("x:Name");
+//                                        changedElement.setValue(currentField.getFieldValue());
+//                                        IMDIElement ies = api.setIMDIElement(nodDom, changedElement);
+                                    } else {
+                                        IMDIElement changedElement;
+                                        changedElement = new IMDIElement(null, currentField.fieldID);
+                                        changedElement.setValue(currentField.getFieldValue());
+                                        IMDIElement ie = api.setIMDIElement(nodDom, changedElement);
+                                        System.out.println("ie spec: " + ie.getSpec());
+                                        System.out.println("ie.id: " + ie.getDomId());
+                                        System.out.println("ie.spec: " + ie.getSpec());
+                                    }
+                                    currentField.fieldNeedsSaveToDisk = false;
+//                                GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
+                                    String fieldLanguageId = currentField.getLanguageId();
+                                    if (fieldLanguageId != null) {
+                                        IMDILink changedLink;
+                                        changedLink = api.getIMDILink(nodDom, null, currentField.fieldID);
+                                        System.out.println("trying to save language id: " + fieldLanguageId);
+                                        changedLink.setLanguageId(fieldLanguageId);
+                                        api.changeIMDILink(nodDom, null, changedLink);
+                                        LinorgJournal.getSingleInstance().saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath + ":LanguageId", fieldLanguageId, "", "save");
+                                    }
+                                    //////////////////////////////////////////////////
+//                                String elementNameForApi = currentField.fieldID;
+//                                if (currentField.fieldID == null) {
+//                                    elementNameForApi = apiPath;
+//                                    GuiHelper.linorgBugCatcher.logError(currentField.getFullXmlPath(), new Exception("No domid for field when trying to save"));
+//                                }
+//                                api.setKeyValuePair(nodDom, apiPath, currentField.getKeyName(), currentField.getFieldValue());
+
+
+
+////                                 TODO: keys must be added here and in the favourites copy
+//                                if (currentField.fieldID == null) {
+//                                    GuiHelper.linorgBugCatcher.logError(currentField.getFullXmlPath(), new Exception("No domid for field when trying to save"));
+//                                    // if the field does not have an id attribite then it must now be created in the imdi file via the imdi api
+//                                    // Mangle the path to suit the imdi api
+//
+//                                    System.out.println("trying to add: " + apiPath + " : " + currentField.getFieldValue());
+//                                    changedElement = api.addIMDIElement(nodDom, apiPath);
+//                                } else {
+//                                    // set value
+
+//                                    System.out.println("changedElement: " + changedElement.getSpec());
+//                                    api.setKeyValuePair(nodDom, currentField.fieldID, keyName, currentField.getFieldValue());
+//
+////                                    changedElement.
+//
+////                                    mpi.imdi.api.IMDIXMLFormat imdiXmlFormat = new mpi.imdi.api.IMDIXMLFormat();
+//////                                            generateSpecFromNode(Node node)
+////                                    mpi.imdi.api.IMDIXMLForma
+//
+//                                    System.out.println("Warning: cannot save key name values");
+//                                // there appears to be no other way to do this via the api
+//                                //changedElement.
+////                                    String elementSpec = changedElement.getSpec();
+////                                    System.out.println("elementSpec: " + elementSpec);
+////                                    elementSpec = elementSpec + ".Name";
+////                                    System.out.println("elementSpec: " + elementSpec);
+////                                    IMDIElement keyNameElement = api.getIMDIElement(nodDom, elementSpec);
+////                                    System.out.println("keyNameElement: " + keyNameElement);
+////                                    keyNameElement.setValue(keyName);
+//                                }
                                 }
                             }
                         }
@@ -1519,7 +1592,7 @@ public class ImdiTreeObject implements Comparable {
 
     /**
      * If not already done calculates the required icon for this node in its current state.
-     * Once calculated the stored icon will be returned. 
+     * Once calculated the stored icon will be returned.
      * To clear the icon and recalculate it "clearIcon()" should be called.
      * @return The icon for this node.
      */
