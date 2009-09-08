@@ -79,22 +79,33 @@ public class ArbilTemplate {
             }
         }
         return null;
-    /*
-    <ChildNodePaths>
-    <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
-    <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Sources" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
-    <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
-    </ChildNodePaths>
-     */
+        /*
+        <ChildNodePaths>
+        <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
+        <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Sources" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
+        </ChildNodePaths>
+         */
     }
     String[][] templatesArray;
+
+    public boolean pathIsDeleteableField(String nodePath) {
+        // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+        nodePath = nodePath.substring(1) + ".xml";
+        for (String[] pathString : templatesArray) {
+            if (pathString[0].equals((nodePath))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private Vector getSubnodesFromTemplatesDir(String nodepath) {
         Vector<String[]> returnVector = new Vector<String[]>();
@@ -118,7 +129,7 @@ public class ArbilTemplate {
                 Arrays.sort(templatesArray, new Comparator() {
 
                     public int compare(Object obj1, Object obj2) {
-                        return ((String[]) obj1)[1].compareToIgnoreCase(((String[]) obj2)[1]);
+                        return ((String[]) obj1)[0].compareToIgnoreCase(((String[]) obj2)[0]);
                     }
                 });
                 int linesRead = 0;
@@ -127,15 +138,15 @@ public class ArbilTemplate {
                     if (testingListing != null) {
                         if (!testingListing[linesRead].equals(currentTemplate[0])) {
                             System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
-                            throw new Exception("error in the templates array");
+                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
                         }
                     }
                     linesRead++;
                 }
                 if (testingListing != null) {
-                    if (testingListing.length != linesRead) {
+                    if (testingListing.length - 1 != linesRead) {
                         System.out.println(testingListing[linesRead]);
-                        throw new Exception("error missing line in the templates array");
+                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
                     }
                 }
             }
@@ -143,9 +154,17 @@ public class ArbilTemplate {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
         for (String[] currentTemplate : templatesArray) {
-            currentTemplate[0] = "." + currentTemplate[0];
+//            ==================================== TemplateComponent-FileName-NodePath-DisplayName
+//            String templateFileName = currentTemplate[0];
+//            String templateNodePath = currentTemplate[1];
+//            String templateDisplayName = currentTemplate[2];
+//            if (!templateFileName.endsWith("Session") && !templateFileName.endsWith("Catalogue")) { // sessions cannot be added to a session
+//                if (templateNodePath.startsWith(nodepath)) {
+//                    if (targetNodePath.replaceAll("[^(]*", "").length() >= templateNodePath.replaceAll("[^(]*", "").length()) {//TODO: check the string engh has not changed here due to the lack of the .xml
+//            currentTemplate[0] = "." + currentTemplate[0];
+//            ==================================== TemplateComponent-FileName-NodePath-DisplayName
             if (!currentTemplate[0].endsWith("Session.xml") && !currentTemplate[0].endsWith("Catalogue.xml")) { // sessions cannot be added to a session
-                if (currentTemplate[0].startsWith(nodepath)) {
+                if (currentTemplate[0].startsWith(nodepath.substring(1))) {
                     if (targetNodePath.replaceAll("[^(]*", "").length() >= currentTemplate[0].replaceAll("[^(]*", "").length()) {
                         currentTemplate[0] = currentTemplate[0].replaceFirst("\\.xml$", "");
 //                            String currentTemplateXPath = currentTemplate[0].replaceFirst("\\.xml$", "");
@@ -159,8 +178,8 @@ public class ArbilTemplate {
 //                                destinationXPath = currentTemplateXPath;
 //                            }
 //                        System.out.println("destinationXPath: " + destinationXPath);
-
-                        returnVector.add(new String[]{currentTemplate[1], currentTemplate[0]});// TODO: update the menu title to include location
+//            ====================================
+                        returnVector.add(new String[]{currentTemplate[1], "." + currentTemplate[0]});// TODO: update the menu title to include location and exact file name from the template
                     }
                 }
             }
@@ -288,7 +307,7 @@ public class ArbilTemplate {
             if (templateConfigFile.exists()) {
                 xmlReader.parse(templateConfigFile.getPath());
             } else {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "The default template will be used instead.", "Load Template");
+                //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "The default template will be used instead.", "Load Template");
                 xmlReader.parse(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/template.xml").toExternalForm());
             }
             return true;
