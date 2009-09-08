@@ -54,7 +54,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
 
     <target name="setproperties">
         <property name="SRCDIR" value="../../../../src/java/"/>
-        <property name="OUTPUTDIR" value="LinorgBuild/"/>
+        <property name="OUTPUTDIR" value="/home/petwit/LinorgBuild/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
     </target>
@@ -177,7 +177,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </jar>
         </target>
         <target name="run" description="run the application">
-            <java classname="mpi.linorg.Linorg">
+            <java classname="mpi.linorg.Linorg" fork="true">
                 <classpath>
                 <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
                 <!--<filelist dir="${WEBAPPS_LIB}">
