@@ -7,8 +7,8 @@
         <shortcut online="false">
             <desktop />
             <menu sub-menu="Language Archiving Tools" />
-        <!--    <menu sub-menu="" />   -->
-<!--            <menu /> -->
+            <!-- <menu sub-menu="" /> -->
+            <!-- <menu /> -->
         </shortcut>
         <vendor>Max Planck Institute for Psycholinguistics</vendor>
         <homepage href=""/>
@@ -28,6 +28,6 @@
         <jar href="lib/xalan.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
     </resources>
-    <application-desc main-class="mpi.linorg.LinorgFrame">
+    <application-desc main-class="nl.mpi.arbil.LinorgFrame">
     </application-desc>
 </jnlp>

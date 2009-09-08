@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.util.Comparator;
 import javax.swing.tree.DefaultMutableTreeNode;

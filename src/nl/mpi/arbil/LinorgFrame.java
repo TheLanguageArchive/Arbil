@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

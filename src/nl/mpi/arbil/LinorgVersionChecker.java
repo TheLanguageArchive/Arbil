@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.Component;
 import java.awt.Desktop;
@@ -216,7 +216,7 @@ public class GuiHelper {
                     // 1. Instantiate a TransformerFactory.
                     javax.xml.transform.TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
                     // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
-                    URL xslUrl = this.getClass().getResource("/mpi/linorg/resources/xsl/imdi-viewer.xsl");
+                    URL xslUrl = this.getClass().getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl");
                     File tempHtmlFile;
                     File xslFile = null;
                     if (imdiSchema.selectedTemplateDirectory != null) {
@@ -237,7 +237,7 @@ public class GuiHelper {
 //                        File tempDependantFile = File.createTempFile(dependantFileString, "");
                             FileOutputStream outFile = new FileOutputStream(tempDependantFile);
                             //InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
-                            InputStream inputStream = this.getClass().getResourceAsStream("/mpi/linorg/resources/xsl/" + dependantFileString);
+                            InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
                             int bufferLength = 1024 * 4;
                             byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
                             int bytesread = 0;

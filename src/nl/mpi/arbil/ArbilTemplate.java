@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class ArbilTemplate {
 
         try {
 //            System.out.println("get templatesDirectory");
-            File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
+            File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
 //            System.out.println("check templatesDirectory");
             if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
 //                System.out.println("using templatesDirectory");
@@ -308,7 +308,7 @@ public class ArbilTemplate {
                 xmlReader.parse(templateConfigFile.getPath());
             } else {
                 //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "The default template will be used instead.", "Load Template");
-                xmlReader.parse(ImdiSchema.class.getResource("/mpi/linorg/resources/templates/template.xml").toExternalForm());
+                xmlReader.parse(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
             }
             return true;
         } catch (Exception ex) {

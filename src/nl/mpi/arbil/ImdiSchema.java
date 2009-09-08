@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -198,7 +198,7 @@ public class ImdiSchema {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
         String addedPathString = null;
         // copy the template to disk
-        URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");
+        URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
 //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
 //        System.out.println("templateFile: " + templateFile);
         addedPathString = copyToDisk(templateUrl, destinationFile);
@@ -259,7 +259,7 @@ public class ImdiSchema {
             templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
             System.out.println("templateFileString(x): " + templateFileString);
             templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
-            URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateFileString + ".xml");
+            URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
             // prepare the parent node
             if (targetXpath == null) {
                 targetXpath = elementName;

@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.File;
 import java.net.URL;
@@ -112,7 +112,7 @@ public class ImdiVocabularies {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
             String cachePath = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
             if (!new File(cachePath).exists()) {
-                String backupPath = "/mpi/linorg/resources/IMDI/FallBack/" + new File(cachePath).getName();
+                String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + new File(cachePath).getName();
                 System.out.println("backupPath: " + backupPath);
                 URL backUp = this.getClass().getResource(backupPath);
                 if (backUp != null) {

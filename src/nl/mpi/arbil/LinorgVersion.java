@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 public class LinorgVersion {
     String currentMajor = "";
     String currentMinor = "";
@@ -7,4 +7,4 @@ public class LinorgVersion {
     String compileDate = "";
     String fullInfo = "";
 }
-        
+            

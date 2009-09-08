@@ -29,6 +29,6 @@
         <jar href="lib/xalan-2.6.0.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
     </resources>
-    <application-desc main-class="mpi.linorg.LinorgFrame">
+    <application-desc main-class="nl.mpi.arbil.LinorgFrame">
     </application-desc>
 </jnlp>
