@@ -65,11 +65,13 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
 
             public void keyReleased(KeyEvent evt) {
-                if (isStartLongFieldModifier(evt)) {
-                    // prevent ctrl key events getting through etc.
-                    startEditorMode(isStartLongFieldKey(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-                } else if (evt.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
-                    startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
+                if (!evt.isActionKey() && !evt.isMetaDown() && !evt.isAltDown() && !evt.isAltGraphDown() && !evt.isControlDown()) {
+                    if (isStartLongFieldModifier(evt)) {
+                        // prevent ctrl key events getting through etc.
+                        startEditorMode(isStartLongFieldKey(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
+                    } else if (evt.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
+                        startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
+                    }
                 }
             }
         });
@@ -284,6 +286,16 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                         editorPanel.add(fieldLanguageBox);
                         addFocusListener(fieldLanguageBox);
                     }
+                    editorTextField.addFocusListener(new FocusListener() {
+
+                        public void focusGained(FocusEvent e) {
+                            // the caret position must be set here so that the mac version does not loose the last typed char when entering edit mode
+                            ((JTextField) editorComponent).setCaretPosition(((JTextField) editorComponent).getText().length());
+                        }
+
+                        public void focusLost(FocusEvent e) {
+                        }
+                    });
                     editorPanel.doLayout();
                     editorTextField.requestFocusInWindow();
                     editorComponent = editorTextField;
