@@ -46,13 +46,17 @@ public class LinorgJournal {
     }
 
     public void undoFromFieldChangeHistory() {
-        Object[] changeHistoryItem = fieldChangeHistory.get(--currentFieldChangeHistoryItem);
-        makeChangeFromHistoryItem((ImdiField) changeHistoryItem[0], (String) changeHistoryItem[2], (String) changeHistoryItem[1]);
+        if (canUndo()) {
+            Object[] changeHistoryItem = fieldChangeHistory.get(--currentFieldChangeHistoryItem);
+            makeChangeFromHistoryItem((ImdiField) changeHistoryItem[0], (String) changeHistoryItem[2], (String) changeHistoryItem[1]);
+        }
     }
 
     public void redoFromFieldChangeHistory() {
-        Object[] changeHistoryItem = fieldChangeHistory.get(currentFieldChangeHistoryItem++);
-        makeChangeFromHistoryItem((ImdiField) changeHistoryItem[0], (String) changeHistoryItem[1], (String) changeHistoryItem[2]);
+        if (canRedo()) {
+            Object[] changeHistoryItem = fieldChangeHistory.get(currentFieldChangeHistoryItem++);
+            makeChangeFromHistoryItem((ImdiField) changeHistoryItem[0], (String) changeHistoryItem[1], (String) changeHistoryItem[2]);
+        }
     }
 
     public void clearFieldChangeHistory() {
