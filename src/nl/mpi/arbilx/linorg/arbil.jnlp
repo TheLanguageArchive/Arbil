@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/linorg/" href="arbil.jnlp">
+    <information>
+        <title>Arbil</title>
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil128x128.png" />
+        <offline-allowed/>
+        <shortcut online="false">
+            <desktop />
+            <menu sub-menu="Language Archiving Tools" />
+        <!--    <menu sub-menu="" />   -->
+<!--            <menu /> -->
+        </shortcut>
+        <vendor>Max Planck Institute for Psycholinguistics</vendor>
+        <homepage href=""/>
+        <description>Arbil is a local metadata organising tool for researchers</description>
+        <description kind="short">Linguistic Organiser</description>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+"/>
+        <jar href="arbil-0-2-15403M.jar" main="true" download="eager"/>
+        <jar href="lib/imdiapi.jar" download="eager"/>
+        <jar href="lib/corpusstructure.jar" download="eager"/>
+        <jar href="lib/log4j-1.2.14.jar" download="eager"/>
+        <jar href="lib/typecheck.jar" download="eager"/>
+        <jar href="lib/xalan.jar" download="eager"/>
+        <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
+    </resources>
+    <application-desc main-class="mpi.linorg.LinorgFrame">
+    </application-desc>
+</jnlp>
