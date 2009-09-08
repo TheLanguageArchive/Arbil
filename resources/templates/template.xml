@@ -82,6 +82,7 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml" DisplayName="Actor" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Keys.Key.xml" DisplayName="Content Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml" DisplayName="Content Language" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Description.xml" DisplayName="Content Language Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml" DisplayName="Source Key" />
