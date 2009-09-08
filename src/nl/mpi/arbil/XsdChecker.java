@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 /**
  * Document   : XsdChecker
@@ -64,7 +64,7 @@ public class XsdChecker extends JSplitPane {
 
     private void alternateCheck(File imdiFile) throws Exception {
 
-        URL schemaFile = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
+        URL schemaFile = this.getClass().getResource("/nl/mpi/arbil/resources/xsd/IMDI_3_0_8.xsd");
         // URL schemaFile = this.getClass().getResource("/mpi/imdi/resources/IMDI_3.0.xsd");
         doc.insertString(doc.getLength(), "using schema file: " + schemaFile.getFile() + "\n\n", styleNormal);
         Source xmlFile = new StreamSource(imdiFile);
@@ -86,7 +86,7 @@ public class XsdChecker extends JSplitPane {
     public String simpleCheck(File imdiFile, String sourceFile) {
         String messageString;
 //        System.out.println("simpleCheck: " + imdiFile);
-        URL schemaFile = this.getClass().getResource("/mpi/linorg/resources/xsd/IMDI_3_0_8.xsd");
+        URL schemaFile = this.getClass().getResource("/nl/mpi/arbil/resources/xsd/IMDI_3_0_8.xsd");
         Source xmlFile = new StreamSource(imdiFile);
         try {
             Validator validator = createValidator(schemaFile);

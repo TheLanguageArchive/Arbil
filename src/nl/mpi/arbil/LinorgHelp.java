@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,17 +45,17 @@ public class LinorgHelp extends javax.swing.JPanel {
         Vector<String> availablePages = new Vector();
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 //        try {
-//            //FileWriter fileWriter = new FileWriter(this.getClass().getResource("/mpi/linorg/resources/html/help/index.txt").getFile());
-//            FileWriter fileWriter = new FileWriter("/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/html/help/index.txt");
+//            //FileWriter fileWriter = new FileWriter(this.getClass().getResource("/nl/mpi/arbil/resources/html/help/index.txt").getFile());
+//            FileWriter fileWriter = new FileWriter("/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/nl/mpi/arbil/resources/html/help/index.txt");
 //            BufferedWriter outFile = new BufferedWriter(fileWriter);
-//            File helpDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/html/help").getFile());
+//            File helpDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/html/help").getFile());
 //            scanDirectory(helpDirectory, outFile);
 //            outFile.close();
 //        } catch (Exception ex) {
 //            GuiHelper.linorgBugCatcher.logError(ex);
 //        }
         try {
-            InputStream fileReader = (this.getClass().getResourceAsStream("/mpi/linorg/resources/html/help/index.txt"));
+            InputStream fileReader = (this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/html/help/index.txt"));
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileReader));
             String line = null;
             while ((line = bufferedReader.readLine()) != null) {
@@ -80,7 +80,7 @@ public class LinorgHelp extends javax.swing.JPanel {
                 scanDirectory(currentFile, outFile);
             } else if (!currentFile.getName().endsWith("index.txt")) {
                 System.out.println("currentFile: " + currentFile.getPath());
-                outFile.write(currentFile.getPath().split("/mpi/linorg/resources/html/help/")[1] + "\n");
+                outFile.write(currentFile.getPath().split("/nl/mpi/arbil/resources/html/help/")[1] + "\n");
             }
         }
     }
@@ -151,7 +151,7 @@ public class LinorgHelp extends javax.swing.JPanel {
                         currentSearchNode = childNode;
                     }
                 }
-                URL currentURL = this.getClass().getResource("/mpi/linorg/resources/html/help/" + currentFileName);
+                URL currentURL = this.getClass().getResource("/nl/mpi/arbil/resources/html/help/" + currentFileName);
                 String currentName = currentSearchNode.getUserObject().toString().replaceFirst("\\.html$", "");
                 currentSearchNode.setUserObject(new HelpNodeUserObject(currentName, currentURL));
                 currentSearchNode.setAllowsChildren(false);
@@ -224,7 +224,7 @@ public class LinorgHelp extends javax.swing.JPanel {
             try {
                 if (((HelpNodeUserObject) nodeInfo).getHelpURL() != null) {
                     jTextPane1.setPage(((HelpNodeUserObject) nodeInfo).getHelpURL());
-//                    jTextPane1.setPage(this.getClass().getResource("/mpi/linorg/resources/html/help/Searching.html"));
+//                    jTextPane1.setPage(this.getClass().getResource("/nl/mpi/arbil/resources/html/help/Searching.html"));
                 } else {
                     jTextPane1.setText("Page not found");
                 }

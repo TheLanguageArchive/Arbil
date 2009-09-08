@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;

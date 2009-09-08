@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="Linorg" default="compile">
     <target name="setproperties">
-        <property name="SRCDIR" value="../../../../src/java/"/>
+        <property name="SRCDIR" value="../../../../src/"/>
         <property name="BUILDDIR" value="classes"/>
         <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
     </target>
@@ -18,7 +18,7 @@
     <!-- target compile (this is included by build.all) -->
     <target name="compile" description="compile the linorg source code to class files">
         <echo message="Compiling Linorg"/>
-        <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="mpi/linorg/**.java">
+        <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
             <classpath>
                 <fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>
             </classpath>
@@ -26,23 +26,23 @@
     </target>
     <target name="jar" depends="compile" description="create a Jar file">
         <jar destfile="linorg.jar">
-            <fileset dir="classes" includes="mpi/linorg/**/*.class"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/images/*.png"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.*"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xml"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsd/*.xsd"/>
-            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.xsl"/>
+            <fileset dir="classes" includes="nl/mpi/arbil/**/*.class"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/help/**/*.*"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/xsd/*.xsd"/>
+            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/xsl/*.xsl"/>
             <manifest>
-                <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
+                <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
                 <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan.jar lib/xercesImpl-2.9.0.jar"/>
             </manifest>
         </jar>
     </target>
     <target name="run" description="run the application">
-        <java classname="mpi.linorg.Linorg">
+        <java classname="nl.mpi.arbil.Linorg">
             <classpath>
                 <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
                 <!--<filelist dir="${WEBAPPS_LIB}">
@@ -87,7 +87,7 @@
         <!--<exec executable="date" output="version.date" />-->
         <exec outputproperty="linorg.current.revision" executable="svnversion">
             <arg line="-n -c" />
-            <arg line="${SRCDIR}mpi/linorg/" />
+            <arg line="${SRCDIR}nl/mpi/arbil/" />
             <redirector>
                 <outputfilterchain>
                     <tokenfilter>
@@ -98,7 +98,7 @@
         </exec>
         <exec outputproperty="linorg.info.all" executable="svn">
             <arg line="info" />
-            <arg line="${SRCDIR}mpi/linorg/" />
+            <arg line="${SRCDIR}nl/mpi/arbil/" />
             <redirector>
                 <outputfilterchain>
                     <tokenfilter>
@@ -110,7 +110,7 @@
         </exec>
         <exec outputproperty="linorg.last.commit.date" executable="svn">
             <arg line="info" />
-            <arg line="${SRCDIR}mpi/linorg/" />
+            <arg line="${SRCDIR}nl/mpi/arbil/" />
             <redirector>
                 <outputfilterchain>
                     <linecontainsregexp>
@@ -123,7 +123,7 @@
             </redirector>
         </exec>
         <exec outputproperty="linorg.build.date" executable="date" />
-        <echo file="${SRCDIR}mpi/linorg/LinorgVersion.java" append="false">package mpi.linorg;
+        <echo file="${SRCDIR}nl/mpi/arbil/LinorgVersion.java" append="false">package nl.mpi.arbil;
 public class LinorgVersion {
     String currentMajor = "${linorg.current.major}";
     String currentMinor = "${linorg.current.minor}";

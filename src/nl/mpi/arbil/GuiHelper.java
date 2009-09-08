@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.Component;
 import java.awt.Toolkit;
@@ -195,7 +195,7 @@ public class GuiHelper {
                     // 1. Instantiate a TransformerFactory.
                     javax.xml.transform.TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
                     // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
-                    javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(this.getClass().getResource("/mpi/linorg/resources/xsl/IMDI_3_0_TO_WEB.xsl").toString()));
+                    javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(this.getClass().getResource("/nl/mpi/arbil/resources/xsl/IMDI_3_0_TO_WEB.xsl").toString()));
                     // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
                     transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(nodeFile.getCanonicalPath() + ".html")));
                     LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-transformed", new File(nodeFile.getCanonicalPath() + ".html").toURL());

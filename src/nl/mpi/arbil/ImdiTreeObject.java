@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
@@ -817,7 +817,7 @@ public class ImdiTreeObject implements Comparable {
                 System.out.println("writeDOM");
                 // make the required changes to the dom
                 // TODO: make the changes to the dom before saving
-                // refer to: /data1/repos/trunk/src/java/mpi/imdi/api/TestDom.java
+                // refer to: /data1/repos/trunk/src/mpi/imdi/api/TestDom.java
 
                 Vector<ImdiField[]> allFields = new Vector();
                 getAllFields(allFields);
