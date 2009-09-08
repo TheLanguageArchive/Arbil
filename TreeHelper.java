@@ -724,7 +724,7 @@ public class TreeHelper {
                 for (ImdiTreeObject currentParent : imdiChildNodeDeleteList.keySet()) {
                     System.out.println("deleting by child xml id link");
                     // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
-                    currentParent.deleteFromParentDom(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
                 }
                 for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
                     System.out.println("deleting by corpus link");
