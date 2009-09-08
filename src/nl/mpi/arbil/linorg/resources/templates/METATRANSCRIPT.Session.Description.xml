@@ -1,0 +1,4 @@
+
+<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" InsertBefore="MDGroup">
+    <Description LanguageId="" Link=""/>
+</InsertableSection>
