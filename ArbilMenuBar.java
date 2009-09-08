@@ -1,5 +1,9 @@
 package mpi.linorg;
 
+import java.awt.AWTEvent;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -89,13 +93,13 @@ public class ArbilMenuBar extends JMenuBar {
                 fileMenuMenuSelected(evt);
             }
         });
-        saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+
         saveFileMenuItem.setText("Save Changes");
         saveFileMenuItem.setEnabled(false);
         saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveFileMenuItemActionPerformed(evt);
+                GuiHelper.imdiLoader.saveNodesNeedingSave(true);
             }
         });
         fileMenu.add(saveFileMenuItem);
@@ -143,7 +147,6 @@ public class ArbilMenuBar extends JMenuBar {
         pasteMenuItem.setEnabled(false);
 //        editMenu.add(pasteMenuItem);
 
-        undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
         undoMenuItem.setText("Undo");
         undoMenuItem.setEnabled(false);
         undoMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -153,8 +156,6 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
         editMenu.add(undoMenuItem);
-
-        redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         redoMenuItem.setText("Redo");
         redoMenuItem.setEnabled(false);
         redoMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -336,6 +337,34 @@ public class ArbilMenuBar extends JMenuBar {
         saveWindowsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
         printHelpMenuItem.setVisible(false);
+        setUpHotKeys();
+    }
+
+    private void setUpHotKeys() {
+        // the jdesktop seems to be consuming the key strokes used for save, undo and redo so to make this available over the whole interface it has been added here
+        saveFileMenuItem.setMnemonic(java.awt.event.KeyEvent.VK_S);
+        saveFileMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        undoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
+        redoMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+
+            public void eventDispatched(AWTEvent event) {
+                System.out.println("KeyEvent.paramString: " + ((KeyEvent) event).paramString());
+                if ((((KeyEvent) event).isMetaDown() || ((KeyEvent) event).isControlDown()) && event.getID() == KeyEvent.KEY_RELEASED) {
+                    if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
+                        GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+                    }
+                    if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Z) {
+                        if (((KeyEvent) event).isShiftDown()) {
+                            LinorgJournal.getSingleInstance().redoFromFieldChangeHistory();
+                        } else {
+                            LinorgJournal.getSingleInstance().undoFromFieldChangeHistory();
+                        }
+                    }
+                }
+            }
+        }, AWTEvent.KEY_EVENT_MASK);
     }
 
     private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -356,11 +385,6 @@ public class ArbilMenuBar extends JMenuBar {
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 // TODO add your handling code here:
         LinorgWindowManager.getSingleInstance().openAboutPage();
-    }
-
-    private void saveFileMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
-        GuiHelper.imdiLoader.saveNodesNeedingSave(true);
     }
 
     private void fileMenuMenuSelected(MenuEvent evt) {
