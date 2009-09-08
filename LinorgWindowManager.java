@@ -111,25 +111,24 @@ public class LinorgWindowManager {
         if (!showMessageThreadrunning) {
             new Thread() {
 
-            public void run() {
+                public void run() {
                     try {
                         sleep(100);
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
                     }
                     showMessageThreadrunning = true;
-                if (messagesCanBeShown) {
-                    while (messageDialogQueue.size() > 0) {
+                    if (messagesCanBeShown) {
+                        while (messageDialogQueue.size() > 0) {
                             String messageTitle = messageDialogQueue.keys().nextElement();
                             String messageText = messageDialogQueue.remove(messageTitle);
                             if (messageText != null) {
                                 JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, messageText, messageTitle, JOptionPane.PLAIN_MESSAGE);
+                            }
                         }
                     }
-
-                }
                     showMessageThreadrunning = false;
-            }
+                }
             }.start();
         }
     }
@@ -174,7 +173,7 @@ public class LinorgWindowManager {
                     imdiObjectsArray[arrayCounter] = (GuiHelper.imdiLoader.getImdiObject(null, imdiURLs.elementAt(arrayCounter).toString()));
                 }
                 openFloatingTable(imdiObjectsArray, currentWindowName);
-            //openFloatingTable(null, currentWindowName);
+                //openFloatingTable(null, currentWindowName);
             }
             System.out.println("done loading windowStates");
         } catch (Exception ex) {
@@ -418,9 +417,9 @@ public class LinorgWindowManager {
                                 desktopPane.repaint();
                             }
                             if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown())
-                            // the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
-                            // || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
-                                    ){
+                                    // the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
+                                    // || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
+                                    ) {
                                 try {
                                     JInternalFrame[] allWindows = desktopPane.getAllFrames();
                                     int targetLayerInt;
@@ -509,7 +508,7 @@ public class LinorgWindowManager {
             htmlDisplay.setPage(locationUrl);
             htmlDisplay.addHyperlinkListener(new LinorgHyperlinkListener());
 
-        //gridViewInternalFrame.setMaximum(true);
+            //gridViewInternalFrame.setMaximum(true);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
