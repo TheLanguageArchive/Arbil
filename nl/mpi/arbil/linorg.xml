@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<project name="Linorg" default="compile">
+    <target name="setproperties">
+        <property name="SRCDIR" value="../../../../src/java/"/>
+        <property name="BUILDDIR" value="classes"/>
+        <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
+    </target>
+    <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run" description="clean, build, jar and run">
+        <echo message="Ant Java Version: ${ant.java.version}"/>
+    </target>
+    <target name="clean" description="remove intermediate files">
+        <delete dir="${BUILDDIR}"/>
+        <mkdir dir="${BUILDDIR}"/>
+    </target>
+    <target name="clobber" depends="clean" description="remove all artifact files">
+        <delete file="linorg.jar"/>
+    </target>
+    <!-- target compile (this is included by build.all) -->
+    <target name="compile" description="compile the linorg source code to class files">
+        <echo message="Compiling Linorg"/>
+        <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="mpi/linorg/**.java">
+            <classpath>
+                <fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>
+            </classpath>
+        </javac>
+    </target>
+    <target name="getFallbackFiles" description="download the latest schema and controlled vocabularies from the web server">
+        <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
+        <!-- get the latest schema -->
+        <get src="http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/IMDI_3.0.xsd"/>
+        <!-- get the latest controlled vocabularies -->
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Actor-FamilySocialRole.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-PlanningType.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MediaFile-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Actor-Role.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SocialContext.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MPI-Languages.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Actor-Sex.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Discourse.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SubGenre-Discourse.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Source-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Source-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Boolean.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Boolean.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Stimuli.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SubGenre-Stimuli.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Methodology.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Validation-Methodology.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Channel.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-SubGenre.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Type.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Validation-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-EventStructure.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Subject.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Derivation.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-Derivation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Discursive.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Genre-Discursive.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Task.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Interactional.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Genre-Interactional.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Continents.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Continents.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType-Annotation.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-SubType-Annotation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Genre.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Countries.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Countries.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-SubType.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Interactivity.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/ISO639-2Languages.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Type.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/WrittenResource-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Involvement.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/LanguagesID.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/LanguagesID.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/Content-Modalities.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${SRCDIR}mpi/linorg/resources/IMDI/FallBack/MediaFile-Format.xml"/>
+    </target>
+    <target name="jar" depends="compile, getFallbackFiles" description="create a Jar file">
+        <jar destfile="linorg.jar">
+            <fileset dir="classes" includes="mpi/linorg/**/*.class"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/icons/*.png"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/images/*.png"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/*.html"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/html/help/**/*.*"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/templates/*.xml"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xsd"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/IMDI/FallBack/*.xml"/>
+            <fileset dir="${SRCDIR}" includes="mpi/linorg/resources/xsl/*.xsl"/>
+            <manifest>
+                <attribute name="Main-Class" value="mpi.linorg.LinorgFrame"/>
+                <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan.jar lib/xercesImpl-2.9.0.jar"/>
+            </manifest>
+        </jar>
+    </target>
+    <target name="run" description="run the application">
+        <java classname="mpi.linorg.Linorg">
+            <classpath>
+                <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
+                <!--<filelist dir="${WEBAPPS_LIB}">
+                    <file name="imdiapi.jar" />
+                    <file name="log4j-1.2.14.jar" />
+                    <file name="typecheck.jar" />
+                    <file name="xalan-2.7.0.jar" />-->
+                    <!--
+                    <file name="saxon8-dom4j.jar" />
+                    <file name="saxon8-dom.jar" />
+                    <file name="saxon8.jar" />
+                    <file name="saxon8-xqj.jar" />
+                    <file name="saxon-dom-8.7.jar" />
+                    <file name="log4j-1.2.9.jar" />
+                    <file name="xalan-2.7.0.jar" />                    
+                    <file name="xercesImpl-2.9.0.jar" />
+                    -->
+                    <!--
+                    <file name="saxon8-ant.jar" />
+                    <file name="saxon8-sql.jar" />
+                    <file name="saxon8-jdom.jar" />
+                    <file name="saxon8-xom.jar" />
+                    <file name="saxon8-xpath.jar" />
+                    <file name="xercesImpl.jar" />
+                    -->
+               <!-- </filelist>-->
+                <pathelement location="linorg.jar"/>
+            </classpath>
+        </java>
+    </target>
+    <target depends="setproperties" name="getsvnversion">
+        <property name="linorg.current.major" value="0"/>
+        <property name="linorg.current.minor" value="2"/>
+       <!-- <exec executable="svn" output="version.info">
+            <arg value="info"/>
+        </exec>
+        <exec executable="grep" output="version.date">-->
+            <!--<arg value="^Revision"/>-->
+           <!-- <arg value="^Last Changed Date:"/>
+            <arg value="version.info"/>
+        </exec>-->
+        <!--<exec executable="date" output="version.date" />-->
+        <exec outputproperty="linorg.current.revision" executable="svnversion">
+            <arg line="-n -c" />
+            <arg line="${SRCDIR}mpi/linorg/" />
+            <redirector>
+                <outputfilterchain>
+                    <tokenfilter>
+                        <replaceregex pattern="^[0-9]*:?" replace="" flags="g"/>
+                    </tokenfilter>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec outputproperty="linorg.info.all" executable="svn">
+            <arg line="info" />
+            <arg line="${SRCDIR}mpi/linorg/" />
+            <redirector>
+                <outputfilterchain>
+                    <tokenfilter>
+                        <replaceregex pattern="^" replace="\\\\n" flags="g"/>
+                    </tokenfilter>
+                    <striplinebreaks/>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec outputproperty="linorg.last.commit.date" executable="svn">
+            <arg line="info" />
+            <arg line="${SRCDIR}mpi/linorg/" />
+            <redirector>
+                <outputfilterchain>
+                    <linecontainsregexp>
+                        <regexp pattern="^Last Changed Date:" />
+                    </linecontainsregexp>
+                    <tokenfilter>
+                        <replaceregex pattern=".*\/([^\/]+)$" replace="\1" flags="g"/>
+                    </tokenfilter>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <exec outputproperty="linorg.build.date" executable="date" />
+        <echo file="${SRCDIR}mpi/linorg/LinorgVersion.java" append="false">package mpi.linorg;
+public class LinorgVersion {
+    String currentMajor = "${linorg.current.major}";
+    String currentMinor = "${linorg.current.minor}";
+    String currentRevision = "${linorg.current.revision}";
+    String lastCommitDate = "${linorg.last.commit.date}";
+    String compileDate = "${linorg.build.date}";
+    String fullInfo = "${linorg.info.all}";
+}
+        </echo>
+    </target>
+    <target depends="setproperties, getsvnversion, clean, clobber, compile, jar" name="signlinorg">
+        <!--<signjar keystore="/data1/repos/trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
+            <path>
+                <fileset dir="lib" includes="**/*.jar" />
+            </path>
+        </signjar>-->
+        <signjar jar="linorg.jar"
+        keystore="/data1/repos/trunk/cert/mpi.keystore"
+        alias="mpi.keyalias" storepass="123456" />
+    </target>
+    <target depends="signlinorg" name="scp_to_lux09">
+        <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
+        <input message="Please enter lux09 username:" addproperty="lux09.user" />
+        <input message="Please enter lux09 password:" addproperty="lux09.pw" />
+        <move file="linorg.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
+        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <move file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" tofile="arbil.jar"/>
+    </target>
+</project>
+ 
