@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -124,7 +124,7 @@ public class LinorgWindowManager {
     public void openIntroductionPage() {
         // open the introduction page
         // TODO: always get this page from the server if available, but also save it for off line use
-//        URL introductionUrl = this.getClass().getResource("/mpi/linorg/resources/html/Introduction.html");
+//        URL introductionUrl = this.getClass().getResource("/nl/mpi/arbil/resources/html/Introduction.html");
 //        openUrlWindowOnce("Introduction", introductionUrl);
 //        get remote file to local disk
 //        if local file exists then open that
@@ -143,7 +143,7 @@ public class LinorgWindowManager {
 //        } catch (Exception ex) {
 //        }
 //        if (destinationUrl == null) {
-//        destinationUrl = this.getClass().getResource("/mpi/linorg/resources/html/Features.html");
+//        destinationUrl = this.getClass().getResource("/nl/mpi/arbil/resources/html/Features.html");
 ////        }
 //        System.out.println("destinationUrl: " + destinationUrl);
 //        openUrlWindowOnce("Features/Known Bugs", destinationUrl);

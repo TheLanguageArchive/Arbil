@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.File;
 import java.net.URL;
@@ -101,7 +101,7 @@ public class ImdiVocabularies {
             String cachePath = GuiHelper.linorgSessionStorage.updateCache(vocabRemoteUrl, false);
 //            new File(cachePath).delete(); // TODO: remove me!!!
             if (!new File(cachePath).exists()) {
-                URL backUp = this.getClass().getResource("/mpi/linorg/resources/IMDI/Fallback/" + new File(cachePath).getName());
+                URL backUp = this.getClass().getResource("/nl/mpi/arbil/resources/IMDI/Fallback/" + new File(cachePath).getName());
                 if (backUp != null) {
                     cachePath = backUp.getFile();
                 }

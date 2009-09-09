@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;

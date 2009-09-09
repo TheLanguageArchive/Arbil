@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -141,7 +141,7 @@ public class ImdiSchema {
         };
         try {
 //            System.out.println("get templatesDirectory");
-            File templatesDirectory = new File(this.getClass().getResource("/mpi/linorg/resources/templates/").getFile());
+            File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
             if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
                 String[] testingListing = templatesDirectory.list();
                 Arrays.sort(templatesArray);
@@ -365,7 +365,7 @@ public class ImdiSchema {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
         String addedPathString = null;
         // copy the template to disk
-        URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateType.substring(1) + ".xml");
+        URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
 //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
 //        System.out.println("templateFile: " + templateFile);
         addedPathString = copyToDisk(templateUrl, destinationFile);
@@ -418,7 +418,7 @@ public class ImdiSchema {
             System.out.println("templateFileString: " + templateFileString);
             templateFileString = templateFileString.replaceAll("\\([\\d]+\\)", "(x)");
             System.out.println("templateFileString: " + templateFileString);
-            URL templateUrl = ImdiSchema.class.getResource("/mpi/linorg/resources/templates/" + templateFileString + ".xml");
+            URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
             // prepare the parent node
             targetXpath = elementName.substring(0, elementName.lastIndexOf("."));
             // convert to xpath for the api

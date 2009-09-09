@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.AWTEvent;
 import java.awt.Component;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.awt.Component;
 import java.io.IOException;

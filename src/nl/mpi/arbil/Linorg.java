@@ -1,7 +1,7 @@
 /*
  * Linorg.java
  */
-package mpi.linorg; 
+package nl.mpi.arbil;
 
 /**
  * The main class of the application.

@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import java.util.Arrays;
 import java.util.Enumeration;

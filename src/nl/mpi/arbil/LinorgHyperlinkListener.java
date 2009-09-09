@@ -1,4 +1,4 @@
-package mpi.linorg;
+package nl.mpi.arbil;
 
 import javax.swing.JEditorPane;
 import javax.swing.event.HyperlinkEvent;
