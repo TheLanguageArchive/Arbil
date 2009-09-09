@@ -411,6 +411,7 @@ public class GuiHelper {
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
                 String line;
                 while ((line = errorStreamReader.readLine()) != null) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(line, "Open In External Application");
                     System.out.println("Launched process error stream: \"" + line + "\"");
                 }
                 result = true;
