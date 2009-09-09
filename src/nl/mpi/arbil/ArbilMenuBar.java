@@ -1,6 +1,8 @@
 package nl.mpi.arbil;
 
 import java.awt.AWTEvent;
+import java.awt.Component;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
@@ -14,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.table.TableCellEditor;
 
 /**
  * ArbilMenuBar.java
@@ -352,6 +355,19 @@ public class ArbilMenuBar extends JMenuBar {
             public void eventDispatched(AWTEvent event) {
                 System.out.println("KeyEvent.paramString: " + ((KeyEvent) event).paramString());
                 if ((((KeyEvent) event).isMetaDown() || ((KeyEvent) event).isControlDown()) && event.getID() == KeyEvent.KEY_RELEASED) {
+                    // KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+                    Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+                    while (compFocusOwner != null) {
+                        // stop any table cell edits
+                        if (compFocusOwner instanceof ImdiTable) {
+                            TableCellEditor currentEditor = ((ImdiTable) compFocusOwner).getCellEditor();
+                            if (currentEditor != null) {
+                                currentEditor.stopCellEditing();
+                                break;
+                            }
+                        }
+                        compFocusOwner = compFocusOwner.getParent();
+                    }
                     if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
                         GuiHelper.imdiLoader.saveNodesNeedingSave(true);
                     }
