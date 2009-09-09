@@ -56,7 +56,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <property name="SRCDIR" value="../../../../src/"/>
         <property name="OUTPUTDIR" value="${SRCDIR}/../arbil-build/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
-        <property name="WEBAPPS_LIB" value="../../../../webapps/lib/"/>
+        <property name="LIBDIR" value="${OUTPUTDIR}/lib/"/>
     </target>
     <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run, getCurrentJnlp" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
@@ -69,11 +69,11 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <delete file="${OUTPUTDIR}/arbil.jar"/>
     </target>
     <!-- target compile (this is included by build.all) -->
-    <target name="compile" description="compile the linorg source code to class files">
+    <target name="compile" depends="copyJarFilesToLib" description="compile the linorg source code to class files">
         <echo message="Compiling Linorg"/>
         <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
             <classpath>
-                <fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>
+                <fileset dir="${LIBDIR}" includes="*.jar"/>
             </classpath>
         </javac>
     </target>
@@ -124,18 +124,19 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/MediaFile-Format.xml"/>
     </target>
     <target name="copyFilesForXSL">
+        <!-- TODO: this should be removed and these files used from within the relevent jar file which in turn comes from the maven repository -->
         <copy todir="${SRCDIR}nl/mpi/arbil/resources/xsl/">
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-            <fileset dir="${SRCDIR}../html/imdi-viewer/">
+          <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${SRCDIR}../../webapps/addit/web">
+            <fileset dir="${SRCDIR}../../../trunk/webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
@@ -145,7 +146,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     <target name="copyJarFilesToLib">
         <mkdir dir="${OUTPUTDIR}/lib/"/>
             <copy todir="${OUTPUTDIR}/lib/">
-                <fileset dir="${SRCDIR}../../webapps/lib/">
+                <!-- TODO: this needs to be changed to use the maven repository -->
+                <fileset dir="${SRCDIR}../../../trunk/webapps/lib/">
                     <include name="corpusstructure-1.5.jar"/>
                     <include name="imdiapi-1.0.5.jar"/>
                     <include name="log4j-1.2.14.jar"/>
