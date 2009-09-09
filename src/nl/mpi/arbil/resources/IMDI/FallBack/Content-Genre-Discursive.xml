@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- edited with XML Spy v4.2 U (http://www.xmlspy.com) by Daan Broeder (Max-Planck Institute for Psycholinguistics) -->
-<imdi:VocabularyDef xmlns:imdi="http://www.mpi.nl/IMDI/Schema/IMDI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd" Name="Content-Genre-Discursive" Date="2001-05-06" Link="http://www.mpi.nl/IMDI/Schema/Content-Genre-Discursive.xml">
-	<imdi:Description LanguageId="ISO639-2:eng">A list of values for the genre.discursive aspect</imdi:Description>
-	<imdi:Entry Value="Unknown"/>
-	<imdi:Entry Value="Unspecified"/>
-	<imdi:Entry Value="procedure">Definition:	A directive description of the procedures involved in the preparation or production of something.</imdi:Entry>
-	<imdi:Entry Value="explanation">Definition:	Practical, theoretical, or historical reality statements.</imdi:Entry>
-</imdi:VocabularyDef>
