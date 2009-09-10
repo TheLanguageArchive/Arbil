@@ -57,7 +57,20 @@ public class ImdiField {
         return isRequiredField == 1;
     }
 
-    public boolean fieldValueValidatesToTemplate() {
+    public boolean fieldValueValidates() {
+        return fieldValueValidatesToTemplate() && fieldValueValidatesToVocabulary();
+    }
+
+    private boolean fieldValueValidatesToVocabulary() {
+//      if this has a closed vocabulary then check that the current value matches one of the values in the vocabulary
+        if (hasVocabulary() && !vocabularyIsOpen) {
+            return null != getVocabulary().findVocabularyItem(fieldValue);
+        } else {
+            return true;
+        }
+    }
+
+    private boolean fieldValueValidatesToTemplate() {
         boolean isValidValue = true;
         if (canValidateField != 0) { // only do this the first time or once a field constraint has been found
             canValidateField = 0;
@@ -71,6 +84,7 @@ public class ImdiField {
         }
         return isValidValue;
     }
+
     public String getFieldValue() {
         return fieldValue;
     }
