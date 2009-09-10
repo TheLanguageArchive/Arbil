@@ -33,7 +33,11 @@ public class ImdiNodeSearchTerm extends javax.swing.JPanel {
         booleanComboBox.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parentPanel.stopSearch();
+                try {
+                    parentPanel.stopSearch();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         this.add(booleanComboBox);
@@ -46,7 +50,11 @@ public class ImdiNodeSearchTerm extends javax.swing.JPanel {
                 new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        parentPanel.stopSearch();
+                        try {
+                            parentPanel.stopSearch();
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
                 });
 
@@ -64,7 +72,11 @@ public class ImdiNodeSearchTerm extends javax.swing.JPanel {
         notComboBox.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parentPanel.stopSearch();
+                try {
+                    parentPanel.stopSearch();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         this.add(notComboBox);
@@ -73,9 +85,13 @@ public class ImdiNodeSearchTerm extends javax.swing.JPanel {
         removeButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parentPanel.searchTermsPanel.remove(thisPanel);
-                parentPanel.revalidate();
-                parentPanel.stopSearch();
+                try {
+                    parentPanel.searchTermsPanel.remove(thisPanel);
+                    parentPanel.revalidate();
+                    parentPanel.stopSearch();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         this.add(removeButton);

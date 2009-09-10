@@ -102,7 +102,11 @@ public class ArbilMenuBar extends JMenuBar {
         saveFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+                try {
+                    GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         fileMenu.add(saveFileMenuItem);
@@ -111,7 +115,11 @@ public class ArbilMenuBar extends JMenuBar {
         importMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                importMenuItemActionPerformed(evt);
+                try {
+                    importMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         fileMenu.add(importMenuItem);
@@ -120,7 +128,11 @@ public class ArbilMenuBar extends JMenuBar {
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitMenuItemActionPerformed(evt);
+                try {
+                    exitMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         fileMenu.add(exitMenuItem);
@@ -155,7 +167,11 @@ public class ArbilMenuBar extends JMenuBar {
         undoMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LinorgJournal.getSingleInstance().undoFromFieldChangeHistory();
+                try {
+                    LinorgJournal.getSingleInstance().undoFromFieldChangeHistory();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         editMenu.add(undoMenuItem);
@@ -164,7 +180,11 @@ public class ArbilMenuBar extends JMenuBar {
         redoMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LinorgJournal.getSingleInstance().redoFromFieldChangeHistory();
+                try {
+                    LinorgJournal.getSingleInstance().redoFromFieldChangeHistory();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         editMenu.add(redoMenuItem);
@@ -177,7 +197,11 @@ public class ArbilMenuBar extends JMenuBar {
         editLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editLocationsMenuItemActionPerformed(evt);
+                try {
+                    editLocationsMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         optionsMenu.add(editLocationsMenuItem);
@@ -201,7 +225,11 @@ public class ArbilMenuBar extends JMenuBar {
         viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewFavouritesMenuItemActionPerformed(evt);
+                try {
+                    viewFavouritesMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         optionsMenu.add(viewFavouritesMenuItem);
@@ -241,7 +269,11 @@ public class ArbilMenuBar extends JMenuBar {
         showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showSelectionPreviewCheckBoxMenuItemActionPerformed(evt);
+                try {
+                    showSelectionPreviewCheckBoxMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
@@ -265,7 +297,11 @@ public class ArbilMenuBar extends JMenuBar {
         trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                trackTableSelectionCheckBoxMenuItemActionPerformed(evt);
+                try {
+                    trackTableSelectionCheckBoxMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
@@ -296,7 +332,11 @@ public class ArbilMenuBar extends JMenuBar {
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                aboutMenuItemActionPerformed(evt);
+                try {
+                    aboutMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         helpMenu.add(aboutMenuItem);
@@ -306,7 +346,11 @@ public class ArbilMenuBar extends JMenuBar {
         helpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                helpMenuItemActionPerformed(evt);
+                try {
+                    helpMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         helpMenu.add(helpMenuItem);
@@ -315,7 +359,11 @@ public class ArbilMenuBar extends JMenuBar {
         shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                shortCutKeysjMenuItemActionPerformed(evt);
+                try {
+                    shortCutKeysjMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         helpMenu.add(shortCutKeysjMenuItem);
@@ -324,7 +372,11 @@ public class ArbilMenuBar extends JMenuBar {
         printHelpMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                printHelpMenuItemActionPerformed(evt);
+                try {
+                    printHelpMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         helpMenu.add(printHelpMenuItem);

@@ -186,9 +186,13 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             comboBox.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                    cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true);
-                    comboBox.removeItem(defaultValue);
+                    try {
+                        ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
+                        cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true);
+                        comboBox.removeItem(defaultValue);
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
                 }
             });
             comboBox.setPreferredSize(new Dimension(80, parentCellRect.height));

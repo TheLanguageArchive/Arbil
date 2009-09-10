@@ -48,7 +48,7 @@ public class ImdiTable extends JTable {
         this.setCellSelectionEnabled(true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.setGridColor(Color.LIGHT_GRAY);
-        
+
         this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
 //            public void mousePressed(java.awt.event.MouseEvent evt) {
 
@@ -88,8 +88,12 @@ public class ImdiTable extends JTable {
                     hideColumnMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
-                            //System.out.println("hideColumnMenuItem: " + targetTable.toString());
-                            imdiTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
+                            try {
+                                //System.out.println("hideColumnMenuItem: " + targetTable.toString());
+                                imdiTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
 
@@ -97,13 +101,17 @@ public class ImdiTable extends JTable {
                     saveViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
-                            //System.out.println("saveViewNenuItem: " + targetTable.toString());
-                            String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
-                            // if the user did not cancel
-                            if (fieldViewName != null) {
-                                if (!ImdiFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
-                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
+                            try {
+                                //System.out.println("saveViewNenuItem: " + targetTable.toString());
+                                String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
+                                // if the user did not cancel
+                                if (fieldViewName != null) {
+                                    if (!ImdiFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
+                                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
+                                    }
                                 }
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
                             }
                         }
                     });
@@ -112,14 +120,18 @@ public class ImdiTable extends JTable {
                     editViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
-                            ImdiFieldViewTable fieldViewTable = new ImdiFieldViewTable(imdiTableModel);
-                            JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
-                            editViewsDialog.setTitle("Editing Current Column View");
+                            try {
+                                ImdiFieldViewTable fieldViewTable = new ImdiFieldViewTable(imdiTableModel);
+                                JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
+                                editViewsDialog.setTitle("Editing Current Column View");
 
-                            JScrollPane js = new JScrollPane(fieldViewTable);
-                            editViewsDialog.getContentPane().add(js);
-                            editViewsDialog.setBounds(50, 50, 600, 400);
-                            editViewsDialog.setVisible(true);
+                                JScrollPane js = new JScrollPane(fieldViewTable);
+                                editViewsDialog.getContentPane().add(js);
+                                editViewsDialog.setBounds(50, 50, 600, 400);
+                                editViewsDialog.setVisible(true);
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
 
@@ -127,8 +139,12 @@ public class ImdiTable extends JTable {
                     showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
-                            //System.out.println("saveViewNenuItem: " + targetTable.toString());
-                            imdiTableModel.showOnlyCurrentColumns();
+                            try {
+                                //System.out.println("saveViewNenuItem: " + targetTable.toString());
+                                imdiTableModel.showOnlyCurrentColumns();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
                     //popupMenu.add(applyViewNenuItem);
@@ -152,7 +168,11 @@ public class ImdiTable extends JTable {
                         viewLabelMenuItem.addActionListener(new ActionListener() {
 
                             public void actionPerformed(ActionEvent evt) {
-                                imdiTableModel.setCurrentView(ImdiFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
+                                try {
+                                    imdiTableModel.setCurrentView(ImdiFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
+                                } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(ex);
+                                }
                             }
                         });
                         fieldViewsMenuItem.add(viewLabelMenuItem);
@@ -205,7 +225,7 @@ public class ImdiTable extends JTable {
 //                        getSelectionModel().addSelectionInterval(clickedRow, clickedRow);
 //                        getColumnModel().getSelectionModel().addSelectionInterval(clickedColumn, clickedColumn);
                         changeSelection(clickedRow, clickedColumn, false, evt.isShiftDown());
-                    // make sure the clicked cell is the lead selection
+                        // make sure the clicked cell is the lead selection
 //                    getSelectionModel().setLeadSelectionIndex(rowIndex);
 //                    getColumnModel().getSelectionModel().setLeadSelectionIndex(colIndex);
                     }
@@ -227,7 +247,11 @@ public class ImdiTable extends JTable {
                 copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        copySelectedTableRowsToClipBoard();
+                        try {
+                            copySelectedTableRowsToClipBoard();
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
                 });
                 windowedTablePopupMenu.add(copySelectedRowsMenuItem);
@@ -237,7 +261,11 @@ public class ImdiTable extends JTable {
                 pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        pasteIntoSelectedTableRowsToClipBoard();
+                        try {
+                            pasteIntoSelectedTableRowsToClipBoard();
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
                 });
                 windowedTablePopupMenu.add(pasteIntoSelectedRowsMenuItem);
@@ -248,7 +276,11 @@ public class ImdiTable extends JTable {
                     viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            viewSelectedTableRows();
+                            try {
+                                viewSelectedTableRows();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
                     windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
@@ -260,7 +292,11 @@ public class ImdiTable extends JTable {
                     matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            highlightMatchingRows();
+                            try {
+                                highlightMatchingRows();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
                     windowedTablePopupMenu.add(matchingRowsMenuItem);
@@ -272,7 +308,11 @@ public class ImdiTable extends JTable {
                     showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            showRowChildData();
+                            try {
+                                showRowChildData();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
                     windowedTablePopupMenu.add(showChildNodesMenuItem);
@@ -284,7 +324,11 @@ public class ImdiTable extends JTable {
                     removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            removeSelectedRowsFromTable();
+                            try {
+                                removeSelectedRowsFromTable();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
                         }
                     });
                     windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
@@ -302,10 +346,14 @@ public class ImdiTable extends JTable {
                     copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            if (!(imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) instanceof ImdiField)) {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
-                            } else if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                                imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
+                            try {
+                                if (!(imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) instanceof ImdiField)) {
+                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
+                                } else if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                                    imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
+                                }
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
                             }
                         }
                     });
@@ -317,7 +365,11 @@ public class ImdiTable extends JTable {
                 matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        imdiTableModel.highlightMatchingCells(getSelectedRow(), getSelectedColumn());
+                        try {
+                            imdiTableModel.highlightMatchingCells(getSelectedRow(), getSelectedColumn());
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
                 });
                 windowedTablePopupMenu.add(matchingCellsMenuItem);
@@ -327,7 +379,11 @@ public class ImdiTable extends JTable {
                 jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        TreeHelper.getSingleInstance().jumpToSelectionInTree(false, getImdiNodeForSelection());
+                        try {
+                            TreeHelper.getSingleInstance().jumpToSelectionInTree(false, getImdiNodeForSelection());
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
                 });
                 windowedTablePopupMenu.add(jumpToNodeInTreeMenuItem);
@@ -337,7 +393,11 @@ public class ImdiTable extends JTable {
                 clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        imdiTableModel.clearCellColours();
+                        try {
+                            imdiTableModel.clearCellColours();
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
                 });
                 windowedTablePopupMenu.add(clearCellColoursMenuItem);
@@ -447,6 +507,7 @@ public class ImdiTable extends JTable {
     }
     //private int targetColumn;
     //Implement table cell tool tips.
+
     public String getToolTipText(MouseEvent e) {
         String tip = null;
         java.awt.Point p = e.getPoint();

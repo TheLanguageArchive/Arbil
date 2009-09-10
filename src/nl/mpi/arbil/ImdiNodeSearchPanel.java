@@ -61,11 +61,15 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         addButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.out.println("adding new term");
-                stopSearch();
-                searchTermsPanel.add(new ImdiNodeSearchTerm(thisPanel));
-                hideFirstBooleanOption();
+                try {
+                    System.out.println("adding new term");
+                    stopSearch();
+                    searchTermsPanel.add(new ImdiNodeSearchTerm(thisPanel));
+                    hideFirstBooleanOption();
 //                searchTermsPanel.revalidate();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         jPanel2.add(addButton);
@@ -78,7 +82,11 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         stopButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopSearch();
+                try {
+                    stopSearch();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         stopButton.setEnabled(false);
@@ -88,7 +96,11 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         searchButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startSearch();
+                try {
+                    startSearch();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         jPanel2.add(searchButton);

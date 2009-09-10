@@ -96,8 +96,11 @@ public class ContextMenu {
         viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                viewSelectedNodesMenuItemActionPerformed(evt);
-
+                try {
+                    viewSelectedNodesMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -107,8 +110,11 @@ public class ContextMenu {
         copyImdiUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                copyImdiUrlMenuItemActionPerformed(evt);
-
+                try {
+                    copyImdiUrlMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -118,8 +124,11 @@ public class ContextMenu {
         pasteMenuItem1.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pasteMenuItem1ActionPerformed(evt);
-
+                try {
+                    pasteMenuItem1ActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -129,8 +138,11 @@ public class ContextMenu {
         copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                copyBranchMenuItemActionPerformed(evt);
-
+                try {
+                    copyBranchMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -140,8 +152,11 @@ public class ContextMenu {
         searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                searchSubnodesMenuItemActionPerformed(evt);
-
+                try {
+                    searchSubnodesMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -151,8 +166,11 @@ public class ContextMenu {
         reloadSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                reloadSubnodesMenuItemActionPerformed(evt);
-
+                try {
+                    reloadSubnodesMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -179,7 +197,11 @@ public class ContextMenu {
         addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
+                try {
+                    LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -211,8 +233,11 @@ public class ContextMenu {
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TreeHelper.getSingleInstance().deleteNode(treePopupMenu.getInvoker());
-
+                try {
+                    TreeHelper.getSingleInstance().deleteNode(treePopupMenu.getInvoker());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -224,8 +249,11 @@ public class ContextMenu {
         viewInBrrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openFileInBrowser(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
-
+                try {
+                    openFileInBrowser(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         treePopupMenu.add(viewInBrrowserMenuItem);
@@ -235,7 +263,11 @@ public class ContextMenu {
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), false, false);
+                try {
+                    GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), false, false);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -245,7 +277,11 @@ public class ContextMenu {
         viewXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, false);
+                try {
+                    GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, false);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -254,7 +290,11 @@ public class ContextMenu {
         openXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, true);
+                try {
+                    GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, true);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         treePopupMenu.add(openXmlMenuItemFormatted);
@@ -264,8 +304,11 @@ public class ContextMenu {
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                validateMenuItemActionPerformed(evt);
-
+                try {
+                    validateMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -277,8 +320,11 @@ public class ContextMenu {
         addRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addRemoteCorpusMenuItemActionPerformed(evt);
-
+                try {
+                    addRemoteCorpusMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -288,8 +334,11 @@ public class ContextMenu {
         addDefaultLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addDefaultLocationsMenuItemActionPerformed(evt);
-
+                try {
+                    addDefaultLocationsMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -299,8 +348,11 @@ public class ContextMenu {
         removeRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeRemoteCorpusMenuItemActionPerformed(evt);
-
+                try {
+                    removeRemoteCorpusMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -310,8 +362,11 @@ public class ContextMenu {
         removeCachedCopyMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeCachedCopyMenuItemActionPerformed(evt);
-
+                try {
+                    removeCachedCopyMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -321,8 +376,11 @@ public class ContextMenu {
         addLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addLocalDirectoryMenuItemActionPerformed(evt);
-
+                try {
+                    addLocalDirectoryMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -332,7 +390,11 @@ public class ContextMenu {
         showHiddenFilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TreeHelper.getSingleInstance().setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
+                try {
+                    TreeHelper.getSingleInstance().setShowHiddenFilesInTree(showHiddenFilesMenuItem.getState());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         treePopupMenu.add(showHiddenFilesMenuItem);
@@ -342,8 +404,11 @@ public class ContextMenu {
         removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeLocalDirectoryMenuItemActionPerformed(evt);
-
+                try {
+                    removeLocalDirectoryMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -353,12 +418,16 @@ public class ContextMenu {
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectedNodes()) {
-                    System.out.println("userObject: " + selectedNode);
-                    // reloading will first check if a save is required then save and reload
-                    GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
-                }
+                try {
+                    for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectedNodes()) {
+                        System.out.println("userObject: " + selectedNode);
+                        // reloading will first check if a save is required then save and reload
+                        GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
+                    }
 
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -369,8 +438,11 @@ public class ContextMenu {
         viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                LinorgWindowManager.getSingleInstance().openDiffWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
-
+                try {
+                    LinorgWindowManager.getSingleInstance().openDiffWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -382,8 +454,12 @@ public class ContextMenu {
         sendToServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendToServerMenuItemActionPerformed(evt);
+                try {
+                    sendToServerMenuItemActionPerformed(evt);
 
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
@@ -393,8 +469,11 @@ public class ContextMenu {
         exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exportMenuItemActionPerformed(evt);
-
+                try {
+                    exportMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 

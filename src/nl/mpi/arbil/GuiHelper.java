@@ -90,14 +90,18 @@ public class GuiHelper {
             addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
-                    ImdiTreeObject imdiTreeObject;
-                    if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
-                        imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
-                    } else {
-                        imdiTreeObject = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+                    try {
+                        DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
+                        ImdiTreeObject imdiTreeObject;
+                        if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
+                            imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
+                        } else {
+                            imdiTreeObject = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+                        }
+                        imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText(), null, null, null);
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
                     }
-                    imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText(), null, null, null);
                 }
             });
             addMenu.add(addMenuItem);
@@ -119,15 +123,16 @@ public class GuiHelper {
             addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    String imdiFavouriteUrlString = evt.getActionCommand();
-                    ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject(null, imdiFavouriteUrlString);
-                    DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
-                    ImdiTreeObject imdiTreeObject;
-                    if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
-                        imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
+                    try {
+                        String imdiFavouriteUrlString = evt.getActionCommand();
+                        ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject(null, imdiFavouriteUrlString);
+                        DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
+                        ImdiTreeObject imdiTreeObject;
+                        if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
+                            imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
 //                        imdiTreeObject.requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
-                        imdiTreeObject.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(templateImdiObject, imdiTreeObject), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
-                    }
+                            imdiTreeObject.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(templateImdiObject, imdiTreeObject), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
+                        }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
 //                    imdiLoader.getImdiObject("", addedNodeUrlString).requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
@@ -141,6 +146,9 @@ public class GuiHelper {
 //                        linorgFavourites.mergeFromFavourite(addedNodeUrl, imdiTemplateUrlString, true);
 //                    }
 //                    treeHelper.reloadLocalCorpusTree(targetNode);
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
                 }
             });
             addFromFavouritesMenu.add(addMenuItem);
@@ -162,7 +170,11 @@ public class GuiHelper {
             viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    ImdiFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+                    try {
+                        ImdiFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
                 }
             });
             viewMenu.add(viewLabelRadioButtonMenuItem);

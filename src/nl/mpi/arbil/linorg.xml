@@ -129,7 +129,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-          <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
+            <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>

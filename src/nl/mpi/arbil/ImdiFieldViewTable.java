@@ -56,11 +56,15 @@ public class ImdiFieldViewTable extends JTable {
                         selectedAllMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                int targetColumn = Integer.parseInt(evt.getActionCommand());
-                                ImdiFieldViewTableModel fieldViewTableModel = (ImdiFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
-                                System.out.println("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
-                                for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
-                                    fieldViewTableModel.setValueAt(true, rowCounter, targetColumn);
+                                try {
+                                    int targetColumn = Integer.parseInt(evt.getActionCommand());
+                                    ImdiFieldViewTableModel fieldViewTableModel = (ImdiFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
+                                    System.out.println("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
+                                    for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
+                                        fieldViewTableModel.setValueAt(true, rowCounter, targetColumn);
+                                    }
+                                } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(ex);
                                 }
                             }
                         });
@@ -72,11 +76,15 @@ public class ImdiFieldViewTable extends JTable {
                         selectetNodeMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                int targetColumn = Integer.parseInt(evt.getActionCommand());
-                                ImdiFieldViewTableModel fieldViewTableModel = (ImdiFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
-                                System.out.println("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
-                                for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
-                                    fieldViewTableModel.setValueAt(false, rowCounter, targetColumn);
+                                try {
+                                    int targetColumn = Integer.parseInt(evt.getActionCommand());
+                                    ImdiFieldViewTableModel fieldViewTableModel = (ImdiFieldViewTableModel) ((JTable) ((JPopupMenu) ((JMenuItem) evt.getSource()).getComponent().getParent()).getInvoker()).getModel();
+                                    System.out.println("targetColumn: " + targetColumn + ":" + evt.getActionCommand());
+                                    for (int rowCounter = 0; rowCounter < fieldViewTableModel.getRowCount(); rowCounter++) {
+                                        fieldViewTableModel.setValueAt(false, rowCounter, targetColumn);
+                                    }
+                                } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(ex);
                                 }
                             }
                         });

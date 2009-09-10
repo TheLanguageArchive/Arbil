@@ -304,7 +304,11 @@ public class LinorgWindowManager {
         windowMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                focusWindow(evt.getActionCommand());
+                try {
+                    focusWindow(evt.getActionCommand());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         windowFrame.addInternalFrameListener(new InternalFrameAdapter() {
@@ -416,10 +420,9 @@ public class LinorgWindowManager {
                                 }
                                 desktopPane.repaint();
                             }
-                            if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown())
-                                    // the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
-                                    // || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
-                                    ) {
+                            if ((((KeyEvent) e).getKeyCode() == KeyEvent.VK_TAB && ((KeyEvent) e).isControlDown())) {
+                                // the [meta `] is consumed by the operating system, the only way to enable the back quote key for window switching is to use separate windows and rely on the OS to do the switching
+                                // || (((KeyEvent) e).getKeyCode() == KeyEvent.VK_BACK_QUOTE && ((KeyEvent) e).isMetaDown())
                                 try {
                                     JInternalFrame[] allWindows = desktopPane.getAllFrames();
                                     int targetLayerInt;

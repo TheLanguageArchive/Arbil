@@ -340,7 +340,11 @@ public class ImportExportDialog {
         detailsCheckBox.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                showDetails(detailsCheckBox.isSelected());
+                try {
+                    showDetails(detailsCheckBox.isSelected());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         JPanel detailsCheckBoxPanel = new JPanel();
@@ -440,16 +444,24 @@ public class ImportExportDialog {
         startButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                performCopy();
+                try {
+                    performCopy();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
         stopButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                stopSearch = true;
-                downloadAbortFlag.abortDownload = true;
-                stopButton.setEnabled(false);
-                startButton.setEnabled(false);
+                try {
+                    stopSearch = true;
+                    downloadAbortFlag.abortDownload = true;
+                    stopButton.setEnabled(false);
+                    startButton.setEnabled(false);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
 
