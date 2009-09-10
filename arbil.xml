@@ -62,8 +62,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <delete dir="${BUILDDIR}"/>
         <mkdir dir="${BUILDDIR}"/>
     </target>
-    <target name="clobber" depends="clean" description="remove all artifact files">
-        <delete file="${OUTPUTDIR}/arbil.jar"/>
+    <target name="clobber" description="remove all artifact files" depends="setproperties">
+        <delete dir="${OUTPUTDIR}"/>
+        <mkdir dir="${OUTPUTDIR}"/>
     </target>
     <!-- target compile (this is included by build.all) -->
     <target name="compile" depends="clean, copyJarFilesToLib" description="compile the linorg source code to class files">
@@ -120,7 +121,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <get src="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Modalities.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/MediaFile-Format.xml"/>
     </target>
-    <target name="copyFilesForXSL">
+    <target name="copyFilesForXSL" depends="setproperties">
         <!-- TODO: this should be removed and these files used from within the relevent jar file which in turn comes from the maven repository -->
         <copy todir="${BUILDDIR}/nl/mpi/arbil/resources/xsl/">
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
@@ -175,7 +176,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </manifest>
         </jar>
     </target>
-    <target name="run" description="run the application">
+    <target name="run" description="run the application" depends="setproperties">
         <java classname="nl.mpi.arbil.Linorg" fork="true">
             <classpath>
                 <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
@@ -207,7 +208,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </classpath>
         </java>
     </target>
-    <target depends="setproperties" name="getsvnversion">
+    <target name="getsvnversion" depends="setproperties">
         <property name="linorg.current.major" value="0"/>
         <property name="linorg.current.minor" value="3"/>
        <!-- <exec executable="svn" output="version.info">
@@ -269,7 +270,7 @@ public class LinorgVersion {
 }
         </echo>
     </target>
-    <target depends="setproperties, getsvnversion, clean, clobber, compile, jar" name="signlinorg">
+    <target name="signlinorg" depends="setproperties, getsvnversion, clean, clobber, compile, jar">
         <!--<signjar keystore="/data1/repos/trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
             <path>
                 <fileset dir="lib" includes="**/*.jar" />
@@ -279,7 +280,7 @@ public class LinorgVersion {
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
     </target>
-    <target depends="signlinorg, makeDebPackage" name="scp_to_lux09">
+    <target name="scp_to_lux09" depends="signlinorg, makeDebPackage">
         <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw" />
