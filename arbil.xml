@@ -80,7 +80,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <get src="http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil-testing.jnlp"/>
         <get src="http://www.mpi.nl/tg/j2se/jnlp/linorg/ArbilApplet.html" dest="${SRCDIR}nl/mpi/arbil/ArbilApplet.html"/>
     </target>
-    <target name="getFallbackFiles" description="download the latest schema and controlled vocabularies from the web server">
+    <target name="getFallbackFiles" depends="setproperties" description="download the latest schema and controlled vocabularies from the web server">
         <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
         <mkdir dir="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/"/>
         <!-- get the latest schema -->
@@ -270,7 +270,7 @@ public class LinorgVersion {
 }
         </echo>
     </target>
-    <target name="signlinorg" depends="setproperties, getsvnversion, clean, clobber, compile, jar">
+    <target name="signlinorg" depends="jar">
         <!--<signjar keystore="/data1/repos/trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
             <path>
                 <fileset dir="lib" includes="**/*.jar" />
