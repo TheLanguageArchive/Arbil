@@ -75,7 +75,7 @@ public class XsdChecker extends JSplitPane {
             }
         }
         if (schemaURL == null) {
-            schemaURL = this.getClass().getResource("/nl/mpi/arbil/resources/IMDI/Fallback/IMDI_3.0.xsd");
+            schemaURL = this.getClass().getResource("/nl/mpi/arbil/resources/IMDI/FallBack/IMDI_3.0.xsd");
         }
         return schemaURL;
     }
