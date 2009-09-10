@@ -5,12 +5,16 @@
  * @author Peter.Withers@mpi.nl
 -->
 <project name="Linorg" default="compile">
-
+    <target name="setproperties">
+        <property name="SRCDIR" value="src/"/>
+        <property name="OUTPUTDIR" value="arbil-build/"/>
+        <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
+        <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
+    </target>
 <!-- start package creation -->
     <path id="ant-deb.classpath">
-        <fileset dir="../../../../ant-deb-jar/" includes="*.jar"/>
+        <fileset dir="ant-deb-jar/" includes="*.jar"/>
     </path>
-
     <!-- http://code.google.com/p/ant-deb-task/ -->
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-deb.classpath"/>
     <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
@@ -51,13 +55,6 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </deb>
     </target>
 <!-- end package creation -->
-
-    <target name="setproperties">
-        <property name="SRCDIR" value="../../../../src/"/>
-        <property name="OUTPUTDIR" value="${SRCDIR}/../arbil-build/"/>
-        <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
-        <property name="LIBDIR" value="${OUTPUTDIR}/lib/"/>
-    </target>
     <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run, getCurrentJnlp" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
@@ -69,7 +66,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <delete file="${OUTPUTDIR}/arbil.jar"/>
     </target>
     <!-- target compile (this is included by build.all) -->
-    <target name="compile" depends="copyJarFilesToLib" description="compile the linorg source code to class files">
+    <target name="compile" depends="clean, copyJarFilesToLib" description="compile the linorg source code to class files">
         <echo message="Compiling Linorg"/>
         <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
             <classpath>
@@ -161,15 +158,15 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
         <jar destfile="${OUTPUTDIR}/arbil.jar">
-            <fileset dir="${OUTPUTDIR}/classes" includes="nl/mpi/arbil/**/*.class"/>
+            <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/help/**/*.*"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
-            <fileset dir="${OUTPUTDIR}/classes" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
-            <fileset dir="${OUTPUTDIR}/classes" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
-            <fileset dir="${OUTPUTDIR}/classes" includes="nl/mpi/arbil/resources/xsl/*.*"/>
+            <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
+            <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
+            <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
                 <attribute name="Class-Path" value="lib/corpusstructure-1.5.jar lib/imdiapi-1.0.5.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
