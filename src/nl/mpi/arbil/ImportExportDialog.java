@@ -75,8 +75,6 @@ public class ImportExportDialog {
     // variables used by the copy thread
     // variables used by all threads
     private boolean stopSearch = false;
-    private boolean threadARunning = false;
-    private boolean threadBRunning = false;
     private Vector selectedNodes;
     ImdiTreeObject destinationNode = null;
     File exportDestinationDirectory = null;
@@ -274,7 +272,7 @@ public class ImportExportDialog {
             detailsTabPane.setVisible(showFlag);
             bottomPanel.setVisible(showFlag);
             copyFilesCheckBox.setVisible(showFlag);
-            overwriteCheckBox.setVisible(showFlag);
+            overwriteCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
             outputNodePanel.setVisible(false);
             inputNodePanel.setVisible(false);
             searchDialog.pack();
@@ -559,7 +557,6 @@ public class ImportExportDialog {
 //        System.getProperties().setProperty("sun.net.client.defaultConnectTimeout", "2000");
 //        System.getProperties().setProperty("sun.net.client.defaultReadTimeout", "2000");
 //        searchPanel.setVisible(false);
-        threadARunning = true;
         new Thread() {
 
             public void run() {
@@ -820,8 +817,6 @@ public class ImportExportDialog {
                     finalMessageString = finalMessageString + "There was a critical error.";
                 }
 //                finalMessageString = finalMessageString + totalLoaded + " files have been copied.\n";
-
-                threadARunning = false;
                 setUItoStoppedState();
                 System.out.println("finalMessageString: " + finalMessageString);
                 Object[] options = {"Close", "Details"};
