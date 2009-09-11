@@ -46,7 +46,7 @@ public class ImdiTreeObject implements Comparable {
     public int matchesRemote;
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
-    public boolean imdiNeedsSaveToDisk;
+    public boolean needsSaveToDisk;
     private String nodeText, lastNodeText = "";
     private boolean nodeTextChanged = false;
     private URL nodeUrl;
@@ -135,7 +135,7 @@ public class ImdiTreeObject implements Comparable {
         if (isImdiChild()) {
             this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk, updateUI);
         } else {
-            if (this.imdiNeedsSaveToDisk != imdiNeedsSaveToDisk) {
+            if (this.needsSaveToDisk != imdiNeedsSaveToDisk) {
                 if (imdiNeedsSaveToDisk) {
                     GuiHelper.imdiLoader.addNodeNeedingSave(this);
                 } else {
@@ -143,7 +143,7 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-        this.imdiNeedsSaveToDisk = imdiNeedsSaveToDisk;
+        this.needsSaveToDisk = imdiNeedsSaveToDisk;
         if (updateUI) {
             this.clearIcon();
         }
@@ -232,7 +232,7 @@ public class ImdiTreeObject implements Comparable {
 
     public void reloadNode() {
         System.out.println("reloadNode: " + isLoading());
-        getParentDomNode().imdiNeedsSaveToDisk = false; // clear any changes
+        getParentDomNode().needsSaveToDisk = false; // clear any changes
         if (!this.isImdi()) {
             initNodeVariables();
             loadChildNodes();
@@ -500,7 +500,7 @@ public class ImdiTreeObject implements Comparable {
     public String addChildNode(String nodeType, String targetXmlPath, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
-        if (imdiNeedsSaveToDisk) {
+        if (needsSaveToDisk) {
             saveChangesToCache(true);
         }
         String addedNodePath = null;
@@ -777,7 +777,7 @@ public class ImdiTreeObject implements Comparable {
         // the catalogue implemention in the imdi api requires special treatment and so must be done in this way not via deleteFromDomViaId 
         Document nodDom;
         try {
-            if (imdiNeedsSaveToDisk) {
+            if (needsSaveToDisk) {
                 saveChangesToCache(false);
             }
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
@@ -795,7 +795,7 @@ public class ImdiTreeObject implements Comparable {
         // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
         Document nodDom;
         try {
-            if (imdiNeedsSaveToDisk) {
+            if (needsSaveToDisk) {
                 saveChangesToCache(false);
             }
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
@@ -855,7 +855,7 @@ public class ImdiTreeObject implements Comparable {
             // if link is not already there
             // if needs saving then save now while you can
             // TODO: it would be nice to warn the user about this, but its a corpus node so maybe it is not important
-            if (imdiNeedsSaveToDisk) {
+            if (needsSaveToDisk) {
                 saveChangesToCache(true);
             }
 

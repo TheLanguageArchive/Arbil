@@ -91,6 +91,10 @@ public class TreeHelper {
         //return localCorpusTree.getName().equals(componentToTest.getName());
     }
 
+    public boolean componentIsTheFavouritesTree(Component componentToTest) {
+        return componentToTest.equals(arbilTreePanel.favouritesTree);
+    }
+
     public void setTrees(ArbilTreePanels arbilTreePanelLocal) {
         arbilTreePanel = arbilTreePanelLocal;
 //            ImdiTree tempRemoteCorpusTree, ImdiTree tempLocalCorpusTree, ImdiTree tempLocalDirectoryTree) {

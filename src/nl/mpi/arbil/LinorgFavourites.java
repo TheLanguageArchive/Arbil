@@ -47,8 +47,20 @@ public class LinorgFavourites {
         TreeHelper.getSingleInstance().applyRootLocations();
     }
 
-    public void toggleFavouritesList(ImdiTreeObject[] imdiObjectArray, boolean setAsTempate) {
+    public boolean toggleFavouritesList(ImdiTreeObject[] imdiObjectArray, boolean setAsTempate) {
         System.out.println("toggleFavouriteList: " + setAsTempate);
+        if (setAsTempate) {
+            boolean selectionNeedsSave = false;
+            for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
+                if (currentImdiObject.needsSaveToDisk) {
+                    selectionNeedsSave = true;
+                }
+            }
+            if (selectionNeedsSave) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Changes must be saved before adding to the favourites.", "Add Favourites");
+                return false;
+            }
+        }
         for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
             if (currentImdiObject.getFields().size() == 0) {
                 // note: the way that favourites are shown in a table will not show meta nodes but their child nodes instead
@@ -61,6 +73,7 @@ public class LinorgFavourites {
                 currentImdiObject.setFavouriteStatus(false);
             }
         }
+        return true;
     }
 
     private void addAsFavourite(String imdiUrlString) {

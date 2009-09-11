@@ -733,7 +733,7 @@ public class ContextMenu {
             boolean nodeIsImdiChild = false;
             if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
                 nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
-                if (((ImdiTreeObject) leadSelectedTreeObject).imdiNeedsSaveToDisk) {
+                if (((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk) {
                     saveMenuItem.setVisible(true);
                 } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
                     viewChangesMenuItem.setVisible(true);

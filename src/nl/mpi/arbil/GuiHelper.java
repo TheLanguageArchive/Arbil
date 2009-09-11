@@ -42,7 +42,7 @@ public class GuiHelper {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
-        //throw new UnsupportedOperationException("Not supported yet.");
+            //throw new UnsupportedOperationException("Not supported yet.");
         }
     };
     static private GuiHelper singleInstance = null;
@@ -213,7 +213,7 @@ public class GuiHelper {
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
         if (userObject instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) (userObject)).imdiNeedsSaveToDisk) {
+            if (((ImdiTreeObject) (userObject)).needsSaveToDisk) {
                 if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                     ((ImdiTreeObject) (userObject)).saveChangesToCache(true);
                 } else {
@@ -273,16 +273,16 @@ public class GuiHelper {
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                //System.out.println(ex.getMessage());
-                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                    //System.out.println(ex.getMessage());
+                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
                 try {
                     LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                //System.out.println(ex.getMessage());
-                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                    //System.out.println(ex.getMessage());
+                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             }
         }

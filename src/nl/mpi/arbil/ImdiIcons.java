@@ -229,7 +229,7 @@ public class ImdiIcons {
         if (imdiObject.needsChangesSentToServer()) {
             iconsVector.add(exclamationBlueIcon);
         }
-        if (imdiObject.imdiNeedsSaveToDisk) {
+        if (imdiObject.needsSaveToDisk) {
             iconsVector.add(exclamationRedIcon);
         }
         return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable

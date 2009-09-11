@@ -262,7 +262,7 @@ public class ImdiTable extends JTable {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            pasteIntoSelectedTableRowsToClipBoard();
+                            pasteIntoSelectedTableRowsFromClipBoard();
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
                         }
@@ -637,7 +637,7 @@ public class ImdiTable extends JTable {
         }
     }
 
-    public void pasteIntoSelectedTableRowsToClipBoard() {
+    public void pasteIntoSelectedTableRowsFromClipBoard() {
         ImdiField[] selectedFields = getSelectedFields();
         if (selectedFields != null) {
             String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields);

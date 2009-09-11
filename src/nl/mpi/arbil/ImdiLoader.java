@@ -73,7 +73,7 @@ public class ImdiLoader {
                             if (currentImdiObject != null) {
                                 System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
                                 ProgressMonitor progressMonitor = new ProgressMonitor(LinorgWindowManager.getSingleInstance().desktopPane, null, "Adding", 0, 100);
-                                if (currentImdiObject.imdiNeedsSaveToDisk) {
+                                if (currentImdiObject.needsSaveToDisk) {
                                     currentImdiObject.saveChangesToCache(false);
                                 }
                                 currentImdiObject.loadImdiDom();
