@@ -5,9 +5,11 @@
 package nl.mpi.arbil;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.util.Arrays;
 import java.util.Comparator;
 import javax.swing.Icon;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
@@ -17,6 +19,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
 
     Object cellObject;
+    boolean isCellSelected = false;
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        // TODO: this might be a better place to set the backgound and text colours
+        isCellSelected = isSelected;
+        return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    }
 
     public ImdiTableCellRenderer() {
     }
@@ -34,12 +44,14 @@ public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
             int greyTone = 150;
             super.setForeground(new Color(greyTone, greyTone, greyTone));
         }
-        if (cellObject instanceof String && cellObject.equals("")) {
-            super.setBackground(new Color(230, 230, 230)/*Color.lightGray*/);
-        }
-        if (cellObject instanceof ImdiField) {
-            if (((ImdiField) cellObject).fieldNeedsSaveToDisk) {
-                super.setForeground(Color.blue);
+        if (!isCellSelected) {
+            if (cellObject instanceof String && cellObject.equals("")) {
+                super.setBackground(new Color(230, 230, 230)/*Color.lightGray*/);
+            }
+            if (cellObject instanceof ImdiField) {
+                if (((ImdiField) cellObject).fieldNeedsSaveToDisk) {
+                    super.setForeground(Color.blue);
+                }
             }
         }
     }
