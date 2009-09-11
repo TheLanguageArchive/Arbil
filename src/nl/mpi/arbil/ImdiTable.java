@@ -9,8 +9,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
@@ -332,6 +334,49 @@ public class ImdiTable extends JTable {
                         }
                     });
                     windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
+                }
+                boolean canDeleteSelectedFields = true;
+                ImdiField[] currentSelection = getSelectedFields();
+                for (ImdiField currentField : currentSelection) {
+                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                        canDeleteSelectedFields = false;
+                        break;
+                    }
+                }
+                if (canDeleteSelectedFields && currentSelection.length > 0) {
+                    JMenuItem deleteFieldMenuItem = new javax.swing.JMenuItem();
+                    String menuText = "Delete " + currentSelection[0].getTranslateFieldName();
+                    if (currentSelection.length > 1) {
+                        menuText = menuText + " X " + currentSelection.length;
+                    }
+                    deleteFieldMenuItem.setText(menuText);
+                    deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            try {
+                                ImdiField[] selectedFields = getSelectedFields();
+                                if (selectedFields != null) {
+//                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
+//                                  todo: the delete field action should also be available in the long field editor
+                                    Hashtable<ImdiTreeObject, ArrayList> selectedFieldHashtable = new Hashtable<ImdiTreeObject, ArrayList>();
+                                    for (ImdiField currentField : selectedFields) {
+                                        ArrayList currentList = selectedFieldHashtable.get(currentField.parentImdi);
+                                        if (currentList == null) {
+                                            currentList = new ArrayList();
+                                            selectedFieldHashtable.put(currentField.parentImdi, currentList);
+                                        }
+                                        currentList.add(currentField.fieldID);
+                                    }
+                                    for (ImdiTreeObject currentImdiObject : selectedFieldHashtable.keySet()) {
+                                        currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
+                        }
+                    });
+                    windowedTablePopupMenu.add(deleteFieldMenuItem);
                 }
             }
 
