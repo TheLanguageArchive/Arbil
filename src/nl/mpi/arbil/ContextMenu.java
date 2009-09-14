@@ -186,7 +186,7 @@ public class ContextMenu {
             }
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                addMenuMenuSelected(evt);
+                GuiHelper.getSingleInstance().initAddMenu(addMenu, GuiHelper.imdiLoader.getImdiObject(null, addMenu.getActionCommand()));
             }
         });
 
@@ -599,12 +599,6 @@ public class ContextMenu {
 
     }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
 
-    private void addMenuMenuSelected(javax.swing.event.MenuEvent evt) {
-        //GEN-FIRST:event_addMenuMenuSelected// TODO add your handling code here:  
-        GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSingleSelectedNode());
-
-    }//GEN-LAST:event_addMenuMenuSelected
-
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_sendToServerMenuItemActionPerformed
         // TODO add your handling code here:
@@ -726,7 +720,7 @@ public class ContextMenu {
             pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
-            addMenu.setVisible(selectionCount > 0 && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
+            addMenu.setVisible(selectionCount > 0); // && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 1);
@@ -744,7 +738,7 @@ public class ContextMenu {
                 openXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
                 validateMenuItem.setVisible(!nodeIsImdiChild);
                 exportMenuItem.setVisible(!nodeIsImdiChild);
-                // set up the favourites menu                
+                // set up the favourites menu
                 favouritesMenu.setVisible(true);
             }
             //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
@@ -763,18 +757,21 @@ public class ContextMenu {
             }
         }
         if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
+            addMenu.setActionCommand(((ImdiTreeObject) leadSelectedTreeObject).getUrlString());
             addToFavouritesMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus() && ((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
+                addMenu.setVisible(true);
+                saveMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk);
                 addToFavouritesMenuItem.setText("Remove From Favourites List");
                 addToFavouritesMenuItem.setActionCommand("false");
                 deleteMenuItem.setEnabled(false);
             } else {
-
                 addToFavouritesMenuItem.setText("Add To Favourites List");
                 addToFavouritesMenuItem.setActionCommand("true");
             }
         } else {
+            addMenu.setActionCommand(null);
             addToFavouritesMenuItem.setVisible(false);
         }
         viewInBrrowserMenuItem.setVisible(nodeLevel > 1);
