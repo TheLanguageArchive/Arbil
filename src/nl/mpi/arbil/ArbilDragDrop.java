@@ -123,12 +123,12 @@ public class ArbilDragDrop {
                         } else if (targetObject.isCatalogue()) {
                             return false; // nothing can be dropped to a catalogue
                         } else if (targetObject.isSession()) {
-                            if (selectionContainsArchivableLocalFile/* || selectionContainsImdiChild*/) {
+                            if (selectionContainsArchivableLocalFile || (selectionContainsImdiChild && selectionContainsFavourite)) {
                                 return true;
                             }
                         } else if (targetObject.isImdiChild()) {
                             // TODO: in this case we should loop over the dragged nodes and check each one for compatability
-                            if (selectionContainsLocalFile /*|| selectionContainsImdiChild */ ) { // TODO: allow drag drop of appropriate imdi child nodes to sessions and compatable subnodes
+                            if (selectionContainsLocalFile || (selectionContainsImdiChild && selectionContainsFavourite)) { // TODO: allow drag drop of appropriate imdi child nodes to sessions and compatable subnodes
                                 return true;
                             }
                         }
