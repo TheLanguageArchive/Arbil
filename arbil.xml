@@ -48,14 +48,14 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </description>
             <tarfileset file="${OUTPUTDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
             <tarfileset file="${SRCDIR}/nl/mpi/arbil/resources/icons/${package.iconname}" prefix="usr/share/${package.name}"/>
-            <tarfileset dir="${SRCDIR}/nl/mpi/arbil/lib" prefix="usr/share/${package.name}/lib">
+            <tarfileset dir="${LIBDIR}" prefix="usr/share/${package.name}/lib">
                 <include name="*.jar"/>
             </tarfileset>
             <tarfileset file="${distributionDirectory}/${package.name}.desktop" prefix="usr/share/${package.name}"/>
         </deb>
     </target>
 <!-- end package creation -->
-    <target name="all" depends="setproperties, getsvnversion, clean, clobber, compile, jar, run, getCurrentJnlp" description="clean, build, jar and run">
+    <target name="all" depends="setproperties, clobber, compile, jar, run, getCurrentJnlp" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
     <target name="clean" description="remove intermediate files" depends="setproperties">
@@ -67,7 +67,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <mkdir dir="${OUTPUTDIR}"/>
     </target>
     <!-- target compile (this is included by build.all) -->
-    <target name="compile" depends="clean, copyJarFilesToLib" description="compile the linorg source code to class files">
+    <target name="compile" depends="clean, copyJarFilesToLib, getsvnversion" description="compile the linorg source code to class files">
         <echo message="Compiling Linorg"/>
         <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
             <classpath>
@@ -146,8 +146,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <copy todir="${LIBDIR}">
                 <!-- TODO: this needs to be changed to use the maven repository -->
             <fileset dir="${SRCDIR}../../../trunk/webapps/lib/">
-                <include name="corpusstructure-1.5.jar"/>
-                <include name="imdiapi-1.0.5.jar"/>
+                <include name="corpusstructure-1.6.1.jar"/>
+                <include name="imdiapi-1.0.6.jar"/>
                 <include name="log4j-1.2.14.jar"/>
                 <include name="saxon8.jar"/>
                 <include name="saxon8-dom.jar"/>
@@ -170,7 +170,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure-1.5.jar lib/imdiapi-1.0.5.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
+                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
                 <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
                 <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
@@ -271,24 +271,28 @@ public class LinorgVersion {
         </echo>
     </target>
     <target name="signlinorg" depends="jar">
-        <!--<signjar keystore="/data1/repos/trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
+        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
             <path>
-                <fileset dir="lib" includes="**/*.jar" />
+                <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
-        </signjar>-->
+        </signjar>
         <signjar jar="${OUTPUTDIR}/arbil.jar"
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
     </target>
     <target name="scp_to_lux09" depends="signlinorg, makeDebPackage">
-        <echo file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
+        <echo file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
+        <delete file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" />
+        <move file="${OUTPUTDIR}/arbil.jar" tofile="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw" />
-        <move file="${OUTPUTDIR}/arbil.jar" tofile="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
-        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <scp file="arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <move file="arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" tofile="arbil.jar"/>
+        <scp file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <scp file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <scp file="${distributionDirectory}/arbil_${linorg.current.major}.${linorg.current.minor}-${linorg.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+
+       <!--<scp file="${OUTPUTDIR}/lib/corpusstructure-1.6.1.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+       <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>-->
+
     </target>
 </project>
  
