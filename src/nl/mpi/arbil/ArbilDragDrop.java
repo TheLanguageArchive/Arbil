@@ -103,11 +103,11 @@ public class ArbilDragDrop {
 
         private boolean canDropToTarget(ImdiTree dropTree) {
             Object currentLeadSelection = dropTree.getSingleSelectedNode();
-            System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
             if (currentLeadSelection == null) {
                 // allow drop to the favourites tree even when no selection is made
                 return TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget);
             } else {
+                System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
                 if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
                     // allow drop to only toe root node of the favourites tree
                     return dropTree.getSelectionPath().getPathCount() == 1 && !selectionContainsFavourite;
