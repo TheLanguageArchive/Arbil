@@ -87,6 +87,7 @@ public class ArbilDragDrop {
         public boolean selectionContainsImdiChild = false;
         public boolean selectionContainsLocal = false;
         public boolean selectionContainsRemote = false;
+        public boolean selectionContainsFavourite = false;
         private JComponent currentDropTarget = null;
         public boolean dropAllowed = false;
 
@@ -102,12 +103,15 @@ public class ArbilDragDrop {
 
         private boolean canDropToTarget(ImdiTree dropTree) {
             Object currentLeadSelection = dropTree.getSingleSelectedNode();
-            if (currentLeadSelection != null) {
+            System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
+            if (currentLeadSelection == null) {
+                // allow drop to the favourites tree even when no selection is made
+                return TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget);
+            } else {
                 if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
                     // allow drop to only toe root node of the favourites tree
-                    return dropTree.getSelectionPath().getPathCount() == 1;
+                    return dropTree.getSelectionPath().getPathCount() == 1 && !selectionContainsFavourite;
                 } else {
-                    System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
                     if (currentLeadSelection instanceof ImdiTreeObject) {
                         ImdiTreeObject targetObject = (ImdiTreeObject) currentLeadSelection;
                         if (targetObject.isDirectory) {
@@ -119,12 +123,12 @@ public class ArbilDragDrop {
                         } else if (targetObject.isCatalogue()) {
                             return false; // nothing can be dropped to a catalogue
                         } else if (targetObject.isSession()) {
-                            if (selectionContainsArchivableLocalFile || selectionContainsImdiChild) {
+                            if (selectionContainsArchivableLocalFile/* || selectionContainsImdiChild*/) {
                                 return true;
                             }
                         } else if (targetObject.isImdiChild()) {
                             // TODO: in this case we should loop over the dragged nodes and check each one for compatability
-                            if (selectionContainsLocalFile || selectionContainsImdiChild) {
+                            if (selectionContainsLocalFile /*|| selectionContainsImdiChild */ ) { // TODO: allow drag drop of appropriate imdi child nodes to sessions and compatable subnodes
                                 return true;
                             }
                         }
@@ -144,8 +148,6 @@ public class ArbilDragDrop {
                         return false;
                     }
                 }
-            } else {
-                return false;
             }
         }
 
@@ -259,6 +261,7 @@ public class ArbilDragDrop {
             selectionContainsImdiChild = false;
             selectionContainsLocal = false;
             selectionContainsRemote = false;
+            selectionContainsFavourite = false;
             System.out.println("createTransferable: " + comp.toString());
             if (comp instanceof JTree) {
                 JTree draggedTree = (JTree) comp;
@@ -343,9 +346,13 @@ public class ArbilDragDrop {
                     } else if (currentDraggedObject.isCatalogue()) {
                         selectionContainsImdiCatalogue = true;
                         System.out.println("selectionContainsImdiCatalogue");
-                    } else {
+                    } else if (currentDraggedObject.isCorpus()) {
                         selectionContainsImdiCorpus = true;
                         System.out.println("selectionContainsImdiCorpus");
+                    }
+                    if (currentDraggedObject.isFavorite()) {
+                        selectionContainsFavourite = true;
+                        System.out.println("selectionContainsFavourite");
                     }
                 }
             }
