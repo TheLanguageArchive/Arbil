@@ -186,7 +186,11 @@ public class ContextMenu {
             }
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                GuiHelper.getSingleInstance().initAddMenu(addMenu, GuiHelper.imdiLoader.getImdiObject(null, addMenu.getActionCommand()));
+                if (addMenu.getActionCommand().equals("favourites")) {
+                    GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.favouritesTree).getSingleSelectedNode());
+                } else {
+                    GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSingleSelectedNode());
+                }
             }
         });
 
@@ -714,7 +718,10 @@ public class ContextMenu {
             copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
         }
-        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
+        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.favouritesTree) {
+            addMenu.setActionCommand("favourites");
+        } else if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
+            addMenu.setActionCommand("LocalCorpusTree");
             viewSelectedNodesMenuItem.setText("View/Edit Selected");
             //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
@@ -757,7 +764,6 @@ public class ContextMenu {
             }
         }
         if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
-            addMenu.setActionCommand(((ImdiTreeObject) leadSelectedTreeObject).getUrlString());
             addToFavouritesMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus() && ((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
