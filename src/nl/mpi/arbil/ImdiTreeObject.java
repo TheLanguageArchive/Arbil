@@ -1124,10 +1124,9 @@ public class ImdiTreeObject implements Comparable {
                 // update the icon to indicate the change
                 setImdiNeedsSaveToDisk(false, updateUI);
             }
-        } catch (MalformedURLException mue) {
+        } catch (Exception mue) {
             GuiHelper.linorgBugCatcher.logError(mue);
-//            System.out.println("Invalid input URL: " + mue);
-            nodeText = "Invalid input URL";
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error saving via the IMDI API", "Save Error");
         }
 //        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }

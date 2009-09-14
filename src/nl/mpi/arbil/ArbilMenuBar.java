@@ -405,7 +405,7 @@ public class ArbilMenuBar extends JMenuBar {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 
             public void eventDispatched(AWTEvent event) {
-                System.out.println("KeyEvent.paramString: " + ((KeyEvent) event).paramString());
+//                System.out.println("KeyEvent.paramString: " + ((KeyEvent) event).paramString());
                 if ((((KeyEvent) event).isMetaDown() || ((KeyEvent) event).isControlDown()) && event.getID() == KeyEvent.KEY_RELEASED) {
                     // KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
                     Component compFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();

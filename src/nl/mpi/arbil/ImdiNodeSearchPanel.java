@@ -184,7 +184,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                     } else if (currentTermPanel.nodeType.equals("Catalogue")) {
                                         termPassedFilter = currentImdiNode.isCatalogue();
                                     } else if (!currentTermPanel.nodeType.equals("All")) {
-                                        termPassedFilter = currentImdiNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*\\)$");
+                                        termPassedFilter = currentImdiNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
                                     }
                                     // filter by the search string if entered
                                     if (currentTermPanel.searchString.length() > 0) {

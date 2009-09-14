@@ -74,7 +74,7 @@ public class ArbilTemplate {
 
     public String pathIsChildNode(String nodePath) {
         for (String[] pathString : childNodePaths) {
-            if (pathString[0].equals((nodePath))) {
+            if (nodePath.endsWith((pathString[0]))) {
                 return pathString[1];
             }
         }
@@ -111,7 +111,7 @@ public class ArbilTemplate {
         Vector<String[]> returnVector = new Vector<String[]>();
         System.out.println("getSubnodesOf: " + nodepath);
         String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
-        nodepath = nodepath.replaceAll("\\(\\d\\)", "\\(x\\)");
+        nodepath = nodepath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
         System.out.println("nodepath: " + nodepath);
         System.out.println("targetNodePath: " + targetNodePath);
 

@@ -29,8 +29,8 @@ public class ImdiSchema {
     public boolean nodeCanExistInNode(ImdiTreeObject targetImdiObject, ImdiTreeObject childImdiObject) {
         String targetImdiPath = getNodePath((ImdiTreeObject) targetImdiObject);
         String childPath = getNodePath((ImdiTreeObject) childImdiObject);
-        targetImdiPath = targetImdiPath.replaceAll("\\(\\d\\)", "\\(x\\)");
-        childPath = childPath.replaceAll("\\(\\d\\)", "\\(x\\)");
+        targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
+        childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
 //        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
         int targetBranchCount = targetImdiPath.replaceAll("[^(]*", "").length();
         int childBranchCount = childPath.replaceAll("[^(]*", "").length();
@@ -407,7 +407,7 @@ public class ImdiSchema {
                 targetNode.appendChild(addableNode);
             }
             addedPathString = destinationFile.toURL().toString() + "#" + targetRef;
-            String childsMetaNode = currentTemplate.pathIsChildNode(elementName);
+            String childsMetaNode = currentTemplate.pathIsChildNode(elementName.replaceAll("\\(\\d*?\\)", ""));
             if (childsMetaNode != null) {
                 addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
             } else {
