@@ -59,8 +59,8 @@ public class ImdiVocabularies {
         // testing code for checking the language fields have the required triggers
         if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
             boolean foundTrigger = false;
-            System.out.println("vocabularyLocation: " + vocabularyLocation);
-            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
+//            System.out.println("vocabularyLocation: " + vocabularyLocation);
+//            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
             for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.fieldTriggersArray) {
                 if (fieldPath.equals(currentTrigger[0])) {
                     foundTrigger = true;

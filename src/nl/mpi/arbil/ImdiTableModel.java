@@ -479,7 +479,7 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void reloadTableData() {
-        System.out.println("reloadTableData");
+//        System.out.println("reloadTableData");
         int previousColumnCount = getColumnCount();
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];

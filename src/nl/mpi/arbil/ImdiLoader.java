@@ -216,12 +216,12 @@ public class ImdiLoader {
             localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
             currentImdiObject = imdiHashTable.get(localUrlString);
             if (currentImdiObject == null) {
-                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
+//                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
                 currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
-                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
+//                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
                 imdiHashTable.put(localUrlString, currentImdiObject);
                 if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
-                    System.out.println("cause the parent node to be loaded");
+//                    System.out.println("cause the parent node to be loaded");
                     // cause the parent node to be loaded
                     currentImdiObject.getParentDomNode();
                 } else if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {

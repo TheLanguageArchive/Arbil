@@ -61,7 +61,7 @@ public class MimeHashQueue {
                     }
                     while (imdiObjectQueue.size() > 0) {
                         ImdiTreeObject currentImdiObject = imdiObjectQueue.remove(0);
-                        System.out.println("MimeHashQueue checking: " + currentImdiObject);
+//                        System.out.println("MimeHashQueue checking: " + currentImdiObject);
                         String currentPathString = getFilePath(currentImdiObject);
                         if (currentPathString != null && currentPathString.length() > 0) {
                             try {
@@ -73,10 +73,10 @@ public class MimeHashQueue {
                                     previousMTime = processedFilesMTimes.get(currentPathString);
                                 }
                                 long currentMTime = currentFile.lastModified();
-                                System.out.println("run MimeHashQueue mtime: " + currentPathString);
+//                                System.out.println("run MimeHashQueue mtime: " + currentPathString);
                                 String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
                                 if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
-                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
+//                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
                                     currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
                                     currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
                                     processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
@@ -189,7 +189,7 @@ public class MimeHashQueue {
     }
 
     private String[] getMimeType(URL fileUrl, String nodePath) {
-        System.out.println("getMimeType: " + fileUrl);
+//        System.out.println("getMimeType: " + fileUrl);
         String mpiMimeType;
         String typeCheckerMessage;
         // here we also want to check the magic number but the mpi api has a function similar to that so we
@@ -199,7 +199,7 @@ public class MimeHashQueue {
         typeCheckerMessage = null;
         boolean deep = true;
         if (!new File(fileUrl.getFile()).exists()) {
-            System.out.println("File does not exist: " + fileUrl);
+//            System.out.println("File does not exist: " + fileUrl);
         } else {
             try {
                 // this will choke on strings that look url encoded but are not. because it erroneously decodes them
@@ -211,7 +211,7 @@ public class MimeHashQueue {
                     } else {
                         typeCheckerMessage = fileType.checkStream(inputStream, pamperUrl);
                     }
-                    System.out.println("mpiMimeType: " + typeCheckerMessage);
+//                    System.out.println("mpiMimeType: " + typeCheckerMessage);
                 }
                 mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(typeCheckerMessage);
             } catch (Exception ioe) {
@@ -232,7 +232,7 @@ public class MimeHashQueue {
     }
 
     private String getHash(URL fileUrl, String nodePath) {
-        System.out.println("getHash: " + fileUrl);
+//        System.out.println("getHash: " + fileUrl);
 //        File targetFile = new URL(filePath).getFile();
         String hashString = null;
         // TODO: add hashes for session links 
@@ -292,7 +292,7 @@ public class MimeHashQueue {
             }
         }
 //            }
-        System.out.println("hashString: " + hashString);
+//        System.out.println("hashString: " + hashString);
         return hashString;
     }
 
@@ -305,10 +305,10 @@ public class MimeHashQueue {
     }
 
     public void addToQueue(ImdiTreeObject imdiObject) {
-        System.out.println("MimeHashQueue addToQueue: " + imdiObject);
+//        System.out.println("MimeHashQueue addToQueue: " + imdiObject);
         // TODO: when removeing a directory fromthe local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
         if (!imdiObject.isDirectory() && imdiObject.isLocal() && (!imdiObject.isImdiChild() || imdiObject.hasResource())) {
-            System.out.println("addToQueue: " + getFilePath(imdiObject));
+//            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
             if (!imdiObjectQueue.contains(imdiObject)) {
                 imdiObject.updateLoadingState(+1);

@@ -111,7 +111,7 @@ class JListToolTip extends JToolTip {
     }
 
     public void updateList() {
-        System.out.println("updateList: " + targetObject);
+//        System.out.println("updateList: " + targetObject);
         jPanel.removeAll();
         if (targetObject != null) {
             if (targetObject instanceof Object[]) {

@@ -40,7 +40,7 @@ public class TreeHelper {
     public boolean showHiddenFilesInTree = false;
 
     static synchronized public TreeHelper getSingleInstance() {
-        System.out.println("TreeHelper getSingleInstance");
+//        System.out.println("TreeHelper getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new TreeHelper();
         }
@@ -344,7 +344,7 @@ public class TreeHelper {
 
     synchronized private void addToSortQueue(DefaultMutableTreeNode currentTreeNode) {
         if (!treeNodeSortQueue.contains(currentTreeNode)) {
-            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
+//            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
             treeNodeSortQueue.add(currentTreeNode);
         }
         if (!treeNodeSortQueueRunning) {
