@@ -363,7 +363,7 @@ public class ArbilDragDrop {
             System.out.println("importData: " + comp.toString());
             //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
             if (draggedImdiObjects != null) {
-                if (comp instanceof JTree) {
+                if (comp instanceof JTree && canDropToTarget((ImdiTree) comp)) {
                     System.out.println("comp: " + comp.getName());
                     for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());

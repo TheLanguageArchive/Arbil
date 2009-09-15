@@ -212,6 +212,8 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 break;
             case KeyEvent.VK_INSERT:
                 break;
+            case KeyEvent.VK_ESCAPE:
+                break;
             case KeyEvent.VK_NUM_LOCK:
                 break;
             case KeyEvent.VK_CAPS_LOCK:
@@ -228,7 +230,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
     }
 
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
-        System.out.println("startEditorMode: " + selectedField);
+        System.out.println("startEditorMode: " + selectedField + " lastKeyInt: " + lastKeyInt + " lastKeyChar: " + lastKeyChar);
         removeAllFocusListners();
         if (cellValue instanceof ImdiField[]) {
             if (!ctrlDown && selectedField != -1 && !((ImdiField) cellValue[selectedField]).isLongField()) {
