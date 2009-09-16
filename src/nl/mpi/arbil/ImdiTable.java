@@ -469,7 +469,7 @@ public class ImdiTable extends JTable {
     }
 
     public JToolTip createToolTip() {
-        System.out.println("createToolTip");
+//        System.out.println("createToolTip");
         listToolTip.updateList();
         return listToolTip;
     }

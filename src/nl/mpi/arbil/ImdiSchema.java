@@ -399,17 +399,27 @@ public class ImdiSchema {
 
             // find the node to add the new section to
             Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+            Node addedNode;
             if (insertBeforeNode != null) {
                 System.out.println("inserting before: " + insertBeforeNode.getNodeName());
-                targetNode.insertBefore(addableNode, insertBeforeNode);
+                addedNode = targetNode.insertBefore(addableNode, insertBeforeNode);
             } else {
                 System.out.println("inserting");
-                targetNode.appendChild(addableNode);
+                addedNode = targetNode.appendChild(addableNode);
             }
             addedPathString = destinationFile.toURL().toString() + "#" + targetRef;
             String childsMetaNode = currentTemplate.pathIsChildNode(elementName.replaceAll("\\(\\d*?\\)", ""));
             if (childsMetaNode != null) {
-                addedPathString = addedPathString + "(" + (GuiHelper.imdiLoader.getImdiObject(childsMetaNode, addedPathString).getChildCount() + 1) + ")";
+                Node currentNode = addedNode.getParentNode().getFirstChild();
+                int siblingCount = 0;
+                while (currentNode != null) {
+                    System.out.println("currentNode: " + currentNode.getLocalName());
+                    if (addedNode.getLocalName().equals(currentNode.getLocalName())) {
+                        siblingCount++;
+                    }
+                    currentNode = currentNode.getNextSibling();
+                }
+                    addedPathString = addedPathString + "(" + siblingCount + ")";
             } else {
                 // make sure elements like description show the parent node rather than trying to get a non existing node
                 addedPathString = destinationFile.toURL().toString();

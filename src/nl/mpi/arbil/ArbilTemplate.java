@@ -166,7 +166,7 @@ public class ArbilTemplate {
             if (!currentTemplate[0].endsWith("Session.xml") && !currentTemplate[0].endsWith("Catalogue.xml")) { // sessions cannot be added to a session
                 if (currentTemplate[0].startsWith(nodepath.substring(1))) {
                     if (targetNodePath.replaceAll("[^(]*", "").length() >= currentTemplate[0].replaceAll("[^(]*", "").length()) {
-                        currentTemplate[0] = currentTemplate[0].replaceFirst("\\.xml$", "");
+                        String currentValue = currentTemplate[0].replaceFirst("\\.xml$", "");
 //                            String currentTemplateXPath = currentTemplate[0].replaceFirst("\\.xml$", "");
 //                            String currentTemplateName = currentTemplateXPath.substring(nodepath.length());
 //                        System.out.println("currentTemplateXPath: " + currentTemplateXPath);
@@ -179,7 +179,7 @@ public class ArbilTemplate {
 //                            }
 //                        System.out.println("destinationXPath: " + destinationXPath);
 //            ====================================
-                        returnVector.add(new String[]{currentTemplate[1], "." + currentTemplate[0]});// TODO: update the menu title to include location and exact file name from the template
+                        returnVector.add(new String[]{currentTemplate[1], "." + currentValue});// TODO: update the menu title to include location and exact file name from the template
                     }
                 }
             }

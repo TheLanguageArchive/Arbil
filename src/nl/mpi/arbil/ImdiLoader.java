@@ -95,6 +95,7 @@ public class ImdiLoader {
                                     System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
 //                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                     ImdiTreeObject addedImdiObject = GuiHelper.imdiLoader.getImdiObject(null, currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUrl, mimeType));
+                                    addedImdiObject.updateImdiFileNodeIds();
                                     if (addedImdiObject != null) {
 //                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
                                         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new ImdiTreeObject[]{addedImdiObject}, newTableTitleString);
@@ -102,48 +103,17 @@ public class ImdiLoader {
                                         currentImdiObject.loadImdiDom();
                                         if (favouriteUrlString != null) {
                                             progressMonitor.setNote("Adding Child Nodes");
-                                            ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList();
+                                            ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList<ImdiTreeObject[]>();
                                             ImdiTreeObject favouriteImdiNode = getImdiObject(null, favouriteUrlString);
                                             nodesToMerge.add(new ImdiTreeObject[]{addedImdiObject, favouriteImdiNode});
-                                            ImdiTreeObject[] allChildNodes = favouriteImdiNode.getAllChildren();
-                                            progressMonitor.setMaximum(allChildNodes.length * 3);
-                                            int progressCounter = 0;
-                                            Arrays.sort(allChildNodes, new Comparator() {
+                                            // add all the child node templates
+                                            progressMonitor.setMaximum(addedImdiObject.getAllChildren().length * 3);
 
-                                                public int compare(Object firstColumn, Object secondColumn) {
-                                                    try {
-                                                        String leftString = ((ImdiTreeObject) firstColumn).getUrlString();
-                                                        String rightString = ((ImdiTreeObject) secondColumn).getUrlString();
-                                                        int leftPathCount = leftString.split("\\.").length;
-                                                        int rightPathCount = rightString.split("\\.").length;
-                                                        if (leftPathCount == rightPathCount) {
-                                                            return leftString.compareTo(rightString);
-                                                        } else {
-                                                            return leftPathCount - rightPathCount;
-                                                        }
-                                                    } catch (Exception ex) {
-                                                        GuiHelper.linorgBugCatcher.logError(ex);
-                                                        return 1;
-                                                    }
-                                                }
-                                            });
-//                                        for (ImdiTreeObject currentFavChild : allChildNodes) {
-//                                            System.out.println("sort output: " + currentFavChild.getUrlString());
-//                                        }
-                                            for (ImdiTreeObject currentFavChild : allChildNodes) {
-                                                System.out.println("currentFavChild: " + currentFavChild.getUrlString());
-                                                progressMonitor.setProgress(progressCounter++);
-                                                if (currentFavChild.getFields().size() > 0) {
-//                                                    ImdiTreeObject addedChildImdiObjects = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
-                                                    ImdiTreeObject addedChildImdiObject = GuiHelper.imdiLoader.getImdiObject(null, addedImdiObject.addChildNode(LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), currentFavChild.getURL().getRef(), resourceUrl, mimeType));
-                                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedChildImdiObject});
-                                                    nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
-                                                } else {
-                                                    System.out.println("omitting: " + currentFavChild);
-                                                }
-                                            }
+                                            duplicateChildNodeStructure(favouriteImdiNode, addedImdiObject, nodesToMerge, progressMonitor, imdiTableModel);
+                                            int progressCounter = nodesToMerge.size();
+                                            addedImdiObject.updateImdiFileNodeIds();
                                             progressMonitor.setNote("Copying Data");
-                                            progressMonitor.setMaximum(allChildNodes.length + nodesToMerge.size() * 2);
+                                            progressMonitor.setMaximum(progressCounter + nodesToMerge.size() * 2);
                                             currentImdiObject.loadImdiDom();
                                             for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
                                                 if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
@@ -185,6 +155,49 @@ public class ImdiLoader {
                     }
                 }
             }.start();
+        }
+    }
+
+    public void duplicateChildNodeStructure(ImdiTreeObject favouriteImdiNode, ImdiTreeObject addedImdiObject, ArrayList<ImdiTreeObject[]> nodesToMerge, ProgressMonitor progressMonitor, ImdiTableModel imdiTableModel) {
+        ImdiTreeObject[] currentFavChildren = favouriteImdiNode.getChildArray();
+        for (ImdiTreeObject currentFavChild : currentFavChildren) {
+            System.out.println("childNode: " + currentFavChild.getUrlString());
+            if (currentFavChild.getFields().size() > 0) {
+//                                                    ImdiTreeObject addedChildImdiObjects = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
+                String addedChildImdiObjectPath = addedImdiObject.addChildNode(LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, addedImdiObject), addedImdiObject.getURL().getRef(), null, null);
+                ImdiTreeObject addedChildImdiObject = GuiHelper.imdiLoader.getImdiObject(null, addedChildImdiObjectPath);
+                imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedChildImdiObject});
+                nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
+                System.out.println("nodesToMerge: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
+//                                                    if (!addedChildImdiObject.getUrlString().contains("#")) {
+//                                                        System.out.println("oops A: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
+//                                                        System.out.println("oops A: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
+//                                                    }
+                progressMonitor.setProgress(nodesToMerge.size());
+                duplicateChildNodeStructure(currentFavChild, addedChildImdiObject, nodesToMerge, progressMonitor, imdiTableModel);
+            } else {
+                System.out.println("omitting: " + currentFavChild);
+                duplicateChildNodeStructure(currentFavChild, addedImdiObject, nodesToMerge, progressMonitor, imdiTableModel);
+            }
+//        Arrays.sort(allChildNodes, new Comparator() {
+//
+//            public int compare(Object firstColumn, Object secondColumn) {
+//                try {
+//                    String leftString = ((ImdiTreeObject) firstColumn).getUrlString();
+//                    String rightString = ((ImdiTreeObject) secondColumn).getUrlString();
+//                    int leftPathCount = leftString.split("\\.").length;
+//                    int rightPathCount = rightString.split("\\.").length;
+//                    if (leftPathCount == rightPathCount) {
+//                        return leftString.compareTo(rightString);
+//                    } else {
+//                        return leftPathCount - rightPathCount;
+//                    }
+//                } catch (Exception ex) {
+//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                    return 1;
+//                }
+//            }
+//        });
         }
     }
 

@@ -65,13 +65,10 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
 
             public void keyReleased(KeyEvent evt) {
-                if (!evt.isActionKey() && !evt.isMetaDown() && !evt.isAltDown() && !evt.isAltGraphDown() && !evt.isControlDown()) {
-                    if (isStartLongFieldModifier(evt)) {
-                        // prevent ctrl key events getting through etc.
-                        startEditorMode(isStartLongFieldKey(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-                    } else if (evt.getKeyChar() != KeyEvent.CHAR_UNDEFINED) {
-                        startEditorMode(isStartLongFieldKey(evt), evt.getKeyCode(), evt.getKeyChar());
-                    }
+                if (isStartLongFieldKey(evt)) {// prevent ctrl key events getting through etc.
+                    startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
+                } else if (!evt.isActionKey() && !evt.isMetaDown() && !evt.isAltDown() && !evt.isAltGraphDown() && !evt.isControlDown()) {
+                    startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
                 }
             }
         });
@@ -92,18 +89,18 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     startEditorMode(isStartLongFieldModifier(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
                 } else {
                     parentTable.checkPopup(evt, false);
-                //super.mousePressed(evt);
+                    //super.mousePressed(evt);
                 }
             }
         });
     }
 
     private boolean isStartLongFieldKey(KeyEvent evt) {
-        return (isStartLongFieldModifier(evt) && evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER);
+        return (isStartLongFieldModifier(evt) && (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER || evt.getKeyCode() == java.awt.event.KeyEvent.VK_SPACE));
     }
 
     private boolean isStartLongFieldModifier(InputEvent evt) {
-        return ((evt.isShiftDown() || evt.isControlDown()));
+        return ((evt.isAltDown() || evt.isControlDown()));
     }
 
     private void removeAllFocusListners() {

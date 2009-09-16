@@ -31,7 +31,7 @@ public class MimeHashQueue {
     static private MimeHashQueue singleInstance = null;
 
     static synchronized public MimeHashQueue getSingleInstance() {
-        System.out.println("MimeHashQueue getSingleInstance");
+//        System.out.println("MimeHashQueue getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new MimeHashQueue();
         }

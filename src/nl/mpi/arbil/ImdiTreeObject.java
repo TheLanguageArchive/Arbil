@@ -7,7 +7,6 @@ import java.awt.datatransfer.Transferable;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
 import org.w3c.dom.Document;
-import java.net.MalformedURLException;
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -252,54 +251,57 @@ public class ImdiTreeObject implements Comparable {
 //    }
     synchronized public void loadImdiDom() {
         System.out.println("loadImdiDom: " + this.getFile().getName());
-        initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
-        Document nodDom = null;
-        // cacheLocation will be null if useCache = false hence no file has been saved
+        if (domParentImdi != null && this != domParentImdi) {
+            domParentImdi.reloadNode();
+        } else {
+            initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
+            Document nodDom = null;
+            // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
-        try {
-            //System.out.println("tempUrlString: " + tempUrlString);
-            if (false) {
-                // TODO: resolve why this is not functioning, till then the subsequent stanza is used
-                try {
-                    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                    nodDom = builder.parse(nodeUrl.openStream());
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+            try {
+                //System.out.println("tempUrlString: " + tempUrlString);
+                if (false) {
+                    // TODO: resolve why this is not functioning, till then the subsequent stanza is used
+                    try {
+                        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                        nodDom = builder.parse(nodeUrl.openStream());
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
 //                    System.out.println("Could not parse dom: " + this.getUrlString());
+                    }
+                } else {
+                    OurURL inUrlLocal = null;
+                    inUrlLocal = new OurURL(this.getUrlString());
+                    nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 }
-            } else {
-                OurURL inUrlLocal = null;
-                inUrlLocal = new OurURL(this.getUrlString());
-                nodDom = api.loadIMDIDocument(inUrlLocal, false);
-            }
 
-            // only read the fields into imdi tree objects if it is not going to be saved to the cache
+                // only read the fields into imdi tree objects if it is not going to be saved to the cache
 //            if (!useCache) {
-            if (nodDom == null) {
-                nodeText = "Could not load IMDI";
-                fileNotFound = true;
-            } else {
-                //set the string name to unknown, it will be updated in the tostring function
-                nodeText = "unknown";
-                // load the fields from the imdi file
-                GuiHelper.imdiSchema.iterateChildNodes(this, childLinks, nodDom.getFirstChild(), "");
-            }
+                if (nodDom == null) {
+                    nodeText = "Could not load IMDI";
+                    fileNotFound = true;
+                } else {
+                    //set the string name to unknown, it will be updated in the tostring function
+                    nodeText = "unknown";
+                    // load the fields from the imdi file
+                    GuiHelper.imdiSchema.iterateChildNodes(this, childLinks, nodDom.getFirstChild(), "");
+                }
 //            }
-        // save this to the cache before deleting the dom
+                // save this to the cache before deleting the dom
 //            if (useCache) {
 //                // get the links from the imdi before we dispose of the dom
 //                getImdiLinks(nodDom);
 ////                cacheLocation = saveNodeToCache(nodDom);
 //            }
-        } catch (MalformedURLException mue) {
-            GuiHelper.linorgBugCatcher.logError(mue);
+            } catch (Exception mue) {
+                GuiHelper.linorgBugCatcher.logError(mue);
 //            System.out.println("Invalid input URL: " + mue);
-            nodeText = "Invalid input URL";
-        }
-        //we are now done with the dom so free the memory
-        nodDom = null;
+            }
+            //we are now done with the dom so free the memory
+            nodDom = null;
 //        return cacheLocation;
         clearChildIcons();
+        }
     }
 
 //        private String getField(String fieldName) {
@@ -424,6 +426,14 @@ public class ImdiTreeObject implements Comparable {
     }
 
     /**
+     * Gets an array of the children of this node.
+     * @return An array of the next level child nodes.
+     */
+    public ImdiTreeObject[] getChildArray() {
+        return childrenHashtable.values().toArray(new ImdiTreeObject[]{});
+    }
+
+    /**
      * Used to populate the child list in the show child popup in the imditable.
      * @return An enumeration of the next level child nodes.
      */
@@ -499,7 +509,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public String addChildNode(String nodeType, String targetXmlPath, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
-        System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
+        System.out.println("targetXmlPath:: " + targetXmlPath);
         if (needsSaveToDisk) {
             saveChangesToCache(true);
         }
@@ -538,7 +548,7 @@ public class ImdiTreeObject implements Comparable {
 //            destinationNode.imdiNeedsSaveToDisk = true;
         }
         //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
-        destinationNode.updateImdiFileNodeIds();
+                //        destinationNode.updateImdiFileNodeIds();
 
         // begin temp test
 //            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
@@ -647,27 +657,30 @@ public class ImdiTreeObject implements Comparable {
         return childLinks.size() > 0 || childrenHashtable.size() > 0;
     }
 
-    public int[] getRecursiveChildCount() {
-//        debugOut("getChildCount: " + this.toString());
-        int[] returnArray = new int[2];
-        returnArray[0] = 0;
-        returnArray[1] = 0;
-        if (imdiDataLoaded) {
-            returnArray[1] += 1; // count this node
-            Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-            while (nodesToAddEnumeration.hasMoreElements()) {
-                // count the child nodes
-                int[] childCount = ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).getRecursiveChildCount();
-                returnArray[0] += childCount[0];
-                returnArray[1] += childCount[1];
-            }
-        } else {
-            if (this.isImdi()) {
-                returnArray[0] = 1;
-            }
-        }
-        return returnArray;
-    }
+//    /*
+//     * gets an array of
+//     */
+//    public int[] getRecursiveChildCount() {
+////        debugOut("getChildCount: " + this.toString());
+//        int[] returnArray = new int[2];
+//        returnArray[0] = 0;
+//        returnArray[1] = 0;
+//        if (imdiDataLoaded) {
+//            returnArray[1] += 1; // count this node
+//            Enumeration nodesToAddEnumeration = childrenHashtable.elements();
+//            while (nodesToAddEnumeration.hasMoreElements()) {
+//                // count the child nodes
+//                int[] childCount = ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).getRecursiveChildCount();
+//                returnArray[0] += childCount[0];
+//                returnArray[1] += childCount[1];
+//            }
+//        } else {
+//            if (this.isImdi()) {
+//                returnArray[0] = 1;
+//            }
+//        }
+//        return returnArray;
+//    }
 
     public void loadNextLevelOfChildren(long stopTime) {
 //        debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
@@ -885,7 +898,8 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    private void updateImdiFileNodeIds() {
+    public void updateImdiFileNodeIds() {
+        //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
         System.out.println("updateImdiFileNodeIds");
         try {
 //            System.out.println("removing NodeIds");
@@ -1549,7 +1563,7 @@ public class ImdiTreeObject implements Comparable {
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
     public void clearIcon() {
-        System.out.println("clearIcon: " + this);
+//        System.out.println("clearIcon: " + this);
 //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
 //        SwingUtilities.invokeLater(new Runnable() {
 
