@@ -767,7 +767,7 @@ public class ContextMenu {
             addToFavouritesMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus() && ((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
-                addMenu.setVisible(true);
+                //addMenu.setVisible(true);// TODO; resolve the issues adding to a favourites session
                 saveMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk);
                 addToFavouritesMenuItem.setText("Remove From Favourites List");
                 addToFavouritesMenuItem.setActionCommand("false");
