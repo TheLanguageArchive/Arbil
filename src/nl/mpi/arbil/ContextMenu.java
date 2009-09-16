@@ -49,6 +49,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem viewXmlMenuItemFormatted;
     private javax.swing.JMenuItem openXmlMenuItemFormatted;
     static private ContextMenu singleInstance = null;
+    ImdiTreeObject[] selectedTreeNodes = null;
 
     static synchronized public ContextMenu getSingleInstance() {
         System.out.println("ContextMenu getSingleInstance");
@@ -423,10 +424,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ImdiTreeObject selectedNode : TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectedNodes()) {
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
                         System.out.println("userObject: " + selectedNode);
                         // reloading will first check if a save is required then save and reload
-                        GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode);
+                        GuiHelper.imdiLoader.requestReload((ImdiTreeObject) selectedNode.getParentDomNode());
                     }
 
                 } catch (Exception ex) {
@@ -679,6 +680,7 @@ public class ContextMenu {
             nodeLevel = ((javax.swing.JTree) eventSource).getSelectionPath().getPathCount();
         }
         Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
+        selectedTreeNodes = ((ImdiTree) eventSource).getSelectedNodes();
         boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
         boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
         //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
@@ -735,7 +737,7 @@ public class ContextMenu {
             if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
                 nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
                 if (((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk) {
-                    saveMenuItem.setVisible(true);
+                   // saveMenuItem.setVisible(true);
                 } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
                     viewChangesMenuItem.setVisible(true);
                     sendToServerMenuItem.setVisible(true);
@@ -764,11 +766,11 @@ public class ContextMenu {
             }
         }
         if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
+            saveMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk);// save sould always be available if the node has been edited
             addToFavouritesMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus() && ((ImdiTreeObject) leadSelectedTreeObject).isImdi());
             if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
                 //addMenu.setVisible(true);// TODO; resolve the issues adding to a favourites session
-                saveMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk);
                 addToFavouritesMenuItem.setText("Remove From Favourites List");
                 addToFavouritesMenuItem.setActionCommand("false");
                 deleteMenuItem.setEnabled(false);
