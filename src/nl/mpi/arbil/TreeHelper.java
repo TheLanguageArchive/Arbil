@@ -464,6 +464,8 @@ public class TreeHelper {
 //                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
 //                            treeModel.nodeChanged(itemNode);
 //            treeModel.nodeChanged(missingTreeNode);
+                } else {
+                    treeModel.nodeChanged(currentChildren.get(childCounter));
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -489,7 +491,7 @@ public class TreeHelper {
 //            treeModel.nodeStructureChanged(parentNode);
 //        }
         // update the string and icon etc for the parent node
-//        treeModel.nodeChanged(parentNode);
+        treeModel.nodeChanged(parentNode);
 
 //        parentNode.removeAllChildren();
 //        // add the child nodes in order
