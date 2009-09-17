@@ -416,7 +416,7 @@ public class TreeHelper {
     private void sortChildNodes(DefaultMutableTreeNode parentNode, ArrayList<DefaultMutableTreeNode> currentChildren, Vector<DefaultMutableTreeNode> scrollToRequests) {
 //        System.out.println("sortChildNodes: " + parentNode.getUserObject().toString());
         // resort the branch since the node name may have changed
-        boolean childNodesOrderChanged = false;
+        //boolean childNodesOrderChanged = false;
         DefaultTreeModel treeModel = getModelForNode(parentNode);
 //        ArrayList<DefaultMutableTreeNode> sortedChildren = Collections.list(parentNode.children());
         Collections.sort(currentChildren, new ImdiTreeNodeSorter());
@@ -448,35 +448,48 @@ public class TreeHelper {
 //                    }
 //                    if (!((ImdiTreeObject) currentChildren.get(childCounter).getUserObject()).isLoading()) {
 //                    System.out.println("inserting: " + currentChildren.get(childCounter).getUserObject() + " into: " + parentNode.getUserObject());
-                    treeModel.insertNodeInto(currentChildren.get(childCounter), parentNode, childCounter);
-                    childNodesOrderChanged = true;
-//                treeModel.nodeStructureChanged(parentNode);
+                    ImdiTreeObject currentImdiObject = ((ImdiTreeObject) currentChildren.get(childCounter).getUserObject());
+                    currentImdiObject.removeContainer(currentChildren.get(childCounter));
+                    if (currentChildren.get(childCounter).getParent() != null) {
+                        treeModel.removeNodeFromParent(currentChildren.get(childCounter));
+                    }
+                    DefaultMutableTreeNode resortedTreeNode = new DefaultMutableTreeNode(currentImdiObject);
+                    currentImdiObject.registerContainer(resortedTreeNode);
+                    treeModel.insertNodeInto(resortedTreeNode, parentNode, childCounter);
+//                    parentNode.insert(currentChildren.get(childCounter), childCounter);
+                    //   childNodesOrderChanged = true;
+//                    } else {
+//                        parentNode.add(currentChildren.get(childCounter));
+//                    }
+//                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
 //                            treeModel.nodeChanged(itemNode);
 //            treeModel.nodeChanged(missingTreeNode);
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
-
+        }
+        ArrayList<DefaultMutableTreeNode> updatedChildren = Collections.list(parentNode.children());
+        for (DefaultMutableTreeNode currentUpdatedChildNode : updatedChildren.toArray(new DefaultMutableTreeNode[]{})) {
             // update the string and icon etc for each node
-            boolean childCanHaveChildren = ((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).canHaveChildren();
-            currentChildren.get(childCounter).setAllowsChildren(childCanHaveChildren || currentChildren.get(childCounter).getChildCount() > 0);
-            treeModel.nodeChanged(currentChildren.get(childCounter));
-            if (((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).scrollToRequested) {
-                scrollToRequests.add((DefaultMutableTreeNode) currentChildren.get(childCounter));
-                ((ImdiTreeObject) ((DefaultMutableTreeNode) currentChildren.get(childCounter)).getUserObject()).scrollToRequested = false;
+            boolean childCanHaveChildren = ((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).canHaveChildren();
+            currentUpdatedChildNode.setAllowsChildren(childCanHaveChildren || currentUpdatedChildNode.getChildCount() > 0);
+//            treeModel.nodeChanged(currentChildren.get(childCounter));
+            if (((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).scrollToRequested && !((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).isLoading()) {
+                scrollToRequests.add(currentUpdatedChildNode);
+                ((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).scrollToRequested = false;
             }
         }
         if (parentNode.getUserObject() instanceof ImdiTreeObject && ((ImdiTreeObject) parentNode.getUserObject()).scrollToRequested) {
             scrollToRequests.add(parentNode);
             ((ImdiTreeObject) parentNode.getUserObject()).scrollToRequested = false;
         }
-        if (childNodesOrderChanged) {
-            // refresh the child nodes
-            treeModel.nodeStructureChanged(parentNode);
-        }
+//        if (childNodesOrderChanged) {
+//            // refresh the child nodes
+//            treeModel.nodeStructureChanged(parentNode);
+//        }
         // update the string and icon etc for the parent node
-        treeModel.nodeChanged(parentNode);
+//        treeModel.nodeChanged(parentNode);
 
 //        parentNode.removeAllChildren();
 //        // add the child nodes in order
@@ -712,7 +725,7 @@ public class TreeHelper {
                                     }
                                     imdiNodesDeleteList.get(parentImdiNode).add(childImdiNode);
                                 }
-                            // remove the deleted node from the favourites list if it is an imdichild node
+                                // remove the deleted node from the favourites list if it is an imdichild node
 //                            if (userObject instanceof ImdiTreeObject) {
 //                                if (((ImdiTreeObject) userObject).isImdiChild()){
 //                                LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
