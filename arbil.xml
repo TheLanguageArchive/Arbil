@@ -210,7 +210,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="getsvnversion" depends="setproperties">
         <property name="linorg.current.major" value="0"/>
-        <property name="linorg.current.minor" value="3"/>
+        <property name="linorg.current.minor" value="4"/>
        <!-- <exec executable="svn" output="version.info">
             <arg value="info"/>
         </exec>
