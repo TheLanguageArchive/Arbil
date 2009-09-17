@@ -7,4 +7,4 @@ public class LinorgVersion {
     String compileDate = "";
     String fullInfo = "";
 }
-            
+        
