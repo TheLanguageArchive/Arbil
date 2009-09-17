@@ -7,7 +7,7 @@
 <project name="Linorg" default="compile">
     <target name="setproperties">
         <property name="SRCDIR" value="src/"/>
-        <property name="OUTPUTDIR" value="arbil-build/"/>
+        <property name="OUTPUTDIR" value="arbil.0.3.x-build/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
     </target>
@@ -127,14 +127,14 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-            <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
+            <fileset dir="${SRCDIR}../../../../trunk/src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${SRCDIR}../../../trunk/webapps/addit/web">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
@@ -145,7 +145,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <mkdir dir="${LIBDIR}"/>
         <copy todir="${LIBDIR}">
                 <!-- TODO: this needs to be changed to use the maven repository -->
-            <fileset dir="${SRCDIR}../../../trunk/webapps/lib/">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/lib/">
                 <include name="corpusstructure-1.6.1.jar"/>
                 <include name="imdiapi-1.0.6.jar"/>
                 <include name="log4j-1.2.14.jar"/>
@@ -271,13 +271,13 @@ public class LinorgVersion {
         </echo>
     </target>
     <target name="signlinorg" depends="jar">
-        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
+        <signjar keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
             <path>
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>
         <signjar jar="${OUTPUTDIR}/arbil.jar"
-        keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
+        keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore"
         alias="mpi.keyalias" storepass="123456" />
     </target>
     <target name="scp_to_lux09" depends="signlinorg, makeDebPackage">
