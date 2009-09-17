@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : svn-version.xml
+    Created on : September 10, 2009, 12:04 PM
+    Author     : Peter.Withers@mpi.nl
+    Description:
+        This file is to demonstrate how to get the svn current version via ant.
+        The following target is taken from the arbil ant file.
+        The purpose of using the svn revision is to ensure that each jar file will 
+        always be uniquely identifiable which is critical for testing dependant applications.
+        The svn version in this case is taken from nl/mpi/arbil/ which will need to be modified accordingly.
+        The target directory will also need to be up to date, i.e. run svn update first.
+-->
+
+<project name="svn-version-demo" default="test">
+    <target name="getsvnversion">
+        <!-- the property ${targetdirectory} will need to be modified to suit the required target -->
+        <property name="targetdirectory" value="nl/mpi/arbil/"/>
+        
+        <property name="arbil.current.major" value="0"/>
+        <property name="arbil.current.minor" value="3"/>
+        <exec outputproperty="arbil.current.revision" executable="svnversion">
+            <arg line="-n -c" />
+            <arg line="${targetdirectory}" />
+            <redirector>
+                <outputfilterchain>
+                    <tokenfilter>
+                        <replaceregex pattern="^[0-9]*:" replace="" flags="g"/>
+                        <replaceregex pattern="[^0-9]*" replace="" flags="g"/>
+                    </tokenfilter>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+    </target>
+    <target name="test" depends="getsvnversion">
+        <echo message="arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar"/>
+    </target>
+</project>
