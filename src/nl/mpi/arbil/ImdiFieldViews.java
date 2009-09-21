@@ -15,7 +15,7 @@ public class ImdiFieldViews {
     static private ImdiFieldViews singleInstance = null;
 
     static synchronized public ImdiFieldViews getSingleInstance() {
-        System.out.println("ImdiFieldViews getSingleInstance");
+//        System.out.println("ImdiFieldViews getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new ImdiFieldViews();
         }
@@ -27,12 +27,12 @@ public class ImdiFieldViews {
     }
 
     public LinorgFieldView getView(String viewName) {
-        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
+//        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
         return ((LinorgFieldView) savedFieldViews.get(viewName));
     }
 
     public LinorgFieldView getCurrentGlobalView() {
-        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
+//        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
         return ((LinorgFieldView) savedFieldViews.get(currentGlobalViewName));
     }
 
@@ -41,7 +41,7 @@ public class ImdiFieldViews {
     }
 
     public void setCurrentGlobalViewName(String nextViewName) {
-        System.out.println("setCurrentGlobalViewName: " + nextViewName);
+//        System.out.println("setCurrentGlobalViewName: " + nextViewName);
         currentGlobalViewName = nextViewName;
     }
 
