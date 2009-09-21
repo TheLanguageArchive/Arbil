@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
@@ -57,6 +58,7 @@ public class ImdiTree extends JTree {
 
         this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
 
+            @Override
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 System.out.println("jTree1MouseDragged");
                 JComponent c = (JComponent) evt.getSource();
@@ -169,6 +171,7 @@ public class ImdiTree extends JTree {
         }
     }
 
+    @Override
     public JToolTip createToolTip() {
         System.out.println("createToolTip");
 //        return super.createToolTip();
@@ -176,7 +179,7 @@ public class ImdiTree extends JTree {
         return listToolTip;
     }
 //
-
+    @Override
     public String getToolTipText(MouseEvent event) {
         String tip = null;
         java.awt.Point p = event.getPoint();
@@ -198,17 +201,22 @@ public class ImdiTree extends JTree {
     }
 
     public ImdiTreeObject[] getSelectedNodes() {
-        ImdiTreeObject[] selectedNodes = new ImdiTreeObject[this.getSelectionCount()];
-        // iterate over allthe selected nodes in the available trees
-//        for (int treeCount = 0; treeCount < treesToSearch.length; treeCount++) {
+        ArrayList<ImdiTreeObject> selectedNodes = new ArrayList<ImdiTreeObject>();
         for (int selectedCount = 0; selectedCount < this.getSelectionCount(); selectedCount++) {
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) this.getSelectionPaths()[selectedCount].getLastPathComponent();
             if (parentNode.getUserObject() instanceof ImdiTreeObject) {
-                selectedNodes[selectedCount] = (ImdiTreeObject) parentNode.getUserObject();
+                ImdiTreeObject currentTreeObject = (ImdiTreeObject) parentNode.getUserObject();
+//                if (currentTreeObject.isMetaNode()) {
+                // exchange the meta nodes for its child nodes
+//                    for (ImdiTreeObject subChildNode : currentTreeObject.getChildArray()) {
+//                        selectedNodes.add(subChildNode);
+//                    }
+//                } else {
+                selectedNodes.add(currentTreeObject);
+//                }
             }
         }
-//        }
-        return selectedNodes;
+        return selectedNodes.toArray(new ImdiTreeObject[]{});
     }
 
     public Object getSingleSelectedNode() {
