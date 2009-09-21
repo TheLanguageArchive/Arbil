@@ -101,7 +101,7 @@ public class ImdiFieldViewTableModel extends DefaultTableModel {
                 }
                 break;
         }
-        imdiTableModel.reloadTableData();
+        imdiTableModel.requestReloadTableData();
         fireTableStructureChanged();
     }//returnTableModel.setRowCount(0);
 }
