@@ -207,6 +207,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 // if the node has no fields it should still be added since it will only pass a search if for instance the search is for actors and in that case it should be shown even if blank
                                 if (nodePassedFilter) {
                                     foundNodes.add(currentImdiNode);
+                                    resultsTableModel.addSingleImdiObject(currentImdiNode);
                                     searchProgressBar.setString("searched: " + totalSearched + " found: " + (++totalFound));
                                 }
 //                                if (totalNodesToSearch != -1) {
