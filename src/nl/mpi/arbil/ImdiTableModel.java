@@ -25,6 +25,10 @@ import javax.swing.table.AbstractTableModel;
  */
 public class ImdiTableModel extends AbstractTableModel {
 
+    // variables used by the thread
+    boolean reloadRequested = false;
+    boolean treeNodeSortQueueRunning = false;
+    // end variables used by the thread
     private boolean showIcons = false;
     private Hashtable<String, ImdiTreeObject> imdiObjectHash = new Hashtable<String, ImdiTreeObject>();
     private HashMap<String, ImdiField> allColumnNames = new HashMap<String, ImdiField>();
@@ -63,7 +67,7 @@ public class ImdiTableModel extends AbstractTableModel {
             tempFieldView.addKnownColumn(oldKnowenColoumns.nextElement().toString());
         }
         tableFieldView = tempFieldView;
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public ImdiTreeObject[] getSelectedImdiNodes(int[] selectedRows) {
@@ -101,7 +105,7 @@ public class ImdiTableModel extends AbstractTableModel {
         for (int draggedCounter = 0; draggedCounter < nodesToAdd.length; draggedCounter++) {
             addImdiObject(nodesToAdd[draggedCounter]);
         }
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public void addImdiObjects(Enumeration nodesToAdd) {
@@ -110,18 +114,18 @@ public class ImdiTableModel extends AbstractTableModel {
             //System.out.println("addImdiObjects: " + currentObject.toString());
             addImdiObject((ImdiTreeObject) currentObject);
         }
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public void addSingleImdiObject(ImdiTreeObject imdiTreeObject) {
         addImdiObject(imdiTreeObject);
-        reloadTableData();
+        requestReloadTableData();
     }
 
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
         if (imdiTreeObject != null) {
             // on start up the previous windows are loaded and the imdi nodes will not be loaded hence they will have no fields, so we have to check for that here
-            if (imdiTreeObject.isDirectory() || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.getFields().size() == 0)) {
+            if (imdiTreeObject.isDirectory() || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.isMetaNode())) {
                 // add child nodes if there are no fields ie actors node will add all the actors
                 // add child nodes if it is a directory
                 // this is non recursive and does not reload the table
@@ -204,7 +208,7 @@ public class ImdiTableModel extends AbstractTableModel {
         cellColour = new Color[0][0];
         // add the icon column if icons are to be displayed
         setShowIcons(showIcons);
-        reloadTableData();
+        requestReloadTableData();
     }
 
     private ImdiTreeObject getImdiNodeFromRow(int rowNumber) {
@@ -384,7 +388,7 @@ public class ImdiTableModel extends AbstractTableModel {
             }
         }
         // refresh the table data
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public void clearCellColours() {
@@ -478,12 +482,36 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
-    public void reloadTableData() {
+    synchronized public void requestReloadTableData() {
+        reloadRequested = true;
+        if (!treeNodeSortQueueRunning) {
+            treeNodeSortQueueRunning = true;
+            new Thread() {
+
+                @Override
+                public void run() {
+                    try {
+                        // here we only want to respond the a request when it is requred but also respond if the request has arrived since the last reload started
+                        while (reloadRequested) {
+                            reloadRequested = false;
+                            reloadTableDataPrivate();
+                        }
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                    treeNodeSortQueueRunning = false;
+                }
+            }.start();
+        }
+    }
+
+    // this will be hit by each imdi node in the table when the application starts hence it needs to be either put in a queue or be synchronised
+    private synchronized void reloadTableDataPrivate() { // with the queue this does not need to be synchronised but in this case it will not slow things too much
 //        System.out.println("reloadTableData");
         int previousColumnCount = getColumnCount();
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
-        int[] maxColumnWidthsTemp;
+        int[] maxColumnWidthsTemp = new int[0];
 
         ImdiTreeObject[] tableRowsImdiArray = updateAllImdiObjects();
 
@@ -608,10 +636,10 @@ public class ImdiTableModel extends AbstractTableModel {
 //            }
         } else {
             // display the single node view
-            maxColumnWidthsTemp = new int[2];
             columnNamesTemp = singleNodeViewHeadings;
+            maxColumnWidthsTemp = new int[columnNamesTemp.length];
             if (tableRowsImdiArray.length == 0) {
-                dataTemp = allocateCellData(0, 2);
+                dataTemp = allocateCellData(0, columnNamesTemp.length);
             } else {
                 if (tableRowsImdiArray[0] != null) {
                     Hashtable<String, ImdiField[]> fieldsHash = tableRowsImdiArray[0].getFields();
@@ -784,7 +812,7 @@ public class ImdiTableModel extends AbstractTableModel {
         }
         System.out.println("sortByColumn: " + sortColumn);
         //fireTableStructureChanged();
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public void hideColumn(int columnIndex) {
@@ -794,7 +822,7 @@ public class ImdiTableModel extends AbstractTableModel {
         if (!childColumnNames.remove(getColumnName(columnIndex))) {
             tableFieldView.addHiddenColumn(getColumnName(columnIndex));
         }
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public void showOnlyCurrentColumns() {
@@ -808,7 +836,7 @@ public class ImdiTableModel extends AbstractTableModel {
     public void addChildTypeToDisplay(String childType) {
         System.out.println("addChildTypeToDisplay: " + childType);
         childColumnNames.add(childType);
-        reloadTableData();
+        requestReloadTableData();
     }
 
     public Object[] getChildNames() {
