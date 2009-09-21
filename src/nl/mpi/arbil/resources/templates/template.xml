@@ -13,13 +13,8 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Genre" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Title" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Title" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Id" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Name" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
     </RequiredFields>
     <GenreSubgenres>
         <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
@@ -27,10 +22,10 @@
     </GenreSubgenres>
     <FieldConstraints>
         <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
-        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(15).BirthDate" Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?"/>
-        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Date" Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?"/>
-        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date" Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?"/>
-        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(3).BirthDate" Constraint="([0-9]+)((-[0-9]+)(-[0-9]+)?)?"/>
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(15).BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(3).BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" Constraint="([.]+)@([.]+)"/>
     </FieldConstraints>
     <FieldTriggers>
