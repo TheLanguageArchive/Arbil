@@ -98,7 +98,7 @@ public class GuiHelper {
                         } else {
                             imdiTreeObject = new ImdiTreeObject("temp root node", LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
                         }
-                        imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText(), null, null, null);
+                        imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
                     }
@@ -115,12 +115,12 @@ public class GuiHelper {
 //            System.out.println("MenuText: " + currentField[0]);
 //            System.out.println("ActionCommand: " + currentField[1]);
 
-            JMenuItem addMenuItem;
-            addMenuItem = new javax.swing.JMenuItem();
-            addMenuItem.setText(currentField[0]);
-            addMenuItem.setName(currentField[0]);
-            addMenuItem.setActionCommand(currentField[1]);
-            addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            JMenuItem addFavouriteMenuItem;
+            addFavouriteMenuItem = new javax.swing.JMenuItem();
+            addFavouriteMenuItem.setText(currentField[0]);
+            addFavouriteMenuItem.setName(currentField[0]);
+            addFavouriteMenuItem.setActionCommand(currentField[1]);
+            addFavouriteMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     try {
@@ -131,7 +131,7 @@ public class GuiHelper {
                         if (ImdiTreeObject.isImdiNode(targetNode.getUserObject())) {
                             imdiTreeObject = (ImdiTreeObject) targetNode.getUserObject();
 //                        imdiTreeObject.requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
-                            imdiTreeObject.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(templateImdiObject, imdiTreeObject), ((JMenuItem) evt.getSource()).getText(), imdiFavouriteUrlString, null, null);
+                            imdiTreeObject.requestAddNode(((JMenuItem) evt.getSource()).getText(), templateImdiObject);
                         }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
@@ -151,7 +151,7 @@ public class GuiHelper {
                     }
                 }
             });
-            addFromFavouritesMenu.add(addMenuItem);
+            addFromFavouritesMenu.add(addFavouriteMenuItem);
         }
     }
 
