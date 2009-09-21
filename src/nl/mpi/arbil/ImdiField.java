@@ -158,9 +158,9 @@ public class ImdiField {
     }
 
     public ImdiField[] getSiblingField(String pathString) {
-        System.out.println("getSiblingField: " + pathString);
+//        System.out.println("getSiblingField: " + pathString);
         for (ImdiField[] tempField : parentImdi.getFields().values().toArray(new ImdiField[][]{})) {
-            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
+//            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
             if (tempField[0].getFullXmlPath().equals(pathString)) {
                 return tempField;
             }
