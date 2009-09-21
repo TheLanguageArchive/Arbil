@@ -87,7 +87,7 @@ public class ImdiVocabularies {
                 // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
                 Vocabulary tempVocabulary = tempField[0].getVocabulary();
                 VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
-                System.out.println("redirectFieldString: " + redirectFieldString);
+//                System.out.println("redirectFieldString: " + redirectFieldString);
                 if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
                     System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
                     String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
