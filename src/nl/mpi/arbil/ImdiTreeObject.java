@@ -197,29 +197,37 @@ public class ImdiTreeObject implements Comparable {
                 if (fileObject != null) {
                     this.isDirectory = fileObject.isDirectory();
                 }
-                int currentFieldId = 1;
-                nodeText = fileObject.getName();
-                ImdiField sizeField = new ImdiField(this, "Size", (fileObject.length() / 1024) + "KB");
-                sizeField.fieldID = "x" + currentFieldId++;
-                addField(sizeField);
-                // add the modified date
-                Date mtime = new Date(fileObject.lastModified());
-                String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-                ImdiField dateField = new ImdiField(this, "last modified", mTimeString);
-                dateField.fieldID = "x" + currentFieldId++;
-                addField(dateField);
-                // get exif tags
-                ImdiField[] exifFields = GuiHelper.imdiSchema.getExifMetadata(this);
-                for (ImdiField currentField : exifFields) {
-                    currentField.fieldID = "x" + currentFieldId++;
-                    addField(currentField);
+                if (fileObject.exists()) {
+                    try {
+                        int currentFieldId = 1;
+                        nodeText = fileObject.getName();
+                        ImdiField sizeField = new ImdiField(this, "Size", (fileObject.length() / 1024) + "KB");
+                        sizeField.fieldID = "x" + currentFieldId++;
+                        addField(sizeField);
+                        // add the modified date
+                        Date mtime = new Date(fileObject.lastModified());
+                        String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+                        ImdiField dateField = new ImdiField(this, "last modified", mTimeString);
+                        dateField.fieldID = "x" + currentFieldId++;
+                        addField(dateField);
+                        // get exif tags
+//                System.out.println("get exif tags");
+                        ImdiField[] exifFields = GuiHelper.imdiSchema.getExifMetadata(this);
+                        for (ImdiField currentField : exifFields) {
+                            currentField.fieldID = "x" + currentFieldId++;
+                            addField(currentField);
+//                    System.out.println(currentField.fieldValue);
+                        }
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(this.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
+                    }
                 }
             }
             if (!isImdi() && nodeText == null) {
                 nodeText = this.getUrlString();
             }
         }
-        if (!isImdi() && !isDirectory()) {
+        if (!isImdi() && !isDirectory() && isLocal()) {
             // if it is an not imdi or a loose file but not a direcotry then get the md5sum
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
@@ -251,8 +259,8 @@ public class ImdiTreeObject implements Comparable {
 //    }
     synchronized public void loadImdiDom() {
         System.out.println("loadImdiDom: " + this.getFile().getName());
-        if (domParentImdi != null && this != domParentImdi) {
-            domParentImdi.reloadNode();
+        if (getParentDomNode() != this) {
+            getParentDomNode().reloadNode();
         } else {
             initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
             Document nodDom = null;
@@ -521,12 +529,17 @@ public class ImdiTreeObject implements Comparable {
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                if (nodDom == null) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI file could not be opened", "Add Node");
+                } else {
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
-                addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
+//                System.out.println("inUrlLocal: " + inUrlLocal);
+                    addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
-                api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
+                    api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
+                }
             } catch (Exception ex) {
 //                System.out.println("addChildNode: " + ex.getMessage());
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -949,7 +962,7 @@ public class ImdiTreeObject implements Comparable {
                             if (!(ImdiTreeObject.isStringImdiChild(clipBoardString) && (!this.isSession() && !this.isImdiChild()))) {
                                 if (this.getFile().exists()) {
                                     // this must use merge like favoirite to prevent instances end endless loops in corpus branches
-                                    this.requestAddNode(LinorgFavourites.getSingleInstance().getNodeType(clipboardNode, this), "Copy of " + clipboardNode, clipboardNode.getUrlString(), null, null);
+                                    this.requestAddNode("copy of " + clipboardNode, clipboardNode);
                                 } else {
                                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist", null);
                                 }
@@ -971,20 +984,54 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    public void requestAddNode(String nodeType, String nodeTypeDisplayName, String favouriteUrlString, String resourceUrl, String mimeType) {
-        String targetXmlPath = this.getURL().getRef();
-        if (nodeType == null) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+    public boolean requestAddNode(String nodeTypeDisplayName, ImdiTreeObject addableImdiNode) {
+//        TODO: move the arbil link on the tools page as Peter requested
+        boolean returnValue = true;
+        ImdiTreeObject[] sourceImdiNodeArray;
+        if (addableImdiNode.isMetaNode()) {
+            sourceImdiNodeArray = addableImdiNode.getChildArray();
         } else {
+            sourceImdiNodeArray = new ImdiTreeObject[]{addableImdiNode};
+        }
+
+        for (ImdiTreeObject currentImdiNode : sourceImdiNodeArray) {
+            String nodeType;
+            String favouriteUrlString = null;
+            String resourceUrl = null;
+            String mimeType = null;
+            if (currentImdiNode.isArchivableFile() && !currentImdiNode.isImdi()) {
+                nodeType = GuiHelper.imdiSchema.getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
+                resourceUrl = currentImdiNode.getUrlString();
+                mimeType = currentImdiNode.mpiMimeType;
+                nodeTypeDisplayName = "Resource";
+            } else {
+                nodeType = LinorgFavourites.getSingleInstance().getNodeType(currentImdiNode, this);
+                favouriteUrlString = currentImdiNode.getUrlString();
+            }
+            if (nodeType == null) {
+                returnValue = false;
+            }
+            String targetXmlPath = this.getURL().getRef();
+            if (nodeType == null) { // targetXmlPath hass been  added at this point to preserve the sub node (N) which otherwise had been lost for the (x) and this is required to add to a sub node correctly
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+            } else {
 //            if (this.isImdiChild()) {
 //                System.out.println("requestAddNodeChild: " + this.getUrlString());
 //                this.domParentImdi.requestAddNode(nodeType, this.nodeUrl.getRef(), nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
 //            } else {
-            System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
-            this.getParentDomNode().addQueue.add(new String[]{nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
-            GuiHelper.imdiLoader.requestReload(this);
-//            }
+                System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
+                this.getParentDomNode().addQueue.add(new String[]{nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
+                GuiHelper.imdiLoader.requestReload(this);
+            }
         }
+//            }
+        return returnValue;
+    }
+
+    public void requestAddNode(String nodeType, String nodeTypeDisplayName) {
+        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
+        this.getParentDomNode().addQueue.add(new String[]{nodeType, null, nodeTypeDisplayName, null, null, null});
+        GuiHelper.imdiLoader.requestReload(this);
     }
 
     /**
@@ -1445,7 +1492,11 @@ public class ImdiTreeObject implements Comparable {
      */
     public ImdiTreeObject getParentDomNode() {
         if (domParentImdi == null) {
-            domParentImdi = GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
+            if (isImdiChild()) {
+                domParentImdi = GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
+            } else {
+                domParentImdi = this;
+            }
         }
         return domParentImdi;
     }
@@ -1480,6 +1531,14 @@ public class ImdiTreeObject implements Comparable {
             return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
         }
         return false;
+    }
+
+    /**
+     * Tests if this node is a meta node that contains no fields and only child nodes, such as the Languages, Actors, MediaFiles nodes etc..
+     * @return boolean
+     */
+    public boolean isMetaNode() {
+        return this.getFields().size() == 0;
     }
 
     public boolean isCatalogue() {
@@ -1531,7 +1590,11 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public Object[] getRegisteredContainers() {
-        return containersOfThisNode.toArray();
+        if (containersOfThisNode != null && containersOfThisNode.size() > 0) {
+            return containersOfThisNode.toArray();
+        } else {
+            return new Object[]{};
+        }
     }
 
     /**
@@ -1575,7 +1638,7 @@ public class ImdiTreeObject implements Comparable {
         for (Object currentContainer : containersOfThisNode.toArray()) {
 //                    System.out.println("currentContainer: " + currentContainer.toString());
             if (currentContainer instanceof ImdiTableModel) {
-                ((ImdiTableModel) currentContainer).reloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
+                ((ImdiTableModel) currentContainer).requestReloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
             }
             if (currentContainer instanceof ImdiChildCellEditor) {
                 ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
@@ -1595,11 +1658,11 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isFavorite() {
-        return isFavourite;
+        return getParentDomNode().isFavourite;
     }
 
     public void setFavouriteStatus(boolean favouriteStatus) {
-        isFavourite = favouriteStatus;
+        getParentDomNode().isFavourite = favouriteStatus;
         clearIcon();
     }
 
