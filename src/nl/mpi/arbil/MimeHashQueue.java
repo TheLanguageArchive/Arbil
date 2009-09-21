@@ -68,24 +68,26 @@ public class MimeHashQueue {
                                 URL currentNodeUrl = new URL(currentPathString);
                                 // check if this file has been process before and then check its mtime
                                 File currentFile = new File(currentNodeUrl.getFile());
-                                long previousMTime = 0;
-                                if (processedFilesMTimes.containsKey(currentPathString)) {
-                                    previousMTime = processedFilesMTimes.get(currentPathString);
-                                }
-                                long currentMTime = currentFile.lastModified();
+                                if (currentFile.exists()) {
+                                    long previousMTime = 0;
+                                    if (processedFilesMTimes.containsKey(currentPathString)) {
+                                        previousMTime = processedFilesMTimes.get(currentPathString);
+                                    }
+                                    long currentMTime = currentFile.lastModified();
 //                                System.out.println("run MimeHashQueue mtime: " + currentPathString);
-                                String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
-                                if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
+                                    String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
+                                    if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
-                                    currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
-                                    currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
-                                    processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
-                                    changedSinceLastSave = true;
-                                } else {
-                                    currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
-                                    currentImdiObject.setMimeType(lastCheckedMimeArray);
+                                        currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
+                                        currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
+                                        processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
+                                        changedSinceLastSave = true;
+                                    } else {
+                                        currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
+                                        currentImdiObject.setMimeType(lastCheckedMimeArray);
+                                    }
+                                    updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
                                 }
-                                updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
                             } catch (MalformedURLException e) {
                                 //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
                                 System.out.println("MalformedURLException: " + currentPathString + " : " + e);
