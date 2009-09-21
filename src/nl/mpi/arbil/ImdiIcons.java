@@ -188,10 +188,10 @@ public class ImdiIcons {
             iconsVector.add(fileIcon);
         } else if (imdiObject.isImdi()) {
             if (imdiObject.isImdiChild()) {
-                if (imdiObject.getFields().size() > 0) {
-                    iconsVector.add(dataIcon);
-                } else {
+                if (imdiObject.isMetaNode()) {
                     iconsVector.add(dataemptyIcon);
+                } else {
+                    iconsVector.add(dataIcon);
                 }
             } else if (imdiObject.isSession()) {
                 iconsVector.add(sessionColorIcon);
