@@ -44,7 +44,7 @@ public class LinorgWindowManager {
     static private LinorgWindowManager singleInstance = null;
 
     static synchronized public LinorgWindowManager getSingleInstance() {
-        System.out.println("LinorgWindowManager getSingleInstance");
+//        System.out.println("LinorgWindowManager getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new LinorgWindowManager();
         }
@@ -84,11 +84,11 @@ public class LinorgWindowManager {
 
     public void openAboutPage() {
         LinorgVersion linorgVersion = new LinorgVersion();
-        String messageString = "Linguistic Organiser\n" +
+        String messageString = "Archive Builder\n" +
                 "A local tool for organising linguistic data.\n" +
                 "Max Planck Institute for Psycholinguistics\n" +
                 "Application design and programming by Peter Withers\n" +
-                "IMDI API and Lamus Type Checker by Daan Broeder and Eric Auer\n" +
+                "Arbil also uses components of the IMDI API and Lamus Type Checker\n" +
                 "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n" +
                 linorgVersion.lastCommitDate + "\n" +
                 "Compile Date: " + linorgVersion.compileDate + "\n";
