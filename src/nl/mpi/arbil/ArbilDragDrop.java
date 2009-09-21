@@ -263,8 +263,8 @@ public class ArbilDragDrop {
             selectionContainsRemote = false;
             selectionContainsFavourite = false;
             System.out.println("createTransferable: " + comp.toString());
-            if (comp instanceof JTree) {
-                JTree draggedTree = (JTree) comp;
+            if (comp instanceof ImdiTree) {
+                ImdiTree draggedTree = (ImdiTree) comp;
                 //System.out.println("selectedCount: " + draggedTree.getSelectionCount());
                 draggedImdiObjects = new ImdiTreeObject[draggedTree.getSelectionCount()];
                 draggedTreeNodes = new DefaultMutableTreeNode[draggedTree.getSelectionCount()];
@@ -400,10 +400,7 @@ public class ArbilDragDrop {
                                     System.out.println("ok to add local file");
                                     for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                        String nodeType = GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType);
-                                        if (nodeType != null) {
-                                            ((ImdiTreeObject) dropTargetUserObject).requestAddNode(nodeType, "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
-                                        }
+                                        ((ImdiTreeObject) dropTargetUserObject).requestAddNode("Resource", draggedImdiObjects[draggedCounter]);
                                     }
                                     return true; // we have achieved the drag so return true
                                 }
@@ -440,7 +437,7 @@ public class ArbilDragDrop {
                                     if (!draggedIntoSelf) {
                                         if (((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isFavorite()) {
                                             //  continue here
-                                            ((ImdiTreeObject) dropTargetUserObject).requestAddNode(LinorgFavourites.getSingleInstance().getNodeType((ImdiTreeObject) draggedImdiObjects[draggedCounter], (ImdiTreeObject) dropTargetUserObject), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getUrlString(), null, null);
+                                            ((ImdiTreeObject) dropTargetUserObject).requestAddNode(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]));
                                         } else if (!LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile())) {
                                             importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
                                         } else {
