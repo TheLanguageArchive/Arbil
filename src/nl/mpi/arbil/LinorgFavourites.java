@@ -18,7 +18,7 @@ public class LinorgFavourites {
     static private LinorgFavourites singleInstance = null;
 
     static synchronized public LinorgFavourites getSingleInstance() {
-        System.out.println("LinorgFavourites getSingleInstance");
+//        System.out.println("LinorgFavourites getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new LinorgFavourites();
         }
@@ -62,7 +62,7 @@ public class LinorgFavourites {
             }
         }
         for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
-            if (currentImdiObject.getFields().size() == 0) {
+            if (currentImdiObject.isMetaNode()) {
                 // note: the way that favourites are shown in a table will not show meta nodes but their child nodes instead
                 setAsTempate = false;
             }
@@ -174,6 +174,9 @@ public class LinorgFavourites {
         // in:
         // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(12).Languages.Language(5)
         // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27)
+        // or in:
+        // favouriteXmlPath: .METATRANSCRIPT.Session.MDGroup.Actors.Actor(1)
+        // targetXmlPath:.METATRANSCRIPT.Session.MDGroup.Actors.Actor(3)
         // out: 
         // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27).Languages.Language
 
@@ -205,6 +208,7 @@ public class LinorgFavourites {
                     }
                 }
                 returnValue = returnValue.replaceAll("\\)$", "");
+                returnValue = returnValue.replaceAll("\\(\\d*?$", "");
             }
         } else {
             returnValue = null;
