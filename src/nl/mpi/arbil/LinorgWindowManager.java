@@ -386,7 +386,7 @@ public class LinorgWindowManager {
                         if (!isKeybordRepeat) {
 //                            System.out.println("KeyEvent.paramString: " + ((KeyEvent) e).paramString());
 //                            System.out.println("KeyEvent.getWhen: " + ((KeyEvent) e).getWhen());
-                            if (((KeyEvent) e).isControlDown() && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
+                            if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_W) {
                                 JInternalFrame[] windowsToClose;
                                 if (((KeyEvent) e).isShiftDown()) {
                                     windowsToClose = desktopPane.getAllFrames();
