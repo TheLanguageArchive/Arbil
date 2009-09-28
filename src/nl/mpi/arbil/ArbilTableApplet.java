@@ -13,7 +13,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 
                 public void run() {
                     initComponents();
-                    addNodesToTable(getParameter("NodeList"));
+                    addNodesToTable(getParameter("ImdiFileList"));
                 }
             });
         } catch (Exception ex) {
