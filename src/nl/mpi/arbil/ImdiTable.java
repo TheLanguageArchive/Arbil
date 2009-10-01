@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -27,7 +28,7 @@ import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 /**
  * Document   : ImdiTable
@@ -85,7 +86,7 @@ public class ImdiTable extends JTable {
 
                     JPopupMenu popupMenu = new JPopupMenu();
 
-                    JMenuItem hideColumnMenuItem = new JMenuItem("Hide column: \"" + imdiTableModel.getColumnName(targetColumn) + "\"");
+                    JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + imdiTableModel.getColumnName(targetColumn) + "\"");
                     hideColumnMenuItem.setActionCommand("" + targetColumn);
                     hideColumnMenuItem.addActionListener(new ActionListener() {
 
@@ -99,7 +100,7 @@ public class ImdiTable extends JTable {
                         }
                     });
 
-                    JMenuItem saveViewMenuItem = new JMenuItem("Save this Column View");
+                    JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
                     saveViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
@@ -137,7 +138,7 @@ public class ImdiTable extends JTable {
                         }
                     });
 
-                    JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Show only the current columns");
+                    JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Show Only Current Columns");
                     showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
@@ -462,16 +463,16 @@ public class ImdiTable extends JTable {
         return /*getParent() instanceof JViewport && */ getPreferredSize().height < getParent().getHeight();
     }
 
-    @Override
-    public void doLayout() {
-        setColumnWidths();
-        super.doLayout();
-    }
-
     public JToolTip createToolTip() {
 //        System.out.println("createToolTip");
         listToolTip.updateList();
         return listToolTip;
+    }
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        Object cellValue = imdiTableModel.getValueAt(row, convertColumnIndexToModel(column));
+        // only and always allow imdi fields or array objects because the editabilty of them is determinied in the field editor
+        return (cellValue instanceof Object[] || cellValue instanceof ImdiField);
     }
 
     @Override
@@ -483,7 +484,7 @@ public class ImdiTable extends JTable {
     }
 
     @Override
-    public TableCellRenderer getCellRenderer(int row, int viewcolumn) {
+    public ImdiTableCellRenderer getCellRenderer(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
         ImdiTableCellRenderer imdiCellRenderer = new ImdiTableCellRenderer();
         imdiCellRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
@@ -498,61 +499,75 @@ public class ImdiTable extends JTable {
             ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
         }
     }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        setColumnWidths();
+    }
     int lastColumnCount = -1;
+    int lastRowCount = -1;
+//    int lastColumnPreferedWidth = 0;
+    int totalPreferedWidth = 0;
 
     private void setColumnWidths() {
-        // resize the columns only if the number of columns have changed
-        boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount();
+        // resize the columns only if the number of columns or rows have changed
+        boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
         lastColumnCount = this.getModel().getColumnCount();
-
-        int charPixWidth = 9; // this does not need to be accurate but must be more than the number of pixels used to render each character
+        lastRowCount = this.getModel().getRowCount();
         int maxColumnWidth = 300;
-        int totalWidth = 0;
         int minWidth = 50;
-        for (int columnCount = 0; columnCount < this.getColumnModel().getColumnCount(); columnCount++) {
-//            System.out.println("defaultPreferedWidth: " + this.getColumnModel().getColumn(columnCount).getPreferredWidth());
-            // setPreferredWidth || setMinWidth
-            int currentWidth = ((ImdiTableModel) this.getModel()).getColumnWidth(columnCount) * charPixWidth;
-            if (currentWidth > maxColumnWidth) {
-                currentWidth = maxColumnWidth;
-            }
-            if (currentWidth < minWidth) {
-                currentWidth = minWidth;
-            }
+        int parentWidth = this.getParent().getWidth();
+        if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
             if (resizeColumns) {
-                this.getColumnModel().getColumn(columnCount).setPreferredWidth(currentWidth);
+                setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
+                ImdiTableCellRenderer imdiCellRenderer = new ImdiTableCellRenderer();
+                int totalColumnWidth = 0;
+                int columnCount = this.getColumnModel().getColumnCount();
+                for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+                    int currentWidth = minWidth;
+                    for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
+                        imdiCellRenderer.setValue(imdiTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
+                        String currentCellString = imdiCellRenderer.getText();
+                        int requiredWidth = fontMetrics.stringWidth(currentCellString);
+                        if (currentWidth < requiredWidth) {
+                            currentWidth = requiredWidth;
+                        }
+                    }
+                    if (currentWidth > maxColumnWidth) {
+                        currentWidth = maxColumnWidth;
+                    }
+                    this.getColumnModel().getColumn(columnCounter).setPreferredWidth(currentWidth);
+                    totalColumnWidth += currentWidth;
+//                    this.getColumnModel().getColumn(columnCounter).setWidth(currentWidth);
+                }
+                totalPreferedWidth = totalColumnWidth;
+                if (parentWidth >= totalColumnWidth) {
+                    setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+                } else {
+                    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                }
+            } else if (this.getParent() != null) {
+//                for (TableColumn currentColumn : this.getColumnModel().getColumns()){
+
+//                }
+                int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
+                int totalColWidth = this.getColumnModel().getTotalColumnWidth();
+                if (parentWidth > totalColWidth) {
+                    setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+                } else if (parentWidth < totalColWidth || lastColumnWidth > minWidth) {
+                    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                }
             }
-            totalWidth += this.getColumnModel().getColumn(columnCount).getPreferredWidth();
-//            System.out.println("preferedWidth: " + ((ImdiTableModel) this.getModel()).getColumnWidth(columnCount));
-        }
-        int parentWidth = 800;
-        int parentHeight = 600;
-        if (this.getParent() != null) {
-            parentWidth = this.getParent().getWidth();
-            parentHeight = this.getParent().getHeight();
-        }
-//        System.out.println("totalWidth: " + totalWidth + "ParentWidth: " + parentWidth);
-//        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//        setPreferredScrollableViewportSize(new Dimension(Math.max(totalWidth, parentWidth), parentHeight));
-//        if (totalWidth < parentWidth) {
-//            int lastColumn = this.getModel().getColumnCount() - 1;
-//            if (lastColumn >= 0) {
-//                this.getColumnModel().getColumn(lastColumn).setPreferredWidth(this.getColumnModel().getColumn(lastColumn).getPreferredWidth() + parentWidth - totalWidth);
-//            }
-//        }
-        //        setPreferredSize(new Dimension(Math.max(totalWidth, parentWidth), parentHeight));
-        if (totalWidth < parentWidth) {
-//            System.out.println("AUTO_RESIZE_SUBSEQUENT_COLUMNS");
-//            setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-            setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         } else {
-//            System.out.println("AUTO_RESIZE_OFF");
-            setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         }
     }
     //private int targetColumn;
     //Implement table cell tool tips.
 
+    @Override
     public String getToolTipText(MouseEvent e) {
         String tip = null;
         java.awt.Point p = e.getPoint();
