@@ -254,7 +254,13 @@ public class ImdiLoader {
         return currentImdiObject;
     }
 
-// reload the node only if it has already been loaded otherwise ignore
+    // return the node only if it has already been loaded otherwise return null
+    public ImdiTreeObject getImdiObjectOnlyIfLoaded(String imdiUrl) {
+        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
+        return imdiHashTable.get(localUrlString);
+    }
+
+    // reload the node only if it has already been loaded otherwise ignore
     public void requestReloadOnlyIfLoaded(String imdiUrl) {
         String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
         ImdiTreeObject currentImdiObject = imdiHashTable.get(localUrlString);
