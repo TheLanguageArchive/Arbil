@@ -136,7 +136,7 @@ public class ImportExportDialog {
         }
     }
 
-    public void exportImdiBranch(ImdiTreeObject[] localCorpusSelectedNodes) {
+    public void selectExportDirectoryAndExport(ImdiTreeObject[] localCorpusSelectedNodes) {
         searchDialog.setTitle("Export Branch");
         JFileChooser fileChooser = new JFileChooser();
 //        FileFilter emptyDirectoryFilter = new FileFilter() {
@@ -154,10 +154,12 @@ public class ImportExportDialog {
 //        fileChooser.addChoosableFileFilter(emptyDirectoryFilter);
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setMultiSelectionEnabled(false);
+        String fileDialogTitle = "Export Destination Directory";
+        fileChooser.setDialogTitle(fileDialogTitle); // this must be set for mac
         boolean fileSelectDone = false;
         try {
             while (!fileSelectDone) {
-                if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Export")) {
+                if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, fileDialogTitle)) {
                     File destinationDirectory = null;
                     //Vector importNodeVector = new Vector();
                     File parentDirectory = fileChooser.getSelectedFile();
@@ -372,7 +374,7 @@ public class ImportExportDialog {
         taskOutput = new JTextArea(5, 20);
         taskOutput.setMargin(new Insets(5, 5, 5, 5));
         taskOutput.setEditable(false);
-        detailsTabPane.add("Import Details", new JScrollPane(taskOutput));
+        detailsTabPane.add("Process Details", new JScrollPane(taskOutput));
 
         xmlOutput = new JTextArea(5, 20);
         xmlOutput.setMargin(new Insets(5, 5, 5, 5));
@@ -470,7 +472,7 @@ public class ImportExportDialog {
 
     private void appendToTaskOutput(String lineOfText) {
         taskOutput.append(lineOfText + "\n");
-        taskOutput.setCaretPosition(taskOutput.getText().length() - 1);
+        taskOutput.setCaretPosition(taskOutput.getText().length());
     }
 
     private void setUItoRunningState() {
