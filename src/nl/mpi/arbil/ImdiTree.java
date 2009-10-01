@@ -93,7 +93,7 @@ public class ImdiTree extends JTree {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 if (PreviewSplitPanel.previewTableShown && PreviewSplitPanel.previewTable != null) {
                     ((ImdiTableModel) PreviewSplitPanel.previewTable.getModel()).removeAllImdiRows();
-                    GuiHelper.getSingleInstance().addToGridData(PreviewSplitPanel.previewTable.getModel(), ((ImdiTree) evt.getSource()).getSingleSelectedNode());
+                    ((ImdiTableModel) PreviewSplitPanel.previewTable.getModel()).addSingleImdiObject(((ImdiTree) evt.getSource()).getLeadSelectionNode());
                 }
             }
         });
@@ -173,12 +173,12 @@ public class ImdiTree extends JTree {
 
     @Override
     public JToolTip createToolTip() {
-        System.out.println("createToolTip");
+//        System.out.println("createToolTip");
 //        return super.createToolTip();
         listToolTip.updateList();
         return listToolTip;
     }
-//
+
     @Override
     public String getToolTipText(MouseEvent event) {
         String tip = null;
@@ -219,17 +219,15 @@ public class ImdiTree extends JTree {
         return selectedNodes.toArray(new ImdiTreeObject[]{});
     }
 
-    public Object getSingleSelectedNode() {
-//        System.out.println("getSingleSelectedNode: " + sourceObject);
-
+    public ImdiTreeObject getLeadSelectionNode() {
         DefaultMutableTreeNode selectedTreeNode = null;
-        Object returnObject = null;
+        ImdiTreeObject returnObject = null;
         javax.swing.tree.TreePath currentNodePath = this.getSelectionPath();
         if (currentNodePath != null) {
             selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
         }
-        if (selectedTreeNode != null) {
-            returnObject = selectedTreeNode.getUserObject();
+        if (selectedTreeNode != null && selectedTreeNode.getUserObject() instanceof ImdiTreeObject) {
+            returnObject = (ImdiTreeObject) selectedTreeNode.getUserObject();
         }
         return returnObject;
     }
