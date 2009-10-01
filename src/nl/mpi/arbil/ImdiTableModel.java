@@ -34,7 +34,6 @@ public class ImdiTableModel extends AbstractTableModel {
     private HashMap<String, ImdiField> allColumnNames = new HashMap<String, ImdiField>();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
-    private int[] maxColumnWidths;
     boolean horizontalView = false;
     private int sortColumn = -1;
     private JLabel hiddenColumnsLabel;
@@ -93,8 +92,8 @@ public class ImdiTableModel extends AbstractTableModel {
         return imdiObjectHash.elements();
     }
 
-    public Enumeration getImdiNodesURLs() {
-        return imdiObjectHash.keys();
+    public String[] getImdiNodesURLs() {
+        return imdiObjectHash.keySet().toArray(new String[]{});
     }
 
     public void setShowIcons(boolean localShowIcons) {
@@ -184,10 +183,11 @@ public class ImdiTableModel extends AbstractTableModel {
 
     private void updateImageDisplayPanel() {
         listModel.removeAllElements();
+        ImageBoxRenderer tempImageBoxRenderer = new ImageBoxRenderer();
         for (int rowCounter = 0; rowCounter < data.length; rowCounter++) {
             ImdiTreeObject currentRowImdiObject = getImdiNodeFromRow(rowCounter);
             if (currentRowImdiObject != null) {
-                if (ImageBoxRenderer.canDisplay(currentRowImdiObject)) {
+                if (tempImageBoxRenderer.canDisplay(currentRowImdiObject)) {
                     if (!listModel.contains(currentRowImdiObject)) {
                         listModel.addElement(currentRowImdiObject);
                     }
@@ -511,7 +511,6 @@ public class ImdiTableModel extends AbstractTableModel {
         int previousColumnCount = getColumnCount();
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
-        int[] maxColumnWidthsTemp = new int[0];
 
         ImdiTreeObject[] tableRowsImdiArray = updateAllImdiObjects();
 
@@ -584,7 +583,6 @@ public class ImdiTableModel extends AbstractTableModel {
 
             // end create the column names array and prepend the icon and append the imdinode
 
-            maxColumnWidthsTemp = new int[columnNamesTemp.length];
             dataTemp = allocateCellData(tableRowsImdiArray.length, columnNamesTemp.length);
 
             int rowCounter = 0;
@@ -594,7 +592,6 @@ public class ImdiTableModel extends AbstractTableModel {
                 if (showIcons) {
                     //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
                     dataTemp[rowCounter][0] = currentNode;
-                    maxColumnWidthsTemp[0] = currentNode.toString().length();
                 }
                 for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
@@ -617,12 +614,6 @@ public class ImdiTableModel extends AbstractTableModel {
                             dataTemp[rowCounter][columnCounter] = "";
                         }
                     }
-
-                    //record the column string lengths 
-                    int currentLength = (dataTemp[rowCounter][columnCounter].toString()).length();
-                    if (maxColumnWidthsTemp[columnCounter] < currentLength) {
-                        maxColumnWidthsTemp[columnCounter] = currentLength;
-                    }
                 }
                 rowCounter++;
             }
@@ -637,7 +628,6 @@ public class ImdiTableModel extends AbstractTableModel {
         } else {
             // display the single node view
             columnNamesTemp = singleNodeViewHeadings;
-            maxColumnWidthsTemp = new int[columnNamesTemp.length];
             if (tableRowsImdiArray.length == 0) {
                 dataTemp = allocateCellData(0, columnNamesTemp.length);
             } else {
@@ -661,15 +651,6 @@ public class ImdiTableModel extends AbstractTableModel {
                         ImdiField currentField = allFieldsEnum.nextElement();
                         dataTemp[rowCounter][0] = currentField.getTranslateFieldName();
                         dataTemp[rowCounter][1] = currentField;
-                        //record the column string lengths 
-                        int currentLength = (dataTemp[rowCounter][0].toString()).length();
-                        if (maxColumnWidthsTemp[0] < currentLength) {
-                            maxColumnWidthsTemp[0] = currentLength;
-                        }
-                        currentLength = (dataTemp[rowCounter][1].toString()).length();
-                        if (maxColumnWidthsTemp[1] < currentLength) {
-                            maxColumnWidthsTemp[1] = currentLength;
-                        }
                         rowCounter++;
                     }
                 }
@@ -679,7 +660,6 @@ public class ImdiTableModel extends AbstractTableModel {
         //fireTableDataChanged();
         sortTableRows(columnNamesTemp, dataTemp);
         columnNames = columnNamesTemp;
-        maxColumnWidths = maxColumnWidthsTemp;
         cellColour = setCellColours(dataTemp);
         Object[][] prevousData = data;
         data = dataTemp;
@@ -712,10 +692,6 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public String getColumnName(int col) {
         return columnNames[col];
-    }
-
-    public int getColumnWidth(int col) {
-        return maxColumnWidths[col];
     }
 
     public Object getValueAt(int row, int col) {
@@ -754,27 +730,6 @@ public class ImdiTableModel extends AbstractTableModel {
     // JTable uses this method to determine the default renderer
     public Class getColumnClass(int c) {
         return getValueAt(0, c).getClass();
-    }
-
-    @Override
-    public boolean isCellEditable(int row, int col) {
-        //Note that the data/cell address is constant,
-        //no matter where the cell appears onscreen.
-        boolean returnValue = false;
-        if (data[row][col] instanceof ImdiField) {
-            returnValue = ((ImdiField) data[row][col]).parentImdi.isLocal() && ((ImdiField) data[row][col]).parentImdi.isImdi() && ((ImdiField) data[row][col]).fieldID != null;
-        } else if (data[row][col] instanceof ImdiField[]) {
-            returnValue = ((ImdiField[]) data[row][col])[0].parentImdi.isLocal() && ((ImdiField[]) data[row][col])[0].fieldID != null;
-        }
-        System.out.println("Cell is ImdiField: " + returnValue);
-//        System.out.println("result: " + (data[row][col] instanceof ImdiHelper.ImdiField));
-        if (returnValue == false) {
-            if (data[row][col] instanceof Object[]) {
-                System.out.println("Cell is a list of child nodes");
-                returnValue = true;
-            }
-        }
-        return (returnValue);
     }
 
 //    @Override
