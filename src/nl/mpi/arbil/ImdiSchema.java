@@ -137,11 +137,13 @@ public class ImdiSchema {
                     ImageReader reader = (ImageReader) readers.next();
                     reader.setInput(ImageIO.createImageInputStream(url.openStream()));
                     IIOMetadata metadata = reader.getImageMetadata(0);
-                    String[] names = metadata.getMetadataFormatNames();
-                    for (int i = 0; i < names.length; ++i) {
-                        System.out.println();
-                        System.out.println("METADATA FOR FORMAT: " + names[i]);
-                        decendExifTree(resourceImdi, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields);
+                    if (metadata != null) {
+                        String[] names = metadata.getMetadataFormatNames();
+                        for (int i = 0; i < names.length; ++i) {
+                            System.out.println();
+                            System.out.println("METADATA FOR FORMAT: " + names[i]);
+                            decendExifTree(resourceImdi, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields);
+                        }
                     }
                 }
             }
