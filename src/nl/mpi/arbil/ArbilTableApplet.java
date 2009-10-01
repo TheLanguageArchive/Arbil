@@ -14,6 +14,9 @@ public class ArbilTableApplet extends javax.swing.JApplet {
                 public void run() {
                     initComponents();
                     addNodesToTable(getParameter("ImdiFileList"));
+                    addShowOnlyColumnsToTable(getParameter("ShowOnlyColumns"));
+                    addChildNodesToTable(getParameter("ChildNodeColumns"));
+                    addHighlightToTable(getParameter("HighlightText"));
                 }
             });
         } catch (Exception ex) {
@@ -25,6 +28,30 @@ public class ArbilTableApplet extends javax.swing.JApplet {
         if (nodeURLsString != null) {
             for (String currentUrlString : nodeURLsString.split(",")) {
                 imdiTableModel.addSingleImdiObject(GuiHelper.imdiLoader.getImdiObject(null, currentUrlString));
+            }
+        }
+    }
+
+    private void addShowOnlyColumnsToTable(String showColumnsString) {
+        if (showColumnsString != null) {
+            for (String currentshowColumns : showColumnsString.split(",")) {
+                imdiTableModel.getFieldView().addShowOnlyColumn(currentshowColumns);
+            }
+        }
+    }
+
+    private void addChildNodesToTable(String childNodesString) {
+        if (childNodesString != null) {
+            for (String currentChildNode : childNodesString.split(",")) {
+                imdiTableModel.addChildTypeToDisplay(currentChildNode);
+            }
+        }
+    }
+
+    private void addHighlightToTable(String highlightableTextString) {
+        if (highlightableTextString != null) {
+            for (String highlightText : highlightableTextString.split(",")) {
+                imdiTableModel.highlightMatchingText(highlightText);
             }
         }
     }
