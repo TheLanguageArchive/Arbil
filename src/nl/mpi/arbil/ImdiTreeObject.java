@@ -65,6 +65,7 @@ public class ImdiTreeObject implements Comparable {
 //    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
     private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
     public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
+    public File thumbnailFile = null;
 
     protected ImdiTreeObject(String localNodeText, String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
