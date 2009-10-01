@@ -18,6 +18,7 @@ import java.util.Vector;
  */
 public class MimeHashQueue {
     // stored across sessions
+
     private Hashtable<String, Long> processedFilesMTimes; // make this a vector and maybe remove or maybe make file path and file mtime
     private Hashtable<String, String[]> knownMimeTypes; // imdi path/file path, mime type : maybe sould only be file path
     private Hashtable<String, Vector<String>> md5SumToDuplicates;
@@ -100,8 +101,8 @@ public class MimeHashQueue {
                         saveMd5sumIndex();
                         changedSinceLastSave = false;
                     }
-                // TODO: add check for url in list with different hash which would indicate a modified file and require a red x on the icon
-                // TODO: add check for mtime change and update accordingly
+                    // TODO: add check for url in list with different hash which would indicate a modified file and require a red x on the icon
+                    // TODO: add check for mtime change and update accordingly
                 }
                 System.out.println("MimeHashQueue stop");
             }
@@ -165,7 +166,7 @@ public class MimeHashQueue {
                     File currentFile = new File(new URL(currentDupPath).getFile());
                     if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
                         // get the currently loaded imdiobjects for the paths
-                        ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObject(null, currentDupPath);
+                        ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObjectOnlyIfLoaded(currentDupPath);
                         if (currentImdiObject != null) {
                             relevantImdiObjects.add(currentImdiObject);
                         }
@@ -199,7 +200,7 @@ public class MimeHashQueue {
         // because the api uses null to indicate non archivable we cant return other strings
         mpiMimeType = null;//"unreadable";
         typeCheckerMessage = null;
-        boolean deep = true;
+        boolean deep = false;
         if (!new File(fileUrl.getFile()).exists()) {
 //            System.out.println("File does not exist: " + fileUrl);
         } else {
@@ -308,7 +309,7 @@ public class MimeHashQueue {
 
     public void addToQueue(ImdiTreeObject imdiObject) {
 //        System.out.println("MimeHashQueue addToQueue: " + imdiObject);
-        // TODO: when removeing a directory fromthe local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
+        // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
         if (!imdiObject.isDirectory() && imdiObject.isLocal() && (!imdiObject.isImdiChild() || imdiObject.hasResource())) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
@@ -318,7 +319,6 @@ public class MimeHashQueue {
             }
         }
     }
-
     //    public String getMimeResult(ImdiTreeObject imdiObject) {
 //        if (knownMimeTypes != null && imdiObject != null) {
 //            Object returnObject = knownMimeTypes.get(getFilePath(imdiObject));
@@ -328,7 +328,6 @@ public class MimeHashQueue {
 //        }
 //        return null;
 //    }
-
 //    public String getHashResult(ImdiTreeObject imdiObject) {
 //        Object returnObject = null;
 //        if (pathToMd5Sums != null) {
@@ -340,7 +339,6 @@ public class MimeHashQueue {
 //            return null;
 //        }
 //    }
-
 //    public Enumeration getDuplicateList(String hashString) {
 //        Object matchingNodes = md5SumToDuplicates.get(hashString);
 //        return ((Vector) matchingNodes).elements();
