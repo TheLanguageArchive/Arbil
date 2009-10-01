@@ -21,7 +21,6 @@ public class ImdiField {
     public boolean vocabularyIsList;
     public boolean fieldNeedsSaveToDisk = false;
     private Hashtable<String, String> fieldAttributes = new Hashtable();
-    private int isLongField = -1;
     private int isRequiredField = -1;
     private int canValidateField = -1;
 
@@ -31,18 +30,14 @@ public class ImdiField {
         xmlPath = tempPath;
     }
 
-    public boolean isLongField() {
-        if (isLongField == -1) {
-            // calculate length and count line breaks
-            // TODO: the length use to trigger a long field is currently quite abitary but should however relate to the length of the text field in the UI
-            if (fieldValue.length() > 50 || fieldValue.contains("\n")) {
-                isLongField = 1;
-            } else {
-                isLongField = 0;
-            }
-        }
-        return isLongField == 1;
-    }
+//private String originalValue = null;
+//    public boolean fieldNeedsSaveToDisk() {
+//        if (originalValue == null) {
+//            return false;
+//        } else {
+//            return fieldValue.compareTo(originalValue) != 0;
+//        }
+//    }
 
     public boolean isRequiredField() {
         if (isRequiredField < 0) {
@@ -116,7 +111,6 @@ public class ImdiField {
             new FieldChangeTriggers().actOnChange(this);
             parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
-            isLongField = -1;
         }
     }
 
@@ -136,7 +130,6 @@ public class ImdiField {
 //            fieldLanguageId = languageId;
             parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
-            isLongField = -1;
         }
 
     }
@@ -181,7 +174,7 @@ public class ImdiField {
                 ImdiVocabularies.getSingleInstance().getVocabulary(this, vocabularyKey);
             }
         }
-    // end set up the vocabularies
+        // end set up the vocabularies
     }
 
     public void addAttribute(String attributeName, String attributeValue) {
