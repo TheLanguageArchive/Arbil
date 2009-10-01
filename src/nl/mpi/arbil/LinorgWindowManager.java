@@ -266,10 +266,9 @@ public class LinorgWindowManager {
 //                System.out.println("getComponent: " + ((JInternalFrame) windowObject).getComponent(0));
 //                System.out.println("LinorgSplitPanel: " + ((LinorgSplitPanel)((JInternalFrame) windowObject).getContentPane()));
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane().getComponent(0));                                           
-                            Enumeration windowImdiNodes = ((ImdiTableModel) ((LinorgSplitPanel) currentComponent).imdiTable.getModel()).getImdiNodesURLs();
                             Vector currentNodesVector = new Vector();
-                            while (windowImdiNodes.hasMoreElements()) {
-                                currentNodesVector.add(windowImdiNodes.nextElement().toString());
+                            for (String currentUrlString : ((ImdiTableModel) ((LinorgSplitPanel) currentComponent).imdiTable.getModel()).getImdiNodesURLs()) {
+                                currentNodesVector.add(currentUrlString);
                             }
                             windowListHashtable.put(currentWindowName, currentNodesVector);
                             System.out.println("saved");
