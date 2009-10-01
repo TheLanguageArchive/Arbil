@@ -4,7 +4,9 @@ import java.awt.Component;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Enumeration;
 import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -50,6 +52,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem openXmlMenuItemFormatted;
     static private ContextMenu singleInstance = null;
     ImdiTreeObject[] selectedTreeNodes = null;
+    ImdiTreeObject leadSelectedTreeNode = null;
 
     static synchronized public ContextMenu getSingleInstance() {
         System.out.println("ContextMenu getSingleInstance");
@@ -112,7 +115,12 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    copyImdiUrlMenuItemActionPerformed(evt);
+                    if (selectedTreeNodes == null) {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Copy");
+                    } else {
+                        ImdiTree sourceTree = (ImdiTree) treePopupMenu.getInvoker();
+                        sourceTree.copyNodeUrlToClipboard(selectedTreeNodes);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -126,7 +134,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    pasteMenuItem1ActionPerformed(evt);
+                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                        currentNode.pasteIntoNode();
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -168,7 +178,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    reloadSubnodesMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                        // this reload will first clear the save is required flag then reload
+                        currentNode.reloadNode();
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -187,10 +200,10 @@ public class ContextMenu {
             }
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                if (addMenu.getActionCommand().equals("favourites")) {
-                    GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.favouritesTree).getSingleSelectedNode());
-                } else {
-                    GuiHelper.getSingleInstance().initAddMenu(addMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSingleSelectedNode());
+                try {
+                    initAddMenu(addMenu, leadSelectedTreeNode);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
                 }
             }
         });
@@ -222,7 +235,7 @@ public class ContextMenu {
             }
 
             public void menuSelected(javax.swing.event.MenuEvent evt) {
-                GuiHelper.getSingleInstance().initAddFromFavouritesMenu(addFromFavouritesMenu, ((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSingleSelectedNode());
+                initAddFromFavouritesMenu();
             }
         });
 
@@ -231,7 +244,7 @@ public class ContextMenu {
 
         mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
 
-        favouritesMenu.add(mergeWithFavouritesMenu);
+//        favouritesMenu.add(mergeWithFavouritesMenu);
         treePopupMenu.add(favouritesMenu);
         deleteMenuItem.setText("Delete");
 
@@ -269,7 +282,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), false, false);
+                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                        GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, false, false);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -283,7 +298,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, false);
+                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                        GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, false);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -296,7 +313,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    GuiHelper.getSingleInstance().openImdiXmlWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode(), true, true);
+                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                        GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, true);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -444,7 +463,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-//                    LinorgWindowManager.getSingleInstance().openDiffWindow(((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
+//                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+//                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
+//                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -517,19 +538,6 @@ public class ContextMenu {
             }
         }
     }
-
-    private void copyImdiUrlMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_copyImdiUrlMenuItemActionPerformed
-        // TODO add your handling code here:    
-        //DefaultMutableTreeNode selectedTreeNode = null;   
-        ImdiTree sourceTree = (ImdiTree) treePopupMenu.getInvoker();
-        ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
-        if (selectedImdiNodes == null) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Copy");
-        } else {
-            sourceTree.copyNodeUrlToClipboard(selectedImdiNodes);
-        }
-    }//GEN-LAST:event_copyImdiUrlMenuItemActionPerformed
 
     private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_addRemoteCorpusMenuItemActionPerformed
@@ -611,25 +619,13 @@ public class ContextMenu {
     //GEN-LAST:event_sendToServerMenuItemActionPerformed
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_validateMenuItemActionPerformed
-        // TODO add your handling code here:  
-        XsdChecker xsdChecker = new XsdChecker();
-
-        LinorgWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
-// TODO: check the node type before passing
-        xsdChecker.checkXML((ImdiTreeObject) ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode());
-
-        xsdChecker.setDividerLocation(0.5);
-
-    }//GEN-LAST:event_validateMenuItemActionPerformed
-
-    private void reloadSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_reloadSubnodesMenuItemActionPerformed
-        // TODO add your handling code here:    
-        // this reload will first clear the save is required flag then reload   
-        ((ImdiTreeObject) ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode()).reloadNode();
-
-    }//GEN-LAST:event_reloadSubnodesMenuItemActionPerformed
+        for (ImdiTreeObject currentNode : selectedTreeNodes) {
+            XsdChecker xsdChecker = new XsdChecker();
+            LinorgWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
+            xsdChecker.checkXML(currentNode);
+            xsdChecker.setDividerLocation(0.5);
+        }
+    }
 
     private void openFileInBrowser(ImdiTreeObject[] selectedNodes) {
         for (ImdiTreeObject currentNode : selectedNodes) {
@@ -655,21 +651,107 @@ public class ContextMenu {
         // export the tree, maybe adjusting resource links so that resource files do not need to be copied
         try {
             ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
-            importExportDialog.exportImdiBranch(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+            importExportDialog.selectExportDirectoryAndExport(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
     }//GEN-LAST:event_exportMenuItemActionPerformed
 
-    private void pasteMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_pasteMenuItem1ActionPerformed// TODO add your handling code here:  
-        Object targetNode = ((ImdiTree) treePopupMenu.getInvoker()).getSingleSelectedNode();
-
-        if (targetNode instanceof ImdiTreeObject && targetNode != null) {
-            ((ImdiTreeObject) targetNode).pasteIntoNode();
-
+    public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
+        addMenu.removeAll();
+//        System.out.println("initAddMenu: " + targetNodeUserObject);
+        ArbilTemplate currentTemplate;
+        if (targetNodeUserObject instanceof ImdiTreeObject) {
+            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
+        } else {
+            currentTemplate = ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
         }
-    }//GEN-LAST:event_pasteMenuItem1ActionPerformed  
+        for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+            String[] currentField = (String[]) menuItemName.nextElement();
+//            System.out.println("MenuText: " + currentField[0]);
+//            System.out.println("ActionCommand: " + currentField[1]);
+
+            JMenuItem addMenuItem;
+            addMenuItem = new javax.swing.JMenuItem();
+            addMenuItem.setText(currentField[0]);
+            addMenuItem.setName(currentField[0]);
+            addMenuItem.setActionCommand(currentField[1]);
+            addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    try {
+//                        boolean nodesFoundToAddTo = false;
+//                        for (ImdiTreeObject currentNode : selectedTreeNodes) {
+//                            if (currentNode != null) {
+//                                currentNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+//                                nodesFoundToAddTo = true;
+//                            }
+//                        }
+//                        if (!nodesFoundToAddTo) {
+//                            // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+//                            ImdiTreeObject imdiTreeObject;
+//                            imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+//                            imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+//                        }
+                        if (leadSelectedTreeNode != null) {
+                            leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                        } else {
+                            // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+                            ImdiTreeObject imdiTreeObject;
+                            imdiTreeObject = new ImdiTreeObject("", LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+                            imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                        }
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
+            addMenu.add(addMenuItem);
+        }
+    }
+
+    public void initAddFromFavouritesMenu() {
+        addFromFavouritesMenu.removeAll();
+        for (Enumeration menuItemName = LinorgFavourites.getSingleInstance().listFavouritesFor(leadSelectedTreeNode); menuItemName.hasMoreElements();) {
+            String[] currentField = (String[]) menuItemName.nextElement();
+//            System.out.println("MenuText: " + currentField[0]);
+//            System.out.println("ActionCommand: " + currentField[1]);
+
+            JMenuItem addFavouriteMenuItem;
+            addFavouriteMenuItem = new javax.swing.JMenuItem();
+            addFavouriteMenuItem.setText(currentField[0]);
+            addFavouriteMenuItem.setName(currentField[0]);
+            addFavouriteMenuItem.setActionCommand(currentField[1]);
+            addFavouriteMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    try {
+                        String imdiFavouriteUrlString = evt.getActionCommand();
+                        ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject(null, imdiFavouriteUrlString);
+                        if (leadSelectedTreeNode != null) {
+                            leadSelectedTreeNode.requestAddNode(((JMenuItem) evt.getSource()).getText(), templateImdiObject);
+                        }
+//                    treeHelper.getImdiChildNodes(targetNode);
+//                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
+//                    imdiLoader.getImdiObject("", addedNodeUrlString).requestMerge(imdiLoader.getImdiObject("", imdiTemplateUrlString));
+//                    loop child nodes and insert them into the new node
+//                    ImdiTreeObject templateImdiObject = GuiHelper.imdiLoader.getImdiObject("", imdiTemplateUrlString);
+//                    ImdiTreeObject targetImdiObject = GuiHelper.imdiLoader.getImdiObject("", addedNodeUrl);
+//
+//                    for (Enumeration<ImdiTreeObject> childTemplateEnum = templateImdiObject.getChildEnum(); childTemplateEnum.hasMoreElements();) {
+//                        ImdiTreeObject currentTemplateChild = childTemplateEnum.nextElement();
+//                        String addedNodeUrl = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(currentTemplateChild.getUrlString()), currentTemplateChild.toString());
+//                        linorgFavourites.mergeFromFavourite(addedNodeUrl, imdiTemplateUrlString, true);
+//                    }
+//                    treeHelper.reloadLocalCorpusTree(targetNode);
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
+            addFromFavouritesMenu.add(addFavouriteMenuItem);
+        }
+    }
 
     public void showTreePopup(Object eventSource, int posX, int posY) {
 
@@ -679,8 +761,9 @@ public class ContextMenu {
         if (selectionCount > 0) {
             nodeLevel = ((javax.swing.JTree) eventSource).getSelectionPath().getPathCount();
         }
-        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
+//        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
         selectedTreeNodes = ((ImdiTree) eventSource).getSelectedNodes();
+        leadSelectedTreeNode = ((ImdiTree) eventSource).getLeadSelectionNode();
         boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
         boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
         //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
@@ -720,25 +803,22 @@ public class ContextMenu {
             copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
         }
-        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.favouritesTree) {
-            addMenu.setActionCommand("favourites");
-        } else if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
-            addMenu.setActionCommand("LocalCorpusTree");
+        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
             viewSelectedNodesMenuItem.setText("View/Edit Selected");
             //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
             pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
             searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
             // a corpus can be added even at the root node
-            addMenu.setVisible(selectionCount > 0); // && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
+            addMenu.setVisible(selectionCount == 1); // && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
             deleteMenuItem.setVisible(nodeLevel > 1);
             boolean nodeIsImdiChild = false;
-            if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
-                nodeIsImdiChild = ((ImdiTreeObject) leadSelectedTreeObject).isImdiChild();
-                if (((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk) {
-                   // saveMenuItem.setVisible(true);
-                } else if (((ImdiTreeObject) leadSelectedTreeObject).needsChangesSentToServer()) {
+            if (leadSelectedTreeNode != null) {
+                nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
+                if (leadSelectedTreeNode.needsSaveToDisk) {
+                    // saveMenuItem.setVisible(true);
+                } else if (leadSelectedTreeNode.needsChangesSentToServer()) {
                     viewChangesMenuItem.setVisible(true);
                     sendToServerMenuItem.setVisible(true);
                 }
@@ -761,16 +841,17 @@ public class ContextMenu {
                 showHiddenFilesMenuItem.setVisible(true);
             }
             addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
-            if (leadSelectedTreeObject instanceof ImdiTreeObject) {
-                copyBranchMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isCorpus() || ((ImdiTreeObject) leadSelectedTreeObject).isSession());
+            if (leadSelectedTreeNode != null) {
+                copyBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus() || leadSelectedTreeNode.isSession());
             }
         }
-        if (leadSelectedTreeObject != null && leadSelectedTreeObject instanceof ImdiTreeObject) {
-            saveMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).needsSaveToDisk);// save sould always be available if the node has been edited
-            addToFavouritesMenuItem.setVisible(((ImdiTreeObject) leadSelectedTreeObject).isImdi());
-            addToFavouritesMenuItem.setEnabled(!((ImdiTreeObject) leadSelectedTreeObject).isCorpus() && ((ImdiTreeObject) leadSelectedTreeObject).isImdi());
-            if (((ImdiTreeObject) leadSelectedTreeObject).isFavorite()) {
-                //addMenu.setVisible(true);// TODO; resolve the issues adding to a favourites session
+        if (leadSelectedTreeNode != null) {
+            saveMenuItem.setVisible(leadSelectedTreeNode.needsSaveToDisk);// save sould always be available if the node has been edited
+            addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isImdi());
+            addToFavouritesMenuItem.setEnabled(!leadSelectedTreeNode.isCorpus() && leadSelectedTreeNode.isImdi());
+            if (leadSelectedTreeNode.isFavorite()) {
+                addMenu.setVisible(selectedTreeNodes.length == 1);// for now adding is limited to single node selections
+                viewSelectedNodesMenuItem.setText("View/Edit Selected");
                 addToFavouritesMenuItem.setText("Remove From Favourites List");
                 addToFavouritesMenuItem.setActionCommand("false");
                 deleteMenuItem.setEnabled(false);
@@ -779,7 +860,6 @@ public class ContextMenu {
                 addToFavouritesMenuItem.setActionCommand("true");
             }
         } else {
-            addMenu.setActionCommand(null);
             addToFavouritesMenuItem.setVisible(false);
         }
         viewInBrrowserMenuItem.setVisible(nodeLevel > 1);
