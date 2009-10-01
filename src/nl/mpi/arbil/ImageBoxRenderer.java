@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Hashtable;
@@ -27,6 +28,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     int outputHeight = 130;
     int textStartX = 0;
     int textStartY = 0;
+    boolean ffmpegFound = true;
     Hashtable<String, ImageIcon> thumbNailHash = new Hashtable<String, ImageIcon>();
 
     public ImageBoxRenderer() {
@@ -46,6 +48,9 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             return true;
         }
         if (testableObject.mpiMimeType.toLowerCase().contains("image")) {
+                return true;
+        }
+        if (testableObject.mpiMimeType.toLowerCase().contains("video")) {
             return true;
         }
         return false;
@@ -85,6 +90,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                     if (targetFile != null && targetFile.length() > 0) {
                         try {
                             if (((ImdiTreeObject) value).mpiMimeType.contains("video")) {
+                                thumbnailIcon = getVideoIcon(new URL(targetFile));
                             } else {
 //                    System.out.println("targetFile: " + targetFile);
 //                        int outputWidth = 32;
@@ -153,5 +159,29 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
+    private ImageIcon getVideoIcon(URL targetURL) {
+        String iconFileName = targetURL.getFile() + outputWidth + "x" + outputHeight + ".jpg";
+        if (ffmpegFound && !new File(iconFileName).exists()) {
+            try {
+                String execString = "ffmpeg  -itsoffset -4  -i " + targetURL.getFile() + " -vframes 1 -s " + outputWidth + "x" + outputHeight + " " + iconFileName;
+                System.out.println(execString);
+                Process launchedProcess = Runtime.getRuntime().exec(execString);
+                BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                String line;
+                while ((line = errorStreamReader.readLine()) != null) {
+                    ffmpegFound = false;
+                    System.out.println("Launched process error stream: \"" + line + "\"");
+                }
+                new File(iconFileName).deleteOnExit();
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+        if (new File(iconFileName).exists()) {
+            return new ImageIcon(iconFileName);
+        } else {
+            return null;
+        }
+    }
 }
 
