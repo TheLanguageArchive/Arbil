@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Hashtable;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -19,7 +19,7 @@ import javax.swing.ListCellRenderer;
 
 /**
  * Document   : ImageBoxRenderer
- * Created on : 
+ * Created on : Wed Dec 03 15:44:20
  * @author Peter.Withers@mpi.nl
  */
 class ImageBoxRenderer extends JLabel implements ListCellRenderer {
@@ -29,9 +29,11 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     int textStartX = 0;
     int textStartY = 0;
     boolean ffmpegFound = true;
-    Hashtable<String, ImageIcon> thumbNailHash = new Hashtable<String, ImageIcon>();
+    boolean imageMagickFound = true;
+    // the thumbnail files are stored in a temp file on disk and the file location kept in the imditreeobject
 
     public ImageBoxRenderer() {
+//        setBorder(new DashedBorder(Color.DARK_GRAY));
         setOpaque(true);
         setHorizontalAlignment(CENTER);
         setVerticalAlignment(CENTER);
@@ -40,20 +42,31 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         setPreferredSize(new Dimension(outputWidth + 10, outputHeight + 50));
     }
 
-    static public boolean canDisplay(ImdiTreeObject testableObject) {
+    // returns a boolean value indicating if the node has or can have a thumbnail
+    // if it can but does not yet then a thumbnail will be made
+    public boolean canDisplay(ImdiTreeObject testableObject) {
+        if (testableObject.thumbnailFile != null) {
+            return true;
+        }
         if (testableObject.mpiMimeType == null) {
             return false;
         }
         if (testableObject.mpiMimeType.toLowerCase().contains("text")) {
-            return true;
+            createThumbnail(testableObject);
         }
         if (testableObject.mpiMimeType.toLowerCase().contains("image")) {
-                return true;
+            createImageThumbnail(testableObject);
+            if (testableObject.thumbnailFile == null) {
+                if (testableObject.mpiMimeType.toLowerCase().contains("jp") || testableObject.mpiMimeType.toLowerCase().contains("gif")) {
+                    //  if we get here then resourt to creating the thumbnail in java
+                    createThumbnail(testableObject);
+                }
+            }
         }
         if (testableObject.mpiMimeType.toLowerCase().contains("video")) {
-            return true;
+            createVideoThumbnail(testableObject);
         }
-        return false;
+        return testableObject.thumbnailFile != null;
     }
 
     /*
@@ -73,55 +86,16 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             setBackground(list.getBackground());
             setForeground(list.getForeground());
         }
-
-        //Set the icon and text.  If icon was null, say so.
+        //Set the icon and text.
         if (value instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) value).mpiMimeType != null) {
-                ImdiTreeObject imdiObject = (ImdiTreeObject) value;
-                setText(imdiObject.toString());
-                String targetFile = "";
-                if (imdiObject.hasResource()) {
-                    targetFile = imdiObject.getFullResourcePath();
-                } else if (imdiObject.isArchivableFile()) {
-                    targetFile = imdiObject.getUrlString();
-                }
-                ImageIcon thumbnailIcon = thumbNailHash.get(targetFile);
-                if (thumbnailIcon == null) {
-                    if (targetFile != null && targetFile.length() > 0) {
-                        try {
-                            if (((ImdiTreeObject) value).mpiMimeType.contains("video")) {
-                                thumbnailIcon = getVideoIcon(new URL(targetFile));
-                            } else {
-//                    System.out.println("targetFile: " + targetFile);
-//                        int outputWidth = 32;
-//                        int outputHeight = 32;
-//                        int outputWidth = getPreferredSize().width;
-//                        int outputHeight = getPreferredSize().height - 100;
-                                BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
-                                Graphics2D g2 = resizedImg.createGraphics();
-                                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-                                if (((ImdiTreeObject) value).mpiMimeType.contains("image")) {
-                                    ImageIcon nodeImage = new ImageIcon(new URL(targetFile).getFile());
-                                    if (nodeImage != null) {
-                                        g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
-                                    }
-                                } else if (((ImdiTreeObject) value).mpiMimeType.contains("text")) {
-                                    drawFileText(g2, new URL(targetFile));
-                                }
-                                g2.dispose();
-                                thumbnailIcon = new ImageIcon(resizedImg);
-                                thumbNailHash.put(targetFile, thumbnailIcon);
-                                setFont(list.getFont());
-                            }
-                        } catch (Exception ex) {
-                            setText(value.toString() + " (failed to render image)");
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                }
-                if (thumbnailIcon != null) {
-                    setIcon(thumbnailIcon);
+            ImdiTreeObject imdiObject = (ImdiTreeObject) value;
+            setFont(list.getFont());
+            setText(imdiObject.toString());
+            if (imdiObject.thumbnailFile != null) {
+                try {
+                    setIcon(new ImageIcon(imdiObject.thumbnailFile.toURL()));
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
                 }
             }
         } else {
@@ -159,29 +133,93 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private ImageIcon getVideoIcon(URL targetURL) {
-        String iconFileName = targetURL.getFile() + outputWidth + "x" + outputHeight + ".jpg";
-        if (ffmpegFound && !new File(iconFileName).exists()) {
+    private String getTargetFileString(ImdiTreeObject targetImdiObject) {
+        if (targetImdiObject.hasResource()) {
+            return targetImdiObject.getFullResourcePath();
+        } else if (targetImdiObject.isArchivableFile()) {
+            return targetImdiObject.getUrlString();
+        } else {
+            return null;
+        }
+    }
+
+    private void createVideoThumbnail(ImdiTreeObject targetImdiObject) {
+        if (ffmpegFound) {
             try {
-                String execString = "ffmpeg  -itsoffset -4  -i " + targetURL.getFile() + " -vframes 1 -s " + outputWidth + "x" + outputHeight + " " + iconFileName;
+                File iconFile = File.createTempFile("arbil", ".jpg");
+                URL targetURL = new URL(getTargetFileString(targetImdiObject));
+                String execString = "ffmpeg  -itsoffset -4  -i " + targetURL.getFile() + " -vframes 1 -s " + outputWidth + "x" + outputHeight + " " + iconFile.getAbsolutePath();
+//                System.out.println(execString);
+                Process launchedProcess = Runtime.getRuntime().exec(execString);
+                BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                String line;
+                while ((line = errorStreamReader.readLine()) != null) {
+//                    ffmpegFound = false;
+                    System.out.println("Launched process error stream: \"" + line + "\"");
+                }
+                iconFile.deleteOnExit();
+                if (iconFile.exists()) {
+                    targetImdiObject.thumbnailFile = iconFile;
+                }
+//        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
+//            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
+            } catch (Exception ex) {
+                ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+    }
+
+    private void createImageThumbnail(ImdiTreeObject targetImdiObject) {
+        if (imageMagickFound) {
+            try {
+                File iconFile = File.createTempFile("arbil", ".jpg");
+                URL targetURL = new URL(getTargetFileString(targetImdiObject));
+                String execString = "convert -define jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2 + " " + targetURL.getFile() + " -auto-orient -thumbnail " + outputWidth + "x" + outputHeight + " -unsharp 0x.5 " + iconFile.getAbsolutePath();
                 System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
                 String line;
                 while ((line = errorStreamReader.readLine()) != null) {
-                    ffmpegFound = false;
+//                    ffmpegFound = false;
                     System.out.println("Launched process error stream: \"" + line + "\"");
                 }
-                new File(iconFileName).deleteOnExit();
+                iconFile.deleteOnExit();
+                if (iconFile.exists()) {
+                    targetImdiObject.thumbnailFile = iconFile;
+                }
+//        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
+//            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
             } catch (Exception ex) {
+                imageMagickFound = false; //todo this is not getting hit when x is not available
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
-        if (new File(iconFileName).exists()) {
-            return new ImageIcon(iconFileName);
-        } else {
-            return null;
+    }
+
+    private void createThumbnail(ImdiTreeObject targetImdiObject) {
+        try {
+            BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2 = resizedImg.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            if (((ImdiTreeObject) targetImdiObject).mpiMimeType.contains("image")) {
+                ImageIcon nodeImage = new ImageIcon(new URL(getTargetFileString(targetImdiObject)).getFile());
+                if (nodeImage != null) {
+                    g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
+                }
+            } else if (targetImdiObject.mpiMimeType.contains("text")) {
+                drawFileText(g2, new URL(getTargetFileString(targetImdiObject)));
+            }
+            g2.dispose();
+            File iconFile = File.createTempFile("arbil", ".jpg");
+            ImageIO.write(resizedImg, "JPEG", iconFile);
+            if (iconFile.exists()) {
+                targetImdiObject.thumbnailFile = iconFile;
+            }
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
         }
     }
 }
+
 
