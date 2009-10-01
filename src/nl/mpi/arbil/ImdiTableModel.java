@@ -872,6 +872,12 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
+    public void highlightMatchingText(String highlightText) {
+        highlightCells.add(highlightText);
+        cellColour = setCellColours(data);
+        fireTableDataChanged();
+    }
+
     public void highlightMatchingCells(int row, int col) {
         highlightCells.add(new ImdiTableCellRenderer(data[row][col]).getText());
         cellColour = setCellColours(data);
