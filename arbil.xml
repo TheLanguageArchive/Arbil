@@ -26,18 +26,18 @@
         <mkdir dir="${distributionDirectory}"/>
         <desktopEntry
             toFile="${distributionDirectory}/${package.name}.desktop"
-            name="${package.name}"
+            name="Arbil"
             comment="Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving."
             exec="java -jar /usr/share/${package.name}/${package.jarname}"
             path="/usr/share/${package.name}/"
             icon="/usr/share/${package.name}/${package.iconname}"
-            categories="Utility;FileTools;Java"
+            categories="Office;Science;Java"
         />
         <deb
             todir="${distributionDirectory}"
             package="${package.name}"
             section="devel"
-            depends="sun-java5-jre | sun-java6-jre"
+            depends="sun-java5-jre | sun-java6-jre, ffmpeg, imagemagick"
         >
             <version upstream="${linorg.current.major}.${linorg.current.minor}" debian="${linorg.current.revision}"/>
             <maintainer name="Peter Withers" email="Peter.Withers@mpi.nl"/>
@@ -51,7 +51,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <tarfileset dir="${LIBDIR}" prefix="usr/share/${package.name}/lib">
                 <include name="*.jar"/>
             </tarfileset>
-            <tarfileset file="${distributionDirectory}/${package.name}.desktop" prefix="usr/share/${package.name}"/>
+            <tarfileset file="${distributionDirectory}/${package.name}.desktop" prefix="usr/share/applications/"/>
         </deb>
     </target>
 <!-- end package creation -->
