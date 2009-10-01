@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,6 +47,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
     Component editorComponent = null;
 //    boolean receivedKeyDown = false;
     Object[] cellValue;
+    int languageSelectWidth = 100;
     int selectedField = -1;
     JTextArea fieldEditors[] = null;
     JTextField keyEditorFields[] = null;
@@ -93,6 +95,52 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 }
             }
         });
+    }
+
+    private boolean requiresLongFieldEditor() {
+        boolean requiresLongFieldEditor = false;
+        if (cellValue instanceof ImdiField[]) {
+            FontMetrics fontMetrics = button.getGraphics().getFontMetrics();
+            double availableWidth = parentCellRect.getWidth();
+            ImdiField[] iterableFields;
+            if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
+                iterableFields = (ImdiField[]) cellValue;
+            } else {
+                iterableFields = new ImdiField[]{((ImdiField[]) cellValue)[selectedField]};
+            }
+            for (ImdiField currentField : iterableFields) {
+//                if (!currentField.hasVocabulary()) { // the vocabulary type field should not get here
+                String fieldValue = currentField.getFieldValue();
+                // calculate length and look for line breaks
+                if (fieldValue.contains("\n")) {
+                    requiresLongFieldEditor = true;
+                    break;
+                } else {
+                    int requiredWidth = fontMetrics.stringWidth(fieldValue);
+                    System.out.println("requiredWidth: " + requiredWidth + " availableWidth: " + availableWidth);
+                    String fieldLanguageId = currentField.getLanguageId();
+                    if (fieldLanguageId != null) {
+                        requiredWidth += languageSelectWidth;
+                    }
+                    if (requiredWidth > availableWidth) {
+                        requiresLongFieldEditor = true;
+                        break;
+                    }
+                }
+//                }
+            }
+        }
+        return requiresLongFieldEditor;
+    }
+
+    private boolean isCellEditable() {
+        boolean returnValue = false;
+        if (cellValue instanceof ImdiField[]) {
+            ImdiTreeObject parentObject = ((ImdiField[]) cellValue)[0].parentImdi;
+            // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
+            returnValue = parentObject.isLocal() && parentObject.isImdi() && ((ImdiField[]) cellValue)[0].fieldID != null;
+        }
+        return (returnValue);
     }
 
     private boolean isStartLongFieldKey(KeyEvent evt) {
@@ -192,7 +240,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     }
                 }
             });
-            comboBox.setPreferredSize(new Dimension(80, parentCellRect.height));
+            comboBox.setPreferredSize(new Dimension(languageSelectWidth, parentCellRect.height));
             return comboBox;
         } else {
             return null;
@@ -230,8 +278,9 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         System.out.println("startEditorMode: " + selectedField + " lastKeyInt: " + lastKeyInt + " lastKeyChar: " + lastKeyChar);
         removeAllFocusListners();
         if (cellValue instanceof ImdiField[]) {
-            if (!ctrlDown && selectedField != -1 && !((ImdiField) cellValue[selectedField]).isLongField()) {
-                if (((ImdiField) cellValue[selectedField]).hasVocabulary()) {
+            if (((ImdiField) cellValue[0]).hasVocabulary()) {
+                if (isCellEditable()) {
+                    // if the cell has a vocabulary then prevent the long field editor
                     System.out.println("Has Vocabulary");
                     JComboBox comboBox = new JComboBox();
                     ImdiVocabularies.Vocabulary fieldsVocabulary = ((ImdiField) cellValue[selectedField]).getVocabulary();
@@ -258,7 +307,9 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     editorComponent = comboBox;
                     addFocusListener(comboBox);
                     addFocusListener(comboBox.getEditor().getEditorComponent());
-                } else {
+                }
+            } else if (!ctrlDown && selectedField != -1 && !requiresLongFieldEditor()) {
+                if (isCellEditable()) {
                     editorPanel.remove(button);
                     editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
                     String currentCellString = cellValue[selectedField].toString();
