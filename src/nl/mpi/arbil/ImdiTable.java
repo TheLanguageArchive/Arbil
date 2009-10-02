@@ -98,6 +98,23 @@ public class ImdiTable extends JTable {
                             }
                         }
                     });
+                    popupMenu.add(hideColumnMenuItem);
+
+                    if (imdiTableModel.horizontalView) {
+                    JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+                    showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
+                    showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            try {
+                                showRowChildData();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
+                        }
+                    });
+                    popupMenu.add(showChildNodesMenuItem);
+                }
 
                     JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
                     saveViewMenuItem.addActionListener(new ActionListener() {
@@ -117,6 +134,7 @@ public class ImdiTable extends JTable {
                             }
                         }
                     });
+                    popupMenu.add(saveViewMenuItem);
 
                     JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
                     editViewMenuItem.addActionListener(new ActionListener() {
@@ -136,6 +154,7 @@ public class ImdiTable extends JTable {
                             }
                         }
                     });
+                    popupMenu.add(editViewMenuItem);
 
                     JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Show Only Current Columns");
                     showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
@@ -149,12 +168,11 @@ public class ImdiTable extends JTable {
                             }
                         }
                     });
+                    popupMenu.add(showOnlyCurrentViewMenuItem);
+
                     //popupMenu.add(applyViewNenuItem);
                     //popupMenu.add(saveViewMenuItem);
-                    popupMenu.add(editViewMenuItem);
-                    popupMenu.add(showOnlyCurrentViewMenuItem);
-                    popupMenu.add(saveViewMenuItem);
-                    popupMenu.add(hideColumnMenuItem);
+
                     // create the views sub menu
                     JMenu fieldViewsMenuItem = new JMenu("Apply Saved Column View");
                     ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
@@ -323,22 +341,6 @@ public class ImdiTable extends JTable {
                 }
 
                 if (imdiTableModel.horizontalView) {
-                    JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-                    showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
-                    showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                showRowChildData();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(showChildNodesMenuItem);
-                }
-
-                if (imdiTableModel.horizontalView) {
                     JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
                     removeSelectedRowsMenuItem.setText("Remove Selected Rows");
                     removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -352,6 +354,20 @@ public class ImdiTable extends JTable {
                         }
                     });
                     windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
+
+                    JMenuItem hideSelectedColumnsMenuItem = new javax.swing.JMenuItem();
+                    hideSelectedColumnsMenuItem.setText("Hide Selected Columns");
+                    hideSelectedColumnsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            try {
+                                    hideSelectedColumnsFromTable();
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
+                            }
+                        }
+                    });
+                    windowedTablePopupMenu.add(hideSelectedColumnsMenuItem);
                 }
                 boolean canDeleteSelectedFields = true;
                 ImdiField[] currentSelection = getSelectedFields();
@@ -752,6 +768,12 @@ public class ImdiTable extends JTable {
     public ImdiTreeObject[] getSelectedRowsFromTable() {
         int[] selectedRows = this.getSelectedRows();
         return imdiTableModel.getSelectedImdiNodes(selectedRows);
+    }
+
+    public void hideSelectedColumnsFromTable() {
+        for (int selectedRows : this.getSelectedColumns()) {
+            imdiTableModel.hideColumn(convertColumnIndexToModel(selectedRows));
+        }
     }
 
     public void removeSelectedRowsFromTable() {
