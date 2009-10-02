@@ -2,6 +2,8 @@ package nl.mpi.arbil;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -39,6 +41,21 @@ public class LinorgSplitPanel extends JPanel {
         splitPane = new JSplitPane();
         hiddenColumnsLabel = new JLabel();
         tableScrollPane = new JScrollPane(imdiTable);
+        tableScrollPane.addComponentListener(new ComponentListener() {
+
+            public void componentResized(ComponentEvent e) {
+                imdiTable.setColumnWidths();
+            }
+
+            public void componentMoved(ComponentEvent e) {
+            }
+
+            public void componentShown(ComponentEvent e) {
+            }
+
+            public void componentHidden(ComponentEvent e) {
+            }
+        });
         tableOuterPanel = new JPanel(new BorderLayout());
         tableOuterPanel.add(tableScrollPane, BorderLayout.CENTER);
         tableOuterPanel.add(hiddenColumnsLabel, BorderLayout.SOUTH);
