@@ -3,7 +3,6 @@ package nl.mpi.arbil;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -235,7 +234,36 @@ public class ImdiTableModel extends AbstractTableModel {
         removeImdiObjects(nodesToRemove.elements());
     }
 
-    public void copyImdiFields(ImdiField[] selectedCells, ClipboardOwner clipBoardOwner) {
+    // utility to join an array to a comma separated string
+    private String joinArray(Object[] arrayToJoin) {
+        String joinedString = "";
+        for (Object currentArrayItem : arrayToJoin) {
+            joinedString = joinedString + "," + currentArrayItem.toString();
+        }
+        if (joinedString.length() > 1) {
+            joinedString = joinedString.substring(1);
+        }
+        return joinedString;
+    }
+
+    public void copyHtmlEmbedTagToClipboard(int tableHeight, int tableWidth) {
+        try {
+            String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/linorg/\" CODE=\"nl.mpi.arbil.ArbilTableApplet.class\" ARCHIVE=\"arbil-0-4-16575.jar,lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/typecheck.jar,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar\"";
+            embedTagString = embedTagString + " WIDTH=" + tableWidth + " HEIGHT=" + tableHeight + " >\n";
+            embedTagString = embedTagString + "  <PARAM NAME=\"ImdiFileList\" VALUE=\"" + joinArray(this.getImdiNodesURLs()) + "\">\n";
+            embedTagString = embedTagString + "  <PARAM NAME=\"ShowOnlyColumns\" VALUE=\"" + joinArray(this.columnNames) + "\">\n";
+            embedTagString = embedTagString + "  <PARAM NAME=\"ChildNodeColumns\" VALUE=\"" + joinArray(this.childColumnNames.toArray()) + "\">\n";
+            embedTagString = embedTagString + "  <PARAM NAME=\"HighlightText\" VALUE=\"" + joinArray(this.highlightCells.toArray()) + "\">\n";
+            embedTagString = embedTagString + "</APPLET>";
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection stringSelection = new StringSelection(embedTagString);
+            clipboard.setContents(stringSelection, GuiHelper.clipboardOwner);
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+    }
+
+    public void copyImdiFields(ImdiField[] selectedCells) {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
         copiedString = copiedString + "\"" + singleNodeViewHeadings[0] + "\"" + csvSeparator;
@@ -254,10 +282,10 @@ public class ImdiTableModel extends AbstractTableModel {
         System.out.println("copiedString: " + copiedString);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(copiedString);
-        clipboard.setContents(stringSelection, clipBoardOwner);
+        clipboard.setContents(stringSelection, GuiHelper.clipboardOwner);
     }
 
-    public void copyImdiRows(int[] selectedRows, ClipboardOwner clipBoardOwner) {
+    public void copyImdiRows(int[] selectedRows) {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
         int firstColumn = 0;
@@ -288,7 +316,7 @@ public class ImdiTableModel extends AbstractTableModel {
         System.out.println("copiedString: " + copiedString);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(copiedString);
-        clipboard.setContents(stringSelection, clipBoardOwner);
+        clipboard.setContents(stringSelection, GuiHelper.clipboardOwner);
     }
 
     public String pasteIntoImdiFields(ImdiField[] selectedCells) {
