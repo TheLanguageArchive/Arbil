@@ -28,7 +28,6 @@ import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableColumn;
 
 /**
  * Document   : ImdiTable
@@ -181,6 +180,24 @@ public class ImdiTable extends JTable {
                         fieldViewsMenuItem.add(viewLabelMenuItem);
                     }
                     popupMenu.add(fieldViewsMenuItem);
+
+                    JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
+                    copyEmbedTagMenuItem.addActionListener(new ActionListener() {
+
+                        public void actionPerformed(ActionEvent e) {
+                            // find the table dimensions
+                            Component sizedComponent = ImdiTable.this;
+                            Component currentComponent = ImdiTable.this;
+                            while (currentComponent.getParent() != null) {
+                                currentComponent = currentComponent.getParent();
+                                if (currentComponent instanceof LinorgSplitPanel) {
+                                    sizedComponent = currentComponent;
+                                }
+                            }
+                            imdiTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
+                        }
+                    });
+                    popupMenu.add(copyEmbedTagMenuItem);
                     popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
                 }
             }
@@ -505,12 +522,13 @@ public class ImdiTable extends JTable {
         super.doLayout();
         setColumnWidths();
     }
+
     int lastColumnCount = -1;
     int lastRowCount = -1;
-//    int lastColumnPreferedWidth = 0;
+    int lastColumnPreferedWidth = 0;
     int totalPreferedWidth = 0;
 
-    private void setColumnWidths() {
+    public void setColumnWidths() {
         // resize the columns only if the number of columns or rows have changed
         boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
         lastColumnCount = this.getModel().getColumnCount();
@@ -540,24 +558,26 @@ public class ImdiTable extends JTable {
                     }
                     this.getColumnModel().getColumn(columnCounter).setPreferredWidth(currentWidth);
                     totalColumnWidth += currentWidth;
+                    lastColumnPreferedWidth = currentWidth;
 //                    this.getColumnModel().getColumn(columnCounter).setWidth(currentWidth);
                 }
                 totalPreferedWidth = totalColumnWidth;
-                if (parentWidth >= totalColumnWidth) {
+                if (parentWidth > totalColumnWidth) {
                     setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
                 } else {
                     setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                 }
             } else if (this.getParent() != null) {
-//                for (TableColumn currentColumn : this.getColumnModel().getColumns()){
-
-//                }
                 int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
                 int totalColWidth = this.getColumnModel().getTotalColumnWidth();
+                boolean lastcolumnSquished = lastColumnWidth < minWidth;
                 if (parentWidth > totalColWidth) {
                     setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-                } else if (parentWidth < totalColWidth || lastColumnWidth > minWidth) {
+                } else if (parentWidth < totalColWidth) { // if the widths are equal then don't change anything
                     setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                } else if (lastcolumnSquished) { // unless the last column is squished
+                    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                    this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).setPreferredWidth(lastColumnPreferedWidth);
                 }
             }
         } else {
@@ -662,11 +682,11 @@ public class ImdiTable extends JTable {
                 System.out.println("cell select mode");
                 ImdiField[] selectedFields = getSelectedFields();
                 if (selectedFields != null) {
-                    imdiTableModel.copyImdiFields(selectedFields, GuiHelper.clipboardOwner);
+                    imdiTableModel.copyImdiFields(selectedFields);
                 }
             } else {
                 System.out.println("row select mode");
-                imdiTableModel.copyImdiRows(selectedRows, GuiHelper.clipboardOwner);
+                imdiTableModel.copyImdiRows(selectedRows);
             }
         } else {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
