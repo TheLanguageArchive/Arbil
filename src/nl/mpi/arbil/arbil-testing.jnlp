@@ -6,7 +6,7 @@
         <offline-allowed/>
         <shortcut online="true">
             <!-- <desktop /> -->
-            <menu sub-menu="Language Archiving Tools" /> 
+            <menu sub-menu="Language Archiving Tools" />
         </shortcut>
         <update check="always" policy="prompt-run"/>
         <vendor>Max Planck Institute for Psycholinguistics</vendor>
@@ -19,7 +19,7 @@
     </security>
     <resources>
         <j2se version="1.5+"/>
-        <jar href="arbil-0-4-16478.jar" main="true" download="eager"/>
+        <jar href="arbil-0-4-16607.jar" main="true" download="eager"/>
         <jar href="lib/corpusstructure-1.6.1.jar" download="eager"/>
         <jar href="lib/imdiapi-1.0.6.jar" download="eager"/>
         <jar href="lib/log4j-1.2.14.jar" download="eager"/>
@@ -30,5 +30,6 @@
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
     </resources>
     <application-desc main-class="nl.mpi.arbil.LinorgFrame">
+        <argument>-update_via_javaws</argument>
     </application-desc>
 </jnlp>

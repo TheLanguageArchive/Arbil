@@ -2,6 +2,7 @@ package nl.mpi.arbil;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 
 /*
  * LinorgView.java
@@ -12,6 +13,7 @@ import java.awt.event.WindowEvent;
 public class LinorgFrame extends javax.swing.JFrame {
 
     private ArbilMenuBar arbilMenuBar;
+    static boolean updateViaJavaws = false;
 
     public LinorgFrame() {
         this.addWindowListener(new WindowAdapter() {
@@ -19,7 +21,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 arbilMenuBar.performCleanExit();
-            //super.windowClosing(e);
+                //super.windowClosing(e);
             }
         });
 
@@ -40,7 +42,11 @@ public class LinorgFrame extends javax.swing.JFrame {
         setVisible(true);
         LinorgWindowManager.getSingleInstance().openIntroductionPage();
         if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
-            new LinorgVersionChecker().checkForUpdate(this);
+            if (updateViaJavaws) {
+                new LinorgVersionChecker().checkForAndUpdateViaJavaws(this);
+            } else {
+                new LinorgVersionChecker().checkForUpdate(this);
+            }
         }
 
     }
@@ -71,6 +77,9 @@ public class LinorgFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        if (Arrays.asList(args).indexOf("-update_via_javaws") != -1) {
+            updateViaJavaws = true;
+        }
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
@@ -82,7 +91,7 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane mainSplitPane;
     // End of variables declaration//GEN-END:variables

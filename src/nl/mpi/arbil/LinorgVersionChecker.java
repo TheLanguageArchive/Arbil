@@ -69,6 +69,13 @@ public class LinorgVersionChecker {
 
     public void checkForUpdate(final LinorgFrame parentComponentLocal) {
         parentComponent = parentComponentLocal;
+        if (!isLatestVersion()) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+        }
+    }
+
+    public void checkForAndUpdateViaJavaws(final LinorgFrame parentComponentLocal) {
+        parentComponent = parentComponentLocal;
         //if (last check date not today)
         SwingUtilities.invokeLater(new Runnable() {
 
