@@ -527,7 +527,6 @@ public class ContextMenu {
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fc.setDialogTitle("Add Working Directory");
         int option = fc.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
-
         if (JFileChooser.APPROVE_OPTION == option) {
             try {
                 TreeHelper.getSingleInstance().addLocationGui(fc.getSelectedFile().getCanonicalPath());
@@ -698,7 +697,7 @@ public class ContextMenu {
                         } else {
                             // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
                             ImdiTreeObject imdiTreeObject;
-                            imdiTreeObject = new ImdiTreeObject("", LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+                            imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
                             imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                         }
                     } catch (Exception ex) {
