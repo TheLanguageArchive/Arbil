@@ -78,7 +78,7 @@ public class ImdiTable extends JTable {
             }
 
             private void checkTableHeaderPopup(java.awt.event.MouseEvent evt) {
-                if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
+                if (!imdiTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
                     //targetTable = ((JTableHeader) evt.getComponent()).getTable();
                     int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
                     System.out.println("columnIndex: " + targetColumn);
@@ -245,7 +245,7 @@ public class ImdiTable extends JTable {
 
     public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {
         System.out.println("checkPopup");
-        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+        if (!imdiTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
             // set the clicked cell selected
             java.awt.Point p = evt.getPoint();
             int clickedRow = rowAtPoint(p);
