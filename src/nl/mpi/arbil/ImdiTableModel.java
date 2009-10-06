@@ -36,6 +36,7 @@ public class ImdiTableModel extends AbstractTableModel {
     boolean horizontalView = false;
     private int sortColumn = -1;
     private JLabel hiddenColumnsLabel;
+    public boolean hideContextMenuAndStatusBar;
     boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
@@ -155,7 +156,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 for (ImdiField currentField : columnFields.nextElement()) {
                     String currentColumnName = currentField.getTranslateFieldName();
                     if (tableFieldView.viewShowsColumn(currentColumnName)) {
-                        if (!allColumnNames.containsValue(currentColumnName)) {
+                        if (!allColumnNames.containsKey(currentColumnName)) {
                             allColumnNames.put(currentColumnName, currentField);
                         } else {
                             // update the min id value
@@ -174,7 +175,7 @@ public class ImdiTableModel extends AbstractTableModel {
             }
         }
         if (hiddenColumnsLabel != null) {
-            hiddenColumnsLabel.setVisible(hiddenColumnCount > 0);
+            hiddenColumnsLabel.setVisible(!hideContextMenuAndStatusBar && hiddenColumnCount > 0);
             hiddenColumnsLabel.setText(hiddenColumnCount + " columns hidden (edit \"Column View\" in the table header to show)");
         }
         return returnImdiArray;
