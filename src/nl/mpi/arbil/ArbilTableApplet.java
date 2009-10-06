@@ -27,7 +27,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     private void addNodesToTable(String nodeURLsString) {
         if (nodeURLsString != null) {
             for (String currentUrlString : nodeURLsString.split(",")) {
-                imdiTableModel.addSingleImdiObject(GuiHelper.imdiLoader.getImdiObject(null, currentUrlString));
+                imdiTableModel.addSingleImdiObject(GuiHelper.imdiLoader.getImdiObject(rootPane, currentUrlString));
             }
         }
     }
@@ -60,6 +60,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
         imdiTableModel = new ImdiTableModel();
         ImdiTable imdiTable = new ImdiTable(imdiTableModel, tableTitle);
         LinorgSplitPanel imdiSplitPanel = new LinorgSplitPanel(imdiTable);
+        imdiTableModel.hideContextMenuAndStatusBar = true;
         imdiSplitPanel.setSplitDisplay();
         getContentPane().add(imdiSplitPanel, java.awt.BorderLayout.CENTER);
     }
