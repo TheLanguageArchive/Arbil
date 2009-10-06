@@ -1,8 +1,7 @@
 package nl.mpi.arbil;
 
+import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ProgressMonitor;
@@ -219,7 +218,7 @@ public class ImdiLoader {
 //        localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
 //        return imdiHashTable.get(localUrlString);
 //    }
-    public ImdiTreeObject getImdiObject(String localNodeText, String localUrlString) {
+    public ImdiTreeObject getImdiObject(Component registeringObject, String localUrlString) {
 //        System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
         ImdiTreeObject currentImdiObject = null;
         if (localUrlString.length() > 0) {
@@ -228,7 +227,8 @@ public class ImdiLoader {
             currentImdiObject = imdiHashTable.get(localUrlString);
             if (currentImdiObject == null) {
 //                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
-                currentImdiObject = new ImdiTreeObject(localNodeText, localUrlString);
+                currentImdiObject = new ImdiTreeObject(localUrlString);
+                currentImdiObject.registerContainer(registeringObject);
 //                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
                 imdiHashTable.put(localUrlString, currentImdiObject);
                 if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
@@ -245,13 +245,13 @@ public class ImdiLoader {
                 } else if (!ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString())) {
                     currentImdiObject.clearIcon();
                 }
-            } else if (localNodeText != null) {
-                // update the note text if it has been provided (will only change if not already set)
-                currentImdiObject.setNodeText(localNodeText);
             }
         }
 //        System.out.println("currentImdiObject: " + currentImdiObject);
         return currentImdiObject;
+    }
+
+    public void releaseImdiObject(String imdiUrlString) {
     }
 
     // return the node only if it has already been loaded otherwise return null
