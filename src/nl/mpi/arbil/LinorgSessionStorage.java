@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import javax.swing.JOptionPane;
 
 /**
  * Document   : LinorgSessionStorage
@@ -68,8 +69,9 @@ public class LinorgSessionStorage {
             }
         }
         if (storageDirectory == null) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.", null);
-            storageDirectory = ".arbil" + File.separatorChar;
+            //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.", null);
+            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(-1);
         }
         System.out.println("storageDirectory: " + storageDirectory);
         System.out.println("cacheDirExists: " + cacheDirExists());
