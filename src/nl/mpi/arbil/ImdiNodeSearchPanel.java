@@ -164,7 +164,9 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                             if (currentImdiNode.isLoading()) {
                                 System.out.println("searching: " + currentImdiNode.getUrlString());
                                 System.out.println("still loading so putting back into the list: " + currentImdiNode);
-                                searchNodes.add(currentImdiNode);
+                                if (!currentImdiNode.fileNotFound) {
+                                    searchNodes.add(currentImdiNode);
+                                }
                             } else {
                                 // perform the search
                                 System.out.println("searching: " + currentImdiNode);
