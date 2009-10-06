@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
@@ -196,18 +198,30 @@ public class ImdiSchema {
 //    }
 
 
-    public String addFromTemplate(File destinationFile, String templateType) {
+    public URL addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
-        String addedPathString = null;
+        URL addedPathUrl = null;
         // copy the template to disk
         URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
 //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
 //        System.out.println("templateFile: " + templateFile);
-        addedPathString = copyToDisk(templateUrl, destinationFile);
-        return addedPathString;
+        addedPathUrl = copyToDisk(templateUrl, destinationFile);
+        try {
+            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUrl), false);
+            Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
+            NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
+            LinorgVersion currentVersion = new LinorgVersion();
+            String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
+            metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
+            metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
+            ImdiTreeObject.api.writeDOM(addedDocument, new File(addedPathUrl.getFile()), false);
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+        return addedPathUrl;
     }
 
-    private String copyToDisk(URL sourceURL, File targetFile) {
+    private URL copyToDisk(URL sourceURL, File targetFile) {
         try {
             InputStream in = sourceURL.openStream();
             OutputStream out = new FileOutputStream(targetFile);
@@ -220,7 +234,7 @@ public class ImdiSchema {
             }
             in.close();
             out.close();
-            return targetFile.toURL().toString();
+            return targetFile.toURL();
         } catch (Exception ex) {
             System.out.println("copyToDisk: " + ex);
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -502,10 +516,11 @@ public class ImdiSchema {
                 if (!parentNode.getUrlString().contains("#")) {
                     pathUrlXpathSeparator = "#";
                 }
-                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
+                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(null, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
+                metaNodeImdiTreeObject.setNodeText(childsMetaNode);
                 // add brackets to conform with the imdi api notation
                 siblingSpacer = "(" + (metaNodeImdiTreeObject.getChildCount() + 1) + ")";
-                ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsMetaNode, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
+                ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(null, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
                 subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
                 parentNode.attachChildNode(metaNodeImdiTreeObject);
                 metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
