@@ -67,11 +67,10 @@ public class ImdiTreeObject implements Comparable {
     public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
 
-    protected ImdiTreeObject(String localNodeText, String localUrlString) {
+    protected ImdiTreeObject(String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         containersOfThisNode = new HashSet();
         addQueue = new Vector<String[]>();
-        nodeText = localNodeText;
         nodeUrl = conformStringToUrl(localUrlString);
         initNodeVariables();
     }
@@ -282,12 +281,20 @@ public class ImdiTreeObject implements Comparable {
                     OurURL inUrlLocal = null;
                     inUrlLocal = new OurURL(this.getUrlString());
                     nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                    if (this.isLocal() && this.getFile().exists() && nodDom == null) { // if the file is local and the file exits then the we sould be able to expect the api to open the file so warn the user that something unusal occured
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI API could not load the file\n" + this.getUrlString(), "Load IMDI File");
+                        // todo: if the file is zero bytes offer to revert to a previous version if it exists
+                    }
                 }
 
                 // only read the fields into imdi tree objects if it is not going to be saved to the cache
 //            if (!useCache) {
                 if (nodDom == null) {
-                    nodeText = "Could not load IMDI";
+                    if (this.getFile().exists()) {
+                        nodeText = "Could not load IMDI";
+                    } else {
+                        nodeText = "File not found";
+                    }
                     fileNotFound = true;
                 } else {
                     //set the string name to unknown, it will be updated in the tostring function
@@ -549,7 +556,7 @@ public class ImdiTreeObject implements Comparable {
         } else {
             System.out.println("adding new node");
             String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + LinorgSessionStorage.getSingleInstance().getNewImdiFileName();
-            addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType);
+            addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType).toString();
             destinationNode = GuiHelper.imdiLoader.getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
@@ -1587,7 +1594,10 @@ public class ImdiTreeObject implements Comparable {
 
     public void registerContainer(Object containerToAdd) {
 //        System.out.println("registerContainer: " + containerToAdd + " : " + this);
-        containersOfThisNode.add(containerToAdd);
+        if (containerToAdd != null) {
+            // todo: handle null here more agressively
+            containersOfThisNode.add(containerToAdd);
+        }
     }
 
     public Object[] getRegisteredContainers() {
