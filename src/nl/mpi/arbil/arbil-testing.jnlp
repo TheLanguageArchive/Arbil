@@ -6,7 +6,7 @@
         <offline-allowed/>
         <shortcut online="true">
             <!-- <desktop /> -->
-            <menu sub-menu="Language Archiving Tools" />
+            <menu sub-menu="Language Archiving Tools" /> 
         </shortcut>
         <update check="always" policy="prompt-run"/>
         <vendor>Max Planck Institute for Psycholinguistics</vendor>

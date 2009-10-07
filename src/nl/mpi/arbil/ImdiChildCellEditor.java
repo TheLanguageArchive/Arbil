@@ -28,6 +28,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
 
 /**
@@ -282,31 +284,28 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                 if (isCellEditable()) {
                     // if the cell has a vocabulary then prevent the long field editor
                     System.out.println("Has Vocabulary");
-                    JComboBox comboBox = new JComboBox();
-                    ImdiVocabularies.Vocabulary fieldsVocabulary = ((ImdiField) cellValue[selectedField]).getVocabulary();
-                    if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(((ImdiField) cellValue[selectedField]).fieldValue)) {
-                        comboBox.addItem(((ImdiField) cellValue[selectedField]).fieldValue);
-                    }
-                    if (null != fieldsVocabulary) {
-                        for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = fieldsVocabulary.vocabularyItems.elements(); vocabularyList.hasMoreElements();) {
-                            comboBox.addItem(vocabularyList.nextElement().languageName);
-                        }
-                    }
-                    // TODO: enable multiple selection for vocabulary lists
-                    comboBox.setSelectedItem(cellValue[selectedField].toString());
+                    ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ImdiField) cellValue[selectedField]);
                     editorPanel.remove(button);
-                    editorPanel.add(comboBox);
+                    editorPanel.add(cvComboBox);
                     editorPanel.doLayout();
-                    comboBox.setPopupVisible(true);
-                    comboBox.setEditable(((ImdiField) cellValue[selectedField]).vocabularyIsOpen);
-                    if (((ImdiField) cellValue[selectedField]).vocabularyIsOpen) {
-                        comboBox.getEditor().getEditorComponent().requestFocusInWindow();
-                    } else {
-                        comboBox.requestFocusInWindow();
-                    }
-                    editorComponent = comboBox;
-                    addFocusListener(comboBox);
-                    addFocusListener(comboBox.getEditor().getEditorComponent());
+                    cvComboBox.setPopupVisible(true);
+                    cvComboBox.addPopupMenuListener(new PopupMenuListener() {
+
+                        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        }
+
+                        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                            fireEditingStopped();
+                        }
+
+                        public void popupMenuCanceled(PopupMenuEvent e) {
+                            fireEditingStopped();
+                        }
+                    });
+                    editorComponent = cvComboBox;
+                    addFocusListener(cvComboBox);
+                    addFocusListener(cvComboBox.getEditor().getEditorComponent());
+                    cvComboBox.getEditor().getEditorComponent().requestFocusInWindow();
                 }
             } else if (!ctrlDown && selectedField != -1 && !requiresLongFieldEditor()) {
                 if (isCellEditable()) {
@@ -450,8 +449,8 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
 //        System.out.println("getCellEditorValue");
         if (selectedField != -1) {
             if (editorComponent != null) {
-                if (editorComponent instanceof JComboBox) {
-                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JComboBox) editorComponent).getSelectedItem().toString(), true, false);
+                if (editorComponent instanceof ControlledVocabularyComboBox) {
+                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((ControlledVocabularyComboBox) editorComponent).getCurrentValue(), true, false);
                 } else if (editorComponent instanceof JTextField) {
                     ((ImdiField[]) cellValue)[selectedField].setFieldValue(((JTextField) editorComponent).getText(), true, false);
                 }
