@@ -71,7 +71,16 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             public void keyReleased(KeyEvent evt) {
                 if (isStartLongFieldKey(evt)) {// prevent ctrl key events getting through etc.
                     startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-                } else if (!evt.isActionKey() && !evt.isMetaDown() && !evt.isAltDown() && !evt.isAltGraphDown() && !evt.isControlDown()) {
+                } else if (!evt.isActionKey()
+                        && !evt.isMetaDown() // these key down checks will not catch a key up event hence the key codes below which work for up and down events
+                        && !evt.isAltDown()
+                        && !evt.isAltGraphDown()
+                        && !evt.isControlDown()
+                        && evt.getKeyCode() != 16 /* 16 is a shift key up or down event */
+                        && evt.getKeyCode() != 17 /* 17 is the ctrl key*/
+                        && evt.getKeyCode() != 18 /* 18 is the alt key*/
+                        && evt.getKeyCode() != 157 /* 157 is the meta key*/ 
+                        && evt.getKeyCode() != 27 /* 27 is the esc key*/ ) {
                     startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
                 }
             }
@@ -103,7 +112,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         boolean requiresLongFieldEditor = false;
         if (cellValue instanceof ImdiField[]) {
             FontMetrics fontMetrics = button.getGraphics().getFontMetrics();
-            double availableWidth = parentCellRect.getWidth();
+            double availableWidth = parentCellRect.getWidth() + 20; // let a few chars over be ok for the short editor
             ImdiField[] iterableFields;
             if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
                 iterableFields = (ImdiField[]) cellValue;
@@ -307,7 +316,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                     addFocusListener(cvComboBox.getEditor().getEditorComponent());
                     cvComboBox.getEditor().getEditorComponent().requestFocusInWindow();
                 }
-            } else if (!ctrlDown && selectedField != -1 && !requiresLongFieldEditor()) {
+            } else if (!ctrlDown && selectedField != -1 && (!requiresLongFieldEditor() || getEditorText(lastKeyInt, lastKeyChar, "anystring").length() == 0)) { // make sure the long field editor is not shown when the contents of the field are being deleted
                 if (isCellEditable()) {
                     editorPanel.remove(button);
                     editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
