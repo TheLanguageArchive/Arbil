@@ -430,6 +430,9 @@ public class ArbilMenuBar extends JMenuBar {
                             LinorgJournal.getSingleInstance().undoFromFieldChangeHistory();
                         }
                     }
+                    if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Y) {
+                        LinorgJournal.getSingleInstance().redoFromFieldChangeHistory();
+                    }
                 }
             }
         }, AWTEvent.KEY_EVENT_MASK);
@@ -540,7 +543,7 @@ public class ArbilMenuBar extends JMenuBar {
         }
     }
 
-    public void performCleanExit() { // TODO: this should be moved into a utility class
+    private boolean saveApplicationState() {
         if (GuiHelper.imdiLoader.nodesNeedSave()) {
             switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 case JOptionPane.NO_OPTION:
@@ -549,7 +552,7 @@ public class ArbilMenuBar extends JMenuBar {
                     GuiHelper.imdiLoader.saveNodesNeedingSave(false);
                     break;
                 default:
-                    return;
+                    return false;
             }
         }
         GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
@@ -562,9 +565,15 @@ public class ArbilMenuBar extends JMenuBar {
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
+        return true;
+    }
+
+    public void performCleanExit() { // TODO: this should be moved into a utility class
+        if (saveApplicationState()) {
 //                viewChangesMenuItem.setEnabled(false);
 //        screenCapture.stopCapture();
-        System.exit(0);
+            System.exit(0);
+        }
     }
 
     private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
