@@ -713,10 +713,18 @@ public class ImdiTable extends JTable {
         HashSet<ImdiField> selectedFields = new HashSet<ImdiField>();
         int[] selectedRows = this.getSelectedRows();
         if (selectedRows.length > 0) {
-            int[] selectedCols = this.getSelectedColumns();
+            int[] selectedCols;
+            if (this.getCellSelectionEnabled()) {
+                selectedCols = this.getSelectedColumns();
+            } else {
+                selectedCols = new int[this.getColumnCount()];
+                for (int colCounter = 0; colCounter < selectedCols.length; colCounter++) {
+                    selectedCols[colCounter] = colCounter;
+                }
+            }
             for (int currentRow : selectedRows) {
                 for (int currentCol : selectedCols) {
-                    System.out.println("row/col: " + currentRow + " : " + currentCol);
+//                    System.out.println("row/col: " + currentRow + " : " + currentCol);
                     // this could be an imdifield array and must handled accortingly
                     if (this.getValueAt(currentRow, currentCol) instanceof ImdiField) {
                         selectedFields.add((ImdiField) this.getValueAt(currentRow, currentCol));
