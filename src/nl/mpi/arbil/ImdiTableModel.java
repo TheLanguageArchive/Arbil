@@ -340,7 +340,12 @@ public class ImdiTableModel extends AbstractTableModel {
                 // re try in case the csv text is not quoted
                 clipBoardLines = clipBoardString.split("\n");
             }
-            if (clipBoardLines.length > 1) {
+            if (clipBoardLines.length == 1) {
+                for (ImdiField targetField : selectedCells) {
+                    targetField.setFieldValue(clipBoardString, true, false);
+                    pastedCount++;
+                }
+            } else if (clipBoardLines.length > 1) {
                 String[] firstLine = clipBoardLines[0].split("\"\\t\"");
                 if (firstLine.length == 1) {
                     firstLine = clipBoardLines[0].split("\t");
@@ -352,7 +357,7 @@ public class ImdiTableModel extends AbstractTableModel {
                     singleNodeAxis = true;
                 }
                 if (!singleNodeAxis) {
-                    resultMessage = "Incorrect data to paste.\nFields must be copied from a table where only one IMDI file is displayed.";
+                    resultMessage = "Incorrect data to paste.\nThe data must be copied either from a table where only one IMDI file is displayed\nor by selecting individual cells in the table.";
                 }
                 if (singleNodeAxis) {
                     HashSet<String> pastedFieldNames = new HashSet();
@@ -720,8 +725,13 @@ public class ImdiTableModel extends AbstractTableModel {
         return data.length;
     }
 
+    @Override
     public String getColumnName(int col) {
-        return columnNames[col];
+        if (col < columnNames.length) {
+            return columnNames[col];
+        } else {
+            return "";
+        }
     }
 
     public Object getValueAt(int row, int col) {
