@@ -3,6 +3,8 @@ package nl.mpi.arbil;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -71,11 +73,26 @@ public class LinorgWindowManager {
             // if the application was maximised when it was last closed then these values will not be set and this will through setting the size in the catch
             Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
             linorgFrame.setBounds((Rectangle) linorgFrameBounds);
+            if (windowStatesHashtable.containsKey("ScreenDeviceCount")) {
+                int screenDeviceCount = ((Integer) windowStatesHashtable.get("ScreenDeviceCount"));
+                if (screenDeviceCount > GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length) {
+                    linorgFrame.setLocationRelativeTo(null);
+                    // make sure the main frame is visible. for instance when a second monitor has been removed.
+                    Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+                    if (linorgFrame.getBounds().intersects(new Rectangle(screenDimension))) {
+                        linorgFrame.setBounds(linorgFrame.getBounds().intersection(new Rectangle(screenDimension)));
+                    } else {
+                        linorgFrame.setBounds(0, 0, 800, 600);
+                        linorgFrame.setLocationRelativeTo(null);
+                    }
+                }
+            }
         } catch (Exception ex) {
             System.out.println("load windowStates failed: " + ex.getMessage());
             System.out.println("setting default windowStates");
             windowStatesHashtable = new Hashtable();
             linorgFrame.setBounds(0, 0, 800, 600);
+            linorgFrame.setLocationRelativeTo(null);
             linorgFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
         // set the split pane positions
@@ -244,6 +261,7 @@ public class LinorgWindowManager {
             if (linorgFrame.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
                 windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
             }
+            windowStatesHashtable.put("ScreenDeviceCount", GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length);
             windowStatesHashtable.put("linorgFrameExtendedState", linorgFrame.getExtendedState());
             // collect the split pane positions for saving
             saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
