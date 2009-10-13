@@ -369,7 +369,7 @@ public class ArbilDragDrop {
         public boolean importData(JComponent comp, Transferable t) {
             try {
                 System.out.println("importData: " + comp.toString());
-                if (comp instanceof ImdiTable) {
+                if (comp instanceof ImdiTable && draggedImdiObjects == null) {
                     ((ImdiTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
                 } else {
                     //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
@@ -380,7 +380,9 @@ public class ArbilDragDrop {
                                 System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                             }
                             if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
-                                return LinorgFavourites.getSingleInstance().toggleFavouritesList(draggedImdiObjects, true);
+                                boolean resultValue = LinorgFavourites.getSingleInstance().toggleFavouritesList(draggedImdiObjects, true);
+                                createTransferable(null); // clear the transfer objects
+                                return resultValue;
                             } else {
                                 JTree dropTree = (JTree) comp;
                                 DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
@@ -413,6 +415,7 @@ public class ArbilDragDrop {
                                                 System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                                                 ((ImdiTreeObject) dropTargetUserObject).requestAddNode("Resource", draggedImdiObjects[draggedCounter]);
                                             }
+                                            createTransferable(null); // clear the transfer objects
                                             return true; // we have achieved the drag so return true
                                         }
                                     }
@@ -524,6 +527,7 @@ public class ArbilDragDrop {
                                     } else {
                                         TreeHelper.getSingleInstance().applyRootLocations();
                                     }
+                                    createTransferable(null); // clear the transfer objects
                                     return true; // we have achieved the drag so return true
                                 }
                             }
@@ -533,9 +537,11 @@ public class ArbilDragDrop {
                                 LinorgSplitPanel targetPanel = (LinorgSplitPanel) imdiSplitPanel;
                                 ImdiTableModel dropTableModel = (ImdiTableModel) targetPanel.imdiTable.getModel();
                                 dropTableModel.addImdiObjects(draggedImdiObjects);
+                                createTransferable(null); // clear the transfer objects
                                 return true; // we have achieved the drag so return true
                             } else if (imdiSplitPanel instanceof JDesktopPane) {
                                 LinorgWindowManager.getSingleInstance().openFloatingTableOnce(draggedImdiObjects, null);
+                                createTransferable(null); // clear the transfer objects
                                 return true; // we have achieved the drag so return true
                             }
                         }
@@ -544,6 +550,7 @@ public class ArbilDragDrop {
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
+            createTransferable(null); // clear the transfer objects
             return false;
         }
 
