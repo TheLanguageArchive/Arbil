@@ -25,6 +25,7 @@ public class ImdiIcons {
 //    private ImageIcon corpusicon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusnode_color.png"));
     private ImageIcon localicon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/local.png"));
     private ImageIcon remoteicon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/remote.png"));
+    private ImageIcon localWithArchiveHandle = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/localarchivehandle.png"));
 //    private ImageIcon blankIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/blank.png"));
     private ImageIcon writtenresourceIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/writtenresource.png"));
     private ImageIcon videoIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/video.png"));
@@ -153,7 +154,11 @@ public class ImdiIcons {
         if (imdiObject.isLocal()) {
             if (imdiObject.isImdi()) {
                 if (imdiObject.matchesRemote == 0) {
-                    iconsVector.add(localicon);
+                    if (!imdiObject.hasArchiveHandle) {
+                        iconsVector.add(localicon);
+                    } else {
+                        iconsVector.add(localWithArchiveHandle);
+                    }
                 } else {
                     iconsVector.add(remoteicon);
                 }
@@ -202,7 +207,7 @@ public class ImdiIcons {
             } else {
                 // TODO: this icon could be reconsidered since it may not be correct in the case of a session that failed to load
                 iconsVector.add(corpusnodeColorIcon);
-            //iconsVector.add(blankIcon);
+                //iconsVector.add(blankIcon);
             }
         } else if (imdiObject.isDirectory()) {
             iconsVector.add(UIManager.getIcon("FileView.directoryIcon"));
