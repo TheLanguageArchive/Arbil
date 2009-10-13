@@ -148,7 +148,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 URL targetURL = new URL(getTargetFileString(targetImdiObject));
-                String execString = "ffmpeg  -itsoffset -4  -i " + targetURL.getFile() + " -vframes 1 -s " + outputWidth + "x" + outputHeight + " " + iconFile.getAbsolutePath();
+                String[] execString = new String[]{"ffmpeg", "-itsoffset", "-4", "-i", targetURL.getFile(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
@@ -175,7 +175,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 URL targetURL = new URL(getTargetFileString(targetImdiObject));
-                String execString = "convert -define jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2 + " " + targetURL.getFile() + " -auto-orient -thumbnail " + outputWidth + "x" + outputHeight + " -unsharp 0x.5 " + iconFile.getAbsolutePath();
+                String[] execString = new String[]{"convert", "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetURL.getFile(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
                 System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
