@@ -498,6 +498,10 @@ public class ImdiSchema {
                         childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), catalogueLink), "CatalogueLink"});
                     }
                 }
+                Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
+                if (archiveHandleAtt != null) {
+                    parentNode.hasArchiveHandle = true;
+                }
                 Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
                 if (templateOriginatorAtt != null) {
                     String templateOriginator = templateOriginatorAtt.getNodeValue();
