@@ -360,6 +360,7 @@ public class ImdiTableModel extends AbstractTableModel {
                     resultMessage = "Incorrect data to paste.\nThe data must be copied either from a table where only one IMDI file is displayed\nor by selecting individual cells in the table.";
                 }
                 if (singleNodeAxis) {
+                    boolean pasteOneFieldToAll = clipBoardLines.length == 2; /* skip the header */
                     HashSet<String> pastedFieldNames = new HashSet();
                     for (int lineCounter = 1 /* skip the header */; lineCounter < clipBoardLines.length; lineCounter++) {
                         String clipBoardLine = clipBoardLines[lineCounter];
@@ -379,7 +380,8 @@ public class ImdiTableModel extends AbstractTableModel {
                             if (selectedCells != null) {
                                 for (ImdiField targetField : selectedCells) {
                                     System.out.println("targetField: " + targetField.getTranslateFieldName());
-                                    if (currentFieldName.equals(targetField.getTranslateFieldName())) {
+                                    //messagebox "The copied field name does not match the destination, do you want to paste anyway?"
+                                    if (currentFieldName.equals(targetField.getTranslateFieldName()) || pasteOneFieldToAll) {
                                         targetField.setFieldValue(currentFieldValue, true, false);
                                         pastedCount++;
                                     }
