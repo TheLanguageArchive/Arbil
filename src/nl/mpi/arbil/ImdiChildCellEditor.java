@@ -69,18 +69,18 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
             }
 
             public void keyReleased(KeyEvent evt) {
-                if (isStartLongFieldKey(evt)) {// prevent ctrl key events getting through etc.
+                if (!cellHasControlledVocabulary() && isStartLongFieldKey(evt)) {// prevent ctrl key events getting through etc.
                     startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-                } else if (!evt.isActionKey()
-                        && !evt.isMetaDown() // these key down checks will not catch a key up event hence the key codes below which work for up and down events
-                        && !evt.isAltDown()
-                        && !evt.isAltGraphDown()
-                        && !evt.isControlDown()
-                        && evt.getKeyCode() != 16 /* 16 is a shift key up or down event */
-                        && evt.getKeyCode() != 17 /* 17 is the ctrl key*/
-                        && evt.getKeyCode() != 18 /* 18 is the alt key*/
-                        && evt.getKeyCode() != 157 /* 157 is the meta key*/ 
-                        && evt.getKeyCode() != 27 /* 27 is the esc key*/ ) {
+                } else if (!evt.isActionKey() &&
+                        !evt.isMetaDown() && // these key down checks will not catch a key up event hence the key codes below which work for up and down events
+                        !evt.isAltDown() &&
+                        !evt.isAltGraphDown() &&
+                        !evt.isControlDown() &&
+                        evt.getKeyCode() != 16 && /* 16 is a shift key up or down event */
+                        evt.getKeyCode() != 17 && /* 17 is the ctrl key*/
+                        evt.getKeyCode() != 18 && /* 18 is the alt key*/
+                        evt.getKeyCode() != 157 &&/* 157 is the meta key*/
+                        evt.getKeyCode() != 27 /* 27 is the esc key*/) {
                     startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
                 }
             }
@@ -285,11 +285,15 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
         return currentCellString;
     }
 
+    private boolean cellHasControlledVocabulary() {
+        return ((ImdiField) cellValue[0]).hasVocabulary();
+    }
+
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
         System.out.println("startEditorMode: " + selectedField + " lastKeyInt: " + lastKeyInt + " lastKeyChar: " + lastKeyChar);
         removeAllFocusListners();
         if (cellValue instanceof ImdiField[]) {
-            if (((ImdiField) cellValue[0]).hasVocabulary()) {
+            if (cellHasControlledVocabulary()) {
                 if (isCellEditable()) {
                     // if the cell has a vocabulary then prevent the long field editor
                     System.out.println("Has Vocabulary");
@@ -433,6 +437,7 @@ class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor 
                         // deregister component from imditreenode
                         registeredOwner.removeContainer(this);
                         super.internalFrameClosed(e);
+                        parentTable.requestFocusInWindow();
                     }
                 });
                 if (selectedField != -1) {
