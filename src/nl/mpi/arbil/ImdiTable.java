@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -710,6 +712,7 @@ public class ImdiTable extends JTable {
     }
 
     private ImdiField[] getSelectedFields() {
+        // there is a limitation in the jtable in the way selections can be made so there is no point making this more complicated than a single contigious selection
         HashSet<ImdiField> selectedFields = new HashSet<ImdiField>();
         int[] selectedRows = this.getSelectedRows();
         if (selectedRows.length > 0) {
@@ -779,8 +782,16 @@ public class ImdiTable extends JTable {
     }
 
     public void hideSelectedColumnsFromTable() {
-        for (int selectedRows : this.getSelectedColumns()) {
-            imdiTableModel.hideColumn(convertColumnIndexToModel(selectedRows));
+        int[] selectedColumns = this.getSelectedColumns();
+        Integer[] selectedModelColumns = new Integer[selectedColumns.length];
+        for (int columnCounter = 0; columnCounter < selectedColumns.length; columnCounter++) {
+            selectedModelColumns[columnCounter] = convertColumnIndexToModel(selectedColumns[columnCounter]);
+        }
+        // this must be sorted otherwise it will fail when many columns are selected to be removed, so it is converter via convertColumnIndexToModel and then to an array then sort the array descending before removing columns
+        // it might be better to remove by column name instead
+        Arrays.sort(selectedModelColumns, Collections.reverseOrder());
+        for (int selectedModelCol : selectedModelColumns) {
+            imdiTableModel.hideColumn(selectedModelCol);
         }
     }
 
