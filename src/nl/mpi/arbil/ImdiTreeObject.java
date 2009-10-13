@@ -58,6 +58,7 @@ public class ImdiTreeObject implements Comparable {
     private int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
     private boolean isFavourite;
+    public boolean hasArchiveHandle = false;
     public boolean autoLoadChildNodes = false;
     public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
