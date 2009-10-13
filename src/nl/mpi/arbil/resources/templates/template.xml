@@ -93,5 +93,24 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Title" FieldDescription="The title of this Corpus" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Name" FieldDescription="The name of this corpus (also used to name this corpus in various applications)" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Description" FieldDescription="The general description of this corpus" />
+
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Continent" FieldDescription="The name of a continent" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Country" FieldDescription="The name of a country" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Region" FieldDescription="The name of a geographic region" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Address" FieldDescription="The address" />
+
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Genre" FieldDescription="Major genre classification" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" FieldDescription="Sub genre classification" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Task" FieldDescription="List of the major tasks carried out in the session" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Modalities" FieldDescription="List of modalities used in the session" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Subject" FieldDescription="Classifies the subject of the session. Uses preferably an existing library classification scheme such as LCSH. The element has a scheme attribute that indicates what scheme is used. Comments: The element can be repeated but the user should guarantee consistency" />
+
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Name" FieldDescription="A short name or abbreviation for the project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Title" FieldDescription="The full title of the project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Id" FieldDescription="A unique identifier for the project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Name" FieldDescription="Contact information for this project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription="Contact information for this project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="Contact information for this project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
     </FieldUsageDescriptions>
 </template>
