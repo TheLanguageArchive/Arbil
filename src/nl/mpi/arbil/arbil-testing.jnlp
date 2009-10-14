@@ -19,7 +19,7 @@
     </security>
     <resources>
         <j2se version="1.5+"/>
-        <jar href="arbil-0-4-16698.jar" main="true" download="eager"/>
+        <jar href="arbil-0-4-16715.jar" main="true" download="eager"/>
         <jar href="lib/corpusstructure-1.6.1.jar" download="eager"/>
         <jar href="lib/imdiapi-1.0.6.jar" download="eager"/>
         <jar href="lib/log4j-1.2.14.jar" download="eager"/>
