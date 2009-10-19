@@ -208,13 +208,18 @@ public class ImdiSchema {
         addedPathUrl = copyToDisk(templateUrl, destinationFile);
         try {
             Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUrl), false);
-            Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
-            NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
-            LinorgVersion currentVersion = new LinorgVersion();
-            String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
-            metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
-            metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
-            ImdiTreeObject.api.writeDOM(addedDocument, new File(addedPathUrl.getFile()), false);
+            if (addedDocument == null) {
+                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error inserting create date via the IMDI API", "Add from Template");
+            } else {
+                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
+                NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
+                LinorgVersion currentVersion = new LinorgVersion();
+                String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
+                metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
+                metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
+                ImdiTreeObject.api.writeDOM(addedDocument, new File(addedPathUrl.getFile()), false);
+            }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -233,6 +238,7 @@ public class ImdiSchema {
                 out.write(buf, 0, len);
             }
             in.close();
+            out.flush();
             out.close();
             return targetFile.toURL();
         } catch (Exception ex) {
@@ -344,101 +350,106 @@ public class ImdiSchema {
                 throw (new Exception("No template found for: " + elementName.substring(1)));
             }
             Document insertableSectionDoc = ImdiTreeObject.api.loadIMDIDocument(new OurURL(templateUrl), false);
-            // insert values into the section that about to be added
-            if (resourcePath != null) {
-                String localFilePath = resourcePath; // will be changed when copied to the cache
-                // copy the file to the imdi directory
-                try {
-                    //// TODO: the resource should be optionaly copied or moved into the cache or hardlinked
-                    if (copyNewResourcesToCache) {
-                        URL resourceUrl = new URL(resourcePath);
+            if (insertableSectionDoc == null) {
+                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Insert from Template");
+            } else {
+                // insert values into the section that about to be added
+                if (resourcePath != null) {
+                    String localFilePath = resourcePath; // will be changed when copied to the cache
+                    // copy the file to the imdi directory
+                    try {
+                        //// TODO: the resource should be optionaly copied or moved into the cache or hardlinked
+                        if (copyNewResourcesToCache) {
+                            URL resourceUrl = new URL(resourcePath);
 //                    String resourcesDirName = "resources";
-                        File originalFile = new File(resourceUrl.getFile());
-                        int suffixIndex = originalFile.getName().lastIndexOf(".");
-                        String targetFilename = originalFile.getName().substring(0, suffixIndex);
-                        String targetSuffix = originalFile.getName().substring(suffixIndex);
-                        System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
-                        ///////////////////////////////////////////////////////////////////////
-                        // use the nodes child directory
-                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDirectory);
-                        localFilePath = destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
-                        // for easy reading in the fields keep the file in the same directory
+                            File originalFile = new File(resourceUrl.getFile());
+                            int suffixIndex = originalFile.getName().lastIndexOf(".");
+                            String targetFilename = originalFile.getName().substring(0, suffixIndex);
+                            String targetSuffix = originalFile.getName().substring(suffixIndex);
+                            System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
+                            ///////////////////////////////////////////////////////////////////////
+                            // use the nodes child directory
+                            File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDirectory);
+                            localFilePath = destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
+                            // for easy reading in the fields keep the file in the same directory
 //                        File destinationDirectory = new File(destinationFile.getParentFile().getPath());
 //                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
 //                        localFilePath = "./" + destinationFileCopy.getName();
-                        ///////////////////////////////////////////////////////////////////////
-                        copyToDisk(resourceUrl, destinationFileCopy);
-                        System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+                            ///////////////////////////////////////////////////////////////////////
+                            copyToDisk(resourceUrl, destinationFileCopy);
+                            System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
+                        }
+                    } catch (Exception ex) {
+                        //localFilePath = resourcePath; // link to the original file
+                        GuiHelper.linorgBugCatcher.logError(ex);
                     }
-                } catch (Exception ex) {
-                    //localFilePath = resourcePath; // link to the original file
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
 
-                // find the correct node and set the resourcePath value
-                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
-                linkNode.setTextContent(localFilePath);
-            }
-            if (mimeType != null) {
-                if (mimeType.equals("image/jpeg")) {
-                    // TODO: consider replacing this with exif imdifields in the original imdiobject and doing a merge
+                    // find the correct node and set the resourcePath value
+                    Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
+                    linkNode.setTextContent(localFilePath);
+                }
+                if (mimeType != null) {
+                    if (mimeType.equals("image/jpeg")) {
+                        // TODO: consider replacing this with exif imdifields in the original imdiobject and doing a merge
 //                    Hashtable exifTags = getExifMetadata(resourcePath);
 //                    String dateExifTag = "date";
 //                    if (exifTags.contains(dateExifTag)) {
 //                        Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:MediaFile/:Date");
 //                        linkNode.setTextContent(exifTags.get(dateExifTag).toString());
 //                    }
-                }
-                Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
-                linkNode.setTextContent(mimeType);
-            }
-
-            Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
-            if (insertableNode == null) {
-                throw (new Exception("InsertableSection not found in the template"));
-            }
-            // import the new section to the target dom
-            Node addableNode = targetImdiDom.importNode(insertableNode, true);
-
-            Node insertBeforeNode = null;
-            String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
-            if (insertBeforeCSL != null && insertBeforeCSL.length() > 0) {
-                String[] insertBeforeArray = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore").split(",");
-                // find the node to add the new section before
-                int insertBeforeCounter = 0;
-                while (insertBeforeNode == null & insertBeforeCounter < insertBeforeArray.length) {
-                    System.out.println("insertbefore: " + insertBeforeArray);
-                    insertBeforeNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath + "/:" + insertBeforeArray[insertBeforeCounter]);
-                    insertBeforeCounter++;
-                }
-            }
-
-            // find the node to add the new section to
-            Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-            Node addedNode;
-            if (insertBeforeNode != null) {
-                System.out.println("inserting before: " + insertBeforeNode.getNodeName());
-                addedNode = targetNode.insertBefore(addableNode, insertBeforeNode);
-            } else {
-                System.out.println("inserting");
-                addedNode = targetNode.appendChild(addableNode);
-            }
-            addedPathString = destinationFile.toURL().toString() + "#" + targetRef;
-            String childsMetaNode = currentTemplate.pathIsChildNode(elementName.replaceAll("\\(\\d*?\\)", ""));
-            if (childsMetaNode != null) {
-                Node currentNode = addedNode.getParentNode().getFirstChild();
-                int siblingCount = 0;
-                while (currentNode != null) {
-                    System.out.println("currentNode: " + currentNode.getLocalName());
-                    if (addedNode.getLocalName().equals(currentNode.getLocalName())) {
-                        siblingCount++;
                     }
-                    currentNode = currentNode.getNextSibling();
+                    Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:Format");
+                    linkNode.setTextContent(mimeType);
                 }
+
+                Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
+                if (insertableNode == null) {
+                    throw (new Exception("InsertableSection not found in the template"));
+                }
+                // import the new section to the target dom
+                Node addableNode = targetImdiDom.importNode(insertableNode, true);
+
+                Node insertBeforeNode = null;
+                String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
+                if (insertBeforeCSL != null && insertBeforeCSL.length() > 0) {
+                    String[] insertBeforeArray = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore").split(",");
+                    // find the node to add the new section before
+                    int insertBeforeCounter = 0;
+                    while (insertBeforeNode == null & insertBeforeCounter < insertBeforeArray.length) {
+                        System.out.println("insertbefore: " + insertBeforeArray);
+                        insertBeforeNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath + "/:" + insertBeforeArray[insertBeforeCounter]);
+                        insertBeforeCounter++;
+                    }
+                }
+
+                // find the node to add the new section to
+                Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+                Node addedNode;
+                if (insertBeforeNode != null) {
+                    System.out.println("inserting before: " + insertBeforeNode.getNodeName());
+                    addedNode = targetNode.insertBefore(addableNode, insertBeforeNode);
+                } else {
+                    System.out.println("inserting");
+                    addedNode = targetNode.appendChild(addableNode);
+                }
+                addedPathString = destinationFile.toURL().toString() + "#" + targetRef;
+                String childsMetaNode = currentTemplate.pathIsChildNode(elementName.replaceAll("\\(\\d*?\\)", ""));
+                if (childsMetaNode != null) {
+                    Node currentNode = addedNode.getParentNode().getFirstChild();
+                    int siblingCount = 0;
+                    while (currentNode != null) {
+                        System.out.println("currentNode: " + currentNode.getLocalName());
+                        if (addedNode.getLocalName().equals(currentNode.getLocalName())) {
+                            siblingCount++;
+                        }
+                        currentNode = currentNode.getNextSibling();
+                    }
                     addedPathString = addedPathString + "(" + siblingCount + ")";
-            } else {
-                // make sure elements like description show the parent node rather than trying to get a non existing node
-                addedPathString = destinationFile.toURL().toString();
+                } else {
+                    // make sure elements like description show the parent node rather than trying to get a non existing node
+                    addedPathString = destinationFile.toURL().toString();
+                }
             }
         } catch (Exception ex) {
             System.out.println("insertFromTemplate: " + ex.getMessage());
