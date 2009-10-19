@@ -7,7 +7,7 @@
 <project name="Linorg" default="compile">
     <target name="setproperties">
         <property name="SRCDIR" value="src/"/>
-        <property name="OUTPUTDIR" value="arbil-build/"/>
+        <property name="OUTPUTDIR" value="arbil-build-0.4.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
     </target>
@@ -19,14 +19,14 @@
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-deb.classpath"/>
     <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
     <target name="makeDebPackage" depends="signlinorg" description="build the deb file">
-        <property name="package.name" value="arbil"/>
+        <property name="package.name" value="arbil-testing"/>
         <property name="package.jarname" value="arbil.jar"/>
         <property name="package.iconname" value="arbil128x128.png"/>
         <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
         <desktopEntry
             toFile="${distributionDirectory}/${package.name}.desktop"
-            name="Arbil"
+            name="Arbil (testing)"
             comment="Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving."
             exec="java -jar /usr/share/${package.name}/${package.jarname}"
             path="/usr/share/${package.name}/"
@@ -271,25 +271,37 @@ public class LinorgVersion {
         </echo>
     </target>
     <target name="signlinorg" depends="jar">
-        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="mpi.keyalias" storepass="123456">
+        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="">
             <path>
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>
         <signjar jar="${OUTPUTDIR}/arbil.jar"
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
-        alias="mpi.keyalias" storepass="123456" />
+        alias="latsoftware's max-planck-gesellschaft id" storepass="" />
     </target>
     <target name="scp_to_lux09" depends="signlinorg, makeDebPackage">
         <echo file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-current.txt">${linorg.current.revision}</echo>
         <delete file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" />
         <move file="${OUTPUTDIR}/arbil.jar" tofile="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar"/>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
-        <input message="Please enter lux09 password:" addproperty="lux09.pw" />
+        <input message="Please enter lux09 password:" addproperty="lux09.pw">
+            <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+        </input>
         <scp file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-${linorg.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
         <scp file="${OUTPUTDIR}/arbil-${linorg.current.major}-${linorg.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-        <scp file="${distributionDirectory}/arbil_${linorg.current.major}.${linorg.current.minor}-${linorg.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
-
+        <scp file="${distributionDirectory}/arbil-testing_${linorg.current.major}.${linorg.current.minor}-${linorg.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/"/>
+        <scp file="${distributionDirectory}/arbil-testing_${linorg.current.major}.${linorg.current.minor}-${linorg.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/arbil-testing.deb"/>
+<!--
+        <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/log4j-1.2.14.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/saxon8.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/saxon8-dom.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/typecheck.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xalan-2.6.0.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xercesImpl-2.9.0.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/corpusstructure-1.6.1.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
+-->
        <!--<scp file="${OUTPUTDIR}/lib/corpusstructure-1.6.1.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>
        <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/linorg/lib/"/>-->
 
