@@ -284,6 +284,7 @@ public class ImdiTreeObject implements Comparable {
                     nodDom = api.loadIMDIDocument(inUrlLocal, false);
                     if (this.isLocal() && this.getFile().exists() && nodDom == null) { // if the file is local and the file exits then the we sould be able to expect the api to open the file so warn the user that something unusal occured
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI API could not load the file\n" + this.getUrlString(), "Load IMDI File");
+                        GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
                         // todo: if the file is zero bytes offer to revert to a previous version if it exists
                     }
                 }
@@ -539,7 +540,8 @@ public class ImdiTreeObject implements Comparable {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 if (nodDom == null) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI file could not be opened", "Add Node");
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI file could not be opened via the IMDI API", "Add Node");
+                    GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
                 } else {
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
@@ -817,9 +819,14 @@ public class ImdiTreeObject implements Comparable {
             }
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
-            api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
-            api.writeDOM(nodDom, this.getFile(), false);
-            reloadNode();
+            if (nodDom == null) {
+                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error loading via the IMDI API", "Remove Catalogue");
+            } else {
+                api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
+                api.writeDOM(nodDom, this.getFile(), false);
+                reloadNode();
+            }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -835,12 +842,17 @@ public class ImdiTreeObject implements Comparable {
             }
             OurURL inUrlLocal = new OurURL(this.getFile().toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
-            for (String currentImdiDomId : domIdArray) {
-                IMDIElement target = new IMDIElement(null, currentImdiDomId);
-                api.removeIMDIElement(nodDom, target);
+            if (nodDom == null) {
+                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error removing via the IMDI API", "Remove");
+            } else {
+                for (String currentImdiDomId : domIdArray) {
+                    IMDIElement target = new IMDIElement(null, currentImdiDomId);
+                    api.removeIMDIElement(nodDom, target);
+                }
+                api.writeDOM(nodDom, this.getFile(), false);
+                reloadNode();
             }
-            api.writeDOM(nodDom, this.getFile(), false);
-            reloadNode();
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -898,20 +910,26 @@ public class ImdiTreeObject implements Comparable {
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
-                int nodeType = WSNodeType.CORPUS;
-                if (targetImdiNode.isSession()) {
-                    nodeType = WSNodeType.SESSION;            // url: IMDI location, for link normalization.  urlToLink: target URL
-                    // linkName: for CorpusLink name / for InfoFile description
-                    // linkType: WSNodeType value  spec: where to put the link in the IMDI,
-                    // NOTE: spec should only be used for linkType InfoFile...
-                    // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
-                } else if (targetImdiNode.isCatalogue()) {
-                    nodeType = WSNodeType.CATALOGUE;
-                }
+                if (nodDom == null) {
+                    GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
+                    return false;
+                } else {
+                    int nodeType = WSNodeType.CORPUS;
+                    if (targetImdiNode.isSession()) {
+                        nodeType = WSNodeType.SESSION;            // url: IMDI location, for link normalization.  urlToLink: target URL
+                        // linkName: for CorpusLink name / for InfoFile description
+                        // linkType: WSNodeType value  spec: where to put the link in the IMDI,
+                        // NOTE: spec should only be used for linkType InfoFile...
+                        // public IMDILink createIMDILink(Document doc, OurURL url, String urlToLink, String linkName, int linkType, String spec);
+                    } else if (targetImdiNode.isCatalogue()) {
+                        nodeType = WSNodeType.CATALOGUE;
+                    }
 // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
                 System.out.println("createIMDILink: " + targetImdiNode.getUrlString());
                 api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), /*targetImdiNode.toString()*/ "", nodeType, "");
                 api.writeDOM(nodDom, this.getFile(), false);
+                }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
@@ -921,22 +939,36 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void updateImdiFileNodeIds() {
-        //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
-        System.out.println("updateImdiFileNodeIds");
-        try {
+        if (getParentDomNode() != this) {
+            getParentDomNode().updateImdiFileNodeIds();
+        } else {
+            //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
+            System.out.println("updateImdiFileNodeIds");
+            try {
 //            System.out.println("removing NodeIds");
-            OurURL inUrlLocal = new OurURL(this.getFile().toURL());
-            Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
-            api.writeDOM(nodDom, this.getFile(), true);
+                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                if (nodDom == null) {
+                    GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Update IMDI");
+                    return;
+                }
+                api.writeDOM(nodDom, this.getFile(), true);
 //            System.out.println("adding NodeIds");
-            Document nodDomSecondLoad = api.loadIMDIDocument(inUrlLocal, false, null);
-            api.writeDOM(nodDomSecondLoad, this.getFile(), false);
+                Document nodDomSecondLoad = api.loadIMDIDocument(inUrlLocal, false, null);
+                if (nodDom == null) {
+                    GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Update IMDI");
+                    return;
+                }
+                api.writeDOM(nodDomSecondLoad, this.getFile(), false);
 //            System.out.println("reloading updateNodeIds");
 //            reloadImdiNode(false);
-            loadImdiDom();
-        } catch (Exception mue) {
-            GuiHelper.linorgBugCatcher.logError(mue);
-            System.out.println("Invalid input URL: " + mue);
+                loadImdiDom();
+            } catch (Exception mue) {
+                GuiHelper.linorgBugCatcher.logError(mue);
+                System.out.println("Invalid input URL: " + mue);
+            }
         }
     }
 
@@ -949,7 +981,12 @@ public class ImdiTreeObject implements Comparable {
         try {
             Document nodDom;
             nodDom = api.loadIMDIDocument(new OurURL(this.getFile().toURL()), false);
-            api.writeDOM(nodDom, exportFile, true);
+            if (nodDom == null) {
+                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Export IMDI");
+            } else {
+                api.writeDOM(nodDom, exportFile, true);
+            }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -1071,7 +1108,8 @@ public class ImdiTreeObject implements Comparable {
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
 
             if (nodDom == null) {
-                System.out.println("Could not load IMDI");
+                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Save IMDI");
             } else {
                 System.out.println("writeDOM");
                 // make the required changes to the dom
@@ -1190,7 +1228,12 @@ public class ImdiTreeObject implements Comparable {
                 //////
                 api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
-                api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order                
+                if (nodDom == null) {
+                    GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API after save", "Update IMDI");
+                } else {
+                    api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order
+                }
                 // update the icon to indicate the change
                 setImdiNeedsSaveToDisk(false, updateUI);
             }
