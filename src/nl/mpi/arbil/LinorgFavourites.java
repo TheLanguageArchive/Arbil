@@ -103,15 +103,21 @@ public class LinorgFavourites {
         mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURL());
 
         org.w3c.dom.Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
-        mpi.imdi.api.IMDILink[] links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
-        if (links != null) {
-            for (mpi.imdi.api.IMDILink currentLink : links) {
-                ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, currentLink);
+        if (nodDom == null) {
+            GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Save Favourite");
+            return null;
+        } else {
+            mpi.imdi.api.IMDILink[] links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
+            if (links != null) {
+                for (mpi.imdi.api.IMDILink currentLink : links) {
+                    ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                }
             }
+            boolean removeIdAttributes = false;
+            ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
+            return destinationFile;
         }
-        boolean removeIdAttributes = false;
-        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-        return destinationFile;
     }
 
     private void removeFromFavourites(String imdiUrlString) {
