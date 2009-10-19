@@ -94,7 +94,6 @@ public class ImdiLoader {
                                     System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
 //                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                     ImdiTreeObject addedImdiObject = GuiHelper.imdiLoader.getImdiObject(null, currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUrl, mimeType));
-                                    addedImdiObject.updateImdiFileNodeIds();
                                     if (addedImdiObject != null) {
 //                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
                                         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new ImdiTreeObject[]{addedImdiObject}, newTableTitleString);
@@ -110,16 +109,15 @@ public class ImdiLoader {
 
                                             duplicateChildNodeStructure(favouriteImdiNode, addedImdiObject, nodesToMerge, progressMonitor, imdiTableModel);
                                             int progressCounter = nodesToMerge.size();
-                                            addedImdiObject.updateImdiFileNodeIds();
                                             progressMonitor.setNote("Copying Data");
                                             progressMonitor.setMaximum(progressCounter + nodesToMerge.size() * 2);
-                                            currentImdiObject.loadImdiDom();
                                             for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
                                                 if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
                                                     System.out.println("about to merge:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
                                                 }
                                                 progressMonitor.setProgress(progressCounter++);
                                             }
+                                            addedImdiObject.updateImdiFileNodeIds();
                                             for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
                                                 if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
                                                     System.out.println("merging:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
@@ -128,6 +126,8 @@ public class ImdiLoader {
                                                 progressMonitor.setProgress(progressCounter++);
                                             }
 //                                        currentImdiObject.saveChangesToCache(true);
+                                        } else {
+                                            addedImdiObject.updateImdiFileNodeIds();
                                         }
 
                                         currentImdiObject.loadChildNodes();
