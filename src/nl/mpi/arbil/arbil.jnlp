@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/linorg/" href="arbil.jnlp">
+<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil.jnlp">
     <information>
         <title>Arbil</title>
-        <icon href="http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil128x128.png" />
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil128x128.png" />
         <offline-allowed/>
         <shortcut online="false">
             <desktop />
@@ -20,13 +20,13 @@
     </security>
     <resources>
         <j2se version="1.5+"/>
-        <jar href="arbil-0-3-16492.jar" main="true" download="eager"/>
+        <jar href="arbil-1-0-16771.jar" main="true" download="eager"/>
         <jar href="lib/corpusstructure-1.6.1.jar" download="eager"/>
         <jar href="lib/imdiapi-1.0.6.jar" download="eager"/>
         <jar href="lib/log4j-1.2.14.jar" download="eager"/>
         <jar href="lib/saxon8.jar" download="eager"/>
         <jar href="lib/saxon8-dom.jar" download="eager"/>
-        <jar href="lib/typecheck.jar" download="eager"/>
+        <jar href="lib/typecheck-1.5.16185.jar" download="eager"/>
         <jar href="lib/xalan-2.6.0.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
     </resources>
