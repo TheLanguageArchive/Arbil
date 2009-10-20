@@ -85,6 +85,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                     <filterchain>
                         <replacetokens>
                             <token key="ArbilVersionNumber" value="${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}"/>
+                            <token key="TypeCheckVersion" value="${TypeCheckVersion}"/>
                         </replacetokens>
                     </filterchain>
                 </copy>
