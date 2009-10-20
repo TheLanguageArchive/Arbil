@@ -10,6 +10,8 @@
         <property name="OUTPUTDIR" value="arbil-build-1.0.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
+        <property name="TypeCheckVersion" value="typecheck-1.5.16185.jar"/>
+        <!-- todo: add all the dependancies here like the type checker -->
     </target>
 <!-- start package creation -->
     <path id="ant-deb.classpath">
@@ -143,14 +145,14 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-            <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
+            <fileset dir="${SRCDIR}../../../../trunk/src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${SRCDIR}../../../trunk/webapps/addit/web">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
@@ -161,13 +163,13 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <mkdir dir="${LIBDIR}"/>
         <copy todir="${LIBDIR}">
                 <!-- TODO: this needs to be changed to use the maven repository -->
-            <fileset dir="${SRCDIR}../../../trunk/webapps/lib/">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/lib/">
                 <include name="corpusstructure-1.6.1.jar"/>
                 <include name="imdiapi-1.0.6.jar"/>
                 <include name="log4j-1.2.14.jar"/>
                 <include name="saxon8.jar"/>
                 <include name="saxon8-dom.jar"/>
-                <include name="typecheck.jar"/>
+                <include name="${TypeCheckVersion}"/>
                 <include name="xalan-2.6.0.jar"/>
                 <include name="xercesImpl-2.9.0.jar"/>
             </fileset>
@@ -186,9 +188,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
-                <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
-                <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/typecheck.jar lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
+                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />
+                <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
+                <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
         </jar>
     </target>
@@ -199,7 +201,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                 <!--<filelist dir="${WEBAPPS_LIB}">
                     <file name="imdiapi.jar" />
                     <file name="log4j-1.2.14.jar" />
-                    <file name="typecheck.jar" />
+                    <file name="${TypeCheckVersion}" />
                     <file name="xalan-2.7.0.jar" />-->
                     <!--
                     <file name="saxon8-dom4j.jar" />
@@ -287,13 +289,13 @@ public class LinorgVersion {
         </echo>
     </target>
     <target name="signarbil" depends="jar">
-        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="">
+        <signjar keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="">
             <path>
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>
         <signjar jar="${OUTPUTDIR}/arbil.jar"
-        keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
+        keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="" />
     </target>
     <target name="scp_to_lux09" depends="signarbil, makeDebPackage, updateJnlpAndAppletHtml">
@@ -316,7 +318,7 @@ public class LinorgVersion {
         <scp file="${OUTPUTDIR}/lib/log4j-1.2.14.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/saxon8.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/saxon8-dom.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
-        <scp file="${OUTPUTDIR}/lib/typecheck.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/${TypeCheckVersion}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/xalan-2.6.0.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/xercesImpl-2.9.0.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/corpusstructure-1.6.1.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
