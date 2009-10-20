@@ -33,12 +33,12 @@
             exec="java -jar /usr/share/${package.name}/${package.jarname}"
             path="/usr/share/${package.name}/"
             icon="/usr/share/${package.name}/${package.iconname}"
-            categories="Office;Science;Java"
+            categories="Science;Education;Office;Java"
         />
         <deb
             todir="${distributionDirectory}"
             package="${package.name}"
-            section="devel"
+            section="science"
             depends="sun-java5-jre | sun-java6-jre, ffmpeg, imagemagick"
         >
             <version upstream="${arbil.current.major}.${arbil.current.minor}" debian="${arbil.current.revision}"/>
@@ -57,7 +57,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </deb>
     </target>
 <!-- end package creation -->
-    <target name="all" depends="setproperties, clobber, compile, jar, run, updateJnlpAndAppletHtml" description="clean, build, jar and run">
+    <target name="all" depends="setproperties, clobber, compile, jar, run, updateJnlpAndAppletHtml, getCurrentJnlp" description="clean, build, jar and run">
         <echo message="Ant Java Version: ${ant.java.version}"/>
     </target>
     <target name="clean" description="remove intermediate files" depends="setproperties">
@@ -79,9 +79,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="updateJnlpAndAppletHtml" depends="getsvnversion">
         <macrodef name="updateSingleFile">
-            <attribute name="filePath"/>
+            <attribute name="fileName"/>
             <sequential>
-                <copy overwrite="true" file="@{filePath}.template" tofile="@{filePath}">
+                <copy overwrite="true" file="${SRCDIR}nl/mpi/arbil/@{fileName}.template" tofile="${BUILDDIR}/@{fileName}">
                     <filterchain>
                         <replacetokens>
                             <token key="ArbilVersionNumber" value="${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}"/>
@@ -90,14 +90,13 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                 </copy>
             </sequential>
         </macrodef>
-        <updateSingleFile filePath="${SRCDIR}nl/mpi/arbil/arbil.jnlp"/>
-        <updateSingleFile filePath="${SRCDIR}nl/mpi/arbil/ArbilApplet.html"/>
+        <updateSingleFile fileName="arbil.jnlp"/>
+        <updateSingleFile fileName="ArbilApplet.html"/>
     </target>
-    <!--<target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
+    <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil.jnlp"/>
-        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil-testing.jnlp"/>
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/ArbilApplet.html" dest="${SRCDIR}nl/mpi/arbil/ArbilApplet.html"/>
-    </target>-->
+    </target>
     <target name="getFallbackFiles" depends="setproperties" description="download the latest schema and controlled vocabularies from the web server">
         <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
         <mkdir dir="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/"/>
@@ -311,8 +310,8 @@ public class LinorgVersion {
         <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil.deb"/>
         <!-- push the updated the applet html and the arbil jnlp files to the server -->
-        <scp file="${SRCDIR}nl/mpi/arbil/arbil.jnlp" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file= "${SRCDIR}nl/mpi/arbil/ArbilApplet.html" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${BUILDDIR}/arbil.jnlp" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file= "${BUILDDIR}/ArbilApplet.html" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
 <!--
         <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/log4j-1.2.14.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
