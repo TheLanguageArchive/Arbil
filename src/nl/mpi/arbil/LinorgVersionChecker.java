@@ -20,7 +20,7 @@ public class LinorgVersionChecker {
             LinorgVersion linorgVersion = new LinorgVersion();
             int daysTillExpire = 1;
             String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
-            String cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/tg/j2se/jnlp/linorg/" + currentVersionTxt, daysTillExpire);
+            String cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt, daysTillExpire);
             BufferedReader bufferedReader = new BufferedReader(new FileReader(cachePath));
             String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
@@ -38,7 +38,7 @@ public class LinorgVersionChecker {
     private boolean doUpdate() {
         try {
             // TODO: check the verion of javaws before calling this
-            String execString = "javaws -import http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp";
+            String execString = "javaws -import http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp";
             System.out.println(execString);
             Process launchedProcess = Runtime.getRuntime().exec(execString);
             BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
@@ -55,7 +55,7 @@ public class LinorgVersionChecker {
 
     private void restartApplication() {
         try {
-            String restartString = "javaws http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp";
+            String restartString = "javaws http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp";
             Process restartProcess = Runtime.getRuntime().exec(restartString);
             if (0 == restartProcess.waitFor()) {
                 System.exit(0);
