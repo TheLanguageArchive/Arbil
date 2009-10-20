@@ -26,7 +26,7 @@
         <jar href="lib/log4j-1.2.14.jar" download="eager"/>
         <jar href="lib/saxon8.jar" download="eager"/>
         <jar href="lib/saxon8-dom.jar" download="eager"/>
-        <jar href="lib/typecheck.jar" download="eager"/>
+        <jar href="lib/@TypeCheckVersion@" download="eager"/>
         <jar href="lib/xalan-2.6.0.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
     </resources>
