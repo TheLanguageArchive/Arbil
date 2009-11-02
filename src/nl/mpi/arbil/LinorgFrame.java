@@ -12,6 +12,7 @@ import java.util.Arrays;
  */
 public class LinorgFrame extends javax.swing.JFrame {
 
+    private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
     static boolean updateViaJavaws = false;
 
@@ -91,8 +92,4 @@ public class LinorgFrame extends javax.swing.JFrame {
             }
         });
     }
-    
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JSplitPane mainSplitPane;
-    // End of variables declaration//GEN-END:variables
 }
