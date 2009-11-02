@@ -6,8 +6,10 @@
 -->
 <project name="Linorg" default="compile">
     <target name="setproperties">
+        <property name="arbil.current.major" value="1"/>
+        <property name="arbil.current.minor" value="1"/>
         <property name="SRCDIR" value="src/"/>
-        <property name="OUTPUTDIR" value="arbil-build-0.4.x/"/>
+        <property name="OUTPUTDIR" value="arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
         <property name="TypeCheckVersion" value="typecheck-1.5.16185.jar"/>
@@ -22,7 +24,7 @@
     <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
     <target name="makeDebPackage" depends="signarbil" description="build the deb file">
         <property name="package.name" value="arbil-testing"/>
-        <property name="package.jarname" value="arbil.jar"/>
+        <property name="package.jarname" value="${ArbilJarName}"/>
         <property name="package.iconname" value="arbil128x128.png"/>
         <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
@@ -176,7 +178,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </copy>
     </target>
     <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
-        <jar destfile="${OUTPUTDIR}/arbil.jar">
+        <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
@@ -222,13 +224,11 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                     <file name="xercesImpl.jar" />
                     -->
                <!-- </filelist>-->
-                <pathelement location="${OUTPUTDIR}/arbil.jar"/>
+                <pathelement location="${OUTPUTDIR}/${ArbilJarName}"/>
             </classpath>
         </java>
     </target>
     <target name="getsvnversion" depends="setproperties">
-        <property name="arbil.current.major" value="1"/>
-        <property name="arbil.current.minor" value="1"/>
        <!-- <exec executable="svn" output="version.info">
             <arg value="info"/>
         </exec>
@@ -287,6 +287,7 @@ public class LinorgVersion {
     String fullInfo = "${arbil.info.all}";
 }
         </echo>
+        <property name="ArbilJarName" value="arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar"/>
     </target>
     <target name="signarbil" depends="jar">
         <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="">
@@ -294,7 +295,7 @@ public class LinorgVersion {
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>
-        <signjar jar="${OUTPUTDIR}/arbil.jar"
+        <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="" />
     </target>
@@ -305,13 +306,11 @@ public class LinorgVersion {
     </target> -->
     <target name="scp_to_lux09" depends="signarbil, makeDebPackage, updateJnlpAndAppletHtml">
         <echo file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt">${arbil.current.revision}</echo>
-        <delete file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar" />
-        <move file="${OUTPUTDIR}/arbil.jar" tofile="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar"/>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw">
             <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
         </input>
-        <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${OUTPUTDIR}/${ArbilJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-testing.deb"/>
