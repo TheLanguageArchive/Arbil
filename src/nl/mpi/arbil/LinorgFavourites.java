@@ -14,7 +14,7 @@ import java.util.Vector;
  */
 public class LinorgFavourites {
 
-    private Hashtable<String, ImdiTreeObject> userFavourites;
+//    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private LinorgFavourites singleInstance = null;
 
     static synchronized public LinorgFavourites getSingleInstance() {
@@ -24,27 +24,21 @@ public class LinorgFavourites {
         }
         return singleInstance;
     }
-
-    private LinorgFavourites() {
-        loadSelectedFavourites();
-    }
-
-    private void loadSelectedFavourites() {
-        Vector<String> userFavouritesStrings;
+    
+    // this will load any favourites in the old format and delete the old format file
+    public void loadOldFormatFavourites() {
         try {
-            userFavouritesStrings = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("selectedFavourites");
+            Vector<String> locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
+            File oldFavouritesFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "selectedFavourites");
+            if (oldFavouritesFile.exists()) {
+                Vector<String> userFavouritesStrings = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("selectedFavourites");
+                locationsList.addAll(userFavouritesStrings);
+                LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+                oldFavouritesFile.deleteOnExit();
+            }
         } catch (Exception ex) {
-            System.out.println("load selectedFavourites failed: " + ex.getMessage());
-            userFavouritesStrings = new Vector<String>();
+            System.out.println("load old format favourites failed: " + ex.getMessage());
         }
-        userFavourites = new Hashtable<String, ImdiTreeObject>();
-        // loop favourites and load the imdi objects then set the favourite flags for each
-        for (Enumeration<String> favouritesEnum = userFavouritesStrings.elements(); favouritesEnum.hasMoreElements();) {
-            ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObject(null, favouritesEnum.nextElement());
-            currentImdiObject.setFavouriteStatus(true);
-            userFavourites.put(currentImdiObject.getUrlString(), currentImdiObject);
-        }
-        TreeHelper.getSingleInstance().applyRootLocations();
     }
 
     public boolean toggleFavouritesList(ImdiTreeObject[] imdiObjectArray, boolean setAsTempate) {
@@ -70,7 +64,8 @@ public class LinorgFavourites {
                 addAsFavourite(currentImdiObject.getUrlString());
             } else {
                 removeFromFavourites(currentImdiObject.getUrlString());
-                currentImdiObject.setFavouriteStatus(false);
+                // TODO: remove from any tables and update the tree roots
+//                currentImdiObject.setFavouriteStatus(false);
             }
         }
         return true;
@@ -84,14 +79,15 @@ public class LinorgFavourites {
             if (urlParts.length > 1) {
                 favouriteUrlString = favouriteUrlString + "#" + urlParts[1];
             }
-            if (!userFavourites.containsKey(favouriteUrlString)) {
-                ImdiTreeObject favouriteImdiObject = GuiHelper.imdiLoader.getImdiObject(null, favouriteUrlString);
-                userFavourites.put(favouriteUrlString, favouriteImdiObject);
-                saveSelectedFavourites();
-                loadSelectedFavourites();
-                favouriteImdiObject.setFavouriteStatus(true);
-            }
-
+//            if (!userFavourites.containsKey(favouriteUrlString)) {
+//                ImdiTreeObject favouriteImdiObject = GuiHelper.imdiLoader.getImdiObject(null, favouriteUrlString);
+//                userFavourites.put(favouriteUrlString, favouriteImdiObject);
+//                saveSelectedFavourites();
+//                loadSelectedFavourites();
+//                favouriteImdiObject.setFavouriteStatus(true);
+//            }
+            TreeHelper.getSingleInstance().addLocation(favouriteUrlString);
+            TreeHelper.getSingleInstance().applyRootLocations();
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -121,29 +117,23 @@ public class LinorgFavourites {
     }
 
     private void removeFromFavourites(String imdiUrlString) {
-        while (userFavourites.containsKey(imdiUrlString)) {
-            userFavourites.remove(imdiUrlString);
-        }
-        saveSelectedFavourites();
-        loadSelectedFavourites();
+        TreeHelper.getSingleInstance().removeLocation(imdiUrlString);
     }
 
-    public void saveSelectedFavourites() {
-        try {
-            LinorgSessionStorage.getSingleInstance().saveObject(new Vector(userFavourites.keySet()), "selectedFavourites");
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
-    }
-
-    public Vector getFavouritesAsUrls() {
-        return new Vector(userFavourites.keySet());
-    }
-
-    public ImdiTreeObject[] listAllFavourites() {
-        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
-    }
-
+//    public void saveSelectedFavourites() {
+//        try {
+//            LinorgSessionStorage.getSingleInstance().saveObject(new Vector(userFavourites.keySet()), "selectedFavourites");
+//        } catch (Exception ex) {
+//            GuiHelper.linorgBugCatcher.logError(ex);
+//        }
+//    }
+//    public Vector getFavouritesAsUrls() {
+//        return new Vector(userFavourites.keySet());
+//    }
+//
+//    public ImdiTreeObject[] listAllFavourites() {
+//        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
+//    }
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
         System.out.println("listFavouritesFor: " + targetNodeUserObject);
         Vector<String[]> validFavourites = new Vector<String[]>();
@@ -152,8 +142,7 @@ public class LinorgFavourites {
             boolean targetIsCorpus = targetImdiObject.isCorpus();
             boolean targetIsSession = targetImdiObject.isSession();
             boolean targetIsImdiChild = targetImdiObject.isImdiChild();
-            for (Enumeration<ImdiTreeObject> imdiObjectEnum = userFavourites.elements(); imdiObjectEnum.hasMoreElements();) {
-                ImdiTreeObject currentFavouritesObject = imdiObjectEnum.nextElement();
+            for (ImdiTreeObject currentFavouritesObject : TreeHelper.getSingleInstance().favouriteNodes) {
                 boolean addThisFavourites = false;
                 if (targetIsCorpus && !currentFavouritesObject.isImdiChild()) {
                     addThisFavourites = true;

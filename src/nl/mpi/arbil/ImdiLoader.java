@@ -254,7 +254,7 @@ public class ImdiLoader {
         return currentImdiObject;
     }
 
-    public ImdiTreeObject getImdiObject(Component registeringObject, String localUrlString) {// throws Exception {
+    public ImdiTreeObject getImdiObject(Object registeringObject, String localUrlString) {// throws Exception {
         ImdiTreeObject currentImdiObject = null;
         if (localUrlString != null && localUrlString.length() > 0) {
             currentImdiObject = getImdiObjectWithoutLoading(localUrlString);
@@ -305,13 +305,13 @@ public class ImdiLoader {
         if (currentImdiObject.isImdiChild()) {
             currentImdiObject = currentImdiObject.getParentDomNode();
         }
-        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
+//        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
             if (!imdiLocalNodesToInit.contains(currentImdiObject)) {
                 System.out.println("requestReload: " + currentImdiObject.getUrlString());
                 currentImdiObject.updateLoadingState(+1);
                 imdiLocalNodesToInit.add(currentImdiObject);
             }
-        }
+//        }
     }
 
     @Override

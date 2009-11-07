@@ -58,10 +58,10 @@ public class ImdiTreeObject implements Comparable {
     private boolean nodeEnabled;
     // merge to one array of domid url imditreeobject
     private String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
-    private HashSet/*<Component>*/ containersOfThisNode;
+    private Vector/*<Component>*/ containersOfThisNode;
     private int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
-    private boolean isFavourite;
+//    private boolean isFavourite;
     public boolean hasArchiveHandle = false;
 //    public boolean autoLoadChildNodes = false;
     public Vector<String[]> addQueue;
@@ -74,7 +74,7 @@ public class ImdiTreeObject implements Comparable {
 
     protected ImdiTreeObject(String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
-        containersOfThisNode = new HashSet<Component>();
+        containersOfThisNode = new Vector<Component>();
         addQueue = new Vector<String[]>();
         nodeUrl = conformStringToUrl(localUrlString);
         initNodeVariables();
@@ -237,31 +237,24 @@ public class ImdiTreeObject implements Comparable {
                 nodeText = this.getUrlString();
             }
         }
-        if (!isImdi() && !isDirectory() && isLocal()) {
-            // if it is an not imdi or a loose file but not a direcotry then get the md5sum
-            MimeHashQueue.getSingleInstance().addToQueue(this);
-        }
-        if (this.isDirectory()) {
-            getDirectoryLinks();
-            clearIcon();
-        }
     }
 
     public void reloadNode() {
         System.out.println("reloadNode: " + isLoading());
         getParentDomNode().needsSaveToDisk = false; // clear any changes
-        if (!this.isImdi()) {
-            initNodeVariables();
-            //loadChildNodes();
-            clearIcon();
-            // TODO: this could just remove the decendant nodes and let the user re open them
-            TreeHelper.getSingleInstance().updateTreeNodeChildren(this);
-        } else {
-//            if (getParentDomNode().isCorpus()) {
-//                getParentDomNode().autoLoadChildNodes = true;
-//            }
-            GuiHelper.imdiLoader.requestReload(getParentDomNode());
-        }
+//        if (!this.isImdi()) {
+//            initNodeVariables();
+//            //loadChildNodes();
+//            clearIcon();
+//            // TODO: this could just remove the decendant nodes and let the user re open them
+//            TreeHelper.getSingleInstance().updateTreeNodeChildren(this);
+////            this.clearIcon();
+//        } else {
+////            if (getParentDomNode().isCorpus()) {
+////                getParentDomNode().autoLoadChildNodes = true;
+////            }
+        GuiHelper.imdiLoader.requestReload(getParentDomNode());
+//        }
     }
 
 //    private void reloadImdiNode() {
@@ -274,8 +267,19 @@ public class ImdiTreeObject implements Comparable {
             getParentDomNode().loadImdiDom();
         } else {
             initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
-            Document nodDom = null;
-            // cacheLocation will be null if useCache = false hence no file has been saved
+            if (!isImdi() && !isDirectory() && isLocal()) {
+                // if it is an not imdi or a loose file but not a direcotry then get the md5sum
+                MimeHashQueue.getSingleInstance().addToQueue(this);
+                imdiDataLoaded = true;
+            }
+            if (this.isDirectory()) {
+                getDirectoryLinks();
+                imdiDataLoaded = true;
+//            clearIcon();
+            }
+            if (isImdi()) {
+                Document nodDom = null;
+                // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
             try {
                 //System.out.println("tempUrlString: " + tempUrlString);
@@ -318,7 +322,7 @@ public class ImdiTreeObject implements Comparable {
                     childLinks = childLinksTemp.toArray(new String[][]{});
                     ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                     for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
-                        System.out.println("setting childArray on: " + currentNode.getUrlString());
+//                        System.out.println("setting childArray on: " + currentNode.getUrlString());
                         // save the old child array
                         ImdiTreeObject[] oldChildArray = currentNode.childArray;
                         // set the new child array
@@ -366,6 +370,7 @@ public class ImdiTreeObject implements Comparable {
 //        return cacheLocation;
             imdiDataLoaded = true;
 //            clearChildIcons();
+            }
         }
     }
 
@@ -385,13 +390,15 @@ public class ImdiTreeObject implements Comparable {
         String[] dirLinkArray = null;
         File nodeFile = this.getFile();
         dirLinkArray = nodeFile.list();
-        Vector<String[]> childLinksTemp = new Vector<String[]>();
+        Vector<ImdiTreeObject> childLinksTemp = new Vector<ImdiTreeObject>();
         for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
             String currentLink = this.getUrlString() + File.separatorChar + dirLinkArray[linkCount];
 //            System.out.println("currentLink: " + currentLink);
-            childLinksTemp.add(new String[]{currentLink, null});
+            ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObjectWithoutLoading(currentLink);
+            childLinksTemp.add(currentImdi);
         }
-        childLinks = childLinksTemp.toArray(new String[][]{});
+        //childLinks = childLinksTemp.toArray(new String[][]{});
+        childArray = childLinksTemp.toArray(new ImdiTreeObject[]{});
     }
 
 //    private void getImdiLinks(Document nodDom) {
@@ -411,7 +418,6 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("Error getting links: " + mue);
 //        }
 //    }
-
 //        private boolean populateChildFields(String fieldNameString, boolean alwaysShow) {
 //            // this is called when loading children and when loading fields
 //            //System.out.println("fieldNameString: " + fieldNameString);
@@ -465,12 +471,12 @@ public class ImdiTreeObject implements Comparable {
      */
     public int getChildCount() {
 //        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
-        return childLinks.length;
+        return childArray.length;
     }
 
     /**
      * Calls getAllChildren(Vector<ImdiTreeObject> allChildren) and returns the result as an array
-     * @return an array of all the child nodes 
+     * @return an array of all the child nodes
      */
     public ImdiTreeObject[] getAllChildren() {
         Vector<ImdiTreeObject> allChildren = new Vector<ImdiTreeObject>();
@@ -584,6 +590,7 @@ public class ImdiTreeObject implements Comparable {
             destinationNode = this;
             try {
                 OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                System.out.println("inUrlLocal: " + inUrlLocal);
                 Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 if (nodDom == null) {
                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI file could not be opened via the IMDI API", "Add Node");
@@ -601,7 +608,7 @@ public class ImdiTreeObject implements Comparable {
 //                System.out.println("addChildNode: " + ex.getMessage());
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
-//            imdiNeedsSaveToDisk = true;
+//            needsSaveToDisk = true;
         } else {
             System.out.println("adding new node");
             String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + LinorgSessionStorage.getSingleInstance().getNewImdiFileName();
@@ -725,11 +732,7 @@ public class ImdiTreeObject implements Comparable {
      * @return boolean
      */
     public boolean canHaveChildren() {
-        if (childLinks != null) {
-            return childLinks.length > 0;
-        } else {
-            return false;
-        }
+        return childArray.length > 0;
     }
 
 //    /*
@@ -1451,21 +1454,8 @@ public class ImdiTreeObject implements Comparable {
      * @return The string comparison result.
      */
     public int compareTo(Object o) throws ClassCastException {
-        if (!(o instanceof ImdiTreeObject)) {
-            throw new ClassCastException("ImdiTreeObject expected.");
-        }
-        if (o instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) o).isDirectory && !this.isDirectory) {
-                return +1;
-            } else if (!((ImdiTreeObject) o).isDirectory && this.isDirectory) {
-                return -1;
-            }
-        }
-        int resultInt = this.toString().compareToIgnoreCase(((ImdiTreeObject) o).toString());
-        if (resultInt == 0) { // make sure that to objects dont get mistaken to be the same just because the string lebels are the same
-            resultInt = this.getUrlString().compareToIgnoreCase(((ImdiTreeObject) o).getUrlString());
-        }
-        return resultInt;
+        ImdiTreeNodeSorter imdiTreeNodeSorter = new ImdiTreeNodeSorter();
+        return imdiTreeNodeSorter.compare(this, o);
     }
 
     synchronized boolean waitTillLoaded() {
@@ -1699,6 +1689,9 @@ public class ImdiTreeObject implements Comparable {
 
     public void registerContainer(Object containerToAdd) {
 //        System.out.println("registerContainer: " + containerToAdd + " : " + this);
+         if (!getParentDomNode().imdiDataLoaded) { // TODO: this is probably not the best way to do this and might be better in a manager class
+            GuiHelper.imdiLoader.requestReload(getParentDomNode());
+        }
         if (containerToAdd != null) {
             // todo: handle null here more agressively
             containersOfThisNode.add(containerToAdd);
@@ -1750,7 +1743,8 @@ public class ImdiTreeObject implements Comparable {
 //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
 //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
         // here we need to cause an update in the tree and table gui so that the new icon can be loaded
-        for (Object currentContainer : containersOfThisNode.toArray()) {
+        for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+            Object currentContainer = containersIterator.nextElement();
 //                    System.out.println("currentContainer: " + currentContainer.toString());
             if (currentContainer instanceof ImdiTableModel) {
                 ((ImdiTableModel) currentContainer).requestReloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
@@ -1773,14 +1767,14 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isFavorite() {
-        return getParentDomNode().isFavourite;
+        return LinorgSessionStorage.getSingleInstance().pathIsInFavourites(this.getFile());
+//        return getParentDomNode().isFavourite;
     }
 
-    public void setFavouriteStatus(boolean favouriteStatus) {
-        getParentDomNode().isFavourite = favouriteStatus;
-        clearIcon();
-    }
-
+//    public void setFavouriteStatus(boolean favouriteStatus) {
+//        getParentDomNode().isFavourite = favouriteStatus;
+//        clearIcon();
+//    }
     /**
      * If not already done calculates the required icon for this node in its current state.
      * Once calculated the stored icon will be returned.
