@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -11,11 +12,13 @@ import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -36,8 +39,8 @@ public class ImdiTreeObject implements Comparable {
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
     private Hashtable<String, ImdiField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
-    private Hashtable<String, ImdiTreeObject> childrenHashtable;
-    private boolean imdiDataLoaded;
+    private ImdiTreeObject[] childArray = new ImdiTreeObject[0];
+    public boolean imdiDataLoaded;
     public String hashString;
     public String mpiMimeType;
     public String typeCheckerMessage;
@@ -45,7 +48,7 @@ public class ImdiTreeObject implements Comparable {
     public int matchesRemote;
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
-    public boolean needsSaveToDisk;
+    private boolean needsSaveToDisk;
     private String nodeText, lastNodeText = "";
     private boolean nodeTextChanged = false;
     private URL nodeUrl;
@@ -53,13 +56,14 @@ public class ImdiTreeObject implements Comparable {
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
-    private Vector<String[]> childLinks; // each element in this vector is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
-    private HashSet containersOfThisNode;
+    // merge to one array of domid url imditreeobject
+    private String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
+    private HashSet/*<Component>*/ containersOfThisNode;
     private int isLoadingCount = 0;
     public boolean lockedByLoadingThread = false;
     private boolean isFavourite;
     public boolean hasArchiveHandle = false;
-    public boolean autoLoadChildNodes = false;
+//    public boolean autoLoadChildNodes = false;
     public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
 //    public Vector<ImdiTreeObject> mergeQueue;
@@ -70,7 +74,7 @@ public class ImdiTreeObject implements Comparable {
 
     protected ImdiTreeObject(String localUrlString) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
-        containersOfThisNode = new HashSet();
+        containersOfThisNode = new HashSet<Component>();
         addQueue = new Vector<String[]>();
         nodeUrl = conformStringToUrl(localUrlString);
         initNodeVariables();
@@ -131,6 +135,14 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public boolean getNeedsSaveToDisk() {
+        // when the dom parent node is saved all the sub nodes are also saved so we need to clear this flag
+        if (needsSaveToDisk && !this.getParentDomNode().needsSaveToDisk) {
+            needsSaveToDisk = false;
+        }
+        return needsSaveToDisk;
+    }
+
     public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk, boolean updateUI) {
         if (isImdiChild()) {
             this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk, updateUI);
@@ -162,9 +174,8 @@ public class ImdiTreeObject implements Comparable {
 
     private void initNodeVariables() {
         // loop any indichildnodes and init
-        if (childrenHashtable != null) {
-            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
-                ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
+        if (childArray != null) {
+            for (ImdiTreeObject currentNode : childArray) {
                 if (currentNode.isImdiChild()) {
                     currentNode.initNodeVariables();
                 }
@@ -175,7 +186,6 @@ public class ImdiTreeObject implements Comparable {
             currentTemplate = ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
         }
         fieldHashtable = new Hashtable<String, ImdiField[]>();
-        childrenHashtable = new Hashtable<String, ImdiTreeObject>();
         imdiDataLoaded = false;
         hashString = null;
         mpiMimeType = null;
@@ -190,7 +200,6 @@ public class ImdiTreeObject implements Comparable {
         isDirectory = false;
         icon = null;
         nodeEnabled = true;
-        childLinks = new Vector<String[]>();
 //        isLoadingCount = true;
         if (nodeUrl != null) {
             if (!isImdi() && isLocal()) {
@@ -243,13 +252,14 @@ public class ImdiTreeObject implements Comparable {
         getParentDomNode().needsSaveToDisk = false; // clear any changes
         if (!this.isImdi()) {
             initNodeVariables();
-            loadChildNodes();
+            //loadChildNodes();
             clearIcon();
+            // TODO: this could just remove the decendant nodes and let the user re open them
             TreeHelper.getSingleInstance().updateTreeNodeChildren(this);
         } else {
-            if (getParentDomNode().isCorpus()) {
-                getParentDomNode().autoLoadChildNodes = true;
-            }
+//            if (getParentDomNode().isCorpus()) {
+//                getParentDomNode().autoLoadChildNodes = true;
+//            }
             GuiHelper.imdiLoader.requestReload(getParentDomNode());
         }
     }
@@ -301,8 +311,44 @@ public class ImdiTreeObject implements Comparable {
                 } else {
                     //set the string name to unknown, it will be updated in the tostring function
                     nodeText = "unknown";
+                    Vector<String[]> childLinksTemp = new Vector<String[]>();
+                    Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                     // load the fields from the imdi file
-                    GuiHelper.imdiSchema.iterateChildNodes(this, childLinks, nodDom.getFirstChild(), "");
+                    GuiHelper.imdiSchema.iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree);
+                    childLinks = childLinksTemp.toArray(new String[][]{});
+                    ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
+                    for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
+                        System.out.println("setting childArray on: " + currentNode.getUrlString());
+                        // save the old child array
+                        ImdiTreeObject[] oldChildArray = currentNode.childArray;
+                        // set the new child array
+                        currentNode.childArray = parentChildTree.get(currentNode).toArray(new ImdiTreeObject[]{});
+                        // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
+                        List currentChildList = Arrays.asList(currentNode.childArray);
+                        for (ImdiTreeObject currentOldChild : oldChildArray) {
+                            if (currentChildList.indexOf(currentOldChild) == -1) {
+                                // remove from any containers that its found in
+                                for (Object currentContainer : currentOldChild.getRegisteredContainers()) {
+                                    if (currentContainer instanceof ImdiChildCellEditor) {
+                                        ((ImdiChildCellEditor) currentContainer).stopCellEditing();
+                                    }
+                                    if (currentContainer instanceof ImdiTableModel) {
+                                        ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentOldChild});
+                                    }
+                                    if (currentContainer instanceof DefaultMutableTreeNode) {
+                                        DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
+                                        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
+                                        if (parentNode != null) { // TODO this could be reduced as it is also sort of done in clear icon
+                                            TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+                                        } else {
+                                            TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
                 }
 //            }
                 // save this to the cache before deleting the dom
@@ -318,7 +364,8 @@ public class ImdiTreeObject implements Comparable {
             //we are now done with the dom so free the memory
             nodDom = null;
 //        return cacheLocation;
-        clearChildIcons();
+            imdiDataLoaded = true;
+//            clearChildIcons();
         }
     }
 
@@ -338,11 +385,13 @@ public class ImdiTreeObject implements Comparable {
         String[] dirLinkArray = null;
         File nodeFile = this.getFile();
         dirLinkArray = nodeFile.list();
+        Vector<String[]> childLinksTemp = new Vector<String[]>();
         for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
             String currentLink = this.getUrlString() + File.separatorChar + dirLinkArray[linkCount];
 //            System.out.println("currentLink: " + currentLink);
-            childLinks.add(new String[]{currentLink, null});
+            childLinksTemp.add(new String[]{currentLink, null});
         }
+        childLinks = childLinksTemp.toArray(new String[][]{});
     }
 
 //    private void getImdiLinks(Document nodDom) {
@@ -416,7 +465,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public int getChildCount() {
 //        System.out.println("getChildCount: " + childLinks.size() + childrenHashtable.size() + " : " + this.getUrlString());
-        return childLinks.size() + childrenHashtable.size();
+        return childLinks.length;
     }
 
     /**
@@ -436,11 +485,11 @@ public class ImdiTreeObject implements Comparable {
     public void getAllChildren(Vector<ImdiTreeObject> allChildren) {
         System.out.println("getAllChildren: " + this.getUrlString());
         if (this.isSession() || this.isImdiChild()) {
-            for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
-                ((ImdiTreeObject) childEnum.nextElement()).getAllChildren(allChildren);
+            for (ImdiTreeObject currentChild : childArray) {
+                currentChild.getAllChildren(allChildren);
+                allChildren.add(currentChild);
             }
         }
-        allChildren.addAll(childrenHashtable.values());
     }
 
     /**
@@ -448,25 +497,24 @@ public class ImdiTreeObject implements Comparable {
      * @return An array of the next level child nodes.
      */
     public ImdiTreeObject[] getChildArray() {
-        return childrenHashtable.values().toArray(new ImdiTreeObject[]{});
+        return childArray;
     }
 
-    /**
-     * Used to populate the child list in the show child popup in the imditable.
-     * @return An enumeration of the next level child nodes.
-     */
-    public Enumeration<ImdiTreeObject> getChildEnum() {
-        return childrenHashtable.elements();
-    }
-
-    /**
-     * Used to populate the child nodes in the table cell.
-     * @return A collection of the next level child nodes.
-     */
-    public Collection<ImdiTreeObject> getChildCollection() {
-        return childrenHashtable.values();
-    }
-
+//    /**
+//     * Used to populate the child list in the show child popup in the imditable.
+//     * @return An enumeration of the next level child nodes.
+//     */
+//    public Enumeration<ImdiTreeObject> getChildEnum() {
+//        return childObjectDomIdHash.elements();
+//    }
+//
+//    /**
+//     * Used to populate the child nodes in the table cell.
+//     * @return A collection of the next level child nodes.
+//     */
+//    public Collection<ImdiTreeObject> getChildCollection() {
+//        return childObjectDomIdHash.values();
+//    }
     /**
      * Gets the second level child nodes from the fist level child node matching the child type string.
      * Used to populate the child nodes in the table cell.
@@ -474,10 +522,9 @@ public class ImdiTreeObject implements Comparable {
      * @return An object array of all second level child nodes in the first level node.
      */
     public ImdiTreeObject[] getChildNodesArray(String childType) {
-        for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
-            ImdiTreeObject currentNode = (ImdiTreeObject) childEnum.nextElement();
+        for (ImdiTreeObject currentNode : childArray) {
             if (currentNode.toString().equals(childType)) {
-                return currentNode.getChildCollection().toArray(new ImdiTreeObject[0]);
+                return currentNode.getChildArray();
             }
         }
         return null;
@@ -490,14 +537,13 @@ public class ImdiTreeObject implements Comparable {
      * To add a node to a dom use addChildNode.
      * @return void
      */
-    public void attachChildNode(ImdiTreeObject destinationNode) {
-//        System.out.println("attachChildNodeTo: " + this.getUrlString());
-//        System.out.println("attachChildNode: " + destinationNode.getUrlString());
-        if (destinationNode != this) {
-            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
-        }
-    }
-
+//    public void attachChildNode(ImdiTreeObject destinationNode) {
+////        System.out.println("attachChildNodeTo: " + this.getUrlString());
+////        System.out.println("attachChildNode: " + destinationNode.getUrlString());
+//        if (destinationNode != this) {
+//            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
+//        }
+//    }
 //    /**
 //     * Add a resource contained i an imdi object
 //     * @return String path to the added node
@@ -602,26 +648,29 @@ public class ImdiTreeObject implements Comparable {
      * Loads the child links and returns them as an array
      * @return ImdiTreeObject[] array of child nodes
      */
-    public ImdiTreeObject[] loadChildNodes() {
-        System.out.println("loadChildNodes: " + this);
-        if (!imdiDataLoaded) {
-            // if this node has been loaded then do not load again
-            // to refresh the node and its children the node should be nulled and recreated
-            imdiDataLoaded = true;
-            autoLoadChildNodes = false;
-            if (!this.isSession()) {
-                //getImdiFieldLinks();
-                for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-                    String currentChildPath = childLinksEnum.nextElement()[0];
-                    ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
-//                    System.out.println("adding to list of child nodes 2: " + currentImdi);
-                    childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
-//                    if (ImdiTreeObject.isStringImdi(currentChildPath)) {
-//                        currentImdi.loadImdiDom();
-//                    }
-                }
-            }
-        // START: this section uses the imdi.api to query the dom for available fields but it has been commented out in favour of the iterateChildNodes function
+//    public void loadChildNodes() {
+//        for (ImdiTreeObject currentChild : childArray) {
+//            GuiHelper.imdiLoader.getImdiObject(null, currentChild.getUrlString());
+//        }
+//        System.out.println("loadChildNodes: " + this);
+    //waitTillLoaded();
+//        if (!getParentDomNode().imdiDataLoaded) {
+    // if this node has been loaded then do not load again
+    // to refresh the node and its children the node should be nulled and recreated
+//            autoLoadChildNodes = false;
+//        if (!this.isSession()) {
+//            //getImdiFieldLinks();
+//            for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
+//                String currentChildPath = childLinksEnum.nextElement()[0];
+//                ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
+////                    System.out.println("adding to list of child nodes 2: " + currentImdi);
+//                childrenHashtable.put(currentImdi.getUrlString(), currentImdi);
+////                    if (ImdiTreeObject.isStringImdi(currentChildPath)) {
+////                        currentImdi.loadImdiDom();
+////                    }
+//                }
+//        }
+    // START: this section uses the imdi.api to query the dom for available fields but it has been commented out in favour of the iterateChildNodes function
 //                System.err.println("Starting to load fields at: " + System.nanoTime());
 //                Long startTime = System.nanoTime();
 //                for (int rowNameCounter = 0; rowNameCounter < imdiFieldArray.length; rowNameCounter++) {
@@ -639,19 +688,17 @@ public class ImdiTreeObject implements Comparable {
 //                System.err.println("first method: " + (nextTime - startTime) + " second method: " + (lastTime - nextTime));
 //                System.err.println("second method took " + (lastTime - nextTime + 0.0) / (nextTime - startTime) * 100 + "% of the time used by the first");
 //                System.err.println("the imdi.api took " + ((nextTime - startTime) / lastTime - nextTime + 0.0) + " times longer");
-        // END: this section uses the imdi.api to query the dom for available fields but it has been commented out in favour of the iterateChildNodes function
-
-        }
-        Vector<ImdiTreeObject> tempImdiVector = new Vector<ImdiTreeObject>();
-        Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-        while (nodesToAddEnumeration.hasMoreElements()) {
-            tempImdiVector.add((ImdiTreeObject) nodesToAddEnumeration.nextElement());
-        }
-        ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[tempImdiVector.size()];
-        tempImdiVector.toArray(returnImdiArray);
-        return returnImdiArray;
-    }
-
+    // END: this section uses the imdi.api to query the dom for available fields but it has been commented out in favour of the iterateChildNodes function
+//        }
+//        Vector<ImdiTreeObject> tempImdiVector = new Vector<ImdiTreeObject>();
+//        Enumeration nodesToAddEnumeration = childrenHashtable.elements();
+//        while (nodesToAddEnumeration.hasMoreElements()) {
+//            tempImdiVector.add((ImdiTreeObject) nodesToAddEnumeration.nextElement());
+//        }
+//        ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[tempImdiVector.size()];
+//        tempImdiVector.toArray(returnImdiArray);
+//        return returnImdiArray;
+//    }
     public boolean containsFieldValue(String searchValue) {
         boolean findResult = false;
         for (ImdiField[] currentFieldArray : (Collection<ImdiField[]>) this.fieldHashtable.values()) {
@@ -678,7 +725,11 @@ public class ImdiTreeObject implements Comparable {
      * @return boolean
      */
     public boolean canHaveChildren() {
-        return childLinks.size() > 0 || childrenHashtable.size() > 0;
+        if (childLinks != null) {
+            return childLinks.length > 0;
+        } else {
+            return false;
+        }
     }
 
 //    /*
@@ -705,27 +756,23 @@ public class ImdiTreeObject implements Comparable {
 //        }
 //        return returnArray;
 //    }
-
-    public void loadNextLevelOfChildren(long stopTime) {
-//        debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
-        if (System.currentTimeMillis() > stopTime) {
-            return;
-        }
-        if (this.isImdi()) {
-            if (imdiDataLoaded) {
-                Enumeration nodesToAddEnumeration = childrenHashtable.elements();
-                while (nodesToAddEnumeration.hasMoreElements()) {
-                    // load one level of child nodes
-                    ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime);
-                //((ImdiTreeObject) nodesToAddEnumeration.nextElement()).();
-                }
-            } else {
-                loadChildNodes();
-            }
-        }
-//        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
-    }
-
+//    public void loadNextLevelOfChildren(long stopTime) {
+////        debugOut("loadNextLevelOfChildren: " + this.toString() + ":" + (System.currentTimeMillis() - stopTime));
+//        if (System.currentTimeMillis() > stopTime) {
+//            return;
+//        }
+//        if (this.isImdi()) {
+//            if (getParentDomNode().imdiDataLoaded) {
+//                Enumeration nodesToAddEnumeration = childrenHashtable.elements();
+//                while (nodesToAddEnumeration.hasMoreElements()) {
+//                    // load one level of child nodes
+//                    ((ImdiTreeObject) nodesToAddEnumeration.nextElement()).loadNextLevelOfChildren(stopTime);
+//                    //((ImdiTreeObject) nodesToAddEnumeration.nextElement()).();
+//                }
+//            }
+//        }
+////        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
+//    }
     /**
      * Checks if there are changes saved on disk that have not been sent to the server.
      * @return boolean
@@ -739,8 +786,7 @@ public class ImdiTreeObject implements Comparable {
         // that includes all indinodechild fields but not from any other imdi file
         System.out.println("getAllFields: " + this.toString());
         allFields.addAll(fieldHashtable.values());
-        for (Enumeration childEnum = childrenHashtable.elements(); childEnum.hasMoreElements();) {
-            ImdiTreeObject currentChild = ((ImdiTreeObject) childEnum.nextElement());
+        for (ImdiTreeObject currentChild : childArray) {
             if (currentChild.isImdiChild()) {
                 currentChild.getAllFields(allFields);
             }
@@ -785,8 +831,7 @@ public class ImdiTreeObject implements Comparable {
         // retrieve the node id for the link
         ArrayList<String> fieldIdList = new ArrayList<String>();
         String linkIdString = null;
-        for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-            String[] currentLinkPair = childLinksEnum.nextElement();
+        for (String[] currentLinkPair : childLinks) {
             String currentChildPath = currentLinkPair[0];
 //                System.out.println("currentChildPath: " + currentChildPath);
             for (ImdiTreeObject currentImdiNode : targetImdiNodes) {
@@ -808,6 +853,8 @@ public class ImdiTreeObject implements Comparable {
                 deleteCatalogueLink();
             }
         }
+        //loadChildNodes(); // this must not be done here
+        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
     }
 
     public void deleteCatalogueLink() {
@@ -859,11 +906,10 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean hasCatalogue() {
-        for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-            String[] currentLinkPair = childLinksEnum.nextElement();
+        for (String[] currentLinkPair : childLinks) {
             String currentChildPath = currentLinkPair[0];
             ImdiTreeObject childNode = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
-            childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
+            //childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
             if (childNode.isCatalogue()) {
                 return true;
             }
@@ -880,8 +926,7 @@ public class ImdiTreeObject implements Comparable {
                 return false;
             }
         }
-        for (Enumeration<String[]> childLinksEnum = childLinks.elements(); childLinksEnum.hasMoreElements();) {
-            String[] currentLinkPair = childLinksEnum.nextElement();
+        for (String[] currentLinkPair : childLinks) {
             String currentChildPath = currentLinkPair[0];
             if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
@@ -934,6 +979,8 @@ public class ImdiTreeObject implements Comparable {
                 GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
             }
+            //loadChildNodes(); // this must not be done here
+            clearIcon(); // this must be cleared so that the leaf / branch flag gets set
             return true;
         }
     }
@@ -1205,7 +1252,10 @@ public class ImdiTreeObject implements Comparable {
                         }
                     }
                 }
+                for (Enumeration<ImdiField> fieldsEnum = addedFields.elements(); fieldsEnum.hasMoreElements();) {
+                    ImdiField currentField = fieldsEnum.nextElement();
                 //////
+                }
                 // update the files version number
                 //String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
                 //TODO: the template add does not create a new history file so move this into a common area for both
@@ -1411,13 +1461,17 @@ public class ImdiTreeObject implements Comparable {
                 return -1;
             }
         }
-        return this.toString().compareToIgnoreCase(((ImdiTreeObject) o).toString());
+        int resultInt = this.toString().compareToIgnoreCase(((ImdiTreeObject) o).toString());
+        if (resultInt == 0) { // make sure that to objects dont get mistaken to be the same just because the string lebels are the same
+            resultInt = this.getUrlString().compareToIgnoreCase(((ImdiTreeObject) o).getUrlString());
+        }
+        return resultInt;
     }
 
     synchronized boolean waitTillLoaded() {
         if (isLoading()) {
             try {
-                this.wait();
+                getParentDomNode().wait();
             } catch (Exception ex) {
                 return false;
             }
@@ -1426,14 +1480,21 @@ public class ImdiTreeObject implements Comparable {
     }
 
     synchronized void updateLoadingState(int countChange) {
-        isLoadingCount += countChange;
-        if (!isLoading()) {
-            this.notifyAll();
+        if (this != getParentDomNode()) {
+            getParentDomNode().updateLoadingState(countChange);
+        } else {
+            isLoadingCount += countChange;
+            System.out.println("isLoadingCount: " + isLoadingCount);
+            if (!isLoading()) {
+                this.notifyAll();
+                clearChildIcons();
+                clearIcon();
+            }
         }
     }
 
     public boolean isLoading() {
-        return isLoadingCount > 0;
+        return getParentDomNode().isLoadingCount > 0;
     }
 
     @Override
@@ -1667,8 +1728,7 @@ public class ImdiTreeObject implements Comparable {
      * Used when loading a session dom.
      */
     public void clearChildIcons() {
-        for (Enumeration childNodesEnum = this.getChildEnum(); childNodesEnum.hasMoreElements();) {
-            ImdiTreeObject currentChild = (ImdiTreeObject) childNodesEnum.nextElement();
+        for (ImdiTreeObject currentChild : childArray) {
             currentChild.clearChildIcons();
             currentChild.clearIcon();
         }
@@ -1702,9 +1762,9 @@ public class ImdiTreeObject implements Comparable {
                 DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
                 DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
                 if (parentNode != null) {
-                    TreeHelper.getSingleInstance().updateTreeNodeChildren(parentNode);
+                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 } else {
-                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentTreeNode);
+                    TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
                 }
             }
         }

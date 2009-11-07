@@ -102,7 +102,7 @@ class JListToolTip extends JToolTip {
         if (tempObject.needsChangesSentToServer()) {
             addTabbedLabel("Local changes not sent to the server");
         }
-        if (tempObject.needsSaveToDisk) {
+        if (tempObject.getNeedsSaveToDisk()) {
             addTabbedLabel("Unsaved changes");
         }
         if (tempObject.isFavorite()) {

@@ -386,7 +386,7 @@ public class ArbilDragDrop {
                             } else {
                                 JTree dropTree = (JTree) comp;
                                 DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
-                                TreeHelper.getSingleInstance().updateTreeNodeChildren(targetNode);
+                                TreeHelper.getSingleInstance().addToSortQueue(targetNode);
                                 Object dropTargetUserObject = targetNode.getUserObject();
                                 Vector<ImdiTreeObject> importNodeList = new Vector<ImdiTreeObject>();
                                 Hashtable<ImdiTreeObject, Vector> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector>();

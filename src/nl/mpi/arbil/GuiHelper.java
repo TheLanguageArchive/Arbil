@@ -126,7 +126,7 @@ public class GuiHelper {
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
         if (userObject instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) (userObject)).needsSaveToDisk) {
+            if (((ImdiTreeObject) (userObject)).getNeedsSaveToDisk()) {
                 if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                     ((ImdiTreeObject) (userObject)).saveChangesToCache(true);
                 } else {
@@ -269,18 +269,6 @@ public class GuiHelper {
             }
         }
         return result;
-    }
-
-    public void removeFromGridData(TableModel tableModel, Vector nodesToRemove) {
-        // remove the supplied nodes from the grid
-        ((ImdiTableModel) tableModel).removeImdiObjects(nodesToRemove.elements());
-        for (Enumeration nodesToRemoveEnum = nodesToRemove.elements(); nodesToRemoveEnum.hasMoreElements();) {
-            // iterate over the supplied nodes
-            Object currentObject = nodesToRemoveEnum.nextElement();
-            if (ImdiTreeObject.isImdiNode(currentObject)) {
-                String hashKey = ((ImdiTreeObject) currentObject).getUrlString();
-            }
-        }
     }
 }
 

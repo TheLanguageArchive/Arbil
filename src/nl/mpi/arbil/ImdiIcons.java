@@ -79,7 +79,6 @@ public class ImdiIcons {
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/loading04.png"));
     public ImageIcon favouriteIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/favourite.png"));
 //    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/template.png"));
-
     static private ImdiIcons singleInstance = null;
 
     static synchronized public ImdiIcons getSingleInstance() {
@@ -234,7 +233,7 @@ public class ImdiIcons {
         if (imdiObject.needsChangesSentToServer()) {
             iconsVector.add(exclamationBlueIcon);
         }
-        if (imdiObject.needsSaveToDisk) {
+        if (imdiObject.getNeedsSaveToDisk()) {
             iconsVector.add(exclamationRedIcon);
         }
         return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable

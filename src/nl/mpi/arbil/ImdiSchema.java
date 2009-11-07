@@ -7,7 +7,10 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
@@ -484,13 +487,18 @@ public class ImdiSchema {
         return linkPath;
     }
 
-    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath) {
+    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
+            Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
+            ) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
         // any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode
         // the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
 
+        if (!parentChildTree.containsKey(parentNode)) {
+            parentChildTree.put(parentNode, new HashSet<ImdiTreeObject>());
+        }
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
@@ -506,7 +514,9 @@ public class ImdiSchema {
                 if (catalogueLinkAtt != null) {
                     String catalogueLink = catalogueLinkAtt.getNodeValue();
                     if (catalogueLink.length() > 0) {
-                        childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), catalogueLink), "CatalogueLink"});
+                        String correcteLink = correctLinkPath(parentNode.getParentDirectory(), catalogueLink);
+                        childLinks.add(new String[]{correcteLink, "CatalogueLink"});
+                        parentChildTree.get(parentNode).add(GuiHelper.imdiLoader.getImdiObjectWithoutLoading(correcteLink));
                     }
                 }
                 Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
@@ -531,14 +541,20 @@ public class ImdiSchema {
                 if (!parentNode.getUrlString().contains("#")) {
                     pathUrlXpathSeparator = "#";
                 }
-                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(null, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
+                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObjectWithoutLoading(parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
                 metaNodeImdiTreeObject.setNodeText(childsMetaNode);
+
+                if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
+                    parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
+                }
+                parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
                 // add brackets to conform with the imdi api notation
-                siblingSpacer = "(" + (metaNodeImdiTreeObject.getChildCount() + 1) + ")";
-                ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(null, parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
+                siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
+                ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObjectWithoutLoading(parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
                 subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
-                parentNode.attachChildNode(metaNodeImdiTreeObject);
-                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
+                parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
+//                parentNode.attachChildNode(metaNodeImdiTreeObject);
+//                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
                 destinationNode = subNodeImdiTreeObject;
                 siblingNodePath = "";
             } else {
@@ -581,7 +597,9 @@ public class ImdiSchema {
                     }
                     if (fieldToAdd.xmlPath.endsWith("Description")) {
                         if (attributeName.equals("Link") && attributeValue.length() > 0) {
-                            childLinks.add(new String[]{correctLinkPath(parentNode.getParentDirectory(), attributeValue), fieldToAdd.fieldID});
+                            String correcteLink = correctLinkPath(parentNode.getParentDirectory(), attributeValue);
+                            childLinks.add(new String[]{correcteLink, fieldToAdd.fieldID});
+                            parentChildTree.get(parentNode).add(GuiHelper.imdiLoader.getImdiObjectWithoutLoading(correcteLink));
                         }
                     }
                 }
@@ -598,6 +616,7 @@ public class ImdiSchema {
                 try {
                     String linkPath = correctLinkPath(parentNode.getParentDirectory(), fieldToAdd.getFieldValue());
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
+                    parentChildTree.get(parentNode).add(GuiHelper.imdiLoader.getImdiObjectWithoutLoading(linkPath));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                     System.out.println("Exception CorpusLink: " + ex.getMessage());
@@ -619,7 +638,7 @@ public class ImdiSchema {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath);
+            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree);
         }
     }
 }

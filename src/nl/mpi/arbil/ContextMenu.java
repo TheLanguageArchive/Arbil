@@ -633,7 +633,7 @@ public class ContextMenu {
                 if (currentNode.hasResource()) {
                     targetUri = new URI(currentNode.getFullResourcePath());
                 } else {
-                    targetUri = currentNode.getURL().toURI();
+                    targetUri = currentNode.getFile().toURI(); // file to uri is the only way to reliably get the uri on 1.4 otherwise the white space will cause an error
                 }
                 GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
             } catch (URISyntaxException usE) {
@@ -815,7 +815,7 @@ public class ContextMenu {
             boolean nodeIsImdiChild = false;
             if (leadSelectedTreeNode != null) {
                 nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
-                if (leadSelectedTreeNode.needsSaveToDisk) {
+                if (leadSelectedTreeNode.getNeedsSaveToDisk()) {
                     // saveMenuItem.setVisible(true);
                 } else if (leadSelectedTreeNode.needsChangesSentToServer()) {
                     viewChangesMenuItem.setVisible(true);
@@ -845,7 +845,7 @@ public class ContextMenu {
             }
         }
         if (leadSelectedTreeNode != null) {
-            saveMenuItem.setVisible(leadSelectedTreeNode.needsSaveToDisk);// save sould always be available if the node has been edited
+            saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk());// save sould always be available if the node has been edited
             addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isImdi());
             addToFavouritesMenuItem.setEnabled(!leadSelectedTreeNode.isCorpus() && leadSelectedTreeNode.isImdi());
             if (leadSelectedTreeNode.isFavorite()) {

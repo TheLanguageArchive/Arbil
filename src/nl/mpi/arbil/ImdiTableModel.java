@@ -128,7 +128,7 @@ public class ImdiTableModel extends AbstractTableModel {
                 // add child nodes if there are no fields ie actors node will add all the actors
                 // add child nodes if it is a directory
                 // this is non recursive and does not reload the table
-                for (ImdiTreeObject currentChild : imdiTreeObject.loadChildNodes()) {
+                for (ImdiTreeObject currentChild : imdiTreeObject.getChildArray()) {
                     imdiObjectHash.put(currentChild.getUrlString(), currentChild);
                     currentChild.registerContainer(this);
                 }
@@ -227,12 +227,12 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public void removeImdiRows(int[] selectedRows) {
-        Vector nodesToRemove = new Vector();
+        ImdiTreeObject[] nodesToRemove = new ImdiTreeObject[selectedRows.length];
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
             System.out.println("removing: " + selectedRowCounter);
-            nodesToRemove.add(getImdiNodeFromRow(selectedRows[selectedRowCounter]));
+            nodesToRemove[selectedRowCounter] = getImdiNodeFromRow(selectedRows[selectedRowCounter]);
         }
-        removeImdiObjects(nodesToRemove.elements());
+        removeImdiObjects(nodesToRemove);
     }
 
     // utility to join an array to a comma separated string
@@ -414,11 +414,9 @@ public class ImdiTableModel extends AbstractTableModel {
         return resultMessage;
     }
 
-    public void removeImdiObjects(Enumeration nodesToRemove) {
-        while (nodesToRemove.hasMoreElements()) {
-            Object currentObject = nodesToRemove.nextElement();
-            if (currentObject instanceof ImdiTreeObject) {
-                ImdiTreeObject imdiTreeObject = (ImdiTreeObject) currentObject;
+    public void removeImdiObjects(ImdiTreeObject[] nodesToRemove) {
+        for (ImdiTreeObject imdiTreeObject : nodesToRemove) {
+            if (imdiTreeObject != null) {
                 System.out.println("removing: " + imdiTreeObject.toString());
                 listModel.removeElement(imdiTreeObject);
                 imdiObjectHash.remove(imdiTreeObject.getUrlString());
@@ -841,10 +839,10 @@ public class ImdiTableModel extends AbstractTableModel {
         Vector childNames = new Vector();
         Enumeration imdiRowsEnum = imdiObjectHash.elements();
         while (imdiRowsEnum.hasMoreElements()) {
-            Enumeration childEnum = ((ImdiTreeObject) imdiRowsEnum.nextElement()).getChildEnum();
-            while (childEnum.hasMoreElements()) {
+//            Enumeration childEnum = .getChildEnum();
+            for (ImdiTreeObject currentChild : ((ImdiTreeObject) imdiRowsEnum.nextElement()).getChildArray()) {
                 // TODO: maybe check the children for children before adding them to this list
-                String currentChildName = childEnum.nextElement().toString();
+                String currentChildName = currentChild.toString();
                 if (!childNames.contains(currentChildName)) {
                     childNames.add(currentChildName);
                 }
