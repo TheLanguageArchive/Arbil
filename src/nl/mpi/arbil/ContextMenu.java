@@ -464,7 +464,7 @@ public class ContextMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     for (ImdiTreeObject currentNode : selectedTreeNodes) {
-                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
+//                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);

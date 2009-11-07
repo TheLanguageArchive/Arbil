@@ -66,7 +66,19 @@ public class ImdiTree extends JTree {
                 th.exportAsDrag(c, evt, TransferHandler.COPY);
             }
         });
+        this.addTreeExpansionListener(new javax.swing.event.TreeExpansionListener() {
 
+            public void treeExpanded(javax.swing.event.TreeExpansionEvent evt) {
+                DefaultMutableTreeNode parentNode = null;
+                if (evt.getPath() == null) {
+                } else {
+                    parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
+                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+                }
+            }
+            public void treeCollapsed(javax.swing.event.TreeExpansionEvent evt) {
+            }
+        });
         this.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener() {
 
             public void treeWillCollapse(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
@@ -83,7 +95,7 @@ public class ImdiTree extends JTree {
                 } else {
                     parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
                     // load imdi data if not already loaded
-                    TreeHelper.getSingleInstance().loadTreeNodeChildren(parentNode);
+                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 }
             }
         });

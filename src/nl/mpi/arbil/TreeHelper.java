@@ -278,18 +278,19 @@ public class TreeHelper {
         }
     }
 
-    public void loadTreeNodeChildren(DefaultMutableTreeNode parentTreeNode) {
-        Object parentObject = parentTreeNode.getUserObject();
-        if (parentObject instanceof ImdiTreeObject) {
+//    public void loadTreeNodeChildren(DefaultMutableTreeNode parentTreeNode) {
+//        Object parentObject = parentTreeNode.getUserObject();
+//        if (parentObject instanceof ImdiTreeObject) {
             // TODO: is this even required???
 //            GuiHelper.imdiLoader.getImdiObject(null, ((ImdiTreeObject) parentObject).getUrlString());
 //            ((ImdiTreeObject) parentObject).loadChildNodes();
-            for (ImdiTreeObject currentChild : ((ImdiTreeObject) parentObject).getChildArray()) {
-                GuiHelper.imdiLoader.getImdiObject(null, currentChild.getUrlString());
-            }
-        }
-        addToSortQueue(parentTreeNode);
-    }
+//            for (ImdiTreeObject currentChild : ((ImdiTreeObject) parentObject).getChildArray()) {
+//                //ImdiLoader.getSingleInstance().getImdiObject(null, currentChild.getUrlString());
+//                ImdiLoader.getSingleInstance().requestReload(currentChild);
+//        }
+        //parentTreeNode.add(new DefaultMutableTreeNode("loading..."));
+//        addToSortQueue(parentTreeNode);
+//    }
 
     // check that all child nodes are attached and sorted, removing any extranious nodes found
     private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, ImdiTreeObject[] childNodes, Vector<DefaultMutableTreeNode> scrollToRequests) {
@@ -353,7 +354,22 @@ public class TreeHelper {
         parentNode.setAllowsChildren(childNodes.length > 0);
 //        if (treeModel.parentNode.)
 //        if (!parentNode.isLeaf()) {
+        boolean containsSubNodes = false;
+        if (parentNode.getUserObject() instanceof ImdiTreeObject) {
+            ImdiTreeObject childImdiObject = (ImdiTreeObject) parentNode.getUserObject();
+            if (childImdiObject.isImdiChild()) {
+                containsSubNodes = true;
+            }
+        }
+        boolean parentExpanded = false;
+//        if (parentNode.getParent() != null) {
+//            if (currentTree.isExpanded(new TreePath((((DefaultMutableTreeNode) parentNode.getParent())).getPath()))) {
+//                parentExpanded = true;
+//            }
         if (currentTree.isExpanded(new TreePath((parentNode).getPath()))) {
+            parentExpanded = true;
+        }
+        if (containsSubNodes || parentExpanded) {
             sortChildNodes(parentNode, childNodes, scrollToRequests);
         }
 //        System.out.println("setAllowsChildren: " + parentNode.getAllowsChildren() + ", " + parentNode.getChildCount() + ", " + parentNode.toString());
@@ -512,7 +528,7 @@ public class TreeHelper {
         for (DefaultMutableTreeNode currentUpdatedChildNode : updatedChildren.toArray(new DefaultMutableTreeNode[]{})) {
             // update the string and icon etc for each node
             boolean childCanHaveChildren = ((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).canHaveChildren();
-            currentUpdatedChildNode.setAllowsChildren(childCanHaveChildren || currentUpdatedChildNode.getChildCount() > 0);
+            currentUpdatedChildNode.setAllowsChildren(childCanHaveChildren);
 //            treeModel.nodeChanged(currentChildren.get(childCounter));
             if (((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).scrollToRequested && !((ImdiTreeObject) currentUpdatedChildNode.getUserObject()).isLoading()) {
                 scrollToRequests.add(currentUpdatedChildNode);
@@ -595,12 +611,12 @@ public class TreeHelper {
         addToSortQueue(favouritesRootNode);
     }
 
-    public void redrawTrees() {
-        for (ImdiTree currentTree : arbilTreePanel.getTreeArray()) {
-            currentTree.invalidate();
-            currentTree.repaint();
-        }
-    }
+//    public void redrawTrees() {
+//        for (ImdiTree currentTree : arbilTreePanel.getTreeArray()) {
+//            currentTree.invalidate();
+//            currentTree.repaint();
+//        }
+//    }
 
 //    public void reloadLocalCorpusTree(DefaultMutableTreeNode targetNode) {
 //        // TODO: anything that calls this is adding to the tree in the wrong way (maybe with the exception of updating icons)

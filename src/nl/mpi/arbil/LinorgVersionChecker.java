@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 /**
  * Document   : LinorgVersionChecker
@@ -69,15 +68,19 @@ public class LinorgVersionChecker {
 
     public void checkForUpdate(final LinorgFrame parentComponentLocal) {
         parentComponent = parentComponentLocal;
-        if (!isLatestVersion()) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-        }
+        new Thread() {
+            public void run() {
+                if (!isLatestVersion()) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+                }
+            }
+        }.start();
     }
 
     public void checkForAndUpdateViaJavaws(final LinorgFrame parentComponentLocal) {
         parentComponent = parentComponentLocal;
         //if (last check date not today)
-        SwingUtilities.invokeLater(new Runnable() {
+        new Thread() {
 
             public void run() {
                 if (!isLatestVersion()) {
@@ -97,6 +100,6 @@ public class LinorgVersionChecker {
                     }
                 }
             }
-        });
+        }.start();
     }
 }
