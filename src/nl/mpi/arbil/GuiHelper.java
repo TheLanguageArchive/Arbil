@@ -62,7 +62,7 @@ public class GuiHelper {
     public void saveState(boolean saveWindows) {
         ImdiFieldViews.getSingleInstance().saveViewsToFile();
         // linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
-        TreeHelper.getSingleInstance().saveLocations();
+        TreeHelper.getSingleInstance().saveLocations(null, null);
         if (saveWindows) {
             LinorgWindowManager.getSingleInstance().saveWindowStates();
         }

@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Vector;
 import javax.swing.JOptionPane;
 
 /**
@@ -75,6 +76,29 @@ public class LinorgSessionStorage {
         }
         System.out.println("storageDirectory: " + storageDirectory);
         System.out.println("cacheDirExists: " + cacheDirExists());
+    }
+
+    public void changeStorageDirectory(String preferedDirectory) {
+        boolean success = new File(storageDirectory).renameTo(new File(preferedDirectory));
+        if (!success) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the storage directory.\n", null);
+        } else {
+            try {
+                Vector<String> locationsList = new Vector<String>();
+                for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
+                    for (ImdiTreeObject currentLocation : currentTreeArray) {
+                        locationsList.add(currentLocation.getUrlString().replace(storageDirectory, preferedDirectory));
+                    }
+                }
+                storageDirectory = preferedDirectory;
+                LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+                System.out.println("updated locationsList");
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("save locationsList exception: " + ex.getMessage());
+            }
+            TreeHelper.getSingleInstance().loadLocationsList();
+        }
     }
 
     public String[] getLocationOptions() {
@@ -140,6 +164,22 @@ public class LinorgSessionStorage {
 //        settingsjDialog.pack();
 //        settingsjDialog.setVisible(true);
 //    }
+    /**
+     * Tests if the a string points to a file that is in the favourites directory.
+     * @return Boolean
+     */
+    public boolean pathIsInFavourites(File fullTestFile) { //todo: test me
+        String favouritesString = "favourites";
+        int foundPos = fullTestFile.getPath().indexOf(favouritesString) + favouritesString.length();
+        if (foundPos == -1) {
+            return false;
+        }
+        if (foundPos > fullTestFile.getPath().length()) {
+            return false;
+        }
+        File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
+        return getFavouritesDir().equals(testFile);
+    }
 
     /**
      * Tests if the a string points to a flie that is in the cache directory.

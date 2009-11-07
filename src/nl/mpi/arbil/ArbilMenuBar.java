@@ -32,7 +32,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenu templatesMenu;
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
     private JMenuItem undoMenuItem;
-    private JMenuItem viewFavouritesMenuItem;
+//    private JMenuItem viewFavouritesMenuItem;
     private JMenu setStorageDirectoryMenu;
     private JMenu viewMenu;
     static public JMenu windowMenu;
@@ -45,7 +45,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem copyMenuItem;
     private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
     private JMenuItem editFieldViewsMenuItem;
-    private JMenuItem editLocationsMenuItem;
+//    private JMenuItem editLocationsMenuItem;
     private JMenu editMenu;
     private JMenuItem exitMenuItem;
     private JMenu fileMenu;
@@ -66,9 +66,9 @@ public class ArbilMenuBar extends JMenuBar {
         undoMenuItem = new JMenuItem();
         redoMenuItem = new JMenuItem();
         optionsMenu = new JMenu();
-        editLocationsMenuItem = new JMenuItem();
+//        editLocationsMenuItem = new JMenuItem();
         templatesMenu = new JMenu();
-        viewFavouritesMenuItem = new JMenuItem();
+//        viewFavouritesMenuItem = new JMenuItem();
         setStorageDirectoryMenu = new JMenu();
         editFieldViewsMenuItem = new JMenuItem();
         saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -151,15 +151,40 @@ public class ArbilMenuBar extends JMenuBar {
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 undoMenuItem.setEnabled(LinorgJournal.getSingleInstance().canUndo());
                 redoMenuItem.setEnabled(LinorgJournal.getSingleInstance().canRedo());
+//                Component currentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+//                copyMenuItem.setEnabled(currentFocusOwner instanceof ImdiTree);
             }
         });
 
         copyMenuItem.setText("Copy");
         copyMenuItem.setEnabled(false);
+//        by the time the menu action has occured the focus has moved to the root pane of the application, this further supports the concept that a global copy paste for a multi focus UI is a flawed concept
+//        copyMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                Component currentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+//                System.out.println("currentFocusOwner: " + currentFocusOwner);
+//                if (currentFocusOwner instanceof ImdiTree) {
+//                    ImdiTree sourceTree = (ImdiTree) currentFocusOwner;
+//                    ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
+//                    if (selectedImdiNodes == null) {
+//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Copy");
+//                    } else {
+//                        sourceTree.copyNodeUrlToClipboard(selectedImdiNodes);
+//                    }
+//                }
+//            }
+//        });
 //        editMenu.add(copyMenuItem);
 
         pasteMenuItem.setText("Paste");
         pasteMenuItem.setEnabled(false);
+//        pasteMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                Component currentFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+//            }
+//        });
 //        editMenu.add(pasteMenuItem);
 
         undoMenuItem.setText("Undo");
@@ -193,18 +218,18 @@ public class ArbilMenuBar extends JMenuBar {
 
         optionsMenu.setText("Options");
 
-        editLocationsMenuItem.setText("Locations");
-        editLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    editLocationsMenuItemActionPerformed(evt);
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-        optionsMenu.add(editLocationsMenuItem);
+//        editLocationsMenuItem.setText("Locations");
+//        editLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
+//                    editLocationsMenuItemActionPerformed(evt);
+//                } catch (Exception ex) {
+//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                }
+//            }
+//        });
+//        optionsMenu.add(editLocationsMenuItem);
 
         templatesMenu.setText("Templates");
         optionsMenu.add(templatesMenu);
@@ -221,18 +246,18 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
 
-        viewFavouritesMenuItem.setText("View Favourites");
-        viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    viewFavouritesMenuItemActionPerformed(evt);
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-        optionsMenu.add(viewFavouritesMenuItem);
+//        viewFavouritesMenuItem.setText("View Favourites");
+//        viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
+//                    viewFavouritesMenuItemActionPerformed(evt);
+//                } catch (Exception ex) {
+//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                }
+//            }
+//        });
+//        optionsMenu.add(viewFavouritesMenuItem);
 
         setStorageDirectoryMenu.setText("Storage Directory");
         setStorageDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -438,10 +463,10 @@ public class ArbilMenuBar extends JMenuBar {
         }, AWTEvent.KEY_EVENT_MASK);
     }
 
-    private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
-        TreeHelper.getSingleInstance().showLocationsDialog();
-    }
+//    private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+//// TODO add your handling code here:
+//        TreeHelper.getSingleInstance().showLocationsDialog();
+//    }
 
     private void viewMenuMenuSelected(MenuEvent evt) {
 // TODO add your handling code here:
@@ -495,9 +520,9 @@ public class ArbilMenuBar extends JMenuBar {
         }
     }
 
-    private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
-    }
+//    private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+//        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
+//    }
 
     private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
@@ -526,11 +551,17 @@ public class ArbilMenuBar extends JMenuBar {
                 templateMenuItem.setText(currentTemplateName);
                 templateMenuItem.setName(currentTemplateName);
                 templateMenuItem.setActionCommand(currentTemplateName);
+//                templateMenuItem.setEnabled(false);
                 templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
+                            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ArbilMenuBar.this, "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                                saveApplicationState();
+                                LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
+                                System.exit(0); // TODO: this exit might be unrequired
+                            }
+                            // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
                         } catch (Exception e) {
                             GuiHelper.linorgBugCatcher.logError(e);
                         }

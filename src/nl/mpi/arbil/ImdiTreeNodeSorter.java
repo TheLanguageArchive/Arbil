@@ -11,17 +11,27 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class ImdiTreeNodeSorter implements Comparator {
 
     public int compare(Object object1, Object object2) {
-        if (!(object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode)) {
+        Object userObject1;
+        Object userObject2;
+        if (object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode) {
+            userObject1 = ((DefaultMutableTreeNode) object1).getUserObject();
+            userObject2 = ((DefaultMutableTreeNode) object2).getUserObject();
+        } else if (object1 instanceof ImdiTreeObject && object2 instanceof ImdiTreeObject) {
+            userObject1 = ((ImdiTreeObject) object1);
+            userObject2 = ((ImdiTreeObject) object2);
+        } else {
             throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
         }
-        Object userObject1 = ((DefaultMutableTreeNode) object1).getUserObject();
-        Object userObject2 = ((DefaultMutableTreeNode) object2).getUserObject();
         if (userObject1 instanceof ImdiTreeObject && userObject2 instanceof ImdiTreeObject) {
             int typeIdex1 = getTypeIndex((ImdiTreeObject) userObject1);
             int typeIdex2 = getTypeIndex((ImdiTreeObject) userObject2);
             // sort by catalogue then corpus then session etc. then by the text order
             if (typeIdex1 == typeIdex2) {
-                return ((ImdiTreeObject) userObject1).compareTo(userObject2);
+                int resultInt = userObject1.toString().compareToIgnoreCase(((ImdiTreeObject) userObject2).toString());
+                if (resultInt == 0) { // make sure that to objects dont get mistaken to be the same just because the string lebels are the same
+                    resultInt = ((ImdiTreeObject) userObject1).getUrlString().compareToIgnoreCase(((ImdiTreeObject) userObject2).getUrlString());
+                }
+                return resultInt;
             } else {
                 return typeIdex1 - typeIdex2;
             }

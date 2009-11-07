@@ -30,7 +30,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
     private javax.swing.JMenuItem deleteMenuItem;
     private javax.swing.JMenuItem exportMenuItem;
-    private javax.swing.JMenu favouritesMenu;
+//    private javax.swing.JMenu favouritesMenu;
     private javax.swing.JMenu mergeWithFavouritesMenu;
     private javax.swing.JMenuItem pasteMenuItem1;
     private javax.swing.JMenuItem reloadSubnodesMenuItem;
@@ -71,7 +71,7 @@ public class ContextMenu {
         searchSubnodesMenuItem = new javax.swing.JMenuItem();
         reloadSubnodesMenuItem = new javax.swing.JMenuItem();
         addMenu = new javax.swing.JMenu();
-        favouritesMenu = new javax.swing.JMenu();
+//        favouritesMenu = new javax.swing.JMenu();
         addToFavouritesMenuItem = new javax.swing.JMenuItem();
         addFromFavouritesMenu = new javax.swing.JMenu();
         mergeWithFavouritesMenu = new javax.swing.JMenu();
@@ -209,21 +209,7 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(addMenu);
-        favouritesMenu.setText("Favourites");
-        addToFavouritesMenuItem.setText("Set As Favourite");
-
-        addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-
-        treePopupMenu.add(addToFavouritesMenuItem);
+//        favouritesMenu.setText("Favourites");
         addFromFavouritesMenu.setText("Add From Favourites");
 
         addFromFavouritesMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -238,14 +224,28 @@ public class ContextMenu {
                 initAddFromFavouritesMenu();
             }
         });
+        treePopupMenu.add(addFromFavouritesMenu);
+//        favouritesMenu.add(addFromFavouritesMenu);
 
-        favouritesMenu.add(addFromFavouritesMenu);
+        addToFavouritesMenuItem.setText("Set As Favourite");
+        addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    LinorgFavourites.getSingleInstance().toggleFavouritesList(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+
+        treePopupMenu.add(addToFavouritesMenuItem);
+
         mergeWithFavouritesMenu.setText("Merge With Favourite");
 
         mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
 
 //        favouritesMenu.add(mergeWithFavouritesMenu);
-        treePopupMenu.add(favouritesMenu);
         deleteMenuItem.setText("Delete");
 
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -463,9 +463,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-//                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
-//                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
-//                    }
+                    for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -788,7 +788,7 @@ public class ContextMenu {
         deleteMenuItem.setEnabled(true);
         viewSelectedNodesMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setText("View Selected");
-        favouritesMenu.setVisible(false);
+        addFromFavouritesMenu.setVisible(false);
         mergeWithFavouritesMenu.setEnabled(false);
         saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
@@ -827,7 +827,7 @@ public class ContextMenu {
                 validateMenuItem.setVisible(!nodeIsImdiChild);
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 // set up the favourites menu
-                favouritesMenu.setVisible(true);
+                addFromFavouritesMenu.setVisible(true);
             }
             //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
 //            addMenu.setEnabled(!nodeIsImdiChild);
