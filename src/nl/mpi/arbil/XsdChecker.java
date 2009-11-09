@@ -5,6 +5,7 @@ package nl.mpi.arbil;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Color;
 import java.io.File;
 import java.net.URL;

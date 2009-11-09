@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;

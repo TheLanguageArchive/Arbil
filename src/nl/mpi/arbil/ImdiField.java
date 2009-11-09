@@ -1,5 +1,7 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ImdiSchema;
 import java.util.Enumeration;
 import java.util.Hashtable;
 

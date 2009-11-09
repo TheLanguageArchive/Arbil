@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;

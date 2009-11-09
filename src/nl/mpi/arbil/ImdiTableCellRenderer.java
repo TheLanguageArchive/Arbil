@@ -4,6 +4,7 @@
  */
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.Arrays;

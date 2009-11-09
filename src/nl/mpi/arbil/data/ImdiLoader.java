@@ -1,5 +1,6 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.*;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Hashtable;

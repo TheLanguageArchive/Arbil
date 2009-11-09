@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

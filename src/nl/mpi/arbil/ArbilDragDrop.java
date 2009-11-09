@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;

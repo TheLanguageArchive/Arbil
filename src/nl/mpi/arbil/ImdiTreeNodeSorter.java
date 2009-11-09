@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
 import java.util.Comparator;
 import javax.swing.tree.DefaultMutableTreeNode;
 

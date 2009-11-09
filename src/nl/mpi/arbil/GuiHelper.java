@@ -1,5 +1,8 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ImdiSchema;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.datatransfer.Clipboard;

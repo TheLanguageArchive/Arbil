@@ -1,5 +1,7 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;

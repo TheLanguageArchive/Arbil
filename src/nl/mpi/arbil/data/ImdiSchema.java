@@ -1,5 +1,6 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
