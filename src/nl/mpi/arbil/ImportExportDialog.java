@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -649,7 +650,7 @@ public class ImportExportDialog {
                                                     } else {
                                                         downloadLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(currentLink, downloadLocation, true, downloadAbortFlag);
+                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadLocation, true, downloadAbortFlag);
                                                     }
                                                     resourceCopyOutput.append(downloadLocation + "\n");
                                                     File downloadedFile = new File(downloadLocation);

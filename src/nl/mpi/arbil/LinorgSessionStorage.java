@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -204,7 +205,7 @@ public class LinorgSessionStorage {
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
-      String favDirectory = storageDirectory + "favourites" + File.separatorChar; // storageDirectory already has the file separator appended
+        String favDirectory = storageDirectory + "favourites" + File.separatorChar; // storageDirectory already has the file separator appended
         File destinationFile = new File(favDirectory);
         boolean favDirExists = destinationFile.exists();
         if (!favDirExists) {
@@ -310,7 +311,11 @@ public class LinorgSessionStorage {
     public String updateCache(String pathString, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
         //TODO: There will need to be a way to expire the files in the cache.
         String cachePath = getSaveLocation(pathString);
-        saveRemoteResource(pathString, cachePath, expireCacheCopy, abortFlag);
+        try {
+            saveRemoteResource(new URL(pathString), cachePath, expireCacheCopy, abortFlag);
+        } catch (MalformedURLException mul) {
+            GuiHelper.linorgBugCatcher.logError(mul);
+        }
         return cachePath;
     }
 
@@ -342,6 +347,11 @@ public class LinorgSessionStorage {
      * @return The path in the cache for the file.
      */
     public String getSaveLocation(String pathString) {
+        pathString = pathString.replace("//", "/");
+        if (pathString.indexOf(".arbil/imdicache") > -1) {
+            GuiHelper.linorgBugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
+            pathString = pathString.substring(pathString.lastIndexOf(".arbil/imdicache") + ".arbil/imdicache".length());
+        }
         String cachePath = cacheDirectory + pathString.replace(":/", "/").replace("//", "/");
         File tempFile = new File(cachePath);
         if (!tempFile.getParentFile().exists()) {
@@ -355,10 +365,10 @@ public class LinorgSessionStorage {
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
      */
-    public void saveRemoteResource(String targetUrlString, String destinationPath, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+    public void saveRemoteResource(URL targetUrl, String destinationPath, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
 //        String targetUrlString = getFullResourcePath();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
-        System.out.println("saveRemoteResource: " + targetUrlString);
+//        System.out.println("saveRemoteResource: " + targetUrlString);
         System.out.println("destinationPath: " + destinationPath);
         File destinationFile = new File(destinationPath);
         if (destinationFile.length() == 0) {
@@ -369,7 +379,6 @@ public class LinorgSessionStorage {
             System.out.println("this resource is already in the cache");
         } else {
             try {
-                URL targetUrl = new URL(targetUrlString);
                 URLConnection urlConnection = targetUrl.openConnection();
                 HttpURLConnection httpConnection = null;
                 if (urlConnection instanceof HttpURLConnection) {
@@ -406,7 +415,7 @@ public class LinorgSessionStorage {
                         }
                         tempFile.renameTo(destinationFile);
                     }
-                    System.out.println("Downloaded: " + totalRead / 1048576 + " Mbs");
+                    System.out.println("Downloaded: " + totalRead / 1048576 + " Mb");
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);

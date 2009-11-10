@@ -116,7 +116,7 @@ public class ImdiVocabularies {
                 System.out.println("backupPath: " + backupPath);
                 URL backUp = this.getClass().getResource(backupPath);
                 if (backUp != null) {
-                    cachePath = backUp.getFile();
+                    LinorgSessionStorage.getSingleInstance().saveRemoteResource(backUp, cachePath, true, new DownloadAbortFlag());
                 }
             }
             System.out.println("parseRemoteFile: " + cachePath);
