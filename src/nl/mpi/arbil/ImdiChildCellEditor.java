@@ -38,7 +38,7 @@ import javax.swing.table.TableCellEditor;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor {
+public class ImdiChildCellEditor extends AbstractCellEditor implements TableCellEditor {
 
     ImdiTable parentTable = null;
     Rectangle parentCellRect = null;

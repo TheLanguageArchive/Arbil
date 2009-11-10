@@ -17,6 +17,8 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ImdiSchema;
 
 /**
  * ArbilMenuBar.java
@@ -103,7 +105,7 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+                    ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -413,7 +415,7 @@ public class ArbilMenuBar extends JMenuBar {
         TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
         copyNewResourcesCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("copyNewResources", true));
-        GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+        ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
         saveWindowsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
         printHelpMenuItem.setVisible(false);
@@ -446,7 +448,7 @@ public class ArbilMenuBar extends JMenuBar {
                         compFocusOwner = compFocusOwner.getParent();
                     }
                     if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
-                        GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+                        ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
                     }
                     if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Z) {
                         if (((KeyEvent) event).isShiftDown()) {
@@ -485,7 +487,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void fileMenuMenuSelected(MenuEvent evt) {
 // TODO add your handling code here:
-        saveFileMenuItem.setEnabled(GuiHelper.imdiLoader.nodesNeedSave());
+        saveFileMenuItem.setEnabled(ImdiLoader.getSingleInstance().nodesNeedSave());
     }
 
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -507,7 +509,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {
 // TODO add your handling code here:
-        GuiHelper.imdiSchema.copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+        ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
     }
 
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -575,12 +577,12 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private boolean saveApplicationState() {
-        if (GuiHelper.imdiLoader.nodesNeedSave()) {
+        if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
             switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 case JOptionPane.NO_OPTION:
                     break;
                 case JOptionPane.YES_OPTION:
-                    GuiHelper.imdiLoader.saveNodesNeedingSave(false);
+                    ImdiLoader.getSingleInstance().saveNodesNeedingSave(false);
                     break;
                 default:
                     return false;

@@ -26,7 +26,7 @@ public class LinorgFavourites {
         }
         return singleInstance;
     }
-    
+
     // this will load any favourites in the old format and delete the old format file
     public void loadOldFormatFavourites() {
         try {
@@ -120,6 +120,7 @@ public class LinorgFavourites {
 
     private void removeFromFavourites(String imdiUrlString) {
         TreeHelper.getSingleInstance().removeLocation(imdiUrlString);
+        TreeHelper.getSingleInstance().applyRootLocations();
     }
 
 //    public void saveSelectedFavourites() {
@@ -149,9 +150,9 @@ public class LinorgFavourites {
                 if (targetIsCorpus && !currentFavouritesObject.isImdiChild()) {
                     addThisFavourites = true;
                 } else if (targetIsSession && currentFavouritesObject.isImdiChild()) {
-                    addThisFavourites = GuiHelper.imdiSchema.nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
+                    addThisFavourites = ImdiSchema.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
                 } else if (targetIsImdiChild && currentFavouritesObject.isImdiChild()) {
-                    addThisFavourites = GuiHelper.imdiSchema.nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
+                    addThisFavourites = ImdiSchema.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
                 }
                 if (addThisFavourites) {
 //                    System.out.println("adding: " + currentFavouritesObject);

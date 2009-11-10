@@ -130,7 +130,7 @@ public class ImportExportDialog {
         if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Import")) {
             Vector importNodeVector = new Vector();
             for (File currentFile : fileChooser.getSelectedFiles()) {
-                ImdiTreeObject imdiToImport = GuiHelper.imdiLoader.getImdiObject(null, currentFile.getAbsolutePath());
+                ImdiTreeObject imdiToImport = ImdiLoader.getSingleInstance().getImdiObject(null, currentFile.getAbsolutePath());
                 importNodeVector.add(imdiToImport);
             }
             copyToCache(importNodeVector);
@@ -286,11 +286,11 @@ public class ImportExportDialog {
 
     // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
-        if (GuiHelper.imdiLoader.nodesNeedSave()) {
+        if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
                     "There are unsaved changes.\nSave now?", "Save Changes",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                GuiHelper.imdiLoader.saveNodesNeedingSave(true);
+                ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
             } else {
                 throw new Exception("user canceled save action");
             }
@@ -712,7 +712,7 @@ public class ImportExportDialog {
                                         //getHash(tempFile, this.getUrl());
                                         if (replacingExitingFile) {
                                             appendToTaskOutput("reloading existing data");
-                                            GuiHelper.imdiLoader.requestReloadOnlyIfLoaded(destinationFile.getCanonicalPath());
+                                            ImdiLoader.getSingleInstance().requestReloadOnlyIfLoaded(destinationFile.getCanonicalPath());
                                         }
                                         appendToTaskOutput("done");
                                     }
@@ -762,7 +762,7 @@ public class ImportExportDialog {
                             }
                             // add the completed node to the done list
                             String newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
-                            finishedTopNodes.add(GuiHelper.imdiLoader.getImdiObject(null, newNodeLocation));
+                            finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation));
                         }
                     }
 

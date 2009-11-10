@@ -14,6 +14,7 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import nl.mpi.arbil.data.ImdiLoader;
 
 /**
  * Document   : TreeHelper
@@ -119,15 +120,15 @@ public class TreeHelper {
     public int addDefaultCorpusLocations() {
         HashSet<ImdiTreeObject> remoteCorpusNodesSet = new HashSet<ImdiTreeObject>();
         remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
-        remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
-        remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi"));
-        //remoteCorpusNodesSet.add(GuiHelper.imdiLoader.getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"));
+        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
+        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi"));
+//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"));
         remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ImdiTreeObject[]{});
         return remoteCorpusNodesSet.size();
     }
@@ -148,7 +149,7 @@ public class TreeHelper {
 
             if (nodesToRemove != null) {
                 for (ImdiTreeObject currentRemoveable : nodesToRemove) {
-                    locationsList.add(currentRemoveable.getUrlString());
+                    locationsList.removeElement(currentRemoveable.getUrlString());
                 }
             }
             LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
@@ -175,7 +176,7 @@ public class TreeHelper {
             for (Enumeration<String> locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
 
                 String currentLocation = locationEnum.nextElement();
-                ImdiTreeObject currentTreeObject = GuiHelper.imdiLoader.getImdiObject(null, currentLocation);
+                ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
                 if (currentTreeObject.isLocal()) {
                     if (currentTreeObject.isFavorite()) {
                         favouriteNodesVector.add(currentTreeObject);
@@ -230,7 +231,7 @@ public class TreeHelper {
     public boolean addLocation(String addedLocation) {
         System.out.println("addLocation" + addedLocation.toString());
         // make sure the added location url matches that of the imdi node format
-        ImdiTreeObject addedLocationObject = GuiHelper.imdiLoader.getImdiObject(null, addedLocation);
+        ImdiTreeObject addedLocationObject = ImdiLoader.getSingleInstance().getImdiObject(null, addedLocation);
         if (addedLocationObject != null) {
             saveLocations(new ImdiTreeObject[]{addedLocationObject}, null);
             loadLocationsList();
@@ -248,7 +249,7 @@ public class TreeHelper {
 
     public void removeLocation(String removeLocation) {
         System.out.println("removeLocation: " + removeLocation);
-        removeLocation(GuiHelper.imdiLoader.getImdiObject(null, removeLocation));
+        removeLocation(ImdiLoader.getSingleInstance().getImdiObject(null, removeLocation));
     }
 
     private void clearIconsInTree(DefaultMutableTreeNode parentTreeNode) {
@@ -736,16 +737,6 @@ public class TreeHelper {
 //            }
 //        }
 //    }
-    public void removeSelectedLocation(DefaultMutableTreeNode selectedTreeNode) {
-        if (selectedTreeNode == null) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No node selected", "Remove Link");
-        } else {
-            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Remove '" + selectedTreeNode + "' from list?", "Remove Link", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-                applyRootLocations();
-            }
-        }
-    }
 
     public void deleteNode(Object sourceObject) {
         System.out.println("deleteNode: " + sourceObject);
@@ -764,7 +755,8 @@ public class TreeHelper {
                         System.out.println("trying to delete: " + userObject);
                         if (currentNodePath.getPath().length == 2) {
                             System.out.println("removing by location");
-                            removeSelectedLocation(selectedTreeNode);
+                            removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
+                            applyRootLocations();
                         } else {
                             System.out.println("deleting from parent");
                             parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();

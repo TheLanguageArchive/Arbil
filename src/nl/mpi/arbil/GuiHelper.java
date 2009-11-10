@@ -19,13 +19,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
 import javax.swing.ButtonGroup;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * Document   : GuiHelper
@@ -35,9 +31,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public class GuiHelper {
 
     static ArbilDragDrop arbilDragDrop = new ArbilDragDrop();
-    static ImdiSchema imdiSchema = new ImdiSchema();
-    static LinorgBugCatcher linorgBugCatcher = new LinorgBugCatcher();
-    static ImdiLoader imdiLoader = new ImdiLoader();
+    public static LinorgBugCatcher linorgBugCatcher = new LinorgBugCatcher();
 //    private JPanel selectedFilesPanel;
     //static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
@@ -147,8 +141,8 @@ public class GuiHelper {
                     URL xslUrl = this.getClass().getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl");
                     File tempHtmlFile;
                     File xslFile = null;
-                    if (imdiSchema.selectedTemplateDirectory != null) {
-                        xslFile = new File(imdiSchema.selectedTemplateDirectory.toString() + File.separatorChar + "format.xsl");
+                    if (ImdiSchema.getSingleInstance().selectedTemplateDirectory != null) {
+                        xslFile = new File(ImdiSchema.getSingleInstance().selectedTemplateDirectory.toString() + File.separatorChar + "format.xsl");
                     }
                     if (xslFile != null && xslFile.exists()) {
                         xslUrl = xslFile.toURL();

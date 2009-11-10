@@ -72,8 +72,10 @@ public class ImdiTree extends JTree {
             public void treeExpanded(javax.swing.event.TreeExpansionEvent evt) {
                 DefaultMutableTreeNode parentNode = null;
                 if (evt.getPath() == null) {
+                    //There is no selection.
                 } else {
                     parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
+                    // load imdi data if not already loaded
                     TreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 }
             }
@@ -90,14 +92,14 @@ public class ImdiTree extends JTree {
             }
 
             public void treeWillExpand(javax.swing.event.TreeExpansionEvent evt) throws javax.swing.tree.ExpandVetoException {
-                DefaultMutableTreeNode parentNode = null;
-                if (evt.getPath() == null) {
-                    //There is no selection.
-                } else {
-                    parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
-                    // load imdi data if not already loaded
-                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
-                }
+//                DefaultMutableTreeNode parentNode = null;
+//                if (evt.getPath() == null) {
+//                    //There is no selection.
+//                } else {
+//                    parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
+//                    // load imdi data if not already loaded
+//                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+//                }
             }
         });
 

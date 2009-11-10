@@ -20,6 +20,7 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.data.ImdiSchema;
 
 /**
  * Document   :  ArbilDragDrop
@@ -435,7 +436,7 @@ public class ArbilDragDrop {
                                     System.out.println("ok to move local IMDI");
                                     for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                        if (!((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isImdiChild() || GuiHelper.imdiSchema.nodeCanExistInNode((ImdiTreeObject) dropTargetUserObject, (ImdiTreeObject) draggedImdiObjects[draggedCounter])) {
+                                        if (!((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isImdiChild() || ImdiSchema.getSingleInstance().nodeCanExistInNode((ImdiTreeObject) dropTargetUserObject, (ImdiTreeObject) draggedImdiObjects[draggedCounter])) {
                                             //((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
                                             // check that the node has not been dragged into itself

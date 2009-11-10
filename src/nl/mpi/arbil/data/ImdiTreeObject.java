@@ -131,12 +131,6 @@ public class ImdiTreeObject implements Comparable {
     }
     // end static methods for testing imdi file and object types
 
-    private void debugOut(String messageString) {
-        if (debugOn) {
-            System.out.println(messageString);
-        }
-    }
-
     public boolean getNeedsSaveToDisk() {
         // when the dom parent node is saved all the sub nodes are also saved so we need to clear this flag
         if (needsSaveToDisk && !this.getParentDomNode().needsSaveToDisk) {

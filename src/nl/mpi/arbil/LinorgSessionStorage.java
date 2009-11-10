@@ -204,11 +204,11 @@ public class LinorgSessionStorage {
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
-        cacheDirectory = storageDirectory + "favourites" + File.separatorChar; // storageDirectory already has the file separator appended
-        File destinationFile = new File(cacheDirectory);
-        boolean cacheDirExists = destinationFile.exists();
-        if (!cacheDirExists) {
-            cacheDirExists = destinationFile.mkdir();
+      String favDirectory = storageDirectory + "favourites" + File.separatorChar; // storageDirectory already has the file separator appended
+        File destinationFile = new File(favDirectory);
+        boolean favDirExists = destinationFile.exists();
+        if (!favDirExists) {
+            favDirExists = destinationFile.mkdir();
         }
         return destinationFile;
     }
