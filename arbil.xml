@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!--
- * linorg.xml
+ * arbil.xml
  * Created on 10 September 2008, 10:03
  * @author Peter.Withers@mpi.nl
 -->
-<project name="Linorg" default="compile">
+<project name="Arbil" default="compile">
     <target name="setproperties">
         <property name="arbil.current.major" value="1"/>
         <property name="arbil.current.minor" value="1"/>
@@ -72,7 +72,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <!-- target compile (this is included by build.all) -->
     <target name="compile" depends="clean, copyJarFilesToLib, getsvnversion" description="compile the arbil source code to class files">
-        <echo message="Compiling Linorg"/>
+        <echo message="Compiling Arbil"/>
         <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
             <classpath>
                 <fileset dir="${LIBDIR}" includes="*.jar"/>
@@ -130,6 +130,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Interactional.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Genre-Interactional.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/Continents.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Continents.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType-Annotation.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-SubType-Annotation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/AnnotationUnit-Type.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/AnnotationUnit-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/AnnotationUnit-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/AnnotationUnit-Format.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Genre.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/Countries.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Countries.xml"/>
         <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-SubType.xml"/>
@@ -197,7 +199,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </jar>
     </target>
     <target name="run" description="run the application" depends="setproperties">
-        <java classname="nl.mpi.arbil.Linorg" fork="true">
+        <java classname="nl.mpi.arbil.LinorgFrame" fork="true">
             <classpath>
                 <!--<fileset dir="${WEBAPPS_LIB}" includes="*.jar"/>-->
                 <!--<filelist dir="${WEBAPPS_LIB}">
@@ -279,25 +281,28 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <exec outputproperty="arbil.build.date" executable="date" />
         <echo file="${SRCDIR}nl/mpi/arbil/LinorgVersion.java" append="false">package nl.mpi.arbil;
 public class LinorgVersion {
-    String currentMajor = "${arbil.current.major}";
-    String currentMinor = "${arbil.current.minor}";
-    String currentRevision = "${arbil.current.revision}";
-    String lastCommitDate = "${arbil.last.commit.date}";
-    String compileDate = "${arbil.build.date}";
-    String fullInfo = "${arbil.info.all}";
+    public String currentMajor = "${arbil.current.major}";
+    public String currentMinor = "${arbil.current.minor}";
+    public String currentRevision = "${arbil.current.revision}";
+    public String lastCommitDate = "${arbil.last.commit.date}";
+    public String compileDate = "${arbil.build.date}";
+    public String fullInfo = "${arbil.info.all}";
 }
         </echo>
         <property name="ArbilJarName" value="arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar"/>
     </target>
     <target name="signarbil" depends="jar">
-        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="">
+        <input message="Please enter the latsoftware password:" addproperty="latsoftware.pw">
+            <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+        </input>
+        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}">
             <path>
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>
         <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
-        alias="latsoftware's max-planck-gesellschaft id" storepass="" />
+        alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}" />
     </target>
    <!-- <target name="image" depends="setproperties">
         <signjar jar="${OUTPUTDIR}/lib/typecheck-1.5.16185.jar"
@@ -312,8 +317,8 @@ public class LinorgVersion {
         </input>
         <scp file="${OUTPUTDIR}/${ArbilJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-testing.deb"/>
+        <scp file="${distributionDirectory}/arbil-testing_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${distributionDirectory}/arbil-testing_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-testing.deb"/>
         <!-- push the updated the applet html and the arbil jnlp files to the server -->
         <scp file="${BUILDDIR}/arbil-testing.jnlp" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file= "${BUILDDIR}/ArbilApplet-testing.html" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
