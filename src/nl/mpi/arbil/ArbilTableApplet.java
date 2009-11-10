@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.data.ImdiLoader;
 /*
  * ArbilTableApplet.java
  * Created on 28 September 2009, 13:10
@@ -27,7 +28,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     private void addNodesToTable(String nodeURLsString) {
         if (nodeURLsString != null) {
             for (String currentUrlString : nodeURLsString.split(",")) {
-                imdiTableModel.addSingleImdiObject(GuiHelper.imdiLoader.getImdiObject(rootPane, currentUrlString));
+                imdiTableModel.addSingleImdiObject(ImdiLoader.getSingleInstance().getImdiObject(rootPane, currentUrlString));
             }
         }
     }

@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
@@ -25,11 +24,20 @@ import org.w3c.dom.*;
  */
 public class ImdiSchema {
 
+    static private ImdiSchema singleInstance = null;
+    static synchronized public ImdiSchema getSingleInstance() {
+        if (singleInstance == null) {
+            singleInstance = new ImdiSchema();
+        }
+        return singleInstance;
+    }
+    private ImdiSchema() {
+    }
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     public File selectedTemplateDirectory = null;
-    static String imdiPathSeparator = ".";
+    public static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true;
 
     public boolean nodeCanExistInNode(ImdiTreeObject targetImdiObject, ImdiTreeObject childImdiObject) {
@@ -517,7 +525,7 @@ public class ImdiSchema {
                     if (catalogueLink.length() > 0) {
                         String correcteLink = correctLinkPath(parentNode.getParentDirectory(), catalogueLink);
                         childLinks.add(new String[]{correcteLink, "CatalogueLink"});
-                        parentChildTree.get(parentNode).add(GuiHelper.imdiLoader.getImdiObjectWithoutLoading(correcteLink));
+                        parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
                     }
                 }
                 Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
@@ -542,7 +550,7 @@ public class ImdiSchema {
                 if (!parentNode.getUrlString().contains("#")) {
                     pathUrlXpathSeparator = "#";
                 }
-                ImdiTreeObject metaNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObjectWithoutLoading(parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
+                ImdiTreeObject metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath);
                 metaNodeImdiTreeObject.setNodeText(childsMetaNode);
 
                 if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
@@ -551,7 +559,7 @@ public class ImdiSchema {
                 parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
                 // add brackets to conform with the imdi api notation
                 siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
-                ImdiTreeObject subNodeImdiTreeObject = GuiHelper.imdiLoader.getImdiObjectWithoutLoading(parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
+                ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(parentNode.getUrlString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer);
                 subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
                 parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
 //                parentNode.attachChildNode(metaNodeImdiTreeObject);
@@ -600,7 +608,7 @@ public class ImdiSchema {
                         if (attributeName.equals("Link") && attributeValue.length() > 0) {
                             String correcteLink = correctLinkPath(parentNode.getParentDirectory(), attributeValue);
                             childLinks.add(new String[]{correcteLink, fieldToAdd.fieldID});
-                            parentChildTree.get(parentNode).add(GuiHelper.imdiLoader.getImdiObjectWithoutLoading(correcteLink));
+                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
                         }
                     }
                 }
@@ -617,7 +625,7 @@ public class ImdiSchema {
                 try {
                     String linkPath = correctLinkPath(parentNode.getParentDirectory(), fieldToAdd.getFieldValue());
                     childLinks.add(new String[]{linkPath, fieldToAdd.fieldID});
-                    parentChildTree.get(parentNode).add(GuiHelper.imdiLoader.getImdiObjectWithoutLoading(linkPath));
+                    parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                     System.out.println("Exception CorpusLink: " + ex.getMessage());

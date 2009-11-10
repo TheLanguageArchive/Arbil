@@ -21,8 +21,17 @@ public class ImdiLoader {
     private Vector<ImdiTreeObject> nodesNeedingSave = new Vector<ImdiTreeObject>();
     int imdiFilesLoaded = 0;
     int remoteImdiFilesLoaded = 0;
+    static private ImdiLoader singleInstance = null;
 
-    public ImdiLoader() {
+    static synchronized public ImdiLoader getSingleInstance() {
+//        System.out.println("ImdiLoader getSingleInstance");
+        if (singleInstance == null) {
+            singleInstance = new ImdiLoader();
+        }
+        return singleInstance;
+    }
+
+    private ImdiLoader() {
         System.out.println("ImdiLoader init");
         continueThread = true;
         // start three remote imdi loader threads

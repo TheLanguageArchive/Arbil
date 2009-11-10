@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import nl.mpi.arbil.data.ImdiLoader;
 
 /**
  * Document   : MimeHashQueue
@@ -167,7 +168,7 @@ public class MimeHashQueue {
                     File currentFile = new File(new URL(currentDupPath).getFile());
                     if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
                         // get the currently loaded imdiobjects for the paths
-                        ImdiTreeObject currentImdiObject = GuiHelper.imdiLoader.getImdiObjectOnlyIfLoaded(currentDupPath);
+                        ImdiTreeObject currentImdiObject = ImdiLoader.getSingleInstance().getImdiObjectOnlyIfLoaded(currentDupPath);
                         if (currentImdiObject != null) {
                             relevantImdiObjects.add(currentImdiObject);
                         }
@@ -311,7 +312,7 @@ public class MimeHashQueue {
     public void addToQueue(ImdiTreeObject imdiObject) {
 //        System.out.println("MimeHashQueue addToQueue: " + imdiObject);
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
-        if (!imdiObject.isDirectory() && imdiObject.isLocal() && (!imdiObject.isImdiChild() || imdiObject.hasResource())) {
+        if (imdiObject.isLocal() && ((!imdiObject.isImdi() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
             if (!imdiObjectQueue.contains(imdiObject)) {

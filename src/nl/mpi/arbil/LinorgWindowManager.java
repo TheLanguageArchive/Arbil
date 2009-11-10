@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import nl.mpi.arbil.data.ImdiLoader;
 
 /**
  * Document   : LinorgWindowManager
@@ -188,7 +189,7 @@ public class LinorgWindowManager {
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
                 ImdiTreeObject[] imdiObjectsArray = new ImdiTreeObject[imdiURLs.size()];
                 for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
-                    imdiObjectsArray[arrayCounter] = (GuiHelper.imdiLoader.getImdiObject(null, imdiURLs.elementAt(arrayCounter).toString()));
+                    imdiObjectsArray[arrayCounter] = (ImdiLoader.getSingleInstance().getImdiObject(null, imdiURLs.elementAt(arrayCounter).toString()));
                 }
                 openFloatingTable(imdiObjectsArray, currentWindowName);
                 //openFloatingTable(null, currentWindowName);
