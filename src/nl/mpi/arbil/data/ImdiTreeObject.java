@@ -1497,7 +1497,7 @@ public class ImdiTreeObject implements Comparable {
             }
             System.out.println("isLoadingCount: " + isLoadingCount);
             if (!isLoading()) {
-                this.notifyAll();
+//                this.notifyAll();
                 clearChildIcons();
                 clearIcon();
             }
