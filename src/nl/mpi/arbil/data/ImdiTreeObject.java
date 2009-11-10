@@ -61,6 +61,7 @@ public class ImdiTreeObject implements Comparable {
     private String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
     private Vector/*<Component>*/ containersOfThisNode;
     private int isLoadingCount = 0;
+    final private Object loadingCountLock = new Object();
     public boolean lockedByLoadingThread = false;
 //    private boolean isFavourite;
     public boolean hasArchiveHandle = false;
@@ -129,6 +130,12 @@ public class ImdiTreeObject implements Comparable {
     static public boolean isStringImdiChild(String urlString) {
         return urlString.contains("#.METATRANSCRIPT");
     }
+
+    static public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
+        ImdiTreeObject imdiTreeObject;
+        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+        imdiTreeObject.requestAddNode(nodeType, nodeTypeDisplayName);
+    }
     // end static methods for testing imdi file and object types
 
     public boolean getNeedsSaveToDisk() {
@@ -145,9 +152,9 @@ public class ImdiTreeObject implements Comparable {
         } else {
             if (this.needsSaveToDisk != imdiNeedsSaveToDisk) {
                 if (imdiNeedsSaveToDisk) {
-                    GuiHelper.imdiLoader.addNodeNeedingSave(this);
+                    ImdiLoader.getSingleInstance().addNodeNeedingSave(this);
                 } else {
-                    GuiHelper.imdiLoader.removeNodesNeedingSave(this);
+                    ImdiLoader.getSingleInstance().removeNodesNeedingSave(this);
                 }
             }
         }
@@ -218,7 +225,7 @@ public class ImdiTreeObject implements Comparable {
                         addField(dateField);
                         // get exif tags
 //                System.out.println("get exif tags");
-                        ImdiField[] exifFields = GuiHelper.imdiSchema.getExifMetadata(this);
+                        ImdiField[] exifFields = ImdiSchema.getSingleInstance().getExifMetadata(this);
                         for (ImdiField currentField : exifFields) {
                             currentField.fieldID = "x" + currentFieldId++;
                             addField(currentField);
@@ -249,7 +256,7 @@ public class ImdiTreeObject implements Comparable {
 ////            if (getParentDomNode().isCorpus()) {
 ////                getParentDomNode().autoLoadChildNodes = true;
 ////            }
-        GuiHelper.imdiLoader.requestReload(getParentDomNode());
+        ImdiLoader.getSingleInstance().requestReload(getParentDomNode());
 //        }
     }
 
@@ -315,7 +322,7 @@ public class ImdiTreeObject implements Comparable {
                             Vector<String[]> childLinksTemp = new Vector<String[]>();
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                             // load the fields from the imdi file
-                            GuiHelper.imdiSchema.iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree);
+                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree);
                             childLinks = childLinksTemp.toArray(new String[][]{});
                             ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                             for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
@@ -392,7 +399,7 @@ public class ImdiTreeObject implements Comparable {
         for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
             String currentLink = this.getUrlString() + File.separatorChar + dirLinkArray[linkCount];
 //            System.out.println("currentLink: " + currentLink);
-            ImdiTreeObject currentImdi = GuiHelper.imdiLoader.getImdiObjectWithoutLoading(currentLink);
+            ImdiTreeObject currentImdi = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentLink);
             childLinksTemp.add(currentImdi);
         }
         //childLinks = childLinksTemp.toArray(new String[][]{});
@@ -583,7 +590,7 @@ public class ImdiTreeObject implements Comparable {
         }
         String addedNodePath = null;
         ImdiTreeObject destinationNode;
-        if (GuiHelper.imdiSchema.isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
+        if (ImdiSchema.getSingleInstance().isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
@@ -598,7 +605,7 @@ public class ImdiTreeObject implements Comparable {
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
 //                System.out.println("inUrlLocal: " + inUrlLocal);
-                        addedNodePath = GuiHelper.imdiSchema.insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
+                        addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
                         api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
@@ -612,8 +619,8 @@ public class ImdiTreeObject implements Comparable {
         } else {
             System.out.println("adding new node");
             String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + LinorgSessionStorage.getSingleInstance().getNewImdiFileName();
-            addedNodePath = GuiHelper.imdiSchema.addFromTemplate(new File(targetFileName), nodeType).toString();
-            destinationNode = GuiHelper.imdiLoader.getImdiObject(null, targetFileName);
+            addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileName), nodeType).toString();
+            destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
             } else {
@@ -915,7 +922,7 @@ public class ImdiTreeObject implements Comparable {
     public boolean hasCatalogue() {
         for (String[] currentLinkPair : childLinks) {
             String currentChildPath = currentLinkPair[0];
-            ImdiTreeObject childNode = GuiHelper.imdiLoader.getImdiObject(null, currentChildPath);
+            ImdiTreeObject childNode = ImdiLoader.getSingleInstance().getImdiObject(null, currentChildPath);
             //childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
             if (childNode.isCatalogue()) {
                 return true;
@@ -1063,7 +1070,7 @@ public class ImdiTreeObject implements Comparable {
                 System.out.println("clipBoardString: " + clipBoardString);
                 if (this.isCorpus()) {
                     if (ImdiTreeObject.isStringImdi(clipBoardString) || ImdiTreeObject.isStringImdiChild(clipBoardString)) {
-                        ImdiTreeObject clipboardNode = GuiHelper.imdiLoader.getImdiObject(null, clipBoardString);
+                        ImdiTreeObject clipboardNode = ImdiLoader.getSingleInstance().getImdiObject(null, clipBoardString);
                         if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(clipboardNode.getFile())) {
                             if (!(ImdiTreeObject.isStringImdiChild(clipBoardString) && (!this.isSession() && !this.isImdiChild()))) {
                                 if (this.getFile().exists()) {
@@ -1106,7 +1113,7 @@ public class ImdiTreeObject implements Comparable {
             String resourceUrl = null;
             String mimeType = null;
             if (currentImdiNode.isArchivableFile() && !currentImdiNode.isImdi()) {
-                nodeType = GuiHelper.imdiSchema.getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
+                nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
                 resourceUrl = currentImdiNode.getUrlString();
                 mimeType = currentImdiNode.mpiMimeType;
                 nodeTypeDisplayName = "Resource";
@@ -1127,7 +1134,7 @@ public class ImdiTreeObject implements Comparable {
 //            } else {
                 System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
                 this.getParentDomNode().addQueue.add(new String[]{nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
-                GuiHelper.imdiLoader.requestReload(this);
+                ImdiLoader.getSingleInstance().requestReload(this);
             }
         }
 //            }
@@ -1137,7 +1144,7 @@ public class ImdiTreeObject implements Comparable {
     public void requestAddNode(String nodeType, String nodeTypeDisplayName) {
         System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
         this.getParentDomNode().addQueue.add(new String[]{nodeType, null, nodeTypeDisplayName, null, null, null});
-        GuiHelper.imdiLoader.requestReload(this);
+        ImdiLoader.getSingleInstance().requestReload(this);
     }
 
     /**
@@ -1481,11 +1488,13 @@ public class ImdiTreeObject implements Comparable {
         return true;
     }
 
-    synchronized void updateLoadingState(int countChange) {
+    public void updateLoadingState(int countChange) {
         if (this != getParentDomNode()) {
             getParentDomNode().updateLoadingState(countChange);
         } else {
-            isLoadingCount += countChange;
+            synchronized (loadingCountLock) {
+                isLoadingCount += countChange;
+            }
             System.out.println("isLoadingCount: " + isLoadingCount);
             if (!isLoading()) {
                 this.notifyAll();
@@ -1608,7 +1617,7 @@ public class ImdiTreeObject implements Comparable {
     public ImdiTreeObject getParentDomNode() {
         if (domParentImdi == null) {
             if (isImdiChild()) {
-                domParentImdi = GuiHelper.imdiLoader.getImdiObject(null, getUrlString().split("#")[0]);
+                domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, getUrlString().split("#")[0]);
             } else {
                 domParentImdi = this;
             }
@@ -1702,7 +1711,7 @@ public class ImdiTreeObject implements Comparable {
     public void registerContainer(Object containerToAdd) {
 //        System.out.println("registerContainer: " + containerToAdd + " : " + this);
         if (!getParentDomNode().imdiDataLoaded) { // TODO: this is probably not the best way to do this and might be better in a manager class
-            GuiHelper.imdiLoader.requestReload(getParentDomNode());
+            ImdiLoader.getSingleInstance().requestReload(getParentDomNode());
         }
         if (containerToAdd != null) {
             // todo: handle null here more agressively

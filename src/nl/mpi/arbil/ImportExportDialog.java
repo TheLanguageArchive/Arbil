@@ -32,6 +32,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
+import nl.mpi.arbil.data.ImdiLoader;
 import org.w3c.dom.Document;
 
 /**
