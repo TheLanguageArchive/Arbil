@@ -1,8 +1,10 @@
 package nl.mpi.arbil;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import nl.mpi.arbil.data.ImdiSchema;
 
 /**
  * ArbilTemplateManager.java
@@ -11,10 +13,11 @@ import java.util.Hashtable;
  */
 public class ArbilTemplateManager {
 
-    private String defaultArbilTemplateName = "Default";
+    private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
-    private ArbilTemplate defaultArbilTemplate;
+    private String[] builtInTemplates = {"Default", "Sign Language"}; // the first item in this list is the default template
+//    private ArbilTemplate defaultArbilTemplate;
 
     static synchronized public ArbilTemplateManager getSingleInstance() {
         if (singleInstance == null) {
@@ -23,20 +26,38 @@ public class ArbilTemplateManager {
         return singleInstance;
     }
 
+    public boolean createTemplate(String selectedTemplate) {
+        if (selectedTemplate.length() == 0) {
+            return false;
+        } else if (Arrays.binarySearch(builtInTemplates, selectedTemplate) > -1) {
+            return false;
+        } else {
+            File selectedTemplateFile = getTemplateFile(selectedTemplate);
+            selectedTemplateFile.getParentFile().mkdir();
+            LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, true, new DownloadAbortFlag());
+            return selectedTemplateFile.exists();
+        }
+    }
+
     public File getTemplateFile(String currentTemplate) {
         File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "template.xml");
-        if (!currentTemplateFile.getParentFile().exists()) {
-            currentTemplateFile.getParentFile().mkdir();
-        }
+//        if (!currentTemplateFile.getParentFile().exists()) {
+//            currentTemplateFile.getParentFile().mkdir();
+//        }
         return currentTemplateFile;
     }
 
-    public String getCurrentTemplate() {
+    public String getCurrentTemplateName() {
         return defaultArbilTemplateName;
     }
 
     public void setCurrentTemplate(String currentTemplateLocal) {
         defaultArbilTemplateName = currentTemplateLocal;
+        try {
+            LinorgSessionStorage.getSingleInstance().saveObject(currentTemplateLocal, "CurrentTemplate");
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
     }
 
     private File getTemplateDirectory() {
@@ -48,92 +69,48 @@ public class ArbilTemplateManager {
         if (!templatesDir.exists()) {
             templatesDir.mkdir();
         }
+        ArrayList<String> templateList = new ArrayList<String>();
         String[] templatesList = templatesDir.list();
+        for (String currentTemplateName : templatesList) {
+            // if the template file does not exist then remove from the array
+            if (getTemplateFile(currentTemplateName).exists()) {
+                templateList.add(currentTemplateName);
+            }
+        }
+        for (String currentTemplateName : builtInTemplates) {
+            // add the Default and SignLanguage built in templates
+            templateList.add(currentTemplateName);
+        }
+        templatesList = templateList.toArray(new String[]{});
         Arrays.sort(templatesList);
         return templatesList;
     }
 
     private ArbilTemplateManager() {
         templatesHashTable = new Hashtable<String, ArbilTemplate>();
-        defaultArbilTemplate = getTemplate("DefaultArbilTemplate");
+        try {
+            defaultArbilTemplateName = (String) LinorgSessionStorage.getSingleInstance().loadObject("CurrentTemplate");
+        } catch (Exception ex) {
+            defaultArbilTemplateName = builtInTemplates[0];
+        }
     }
 
-    public ArbilTemplate getDefaultTemplate() {
-        return defaultArbilTemplate;
+    public ArbilTemplate getCurrentTemplate() {
+        return getTemplate(defaultArbilTemplateName);
     }
 
     public ArbilTemplate getTemplate(String templateName) {
-        ArbilTemplate returnTemplate = null;
-        if (templateName != null && templateName.length() > 0) {
-            if (!templatesHashTable.containsKey(templateName)) {
+        ArbilTemplate returnTemplate = new ArbilTemplate();
+        if (templateName == null) {
+            templateName = builtInTemplates[0]; // if the template does not exist the default values will be loaded
+        }
+        if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
-                returnTemplate = new ArbilTemplate();
-                returnTemplate.readTemplate(getTemplateFile(templateName));
-                templatesHashTable.put(templateName, returnTemplate);
-            } else {
-                returnTemplate = templatesHashTable.get(templateName);
-            }
+            returnTemplate.readTemplate(getTemplateFile(templateName), templateName);
+            templatesHashTable.put(templateName, returnTemplate);
         } else {
-            returnTemplate = defaultArbilTemplate;
+            returnTemplate = templatesHashTable.get(templateName);
         }
         return returnTemplate;
     }
-
-//    public void readTemplate(String templatePath) {
-//        try {
-//            javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
-//            javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
-//            org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
-//            xmlReader.setFeature("http://xml.org/sax/features/validation", false);
-//            xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
-//            xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
-//            xmlReader.parse(cachePath);
-//        } catch (Exception ex) {
-//            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
-//        }
-//    }
-
-//    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
-
-//        Vocabulary collectedVocab;
-//        VocabularyItem currentVocabItem = null;
-
-//        public SaxVocabularyHandler(Vocabulary vocabList) {
-//            super();
-//            collectedVocab = vocabList;
-//        }
-
-//        @Override
-//        public void characters(char[] charArray, int start, int length) {
-//            if (currentVocabItem != null) {
-//                String nodeContents = "";
-//                for (int charCounter = start; charCounter < start + length; charCounter++) {
-//                    nodeContents = nodeContents + charArray[charCounter];
-//                }
-//                currentVocabItem.descriptionString = nodeContents;
-//            }
-//        }
-//
-//        @Override
-//        public void endElement(String uri, String localName, String qName) {
-//            currentVocabItem = null;
-//        }
-
-//        @Override
-//        public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
-////            System.out.println("startElement: " + name);
-//            if (name.equals("VocabularyRedirect")) { // or should this be Redirect
-//                // when getting the list check attribute in the field X for the vocab location
-//                collectedVocab.vocabularyRedirectField = atts.getValue("SourceFieldName");
-//                System.out.println("VocabularyRedirect: " + collectedVocab.vocabularyRedirectField);
-//            }
-//            if (name.equals("Entry")) {
-//                String vocabName = atts.getValue("Value");
-//                String vocabCode = atts.getValue("Code");
-//                String followUpVocab = atts.getValue("FollowUp");
-//                currentVocabItem = new VocabularyItem(vocabName, vocabCode, followUpVocab);
-//                collectedVocab.vocabularyItems.add(currentVocabItem);
-//            }
-//        }
-//    }
 }

@@ -43,7 +43,7 @@ public class ImdiTreeObject implements Comparable {
     private ImdiTreeObject[] childArray = new ImdiTreeObject[0];
     public boolean imdiDataLoaded;
     public String hashString;
-    public String mpiMimeType;
+    public String mpiMimeType = null;
     public String typeCheckerMessage;
     public int matchesInCache;
     public int matchesRemote;
@@ -51,7 +51,7 @@ public class ImdiTreeObject implements Comparable {
     public boolean fileNotFound;
     private boolean needsSaveToDisk;
     private String nodeText, lastNodeText = "";
-    private boolean nodeTextChanged = false;
+//    private boolean nodeTextChanged = false;
     private URL nodeUrl;
     private String resourceUrlString;
     public boolean isDirectory;
@@ -133,7 +133,7 @@ public class ImdiTreeObject implements Comparable {
 
     static public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
         ImdiTreeObject imdiTreeObject;
-        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
+        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()).getAbsolutePath());
         imdiTreeObject.requestAddNode(nodeType, nodeTypeDisplayName);
     }
     // end static methods for testing imdi file and object types
@@ -164,6 +164,15 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
+    public String getAnyMimeType() {
+        if (mpiMimeType == null && hasResource()) { // use the format from the imdi file if the type checker failed eg if the file is on the server
+            ImdiField[] formatField = fieldHashtable.get("Format");
+            if (formatField != null && formatField.length > 0) {
+                return formatField[0].getFieldValue();
+            }
+        }
+        return mpiMimeType;
+    }
     public void setMimeType(String[] typeCheckerMessageArray) {
         mpiMimeType = typeCheckerMessageArray[0];
         typeCheckerMessage = typeCheckerMessageArray[1];
@@ -186,12 +195,12 @@ public class ImdiTreeObject implements Comparable {
         }
         if (currentTemplate == null) {
             // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
-            currentTemplate = ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
+            currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         }
         fieldHashtable = new Hashtable<String, ImdiField[]>();
         imdiDataLoaded = false;
         hashString = null;
-        mpiMimeType = null;
+        //mpiMimeType = null;
         matchesInCache = 0;
         matchesRemote = 0;
         matchesLocalFileSystem = 0;
@@ -373,6 +382,7 @@ public class ImdiTreeObject implements Comparable {
                     nodDom = null;
 //        return cacheLocation;
                     imdiDataLoaded = true;
+                    getParentDomNode().notifyAll();
 //            clearChildIcons();
                 }
             }
@@ -590,7 +600,7 @@ public class ImdiTreeObject implements Comparable {
         }
         String addedNodePath = null;
         ImdiTreeObject destinationNode;
-        if (ImdiSchema.getSingleInstance().isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
+        if (currentTemplate.isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
@@ -623,6 +633,7 @@ public class ImdiTreeObject implements Comparable {
             destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
+                reloadNode();
             } else {
                 // TODO: this should not really be here
                 TreeHelper.getSingleInstance().addLocation(destinationNode.getUrlString());
@@ -996,7 +1007,7 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("Exception: " + ex.getMessage());
             }
             //loadChildNodes(); // this must not be done here
-            clearIcon(); // this must be cleared so that the leaf / branch flag gets set
+//            clearIcon(); // this must be cleared so that the leaf / branch flag gets set
             return true;
         }
     }
@@ -1480,8 +1491,9 @@ public class ImdiTreeObject implements Comparable {
     synchronized boolean waitTillLoaded() {
         if (isLoading()) {
             try {
-                getParentDomNode().wait();
+                getParentDomNode().wait(1000);
             } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
                 return false;
             }
         }
@@ -1536,7 +1548,7 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
+//        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         lastNodeText = nodeText + nameText;
         if (lastNodeText.length() == 0) {
             lastNodeText = "      ";
@@ -1573,7 +1585,7 @@ public class ImdiTreeObject implements Comparable {
         if (resourceUrlString.toLowerCase().startsWith("http")) {
             return false;
         }
-        if (resourceUrlString.toLowerCase().startsWith(".") && !this.isLocal()) {
+        if (!this.isLocal()) {
             return false;
         }
         return true;
@@ -1593,7 +1605,8 @@ public class ImdiTreeObject implements Comparable {
      */
     public String getFullResourcePath() {
         String targetUrlString = resourceUrlString;
-        if (targetUrlString.startsWith(".")) {
+        boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
+        if (!urlIsComplete || targetUrlString.startsWith(".")) {
             targetUrlString = this.getParentDirectory() + targetUrlString;
             //targetUrlString = targetUrlString.replace("/./", "/");
         }

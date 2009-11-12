@@ -1,6 +1,7 @@
 package nl.mpi.arbil;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
@@ -19,7 +20,7 @@ public class LinorgVersionChecker {
             LinorgVersion linorgVersion = new LinorgVersion();
             int daysTillExpire = 1;
             String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
-            String cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt, daysTillExpire);
+            File cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt, daysTillExpire);
             BufferedReader bufferedReader = new BufferedReader(new FileReader(cachePath));
             String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
@@ -69,6 +70,7 @@ public class LinorgVersionChecker {
     public void checkForUpdate(final LinorgFrame parentComponentLocal) {
         parentComponent = parentComponentLocal;
         new Thread() {
+
             public void run() {
                 if (!isLatestVersion()) {
                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);

@@ -43,6 +43,7 @@ class JListToolTip extends JToolTip {
             jLabel.setIcon(((ImdiTreeObject) tempObject).getIcon());
         }
         jLabel.doLayout();
+//     TODO: fix the tool tip text box bounding size //   jPanel.invalidate();
         jPanel.add(jLabel);
     }
 
@@ -71,6 +72,7 @@ class JListToolTip extends JToolTip {
             addDetailLabel("Name: ", tempFields.get("Name"));
             addDetailLabel("Title: ", tempFields.get("Title"));
             addDetailLabel("Description: ", tempFields.get("Description"));
+            addTabbedLabel("Template: " + tempObject.currentTemplate.getTemplateName());
             addDetailLabel("Format: ", tempFields.get("Format"));
         } else {
             if (!tempObject.isDirectory()) {
@@ -130,7 +132,7 @@ class JListToolTip extends JToolTip {
                 if (targetObject instanceof ImdiField) {
                     addDetailLabel(((ImdiField) targetObject).parentImdi.currentTemplate.getHelpStringForField(((ImdiField) targetObject).getFullXmlPath()));
                 }
-            //JTextField
+                //JTextField
 //                JTextArea jTextArea = new JTextArea();
 //                jTextArea.setText(targetObject.toString());
 //                jTextArea.setBackground(getBackground());

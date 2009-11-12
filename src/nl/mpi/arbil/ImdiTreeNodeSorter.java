@@ -43,7 +43,7 @@ public class ImdiTreeNodeSorter implements Comparator {
     }
 
     private int getTypeIndex(ImdiTreeObject targetImdiObject) {
-        if (!targetImdiObject.isLoading()) {
+        if (!targetImdiObject.imdiDataLoaded) { // caution: this sort can cause the tree to collapse when nodes reload because the nodes will be removed if not in order
             if (targetImdiObject.isCorpus()) {
                 return 1;
             } else if (targetImdiObject.isCatalogue()) {

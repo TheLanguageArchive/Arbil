@@ -279,21 +279,20 @@ public class LinorgSessionStorage {
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
      */
-    public String updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
-        String cachePath = getSaveLocation(pathString);
-        File targetFile = new File(cachePath);
+    public File updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
+        File targetFile = getSaveLocation(pathString);
         boolean fileNeedsUpdate = !targetFile.exists();
         if (!fileNeedsUpdate) {
             Date lastModified = new Date(targetFile.lastModified());
             Date expireDate = new Date(System.currentTimeMillis());
-            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + cachePath);
+            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
 
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(expireDate);
             calendar.add(Calendar.DATE, -expireCacheDays);
             expireDate.setTime(calendar.getTime().getTime());
 
-            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + cachePath);
+            System.out.println("updateCache: " + expireDate + " : " + lastModified + " : " + targetFile.getAbsolutePath());
 
             fileNeedsUpdate = expireDate.after(lastModified);
             System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
@@ -308,9 +307,9 @@ public class LinorgSessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public String updateCache(String pathString, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+    public File updateCache(String pathString, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
         //TODO: There will need to be a way to expire the files in the cache.
-        String cachePath = getSaveLocation(pathString);
+        File cachePath = getSaveLocation(pathString);
         try {
             saveRemoteResource(new URL(pathString), cachePath, expireCacheCopy, abortFlag);
         } catch (MalformedURLException mul) {
@@ -326,13 +325,13 @@ public class LinorgSessionStorage {
      * @param destinationDirectory Path of the destination directory.
      * @return The path of the file in the destination directory.
      */
-    public String getExportPath(String pathString, String destinationDirectory) {
+    public File getExportPath(String pathString, String destinationDirectory) {
         String cachePath = destinationDirectory + /*File.separatorChar +*/ pathString.substring(pathString.indexOf("imdicache") + 9); // this path must be inside the cache for this to work correctly
-        File tempFile = new File(cachePath);
-        if (!tempFile.getParentFile().exists()) {
-            tempFile.getParentFile().mkdirs();
+        File returnFile = new File(cachePath);
+        if (!returnFile.getParentFile().exists()) {
+            returnFile.getParentFile().mkdirs();
         }
-        return cachePath;
+        return returnFile;
     }
 
     public String getNewImdiFileName() {
@@ -346,18 +345,18 @@ public class LinorgSessionStorage {
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
-    public String getSaveLocation(String pathString) {
+    public File getSaveLocation(String pathString) {
         pathString = pathString.replace("//", "/");
         if (pathString.indexOf(".arbil/imdicache") > -1) {
             GuiHelper.linorgBugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
             pathString = pathString.substring(pathString.lastIndexOf(".arbil/imdicache") + ".arbil/imdicache".length());
         }
         String cachePath = cacheDirectory + pathString.replace(":/", "/").replace("//", "/");
-        File tempFile = new File(cachePath);
-        if (!tempFile.getParentFile().exists()) {
-            tempFile.getParentFile().mkdirs();
+        File returnFile = new File(cachePath);
+        if (!returnFile.getParentFile().exists()) {
+            returnFile.getParentFile().mkdirs();
         }
-        return cachePath;
+        return returnFile;
     }
 
     /**
@@ -365,12 +364,12 @@ public class LinorgSessionStorage {
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
      */
-    public void saveRemoteResource(URL targetUrl, String destinationPath, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+    public void saveRemoteResource(URL targetUrl, File destinationFile, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
 //        String targetUrlString = getFullResourcePath();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
 //        System.out.println("saveRemoteResource: " + targetUrlString);
-        System.out.println("destinationPath: " + destinationPath);
-        File destinationFile = new File(destinationPath);
+//        System.out.println("destinationPath: " + destinationPath);
+//        File destinationFile = new File(destinationPath);
         if (destinationFile.length() == 0) {
             // if the file is zero length then is presumably should either be replaced or the version in the jar used.
             destinationFile.delete();

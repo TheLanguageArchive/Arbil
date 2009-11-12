@@ -13,7 +13,6 @@ import java.util.Vector;
 public class ImdiVocabularies {
 
     Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
-
     // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
     // every time IMDIVocab in the API is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else
     // mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
@@ -110,16 +109,17 @@ public class ImdiVocabularies {
 
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
-            String cachePath = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
-            if (!new File(cachePath).exists()) {
-                String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + new File(cachePath).getName();
+            File cachedFile = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
+            // this delete is for testing only!!! new File(cachePath).delete();
+            if (!cachedFile.exists()) {
+                String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + cachedFile.getName();
                 System.out.println("backupPath: " + backupPath);
                 URL backUp = this.getClass().getResource(backupPath);
                 if (backUp != null) {
-                    LinorgSessionStorage.getSingleInstance().saveRemoteResource(backUp, cachePath, true, new DownloadAbortFlag());
+                    LinorgSessionStorage.getSingleInstance().saveRemoteResource(backUp, cachedFile, true, new DownloadAbortFlag());
                 }
             }
-            System.out.println("parseRemoteFile: " + cachePath);
+            System.out.println("parseRemoteFile: " + cachedFile);
             Vocabulary vocabulary = new Vocabulary(vocabRemoteUrl);
             vocabulariesTable.put(vocabRemoteUrl, vocabulary);
             try {
@@ -129,7 +129,7 @@ public class ImdiVocabularies {
                 xmlReader.setFeature("http://xml.org/sax/features/validation", false);
                 xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
                 xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
-                xmlReader.parse(cachePath);
+                xmlReader.parse(cachedFile.getCanonicalPath());
             } catch (Exception ex) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
             }

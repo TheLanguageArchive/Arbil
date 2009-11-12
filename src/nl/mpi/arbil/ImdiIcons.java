@@ -171,22 +171,28 @@ public class ImdiIcons {
 //                                icon = corpuslocalservericon;
 //                            }
         }
-        if (imdiObject.mpiMimeType != null) {
-            if (imdiObject.mpiMimeType.contains("audio")) {
+        String mimeTypeForNode = imdiObject.getAnyMimeType();
+        if (mimeTypeForNode != null) {
+            mimeTypeForNode = mimeTypeForNode.toLowerCase();
+            if (mimeTypeForNode.contains("audio")) {
                 iconsVector.add(audioIcon);
-            } else if (imdiObject.mpiMimeType.contains("video")) {
+            } else if (mimeTypeForNode.contains("video")) {
                 iconsVector.add(videoIcon);
-            } else if (imdiObject.mpiMimeType.contains("image")) {// ?????
+            } else if (mimeTypeForNode.contains("image")) {// ?????
                 iconsVector.add(picturesIcon);
-            } else if (imdiObject.mpiMimeType.contains("text")) {
+            } else if (mimeTypeForNode.contains("text")) {
                 iconsVector.add(writtenresourceIcon);
-            } else if (imdiObject.mpiMimeType.contains("pdf")) {
+            } else if (mimeTypeForNode.contains("xml")) {
                 iconsVector.add(writtenresourceIcon);
-            } else if (imdiObject.mpiMimeType.contains("kml")) {
+            } else if (mimeTypeForNode.contains("chat")) {
+                iconsVector.add(writtenresourceIcon);
+            } else if (mimeTypeForNode.contains("pdf")) {
+                iconsVector.add(writtenresourceIcon);
+            } else if (mimeTypeForNode.contains("kml")) {
                 iconsVector.add(writtenresourceIcon);
             } else {
                 iconsVector.add(questionRedIcon);
-                GuiHelper.linorgBugCatcher.logError(imdiObject.mpiMimeType, new Exception("Icon not found for file"));
+                GuiHelper.linorgBugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file"));
             }
         } else if (imdiObject.hasResource()) {
             // the resource is not found so show a unknow resource icon

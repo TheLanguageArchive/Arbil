@@ -192,12 +192,6 @@ public class ImdiSchema {
     }
     // end functions to extract the exif data from images
 
-    public boolean isImdiChildType(String childType) {
-        if (childType == null) {
-            return false;
-        }
-        return !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue");
-    }
 //    public boolean nodesChildrenCanHaveSiblings(String xmlPath) {
 //        System.out.println("xmlPath: " + xmlPath);
 //        return (xmlPath.equals(".METATRANSCRIPT.Session.MDGroup.Actors"));
@@ -229,6 +223,7 @@ public class ImdiSchema {
                 LinorgVersion currentVersion = new LinorgVersion();
                 String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
                 metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
+                metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
                 metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
                 ImdiTreeObject.api.writeDOM(addedDocument, new File(addedPathUrl.getFile()), false);
             }
@@ -519,6 +514,18 @@ public class ImdiSchema {
                 if (xmlNodeIdAtt != null) {
                     xmlNodeId = xmlNodeIdAtt.getNodeValue();
                 }// end get the xml node id
+                System.out.println(childNode.getLocalName());
+                if (childNode.getLocalName().equals("METATRANSCRIPT")) {
+                    Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
+                    if (archiveHandleAtt != null) {
+                        parentNode.hasArchiveHandle = true;
+                    }
+                    Node templateOriginatorAtt = attributesMap.getNamedItem("Type");
+                    if (templateOriginatorAtt != null) {
+                        String templateOriginator = templateOriginatorAtt.getNodeValue();
+                        parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator);
+                    }
+                }// end get the xml node id
                 Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
                 if (catalogueLinkAtt != null) {
                     String catalogueLink = catalogueLinkAtt.getNodeValue();
@@ -528,15 +535,7 @@ public class ImdiSchema {
                         parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
                     }
                 }
-                Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
-                if (archiveHandleAtt != null) {
-                    parentNode.hasArchiveHandle = true;
-                }
-                Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
-                if (templateOriginatorAtt != null) {
-                    String templateOriginator = templateOriginatorAtt.getNodeValue();
-                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator);
-                }
+                
             }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {

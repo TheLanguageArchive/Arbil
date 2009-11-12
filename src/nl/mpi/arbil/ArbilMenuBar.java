@@ -469,7 +469,6 @@ public class ArbilMenuBar extends JMenuBar {
 //// TODO add your handling code here:
 //        TreeHelper.getSingleInstance().showLocationsDialog();
 //    }
-
     private void viewMenuMenuSelected(MenuEvent evt) {
 // TODO add your handling code here:
         GuiHelper.getSingleInstance().initViewMenu(viewMenu);
@@ -525,7 +524,6 @@ public class ArbilMenuBar extends JMenuBar {
 //    private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 //        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
 //    }
-
     private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             // forcus existing or create a new help window
@@ -610,7 +608,6 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
-        // TODO: move this into the menu bar class
         JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
         templateMenuItem.setText(templateName);
         templateMenuItem.setName(templateName);
@@ -635,6 +632,36 @@ public class ArbilMenuBar extends JMenuBar {
         }
     }
 
+    private void addTemplateAddNewMenuItem(JMenu templateMenu) {
+        JMenuItem templateMenuItem = new JMenuItem();
+        templateMenuItem.setText("<add new>");
+        templateMenuItem.setName("<add new>");
+        templateMenuItem.setActionCommand("<add new>");
+        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+                    // if the user cancels the directory string will be a empty string.
+                    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+                    }
+                    if (ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName)) {
+                    } else {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+                    }
+//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
+                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+//                    System.out.println("setting template: " + evt.getActionCommand());
+//                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
+                } catch (Exception e) {
+                    GuiHelper.linorgBugCatcher.logError(e);
+                }
+            }
+        });
+        templateMenu.add(templateMenuItem);
+    }
+
     public void populateTemplatesMenu(JMenu templateMenu) {
         templateMenu.removeAll();
         ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
@@ -644,7 +671,7 @@ public class ArbilMenuBar extends JMenuBar {
         for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
 //            String templatePath = templatesDir.getPath() + File.separatorChar + currentTemplateName;
 //            if (new File(templatePath).isDirectory()) {
-            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplate());
+            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
             templateCount++;
 //            }
         }
@@ -653,5 +680,6 @@ public class ArbilMenuBar extends JMenuBar {
             noneMenuItem.setEnabled(false);
             templateMenu.add(noneMenuItem);
         }
+        addTemplateAddNewMenuItem(templateMenu);
     }
 }

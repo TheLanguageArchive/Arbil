@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +19,7 @@ import org.xml.sax.SAXException;
  */
 public class ArbilTemplate {
 
+    private String loadedTemplateName;
     public String[][] fieldTriggersArray;
     /*
     <FieldTriggers>
@@ -97,6 +99,7 @@ public class ArbilTemplate {
          */
     }
     String[][] templatesArray;
+    String[][] rootTemplatesArray;
 
     public boolean pathIsDeleteableField(String nodePath) {
         // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
@@ -107,6 +110,20 @@ public class ArbilTemplate {
             }
         }
         return false;
+    }
+
+    public boolean isImdiChildType(String childType) {
+        boolean returnValue = false;
+        if (childType != null) {
+            returnValue = true;
+            childType = childType + ".xml";
+            for (String[] currentTemplate : rootTemplatesArray) {
+                if (childType.equals(currentTemplate[0])) {
+                    returnValue = false;
+                }
+            }
+        }
+        return returnValue; //!childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue");
     }
 
     private Vector getSubnodesFromTemplatesDir(String nodepath) {
@@ -140,7 +157,7 @@ public class ArbilTemplate {
                     if (testingListing != null) {
                         if (!testingListing[linesRead].equals(currentTemplate[0])) {
                             System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
-                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
+//                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
                         }
                     }
                     linesRead++;
@@ -148,7 +165,7 @@ public class ArbilTemplate {
                 if (testingListing != null) {
                     if (testingListing.length - 1 != linesRead) {
                         System.out.println(testingListing[linesRead]);
-                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
+//                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
                     }
                 }
             }
@@ -186,14 +203,6 @@ public class ArbilTemplate {
                 }
             }
         }
-        Collections.sort(returnVector, new Comparator() {
-
-            public int compare(Object o1, Object o2) {
-                String value1 = ((String[]) o1)[0];
-                String value2 = ((String[]) o2)[0];
-                return value1.compareTo(value2);
-            }
-        });
         return returnVector;
     }
 
@@ -211,20 +220,34 @@ public class ArbilTemplate {
                 String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
                 childTypes = getSubnodesFromTemplatesDir(xpath);
             } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
-                childTypes.add(new String[]{"Corpus Branch", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus"});
+                for (String[] currentTemplate : rootTemplatesArray) {
+                    childTypes.add(new String[]{currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+                }
+//                childTypes.add(new String[]{"Corpus Branch", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus"});
                 childTypes.add(new String[]{"Corpus Description", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Description"});
 //                TODO: make sure the catalogue can only be added once
                 if (!((ImdiTreeObject) targetNodeUserObject).hasCatalogue()) {
                     childTypes.add(new String[]{"Catalogue", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Catalogue"});
                 }
-                childTypes.add(new String[]{"Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
+//                childTypes.add(new String[]{"Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
             }
 //            System.out.println("childTypes: " + childTypes);
         } else {
             // corpus can be added to the root node
-            childTypes.add(new String[]{"Unattached Corpus Branch", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus"});
-            childTypes.add(new String[]{"Unattached Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
+//            childTypes.add(new String[]{"Unattached Corpus Branch", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus"});
+//            childTypes.add(new String[]{"Unattached Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
+            for (String[] currentTemplate : rootTemplatesArray) {
+                childTypes.add(new String[]{"Unattached " + currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+            }
         }
+        Collections.sort(childTypes, new Comparator() {
+
+            public int compare(Object o1, Object o2) {
+                String value1 = ((String[]) o1)[0];
+                String value2 = ((String[]) o2)[0];
+                return value1.compareTo(value2);
+            }
+        });
         return childTypes.elements();
     }
 
@@ -237,7 +260,8 @@ public class ArbilTemplate {
         return "No usage description found in this template for: " + fieldName;
     }
 
-    public boolean readTemplate(File templateConfigFile) {
+    public boolean readTemplate(File templateConfigFile, String templateName) {
+        // testing: parseXsdForUsageDescriptions();
         try {
             javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
             javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
@@ -252,6 +276,7 @@ public class ArbilTemplate {
                 ArrayList<String[]> fieldTriggersList = new ArrayList<String[]>();
                 ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
                 ArrayList<String[]> templateComponentList = new ArrayList<String[]>();
+                ArrayList<String[]> rootTemplateComponentList = new ArrayList<String[]>();
                 ArrayList<String[]> fieldUsageList = new ArrayList<String[]>();
 
                 @Override
@@ -287,6 +312,11 @@ public class ArbilTemplate {
                         String displayName = atts.getValue("DisplayName");
                         templateComponentList.add(new String[]{fileName, displayName});
                     }
+                    if (name.equals("RootTemplateComponent")) {
+                        String fileName = atts.getValue("FileName");
+                        String displayName = atts.getValue("DisplayName");
+                        rootTemplateComponentList.add(new String[]{fileName, displayName});
+                    }
                     if (name.equals("FieldUsage")) {
                         String fieldPath = atts.getValue("FieldPath");
                         String fieldDescription = atts.getValue("FieldDescription");
@@ -303,19 +333,30 @@ public class ArbilTemplate {
                     fieldTriggersArray = fieldTriggersList.toArray(new String[][]{});
                     childNodePaths = childNodePathsList.toArray(new String[][]{});
                     templatesArray = templateComponentList.toArray(new String[][]{});
+                    rootTemplatesArray = rootTemplateComponentList.toArray(new String[][]{});
                     fieldUsageArray = fieldUsageList.toArray(new String[][]{});
                 }
             });
+            loadedTemplateName = templateName;
+            URL internalTemplateName = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
             if (templateConfigFile.exists()) {
                 xmlReader.parse(templateConfigFile.getPath());
+            } else if (templateName.equals("Sign Language")) {// (new File(internalTemplateName.getFile()).exists()) {
+                xmlReader.parse(internalTemplateName.toExternalForm());
             } else {
-                //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "The default template will be used instead.", "Load Template");
+                loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
+                // todo: LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "\nThe default template will be used instead.", "Load Template");
                 xmlReader.parse(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
             }
             return true;
         } catch (Exception ex) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The required template could not be read.", "Load Template");
             GuiHelper.linorgBugCatcher.logError("A template could not be read.", ex);
             return false;
         }
+    }
+
+    public String getTemplateName() {
+        return loadedTemplateName;
     }
 }

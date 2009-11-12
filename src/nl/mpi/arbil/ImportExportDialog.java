@@ -613,18 +613,19 @@ public class ImportExportDialog {
                                 try {
                                     appendToTaskOutput("connecting...");
                                     OurURL inUrlLocal = new OurURL(currentTarget);
-                                    String destinationPath;
+//                                    String destinationPath;
+                                    File destinationFile;// = new File(destinationPath);
                                     String journalActionString;
                                     if (exportDestinationDirectory == null) {
-                                        destinationPath = LinorgSessionStorage.getSingleInstance().getSaveLocation(currentTarget);
+                                        destinationFile = LinorgSessionStorage.getSingleInstance().getSaveLocation(currentTarget);
                                         journalActionString = "import";
                                     } else {
                                         //TODO: make sure this is correct then remove any directories that contain only one directory
-                                        destinationPath = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget, exportDestinationDirectory.getPath());
+                                        destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget, exportDestinationDirectory.getPath());
                                         journalActionString = "export";
                                     }
-                                    File destinationFile = new File(destinationPath);
-                                    appendToTaskOutput("destination path: " + destinationPath);
+
+                                    appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
                                     OurURL destinationUrl = new OurURL(destinationFile.toURL());
 
                                     Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
@@ -644,19 +645,18 @@ public class ImportExportDialog {
                                                     appendToTaskOutput("getting resource file: " + links[linkCount].getType());
                                                     resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
                                                     resourceCopyOutput.append(currentLink + "\n");
-                                                    String downloadLocation;
+                                                    File downloadFileLocation;
                                                     if (exportDestinationDirectory == null) {
-                                                        downloadLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, false, downloadAbortFlag);
+                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, false, downloadAbortFlag);
                                                     } else {
-                                                        downloadLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
+                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadLocation, true, downloadAbortFlag);
+                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, true, downloadAbortFlag);
                                                     }
-                                                    resourceCopyOutput.append(downloadLocation + "\n");
-                                                    File downloadedFile = new File(downloadLocation);
-                                                    if (downloadedFile.exists()) {
+                                                    resourceCopyOutput.append(downloadFileLocation + "\n");
+                                                    if (downloadFileLocation.exists()) {
                                                         resourceFileCopied = true;
-                                                        resourceCopyOutput.append("Copied " + downloadedFile.length() + "b\n");
+                                                        resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
                                                     } else {
                                                         resourceCopyOutput.append("Failed" + "\n");
                                                         resourceCopyErrors++;
@@ -687,7 +687,7 @@ public class ImportExportDialog {
                                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
                                         boolean removeIdAttributes = exportDestinationDirectory != null;
                                         ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationPath, "", currentTarget, "", journalActionString);
+                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget, "", journalActionString);
                                         // validate the imdi file
                                         appendToTaskOutput("validating");
                                         String checkerResult;
@@ -763,8 +763,8 @@ public class ImportExportDialog {
 //                                System.out.println("resourceCopyErrors" + resourceCopyErrors);
                             }
                             // add the completed node to the done list
-                            String newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
-                            finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation));
+                            File newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
+                            finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation.getCanonicalPath()));
                         }
                     }
 

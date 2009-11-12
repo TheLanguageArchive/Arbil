@@ -51,6 +51,11 @@
         <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
     </ChildNodePaths>
+    <RootTemplateComponents>
+        <comment>The template components that can be added at the root or corpus branch level via the add menu and the display name for each</comment>
+        <RootTemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />
+        <RootTemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
+    </RootTemplateComponents>
     <AvailableTemplateComponents>
         <comment>The template components that can be added via the add menu and the display name for each</comment>
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Access.Description.xml" DisplayName="Access Description" />

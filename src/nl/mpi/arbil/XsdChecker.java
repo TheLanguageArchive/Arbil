@@ -65,9 +65,8 @@ public class XsdChecker extends JSplitPane {
 
     private URL getXsd() {
         int daysTillExpire = 15;
-        String cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
+        File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
         URL schemaURL = null;
-        File schemaFile = new File(cachePath);
         if (schemaFile.exists()) {
             try {
                 schemaURL = schemaFile.toURL();

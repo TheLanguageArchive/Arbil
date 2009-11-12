@@ -280,20 +280,6 @@ public class TreeHelper {
         }
     }
 
-//    public void loadTreeNodeChildren(DefaultMutableTreeNode parentTreeNode) {
-//        Object parentObject = parentTreeNode.getUserObject();
-//        if (parentObject instanceof ImdiTreeObject) {
-            // TODO: is this even required???
-//            GuiHelper.imdiLoader.getImdiObject(null, ((ImdiTreeObject) parentObject).getUrlString());
-//            ((ImdiTreeObject) parentObject).loadChildNodes();
-//            for (ImdiTreeObject currentChild : ((ImdiTreeObject) parentObject).getChildArray()) {
-//                //ImdiLoader.getSingleInstance().getImdiObject(null, currentChild.getUrlString());
-//                ImdiLoader.getSingleInstance().requestReload(currentChild);
-//        }
-        //parentTreeNode.add(new DefaultMutableTreeNode("loading..."));
-//        addToSortQueue(parentTreeNode);
-//    }
-
     // check that all child nodes are attached and sorted, removing any extranious nodes found
     private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, ImdiTreeObject[] childNodes, Vector<DefaultMutableTreeNode> scrollToRequests) {
 //        System.out.println("updateTreeNodeChildren");
@@ -324,8 +310,17 @@ public class TreeHelper {
         for (DefaultMutableTreeNode currentChildNode : sortedChildren.toArray(new DefaultMutableTreeNode[]{})) {
 //            DefaultMutableTreeNode currentChildNode = childrenEnum.nextElement();
             ImdiTreeObject childImdiObject = (ImdiTreeObject) currentChildNode.getUserObject();
-            if (Arrays.binarySearch(childNodes, childImdiObject) < 0) {
+            boolean nodeUrlFoundInchildArray = false;
+            for (ImdiTreeObject childArrayObject : childNodes) {
+                if (childArrayObject.getUrlString().equals(childImdiObject.getUrlString())) {
+                    nodeUrlFoundInchildArray = true;
+                }
+            }
+            // binary search does not work correctly in this case
+            //if (Arrays.binarySearch(childNodes, childImdiObject) < 0) {
+            if (!nodeUrlFoundInchildArray) {
                 nodesToRemove.add(currentChildNode);
+                System.out.println("setting for removal from tree: " + childImdiObject.getUrlString());
 //                sortedChildren.remove(currentChildNode);
             }
         }
@@ -345,8 +340,8 @@ public class TreeHelper {
         while (!nodesToRemove.isEmpty()) {
 //            TODO: are the nodes being removed when an actor is deleted ???
             DefaultMutableTreeNode currentChildNode = nodesToRemove.remove(0);
-            System.out.println("nodesToRemove: " + currentChildNode);
-            System.out.println("nodesToRemove: " + currentChildNode.getUserObject());
+            //System.out.println("nodesToRemove: " + currentChildNode);
+            //System.out.println("nodesToRemove: " + currentChildNode.getUserObject());
 //            if (currentChildNode.getParent() != null) {
 //                treeModel.removeNodeFromParent(currentChildNode);
 //            }
@@ -361,6 +356,8 @@ public class TreeHelper {
             ImdiTreeObject childImdiObject = (ImdiTreeObject) parentNode.getUserObject();
             if (childImdiObject.isImdiChild()) {
                 containsSubNodes = true;
+            } else if (childNodes.length > 0) {
+                containsSubNodes = childNodes[0].isImdiChild();
             }
         }
         boolean parentExpanded = false;
@@ -368,10 +365,11 @@ public class TreeHelper {
 //            if (currentTree.isExpanded(new TreePath((((DefaultMutableTreeNode) parentNode.getParent())).getPath()))) {
 //                parentExpanded = true;
 //            }
-        if (currentTree.isExpanded(new TreePath((parentNode).getPath()))) {
+        if (currentTree.isExpanded(
+                new TreePath((parentNode).getPath()))) {
             parentExpanded = true;
         }
-        if (containsSubNodes || parentExpanded) {
+        if (containsSubNodes || parentExpanded || parentNode.getChildCount() > 0) {
             sortChildNodes(parentNode, childNodes, scrollToRequests);
         }
 //        System.out.println("setAllowsChildren: " + parentNode.getAllowsChildren() + ", " + parentNode.getChildCount() + ", " + parentNode.toString());
@@ -380,10 +378,10 @@ public class TreeHelper {
 //        }
     }
 
-    synchronized public void addToSortQueue(DefaultMutableTreeNode currentTreeNode) {
-        if (!treeNodeSortQueue.contains(currentTreeNode)) {
+    synchronized public void addToSortQueue(DefaultMutableTreeNode addToQueueTreeNode) {
+        if (!treeNodeSortQueue.contains(addToQueueTreeNode)) {
 //            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
-            treeNodeSortQueue.add(currentTreeNode);
+            treeNodeSortQueue.add(addToQueueTreeNode);
         }
         if (!treeNodeSortQueueRunning) {
             treeNodeSortQueueRunning = true;
@@ -394,7 +392,7 @@ public class TreeHelper {
                     Vector<DefaultMutableTreeNode> scrollToRequests = new Vector<DefaultMutableTreeNode>();
 //                    setPriority(Thread.NORM_PRIORITY - 1);
                     while (treeNodeSortQueue.size() > 0) {
-                        DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(0);
+                        DefaultMutableTreeNode currentTreeNode = treeNodeSortQueue.remove(treeNodeSortQueue.size() - 1);
                         if (currentTreeNode != null) {
 //                            Vector<String> childUrls = new Vector();
                             //DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) itemNode.getParent();
@@ -412,13 +410,12 @@ public class TreeHelper {
 //                                    }
 ////                                    System.out.println("adding child to update list: " + childImdiObject.getUrlString());
 //                                }
-//                                if (/*!parentImdiObject.imdiDataLoaded || */(parentImdiObject.canHaveChildren() && childUrls.size() == 0)) {
-                                // since we have ignored the loading node we must put it back on the list so that it gets sorted when it has loaded
-//                                    addToSortQueue(currentTreeNode);
-                                // links are not loaded cannot procede
-//                                    } else {
-                                updateTreeNodeChildren(currentTreeNode, parentImdiObject.getChildArray(), scrollToRequests);
-//                                }
+                                if (parentImdiObject.isLoading()) {
+                                    // since we have ignored the loading node we must put it back on the list so that it gets sorted when it has loaded
+                                    treeNodeSortQueue.add(currentTreeNode);
+                                } else {
+                                    updateTreeNodeChildren(currentTreeNode, parentImdiObject.getChildArray(), scrollToRequests);
+                                }
                             } else {
                                 if (currentTreeNode == remoteCorpusRootNode) {
                                     updateTreeNodeChildren(remoteCorpusRootNode, remoteCorpusNodes, scrollToRequests);

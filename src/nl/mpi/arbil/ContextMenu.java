@@ -671,7 +671,7 @@ public class ContextMenu {
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
         } else {
-            currentTemplate = ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
+            currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         }
         for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
             String[] currentField = (String[]) menuItemName.nextElement();
