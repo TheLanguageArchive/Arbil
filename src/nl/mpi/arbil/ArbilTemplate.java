@@ -116,7 +116,7 @@ public class ArbilTemplate {
         boolean returnValue = false;
         if (childType != null) {
             returnValue = true;
-            childType = childType + ".xml";
+            childType = (childType + ".xml").substring(1);
             for (String[] currentTemplate : rootTemplatesArray) {
                 if (childType.equals(currentTemplate[0])) {
                     returnValue = false;

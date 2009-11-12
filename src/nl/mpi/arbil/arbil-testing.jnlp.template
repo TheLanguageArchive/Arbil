@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil.jnlp">
+<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil-testing.jnlp">
     <information>
         <title>Arbil</title>
         <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil128x128.png" />
