@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METATRANSCRIPT 
+	Date="2003-09-23" 
+	FormatId="IMDI 3.03" 
+	Originator="" 
+	Type="Sign-Language Profile"
+	Version="0"
+	xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+    <Session>
+        <Name>Sign-Language Profile</Name>
+        <Title/>
+        <Date>Unspecified</Date>
+        <Description LanguageId="" Link=""/>
+        <MDGroup>
+            <Location>
+                <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="ClosedVocabulary"></Continent>
+                <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"></Country>
+                <Region></Region>
+                <Address></Address>
+            </Location>
+            <Project>
+                <Name/>
+                <Title/>
+                <Id/>
+                <Contact>
+                    <Name/>
+                    <Address/>
+                    <Email/>
+                    <Organisation/>
+                </Contact>
+                <Description LanguageId="" Link=""/>
+            </Project>
+            <Keys>
+            </Keys>
+            <Content>
+                <Genre Link="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" Type="OpenVocabulary"></Genre>
+                <SubGenre Link="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" Type="OpenVocabularyList"></SubGenre>
+                <Task Link="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" Type="OpenVocabulary"/>
+                <Modalities Link="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" Type="OpenVocabularyList"/>
+                <Subject Link="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" Type="OpenVocabularyList"/>
+                <CommunicationContext>
+                    <Interactivity Link="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" Type="ClosedVocabulary"></Interactivity>
+                    <PlanningType Link="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" Type="ClosedVocabulary"></PlanningType>
+                    <Involvement Link="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" Type="ClosedVocabulary"></Involvement>
+                    <SocialContext Link="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" Type="ClosedVocabulary"></SocialContext>
+                    <EventStructure Link="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" Type="ClosedVocabulary"></EventStructure>
+                    <Channel Link="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" Type="ClosedVocabulary"></Channel>
+                </CommunicationContext>
+                <Languages>
+                    <Description LanguageId="" Link=""/>
+                </Languages>
+                <Keys>
+                    <Key Name="ElicitationMethod"
+		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/ElicitationMethod.xml"
+		Type="OpenVocabulary">Unspecified
+                    </Key>
+                    <Key Name="Interpreting.Source"
+		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Source.xml"
+		Type="OpenVocabulary">Unspecified
+                    </Key>
+                    <Key Name="Interpreting.Target"
+		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Target.xml"
+		Type="OpenVocabulary">Unspecified
+                    </Key>
+                    <Key Name="Interpreting.Visibility"
+		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Visibility.xml"
+		Type="ClosedVocabulary">Unspecified
+                    </Key>
+                    <Key Name="Interpreting.Audience" 
+		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Audience.xml"
+		Type="ClosedVocabulary">Unspecified
+                    </Key>
+                </Keys>
+                <Description LanguageId="" Link=""/>
+            </Content>
+            <Actors>
+                <Description LanguageId="" Link=""/>
+            </Actors>
+        </MDGroup>
+        <Resources>
+            <Anonyms >
+                <ResourceLink></ResourceLink>
+                <Access>
+                    <Availability/>
+                    <Date></Date>
+                    <Owner/>
+                    <Publisher/>
+                    <Contact>
+                        <Name/>
+                        <Address/>
+                        <Email/>
+                        <Organisation/>
+                    </Contact>
+                    <Description LanguageId="" Link=""/>
+                </Access>
+            </Anonyms>
+        </Resources>
+        <References>
+            <Description LanguageId="" Link=""/>
+        </References>
+    </Session>
+</METATRANSCRIPT>
