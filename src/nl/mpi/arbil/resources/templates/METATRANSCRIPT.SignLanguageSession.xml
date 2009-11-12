@@ -3,13 +3,13 @@
 	Date="2003-09-23" 
 	FormatId="IMDI 3.03" 
 	Originator="" 
-	Type="Sign-Language Profile"
+	Type="Sign-Language Session"
 	Version="0"
 	xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
     <Session>
-        <Name>Sign-Language Profile</Name>
+        <Name>Sign-Language Session</Name>
         <Title/>
         <Date>Unspecified</Date>
         <Description LanguageId="" Link=""/>

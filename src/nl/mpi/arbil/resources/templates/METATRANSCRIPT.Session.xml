@@ -3,7 +3,7 @@
 	Date="2003-09-23" 
 	FormatId="IMDI 3.03" 
 	Originator="" 
-	Type="SESSION.Profile" 
+	Type="SESSION" 
 	Version="0"
 	xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 

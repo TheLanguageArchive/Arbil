@@ -59,7 +59,7 @@
     <RootTemplateComponents>
         <comment>The template components that can be added at the root or corpus branch level via the add menu and the display name for each</comment>
         <RootTemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus Branch" />
-        <!--<RootTemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />-->
+        <RootTemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
         <RootTemplateComponent FileName="METATRANSCRIPT.SignLanguageSession.xml" DisplayName="Sign-Language Session" />
     </RootTemplateComponents>
     <AvailableTemplateComponents>
