@@ -49,6 +49,9 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         if (testableObject.thumbnailFile != null) {
             return true;
         }
+        if (!testableObject.hasLocalResource()) {
+            return false;
+        }
         if (testableObject.mpiMimeType == null) {
             return false;
         }
