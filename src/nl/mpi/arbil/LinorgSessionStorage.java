@@ -334,9 +334,14 @@ public class LinorgSessionStorage {
         return returnFile;
     }
 
-    public String getNewImdiFileName() {
+    public File getNewImdiFileName(File parentDirectory) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        return formatter.format(new Date()) + ".imdi";
+        int fileCounter = 0;
+        File returnFile = new File(parentDirectory, formatter.format(new Date()) + ".imdi");
+        while (returnFile.exists()) {
+            returnFile = new File(parentDirectory, formatter.format(new Date()) + (fileCounter++) + ".imdi");
+        }
+        return returnFile;
     }
 
     /**
