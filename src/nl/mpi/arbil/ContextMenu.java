@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.importexport.ImportExportDialog;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.importexport.ArbilCsvImporter;
 
 /**
  * Document   : ContextMenu
@@ -32,6 +34,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem copyImdiUrlMenuItem;
     private javax.swing.JMenuItem deleteMenuItem;
     private javax.swing.JMenuItem exportMenuItem;
+    private javax.swing.JMenuItem importCsvMenuItem;
 //    private javax.swing.JMenu favouritesMenu;
     private javax.swing.JMenu mergeWithFavouritesMenu;
     private javax.swing.JMenuItem pasteMenuItem1;
@@ -96,6 +99,7 @@ public class ContextMenu {
         viewChangesMenuItem = new javax.swing.JMenuItem();
         sendToServerMenuItem = new javax.swing.JMenuItem();
         exportMenuItem = new javax.swing.JMenuItem();
+        importCsvMenuItem = new javax.swing.JMenuItem();
 
         viewSelectedNodesMenuItem.setText("View Selected");
 
@@ -498,7 +502,8 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    exportMenuItemActionPerformed(evt);
+                    ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
+                    importExportDialog.selectExportDirectoryAndExport(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -506,6 +511,21 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(exportMenuItem);
+        importCsvMenuItem.setText("Import CSV");
+
+        importCsvMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ArbilCsvImporter csvImporter = new ArbilCsvImporter(leadSelectedTreeNode);
+                    csvImporter.doImport();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+
+        treePopupMenu.add(importCsvMenuItem);
     }
 
     private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -650,20 +670,6 @@ public class ContextMenu {
         }
     }
 
-    private void exportMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_exportMenuItemActionPerformed
-        // TODO add your handling code here:   
-        // directory selection dialog   
-        // make sure the chosen directory is empty   
-        // export the tree, maybe adjusting resource links so that resource files do not need to be copied
-        try {
-            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
-            importExportDialog.selectExportDirectoryAndExport(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
-    }//GEN-LAST:event_exportMenuItemActionPerformed
-
     public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
@@ -801,6 +807,7 @@ public class ContextMenu {
         sendToServerMenuItem.setVisible(false);
         validateMenuItem.setVisible(false);
         exportMenuItem.setVisible(false);
+        importCsvMenuItem.setVisible(false);
 
         if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree) {
             removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
@@ -832,6 +839,7 @@ public class ContextMenu {
                 openXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
                 validateMenuItem.setVisible(!nodeIsImdiChild);
                 exportMenuItem.setVisible(!nodeIsImdiChild);
+                importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
                 // set up the favourites menu
                 addFromFavouritesMenu.setVisible(true);
             }
