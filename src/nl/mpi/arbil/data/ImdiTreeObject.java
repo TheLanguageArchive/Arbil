@@ -42,6 +42,7 @@ public class ImdiTreeObject implements Comparable {
     private Hashtable<String, ImdiField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     private ImdiTreeObject[] childArray = new ImdiTreeObject[0];
     public boolean imdiDataLoaded;
+    public int resourceFileServerResponse = -1; // -1 = not set otherwise this will be the http response code
     public String hashString;
     public String mpiMimeType = null;
     public String typeCheckerMessage;
@@ -133,7 +134,7 @@ public class ImdiTreeObject implements Comparable {
 
     static public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
         ImdiTreeObject imdiTreeObject;
-        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()).getAbsolutePath());
+        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation("")).getAbsolutePath());
         imdiTreeObject.requestAddNode(nodeType, nodeTypeDisplayName);
     }
     // end static methods for testing imdi file and object types
@@ -628,7 +629,7 @@ public class ImdiTreeObject implements Comparable {
 //            needsSaveToDisk = true;
         } else {
             System.out.println("adding new node");
-            String targetFileName = getSubDirectory().getAbsolutePath() + File.separatorChar + LinorgSessionStorage.getSingleInstance().getNewImdiFileName();
+            String targetFileName = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(getSubDirectory()).getAbsolutePath();
             addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileName), nodeType).toString();
             destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileName);
             if (this.getFile().exists()) {
@@ -1488,7 +1489,7 @@ public class ImdiTreeObject implements Comparable {
         return imdiTreeNodeSorter.compare(this, o);
     }
 
-    synchronized boolean waitTillLoaded() {
+    public synchronized boolean waitTillLoaded() {
         if (isLoading()) {
             try {
                 getParentDomNode().wait(1000);
