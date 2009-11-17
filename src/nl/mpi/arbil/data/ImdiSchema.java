@@ -514,7 +514,7 @@ public class ImdiSchema {
                 if (xmlNodeIdAtt != null) {
                     xmlNodeId = xmlNodeIdAtt.getNodeValue();
                 }// end get the xml node id
-                System.out.println(childNode.getLocalName());
+//                System.out.println(childNode.getLocalName());
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
                     Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
                     if (archiveHandleAtt != null) {
