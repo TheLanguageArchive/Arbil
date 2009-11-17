@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.net.HttpURLConnection;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -79,6 +80,8 @@ public class ImdiIcons {
 //    private ImageIcon loading03Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/loading03.png"));
 //    private ImageIcon loading04Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/loading04.png"));
     public ImageIcon favouriteIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/favourite.png"));
+    public ImageIcon lockedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/lock.png"));
+    public ImageIcon unLockedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/unlock.png"));
 //    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/template.png"));
     static private ImdiIcons singleInstance = null;
 
@@ -164,12 +167,17 @@ public class ImdiIcons {
                 }
             }
         } else {
+            iconsVector.add(remoteicon);
             // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
 //                            if (matchesLocal == 0) {
-            iconsVector.add(remoteicon);
 //                            } else {
 //                                icon = corpuslocalservericon;
 //                            }
+        }
+        if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_OK) {
+            iconsVector.add(unLockedIcon);
+        } else if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_MOVED_TEMP) {
+            iconsVector.add(lockedIcon);
         }
         String mimeTypeForNode = imdiObject.getAnyMimeType();
         if (mimeTypeForNode != null) {
