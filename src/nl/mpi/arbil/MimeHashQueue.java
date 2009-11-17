@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -64,41 +65,47 @@ public class MimeHashQueue {
                     }
                     while (imdiObjectQueue.size() > 0) {
                         ImdiTreeObject currentImdiObject = imdiObjectQueue.remove(0);
+                        if (currentImdiObject.hasResource() && !currentImdiObject.hasLocalResource()) {
+                            checkServerPermissions(currentImdiObject);
+                        } else {
 //                        System.out.println("MimeHashQueue checking: " + currentImdiObject);
-                        String currentPathString = getFilePath(currentImdiObject);
-                        if (currentPathString != null && currentPathString.length() > 0) {
-                            try {
-                                URL currentNodeUrl = new URL(currentPathString);
-                                // check if this file has been process before and then check its mtime
-                                File currentFile = new File(currentNodeUrl.getFile());
-                                if (currentFile.exists()) {
-                                    long previousMTime = 0;
-                                    if (processedFilesMTimes.containsKey(currentPathString)) {
-                                        previousMTime = processedFilesMTimes.get(currentPathString);
-                                    }
-                                    long currentMTime = currentFile.lastModified();
+                            String currentPathString = getFilePath(currentImdiObject);
+                            if (currentPathString != null && currentPathString.length() > 0) {
+                                try {
+                                    URL currentNodeUrl = new URL(currentPathString);
+                                    // check if this file has been process before and then check its mtime
+                                    File currentFile = new File(currentNodeUrl.getFile());
+                                    if (currentFile.exists()) {
+                                        long previousMTime = 0;
+                                        if (processedFilesMTimes.containsKey(currentPathString)) {
+                                            previousMTime = processedFilesMTimes.get(currentPathString);
+                                        }
+                                        long currentMTime = currentFile.lastModified();
 //                                System.out.println("run MimeHashQueue mtime: " + currentPathString);
-                                    String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
-                                    if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
+                                        String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
+                                        if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
-                                        currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
-                                        currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
-                                        processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
-                                        changedSinceLastSave = true;
-                                    } else {
-                                        currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
-                                        currentImdiObject.setMimeType(lastCheckedMimeArray);
+                                            currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
+                                            currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
+                                            processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
+                                            changedSinceLastSave = true;
+                                        } else {
+                                            currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
+                                            currentImdiObject.setMimeType(lastCheckedMimeArray);
+                                        }
+                                        updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
                                     }
-                                    updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
+                                } catch (MalformedURLException e) {
+                                    //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
+                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
                                 }
-                            } catch (MalformedURLException e) {
-                                //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
-                                System.out.println("MalformedURLException: " + currentPathString + " : " + e);
                             }
                         }
                         currentImdiObject.updateLoadingState(-1);
                         currentImdiObject.clearIcon();
                     }
+                    //TODO: take one file from the list and check it is still there and that it has the same mtime and maybe check the md5sum
+                    //TODO: when deleting resouce or removing a session or corpus branch containing a session check for links 
                     if (changedSinceLastSave) {
                         saveMd5sumIndex();
                         changedSinceLastSave = false;
@@ -301,6 +308,23 @@ public class MimeHashQueue {
         return hashString;
     }
 
+    private void checkServerPermissions(ImdiTreeObject imdiObject) {
+        try {
+//            System.out.println("imdiObject: " + imdiObject);
+            HttpURLConnection resourceConnection = (HttpURLConnection) new URL(imdiObject.getFullResourcePath()).openConnection();
+//            System.out.println("conn: " + resourceConnection.getURL());
+            imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
+            if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
+                imdiObject.fileNotFound = true;
+            } else {
+                imdiObject.fileNotFound = false;
+            }
+//            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
     private String getFilePath(ImdiTreeObject imdiObject) {
         if (imdiObject.hasResource()) {
             return imdiObject.getFullResourcePath();
@@ -312,7 +336,7 @@ public class MimeHashQueue {
     public void addToQueue(ImdiTreeObject imdiObject) {
 //        System.out.println("MimeHashQueue addToQueue: " + imdiObject);
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
-        if (imdiObject.isLocal() && ((!imdiObject.isImdi() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
+        if (((imdiObject.isLocal() && !imdiObject.isImdi() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
             if (!imdiObjectQueue.contains(imdiObject)) {
