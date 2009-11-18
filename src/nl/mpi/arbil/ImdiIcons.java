@@ -198,7 +198,9 @@ public class ImdiIcons {
                 iconsVector.add(writtenresourceIcon);
             } else if (mimeTypeForNode.contains("kml")) {
                 iconsVector.add(writtenresourceIcon);
-            } else {
+            } else if (mimeTypeForNode.contains("unspecified")) {
+                // no icon for this
+            } else if (mimeTypeForNode.length() > 0) {
                 iconsVector.add(questionRedIcon);
                 GuiHelper.linorgBugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file"));
             }
