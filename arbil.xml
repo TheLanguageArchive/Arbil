@@ -9,7 +9,7 @@
         <property name="arbil.current.major" value="1"/>
         <property name="arbil.current.minor" value="1"/>
         <property name="SRCDIR" value="src/"/>
-        <property name="OUTPUTDIR" value="arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
+        <property name="OUTPUTDIR" value="/home/petwit/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
         <property name="TypeCheckVersion" value="typecheck-1.5.16185.jar"/>
