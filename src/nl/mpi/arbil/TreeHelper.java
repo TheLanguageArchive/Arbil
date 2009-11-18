@@ -211,7 +211,7 @@ public class TreeHelper {
 
     public void setShowHiddenFilesInTree(boolean showState) {
         showHiddenFilesInTree = showState;
-        clearIconsInTree(localDirectoryRootNode);
+        reloadNodesInTree(localDirectoryRootNode);
         try {
             LinorgSessionStorage.getSingleInstance().saveObject(showHiddenFilesInTree, "showHiddenFilesInTree");
         } catch (Exception ex) {
@@ -252,14 +252,15 @@ public class TreeHelper {
         removeLocation(ImdiLoader.getSingleInstance().getImdiObject(null, removeLocation));
     }
 
-    private void clearIconsInTree(DefaultMutableTreeNode parentTreeNode) {
+    private void reloadNodesInTree(DefaultMutableTreeNode parentTreeNode) {
         // this will reload all nodes in a tree but not create any new child nodes
         for (Enumeration<DefaultMutableTreeNode> childNodesEnum = parentTreeNode.children(); childNodesEnum.hasMoreElements();) {
-            clearIconsInTree(childNodesEnum.nextElement());
+            reloadNodesInTree(childNodesEnum.nextElement());
         }
         if (parentTreeNode.getUserObject() instanceof ImdiTreeObject) {
-            // this will also update the child nodes in the tree without adding any new branches
-            ((ImdiTreeObject) parentTreeNode.getUserObject()).clearIcon();
+            if (((ImdiTreeObject) parentTreeNode.getUserObject()).imdiDataLoaded) {
+                ((ImdiTreeObject) parentTreeNode.getUserObject()).reloadNode();
+            }
         }
     }
 
@@ -324,19 +325,6 @@ public class TreeHelper {
 //                sortedChildren.remove(currentChildNode);
             }
         }
-        // todo: ImdiTree imdiTree = getTreeForNode(parentNode);
-
-        // todo: if (!imdiTree.isCollapsed(new TreePath(parentNode.getPath()))) {
-//        while (childNodes.size() > 0) {
-//            // add any missing child nodes
-//            ImdiTreeObject missingImdiNode = GuiHelper.imdiLoader.getImdiObject(null, childUrls.remove(0));
-////            if (!missingImdiNode.isLoading()) {
-//            DefaultMutableTreeNode missingTreeNode = new DefaultMutableTreeNode(missingImdiNode);
-//            missingImdiNode.registerContainer(missingTreeNode);
-////            sortedChildren.add(missingTreeNode);
-////            }
-//            }
-        // todo: }
         while (!nodesToRemove.isEmpty()) {
 //            TODO: are the nodes being removed when an actor is deleted ???
             DefaultMutableTreeNode currentChildNode = nodesToRemove.remove(0);
