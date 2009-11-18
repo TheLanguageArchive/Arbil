@@ -3,7 +3,6 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
 import java.util.Enumeration;
-import java.util.Hashtable;
 
 /**
  * Document   : ImdiField
@@ -17,12 +16,13 @@ public class ImdiField {
     private String translatedPath = null;
     public String fieldValue = "";
     public String fieldID;
-    private String vocabularyKey;
+    private ImdiVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     public boolean vocabularyIsOpen;
     public boolean vocabularyIsList;
     public boolean fieldNeedsSaveToDisk = false;
-    private Hashtable<String, String> fieldAttributes = new Hashtable();
+    private String keyName = null;
+    private String languageId = null;
     private int isRequiredField = -1;
     private int canValidateField = -1;
 
@@ -117,18 +117,19 @@ public class ImdiField {
     }
 
     public boolean hasVocabulary() {
-        return (vocabularyKey != null);
+        return (fieldVocabulary != null);
     }
 
     public String getLanguageId() {
-        return fieldAttributes.get("LanguageId");
+        return languageId;
     }
 
-    public void setLanguageId(String languageId, boolean updateUI) {
+    public void setLanguageId(String languageIdLocal, boolean updateUI) {
         String oldLanguageId = getLanguageId();
-        if (!languageId.equals(oldLanguageId)) {
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageId, "edit");
-            fieldAttributes.put("LanguageId", languageId);
+        if (!languageIdLocal.equals(oldLanguageId)) {
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
+            //addFieldAttribute("LanguageId", languageIdLocal);
+            languageId = languageIdLocal;
 //            fieldLanguageId = languageId;
             parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
@@ -142,14 +143,7 @@ public class ImdiField {
     }
 
     public ImdiVocabularies.Vocabulary getVocabulary() {
-        if (vocabularyKey == null) {
-            return null;
-        }
-        // make sure that the current value is in the list if it is an open vocabulary (this could be done in a better place ie on first load whe all the values are available)
-//        if (vocabularyIsOpen && fieldValue != null && fieldValue.length() > 0) {
-//            imdiVocabularies.addVocabularyEntry(parentImdi, vocabularyKey, fieldValue);
-//        }
-        return ImdiVocabularies.getSingleInstance().getVocabulary(this, vocabularyKey);
+        return fieldVocabulary;
     }
 
     public ImdiField[] getSiblingField(String pathString) {
@@ -168,45 +162,38 @@ public class ImdiField {
     }
 
     public void finishLoading() {
-        // set up the vocabularies
-        if (hasVocabularyType) {
-            Object linkAttribute = fieldAttributes.get("Link");
-            if (linkAttribute != null) {
-                vocabularyKey = linkAttribute.toString();
-                ImdiVocabularies.getSingleInstance().getVocabulary(this, vocabularyKey);
-            }
-        }
-        // end set up the vocabularies
     }
 
-    public void addAttribute(String attributeName, String attributeValue) {
-//        System.out.println("attributeName: " + attributeName);
-//        System.out.println("attributeValue: " + attributeValue);
-        // TODO: this could be done as required no on load. ie when getId is called 
-        if (attributeName.equals("id")) {
-            fieldID = attributeValue;
-        }
-        // look for the vocabulary type 
-        if (attributeName.equals("Type")) {
-            //System.out.println("setVocabularyType");
-            hasVocabularyType = true;
-            if (attributeValue.equals("OpenVocabularyList")) {
+    public void setFieldAttribute(String fieldIDLocal, String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
+        fieldID = fieldIDLocal;
+        languageId = languageIdLocal;
+        keyName = keyNameLocal;
+        // set for the vocabulary type
+        hasVocabularyType = false;
+        if (cvType != null) {
+            if (cvType.equals("OpenVocabularyList")) {
                 vocabularyIsList = true;
                 vocabularyIsOpen = true;
-            } else if (attributeValue.equals("OpenVocabulary")) {
+                hasVocabularyType = true;
+            } else if (cvType.equals("OpenVocabulary")) {
                 vocabularyIsList = false;
                 vocabularyIsOpen = true;
-            } else if (attributeValue.equals("ClosedVocabularyList")) {
+                hasVocabularyType = true;
+            } else if (cvType.equals("ClosedVocabularyList")) {
                 vocabularyIsList = true;
                 vocabularyIsOpen = false;
-            } else if (attributeValue.equals("ClosedVocabulary")) {
+                hasVocabularyType = true;
+            } else if (cvType.equals("ClosedVocabulary")) {
                 vocabularyIsList = false;
                 vocabularyIsOpen = false;
-            } else {
-                hasVocabularyType = false;
+                hasVocabularyType = true;
             }
         }
-        fieldAttributes.put(attributeName, attributeValue);
+        if (hasVocabularyType) {
+            if (cvUrlString != null && cvUrlString.length() > 0) {
+                fieldVocabulary = ImdiVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
+            }
+        }
     }
 
     @Override
@@ -227,19 +214,20 @@ public class ImdiField {
     }
 
     public String getKeyName() {
-        return fieldAttributes.get("Name");
+        return keyName;
     }
 
-    public void setKeyName(String keyName, boolean updateUI) {
-        System.out.println("setKeyName: " + keyName);
+    public void setKeyName(String keyNameLocal, boolean updateUI) {
+        System.out.println("setKeyName: " + keyNameLocal);
         String lastValue = getKeyName();
         System.out.println("lastValue: " + lastValue);
         if (lastValue != null) {
-            if (!lastValue.equals(keyName)) { // only if the value is different
+            if (!lastValue.equals(keyNameLocal)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name
                 // TODO: resolve how to log key name changes
-                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyName, "editkeyname");
-                fieldAttributes.put("Name", keyName);
+                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyNameLocal, "editkeyname");
+                keyName = keyNameLocal;
+//                addFieldAttribute("Name", keyNameLocal);
                 parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
                 fieldNeedsSaveToDisk = true;
                 getTranslateFieldName();
@@ -267,10 +255,10 @@ public class ImdiField {
 //                    if (attributeName.equals("Name")) {
             if (fieldName.endsWith("Keys.Key")) {
 //                System.out.println("Found key for: " + xmlPath);
-                Object keyValue = fieldAttributes.get("Name");
-                if (keyValue != null) {
+                //String keyValue = getFieldAttribute("Name");
+                if (keyName != null) {
 //                    System.out.println("Key value valid: " + keyValue.toString());
-                    fieldName = fieldName + ImdiSchema.imdiPathSeparator + keyValue.toString();
+                    fieldName = fieldName + ImdiSchema.imdiPathSeparator + keyName;
                 }
 //                xmlPath = xmlPath + ImdiSchema.imdiPathSeparator + attributeValue;
 

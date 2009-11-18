@@ -271,6 +271,15 @@ public class ImdiSchema {
         return null;
     }
 
+    private String getNamedAttributeValue(NamedNodeMap namedNodeMap, String attributeName) {
+        Node nameNode = namedNodeMap.getNamedItem(attributeName);
+        if (nameNode != null) {
+            return nameNode.getNodeValue();
+        } else {
+            return null;
+        }
+    }
+
     public String insertFromTemplate(ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, String targetXmlPath, Document targetImdiDom, String resourcePath, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
         System.out.println("targetXpath: " + targetXmlPath);
@@ -594,21 +603,20 @@ public class ImdiSchema {
             // TODO: note that this method does not use any attributes without a node value
             NamedNodeMap namedNodeMap = childNode.getAttributes();
             if (namedNodeMap != null) {
-                for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
-                    String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
-                    String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-//                    System.out.println("attributeName: " + attributeName);
-//                    System.out.println("attributeValue: " + attributeValue);
-                    if (attributeValue != null /*&& attributeValue.length() > 0*/) {
-                        // always add attrubutes even if without a value providing they are not null
-                        fieldToAdd.addAttribute(attributeName, attributeValue);
-                    }
-                    if (fieldToAdd.xmlPath.endsWith("Description")) {
-                        if (attributeName.equals("Link") && attributeValue.length() > 0) {
-                            String correcteLink = correctLinkPath(parentNode.getParentDirectory(), attributeValue);
-                            childLinks.add(new String[]{correcteLink, fieldToAdd.fieldID});
-                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
-                        }
+                String fieldID = getNamedAttributeValue(namedNodeMap, "id");
+                String cvType = getNamedAttributeValue(namedNodeMap, "Type");
+                String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
+                String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
+                String keyName = getNamedAttributeValue(namedNodeMap, "Name");
+                fieldToAdd.setFieldAttribute(fieldID, cvType, cvUrlString, languageId, keyName);
+                if (fieldToAdd.xmlPath.endsWith("Description")) {
+                    if (cvUrlString != null && cvUrlString.length() > 0) {
+                        // TODO: this field sould be put in the link node not the parent node
+                        String correcteLink = correctLinkPath(parentNode.getParentDirectory(), cvUrlString);
+                        childLinks.add(new String[]{correcteLink, fieldToAdd.fieldID});
+                        ImdiTreeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
+                        parentChildTree.get(parentNode).add(descriptionLinkNode);
+                        descriptionLinkNode.addField(fieldToAdd);
                     }
                 }
             }

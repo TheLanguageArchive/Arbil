@@ -17,12 +17,10 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         favouritesScrollPane = new javax.swing.JScrollPane();
 
         this.setDividerSize(5);
-        this.setDividerLocation(0.15);
         this.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         this.setName("ArbilTreePanels"); // NOI18N
 
         leftLocalSplitPane.setDividerSize(5);
-        leftLocalSplitPane.setDividerLocation(0.2);
         leftLocalSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         leftLocalSplitPane.setName("ArbilTreePanelsInner"); // NOI18N
 
@@ -54,6 +52,12 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         this.setLeftComponent(remoteCorpusScrollPane);
 
         TreeHelper.getSingleInstance().setTrees(this);
+        setDefaultTreePaneSize();
+    }
+
+    public void setDefaultTreePaneSize() {
+        setDividerLocation(0.33);
+        leftLocalSplitPane.setDividerLocation(0.5);
     }
 
     public ImdiTree[] getTreeArray() {

@@ -411,7 +411,9 @@ public class ImdiTreeObject implements Comparable {
             String currentLink = this.getUrlString() + File.separatorChar + dirLinkArray[linkCount];
 //            System.out.println("currentLink: " + currentLink);
             ImdiTreeObject currentImdi = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentLink);
+            if (TreeHelper.getSingleInstance().showHiddenFilesInTree || !currentImdi.getFile().isHidden()) {
             childLinksTemp.add(currentImdi);
+            }
         }
         //childLinks = childLinksTemp.toArray(new String[][]{});
         childArray = childLinksTemp.toArray(new ImdiTreeObject[]{});
@@ -725,13 +727,28 @@ public class ImdiTreeObject implements Comparable {
 //        tempImdiVector.toArray(returnImdiArray);
 //        return returnImdiArray;
 //    }
+    public boolean containsFieldValue(String fieldName, String searchValue) {
+        boolean findResult = false;
+        ImdiField[] currentFieldArray = this.fieldHashtable.get(fieldName);
+        if (currentFieldArray != null) {
+            for (ImdiField currentField : currentFieldArray) {
+                System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
+                if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
+                    return true;
+                }
+            }
+        }
+        System.out.println("result: " + findResult + ":" + this);
+        return findResult;
+    }
+
     public boolean containsFieldValue(String searchValue) {
         boolean findResult = false;
         for (ImdiField[] currentFieldArray : (Collection<ImdiField[]>) this.fieldHashtable.values()) {
             for (ImdiField currentField : currentFieldArray) {
                 System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
                 if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
-                    findResult = true;
+                    return true;
                 }
             }
         }
@@ -1533,7 +1550,7 @@ public class ImdiTreeObject implements Comparable {
         }
         String nameText = "";
 //        TODO: move this to a list loaded from the templates or similar
-        String[] preferredNameFields = {"Name", "ResourceLink", "Id"};
+        String[] preferredNameFields = {"Name", "Id"};
         for (String currentPreferredName : preferredNameFields) {
             ImdiField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
             if (currentFieldArray != null) {
@@ -1548,6 +1565,13 @@ public class ImdiTreeObject implements Comparable {
                     break;
                 }
             }
+        }
+        if (nameText.length() == 0 && hasResource()) {
+            String resourcePathString = getFullResourcePath();
+            int lastIndex = resourcePathString.lastIndexOf("/");
+//                if (lastIndex)
+            nodeText = "";
+            nameText = resourcePathString.substring(lastIndex + 1);
         }
 //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         lastNodeText = nodeText + nameText;

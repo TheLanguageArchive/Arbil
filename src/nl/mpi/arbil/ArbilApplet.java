@@ -12,10 +12,11 @@ public class ArbilApplet extends javax.swing.JApplet {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
 
                 public void run() {
-                    initComponents();
-                    PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel();
+                    mainSplitPane = new javax.swing.JSplitPane();
+                    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
+                    previewSplitPanel = new PreviewSplitPanel();
                     mainSplitPane.setRightComponent(previewSplitPanel);
-                    ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
+                    arbilTreePanels = new ArbilTreePanels();
                     mainSplitPane.setLeftComponent(arbilTreePanels);
                     previewSplitPanel.setPreviewPanel(true);
                     ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel);
@@ -29,9 +30,11 @@ public class ArbilApplet extends javax.swing.JApplet {
         }
     }
 
-    private void initComponents() {
-        mainSplitPane = new javax.swing.JSplitPane();
-        getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
+    public void start() {
+        arbilTreePanels.setDefaultTreePaneSize();
+        previewSplitPanel.setDividerLocation(0.3);
     }
     private javax.swing.JSplitPane mainSplitPane;
+    private nl.mpi.arbil.ArbilTreePanels arbilTreePanels;
+    private nl.mpi.arbil.PreviewSplitPanel previewSplitPanel;
 }

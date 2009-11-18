@@ -145,19 +145,18 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                 threadRunning = true;
                 Vector<ImdiTreeObject> foundNodes = new Vector();
                 try {
-                    if (totalNodesToSearch == -1) {
-                        searchProgressBar.setIndeterminate(true);
-                    } else {
-                        searchProgressBar.setIndeterminate(false);
-                        searchProgressBar.setMinimum(0);
-                        searchProgressBar.setMaximum(totalNodesToSearch);
-                        searchProgressBar.setValue(0);
-                    }
+//                    if (totalNodesToSearch == -1) {
+//                        searchProgressBar.setIndeterminate(true);
+//                    } else {
+                    searchProgressBar.setIndeterminate(false);
+                    searchProgressBar.setMinimum(0);
+                    searchProgressBar.setMaximum(totalNodesToSearch);
+                    searchProgressBar.setValue(0);
+//                    }
                     for (Component currentTermComp : searchTermsPanel.getComponents()) {
                         ((ImdiNodeSearchTerm) currentTermComp).populateSearchTerm();
                     }
                     int totalSearched = 0;
-                    int totalFound = 0;
                     while (searchNodes.size() > 0 && !stopSearch) {
                         System.out.println("parentFrame: " + parentFrame.isVisible());
                         Object currentElement = searchNodes.remove(0);
@@ -174,7 +173,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 System.out.println("searching: " + currentImdiNode);
                                 for (ImdiTreeObject currentChildNode : currentImdiNode.getChildArray()) {
                                     System.out.println("adding to search list: " + currentChildNode);
-                                    currentChildNode.registerContainer(this); //TODO: this will need to cause the imdi nodes to load
+                                    currentChildNode.registerContainer(this); // this causes the node to be loaded
                                     searchNodes.add(currentChildNode);
                                 }
                                 boolean nodePassedFilter = true;
@@ -191,8 +190,9 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                     } else if (!currentTermPanel.nodeType.equals("All")) {
                                         termPassedFilter = currentImdiNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
                                     }
-                                    // filter by the search string if entered
-                                    if (currentTermPanel.searchString.length() > 0) {
+                                    if (currentTermPanel.searchFieldName.length() > 0) {// filter by the feild name and search string if entered
+                                        termPassedFilter = termPassedFilter && (currentImdiNode.containsFieldValue(currentTermPanel.searchFieldName, currentTermPanel.searchString));
+                                    } else if (currentTermPanel.searchString.length() > 0) { // filter by the search string if entered
                                         termPassedFilter = termPassedFilter && (currentImdiNode.containsFieldValue(currentTermPanel.searchString));
                                     }
                                     // invert based on the == / != selection
@@ -213,13 +213,15 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 if (nodePassedFilter) {
                                     foundNodes.add(currentImdiNode);
                                     resultsTableModel.addSingleImdiObject(currentImdiNode);
-                                    searchProgressBar.setString("searched: " + totalSearched + " found: " + (++totalFound));
                                 } else {
                                     currentImdiNode.removeContainer(this);
                                 }
-//                                if (totalNodesToSearch != -1) {
+                                if (totalNodesToSearch < totalSearched + searchNodes.size()) {
+                                    totalNodesToSearch = totalSearched + searchNodes.size();
+                                }
+                                searchProgressBar.setMaximum(totalNodesToSearch);
                                 searchProgressBar.setValue(totalSearched);
-//                                }
+                                searchProgressBar.setString("searched: " + totalSearched + " found: " + totalNodesToSearch);
                             }
                         }
                         if (!parentFrame.isVisible()) {
@@ -242,6 +244,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                 searchButton.setEnabled(true);
                 stopButton.setEnabled(false);
                 threadRunning = false;
+                // add the results to the table
                 resultsTableModel.addImdiObjects(foundNodes.elements());
                 foundNodes.removeAllElements();
             }
