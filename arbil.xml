@@ -23,14 +23,14 @@
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-deb.classpath"/>
     <taskdef name="desktopEntry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-deb.classpath"/>
     <target name="makeDebPackage" depends="signarbil" description="build the deb file">
-        <property name="package.name" value="arbil-testing"/>
+        <property name="package.name" value="arbil"/>
         <property name="package.jarname" value="${ArbilJarName}"/>
         <property name="package.iconname" value="arbil128x128.png"/>
         <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
         <desktopEntry
             toFile="${distributionDirectory}/${package.name}.desktop"
-            name="Arbil (testing)"
+            name="Arbil"
             comment="Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving."
             exec="java -jar /usr/share/${package.name}/${package.jarname}"
             path="/usr/share/${package.name}/"
@@ -93,12 +93,12 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                 </copy>
             </sequential>
         </macrodef>
-        <updateSingleFile fileName="arbil-testing.jnlp"/>
-        <updateSingleFile fileName="ArbilApplet-testing.html"/>
+        <updateSingleFile fileName="arbil.jnlp"/>
+        <updateSingleFile fileName="ArbilApplet.html"/>
     </target>
     <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
-        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil-testing.jnlp"/>
-        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/ArbilApplet-testing.html" dest="${SRCDIR}nl/mpi/arbil/ArbilApplet-testing.html"/>
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil.jnlp"/>
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/ArbilApplet.html" dest="${SRCDIR}nl/mpi/arbil/ArbilApplet.html"/>
     </target>
     <target name="getFallbackFiles" depends="setproperties" description="download the latest schema and controlled vocabularies from the web server">
         <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
@@ -149,14 +149,14 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-            <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
+            <fileset dir="${SRCDIR}../../../../trunk/src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${SRCDIR}../../../trunk/webapps/addit/web">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
@@ -167,7 +167,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <mkdir dir="${LIBDIR}"/>
         <copy todir="${LIBDIR}">
                 <!-- TODO: this needs to be changed to use the maven repository -->
-            <fileset dir="${SRCDIR}../../../trunk/webapps/lib/">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/lib/">
                 <include name="corpusstructure-1.6.1.jar"/>
                 <include name="imdiapi-1.0.6.jar"/>
                 <include name="log4j-1.2.14.jar"/>
@@ -295,13 +295,13 @@ public class LinorgVersion {
         <input message="Please enter the latsoftware password:" addproperty="latsoftware.pw">
             <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
         </input>
-        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}">
+        <signjar keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}">
             <path>
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>
         <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
-        keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
+        keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}" />
     </target>
    <!-- <target name="image" depends="setproperties">
@@ -317,11 +317,11 @@ public class LinorgVersion {
         </input>
         <scp file="${OUTPUTDIR}/${ArbilJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file="${distributionDirectory}/arbil-testing_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file="${distributionDirectory}/arbil-testing_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-testing.deb"/>
+        <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${distributionDirectory}/arbil_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil.deb"/>
         <!-- push the updated the applet html and the arbil jnlp files to the server -->
-        <scp file="${BUILDDIR}/arbil-testing.jnlp" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file= "${BUILDDIR}/ArbilApplet-testing.html" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${BUILDDIR}/arbil.jnlp" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file= "${BUILDDIR}/ArbilApplet.html" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
 <!--
         <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/log4j-1.2.14.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
