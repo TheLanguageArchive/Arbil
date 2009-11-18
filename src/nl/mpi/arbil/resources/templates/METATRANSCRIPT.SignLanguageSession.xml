@@ -11,7 +11,7 @@
     <Session>
         <Name>Sign-Language Session</Name>
         <Title/>
-        <Date>Unspecified</Date>
+        <Date/>
         <Description LanguageId="" Link=""/>
         <MDGroup>
             <Location>
@@ -52,26 +52,11 @@
                     <Description LanguageId="" Link=""/>
                 </Languages>
                 <Keys>
-                    <Key Name="ElicitationMethod"
-		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/ElicitationMethod.xml"
-		Type="OpenVocabulary">Unspecified
-                    </Key>
-                    <Key Name="Interpreting.Source"
-		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Source.xml"
-		Type="OpenVocabulary">Unspecified
-                    </Key>
-                    <Key Name="Interpreting.Target"
-		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Target.xml"
-		Type="OpenVocabulary">Unspecified
-                    </Key>
-                    <Key Name="Interpreting.Visibility"
-		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Visibility.xml"
-		Type="ClosedVocabulary">Unspecified
-                    </Key>
-                    <Key Name="Interpreting.Audience" 
-		Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Audience.xml"
-		Type="ClosedVocabulary">Unspecified
-                    </Key>
+                    <Key Name="ElicitationMethod" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/ElicitationMethod.xml" Type="OpenVocabulary"/>
+                    <Key Name="Interpreting.Source" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Source.xml" Type="OpenVocabulary"/>
+                    <Key Name="Interpreting.Target" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Target.xml" Type="OpenVocabulary"/>
+                    <Key Name="Interpreting.Visibility" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Visibility.xml" Type="ClosedVocabulary"/>
+                    <Key Name="Interpreting.Audience" Link="http://www.let.kun.nl/sign-lang/IMDI/vocabs/Interpreting.Audience.xml" Type="ClosedVocabulary"/>
                 </Keys>
                 <Description LanguageId="" Link=""/>
             </Content>
