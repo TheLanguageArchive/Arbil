@@ -10,6 +10,10 @@ import mpi.imdi.api.*;
 import mpi.util.OurURL;
 import org.w3c.dom.Document;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -270,10 +274,6 @@ public class ImdiTreeObject implements Comparable {
 //        }
     }
 
-//    private void reloadImdiNode() {
-//        System.out.println("reloadImdiNode: " + this + childrenHashtable.size());
-//
-//    }
     synchronized public void loadImdiDom() {
         System.out.println("loadImdiDom: " + this.getFile().getName());
         if (getParentDomNode() != this) {
@@ -812,14 +812,6 @@ public class ImdiTreeObject implements Comparable {
 //        }
 ////        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
 //    }
-    /**
-     * Checks if there are changes saved on disk that have not been sent to the server.
-     * @return boolean
-     */
-    public boolean needsChangesSentToServer() {
-        return new File(this.getFile().getPath() + ".0").exists();
-    }
-
     private void getAllFields(Vector<ImdiField[]> allFields) {
         // returns all fields relevant to the parent node
         // that includes all indinodechild fields but not from any other imdi file
@@ -1306,26 +1298,8 @@ public class ImdiTreeObject implements Comparable {
                         ImdiField currentField = fieldsEnum.nextElement();
                         //////
                     }
-                    // update the files version number
-                    //String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrl());
-                    //TODO: the template add does not create a new history file so move this into a common area for both
-                    int versionCounter = 0;
-                    while (new File(this.getFile() + "." + versionCounter).exists()) {
-                        versionCounter++;
-                    }
-                    while (versionCounter >= 0) {
-                        File lastFile = new File(this.getFile().getPath() + "." + versionCounter);
-                        versionCounter--;
-                        File nextFile = new File(this.getFile().getPath() + "." + versionCounter);
-                        if (versionCounter >= 0) {
-                            nextFile.renameTo(lastFile);
-                            System.out.println("renaming: " + nextFile + " : " + lastFile);
-                        } else {
-                            this.getFile().renameTo(lastFile);
-                            System.out.println("renaming: " + this.getFile() + " : " + lastFile);
-                        }
-                    }
-                    //////
+                    bumpHistory();
+
                     api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
                     nodDom = api.loadIMDIDocument(inUrlLocal, false);
                     if (nodDom == null) {
@@ -1498,7 +1472,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     /**
-     * Compares this node to another based on its toString value.
+     * Compares this node to another based on its type and string value.
      * @return The string comparison result.
      */
     public int compareTo(Object o) throws ClassCastException {
@@ -1622,6 +1596,92 @@ public class ImdiTreeObject implements Comparable {
      */
     private String getResource() {
         return resourceUrlString;
+    }
+
+    public boolean hasHistory() {
+        return !this.isImdiChild() && new File(this.getFile().getAbsolutePath() + ".0").exists();
+    }
+
+    public String[][] getHistoryList() {
+        Vector<String[]> historyVector = new Vector<String[]>();
+        int versionCounter = 0;
+        File currentHistoryFile;
+//        historyVector.add(new String[]{"Current", ""});
+        if (new File(this.getFile().getAbsolutePath() + ".x").exists()) {
+            historyVector.add(new String[]{"Last Save", ".x"});
+        }
+        do {
+            currentHistoryFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
+            if (currentHistoryFile.exists()) {
+                Date mtime = new Date(currentHistoryFile.lastModified());
+                String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+                historyVector.add(new String[]{mTimeString, "." + versionCounter});
+            }
+            versionCounter++;
+        } while (currentHistoryFile.exists());
+        return historyVector.toArray(new String[][]{{}});
+    }
+
+    public boolean resurrectHistory(String historyVersion) {
+        try {
+            if (historyVersion.equals(".x")) {
+                this.getFile().delete();
+                new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile());
+            } else {
+                LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                if (!new File(this.getFile().getAbsolutePath() + ".x").exists()) {
+                    this.getFile().renameTo(new File(this.getFile().getAbsolutePath() + ".x"));
+                } else {
+                    this.getFile().delete();
+                }
+                InputStream hisoryFile = new FileInputStream(new File(this.getFile().getAbsolutePath() + historyVersion));
+                OutputStream activeVersionFile = new FileOutputStream(this.getFile(), true);
+
+                byte[] copyBuffer = new byte[1024];
+                int len;
+                while ((len = hisoryFile.read(copyBuffer)) > 0) {
+                    activeVersionFile.write(copyBuffer, 0, len);
+                }
+                hisoryFile.close();
+                activeVersionFile.close();
+            }
+            ImdiLoader.getSingleInstance().requestReload(getParentDomNode());
+        } catch (Exception e) {
+            // user canceled the save action
+            // todo: alert user that nothing was done
+            return false;
+        }
+        return true;
+    }
+
+    /*
+     * Increment the history file so that a new current file can be saved without overwritting the old
+     */
+    public void bumpHistory() {
+        // update the files version number
+        //TODO: the template add does not create a new history file
+        int versionCounter = 0;
+        File headVersion = this.getFile();
+//        if the .x file (the last head) exist then replace the current with it
+        if (new File(this.getFile().getAbsolutePath() + ".x").exists()) {
+            versionCounter++;
+            headVersion = new File(this.getFile().getAbsolutePath() + ".x");
+        }
+        while (new File(this.getFile().getAbsolutePath() + "." + versionCounter).exists()) {
+            versionCounter++;
+        }
+        while (versionCounter >= 0) {
+            File lastFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
+            versionCounter--;
+            File nextFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
+            if (versionCounter >= 0) {
+                nextFile.renameTo(lastFile);
+                System.out.println("renaming: " + nextFile + " : " + lastFile);
+            } else {
+                headVersion.renameTo(lastFile);
+                System.out.println("renaming: " + headVersion + " : " + lastFile);
+            }
+        }
     }
 
     /**

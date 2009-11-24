@@ -183,7 +183,7 @@ public class ImdiVocabularies {
 
     public class Vocabulary {
 
-        public Vector<VocabularyItem> vocabularyItems = new Vector<VocabularyItem>();
+        private Vector<VocabularyItem> vocabularyItems = new Vector<VocabularyItem>();
 //        this VocabularyRedirect code has been replaced by the templates
 //        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
         public String vocabularyUrlRedirected = null; // the url of the vocabulary indicated by the value of the vocabularyRedirectField
@@ -220,9 +220,13 @@ public class ImdiVocabularies {
             System.out.println("vocabUrlDirectory: " + vocabUrlDirectory);
             return (vocabUrlDirectory + folowUpString);
         }
+
+        public VocabularyItem[] getVocabularyItems() {
+            return vocabularyItems.toArray(new VocabularyItem[]{});
+        }
     }
 
-    public class VocabularyItem {
+    public class VocabularyItem implements Comparable {
 
         public String languageName;
         public String languageCode;
@@ -238,6 +242,10 @@ public class ImdiVocabularies {
         @Override
         public String toString() {
             return languageName;
+        }
+
+        public int compareTo(Object otherObject) {
+            return this.toString().compareTo(otherObject.toString());
         }
     }
 }

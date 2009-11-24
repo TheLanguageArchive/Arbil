@@ -19,8 +19,8 @@ public class ControlledVocabularyComboBox extends JComboBox {
             this.addItem(targetField.fieldValue);
         }
         if (null != fieldsVocabulary) {
-            for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = fieldsVocabulary.vocabularyItems.elements(); vocabularyList.hasMoreElements();) {
-                this.addItem(vocabularyList.nextElement().languageName);
+            for (ImdiVocabularies.VocabularyItem vocabularyListItem : fieldsVocabulary.getVocabularyItems()) {
+                this.addItem(vocabularyListItem.languageName);
             }
         }
         // TODO: enable multiple selection for vocabulary lists

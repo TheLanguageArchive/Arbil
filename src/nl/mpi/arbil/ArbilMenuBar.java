@@ -7,6 +7,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.net.URI;
 import java.util.Arrays;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -31,6 +32,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem saveFileMenuItem;
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private JMenuItem shortCutKeysjMenuItem;
+    private JMenuItem arbilForumMenuItem;
     private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private JMenu templatesMenu;
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
@@ -85,6 +87,7 @@ public class ArbilMenuBar extends JMenuBar {
         aboutMenuItem = new JMenuItem();
         helpMenuItem = new JMenuItem();
         shortCutKeysjMenuItem = new JMenuItem();
+        arbilForumMenuItem = new JMenuItem();
         printHelpMenuItem = new JMenuItem();
         fileMenu.setText("File");
         fileMenu.addMenuListener(new MenuListener() {
@@ -292,6 +295,7 @@ public class ArbilMenuBar extends JMenuBar {
         optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
         showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
+        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
         showSelectionPreviewCheckBoxMenuItem.setSelected(true);
         showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
         showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -382,6 +386,19 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
         helpMenu.add(helpMenuItem);
+
+        arbilForumMenuItem.setText("Arbil Forum (Website)");
+        arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        helpMenu.add(arbilForumMenuItem);
 
         shortCutKeysjMenuItem.setText("Short Cut Keys");
         shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {

@@ -141,6 +141,8 @@ public class ImportExportDialog {
     }
 
     public void selectExportDirectoryAndExport(ImdiTreeObject[] localCorpusSelectedNodes) {
+        // make sure the chosen directory is empty
+        // export the tree, maybe adjusting resource links so that resource files do not need to be copied
         searchDialog.setTitle("Export Branch");
         JFileChooser fileChooser = new JFileChooser();
 //        FileFilter emptyDirectoryFilter = new FileFilter() {
@@ -289,15 +291,7 @@ public class ImportExportDialog {
 
     // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
-        if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
-            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
-                    "There are unsaved changes.\nSave now?", "Save Changes",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
-            } else {
-                throw new Exception("user canceled save action");
-            }
-        }
+        LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
         searchDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {

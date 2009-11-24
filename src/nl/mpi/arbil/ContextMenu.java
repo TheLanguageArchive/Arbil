@@ -49,6 +49,7 @@ public class ContextMenu {
     private javax.swing.JSeparator treePopupMenuSeparator1;
     private javax.swing.JSeparator treePopupMenuSeparator2;
     private javax.swing.JMenuItem validateMenuItem;
+    private javax.swing.JMenu historyMenu;
     private javax.swing.JMenuItem viewChangesMenuItem;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
@@ -87,6 +88,7 @@ public class ContextMenu {
         openXmlMenuItemFormatted = new javax.swing.JMenuItem();
         viewInBrrowserMenuItem = new javax.swing.JMenuItem();
         validateMenuItem = new javax.swing.JMenuItem();
+        historyMenu = new javax.swing.JMenu();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
         addRemoteCorpusMenuItem = new javax.swing.JMenuItem();
         addDefaultLocationsMenuItem = new javax.swing.JMenuItem();
@@ -343,6 +345,26 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(validateMenuItem);
+
+        historyMenu.setText("History");
+        historyMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                try {
+                    initHistoryMenu();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(historyMenu);
+
 
         treePopupMenu.add(treePopupMenuSeparator2);
         addRemoteCorpusMenuItem.setText("Add Remote Location");
@@ -721,6 +743,30 @@ public class ContextMenu {
         }
     }
 
+    public void initHistoryMenu() {
+        historyMenu.removeAll();
+        for (String[] currentHistory : leadSelectedTreeNode.getHistoryList()) {
+            JMenuItem revertHistoryMenuItem;
+            revertHistoryMenuItem = new javax.swing.JMenuItem();
+            revertHistoryMenuItem.setText(currentHistory[0]);
+            revertHistoryMenuItem.setName(currentHistory[0]);
+            revertHistoryMenuItem.setActionCommand(currentHistory[1]);
+            revertHistoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    try {
+                           if (!leadSelectedTreeNode.resurrectHistory(evt.getActionCommand())){
+                               LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not revert version, no changes made", "History");
+                           }
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
+            historyMenu.add(revertHistoryMenuItem);
+        }
+    }
+
     public void initAddFromFavouritesMenu() {
         addFromFavouritesMenu.removeAll();
         for (Enumeration menuItemName = LinorgFavourites.getSingleInstance().listFavouritesFor(leadSelectedTreeNode); menuItemName.hasMoreElements();) {
@@ -806,6 +852,7 @@ public class ContextMenu {
         viewChangesMenuItem.setVisible(false);
         sendToServerMenuItem.setVisible(false);
         validateMenuItem.setVisible(false);
+        historyMenu.setVisible(false);
         exportMenuItem.setVisible(false);
         importCsvMenuItem.setVisible(false);
 
@@ -828,16 +875,17 @@ public class ContextMenu {
             boolean nodeIsImdiChild = false;
             if (leadSelectedTreeNode != null) {
                 nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
-                if (leadSelectedTreeNode.getNeedsSaveToDisk()) {
+                //if (leadSelectedTreeNode.getNeedsSaveToDisk()) {
                     // saveMenuItem.setVisible(true);
-                } else if (leadSelectedTreeNode.needsChangesSentToServer()) {
-                    viewChangesMenuItem.setVisible(true);
-                    sendToServerMenuItem.setVisible(true);
-                }
+                //} else if (leadSelectedTreeNode.hasHistory()) {
+                    //viewChangesMenuItem.setVisible(true);
+                    //sendToServerMenuItem.setVisible(true);
+                //}
                 viewXmlMenuItem.setVisible(!nodeIsImdiChild);
                 viewXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
                 openXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
                 validateMenuItem.setVisible(!nodeIsImdiChild);
+                historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
                 // set up the favourites menu

@@ -247,7 +247,7 @@ public class ImdiIcons {
             iconsVector.add(favouriteIcon);
         }
         // add icons for save state
-        if (imdiObject.needsChangesSentToServer()) {
+        if (imdiObject.hasHistory()) {
             iconsVector.add(exclamationBlueIcon);
         }
         if (imdiObject.getNeedsSaveToDisk()) {

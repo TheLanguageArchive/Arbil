@@ -102,8 +102,8 @@ class JListToolTip extends JToolTip {
         } else if (tempObject.isImdi()) {
             addTabbedLabel("Local file (editable)");
         }
-        if (tempObject.needsChangesSentToServer()) {
-            addTabbedLabel("Local changes not sent to the server");
+        if (tempObject.hasHistory()) {
+            addTabbedLabel("History of changes are available");
         }
         if (tempObject.getNeedsSaveToDisk()) {
             addTabbedLabel("Unsaved changes");

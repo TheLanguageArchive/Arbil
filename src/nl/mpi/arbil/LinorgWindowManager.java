@@ -114,6 +114,18 @@ public class LinorgWindowManager {
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
     }
 
+    public void offerUserToSaveChanges() throws Exception {
+        if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
+            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                    "There are unsaved changes.\nSave now?", "Save Changes",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
+            } else {
+                throw new Exception("user canceled save action");
+            }
+        }
+    }
+
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
         if (messageTitle == null) {
             messageTitle = "Arbil";

@@ -13,7 +13,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.Enumeration;
+import java.util.Arrays;
 import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
@@ -226,8 +226,9 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             final String defaultValue = "<select>";
             ImdiVocabularies.VocabularyItem selectedItem = null;
             comboBox.setEditable(false);
-            for (Enumeration<ImdiVocabularies.VocabularyItem> vocabularyList = cellField.getLanguageList(); vocabularyList.hasMoreElements();) {
-                ImdiVocabularies.VocabularyItem currentItem = vocabularyList.nextElement();
+            ImdiVocabularies.VocabularyItem[] languageItemArray = cellField.getLanguageList();
+            Arrays.sort(languageItemArray);
+            for (ImdiVocabularies.VocabularyItem currentItem : languageItemArray) {
                 comboBox.addItem(currentItem);
                 if (fieldLanguageId.equals(currentItem.languageCode)) {
                     selectedItem = currentItem;

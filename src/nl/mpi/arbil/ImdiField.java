@@ -40,12 +40,12 @@ public class ImdiField {
 //            return fieldValue.compareTo(originalValue) != 0;
 //        }
 //    }
-
     public boolean isRequiredField() {
         if (isRequiredField < 0) {
             isRequiredField = 0;
+            String fullXmlPath = getGenericFullXmlPath();
             for (String currentRequiredField : parentImdi.currentTemplate.requiredFields) {
-                if (currentRequiredField.equals(xmlPath)) {
+                if (fullXmlPath.matches(currentRequiredField)) {
                     isRequiredField = 1;
                     break;
                 }
@@ -71,8 +71,9 @@ public class ImdiField {
         boolean isValidValue = true;
         if (canValidateField != 0) { // only do this the first time or once a field constraint has been found
             canValidateField = 0;
+            String fullXmlPath = getGenericFullXmlPath();
             for (String[] currentRequiredField : parentImdi.currentTemplate.fieldConstraints) {
-                if (currentRequiredField[0].equals(xmlPath)) {
+                if (fullXmlPath.matches(currentRequiredField[0])) {
                     canValidateField = 1;
                     isValidValue = (fieldValue.matches(currentRequiredField[1]));
                     break;
@@ -137,9 +138,9 @@ public class ImdiField {
 
     }
 
-    public Enumeration<ImdiVocabularies.VocabularyItem> getLanguageList() { // TODO: move this url to somewhere appropriate (preferably in the imdi file)
-//        return a list if objects 
-        return ImdiVocabularies.getSingleInstance().getVocabulary(this, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").vocabularyItems.elements();
+    public ImdiVocabularies.VocabularyItem[] getLanguageList() {
+        // TODO: move this url to somewhere appropriate (preferably in the imdi file)
+        return ImdiVocabularies.getSingleInstance().getVocabulary(this, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").getVocabularyItems();
     }
 
     public ImdiVocabularies.Vocabulary getVocabulary() {
