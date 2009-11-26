@@ -100,6 +100,7 @@ public class ArbilTemplate {
     }
     String[][] templatesArray;
     String[][] rootTemplatesArray;
+    public String[][] autoFieldsArray;
 
     public boolean pathIsDeleteableField(String nodePath) {
         // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
@@ -278,6 +279,7 @@ public class ArbilTemplate {
                 ArrayList<String[]> templateComponentList = new ArrayList<String[]>();
                 ArrayList<String[]> rootTemplateComponentList = new ArrayList<String[]>();
                 ArrayList<String[]> fieldUsageList = new ArrayList<String[]>();
+                ArrayList<String[]> autoFieldsList = new ArrayList<String[]>();
 
                 @Override
                 public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
@@ -322,6 +324,11 @@ public class ArbilTemplate {
                         String fieldDescription = atts.getValue("FieldDescription");
                         fieldUsageList.add(new String[]{fieldPath, fieldDescription});
                     }
+                    if (name.equals("AutoField")) {
+                        String fieldPath = atts.getValue("FieldPath");
+                        String fileAttribute = atts.getValue("FileAttribute");
+                        autoFieldsList.add(new String[]{fieldPath, fileAttribute});
+                    }
                 }
 
                 @Override
@@ -335,6 +342,7 @@ public class ArbilTemplate {
                     templatesArray = templateComponentList.toArray(new String[][]{});
                     rootTemplatesArray = rootTemplateComponentList.toArray(new String[][]{});
                     fieldUsageArray = fieldUsageList.toArray(new String[][]{});
+                    autoFieldsArray = autoFieldsList.toArray(new String[][]{});
                 }
             });
             loadedTemplateName = templateName;

@@ -11,6 +11,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.data.ImdiLoader;
 
@@ -93,6 +94,7 @@ public class MimeHashQueue {
                                             currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
                                             currentImdiObject.setMimeType(lastCheckedMimeArray);
                                         }
+                                        updateAutoFields(currentImdiObject, currentFile);
                                         updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
                                     }
                                 } catch (MalformedURLException e) {
@@ -156,6 +158,53 @@ public class MimeHashQueue {
         } catch (IOException ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("saveMap exception: " + ex.getMessage());
+        }
+    }
+
+    private void updateAutoFields(ImdiTreeObject currentImdiObject, File resourceFile) {
+        Set<String> currentNodeFieldNames = currentImdiObject.getFields().keySet();
+        // loop over the auto fields from the template
+        for (String[] autoFields : currentImdiObject.currentTemplate.autoFieldsArray) {
+            String fieldPath = autoFields[0];
+            String fileAttribute = autoFields[1];
+            String autoValue = null;
+            if (fileAttribute.equals("Size")) {
+                if (!currentImdiObject.resourceFileNotFound()) {
+                    autoValue = (resourceFile.length() / 1024) + "KB";
+                }
+            } else if (fileAttribute.equals("MpiMimeType")) {
+                autoValue = currentImdiObject.mpiMimeType;
+            } else if (fileAttribute.equals("FileType")) {
+                autoValue = mpi.bcarchive.typecheck.FileType.resultToMimeType(currentImdiObject.typeCheckerMessage);
+                if (autoValue != null) {
+                    int indexOfChar = autoValue.indexOf("/");
+                    if (indexOfChar > 0) {
+                        autoValue = autoValue.substring(0, indexOfChar); // TODO: does the tyoe checker not provide this???
+                    }
+                }
+            }
+            if (autoValue == null) {
+                autoValue = ""; // clear any fields that have no new data but may be out of date
+            }
+            if (autoValue != null) {
+                // loop over the field names in the imdi tree node
+                for (String currentKeyString : currentNodeFieldNames) {
+                    // look for the field name at the end of the auto field path
+                    if (fieldPath.endsWith(currentKeyString)) {
+                        ImdiField[] currentFieldArray = currentImdiObject.getFields().get(currentKeyString);
+                        if (currentFieldArray != null) {
+                            // verify that the full field path is the same as the auto field path
+                            if (currentFieldArray[0].getGenericFullXmlPath().equals(fieldPath)) {
+                                // set the value of the fields with the requested data
+                                // note that there will usually only be one of each so we could just use the first in the array
+                                for (ImdiField currentField : currentFieldArray) {
+                                    currentField.setFieldValue(autoValue, true, false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

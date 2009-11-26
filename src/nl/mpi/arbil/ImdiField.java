@@ -112,8 +112,9 @@ public class ImdiField {
             LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValueToBe, "edit");
             this.fieldValue = fieldValueToBe;
             new FieldChangeTriggers().actOnChange(this);
-            parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
             fieldNeedsSaveToDisk = true;
+            // TODO: this should scan all fields in the imdiparent to set the needs save to disk flag
+            parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
         }
     }
 

@@ -15,9 +15,22 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />
         <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Name" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile(x).ResourceLink" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource(x).ResourceLink" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).ResourceLink" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).ResourceLink" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Size" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Format" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Size" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Format" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Type" />
     </RequiredFields>
+    <AutoFields>
+        <comment>The fields listed here will be overwritten when the data becomes available and updated if it changes (this is primarily for resource files)</comment>
+        <AutoField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile(x).Size" FileAttribute="Size" />
+        <AutoField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile(x).Format" FileAttribute="MpiMimeType" />
+        <AutoField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile(x).Type" FileAttribute="FileType" />
+        <AutoField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource(x).Size" FileAttribute="Size" />
+        <AutoField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource(x).Format" FileAttribute="MpiMimeType" />
+    </AutoFields>
     <GenreSubgenres>
         <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
         <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content.Genre" Description="description" />

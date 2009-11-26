@@ -3,9 +3,12 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Enumeration;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -51,6 +54,7 @@ public class ContextMenu {
     private javax.swing.JMenuItem validateMenuItem;
     private javax.swing.JMenu historyMenu;
     private javax.swing.JMenuItem viewChangesMenuItem;
+    private javax.swing.JMenuItem browseForResourceFileMenuItem;
     private javax.swing.JMenuItem viewSelectedNodesMenuItem;
     private javax.swing.JMenuItem viewXmlMenuItem;
     private javax.swing.JMenuItem viewInBrrowserMenuItem;
@@ -87,6 +91,7 @@ public class ContextMenu {
         viewXmlMenuItemFormatted = new javax.swing.JMenuItem();
         openXmlMenuItemFormatted = new javax.swing.JMenuItem();
         viewInBrrowserMenuItem = new javax.swing.JMenuItem();
+        browseForResourceFileMenuItem = new javax.swing.JMenuItem();
         validateMenuItem = new javax.swing.JMenuItem();
         historyMenu = new javax.swing.JMenu();
         treePopupMenuSeparator2 = new javax.swing.JSeparator();
@@ -252,6 +257,25 @@ public class ContextMenu {
         mergeWithFavouritesMenu.setText("Merge With Favourite");
 
         mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
+
+        browseForResourceFileMenuItem.setText("Browse for resource file");
+        browseForResourceFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    JFileChooser resourceFileChooser = new JFileChooser();
+                    resourceFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    resourceFileChooser.setDialogTitle("Select Resource File");
+                    int option = resourceFileChooser.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
+                    if (JFileChooser.APPROVE_OPTION == option) {
+                        leadSelectedTreeNode.resourceUrlField.setFieldValue(resourceFileChooser.getSelectedFile().toURL().toExternalForm(), true, false);
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(browseForResourceFileMenuItem);
 
 //        favouritesMenu.add(mergeWithFavouritesMenu);
         deleteMenuItem.setText("Delete");
@@ -677,7 +701,7 @@ public class ContextMenu {
             try {
                 URI targetUri = null;
                 if (currentNode.hasResource()) {
-                    targetUri = new URI(currentNode.getFullResourcePath());
+                    targetUri = new File(new URL(currentNode.getFullResourcePath()).getFile()).toURI(); // this is convoluted but is needed to remove the white space otherwise this breaks on mac
                 } else {
                     if (currentNode.isLocal()) {
                         targetUri = currentNode.getFile().toURI(); // file to uri is the only way to reliably get the uri on 1.4 otherwise the white space will cause an error
@@ -687,6 +711,8 @@ public class ContextMenu {
                 }
                 GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
             } catch (URISyntaxException usE) {
+                GuiHelper.linorgBugCatcher.logError(usE);
+            } catch (MalformedURLException usE) {
                 GuiHelper.linorgBugCatcher.logError(usE);
             }
         }
@@ -755,9 +781,9 @@ public class ContextMenu {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     try {
-                           if (!leadSelectedTreeNode.resurrectHistory(evt.getActionCommand())){
-                               LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not revert version, no changes made", "History");
-                           }
+                        if (!leadSelectedTreeNode.resurrectHistory(evt.getActionCommand())) {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not revert version, no changes made", "History");
+                        }
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
                     }
@@ -838,6 +864,7 @@ public class ContextMenu {
         viewXmlMenuItemFormatted.setVisible(false);
         openXmlMenuItemFormatted.setVisible(false);
         viewInBrrowserMenuItem.setVisible(false);
+        browseForResourceFileMenuItem.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
         reloadSubnodesMenuItem.setVisible(false);
         addDefaultLocationsMenuItem.setVisible(false);
@@ -876,10 +903,10 @@ public class ContextMenu {
             if (leadSelectedTreeNode != null) {
                 nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
                 //if (leadSelectedTreeNode.getNeedsSaveToDisk()) {
-                    // saveMenuItem.setVisible(true);
+                // saveMenuItem.setVisible(true);
                 //} else if (leadSelectedTreeNode.hasHistory()) {
-                    //viewChangesMenuItem.setVisible(true);
-                    //sendToServerMenuItem.setVisible(true);
+                //viewChangesMenuItem.setVisible(true);
+                //sendToServerMenuItem.setVisible(true);
                 //}
                 viewXmlMenuItem.setVisible(!nodeIsImdiChild);
                 viewXmlMenuItemFormatted.setVisible(!nodeIsImdiChild);
@@ -888,6 +915,7 @@ public class ContextMenu {
                 historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
+                browseForResourceFileMenuItem.setVisible(leadSelectedTreeNode.hasResource());
                 // set up the favourites menu
                 addFromFavouritesMenu.setVisible(true);
             }

@@ -58,7 +58,7 @@ public class ImdiTreeObject implements Comparable {
     private String nodeText, lastNodeText = "loading imdi...";
 //    private boolean nodeTextChanged = false;
     private URL nodeUrl;
-    private ImdiField resourceUrlField;
+    public ImdiField resourceUrlField;
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
@@ -156,6 +156,7 @@ public class ImdiTreeObject implements Comparable {
             hashString = null;
             mpiMimeType = null;
             thumbnailFile = null;
+            typeCheckerMessage = null;
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
         if (isImdiChild()) {
@@ -1828,7 +1829,7 @@ public class ImdiTreeObject implements Comparable {
 
     public void registerContainer(Object containerToAdd) {
 //        System.out.println("registerContainer: " + containerToAdd + " : " + this);
-        if (!getParentDomNode().imdiDataLoaded) { // TODO: this is probably not the best way to do this and might be better in a manager class
+        if (!getParentDomNode().imdiDataLoaded && !isLoading()) { // TODO: this is probably not the best way to do this and might be better in a manager class
             ImdiLoader.getSingleInstance().requestReload(getParentDomNode());
         }
         if (containerToAdd != null) {
