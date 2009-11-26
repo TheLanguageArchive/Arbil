@@ -96,11 +96,14 @@ class JListToolTip extends JToolTip {
         if (!tempObject.isLocal()) {
             addTabbedLabel("Remote file (read only)");
         } else if (tempObject.hasResource()) {
-            if (tempObject.fileNotFound) {
-                addTabbedLabel("File not found");
+            if (tempObject.resourceFileNotFound()) {
+                addTabbedLabel("Resource file not found");
             }
         } else if (tempObject.isImdi()) {
             addTabbedLabel("Local file (editable)");
+            if (tempObject.fileNotFound) {
+                addTabbedLabel("File not found");
+            }
         }
         if (tempObject.hasHistory()) {
             addTabbedLabel("History of changes are available");

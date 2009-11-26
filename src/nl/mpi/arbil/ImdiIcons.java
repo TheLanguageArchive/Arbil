@@ -198,8 +198,9 @@ public class ImdiIcons {
                 iconsVector.add(writtenresourceIcon);
             } else if (mimeTypeForNode.contains("kml")) {
                 iconsVector.add(writtenresourceIcon);
-            } else if (mimeTypeForNode.contains("unspecified")) {
+            } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
                 // no icon for this
+                iconsVector.add(fileIcon);
             } else if (mimeTypeForNode.length() > 0) {
                 iconsVector.add(questionRedIcon);
                 GuiHelper.linorgBugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
@@ -231,7 +232,7 @@ public class ImdiIcons {
             iconsVector.add(fileIcon);
         }
         // add missing file icon
-        if ((imdiObject.fileNotFound) || (imdiObject.hasLocalResource() && imdiObject.hashString == null)) {
+        if ((imdiObject.fileNotFound || imdiObject.resourceFileNotFound())) {
             iconsVector.add(missingRedIcon);
         }
         // add a file attached to a session icon

@@ -55,10 +55,10 @@ public class ImdiTreeObject implements Comparable {
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
     private boolean needsSaveToDisk;
-    private String nodeText, lastNodeText = "";
+    private String nodeText, lastNodeText = "loading imdi...";
 //    private boolean nodeTextChanged = false;
     private URL nodeUrl;
-    private String resourceUrlString;
+    private ImdiField resourceUrlField;
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
@@ -152,6 +152,12 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk, boolean updateUI) {
+        if (resourceUrlField != null && resourceUrlField.fieldNeedsSaveToDisk) {
+            hashString = null;
+            mpiMimeType = null;
+            thumbnailFile = null;
+            MimeHashQueue.getSingleInstance().addToQueue(this);
+        }
         if (isImdiChild()) {
             this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk, updateUI);
         } else {
@@ -178,6 +184,7 @@ public class ImdiTreeObject implements Comparable {
         }
         return mpiMimeType;
     }
+
     public void setMimeType(String[] typeCheckerMessageArray) {
         mpiMimeType = typeCheckerMessageArray[0];
         typeCheckerMessage = typeCheckerMessageArray[1];
@@ -213,7 +220,7 @@ public class ImdiTreeObject implements Comparable {
         setImdiNeedsSaveToDisk(false, false);
 //    nodeText = null;
 //    urlString = null;
-        resourceUrlString = null;
+//        resourceUrlField = null;
         isDirectory = false;
         icon = null;
         nodeEnabled = true;
@@ -324,8 +331,8 @@ public class ImdiTreeObject implements Comparable {
                                 nodeText = "Could not load IMDI";
                             } else {
                                 nodeText = "File not found";
+                                fileNotFound = true;
                             }
-                            fileNotFound = true;
                         } else {
                             //set the string name to unknown, it will be updated in the tostring function
                             nodeText = "unknown";
@@ -412,7 +419,7 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("currentLink: " + currentLink);
             ImdiTreeObject currentImdi = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentLink);
             if (TreeHelper.getSingleInstance().showHiddenFilesInTree || !currentImdi.getFile().isHidden()) {
-            childLinksTemp.add(currentImdi);
+                childLinksTemp.add(currentImdi);
             }
         }
         //childLinks = childLinksTemp.toArray(new String[][]{});
@@ -643,32 +650,32 @@ public class ImdiTreeObject implements Comparable {
                 TreeHelper.getSingleInstance().applyRootLocations();
             }
 //            destinationNode.saveChangesToCache();
-//            destinationNode.imdiNeedsSaveToDisk = true;
+//            destinationNode.needsSaveToDisk = true;
         }
-        //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
+//        //load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
         //        destinationNode.updateImdiFileNodeIds();
 
         // begin temp test
-//            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
-//            fieldToAdd1.translateFieldName("test.field.translated");
-//            addableImdiChild.addField(fieldToAdd1, 0);
+        //            ImdiField fieldToAdd1 = new ImdiField("test.field", "unset");
+        //            fieldToAdd1.translateFieldName("test.field.translated");
+        //            addableImdiChild.addField(fieldToAdd1, 0);
         // end temp test
         //for (Enumeration fieldsToAdd = GuiHelper.imdiFieldViews.getCurrentGlobalView().getAlwaysShowColumns(); fieldsToAdd.hasMoreElements();) {
-//        for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(this, nodeType, getNextImdiChildIdentifier(), resourcePath); fieldsToAdd.hasMoreElements();) {
-//            String[] currentField = (String[]) fieldsToAdd.nextElement();
-//            System.out.println("fieldToAdd: " + currentField[0]);
-//            System.out.println("valueToAdd: " + currentField[1]);
-//            ImdiField fieldToAdd = new ImdiField(destinationNode, currentField[0], currentField[1]);
-//            //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
-//            fieldToAdd.translateFieldName(currentField[0]);
-//            if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrlString(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
-//                destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
-//            }
-//        }
-//        if (destinationNode != this) {
-////            System.out.println("adding to list of child nodes 1: " + destinationNode);
-//            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
-//        }
+        //        for (Enumeration fieldsToAdd = GuiHelper.imdiSchema.listFieldsFor(this, nodeType, getNextImdiChildIdentifier(), resourcePath); fieldsToAdd.hasMoreElements();) {
+        //            String[] currentField = (String[]) fieldsToAdd.nextElement();
+        //            System.out.println("fieldToAdd: " + currentField[0]);
+        //            System.out.println("valueToAdd: " + currentField[1]);
+        //            ImdiField fieldToAdd = new ImdiField(destinationNode, currentField[0], currentField[1]);
+        //            //fieldToAdd.translateFieldName(nodePath + siblingSpacer);
+        //            fieldToAdd.translateFieldName(currentField[0]);
+        //            if (GuiHelper.linorgJournal.saveJournalEntry(fieldToAdd.parentImdi.getUrlString(), fieldToAdd.xmlPath, null, fieldToAdd.fieldValue)) {
+        //                destinationNode.addField(fieldToAdd, 0, addedImdiNodes, false);
+        //            }
+        //        }
+        //        if (destinationNode != this) {
+        ////            System.out.println("adding to list of child nodes 1: " + destinationNode);
+        //            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
+        //        }
         return addedNodePath;
     }
 
@@ -756,7 +763,7 @@ public class ImdiTreeObject implements Comparable {
         return findResult;
     }
 
-    // this is used to disable the node in the tree gui
+// this is used to disable the node in the tree gui
     public boolean getNodeEnabled() {
 //       ---      TODO: here we could look through all the fields in this node against the current filed view, if node are showing then return false 
 //       ---      when the global field view is changed then set all nodeEnabled blaaaa
@@ -830,7 +837,7 @@ public class ImdiTreeObject implements Comparable {
 //            this.domParentImdi.deleteFromParentDom(new String[]{this.xmlNodeId});
 //        } else {
 //            // save the node if it need saving
-//            if (imdiNeedsSaveToDisk) {
+//            if (needsSaveToDisk) {
 //                saveChangesToCache(false);
 //            }
 ////            System.out.println("attempting to remove nodes");
@@ -1382,7 +1389,7 @@ public class ImdiTreeObject implements Comparable {
         fieldHashtable.put(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
 
         if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.parentImdi.isImdiChild()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
-            resourceUrlString = fieldToAdd.fieldValue;
+            resourceUrlField = fieldToAdd;
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
     }
@@ -1515,14 +1522,14 @@ public class ImdiTreeObject implements Comparable {
     @Override
     public String toString() {
         if (isLoading()) {
-            if (lastNodeText.length() > 0) {
+//            if (lastNodeText.length() > 0) {
+//                return lastNodeText;
+//            } else {asdasdasd
+////                if (nodeText != null && nodeText.length() > 0) {
                 return lastNodeText;
-            } else {
-                lastNodeText = "loading imdi..."; // note that this is different from the text shown by treehelper "adding..."
-                return lastNodeText;
-            }
+//            }
         }
-        String nameText = "";
+//        String nameText = "";
 //        TODO: move this to a list loaded from the templates or similar
         String[] preferredNameFields = {"Name", "Id"};
         for (String currentPreferredName : preferredNameFields) {
@@ -1530,25 +1537,22 @@ public class ImdiTreeObject implements Comparable {
             if (currentFieldArray != null) {
                 for (ImdiField currentField : currentFieldArray) {
                     if (currentField != null) {
-                        nodeText = "";
-                        nameText = currentField.toString();
+                        nodeText = currentField.toString();
                         break;
                     }
                 }
-                if (!nameText.equals("")) {
-                    break;
-                }
             }
         }
-        if (nameText.length() == 0 && hasResource()) {
+        if (hasResource()) {
             String resourcePathString = getFullResourcePath();
             int lastIndex = resourcePathString.lastIndexOf("/");
 //                if (lastIndex)
-            nodeText = "";
-            nameText = resourcePathString.substring(lastIndex + 1);
+            nodeText = resourcePathString.substring(lastIndex + 1);
         }
 //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
-        lastNodeText = nodeText + nameText;
+        if (nodeText != null) {
+            lastNodeText = nodeText;
+        }
         if (lastNodeText.length() == 0) {
             lastNodeText = "      ";
         }
@@ -1570,7 +1574,7 @@ public class ImdiTreeObject implements Comparable {
      * @return boolean
      */
     public boolean hasResource() {
-        return resourceUrlString != null;
+        return resourceUrlField != null;
     }
 
     /**
@@ -1578,16 +1582,32 @@ public class ImdiTreeObject implements Comparable {
      * @return boolean
      */
     public boolean hasLocalResource() {
-        if (resourceUrlString == null) {
+        if (!hasResource()) {
             return false;
         }
-        if (resourceUrlString.toLowerCase().startsWith("http")) {
+        if (resourceUrlField.fieldValue.toLowerCase().startsWith("http")) {
             return false;
         }
         if (!this.isLocal()) {
             return false;
+        } else {
+            return true;
         }
-        return true;
+    }
+
+    public boolean resourceFileNotFound() {
+        if (hasLocalResource()) {
+            if (resourceUrlField.fieldValue.length() == 0) {
+                return true;
+            }
+            try {
+                return !(new File(new URL(this.getFullResourcePath()).getFile())).exists();
+            } catch (Exception e) {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -1595,7 +1615,7 @@ public class ImdiTreeObject implements Comparable {
      * @return a URL string of the resource file
      */
     private String getResource() {
-        return resourceUrlString;
+        return resourceUrlField.fieldValue;
     }
 
     public boolean hasHistory() {
@@ -1689,7 +1709,7 @@ public class ImdiTreeObject implements Comparable {
      * @return The path to remote resource if it exists.
      */
     public String getFullResourcePath() {
-        String targetUrlString = resourceUrlString;
+        String targetUrlString = resourceUrlField.fieldValue;
         boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
         if (!urlIsComplete || targetUrlString.startsWith(".")) {
             targetUrlString = this.getParentDirectory() + targetUrlString;
@@ -1845,7 +1865,6 @@ public class ImdiTreeObject implements Comparable {
             currentChild.clearIcon();
         }
     }
-
 //    public void addJumpToInTreeRequest() {
 //        jumpToRequested = true;
 //    }

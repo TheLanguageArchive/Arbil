@@ -101,7 +101,7 @@ public class MimeHashQueue {
                                 }
                             }
                         }
-                        currentImdiObject.updateLoadingState(-1);
+//                        currentImdiObject.updateLoadingState(-1); // Loading state change dissabled due to performance issues when offline
                         currentImdiObject.clearIcon();
                     }
                     //TODO: take one file from the list and check it is still there and that it has the same mtime and maybe check the md5sum
@@ -338,9 +338,12 @@ public class MimeHashQueue {
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
         if (((imdiObject.isLocal() && !imdiObject.isImdi() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
+//            System.out.println("addToQueue session: " + imdiObject.isSession());
+//            System.out.println("addToQueue directory: " + imdiObject.isDirectory());
+//            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
             if (!imdiObjectQueue.contains(imdiObject)) {
-                imdiObject.updateLoadingState(+1);
+//                imdiObject.updateLoadingState(+1); // Loading state change dissabled due to performance issues when offline
                 imdiObjectQueue.add(imdiObject);
             }
         }

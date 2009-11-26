@@ -66,6 +66,8 @@ public class ImdiLoader {
                     }
                 }
             }.start();
+        }
+        // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
             // start the local imdi thread
             new Thread() {
 
@@ -181,7 +183,6 @@ public class ImdiLoader {
                     }
                 }
             }.start();
-        }
     }
 
     public void duplicateChildNodeStructure(ImdiTreeObject favouriteImdiNode, ImdiTreeObject addedImdiObject, ArrayList<ImdiTreeObject[]> nodesToMerge, ProgressMonitor progressMonitor, Vector<ImdiTreeObject> allAddedNodes) {
@@ -316,11 +317,11 @@ public class ImdiLoader {
             currentImdiObject = currentImdiObject.getParentDomNode();
         }
 //        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
-            if (!imdiLocalNodesToInit.contains(currentImdiObject)) {
-                System.out.println("requestReload: " + currentImdiObject.getUrlString());
-                currentImdiObject.updateLoadingState(+1);
-                imdiLocalNodesToInit.add(currentImdiObject);
-            }
+        if (!imdiLocalNodesToInit.contains(currentImdiObject)) {
+            System.out.println("requestReload: " + currentImdiObject.getUrlString());
+            currentImdiObject.updateLoadingState(+1);
+            imdiLocalNodesToInit.add(currentImdiObject);
+        }
 //        }
     }
 
