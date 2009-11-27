@@ -198,7 +198,7 @@ public class MimeHashQueue {
                                 // set the value of the fields with the requested data
                                 // note that there will usually only be one of each so we could just use the first in the array
                                 for (ImdiField currentField : currentFieldArray) {
-                                    currentField.setFieldValue(autoValue, true, false);
+                                    currentField.setFieldValue(autoValue, true, true);
                                 }
                             }
                         }

@@ -39,7 +39,7 @@ import javax.swing.table.TableCellEditor;
  */
 public class ImdiTable extends JTable {
 
-    private ImdiTableModel imdiTableModel;
+    public ImdiTableModel imdiTableModel;
     JListToolTip listToolTip = new JListToolTip();
 
     public ImdiTable(ImdiTableModel localImdiTableModel, String frameTitle) {
@@ -104,20 +104,20 @@ public class ImdiTable extends JTable {
                     popupMenu.add(hideColumnMenuItem);
 
                     if (imdiTableModel.horizontalView) {
-                    JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-                    showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
-                    showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                        JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+                        showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
+                        showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                showRowChildData();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
+                            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                try {
+                                    showRowChildData();
+                                } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(ex);
+                                }
                             }
-                        }
-                    });
-                    popupMenu.add(showChildNodesMenuItem);
-                }
+                        });
+                        popupMenu.add(showChildNodesMenuItem);
+                    }
 
                     JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
                     saveViewMenuItem.addActionListener(new ActionListener() {
@@ -237,7 +237,6 @@ public class ImdiTable extends JTable {
 //                System.out.println("mouseReleased");
                 checkPopup(evt, true);
             }
-            
 //            @Override
 //            public void mouseClicked(java.awt.event.MouseEvent evt) {
 //                System.out.println("mouseClicked");
@@ -277,220 +276,12 @@ public class ImdiTable extends JTable {
         if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
 //                    targetTable = (JTable) evt.getComponent();
 //                    System.out.println("set the current table");
-            JPopupMenu windowedTablePopupMenu;
-            windowedTablePopupMenu = new javax.swing.JPopupMenu();
-            windowedTablePopupMenu.setName("windowedTablePopupMenu");
 
-            if (getSelectedRow() != -1) {
-
-                JMenuItem copySelectedRowsMenuItem = new javax.swing.JMenuItem();
-                copySelectedRowsMenuItem.setText("Copy");
-                copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            copySelectedTableRowsToClipBoard();
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                windowedTablePopupMenu.add(copySelectedRowsMenuItem);
-
-                JMenuItem pasteIntoSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                pasteIntoSelectedRowsMenuItem.setText("Paste");
-                pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            pasteIntoSelectedTableRowsFromClipBoard();
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                windowedTablePopupMenu.add(pasteIntoSelectedRowsMenuItem);
-
-                if (imdiTableModel.horizontalView) {
-                    JMenuItem viewSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                    viewSelectedRowsMenuItem.setText("View Selected Rows");
-                    viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                viewSelectedTableRows();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(viewSelectedRowsMenuItem);
-                }
-
-                if (imdiTableModel.horizontalView) {
-                    JMenuItem matchingRowsMenuItem = new javax.swing.JMenuItem();
-                    matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
-                    matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                highlightMatchingRows();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(matchingRowsMenuItem);
-                }
-
-                if (imdiTableModel.horizontalView) {
-                    JMenuItem removeSelectedRowsMenuItem = new javax.swing.JMenuItem();
-                    removeSelectedRowsMenuItem.setText("Remove Selected Rows");
-                    removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                removeSelectedRowsFromTable();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(removeSelectedRowsMenuItem);
-
-                    JMenuItem hideSelectedColumnsMenuItem = new javax.swing.JMenuItem();
-                    hideSelectedColumnsMenuItem.setText("Hide Selected Columns");
-                    hideSelectedColumnsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                    hideSelectedColumnsFromTable();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(hideSelectedColumnsMenuItem);
-                }
-                boolean canDeleteSelectedFields = true;
-                ImdiField[] currentSelection = getSelectedFields();
-                for (ImdiField currentField : currentSelection) {
-                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
-                        canDeleteSelectedFields = false;
-                        break;
-                    }
-                }
-                if (canDeleteSelectedFields && currentSelection.length > 0) {
-                    JMenuItem deleteFieldMenuItem = new javax.swing.JMenuItem();
-                    String menuText = "Delete " + currentSelection[0].getTranslateFieldName();
-                    if (currentSelection.length > 1) {
-                        menuText = menuText + " X " + currentSelection.length;
-                    }
-                    deleteFieldMenuItem.setText(menuText);
-                    deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                ImdiField[] selectedFields = getSelectedFields();
-                                if (selectedFields != null) {
-//                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
-//                                  todo: the delete field action should also be available in the long field editor
-                                    Hashtable<ImdiTreeObject, ArrayList> selectedFieldHashtable = new Hashtable<ImdiTreeObject, ArrayList>();
-                                    for (ImdiField currentField : selectedFields) {
-                                        ArrayList currentList = selectedFieldHashtable.get(currentField.parentImdi);
-                                        if (currentList == null) {
-                                            currentList = new ArrayList();
-                                            selectedFieldHashtable.put(currentField.parentImdi, currentList);
-                                        }
-                                        currentList.add(currentField.fieldID);
-                                    }
-                                    for (ImdiTreeObject currentImdiObject : selectedFieldHashtable.keySet()) {
-                                        currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
-                                    }
-                                }
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(deleteFieldMenuItem);
-                }
+            TableCellEditor tableCellEditor = this.getCellEditor();
+            if (tableCellEditor != null) {
+                tableCellEditor.stopCellEditing();
             }
-
-
-            if (getSelectedRow() != -1 && getSelectedColumn() != -1) {
-                // add a divider for the cell functions
-                windowedTablePopupMenu.add(new JSeparator());
-
-                if (imdiTableModel.horizontalView && getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
-                    JMenuItem copyCellToColumnMenuItem = new javax.swing.JMenuItem();
-                    copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
-                    copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            try {
-                                if (!(imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) instanceof ImdiField)) {
-                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
-                                } else if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + imdiTableModel.getColumnName(getSelectedColumn()) + "\"\nwith the value \"" + imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                                    imdiTableModel.copyCellToColumn(getSelectedRow(), getSelectedColumn());
-                                }
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    windowedTablePopupMenu.add(copyCellToColumnMenuItem);
-                }
-
-                JMenuItem matchingCellsMenuItem = new javax.swing.JMenuItem();
-                matchingCellsMenuItem.setText("Highlight Matching Cells"); // NOI18N
-                matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            imdiTableModel.highlightMatchingCells(getSelectedRow(), getSelectedColumn());
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                windowedTablePopupMenu.add(matchingCellsMenuItem);
-
-                JMenuItem jumpToNodeInTreeMenuItem = new javax.swing.JMenuItem();
-                jumpToNodeInTreeMenuItem.setText("Jump to in Tree"); // NOI18N
-                jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            TreeHelper.getSingleInstance().jumpToSelectionInTree(false, getImdiNodeForSelection());
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                windowedTablePopupMenu.add(jumpToNodeInTreeMenuItem);
-
-                JMenuItem clearCellColoursMenuItem = new javax.swing.JMenuItem();
-                clearCellColoursMenuItem.setText("Clear Cell Highlight"); // NOI18N
-                clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            imdiTableModel.clearCellColours();
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                windowedTablePopupMenu.add(clearCellColoursMenuItem);
-            }
-            if (windowedTablePopupMenu.getComponentCount() > 0) {
-                windowedTablePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-                TableCellEditor tableCellEditor = ImdiTable.this.getCellEditor();
-                if (tableCellEditor != null) {
-                    tableCellEditor.stopCellEditing();
-                }
-            }
+            ContextMenu.getSingleInstance().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
         }
     }
 
@@ -712,7 +503,7 @@ public class ImdiTable extends JTable {
         }
     }
 
-    private ImdiField[] getSelectedFields() {
+    public ImdiField[] getSelectedFields() {
         // there is a limitation in the jtable in the way selections can be made so there is no point making this more complicated than a single contigious selection
         HashSet<ImdiField> selectedFields = new HashSet<ImdiField>();
         int[] selectedRows = this.getSelectedRows();

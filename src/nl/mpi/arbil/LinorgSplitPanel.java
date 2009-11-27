@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -73,6 +74,24 @@ public class LinorgSplitPanel extends JPanel {
         fileList.setCellRenderer(renderer);
         splitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitPane.setDividerSize(5);
+
+        fileList.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                if (evt.isPopupTrigger()) {
+                    ContextMenu.getSingleInstance().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                if (evt.isPopupTrigger()) {
+                    ContextMenu.getSingleInstance().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
+                }
+            }
+        });
+
         fileList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         fileList.addListSelectionListener(new ListSelectionListener() {
 

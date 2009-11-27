@@ -9,11 +9,19 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Hashtable;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
+import javax.swing.JList;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.JTree;
+import javax.swing.ListSelectionModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.importexport.ArbilCsvImporter;
@@ -26,45 +34,62 @@ import nl.mpi.arbil.importexport.ArbilCsvImporter;
  */
 public class ContextMenu {
 
-    private javax.swing.JMenu addFromFavouritesMenu;
-    private javax.swing.JMenuItem addLocalDirectoryMenuItem;
-    private javax.swing.JCheckBoxMenuItem showHiddenFilesMenuItem;
-    private javax.swing.JMenuItem addDefaultLocationsMenuItem;
-    private javax.swing.JMenu addMenu;
-    private javax.swing.JMenuItem addRemoteCorpusMenuItem;
-    private javax.swing.JMenuItem addToFavouritesMenuItem;
-    private javax.swing.JMenuItem copyBranchMenuItem;
-    private javax.swing.JMenuItem copyImdiUrlMenuItem;
-    private javax.swing.JMenuItem deleteMenuItem;
-    private javax.swing.JMenuItem exportMenuItem;
-    private javax.swing.JMenuItem importCsvMenuItem;
-//    private javax.swing.JMenu favouritesMenu;
-    private javax.swing.JMenu mergeWithFavouritesMenu;
-    private javax.swing.JMenuItem pasteMenuItem1;
-    private javax.swing.JMenuItem reloadSubnodesMenuItem;
-    private javax.swing.JMenuItem removeCachedCopyMenuItem;
-    private javax.swing.JMenuItem removeLocalDirectoryMenuItem;
-    private javax.swing.JMenuItem removeRemoteCorpusMenuItem;
-    private javax.swing.JMenuItem saveMenuItem;
-    private javax.swing.JMenuItem searchSubnodesMenuItem;
-    private javax.swing.JMenuItem sendToServerMenuItem;
-    private javax.swing.JPopupMenu treePopupMenu;
-    private javax.swing.JSeparator treePopupMenuSeparator1;
-    private javax.swing.JSeparator treePopupMenuSeparator2;
-    private javax.swing.JMenuItem validateMenuItem;
-    private javax.swing.JMenu historyMenu;
-    private javax.swing.JMenuItem viewChangesMenuItem;
-    private javax.swing.JMenuItem browseForResourceFileMenuItem;
-    private javax.swing.JMenuItem viewSelectedNodesMenuItem;
-    private javax.swing.JMenuItem viewXmlMenuItem;
-    private javax.swing.JMenuItem viewInBrrowserMenuItem;
-    private javax.swing.JMenuItem viewXmlMenuItemFormatted;
-    private javax.swing.JMenuItem openXmlMenuItemFormatted;
+    private JMenu addFromFavouritesMenu;
+    private JMenuItem addLocalDirectoryMenuItem;
+    private JCheckBoxMenuItem showHiddenFilesMenuItem;
+    private JMenuItem addDefaultLocationsMenuItem;
+    private JMenu addMenu;
+    private JMenuItem addRemoteCorpusMenuItem;
+    private JMenuItem addToFavouritesMenuItem;
+    private JMenuItem copyBranchMenuItem;
+    private JMenuItem copyImdiUrlMenuItem;
+    private JMenuItem deleteMenuItem;
+    private JMenuItem exportMenuItem;
+    private JMenuItem importCsvMenuItem;
+//    private JMenu favouritesMenu;
+    private JMenu mergeWithFavouritesMenu;
+    private JMenuItem pasteMenuItem1;
+    private JMenuItem reloadSubnodesMenuItem;
+    private JMenuItem removeCachedCopyMenuItem;
+    private JMenuItem removeLocalDirectoryMenuItem;
+    private JMenuItem removeRemoteCorpusMenuItem;
+    private JMenuItem saveMenuItem;
+    private JMenuItem searchSubnodesMenuItem;
+    private JMenuItem sendToServerMenuItem;
+    private JPopupMenu treePopupMenu;
+    private JSeparator treePopupMenuSeparator1;
+    private JSeparator treePopupMenuSeparator2;
+    private JMenuItem validateMenuItem;
+    private JMenu historyMenu;
+    private JMenuItem viewChangesMenuItem;
+    private JMenuItem browseForResourceFileMenuItem;
+    private JMenuItem viewSelectedNodesMenuItem;
+    private JMenuItem viewXmlMenuItem;
+    private JMenuItem viewInBrrowserMenuItem;
+    private JMenuItem viewXmlMenuItemFormatted;
+    private JMenuItem openXmlMenuItemFormatted;
     static private ContextMenu singleInstance = null;
+    //////////
+    // table menu items
+    private JMenuItem copySelectedRowsMenuItem;
+    private JMenuItem pasteIntoSelectedRowsMenuItem;
+    private JMenuItem viewSelectedRowsMenuItem;
+    private JMenuItem matchingRowsMenuItem;
+    private JMenuItem removeSelectedRowsMenuItem;
+    private JMenuItem hideSelectedColumnsMenuItem;
+    private JMenuItem deleteFieldMenuItem;
+    private JMenuItem copyCellToColumnMenuItem;
+    private JSeparator cellMenuDivider;
+    private JMenuItem matchingCellsMenuItem;
+    private JMenuItem clearCellColoursMenuItem;
+    private JMenuItem jumpToNodeInTreeMenuItem;
+    //////////
     ImdiTreeObject[] selectedTreeNodes = null;
     ImdiTreeObject leadSelectedTreeNode = null;
+    ImdiTable currentTable = null;
 
     static synchronized public ContextMenu getSingleInstance() {
+//        TODO: this should really be removed and a new instance made each time
         System.out.println("ContextMenu getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new ContextMenu();
@@ -73,41 +98,55 @@ public class ContextMenu {
     }
 
     private ContextMenu() {
-        treePopupMenu = new javax.swing.JPopupMenu();
-        viewSelectedNodesMenuItem = new javax.swing.JMenuItem();
-        copyImdiUrlMenuItem = new javax.swing.JMenuItem();
-        pasteMenuItem1 = new javax.swing.JMenuItem();
-        copyBranchMenuItem = new javax.swing.JMenuItem();
-        searchSubnodesMenuItem = new javax.swing.JMenuItem();
-        reloadSubnodesMenuItem = new javax.swing.JMenuItem();
-        addMenu = new javax.swing.JMenu();
-//        favouritesMenu = new javax.swing.JMenu();
-        addToFavouritesMenuItem = new javax.swing.JMenuItem();
-        addFromFavouritesMenu = new javax.swing.JMenu();
-        mergeWithFavouritesMenu = new javax.swing.JMenu();
-        deleteMenuItem = new javax.swing.JMenuItem();
-        treePopupMenuSeparator1 = new javax.swing.JSeparator();
-        viewXmlMenuItem = new javax.swing.JMenuItem();
-        viewXmlMenuItemFormatted = new javax.swing.JMenuItem();
-        openXmlMenuItemFormatted = new javax.swing.JMenuItem();
-        viewInBrrowserMenuItem = new javax.swing.JMenuItem();
-        browseForResourceFileMenuItem = new javax.swing.JMenuItem();
-        validateMenuItem = new javax.swing.JMenuItem();
-        historyMenu = new javax.swing.JMenu();
-        treePopupMenuSeparator2 = new javax.swing.JSeparator();
-        addRemoteCorpusMenuItem = new javax.swing.JMenuItem();
-        addDefaultLocationsMenuItem = new javax.swing.JMenuItem();
-        removeRemoteCorpusMenuItem = new javax.swing.JMenuItem();
-        removeCachedCopyMenuItem = new javax.swing.JMenuItem();
-        addLocalDirectoryMenuItem = new javax.swing.JMenuItem();
-        showHiddenFilesMenuItem = new javax.swing.JCheckBoxMenuItem();
-        removeLocalDirectoryMenuItem = new javax.swing.JMenuItem();
-        saveMenuItem = new javax.swing.JMenuItem();
-        viewChangesMenuItem = new javax.swing.JMenuItem();
-        sendToServerMenuItem = new javax.swing.JMenuItem();
-        exportMenuItem = new javax.swing.JMenuItem();
-        importCsvMenuItem = new javax.swing.JMenuItem();
-
+        treePopupMenu = new JPopupMenu();
+        viewSelectedNodesMenuItem = new JMenuItem();
+        copyImdiUrlMenuItem = new JMenuItem();
+        pasteMenuItem1 = new JMenuItem();
+        copyBranchMenuItem = new JMenuItem();
+        searchSubnodesMenuItem = new JMenuItem();
+        reloadSubnodesMenuItem = new JMenuItem();
+        addMenu = new JMenu();
+//        favouritesMenu = new JMenu();
+        addToFavouritesMenuItem = new JMenuItem();
+        addFromFavouritesMenu = new JMenu();
+        mergeWithFavouritesMenu = new JMenu();
+        deleteMenuItem = new JMenuItem();
+        treePopupMenuSeparator1 = new JSeparator();
+        viewXmlMenuItem = new JMenuItem();
+        viewXmlMenuItemFormatted = new JMenuItem();
+        openXmlMenuItemFormatted = new JMenuItem();
+        viewInBrrowserMenuItem = new JMenuItem();
+        browseForResourceFileMenuItem = new JMenuItem();
+        validateMenuItem = new JMenuItem();
+        historyMenu = new JMenu();
+        treePopupMenuSeparator2 = new JSeparator();
+        addRemoteCorpusMenuItem = new JMenuItem();
+        addDefaultLocationsMenuItem = new JMenuItem();
+        removeRemoteCorpusMenuItem = new JMenuItem();
+        removeCachedCopyMenuItem = new JMenuItem();
+        addLocalDirectoryMenuItem = new JMenuItem();
+        showHiddenFilesMenuItem = new JCheckBoxMenuItem();
+        removeLocalDirectoryMenuItem = new JMenuItem();
+        saveMenuItem = new JMenuItem();
+        viewChangesMenuItem = new JMenuItem();
+        sendToServerMenuItem = new JMenuItem();
+        exportMenuItem = new JMenuItem();
+        importCsvMenuItem = new JMenuItem();
+        //////////
+        // table menu items
+        copySelectedRowsMenuItem = new JMenuItem();
+        pasteIntoSelectedRowsMenuItem = new JMenuItem();
+        viewSelectedRowsMenuItem = new JMenuItem();
+        matchingRowsMenuItem = new JMenuItem();
+        removeSelectedRowsMenuItem = new JMenuItem();
+        hideSelectedColumnsMenuItem = new JMenuItem();
+        deleteFieldMenuItem = new JMenuItem();
+        copyCellToColumnMenuItem = new JMenuItem();
+        cellMenuDivider = new JSeparator();
+        matchingCellsMenuItem = new JMenuItem();
+        clearCellColoursMenuItem = new JMenuItem();
+        jumpToNodeInTreeMenuItem = new JMenuItem();
+        //////////
         viewSelectedNodesMenuItem.setText("View Selected");
 
         viewSelectedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -300,7 +339,7 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    openFileInBrowser(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes());
+                    openFileInBrowser(selectedTreeNodes);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -572,6 +611,174 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(importCsvMenuItem);
+
+        //////////
+        // table menu items
+        copySelectedRowsMenuItem.setText("Copy");
+        copySelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.copySelectedTableRowsToClipBoard();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(copySelectedRowsMenuItem);
+
+        pasteIntoSelectedRowsMenuItem.setText("Paste");
+        pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.pasteIntoSelectedTableRowsFromClipBoard();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(pasteIntoSelectedRowsMenuItem);
+
+
+        viewSelectedRowsMenuItem.setText("View Selected Rows");
+        viewSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.viewSelectedTableRows();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(viewSelectedRowsMenuItem);
+
+
+        matchingRowsMenuItem.setText("Select Matching Rows"); // NOI18N
+        matchingRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.highlightMatchingRows();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(matchingRowsMenuItem);
+
+        removeSelectedRowsMenuItem.setText("Remove Selected Rows");
+        removeSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.removeSelectedRowsFromTable();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(removeSelectedRowsMenuItem);
+
+        hideSelectedColumnsMenuItem.setText("Hide Selected Columns");
+        hideSelectedColumnsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.hideSelectedColumnsFromTable();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(hideSelectedColumnsMenuItem);
+
+        deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ImdiField[] selectedFields = currentTable.getSelectedFields();
+                    if (selectedFields != null) {
+//                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
+//                                  todo: the delete field action should also be available in the long field editor
+                        Hashtable<ImdiTreeObject, ArrayList> selectedFieldHashtable = new Hashtable<ImdiTreeObject, ArrayList>();
+                        for (ImdiField currentField : selectedFields) {
+                            ArrayList currentList = selectedFieldHashtable.get(currentField.parentImdi);
+                            if (currentList == null) {
+                                currentList = new ArrayList();
+                                selectedFieldHashtable.put(currentField.parentImdi, currentList);
+                            }
+                            currentList.add(currentField.fieldID);
+                        }
+                        for (ImdiTreeObject currentImdiObject : selectedFieldHashtable.keySet()) {
+                            currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                        }
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(deleteFieldMenuItem);
+
+        treePopupMenu.add(cellMenuDivider);
+        copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
+        copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    // TODO: change this to copy to selected rows
+                    if (!(currentTable.imdiTableModel.getValueAt(currentTable.getSelectedRow(), currentTable.getSelectedColumn()) instanceof ImdiField)) {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
+                    } else if (0 == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + currentTable.imdiTableModel.getColumnName(currentTable.getSelectedColumn()) + "\"\nwith the value \"" + currentTable.imdiTableModel.getValueAt(currentTable.getSelectedRow(), currentTable.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        currentTable.imdiTableModel.copyCellToColumn(currentTable.getSelectedRow(), currentTable.getSelectedColumn());
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(copyCellToColumnMenuItem);
+
+        matchingCellsMenuItem.setText("Highlight Matching Cells"); // NOI18N
+        matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.imdiTableModel.highlightMatchingCells(currentTable.getSelectedRow(), currentTable.getSelectedColumn());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(matchingCellsMenuItem);
+
+        clearCellColoursMenuItem.setText("Clear Cell Highlight"); // NOI18N
+        clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.imdiTableModel.clearCellColours();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(clearCellColoursMenuItem);
+        jumpToNodeInTreeMenuItem.setText("Jump to in Tree"); // NOI18N
+        jumpToNodeInTreeMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    TreeHelper.getSingleInstance().jumpToSelectionInTree(false, currentTable.getImdiNodeForSelection());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(jumpToNodeInTreeMenuItem);
+        //////////
     }
 
     private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -718,7 +925,7 @@ public class ContextMenu {
         }
     }
 
-    public void initAddMenu(javax.swing.JMenu addMenu, Object targetNodeUserObject) {
+    public void initAddMenu(JMenu addMenu, Object targetNodeUserObject) {
         addMenu.removeAll();
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
@@ -733,7 +940,7 @@ public class ContextMenu {
 //            System.out.println("ActionCommand: " + currentField[1]);
 
             JMenuItem addMenuItem;
-            addMenuItem = new javax.swing.JMenuItem();
+            addMenuItem = new JMenuItem();
             addMenuItem.setText(currentField[0]);
             addMenuItem.setName(currentField[0]);
             addMenuItem.setActionCommand(currentField[1]);
@@ -773,7 +980,7 @@ public class ContextMenu {
         historyMenu.removeAll();
         for (String[] currentHistory : leadSelectedTreeNode.getHistoryList()) {
             JMenuItem revertHistoryMenuItem;
-            revertHistoryMenuItem = new javax.swing.JMenuItem();
+            revertHistoryMenuItem = new JMenuItem();
             revertHistoryMenuItem.setText(currentHistory[0]);
             revertHistoryMenuItem.setName(currentHistory[0]);
             revertHistoryMenuItem.setActionCommand(currentHistory[1]);
@@ -801,7 +1008,7 @@ public class ContextMenu {
 //            System.out.println("ActionCommand: " + currentField[1]);
 
             JMenuItem addFavouriteMenuItem;
-            addFavouriteMenuItem = new javax.swing.JMenuItem();
+            addFavouriteMenuItem = new JMenuItem();
             addFavouriteMenuItem.setText(currentField[0]);
             addFavouriteMenuItem.setName(currentField[0]);
             addFavouriteMenuItem.setActionCommand(currentField[1]);
@@ -837,20 +1044,7 @@ public class ContextMenu {
     }
 
     public void showTreePopup(Object eventSource, int posX, int posY) {
-
-        boolean showContextMenu = true;
-        int selectionCount = ((javax.swing.JTree) eventSource).getSelectionCount();
-        int nodeLevel = -1;
-        if (selectionCount > 0) {
-            nodeLevel = ((javax.swing.JTree) eventSource).getSelectionPath().getPathCount();
-        }
-//        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
-        selectedTreeNodes = ((ImdiTree) eventSource).getSelectedNodes();
-        leadSelectedTreeNode = ((ImdiTree) eventSource).getLeadSelectionNode();
-        boolean showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
-        boolean showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
-        //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
-        // set up the contect menu
+        // set up the context menu
         removeCachedCopyMenuItem.setVisible(false);
         removeLocalDirectoryMenuItem.setVisible(false);
         addLocalDirectoryMenuItem.setVisible(false);
@@ -870,11 +1064,8 @@ public class ContextMenu {
         addDefaultLocationsMenuItem.setVisible(false);
         addMenu.setVisible(false);
         deleteMenuItem.setVisible(false);
-        deleteMenuItem.setEnabled(true);
         viewSelectedNodesMenuItem.setVisible(false);
-        viewSelectedNodesMenuItem.setText("View Selected");
         addFromFavouritesMenu.setVisible(false);
-        mergeWithFavouritesMenu.setEnabled(false);
         saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
         sendToServerMenuItem.setVisible(false);
@@ -882,6 +1073,88 @@ public class ContextMenu {
         historyMenu.setVisible(false);
         exportMenuItem.setVisible(false);
         importCsvMenuItem.setVisible(false);
+        addToFavouritesMenuItem.setVisible(false);
+        treePopupMenuSeparator1.setVisible(false);
+        treePopupMenuSeparator2.setVisible(false);
+        //////////
+        // table menu items
+        copySelectedRowsMenuItem.setVisible(false);
+        pasteIntoSelectedRowsMenuItem.setVisible(false);
+        viewSelectedRowsMenuItem.setVisible(false);
+        matchingRowsMenuItem.setVisible(false);
+        removeSelectedRowsMenuItem.setVisible(false);
+        hideSelectedColumnsMenuItem.setVisible(false);
+        deleteFieldMenuItem.setVisible(false);
+        copyCellToColumnMenuItem.setVisible(false);
+        matchingCellsMenuItem.setVisible(false);
+        clearCellColoursMenuItem.setVisible(false);
+        jumpToNodeInTreeMenuItem.setVisible(false);
+        cellMenuDivider.setVisible(false);
+        //////////
+
+        currentTable = null;
+        if (eventSource instanceof ImdiTable) {
+            currentTable = ((ImdiTable) eventSource);
+            selectedTreeNodes = currentTable.getSelectedRowsFromTable();
+            leadSelectedTreeNode = currentTable.getImdiNodeForSelection();
+//            selectionCount = selectedTreeNodes.length;
+            setupTableMenuItems();
+        } else if (eventSource instanceof JList) {
+            JList currentJList = ((JList) eventSource);
+            Object[] selectedObjects = currentJList.getSelectedValues();
+            selectedTreeNodes = new ImdiTreeObject[selectedObjects.length];
+            for (int objectCounter = 0; objectCounter < selectedObjects.length; objectCounter++) {
+                selectedTreeNodes[objectCounter] = (ImdiTreeObject) selectedObjects[objectCounter];
+            }
+            leadSelectedTreeNode = (ImdiTreeObject) currentJList.getSelectedValue();
+//            selectionCount = selectedTreeNodes.length;
+            setUpImagePreviewMenu();
+        } else if (eventSource instanceof ImdiTree) {
+
+            selectedTreeNodes = ((ImdiTree) eventSource).getSelectedNodes();
+            leadSelectedTreeNode = ((ImdiTree) eventSource).getLeadSelectionNode();
+            setUpTreeMenuItems(eventSource);
+        }
+        setCommonMenuItems();
+
+        if (eventSource instanceof Component) {
+            // store the event source
+            treePopupMenu.setInvoker((Component) eventSource);
+        }
+        // show the context menu
+        treePopupMenu.show((java.awt.Component) eventSource, posX, posY);
+        treePopupMenu.requestFocusInWindow();
+    }
+
+    private void setCommonMenuItems() {
+        if (leadSelectedTreeNode != null) {
+            // TODO: test that the node is editable
+            //if (leadSelectedTreeNode.is)
+            if (leadSelectedTreeNode.hasResource()) {
+                browseForResourceFileMenuItem.setVisible(true);
+            }
+            viewInBrrowserMenuItem.setVisible(true);
+        }
+    }
+
+    private void setUpTreeMenuItems(Object eventSource) {
+        int nodeLevel = -1;
+        int selectionCount = 0;
+//        boolean showContextMenu = true;
+        boolean showRemoveLocationsTasks = false;
+        boolean showAddLocationsTasks = false;
+        selectionCount = ((JTree) eventSource).getSelectionCount();
+        if (selectionCount > 0) {
+            nodeLevel = ((JTree) eventSource).getSelectionPath().getPathCount();
+        }
+        showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
+        showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
+//        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
+        //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
+
+        viewSelectedNodesMenuItem.setText("View Selected");
+        mergeWithFavouritesMenu.setEnabled(false);
+        deleteMenuItem.setEnabled(true);
 
         if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree) {
             removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
@@ -915,13 +1188,13 @@ public class ContextMenu {
                 historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
-                browseForResourceFileMenuItem.setVisible(leadSelectedTreeNode.hasResource());
+
                 // set up the favourites menu
                 addFromFavouritesMenu.setVisible(true);
             }
             //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
 //            addMenu.setEnabled(!nodeIsImdiChild);
-            showContextMenu = true; //nodeLevel != 1;
+//            showContextMenu = true; //nodeLevel != 1;
         }
         if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree) {
             removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
@@ -953,7 +1226,7 @@ public class ContextMenu {
         } else {
             addToFavouritesMenuItem.setVisible(false);
         }
-        viewInBrrowserMenuItem.setVisible(nodeLevel > 1);
+
         copyImdiUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1); // show the copy menu providing some nodes are selected and the root node is not the only one selected
 
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
@@ -962,17 +1235,50 @@ public class ContextMenu {
         // hide show the separators
         treePopupMenuSeparator2.setVisible(nodeLevel != 1 && showRemoveLocationsTasks && eventSource != TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree);
         treePopupMenuSeparator1.setVisible(nodeLevel != 1 && eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree);
+    }
 
-        // store the event source
-        treePopupMenu.setInvoker((javax.swing.JTree) eventSource);
-
-        // show the context menu
-        if (showContextMenu) {
-            if (eventSource instanceof Component) {
-                treePopupMenu.setInvoker((Component) eventSource);
+    private void setupTableMenuItems() {
+        if (currentTable != null) {
+            if (currentTable.getSelectedRow() != -1) {
+                copySelectedRowsMenuItem.setVisible(true);
+                pasteIntoSelectedRowsMenuItem.setVisible(true);
+                if (currentTable.imdiTableModel.horizontalView) {
+                    viewSelectedRowsMenuItem.setVisible(true);
+                    matchingRowsMenuItem.setVisible(true);
+                    removeSelectedRowsMenuItem.setVisible(true);
+                    hideSelectedColumnsMenuItem.setVisible(true);
+                }
+                boolean canDeleteSelectedFields = true;
+                ImdiField[] currentSelection = currentTable.getSelectedFields();
+                for (ImdiField currentField : currentSelection) {
+                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                        canDeleteSelectedFields = false;
+                        break;
+                    }
+                }
+                if (canDeleteSelectedFields && currentSelection.length > 0) {
+                    String menuText = "Delete " + currentSelection[0].getTranslateFieldName();
+                    if (currentSelection.length > 1) {
+                        menuText = menuText + " X " + currentSelection.length;
+                    }
+                    deleteFieldMenuItem.setText(menuText);
+                    deleteFieldMenuItem.setVisible(true);
+                }
             }
-            treePopupMenu.show((java.awt.Component) eventSource, posX, posY);
-            treePopupMenu.requestFocusInWindow();
+            if (currentTable.getSelectedRow() != -1 && currentTable.getSelectedColumn() != -1) {
+                // add a divider for the cell functions
+                cellMenuDivider.setVisible(true);
+                if (currentTable.imdiTableModel.horizontalView && currentTable.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+                    copyCellToColumnMenuItem.setVisible(true);
+                }
+                matchingCellsMenuItem.setVisible(true);
+                jumpToNodeInTreeMenuItem.setVisible(true);
+                clearCellColoursMenuItem.setVisible(true);
+            }
         }
+    }
+
+    private void setUpImagePreviewMenu() {
+
     }
 }
