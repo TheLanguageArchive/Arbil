@@ -728,12 +728,30 @@ public class TreeHelper {
         DefaultMutableTreeNode selectedTreeNode = null;
         DefaultMutableTreeNode parentTreeNode = null;
         if (sourceObject == arbilTreePanel.localCorpusTree) {
-            javax.swing.tree.TreePath currentNodePaths[] = ((ImdiTree) sourceObject).getSelectionPaths();
+            Vector<TreePath> appendedNodePaths = new Vector<TreePath>();
+            for (TreePath currentNodePath : ((ImdiTree) sourceObject).getSelectionPaths()) {
+                if (currentNodePath != null) {
+                    selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
+                    Object userObject = selectedTreeNode.getUserObject();
+                    if (userObject instanceof ImdiTreeObject) {
+                        if (((ImdiTreeObject) userObject).isMetaNode()) {
+                            Enumeration<DefaultMutableTreeNode> metaChildNodeEnum = selectedTreeNode.children();
+                            while (metaChildNodeEnum.hasMoreElements()) {
+                                appendedNodePaths.add(new TreePath(metaChildNodeEnum.nextElement().getPath()));
+                            }
+                        } else {
+                            appendedNodePaths.add(currentNodePath);
+                        }
+                    }
+                }
+            }
+            TreePath currentNodePaths[] = appendedNodePaths.toArray(new TreePath[]{});
+            // TODO: make a list of nodes to be deleted
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete " + currentNodePaths.length + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 Vector<ImdiTreeObject> imdiNodesToRemove = new Vector<ImdiTreeObject>();
                 Hashtable<ImdiTreeObject, Vector> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector>();
                 Hashtable<ImdiTreeObject, Vector> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector>();
-                for (javax.swing.tree.TreePath currentNodePath : currentNodePaths) {
+                for (TreePath currentNodePath : currentNodePaths) {
                     if (currentNodePath != null) {
                         selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                         Object userObject = selectedTreeNode.getUserObject();
