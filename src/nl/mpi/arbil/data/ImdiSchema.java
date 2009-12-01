@@ -222,8 +222,11 @@ public class ImdiSchema {
                 NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
                 LinorgVersion currentVersion = new LinorgVersion();
                 String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
+                if (!ArbilTemplateManager.getSingleInstance().defaultTemplateIsCurrentTemplate()) {
+                    arbilVersionString = arbilVersionString + ":" + ArbilTemplateManager.getSingleInstance().getCurrentTemplateName();
+                }
                 metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
-                metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+                //metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
                 metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
                 ImdiTreeObject.api.writeDOM(addedDocument, new File(addedPathUrl.getFile()), false);
             }
@@ -520,10 +523,19 @@ public class ImdiSchema {
                     if (archiveHandleAtt != null) {
                         parentNode.hasArchiveHandle = true;
                     }
-                    Node templateOriginatorAtt = attributesMap.getNamedItem("Type");
+                    Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
                     if (templateOriginatorAtt != null) {
                         String templateOriginator = templateOriginatorAtt.getNodeValue();
-                        parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator);
+                        int separatorIndex = templateOriginator.indexOf(":");
+                        if (separatorIndex > -1) {
+                            parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
+                        } else {
+                            Node templateTypeAtt = attributesMap.getNamedItem("Type");
+                            if (templateTypeAtt != null) {
+                                String templateType = templateTypeAtt.getNodeValue();
+                                parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                            }
+                        }
                     }
                 }// end get the xml node id
                 Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");

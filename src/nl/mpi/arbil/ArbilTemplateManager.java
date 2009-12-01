@@ -47,6 +47,10 @@ public class ArbilTemplateManager {
         return currentTemplateFile;
     }
 
+    public boolean defaultTemplateIsCurrentTemplate() {
+        return defaultArbilTemplateName.equals(builtInTemplates[0]);
+    }
+
     public String getCurrentTemplateName() {
         return defaultArbilTemplateName;
     }
