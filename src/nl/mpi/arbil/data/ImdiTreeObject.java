@@ -30,6 +30,7 @@ import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import mpi.util.URIUtil;
 
 /**
  * Document   : ImdiTreeObject
@@ -85,7 +86,7 @@ public class ImdiTreeObject implements Comparable {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         containersOfThisNode = new Vector<Component>();
         addQueue = new Vector<String[]>();
-        nodeUri = localUri; 
+        nodeUri = localUri;
         initNodeVariables();
     }
 
@@ -1542,7 +1543,7 @@ public class ImdiTreeObject implements Comparable {
 //                return lastNodeText;
 //            } else {asdasdasd
 ////                if (nodeText != null && nodeText.length() > 0) {
-                return lastNodeText;
+            return lastNodeText;
 //            }
         }
 //        String nameText = "";
@@ -1729,13 +1730,25 @@ public class ImdiTreeObject implements Comparable {
      * @return The path to remote resource if it exists.
      */
     public URI getFullResourceURI() {
-        String targetUrlString = resourceUrlField.fieldValue;
-//        boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
-//        if (!urlIsComplete || targetUrlString.startsWith(".")) {
-//            targetUrlString = this.getParentDirectory() + targetUrlString;
-//            //targetUrlString = targetUrlString.replace("/./", "/");
-//        }
-        return nodeUri.resolve(targetUrlString).normalize();
+        try {
+            String targetUrlString = resourceUrlField.fieldValue;
+//            boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
+//            if (!urlIsComplete || targetUrlString.startsWith(".")) {
+//                targetUrlString = this.getParentDirectory() + targetUrlString;
+//                //targetUrlString = targetUrlString.replace("/./", "/");
+//            }
+//            ;
+//            System.out.println("URIUtil: " + URIUtil.newURI(targetUrlString));
+//            System.out.println("resourceUri: " + targetUrlString);
+//            System.out.println("nodeUri: " + nodeUri);
+//            URI resourceUri = new URI(targetUrlString);
+//            System.out.println("resourceUri: " + resourceUri);
+            return nodeUri.resolve(URIUtil.newURI(targetUrlString)).normalize();
+        } catch (Exception urise) {
+            GuiHelper.linorgBugCatcher.logError(urise);
+            System.out.println("URISyntaxException: " + urise.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -1921,23 +1934,23 @@ public class ImdiTreeObject implements Comparable {
         // here we need to cause an update in the tree and table gui so that the new icon can be loaded
         for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
             try { // TODO: the need for this try catch indicates that there is a threading issue in the way that imdichild nodes are reloaded within an imdi parent node and this should be reorganised to be more systematic and hierarchical
-            Object currentContainer = containersIterator.nextElement();
+                Object currentContainer = containersIterator.nextElement();
 //                    System.out.println("currentContainer: " + currentContainer.toString());
-            if (currentContainer instanceof ImdiTableModel) {
-                ((ImdiTableModel) currentContainer).requestReloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
-            }
-            if (currentContainer instanceof ImdiChildCellEditor) {
-                ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
-            }
-            if (currentContainer instanceof DefaultMutableTreeNode) {
-                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                if (parentNode != null) {
-                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
-                } else {
-                    TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
+                if (currentContainer instanceof ImdiTableModel) {
+                    ((ImdiTableModel) currentContainer).requestReloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
                 }
-            }
+                if (currentContainer instanceof ImdiChildCellEditor) {
+                    ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
+                }
+                if (currentContainer instanceof DefaultMutableTreeNode) {
+                    DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
+                    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
+                    if (parentNode != null) {
+                        TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+                    } else {
+                        TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
+                    }
+                }
             } catch (java.util.NoSuchElementException ex) {
                 //GuiHelper.linorgBugCatcher.logError(ex);
             }
