@@ -79,6 +79,7 @@ public class ImdiTree extends JTree {
                     TreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 }
             }
+
             public void treeCollapsed(javax.swing.event.TreeExpansionEvent evt) {
             }
         });
@@ -259,7 +260,7 @@ public class ImdiTree extends JTree {
                         copiedNodeUrls = copiedNodeUrls.concat("\n");
                     }
                     if (currentNode.hasResource()) {
-                        copiedNodeUrls = copiedNodeUrls.concat(currentNode.getFullResourcePath());
+                        copiedNodeUrls = copiedNodeUrls.concat(currentNode.getFullResourceURI().toString());
                     } else {
                         copiedNodeUrls = copiedNodeUrls.concat(currentNode.getUrlString());
                     }

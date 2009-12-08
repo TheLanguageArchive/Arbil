@@ -6,8 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -23,7 +22,7 @@ import nl.mpi.arbil.data.ImdiLoader;
 public class MimeHashQueue {
     // stored across sessions
 
-    private Hashtable<String, Long> processedFilesMTimes; // make this a vector and maybe remove or maybe make file path and file mtime
+    private Hashtable/*<String, Long>*/ processedFilesMTimes; // make this a vector and maybe remove or maybe make file path and file mtime
     private Hashtable<String, String[]> knownMimeTypes; // imdi path/file path, mime type : maybe sould only be file path
     private Hashtable<String, Vector<String>> md5SumToDuplicates;
     private Hashtable<String, String> pathToMd5Sums;
@@ -70,37 +69,36 @@ public class MimeHashQueue {
                             checkServerPermissions(currentImdiObject);
                         } else {
 //                        System.out.println("MimeHashQueue checking: " + currentImdiObject);
-                            String currentPathString = getFilePath(currentImdiObject);
-                            if (currentPathString != null && currentPathString.length() > 0) {
-                                try {
-                                    URL currentNodeUrl = new URL(currentPathString);
-                                    // check if this file has been process before and then check its mtime
-                                    File currentFile = new File(currentNodeUrl.getFile());
-                                    if (currentFile.exists()) {
-                                        long previousMTime = 0;
-                                        if (processedFilesMTimes.containsKey(currentPathString)) {
-                                            previousMTime = processedFilesMTimes.get(currentPathString);
-                                        }
-                                        long currentMTime = currentFile.lastModified();
-//                                System.out.println("run MimeHashQueue mtime: " + currentPathString);
-                                        String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathString);
-                                        if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
-//                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
-                                            currentImdiObject.setMimeType(getMimeType(currentNodeUrl, currentPathString));
-                                            currentImdiObject.hashString = getHash(currentNodeUrl, currentPathString);
-                                            processedFilesMTimes.put(currentPathString, currentMTime); // avoid issues of the file being modified between here and the last mtime check
-                                            changedSinceLastSave = true;
-                                        } else {
-                                            currentImdiObject.hashString = pathToMd5Sums.get(currentPathString);
-                                            currentImdiObject.setMimeType(lastCheckedMimeArray);
-                                        }
-                                        updateAutoFields(currentImdiObject, currentFile);
-                                        updateImdiIconsToMatchingFileNodes(currentPathString); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
+                            URI currentPathURI = getNodeURI(currentImdiObject);
+                            if (currentPathURI != null && currentPathURI.toString().length() > 0) {
+//                                try {
+                                // check if this file has been process before and then check its mtime
+                                File currentFile = new File(currentPathURI);
+                                if (currentFile.exists()) {
+                                    long previousMTime = 0;
+                                    if (processedFilesMTimes.containsKey(currentPathURI.toString())) {
+                                        previousMTime = (Long) processedFilesMTimes.get(currentPathURI.toString());
                                     }
-                                } catch (MalformedURLException e) {
-                                    //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
-                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
-                                }
+                                    long currentMTime = currentFile.lastModified();
+//                                System.out.println("run MimeHashQueue mtime: " + currentPathString);
+                                    String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathURI.toString());
+                                    if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
+//                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
+                                        currentImdiObject.setMimeType(getMimeType(currentPathURI));
+                                        currentImdiObject.hashString = getHash(currentPathURI, currentImdiObject.getURI());
+                                        processedFilesMTimes.put(currentPathURI.toString(), currentMTime); // avoid issues of the file being modified between here and the last mtime check
+                                        changedSinceLastSave = true;
+                                    } else {
+                                        currentImdiObject.hashString = pathToMd5Sums.get(currentPathURI.toString());
+                                        currentImdiObject.setMimeType(lastCheckedMimeArray);
+                                    }
+                                    updateAutoFields(currentImdiObject, currentFile);
+                                    updateImdiIconsToMatchingFileNodes(currentPathURI); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
+                                    }
+//                                } catch (MalformedURLException e) {
+//                                    //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
+//                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
+//                                }
                             }
                         }
 //                        currentImdiObject.updateLoadingState(-1); // Loading state change dissabled due to performance issues when offline
@@ -133,16 +131,16 @@ public class MimeHashQueue {
     private void loadMd5sumIndex() {
         System.out.println("MimeHashQueue loadMd5sumIndex");
         try {
-            knownMimeTypes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("knownMimeTypesV2");
-            pathToMd5Sums = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("pathToMd5Sums");
-            processedFilesMTimes = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("processedFilesMTimeV2");
-            md5SumToDuplicates = (Hashtable) LinorgSessionStorage.getSingleInstance().loadObject("md5SumToDuplicates");
+            knownMimeTypes = (Hashtable<String, String[]>) LinorgSessionStorage.getSingleInstance().loadObject("knownMimeTypesV2");
+            pathToMd5Sums = (Hashtable<String, String>) LinorgSessionStorage.getSingleInstance().loadObject("pathToMd5Sums");
+            md5SumToDuplicates = (Hashtable<String, Vector<String>>) LinorgSessionStorage.getSingleInstance().loadObject("md5SumToDuplicates");
+            processedFilesMTimes = (Hashtable/*<String, Long>*/) LinorgSessionStorage.getSingleInstance().loadObject("processedFilesMTimesV2");
             System.out.println("loaded md5 and mime from disk");
         } catch (Exception ex) {
-            knownMimeTypes = new Hashtable();
-            pathToMd5Sums = new Hashtable();
-            processedFilesMTimes = new Hashtable();
-            md5SumToDuplicates = new Hashtable();
+            knownMimeTypes = new Hashtable<String, String[]>();
+            pathToMd5Sums = new Hashtable<String, String>();
+            processedFilesMTimes = new Hashtable/*<String, Long>*/();
+            md5SumToDuplicates = new Hashtable<String, Vector<String>>();
             System.out.println("load loadMd5sumIndex failed: " + ex.getMessage());
         }
     }
@@ -208,12 +206,12 @@ public class MimeHashQueue {
         }
     }
 
-    private void updateImdiIconsToMatchingFileNodes(String currentPathString) {//for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
+    private void updateImdiIconsToMatchingFileNodes(URI currentPathURI) {//for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
         int matchesInCache = 0;
         int matchesLocalFileSystem = 0;
         int matchesRemote = 0;
         // get the md5sum from the path
-        String currentMd5Sum = pathToMd5Sums.get(currentPathString);
+        String currentMd5Sum = pathToMd5Sums.get(currentPathURI.toString());
         if (currentMd5Sum != null) {
             // loop the paths for the md5sum
             Vector<String> duplicatesPaths = md5SumToDuplicates.get(currentMd5Sum);
@@ -221,10 +219,10 @@ public class MimeHashQueue {
             for (Enumeration<String> duplicatesPathEnum = duplicatesPaths.elements(); duplicatesPathEnum.hasMoreElements();) {
                 String currentDupPath = duplicatesPathEnum.nextElement();
                 try {
-                    File currentFile = new File(new URL(currentDupPath).getFile());
+                    File currentFile = new File(new URI(currentDupPath));
                     if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
                         // get the currently loaded imdiobjects for the paths
-                        ImdiTreeObject currentImdiObject = ImdiLoader.getSingleInstance().getImdiObjectOnlyIfLoaded(currentDupPath);
+                        ImdiTreeObject currentImdiObject = ImdiLoader.getSingleInstance().getImdiObjectOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
                         if (currentImdiObject != null) {
                             relevantImdiObjects.add(currentImdiObject);
                         }
@@ -249,7 +247,7 @@ public class MimeHashQueue {
         }
     }
 
-    private String[] getMimeType(URL fileUrl, String nodePath) {
+    private String[] getMimeType(URI fileUri) {
 //        System.out.println("getMimeType: " + fileUrl);
         String mpiMimeType;
         String typeCheckerMessage;
@@ -259,32 +257,33 @@ public class MimeHashQueue {
         mpiMimeType = null;//"unreadable";
         typeCheckerMessage = null;
         boolean deep = false;
-        if (!new File(fileUrl.getFile()).exists()) {
+        if (!new File(fileUri).exists()) {
 //            System.out.println("File does not exist: " + fileUrl);
         } else {
             try {
                 // this will choke on strings that look url encoded but are not. because it erroneously decodes them
-                InputStream inputStream = fileUrl.openStream();
+                InputStream inputStream = fileUri.toURL().openStream();
                 if (inputStream != null) {
-                    String pamperUrl = fileUrl.getFile().replace("//", "/");
+//                    String pamperUrl = fileUrl.getFile().replace("//", "/");
+                    // Node that the type checker will choke if the path includes "//"
                     if (deep) {
-                        typeCheckerMessage = deepFileType.checkStream(inputStream, pamperUrl);
+                        typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
                     } else {
-                        typeCheckerMessage = fileType.checkStream(inputStream, pamperUrl);
+                        typeCheckerMessage = fileType.checkStream(inputStream, fileUri.toString());
                     }
 //                    System.out.println("mpiMimeType: " + typeCheckerMessage);
                 }
                 mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(typeCheckerMessage);
             } catch (Exception ioe) {
 //                GuiHelper.linorgBugCatcher.logError(ioe);
-                System.out.println("Cannot read file at URL: " + fileUrl + " ioe: " + ioe.getMessage());
+                System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
             }
             System.out.println(mpiMimeType);
         }
         String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
         // if non null then it is an archivable file type
 //        if (mpiMimeType != null) {
-        knownMimeTypes.put(nodePath, resultArray);
+        knownMimeTypes.put(fileUri.toString(), resultArray);
 //        } else {
         // because the api uses null to indicate non archivable we cant return other strings
         //knownMimeTypes.put(filePath, "nonarchivable");
@@ -292,8 +291,9 @@ public class MimeHashQueue {
         return resultArray;
     }
 
-    private String getHash(URL fileUrl, String nodePath) {
-//        System.out.println("getHash: " + fileUrl);
+    private String getHash(URI fileUri, URI nodeUri) {
+        long startTime = System.currentTimeMillis();
+        System.out.println("getHash: " + fileUri);
 //        File targetFile = new URL(filePath).getFile();
         String hashString = null;
         // TODO: add hashes for session links 
@@ -301,12 +301,18 @@ public class MimeHashQueue {
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             StringBuffer hexString = new StringBuffer();
-            FileInputStream is = new FileInputStream(fileUrl.getFile());
+            FileInputStream is = new FileInputStream(new File(fileUri));
             byte[] buff = new byte[1024];
             byte[] md5sum;
             int i = 0;
             while ((i = is.read(buff)) > 0) {
                 digest.update(buff, 0, i);
+                long downloadDelay = System.currentTimeMillis() - startTime;
+//                System.out.println("Download delay: " + downloadDelay);
+                if (downloadDelay > 100) {
+                    throw new Exception("reading file for md5sum is taking too long (" + downloadDelay + ") skipping the file: " + fileUri);
+                }
+                startTime = System.currentTimeMillis();
             }
             md5sum = digest.digest();
             for (i = 0; i < md5sum.length; ++i) {
@@ -326,16 +332,16 @@ public class MimeHashQueue {
 
 //        String filePath = fileUrl.getPath();
         if (hashString != null) {
-            pathToMd5Sums.put(nodePath, hashString);
+            pathToMd5Sums.put(fileUri.toString(), hashString);
             Object matchingNodes = md5SumToDuplicates.get(hashString);
             if (matchingNodes != null) {
 //                        debugOut("checking vector for: " + hashString);
-                if (!((Vector) matchingNodes).contains(nodePath)) {
+                if (!((Vector) matchingNodes).contains(nodeUri.toString())) {
 //                            debugOut("adding to vector: " + hashString);
                     Enumeration otherNodesEnum = ((Vector) matchingNodes).elements();
                     while (otherNodesEnum.hasMoreElements()) {
                         Object currentElement = otherNodesEnum.nextElement();
-                        Object currentNode = processedFilesMTimes.get(currentElement);
+                        Object currentNode = processedFilesMTimes.get(currentElement.toString());
                         if (currentNode instanceof ImdiTreeObject) {
                             //debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
                             // clear the icon of the other copies so that they will be updated to indicate the commonality
@@ -343,24 +349,24 @@ public class MimeHashQueue {
                             ((ImdiTreeObject) currentNode).clearIcon();
                         }
                     }
-                    ((Vector) matchingNodes).add(nodePath);
+                    ((Vector) matchingNodes).add(fileUri.toString());
                 }
             } else {
                 System.out.println("creating new vector for: " + hashString);
                 Vector nodeVector = new Vector();
-                nodeVector.add(nodePath);
+                nodeVector.add(nodeUri.toString());
                 md5SumToDuplicates.put(hashString, nodeVector);
             }
         }
 //            }
-//        System.out.println("hashString: " + hashString);
+        System.out.println("hashString: " + hashString);
         return hashString;
     }
 
     private void checkServerPermissions(ImdiTreeObject imdiObject) {
         try {
 //            System.out.println("imdiObject: " + imdiObject);
-            HttpURLConnection resourceConnection = (HttpURLConnection) new URL(imdiObject.getFullResourcePath()).openConnection();
+            HttpURLConnection resourceConnection = (HttpURLConnection) imdiObject.getFullResourceURI().toURL().openConnection();
 //            System.out.println("conn: " + resourceConnection.getURL());
             imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
             if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
@@ -374,11 +380,11 @@ public class MimeHashQueue {
         }
     }
 
-    private String getFilePath(ImdiTreeObject imdiObject) {
+    private URI getNodeURI(ImdiTreeObject imdiObject) {
         if (imdiObject.hasResource()) {
-            return imdiObject.getFullResourcePath();
+            return imdiObject.getFullResourceURI();
         } else {
-            return imdiObject.getUrlString();
+            return imdiObject.getURI();
         }
     }
 

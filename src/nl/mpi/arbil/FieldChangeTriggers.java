@@ -25,18 +25,20 @@ public class FieldChangeTriggers {
                 System.out.println("targetFieldPath: " + targetFieldPath);
                 ImdiField[] targetField = changedImdiField.getSiblingField(targetFieldPath);
                 ImdiVocabularies.VocabularyItem vocabItem = changedImdiField.getVocabulary().findVocabularyItem(changedImdiField.fieldValue);
-                String valueForTargetField = null;
-                if (currentTrigger[2].equals("Content")) {
-                    valueForTargetField = vocabItem.descriptionString;
-                } else if (currentTrigger[2].equals("Value")) {
-                    valueForTargetField = vocabItem.languageName;
-                } else if (currentTrigger[2].equals("Code")) {
-                    valueForTargetField = vocabItem.languageCode;
-                } else if (currentTrigger[2].equals("FollowUp")) {
-                    valueForTargetField = vocabItem.followUpVocabulary;
-                }
-                if (valueForTargetField != null) {
-                    targetField[0].setFieldValue(valueForTargetField, true, false);
+                if (vocabItem != null) {
+                    String valueForTargetField = null;
+                    if (currentTrigger[2].equals("Content")) {
+                        valueForTargetField = vocabItem.descriptionString;
+                    } else if (currentTrigger[2].equals("Value")) {
+                        valueForTargetField = vocabItem.languageName;
+                    } else if (currentTrigger[2].equals("Code")) {
+                        valueForTargetField = vocabItem.languageCode;
+                    } else if (currentTrigger[2].equals("FollowUp")) {
+                        valueForTargetField = vocabItem.followUpVocabulary;
+                    }
+                    if (valueForTargetField != null) {
+                        targetField[0].setFieldValue(valueForTargetField, true, false);
+                    }
                 }
             }
         }

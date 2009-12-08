@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import java.net.URI;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /*
@@ -9,6 +10,7 @@ import nl.mpi.arbil.data.ImdiLoader;
  */
 public class ArbilTableApplet extends javax.swing.JApplet {
 
+    @Override
     public void init() {
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
@@ -29,7 +31,11 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     private void addNodesToTable(String nodeURLsString) {
         if (nodeURLsString != null) {
             for (String currentUrlString : nodeURLsString.split(",")) {
-                imdiTableModel.addSingleImdiObject(ImdiLoader.getSingleInstance().getImdiObject(rootPane, currentUrlString));
+                try {
+                    imdiTableModel.addSingleImdiObject(ImdiLoader.getSingleInstance().getImdiObject(rootPane, new URI(currentUrlString)));
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         }
     }

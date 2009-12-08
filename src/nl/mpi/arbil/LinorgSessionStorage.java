@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
+import nl.mpi.arbil.importexport.ShibbolethNegotiator;
 
 /**
  * Document   : LinorgSessionStorage
@@ -311,7 +313,7 @@ public class LinorgSessionStorage {
         //TODO: There will need to be a way to expire the files in the cache.
         File cachePath = getSaveLocation(pathString);
         try {
-            saveRemoteResource(new URL(pathString), cachePath, expireCacheCopy, abortFlag);
+            saveRemoteResource(new URL(pathString), cachePath, null, expireCacheCopy, abortFlag);
         } catch (MalformedURLException mul) {
             GuiHelper.linorgBugCatcher.logError(mul);
         }
@@ -334,14 +336,14 @@ public class LinorgSessionStorage {
         return returnFile;
     }
 
-    public File getNewImdiFileName(File parentDirectory) {
+    public URI getNewImdiFileName(File parentDirectory) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         int fileCounter = 0;
         File returnFile = new File(parentDirectory, formatter.format(new Date()) + ".imdi");
         while (returnFile.exists()) {
             returnFile = new File(parentDirectory, formatter.format(new Date()) + (fileCounter++) + ".imdi");
         }
-        return returnFile;
+        return returnFile.toURI();
     }
 
     /**
@@ -369,8 +371,8 @@ public class LinorgSessionStorage {
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
      */
-    public void saveRemoteResource(URL targetUrl, File destinationFile, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
-//        String targetUrlString = getFullResourcePath();
+    public void saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+//        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
 //        System.out.println("saveRemoteResource: " + targetUrlString);
 //        System.out.println("destinationPath: " + destinationPath);
@@ -387,6 +389,9 @@ public class LinorgSessionStorage {
                 HttpURLConnection httpConnection = null;
                 if (urlConnection instanceof HttpURLConnection) {
                     httpConnection = (HttpURLConnection) urlConnection;
+                    if (shibbolethNegotiator != null) {
+                        httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
+                    }
                     //h.setFollowRedirects(false);
                     System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
                 }

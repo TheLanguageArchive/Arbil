@@ -338,7 +338,7 @@ public class ArbilDragDrop {
                     System.out.println("selectionContainsRemote");
                 }
                 if (currentDraggedObject.isImdi()) {
-                    if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
+                    if (currentDraggedObject.isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
                         selectionContainsImdiInCache = true;
                         System.out.println("selectionContainsImdiInCache");
                     }
@@ -458,7 +458,7 @@ public class ArbilDragDrop {
                                                 if (((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isFavorite()) {
                                                     //  continue here
                                                     ((ImdiTreeObject) dropTargetUserObject).requestAddNode(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]));
-                                                } else if (!LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile())) {
+                                                } else if (!(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile()))) {
                                                     importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
                                                 } else {
                                                     String targetNodeName;
@@ -482,7 +482,7 @@ public class ArbilDragDrop {
                                                         if (dropTargetUserObject instanceof ImdiTreeObject) {
                                                             addNodeResult = ((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter]);
                                                         } else {
-                                                            addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedImdiObjects[draggedCounter].getUrlString());
+                                                            addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedImdiObjects[draggedCounter].getURI());
                                                         }
                                                         if (addNodeResult) {
                                                             if (draggedTreeNodes[draggedCounter] != null) {

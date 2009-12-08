@@ -10,6 +10,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -201,7 +203,11 @@ public class LinorgWindowManager {
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
                 ImdiTreeObject[] imdiObjectsArray = new ImdiTreeObject[imdiURLs.size()];
                 for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
-                    imdiObjectsArray[arrayCounter] = (ImdiLoader.getSingleInstance().getImdiObject(null, imdiURLs.elementAt(arrayCounter).toString()));
+                    try {
+                        imdiObjectsArray[arrayCounter] = (ImdiLoader.getSingleInstance().getImdiObject(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
+                    } catch (URISyntaxException ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
                 }
                 openFloatingTable(imdiObjectsArray, currentWindowName);
                 //openFloatingTable(null, currentWindowName);
@@ -569,6 +575,18 @@ public class LinorgWindowManager {
         searchFrame.add(new ImdiNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
         imdiSplitPanel.setSplitDisplay();
         imdiSplitPanel.addFocusListener(searchFrame);
+    }
+
+    public ImdiTableModel openFloatingTableOnce(String[] rowNodesArray, String frameTitle) {
+        ImdiTreeObject[] tableNodes = new ImdiTreeObject[rowNodesArray.length];
+        for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
+            try {
+                tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter]));
+            } catch (URISyntaxException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+        return openFloatingTableOnce(tableNodes, frameTitle);
     }
 
     public ImdiTableModel openFloatingTableOnce(ImdiTreeObject[] rowNodesArray, String frameTitle) {

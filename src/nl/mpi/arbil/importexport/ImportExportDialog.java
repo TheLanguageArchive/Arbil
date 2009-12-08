@@ -61,6 +61,7 @@ public class ImportExportDialog {
     private JLabel progressFailedLabel;
     private JLabel progressXmlErrorsLabel;
     private JLabel resourceCopyErrorsLabel;
+    private JButton showInTableButton;
     String progressFoundLabelText = "Total Metadata Files Found: ";
     String progressProcessedLabelText = "Total Metadata Files Processed: ";
     String progressAlreadyInCacheLabelText = "Metadata Files already in Local Corpus: ";
@@ -83,6 +84,10 @@ public class ImportExportDialog {
     ImdiTreeObject destinationNode = null;
     File exportDestinationDirectory = null;
     DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
+    ShibbolethNegotiator shibbolethNegotiator = null;
+    Vector<String> validationErrors = new Vector<String>();
+    Vector<String> metaDataCopyErrors = new Vector<String>();
+    Vector<String> fileCopyErrors = new Vector<String>();
 
     private void setNodesPanel(ImdiTreeObject selectedNode, JPanel nodePanel) {
         JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
@@ -133,7 +138,7 @@ public class ImportExportDialog {
         if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Import")) {
             Vector importNodeVector = new Vector();
             for (File currentFile : fileChooser.getSelectedFiles()) {
-                ImdiTreeObject imdiToImport = ImdiLoader.getSingleInstance().getImdiObject(null, currentFile.getAbsolutePath());
+                ImdiTreeObject imdiToImport = ImdiLoader.getSingleInstance().getImdiObject(null, currentFile.toURI());
                 importNodeVector.add(imdiToImport);
             }
             copyToCache(importNodeVector);
@@ -395,6 +400,7 @@ public class ImportExportDialog {
         progressFailedLabel = new JLabel(progressFailedLabelText);
         progressXmlErrorsLabel = new JLabel(progressXmlErrorsLabelText);
         resourceCopyErrorsLabel = new JLabel(resourceCopyErrorsLabelText);
+        showInTableButton = new JButton("Show errors in table");
         diskSpaceLabel = new JLabel(diskFreeLabelText);
 
         progressAlreadyInCacheLabel.setForeground(Color.darkGray);
@@ -408,6 +414,7 @@ public class ImportExportDialog {
         bottomPanel.add(progressFailedLabel);
         bottomPanel.add(progressXmlErrorsLabel);
         bottomPanel.add(resourceCopyErrorsLabel);
+        bottomPanel.add(showInTableButton);
         bottomPanel.add(diskSpaceLabel);
 
 //        bottomPanel = new JPanel();
@@ -438,6 +445,29 @@ public class ImportExportDialog {
         showDetails(detailsCheckBox.isSelected()); // showDetails calls pack()
 
         searchDialog.setLocationRelativeTo(targetComponent);
+
+        showInTableButton.setEnabled(false);
+        showInTableButton.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (metaDataCopyErrors.size() > 0) {
+                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new String[]{}), progressFailedLabelText);
+                    }
+                    if (validationErrors.size() > 0) {
+                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(validationErrors.toArray(new String[]{}), progressXmlErrorsLabelText);
+                    }
+                    if (fileCopyErrors.size() > 0) {
+                        ImdiTableModel resourceFileErrorsTable = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new String[]{}), resourceCopyErrorsLabelText);
+                        //resourceFileErrorsTable.getFieldView().
+                        resourceFileErrorsTable.addChildTypeToDisplay("MediaFiles");
+                        resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
 
         startButton.addActionListener(new ActionListener() {
 
@@ -476,6 +506,7 @@ public class ImportExportDialog {
     private void setUItoRunningState() {
         stopButton.setEnabled(true);
         startButton.setEnabled(false);
+        showInTableButton.setEnabled(false);
         taskOutput.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         searchDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
     }
@@ -489,6 +520,7 @@ public class ImportExportDialog {
 //        progressLabel.setText("");
         stopButton.setEnabled(false);
         startButton.setEnabled(selectedNodes.size() > 0);
+        showInTableButton.setEnabled(validationErrors.size() > 0 || metaDataCopyErrors.size() > 0 || fileCopyErrors.size() > 0);
         // TODO: add a close button?
         stopSearch = false;
         downloadAbortFlag.abortDownload = false;
@@ -591,7 +623,7 @@ public class ImportExportDialog {
                     tempFileForValidator.deleteOnExit();
                     XsdChecker xsdChecker = new XsdChecker();
                     waitTillVisible();
-                    appendToTaskOutput("copying: ");
+//                    appendToTaskOutput("copying: ");
                     progressBar.setIndeterminate(true);
 //                    int[] childCount = countChildern();
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
@@ -604,9 +636,9 @@ public class ImportExportDialog {
                             getList.add(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
                             while (!stopSearch && getList.size() > 0) {
                                 String currentTarget = (String) getList.remove(0);
-                                appendToTaskOutput(currentTarget);
+//                                appendToTaskOutput(currentTarget);
                                 try {
-                                    appendToTaskOutput("connecting...");
+//                                    appendToTaskOutput("connecting...");
                                     OurURL inUrlLocal = new OurURL(currentTarget);
 //                                    String destinationPath;
                                     File destinationFile;// = new File(destinationPath);
@@ -620,11 +652,11 @@ public class ImportExportDialog {
                                         journalActionString = "export";
                                     }
 
-                                    appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
+//                                    appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
                                     OurURL destinationUrl = new OurURL(destinationFile.toURL());
 
                                     Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
-                                    appendToTaskOutput("getting links...");
+//                                    appendToTaskOutput("getting links...");
                                     IMDILink[] links;
                                     links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
 //                                        links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.CORPUS);
@@ -637,23 +669,26 @@ public class ImportExportDialog {
                                             } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
                                                 boolean resourceFileCopied = false;
                                                 if (copyFilesCheckBox.isSelected()) {
-                                                    appendToTaskOutput("getting resource file: " + links[linkCount].getType());
-                                                    resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
-                                                    resourceCopyOutput.append(currentLink + "\n");
+//                                                    appendToTaskOutput("getting resource file: " + links[linkCount].getType());
+//                                                    resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
+//                                                    resourceCopyOutput.append(currentLink + "\n");
                                                     File downloadFileLocation;
                                                     if (exportDestinationDirectory == null) {
                                                         downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, false, downloadAbortFlag);
                                                     } else {
                                                         downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, true, downloadAbortFlag);
+                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag);
                                                     }
                                                     resourceCopyOutput.append(downloadFileLocation + "\n");
                                                     if (downloadFileLocation.exists()) {
                                                         resourceFileCopied = true;
-                                                        resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
+                                                        //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
                                                     } else {
+                                                        resourceCopyOutput.append(currentTarget);
+                                                        resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
                                                         resourceCopyOutput.append("Failed" + "\n");
+                                                        fileCopyErrors.add(currentTarget);
                                                         resourceCopyErrors++;
                                                     }
                                                     resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
@@ -671,20 +706,32 @@ public class ImportExportDialog {
                                         totalExisting++;
                                     }
                                     if (destinationFile.exists() && !overwriteCheckBox.isSelected()) {
+                                        appendToTaskOutput(currentTarget);
+                                        appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
                                         appendToTaskOutput("this destination file already exists, skipping file");
                                     } else {
                                         if (replacingExitingFile) {
+                                            appendToTaskOutput(currentTarget);
+                                            appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
                                             appendToTaskOutput("replacing existing file...");
                                         } else {
-                                            appendToTaskOutput("saving to disk...");
+//                                            appendToTaskOutput("saving to disk...");
                                         }
                                         // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
                                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
                                         boolean removeIdAttributes = exportDestinationDirectory != null;
+                                        // TODO: bumpHistory();
+                                        ImdiTreeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(destinationFile.toURI());
+                                        if (destinationNode.getNeedsSaveToDisk()){
+                                            destinationNode.saveChangesToCache(true);
+                                        }
+                                        if (destinationNode.hasHistory()) {
+                                            destinationNode.bumpHistory();
+                                        }
                                         ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
                                         LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget, "", journalActionString);
                                         // validate the imdi file
-                                        appendToTaskOutput("validating");
+//                                        appendToTaskOutput("validating");
                                         String checkerResult;
                                         if (exportDestinationDirectory == null) {
                                             // when not exporting we need to remove the id attributes in order to validate the file
@@ -695,10 +742,13 @@ public class ImportExportDialog {
                                             checkerResult = xsdChecker.simpleCheck(destinationFile, currentTarget);
                                         }
                                         if (checkerResult != null) {
+                                            xmlOutput.append(currentTarget);
+                                            xmlOutput.append("destination path: " + destinationFile.getAbsolutePath());
                                             System.out.println("checkerResult: " + checkerResult);
                                             xmlOutput.append(checkerResult + "\n");
                                             xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
 //                                            appendToTaskOutput(checkerResult);
+                                            validationErrors.add(currentTarget);
                                             xsdErrors++;
                                         }
                                         // at this point the file should exist and not have been modified by the user
@@ -708,14 +758,15 @@ public class ImportExportDialog {
                                         // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
                                         //getHash(tempFile, this.getUrl());
                                         if (replacingExitingFile) {
-                                            appendToTaskOutput("reloading existing data");
-                                            ImdiLoader.getSingleInstance().requestReloadOnlyIfLoaded(destinationFile.getCanonicalPath());
+//                                            appendToTaskOutput("reloading existing data");
+                                            ImdiLoader.getSingleInstance().requestReloadOnlyIfLoaded(destinationFile.toURI());
                                         }
-                                        appendToTaskOutput("done");
+//                                        appendToTaskOutput("done");
                                     }
                                 } catch (Exception ex) {
                                     GuiHelper.linorgBugCatcher.logError(currentTarget, ex);
                                     totalErrors++;
+                                    metaDataCopyErrors.add(currentTarget);
                                     appendToTaskOutput("unable to process the file: " + currentTarget);
                                     System.out.println("Error getting links from: " + currentTarget);
                                 }
@@ -759,7 +810,7 @@ public class ImportExportDialog {
                             }
                             // add the completed node to the done list
                             File newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
-                            finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation.getCanonicalPath()));
+                            finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation.toURI()));
                         }
                     }
 
@@ -777,7 +828,7 @@ public class ImportExportDialog {
                                     destinationNode.addCorpusLink(currentFinishedNode);
                                 } else {
                                     // add the nodes to the local corpus root node here
-                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getUrlString())) {
+                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getURI())) {
                                         // alert the user when the node already exists and cannot be added again                                        
                                         finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
                                     }

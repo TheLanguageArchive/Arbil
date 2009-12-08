@@ -1,7 +1,8 @@
 package nl.mpi.arbil.data;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import nl.mpi.arbil.*;
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -118,7 +119,8 @@ public class ImdiLoader {
                                         ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList<ImdiTreeObject[]>();
                                         //getImdiObject/* this should not be used here because it will cause another thread to work on the node */
                                         // TODO: should this favourite node be loaded here? if so it must be done without the queue
-                                        ImdiTreeObject favouriteImdiNode = getImdiObjectWithoutLoading(favouriteUrlString);
+                                    try {
+                                        ImdiTreeObject favouriteImdiNode = getImdiObjectWithoutLoading(new URI(favouriteUrlString));
                                         nodesToMerge.add(new ImdiTreeObject[]{addedImdiObject, favouriteImdiNode});
                                         // add all the child node templates
                                         progressMonitor.setMaximum(addedImdiObject.getAllChildren().length * 3);
@@ -146,6 +148,9 @@ public class ImdiLoader {
                                             progressMonitor.setProgress(progressCounter++);
                                         }
 //                                        addedImdiObject.saveChangesToCache(true);
+                                    } catch (URISyntaxException ex) {
+                                        GuiHelper.linorgBugCatcher.logError(ex);
+                                    }
                                     } else {
                                         addedImdiObject.updateImdiFileNodeIds();
                                     }
@@ -192,11 +197,12 @@ public class ImdiLoader {
             if (currentFavChild.isMetaNode()) {
                 System.out.println("omitting: " + currentFavChild);
                 duplicateChildNodeStructure(currentFavChild, addedImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
-            } else {
+            } else if (currentFavChild.isImdi()) {
 //                                                    ImdiTreeObject addedChildImdiObjects = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
-                String addedChildImdiObjectPath = addedImdiObject.addChildNode(LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, addedImdiObject), addedImdiObject.getURL().getRef(), null, null);
+                String nodeType = addedImdiObject.getURI().getFragment();
+                URI addedChildImdiObjectURI = addedImdiObject.addChildNode(LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, addedImdiObject), nodeType, null, null);
                 //GuiHelper.imdiLoader.getImdiObject/* this should not be used here because it will cause another thread to work on the node */
-                ImdiTreeObject addedChildImdiObject = getImdiObjectWithoutLoading(addedChildImdiObjectPath);
+                ImdiTreeObject addedChildImdiObject = getImdiObjectWithoutLoading(addedChildImdiObjectURI);
                 allAddedNodes.add(addedChildImdiObject);
 //                imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedChildImdiObject});
                 nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
@@ -207,6 +213,8 @@ public class ImdiLoader {
 //                                                    }
                 progressMonitor.setProgress(nodesToMerge.size());
                 duplicateChildNodeStructure(currentFavChild, addedChildImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
+            } else {
+                System.out.println("omitting due to not being an imdi: " + currentFavChild);
             }
 //        Arrays.sort(allChildNodes, new Comparator() {
 //
@@ -250,25 +258,26 @@ public class ImdiLoader {
 //        localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
 //        return imdiHashTable.get(localUrlString);
 //    }
-    public ImdiTreeObject getImdiObjectWithoutLoading(String localUrlString) {
+    public ImdiTreeObject getImdiObjectWithoutLoading(URI localUri) {
+        localUri = localUri.normalize();
         ImdiTreeObject currentImdiObject = null;
-        if (localUrlString != null) {
+        if (localUri != null) {
             // correct any variations in the url string
-            localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
-            currentImdiObject = imdiHashTable.get(localUrlString);
+//            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
+            currentImdiObject = imdiHashTable.get(localUri.toString());
             if (currentImdiObject == null) {
 //                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
-                currentImdiObject = new ImdiTreeObject(localUrlString);
-                imdiHashTable.put(localUrlString, currentImdiObject);
+                currentImdiObject = new ImdiTreeObject(localUri);
+                imdiHashTable.put(localUri.toString(), currentImdiObject);
             }
         }
         return currentImdiObject;
     }
 
-    public ImdiTreeObject getImdiObject(Object registeringObject, String localUrlString) {// throws Exception {
+    public ImdiTreeObject getImdiObject(Object registeringObject, URI localUri) {// throws Exception {
         ImdiTreeObject currentImdiObject = null;
-        if (localUrlString != null && localUrlString.length() > 0) {
-            currentImdiObject = getImdiObjectWithoutLoading(localUrlString);
+        if (localUri != null && localUri.toString().length() > 0) {
+            currentImdiObject = getImdiObjectWithoutLoading(localUri);
             currentImdiObject.registerContainer(registeringObject);
 //            System.out.println(currentImdiObject.isImdiChild() + ", " + currentImdiObject.getParentDomNode().imdiDataLoaded + ", " + currentImdiObject.isLoading());
             if (!currentImdiObject.getParentDomNode().imdiDataLoaded && !currentImdiObject.isLoading()) {
@@ -293,19 +302,24 @@ public class ImdiLoader {
         return currentImdiObject;
     }
 
-    public void releaseImdiObject(String imdiUrlString) {
+    public void releaseImdiObject(URI localUri) {
+//        imdiHashTable.remove(imdiUrlString); // TODO: implement this so that imdi files are not held in memory for ever
+        localUri = localUri.normalize();
+        System.out.println("-imdiHashTable.size: " + imdiHashTable.size());
     }
 
     // return the node only if it has already been loaded otherwise return null
-    public ImdiTreeObject getImdiObjectOnlyIfLoaded(String imdiUrl) {
-        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        return imdiHashTable.get(localUrlString);
+    public ImdiTreeObject getImdiObjectOnlyIfLoaded(URI imdiUri) {
+//        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
+        imdiUri = imdiUri.normalize();
+        return imdiHashTable.get(imdiUri.toString());
     }
 
     // reload the node only if it has already been loaded otherwise ignore
-    public void requestReloadOnlyIfLoaded(String imdiUrl) {
-        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        ImdiTreeObject currentImdiObject = imdiHashTable.get(localUrlString);
+    public void requestReloadOnlyIfLoaded(URI imdiUri) {
+//        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
+        imdiUri = imdiUri.normalize();
+        ImdiTreeObject currentImdiObject = imdiHashTable.get(imdiUri.toString());
         if (currentImdiObject != null) {
             requestReload(currentImdiObject);
         }

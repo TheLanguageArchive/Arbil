@@ -237,29 +237,43 @@ public class GuiHelper {
         } else {
             try {
                 String osNameString = System.getProperty("os.name").toLowerCase();
-                String openCommand = "";
+//                String openCommand = "";
+                String fileString;
+                if (ImdiTreeObject.isStringLocal(targetUri.getScheme())) {
+                    fileString = new File(targetUri).getAbsolutePath();
+                } else {
+                    fileString = targetUri.toString();
+                }
+                Process launchedProcess = null;
+
                 if (osNameString.indexOf("windows") != -1 || osNameString.indexOf("nt") != -1) {
-                    openCommand = "cmd /c start ";
+//                    openCommand = "cmd /c start ";
+                    launchedProcess = Runtime.getRuntime().exec(new String[]{"cmd", "/c", "start", fileString});
                 }
                 if (osNameString.equals("windows 95") || osNameString.equals("windows 98")) {
-                    openCommand = "command.com /C start ";
+//                    openCommand = "command.com /C start ";
+                    launchedProcess = Runtime.getRuntime().exec(new String[]{"command.com", "/C", "start", fileString});
                 }
                 if (osNameString.indexOf("mac") != -1) {
-                    openCommand = "open ";
+//                    openCommand = "open ";
+                    launchedProcess = Runtime.getRuntime().exec(new String[]{"open", fileString});
                 }
                 if (osNameString.indexOf("linux") != -1) {
-                    openCommand = "gnome-open ";
+//                    openCommand = "gnome-open ";
+                    launchedProcess = Runtime.getRuntime().exec(new String[]{"gnome-open", fileString});
                 }
-                String execString = openCommand + targetUri;
-                System.out.println(execString);
-                Process launchedProcess = Runtime.getRuntime().exec(execString);
-                BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
-                String line;
-                while ((line = errorStreamReader.readLine()) != null) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(line, "Open In External Application");
-                    System.out.println("Launched process error stream: \"" + line + "\"");
+//                String execString = openCommand + targetUri.getPath();
+//                System.out.println(execString);
+//                Process launchedProcess = Runtime.getRuntime().exec(new String[]{openCommand, targetUri.getPath()});
+                if (launchedProcess != null) {
+                    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                    String line;
+                    while ((line = errorStreamReader.readLine()) != null) {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(line, "Open In External Application");
+                        System.out.println("Launched process error stream: \"" + line + "\"");
+                    }
+                    result = true;
                 }
-                result = true;
             } catch (Exception e) {
                 e.printStackTrace();
             }

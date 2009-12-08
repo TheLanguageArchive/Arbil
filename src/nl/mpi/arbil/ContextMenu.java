@@ -46,6 +46,7 @@ public class ContextMenu {
     private JMenuItem deleteMenuItem;
     private JMenuItem exportMenuItem;
     private JMenuItem importCsvMenuItem;
+    private JMenuItem importBranchMenuItem;
 //    private JMenu favouritesMenu;
     private JMenu mergeWithFavouritesMenu;
     private JMenuItem pasteMenuItem1;
@@ -132,6 +133,7 @@ public class ContextMenu {
         sendToServerMenuItem = new JMenuItem();
         exportMenuItem = new JMenuItem();
         importCsvMenuItem = new JMenuItem();
+        importBranchMenuItem = new JMenuItem();
         //////////
         // table menu items
         copySelectedRowsMenuItem = new JMenuItem();
@@ -612,6 +614,22 @@ public class ContextMenu {
 
         treePopupMenu.add(importCsvMenuItem);
 
+        importBranchMenuItem.setText("Import Branch");
+        importBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
+                    importExportDialog.setDestinationNode(leadSelectedTreeNode);
+                    importExportDialog.importImdiBranch();
+
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(importBranchMenuItem);
+
         //////////
         // table menu items
         copySelectedRowsMenuItem.setText("Copy");
@@ -803,13 +821,7 @@ public class ContextMenu {
         fc.setDialogTitle("Add Working Directory");
         int option = fc.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
         if (JFileChooser.APPROVE_OPTION == option) {
-            try {
-                TreeHelper.getSingleInstance().addLocationGui(fc.getSelectedFile().getCanonicalPath());
-
-            } catch (IOException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
-//            System.out.println("Error adding location: " + ex.getMessage());
-            }
+            TreeHelper.getSingleInstance().addLocationGui(fc.getSelectedFile().toURI());
         }
     }
 
@@ -819,7 +831,7 @@ public class ContextMenu {
         String addableLocation = (String) JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
         if ((addableLocation != null) && (addableLocation.length() > 0)) {
-            TreeHelper.getSingleInstance().addLocationGui(addableLocation);
+            TreeHelper.getSingleInstance().addLocationGui(ImdiTreeObject.conformStringToUrl(addableLocation));
         }
     }//GEN-LAST:event_addRemoteCorpusMenuItemActionPerformed
 
@@ -905,23 +917,13 @@ public class ContextMenu {
 
     private void openFileInBrowser(ImdiTreeObject[] selectedNodes) {
         for (ImdiTreeObject currentNode : selectedNodes) {
-            try {
-                URI targetUri = null;
-                if (currentNode.hasResource()) {
-                    targetUri = new File(new URL(currentNode.getFullResourcePath()).getFile()).toURI(); // this is convoluted but is needed to remove the white space otherwise this breaks on mac
-                } else {
-                    if (currentNode.isLocal()) {
-                        targetUri = currentNode.getFile().toURI(); // file to uri is the only way to reliably get the uri on 1.4 otherwise the white space will cause an error
-                    } else {
-                        targetUri = currentNode.getURL().toURI();
-                    }
-                }
-                GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
-            } catch (URISyntaxException usE) {
-                GuiHelper.linorgBugCatcher.logError(usE);
-            } catch (MalformedURLException usE) {
-                GuiHelper.linorgBugCatcher.logError(usE);
+            URI targetUri = null;
+            if (currentNode.hasResource()) {
+                targetUri = currentNode.getFullResourceURI();
+            } else {
+                targetUri = currentNode.getURI();
             }
+            GuiHelper.getSingleInstance().openFileInExternalApplication(targetUri);
         }
     }
 
@@ -1017,7 +1019,7 @@ public class ContextMenu {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     try {
                         String imdiFavouriteUrlString = evt.getActionCommand();
-                        ImdiTreeObject templateImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, imdiFavouriteUrlString);
+                        ImdiTreeObject templateImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, ImdiTreeObject.conformStringToUrl(imdiFavouriteUrlString));
                         if (leadSelectedTreeNode != null) {
                             leadSelectedTreeNode.requestAddNode(((JMenuItem) evt.getSource()).getText(), templateImdiObject);
                         }
@@ -1073,6 +1075,7 @@ public class ContextMenu {
         historyMenu.setVisible(false);
         exportMenuItem.setVisible(false);
         importCsvMenuItem.setVisible(false);
+        importBranchMenuItem.setVisible(false);
         addToFavouritesMenuItem.setVisible(false);
         treePopupMenuSeparator1.setVisible(false);
         treePopupMenuSeparator2.setVisible(false);
@@ -1188,6 +1191,7 @@ public class ContextMenu {
                 historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
+                importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
 
                 // set up the favourites menu
                 addFromFavouritesMenu.setVisible(true);
@@ -1279,6 +1283,5 @@ public class ContextMenu {
     }
 
     private void setUpImagePreviewMenu() {
-
     }
 }

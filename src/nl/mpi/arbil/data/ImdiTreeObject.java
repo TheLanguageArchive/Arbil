@@ -14,7 +14,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +58,7 @@ public class ImdiTreeObject implements Comparable {
     private boolean needsSaveToDisk;
     private String nodeText, lastNodeText = "loading imdi...";
 //    private boolean nodeTextChanged = false;
-    private URL nodeUrl;
+    private URI nodeUri;
     public ImdiField resourceUrlField;
     public boolean isDirectory;
     private ImageIcon icon;
@@ -80,11 +81,11 @@ public class ImdiTreeObject implements Comparable {
     public File thumbnailFile = null;
     private final Object domLockObject = new Object();
 
-    protected ImdiTreeObject(String localUrlString) {
+    protected ImdiTreeObject(URI localUri) {
 //        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
         containersOfThisNode = new Vector<Component>();
         addQueue = new Vector<String[]>();
-        nodeUrl = conformStringToUrl(localUrlString);
+        nodeUri = localUri; 
         initNodeVariables();
     }
 
@@ -95,14 +96,15 @@ public class ImdiTreeObject implements Comparable {
         }
     }
 
-    static public URL conformStringToUrl(String inputUrlString) {
-        URL returnUrl = null;
+    static public URI conformStringToUrl(String inputUrlString) {
+//        System.out.println("conformStringToUrl in: " + inputUrlString);
+        URI returnUrl = null;
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
             if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:")) {
-                returnUrl = new File(inputUrlString).toURL();
+                returnUrl = new File(inputUrlString).toURI();
             } else {
-                returnUrl = new URL(inputUrlString);
+                returnUrl = new URI(inputUrlString);
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -119,7 +121,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     static public boolean isStringLocal(String urlString) {
-        return (!urlString.startsWith("http:"));
+        return (!urlString.startsWith("http"));
     }
 
     static public boolean isStringImdiHistoryFile(String urlString) {
@@ -138,7 +140,7 @@ public class ImdiTreeObject implements Comparable {
 
     static public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
         ImdiTreeObject imdiTreeObject;
-        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation("")).getAbsolutePath());
+        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation("")));
         imdiTreeObject.requestAddNode(nodeType, nodeTypeDisplayName);
     }
     // end static methods for testing imdi file and object types
@@ -226,7 +228,7 @@ public class ImdiTreeObject implements Comparable {
         icon = null;
         nodeEnabled = true;
 //        isLoadingCount = true;
-        if (nodeUrl != null) {
+        if (nodeUri != null) {
             if (!isImdi() && isLocal()) {
                 File fileObject = getFile();
                 if (fileObject != null) {
@@ -236,7 +238,8 @@ public class ImdiTreeObject implements Comparable {
                     try {
                         int currentFieldId = 1;
                         nodeText = fileObject.getName();
-                        ImdiField sizeField = new ImdiField(this, "Size", (fileObject.length() / 1024) + "KB");
+                        // TODO move this to the mime hash queue
+                        ImdiField sizeField = new ImdiField(this, "Size", "");
                         sizeField.fieldID = "x" + currentFieldId++;
                         addField(sizeField);
                         // add the modified date
@@ -283,7 +286,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     synchronized public void loadImdiDom() {
-        System.out.println("loadImdiDom: " + this.getFile().getName());
+        System.out.println("loadImdiDom: " + nodeUri.toString());
         if (getParentDomNode() != this) {
             getParentDomNode().loadImdiDom();
         } else {
@@ -309,14 +312,14 @@ public class ImdiTreeObject implements Comparable {
                             // TODO: resolve why this is not functioning, till then the subsequent stanza is used
                             try {
                                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                                nodDom = builder.parse(nodeUrl.openStream());
+                                nodDom = builder.parse(nodeUri.toURL().openStream());
                             } catch (Exception ex) {
                                 GuiHelper.linorgBugCatcher.logError(ex);
 //                    System.out.println("Could not parse dom: " + this.getUrlString());
                             }
                         } else {
                             OurURL inUrlLocal = null;
-                            inUrlLocal = new OurURL(this.getUrlString());
+                            inUrlLocal = new OurURL(nodeUri.toURL());
                             nodDom = api.loadIMDIDocument(inUrlLocal, false);
                             if (this.isLocal() && this.getFile().exists() && nodDom == null) { // if the file is local and the file exits then the we sould be able to expect the api to open the file so warn the user that something unusal occured
                                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The IMDI API could not load the file\n" + this.getUrlString(), "Load IMDI File");
@@ -411,26 +414,34 @@ public class ImdiTreeObject implements Comparable {
 //            }
 //        }
     private void getDirectoryLinks() {
-        String[] dirLinkArray = null;
+        File[] dirLinkArray = null;
         File nodeFile = this.getFile();
-        dirLinkArray = nodeFile.list();
-        Vector<ImdiTreeObject> childLinksTemp = new Vector<ImdiTreeObject>();
-        for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
-            String currentLink = this.getUrlString() + File.separatorChar + dirLinkArray[linkCount];
-//            System.out.println("currentLink: " + currentLink);
-            ImdiTreeObject currentImdi = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentLink);
-            if (TreeHelper.getSingleInstance().showHiddenFilesInTree || !currentImdi.getFile().isHidden()) {
-                childLinksTemp.add(currentImdi);
+        if (nodeFile != null) {
+            dirLinkArray = nodeFile.listFiles();
+            Vector<ImdiTreeObject> childLinksTemp = new Vector<ImdiTreeObject>();
+            for (int linkCount = 0; linkCount < dirLinkArray.length; linkCount++) {
+                try {
+//                    System.out.println("nodeFile: " + nodeFile);
+//                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
+                    URI childURI = dirLinkArray[linkCount].toURI();
+                    ImdiTreeObject currentImdi = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(childURI);
+                    if (TreeHelper.getSingleInstance().showHiddenFilesInTree || !currentImdi.getFile().isHidden()) {
+                        childLinksTemp.add(currentImdi);
+                    }
+                } catch (Exception ex) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + nodeUri.toString(), "Load Directory");
+                    new LinorgBugCatcher().logError(ex);
+                }
             }
+            //childLinks = childLinksTemp.toArray(new String[][]{});
+            childArray = childLinksTemp.toArray(new ImdiTreeObject[]{});
         }
-        //childLinks = childLinksTemp.toArray(new String[][]{});
-        childArray = childLinksTemp.toArray(new ImdiTreeObject[]{});
     }
 
 //    private void getImdiLinks(Document nodDom) {
 //        try {
 //            if (nodDom != null) {
-//                OurURL baseURL = new OurURL(this.getUrlString());
+//                OurURL baseURL = new OurURL(nodeUri.toURL());
 ////                debugOut("getIMDILinks");
 //                IMDILink[] links = api.getIMDILinks(nodDom, baseURL, WSNodeType.CORPUS);
 ////                debugOut("links.length: " + links.length);
@@ -603,20 +614,20 @@ public class ImdiTreeObject implements Comparable {
      * Add a new node based on a template and optionally attach a resource
      * @return String path to the added node
      */
-    public String addChildNode(String nodeType, String targetXmlPath, String resourcePath, String mimeType) {
+    public URI addChildNode(String nodeType, String targetXmlPath, String resourcePath, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
         System.out.println("targetXmlPath:: " + targetXmlPath);
         if (needsSaveToDisk) {
             saveChangesToCache(true);
         }
-        String addedNodePath = null;
+        URI addedNodePath = null;
         ImdiTreeObject destinationNode;
         if (currentTemplate.isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
                 synchronized (domLockObject) {
-                    OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                    OurURL inUrlLocal = new OurURL(nodeUri.toURL());
                     System.out.println("inUrlLocal: " + inUrlLocal);
                     Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
                     if (nodDom == null) {
@@ -629,6 +640,7 @@ public class ImdiTreeObject implements Comparable {
                         addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
+                        bumpHistory();
                         api.writeDOM(nodDom, this.getFile(), false); // add the id attributes
                     }
                 }
@@ -639,15 +651,15 @@ public class ImdiTreeObject implements Comparable {
 //            needsSaveToDisk = true;
         } else {
             System.out.println("adding new node");
-            String targetFileName = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(getSubDirectory()).getAbsolutePath();
-            addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileName), nodeType).toString();
-            destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileName);
+            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(getSubDirectory());
+            addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+            destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
                 reloadNode();
             } else {
                 // TODO: this should not really be here
-                TreeHelper.getSingleInstance().addLocation(destinationNode.getUrlString());
+                TreeHelper.getSingleInstance().addLocation(destinationNode.getURI());
                 TreeHelper.getSingleInstance().applyRootLocations();
             }
 //            destinationNode.saveChangesToCache();
@@ -843,7 +855,7 @@ public class ImdiTreeObject implements Comparable {
 //            }
 ////            System.out.println("attempting to remove nodes");
 //            try {
-//                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+//                OurURL inUrlLocal = new OurURL(nodeUri.toURL());
 //                Document nodDom;
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //                for (String currentNodeXmlId : childNodeXmlIdArray) {
@@ -865,7 +877,7 @@ public class ImdiTreeObject implements Comparable {
         deleteFromDomViaId(domIdList.toArray(new String[]{}));
     }
 
-    // this is used to delete an IMDI node from a corpus branch
+// this is used to delete an IMDI node from a corpus branch
     public void deleteCorpusLink(ImdiTreeObject[] targetImdiNodes) {
         // retrieve the node id for the link
         ArrayList<String> fieldIdList = new ArrayList<String>();
@@ -904,13 +916,14 @@ public class ImdiTreeObject implements Comparable {
                 saveChangesToCache(false);
             }
             synchronized (domLockObject) {
-                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                OurURL inUrlLocal = new OurURL(nodeUri.toURL());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 if (nodDom == null) {
                     GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error loading via the IMDI API", "Remove Catalogue");
                 } else {
                     api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
+                    bumpHistory();
                     api.writeDOM(nodDom, this.getFile(), false);
                     reloadNode();
                 }
@@ -929,7 +942,7 @@ public class ImdiTreeObject implements Comparable {
                 saveChangesToCache(false);
             }
             synchronized (domLockObject) {
-                OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                OurURL inUrlLocal = new OurURL(nodeUri.toURL());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
                 if (nodDom == null) {
                     GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
@@ -939,6 +952,7 @@ public class ImdiTreeObject implements Comparable {
                         IMDIElement target = new IMDIElement(null, currentImdiDomId);
                         api.removeIMDIElement(nodDom, target);
                     }
+                    bumpHistory();
                     api.writeDOM(nodDom, this.getFile(), false);
                     reloadNode();
                 }
@@ -949,9 +963,9 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean hasCatalogue() {
-        for (String[] currentLinkPair : childLinks) {
-            String currentChildPath = currentLinkPair[0];
-            ImdiTreeObject childNode = ImdiLoader.getSingleInstance().getImdiObject(null, currentChildPath);
+        for (ImdiTreeObject childNode : childArray) {
+//            String currentChildPath = currentLinkPair[0];
+//            ImdiTreeObject childNode = ImdiLoader.getSingleInstance().getImdiObject(null, currentChildPath);
             //childNode.waitTillLoaded(); // if the child nodes have not been loaded this will fail so we must wait here
             if (childNode.isCatalogue()) {
                 return true;
@@ -997,7 +1011,7 @@ public class ImdiTreeObject implements Comparable {
             Document nodDom;
             try {
                 synchronized (domLockObject) {
-                    OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                    OurURL inUrlLocal = new OurURL(nodeUri.toURL());
                     nodDom = api.loadIMDIDocument(inUrlLocal, false);
                     if (nodDom == null) {
                         GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
@@ -1017,6 +1031,7 @@ public class ImdiTreeObject implements Comparable {
 // TODO: at this point due to the api we cannot get the id of the newly created link, so we will probably have to unload this object and reload the dom
                         System.out.println("createIMDILink: " + targetImdiNode.getUrlString());
                         api.createIMDILink(nodDom, inUrlLocal, targetImdiNode.getUrlString(), /*targetImdiNode.toString()*/ "", nodeType, "");
+                        bumpHistory();
                         api.writeDOM(nodDom, this.getFile(), false);
                     }
                 }
@@ -1039,7 +1054,7 @@ public class ImdiTreeObject implements Comparable {
             try {
                 synchronized (domLockObject) {
 //            System.out.println("removing NodeIds");
-                    OurURL inUrlLocal = new OurURL(this.getFile().toURL());
+                    OurURL inUrlLocal = new OurURL(nodeUri.toURL());
                     Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
                     if (nodDom == null) {
                         GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
@@ -1075,7 +1090,7 @@ public class ImdiTreeObject implements Comparable {
         try {
             synchronized (domLockObject) {
                 Document nodDom;
-                nodDom = api.loadIMDIDocument(new OurURL(this.getFile().toURL()), false);
+                nodDom = api.loadIMDIDocument(new OurURL(nodeUri.toURL()), false);
                 if (nodDom == null) {
                     GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Export IMDI");
@@ -1099,7 +1114,7 @@ public class ImdiTreeObject implements Comparable {
                 System.out.println("clipBoardString: " + clipBoardString);
                 if (this.isCorpus()) {
                     if (ImdiTreeObject.isStringImdi(clipBoardString) || ImdiTreeObject.isStringImdiChild(clipBoardString)) {
-                        ImdiTreeObject clipboardNode = ImdiLoader.getSingleInstance().getImdiObject(null, clipBoardString);
+                        ImdiTreeObject clipboardNode = ImdiLoader.getSingleInstance().getImdiObject(null, conformStringToUrl(clipBoardString));
                         if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(clipboardNode.getFile())) {
                             if (!(ImdiTreeObject.isStringImdiChild(clipBoardString) && (!this.isSession() && !this.isImdiChild()))) {
                                 if (this.getFile().exists()) {
@@ -1153,7 +1168,7 @@ public class ImdiTreeObject implements Comparable {
             if (nodeType == null) {
                 returnValue = false;
             }
-            String targetXmlPath = this.getURL().getRef();
+            String targetXmlPath = nodeUri.getFragment();
             if (nodeType == null) { // targetXmlPath hass been  added at this point to preserve the sub node (N) which otherwise had been lost for the (x) and this is required to add to a sub node correctly
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
             } else {
@@ -1190,7 +1205,7 @@ public class ImdiTreeObject implements Comparable {
         LinorgJournal.getSingleInstance().clearFieldChangeHistory();
         Document nodDom;
         OurURL inUrlLocal = null;
-        if (nodeUrl.getProtocol().toLowerCase().startsWith("http")) {
+        if (!this.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */ ) {
             System.out.println("should not try to save remote files");
             setImdiNeedsSaveToDisk(false, updateUI);
             return;
@@ -1201,7 +1216,7 @@ public class ImdiTreeObject implements Comparable {
 //                createFileInCache();
 //            }
             synchronized (domLockObject) {
-                inUrlLocal = new OurURL(this.getFile().toURL());
+                inUrlLocal = new OurURL(nodeUri.toURL());
                 nodDom = api.loadIMDIDocument(inUrlLocal, false);
 
                 if (nodDom == null) {
@@ -1256,7 +1271,7 @@ public class ImdiTreeObject implements Comparable {
                                             api.changeIMDILink(nodDom, null, changedLink);
                                             LinorgJournal.getSingleInstance().saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath + ":LanguageId", fieldLanguageId, "", "save");
                                         }
-                                        //////////////////////////////////////////////////
+//////////////////////////////////////////////////
 //                                String elementNameForApi = currentField.fieldID;
 //                                if (currentField.fieldID == null) {
 //                                    elementNameForApi = apiPath;
@@ -1545,7 +1560,7 @@ public class ImdiTreeObject implements Comparable {
             }
         }
         if (hasResource()) {
-            String resourcePathString = getFullResourcePath();
+            String resourcePathString = getFullResourceURI().toString();
             int lastIndex = resourcePathString.lastIndexOf("/");
 //                if (lastIndex)
             nodeText = resourcePathString.substring(lastIndex + 1);
@@ -1602,7 +1617,7 @@ public class ImdiTreeObject implements Comparable {
                 return true;
             }
             try {
-                return !(new File(new URL(this.getFullResourcePath()).getFile())).exists();
+                return !(new File(this.getFullResourceURI())).exists();
             } catch (Exception e) {
                 return true;
             }
@@ -1620,6 +1635,10 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean hasHistory() {
+        if (!this.isLocal()) {
+            // only local files can have a history
+            return false;
+        }
         return !this.isImdiChild() && new File(this.getFile().getAbsolutePath() + ".0").exists();
     }
 
@@ -1709,14 +1728,14 @@ public class ImdiTreeObject implements Comparable {
      * Resolves the full path to a resource file if it exists.
      * @return The path to remote resource if it exists.
      */
-    public String getFullResourcePath() {
+    public URI getFullResourceURI() {
         String targetUrlString = resourceUrlField.fieldValue;
-        boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
-        if (!urlIsComplete || targetUrlString.startsWith(".")) {
-            targetUrlString = this.getParentDirectory() + targetUrlString;
-            //targetUrlString = targetUrlString.replace("/./", "/");
-        }
-        return targetUrlString;
+//        boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
+//        if (!urlIsComplete || targetUrlString.startsWith(".")) {
+//            targetUrlString = this.getParentDirectory() + targetUrlString;
+//            //targetUrlString = targetUrlString.replace("/./", "/");
+//        }
+        return nodeUri.resolve(targetUrlString).normalize();
     }
 
     /**
@@ -1724,7 +1743,7 @@ public class ImdiTreeObject implements Comparable {
      * @return a URL string of the IMDI
      */
     public String getUrlString() {
-        return nodeUrl.toString();
+        return nodeUri.toString();
     }
 
     /**
@@ -1736,7 +1755,11 @@ public class ImdiTreeObject implements Comparable {
     public ImdiTreeObject getParentDomNode() {
         if (domParentImdi == null) {
             if (isImdiChild()) {
-                domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, getUrlString().split("#")[0]);
+                try {
+                    domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+                } catch (URISyntaxException ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             } else {
                 domParentImdi = this;
             }
@@ -1749,11 +1772,11 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isImdi() {
-        if (nodeUrl != null /* && nodDom != null*/) {
+        if (nodeUri != null /* && nodDom != null*/) {
             if (isImdiChild()) {
                 return true;
             } else {
-                return ImdiTreeObject.isStringImdi(this.getUrlString());
+                return ImdiTreeObject.isStringImdi(nodeUri.getPath());
             }
         }
         return false;
@@ -1803,23 +1826,37 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isLocal() {
-        if (nodeUrl != null) {
-            return ImdiTreeObject.isStringLocal(this.getUrlString());
+        if (nodeUri != null) {
+            return ImdiTreeObject.isStringLocal(nodeUri.getScheme());
         } else {
             return false;
         }
     }
 
     /**
-     * Returns a URL object for this node.
-     * @return A URL that this node represents.
+     * Returns the URI object for this node.
+     * @return A URI that this node represents.
      */
-    public URL getURL() {
-        return nodeUrl;
+    public URI getURI() {
+        try {
+            return nodeUri; // new URI(nodeUri.toString()); // a copy of
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+            return null;
+        }
     }
 
     public File getFile() {
-        return new File(nodeUrl.getFile());
+//        System.out.println("getFile: " + nodeUri.toString());
+        if (this.isLocal()) {
+            if (isImdiChild()) {
+                return this.getParentDomNode().getFile();
+            }
+            return new File(nodeUri);
+        } else {
+            return null;
+        }
+        // TODO: (this comment might be out of date) reconsider this code. file.toUrl does not url encode and should not be used. file.toURI.toUrl does but this breaks many file actions
     }
 
     public String getParentDirectory() {
@@ -1883,6 +1920,7 @@ public class ImdiTreeObject implements Comparable {
 //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
         // here we need to cause an update in the tree and table gui so that the new icon can be loaded
         for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+            try { // TODO: the need for this try catch indicates that there is a threading issue in the way that imdichild nodes are reloaded within an imdi parent node and this should be reorganised to be more systematic and hierarchical
             Object currentContainer = containersIterator.nextElement();
 //                    System.out.println("currentContainer: " + currentContainer.toString());
             if (currentContainer instanceof ImdiTableModel) {
@@ -1900,12 +1938,19 @@ public class ImdiTreeObject implements Comparable {
                     TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
                 }
             }
+            } catch (java.util.NoSuchElementException ex) {
+                //GuiHelper.linorgBugCatcher.logError(ex);
+            }
         }
 //            }
 //        });
     }
 
     public boolean isFavorite() {
+        if (!this.isLocal()) {
+            // only local files can be favourites
+            return false;
+        }
         return LinorgSessionStorage.getSingleInstance().pathIsInFavourites(this.getFile());
 //        return getParentDomNode().isFavourite;
     }

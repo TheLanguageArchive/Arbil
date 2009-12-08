@@ -2,6 +2,8 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -120,38 +122,47 @@ public class TreeHelper {
     public int addDefaultCorpusLocations() {
         HashSet<ImdiTreeObject> remoteCorpusNodesSet = new HashSet<ImdiTreeObject>();
         remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
-        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi"));
-        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi"));
-//        remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"));
+        for (String currentUrlString : new String[]{
+                    "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
+                    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi",
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi",
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi",
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi",
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi",
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi",
+//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"
+                }) {
+            try {
+                remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, new URI(currentUrlString)));
+            } catch (URISyntaxException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
         remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ImdiTreeObject[]{});
         return remoteCorpusNodesSet.size();
     }
 
     public void saveLocations(ImdiTreeObject[] nodesToAdd, ImdiTreeObject[] nodesToRemove) {
         try {
-            Vector<String> locationsList = new Vector<String>();
+            HashSet<String> locationsSet = new HashSet<String>();
             for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes}) {
                 for (ImdiTreeObject currentLocation : currentTreeArray) {
-                    locationsList.add(currentLocation.getUrlString());
+                    locationsSet.add(currentLocation.getUrlString());
                 }
             }
             if (nodesToAdd != null) {
                 for (ImdiTreeObject currentAddable : nodesToAdd) {
-                    locationsList.add(currentAddable.getUrlString());
+                    locationsSet.add(currentAddable.getUrlString());
                 }
             }
-
             if (nodesToRemove != null) {
                 for (ImdiTreeObject currentRemoveable : nodesToRemove) {
-                    locationsList.removeElement(currentRemoveable.getUrlString());
+                    locationsSet.remove(currentRemoveable.getUrlString());
                 }
             }
+            Vector<String> locationsList = new Vector<String>(); // this vector is kept for backwards compatability
+            locationsList.addAll(locationsSet);
             LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
             System.out.println("saved locationsList");
         } catch (Exception ex) {
@@ -174,19 +185,24 @@ public class TreeHelper {
 
             // this also removes all locations and replaces them with normalised paths
             for (Enumeration<String> locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
-
-                String currentLocation = locationEnum.nextElement();
-                ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
-                if (currentTreeObject.isLocal()) {
-                    if (currentTreeObject.isFavorite()) {
-                        favouriteNodesVector.add(currentTreeObject);
-                    } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
-                        localCorpusNodesVector.add(currentTreeObject);
+                try {
+                    URI currentLocation = new URI(locationEnum.nextElement());
+                    ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
+                    if (currentTreeObject.isLocal()) {
+                        if (currentTreeObject.isFavorite()) {
+                            favouriteNodesVector.add(currentTreeObject);
+                        } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
+                            if (currentTreeObject.isImdi() && !currentTreeObject.isImdiChild()) {
+                                localCorpusNodesVector.add(currentTreeObject);
+                            }
+                        } else {
+                            localFileNodesVector.add(currentTreeObject);
+                        }
                     } else {
-                        localFileNodesVector.add(currentTreeObject);
+                        remoteCorpusNodesVector.add(currentTreeObject);
                     }
-                } else {
-                    remoteCorpusNodesVector.add(currentTreeObject);
+                } catch (URISyntaxException ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
                 }
             }
             remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ImdiTreeObject[]{});
@@ -219,7 +235,7 @@ public class TreeHelper {
         }
     }
 
-    public void addLocationGui(String addableLocation) {
+    public void addLocationGui(URI addableLocation) {
         if (!addLocation(addableLocation)) {
             // alert the user when the node already exists and cannot be added again
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
@@ -228,7 +244,7 @@ public class TreeHelper {
         //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
     }
 
-    public boolean addLocation(String addedLocation) {
+    public boolean addLocation(URI addedLocation) {
         System.out.println("addLocation" + addedLocation.toString());
         // make sure the added location url matches that of the imdi node format
         ImdiTreeObject addedLocationObject = ImdiLoader.getSingleInstance().getImdiObject(null, addedLocation);
@@ -247,7 +263,7 @@ public class TreeHelper {
         }
     }
 
-    public void removeLocation(String removeLocation) {
+    public void removeLocation(URI removeLocation) {
         System.out.println("removeLocation: " + removeLocation);
         removeLocation(ImdiLoader.getSingleInstance().getImdiObject(null, removeLocation));
     }

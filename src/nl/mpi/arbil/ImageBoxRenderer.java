@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import javax.imageio.ImageIO;
@@ -137,11 +138,11 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private String getTargetFileString(ImdiTreeObject targetImdiObject) {
+    private File getTargetFile(ImdiTreeObject targetImdiObject) {
         if (targetImdiObject.hasResource()) {
-            return targetImdiObject.getFullResourcePath();
+            return new File(targetImdiObject.getFullResourceURI());
         } else if (targetImdiObject.isArchivableFile()) {
-            return targetImdiObject.getUrlString();
+            return targetImdiObject.getFile();
         } else {
             return null;
         }
@@ -151,8 +152,8 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         if (ffmpegFound) {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
-                URL targetURL = new URL(getTargetFileString(targetImdiObject));
-                String[] execString = new String[]{"ffmpeg", "-itsoffset", "-4", "-i", targetURL.getFile(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
+                File targetFile = getTargetFile(targetImdiObject);
+                String[] execString = new String[]{"ffmpeg", "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
@@ -167,7 +168,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 }
 //        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
@@ -178,8 +179,8 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         if (imageMagickFound) {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
-                URL targetURL = new URL(getTargetFileString(targetImdiObject));
-                String[] execString = new String[]{"convert", "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetURL.getFile(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
+                File targetFile = getTargetFile(targetImdiObject);
+                String[] execString = new String[]{"convert", "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
                 System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
@@ -207,12 +208,12 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             Graphics2D g2 = resizedImg.createGraphics();
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             if (((ImdiTreeObject) targetImdiObject).mpiMimeType.contains("image")) {
-                ImageIcon nodeImage = new ImageIcon(new URL(getTargetFileString(targetImdiObject)).getFile());
+                ImageIcon nodeImage = new ImageIcon(getTargetFile(targetImdiObject).toURL());
                 if (nodeImage != null) {
                     g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
                 }
             } else if (targetImdiObject.mpiMimeType.contains("text")) {
-                drawFileText(g2, new URL(getTargetFileString(targetImdiObject)));
+                drawFileText(g2, getTargetFile(targetImdiObject).toURL());
             }
             g2.dispose();
             File iconFile = File.createTempFile("arbil", ".jpg");

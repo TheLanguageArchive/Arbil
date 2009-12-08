@@ -5,6 +5,7 @@ import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -63,9 +64,9 @@ public class LinorgFavourites {
                 setAsTempate = false;
             }
             if (setAsTempate) {
-                addAsFavourite(currentImdiObject.getUrlString());
+                addAsFavourite(currentImdiObject.getURI());
             } else {
-                removeFromFavourites(currentImdiObject.getUrlString());
+                removeFromFavourites(currentImdiObject.getURI());
                 // TODO: remove from any tables and update the tree roots
 //                currentImdiObject.setFavouriteStatus(false);
             }
@@ -73,14 +74,11 @@ public class LinorgFavourites {
         return true;
     }
 
-    private void addAsFavourite(String imdiUrlString) {
+    private void addAsFavourite(URI imdiUri) {
         try {
-            String[] urlParts = imdiUrlString.split("#");
-            File copiedFile = copyToFavouritesDirectory(urlParts[0]);
-            String favouriteUrlString = copiedFile.getCanonicalPath();
-            if (urlParts.length > 1) {
-                favouriteUrlString = favouriteUrlString + "#" + urlParts[1];
-            }
+            URI copiedFileURI = copyToFavouritesDirectory(imdiUri);
+            URI favouriteUri = new URI(copiedFileURI.getScheme(), copiedFileURI.getUserInfo(), copiedFileURI.getHost(), copiedFileURI.getPort(), copiedFileURI.getPath(), copiedFileURI.getQuery(),
+                    imdiUri.getFragment());
 //            if (!userFavourites.containsKey(favouriteUrlString)) {
 //                ImdiTreeObject favouriteImdiObject = GuiHelper.imdiLoader.getImdiObject(null, favouriteUrlString);
 //                userFavourites.put(favouriteUrlString, favouriteImdiObject);
@@ -88,15 +86,15 @@ public class LinorgFavourites {
 //                loadSelectedFavourites();
 //                favouriteImdiObject.setFavouriteStatus(true);
 //            }
-            TreeHelper.getSingleInstance().addLocation(favouriteUrlString);
+            TreeHelper.getSingleInstance().addLocation(favouriteUri);
             TreeHelper.getSingleInstance().applyRootLocations();
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
     }
 
-    private File copyToFavouritesDirectory(String imdiUrlString) throws MalformedURLException, IOException {
-        mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(imdiUrlString);
+    private URI copyToFavouritesDirectory(URI imdiUri) throws MalformedURLException, IOException {
+        mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(imdiUri.toURL());
         File destinationFile = File.createTempFile("fav-", ".imdi", LinorgSessionStorage.getSingleInstance().getFavouritesDir());
         mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURL());
 
@@ -114,12 +112,12 @@ public class LinorgFavourites {
             }
             boolean removeIdAttributes = false;
             ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-            return destinationFile;
+            return destinationFile.toURI();
         }
     }
 
-    private void removeFromFavourites(String imdiUrlString) {
-        TreeHelper.getSingleInstance().removeLocation(imdiUrlString);
+    private void removeFromFavourites(URI imdiUri) {
+        TreeHelper.getSingleInstance().removeLocation(imdiUri);
         TreeHelper.getSingleInstance().applyRootLocations();
     }
 
@@ -178,8 +176,8 @@ public class LinorgFavourites {
         // out: 
         // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(27).Languages.Language
 
-        String favouriteXmlPath = favouriteImdiObject.getURL().getRef();
-        String targetXmlPath = targetImdiObject.getURL().getRef();
+        String favouriteXmlPath = favouriteImdiObject.getURI().getFragment();
+        String targetXmlPath = targetImdiObject.getURI().getFragment();
         System.out.println("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
         String returnValue;
         if (favouriteImdiObject.isSession()) {
