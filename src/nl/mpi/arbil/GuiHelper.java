@@ -38,7 +38,7 @@ public class GuiHelper {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
-            //throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
         }
     };
     static private GuiHelper singleInstance = null;
@@ -182,16 +182,16 @@ public class GuiHelper {
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
-                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                //System.out.println(ex.getMessage());
+                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
                 try {
                     LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
-                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                //System.out.println(ex.getMessage());
+                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             }
         }
@@ -227,7 +227,12 @@ public class GuiHelper {
         }
         if (awtDesktopFound) {
             try {
-                Desktop.getDesktop().browse(targetUri);
+                if (targetUri.getScheme().toLowerCase().equals("file")) {
+                    // yes it is lame that the java classes cant figure this out!, but a path with white space will fail as a uri!
+                    Desktop.getDesktop().open(new File(targetUri));
+                } else {
+                    Desktop.getDesktop().browse(targetUri);
+                }
                 result = true;
             } catch (MalformedURLException muE) {
                 muE.printStackTrace();
