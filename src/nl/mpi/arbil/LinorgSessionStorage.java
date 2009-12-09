@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -29,8 +30,8 @@ import nl.mpi.arbil.importexport.ShibbolethNegotiator;
  */
 public class LinorgSessionStorage {
 
-    public String storageDirectory = null;
-    public String cacheDirectory;
+    public String storageDirectory = null; // TODO: change this to a File
+    public String cacheDirectory; // TODO: change this to a File
     static private LinorgSessionStorage singleInstance = null;
 //    JDialog settingsjDialog;
 
@@ -183,6 +184,28 @@ public class LinorgSessionStorage {
         }
         File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
         return getFavouritesDir().equals(testFile);
+    }
+
+    public URI getOriginatingUri(URI locationInCacheURI) {
+        URI returnUri = null;
+        String uriPath = locationInCacheURI.getPath();
+//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
+        System.out.println("uriPath: " + uriPath);
+        int foundPos = uriPath.indexOf("imdicache");
+        if (foundPos == -1) {
+            return null;
+        }
+        uriPath = uriPath.substring(foundPos);
+        String[] uriParts = uriPath.split("/", 4);
+        try {
+            if (uriParts[1].toLowerCase().equals("http")) {
+                returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
+                System.out.println("returnUri: " + returnUri);
+            }
+        } catch (URISyntaxException urise) {
+            GuiHelper.linorgBugCatcher.logError(urise);
+        }
+        return returnUri;
     }
 
     /**
