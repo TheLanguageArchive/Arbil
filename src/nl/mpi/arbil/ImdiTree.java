@@ -6,6 +6,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
@@ -259,10 +261,14 @@ public class ImdiTree extends JTree {
                     } else {
                         copiedNodeUrls = copiedNodeUrls.concat("\n");
                     }
-                    if (currentNode.hasResource()) {
-                        copiedNodeUrls = copiedNodeUrls.concat(currentNode.getFullResourceURI().toString());
-                    } else {
-                        copiedNodeUrls = copiedNodeUrls.concat(currentNode.getUrlString());
+                    try {
+                        if (currentNode.hasResource()) {
+                            copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getFullResourceURI().toString(), "UTF-8"));
+                        } else {
+                            copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getURI().toString(), "UTF-8"));
+                        }
+                    } catch (UnsupportedEncodingException murle) {
+                        GuiHelper.linorgBugCatcher.logError(murle);
                     }
                 }
             }
