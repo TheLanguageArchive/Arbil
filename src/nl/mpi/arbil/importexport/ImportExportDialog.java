@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -71,7 +72,6 @@ public class ImportExportDialog {
     String diskFreeLabelText = "Total Disk Free: ";
     private JButton stopButton;
     private JButton startButton;
-//    JPanel searchPanel;
     private JTabbedPane detailsTabPane;
     private JTextArea taskOutput;
     private JTextArea xmlOutput;
@@ -288,7 +288,7 @@ public class ImportExportDialog {
             overwriteCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
             outputNodePanel.setVisible(false);
             inputNodePanel.setVisible(false);
-            searchDialog.pack();
+//            searchDialog.pack();
             outputNodePanel.setVisible(true);
             inputNodePanel.setVisible(true);
         }
@@ -298,6 +298,18 @@ public class ImportExportDialog {
     public ImportExportDialog(Component targetComponent) throws Exception {
         LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
         searchDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
+        searchDialog.addWindowStateListener(new WindowAdapter() {
+
+            @Override
+            public void windowStateChanged(WindowEvent e) {
+                if ((e.getNewState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
+                    detailsCheckBox.setSelected(true);
+                    showDetails(true);
+                } else {
+                    searchDialog.pack();
+                }
+            }
+        });
         //searchDialog.setUndecorated(true);
         searchDialog.addWindowListener(new WindowAdapter() {
 
@@ -345,6 +357,7 @@ public class ImportExportDialog {
             public void actionPerformed(ActionEvent e) {
                 try {
                     showDetails(detailsCheckBox.isSelected());
+                    searchDialog.pack();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -382,12 +395,12 @@ public class ImportExportDialog {
         xmlOutput = new JTextArea(5, 20);
         xmlOutput.setMargin(new Insets(5, 5, 5, 5));
         xmlOutput.setEditable(false);
-        detailsTabPane.add("Validation Results", new JScrollPane(xmlOutput));
+        detailsTabPane.add("Validation Errors", new JScrollPane(xmlOutput));
 
         resourceCopyOutput = new JTextArea(5, 20);
         resourceCopyOutput.setMargin(new Insets(5, 5, 5, 5));
         resourceCopyOutput.setEditable(false);
-        detailsTabPane.add("Resource Copy Details", new JScrollPane(resourceCopyOutput));
+        detailsTabPane.add("Resource Copy Errors", new JScrollPane(resourceCopyOutput));
 
         detailsPanel.add(detailsTabPane, BorderLayout.CENTER);
 
@@ -441,9 +454,6 @@ public class ImportExportDialog {
 
         searchPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        //searchDialog.pack();
-        showDetails(detailsCheckBox.isSelected()); // showDetails calls pack()
-
         searchDialog.setLocationRelativeTo(targetComponent);
 
         showInTableButton.setEnabled(false);
@@ -495,7 +505,11 @@ public class ImportExportDialog {
 
         taskOutput.append("The details of the import / export process will be displayed here.\n");
         xmlOutput.append("When the metadata files are imported or exported they will be validated (for XML schema conformance) and any errors will be reported here.\n");
-        resourceCopyOutput.append("If copying of resource files is selected, the details of the files copied will be displayed here.\n");
+        resourceCopyOutput.append("If copying of resource files is selected, any file copy errors will be reported here.\n");
+
+        //searchDialog.pack();
+        showDetails(detailsCheckBox.isSelected()); // showDetails no longer calls pack()
+        searchDialog.pack();
     }
 
     private void appendToTaskOutput(String lineOfText) {
@@ -680,14 +694,15 @@ public class ImportExportDialog {
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
                                                         LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag);
                                                     }
-                                                    resourceCopyOutput.append(downloadFileLocation + "\n");
+                                                    //resourceCopyOutput.append(downloadFileLocation + "\n");
                                                     if (downloadFileLocation.exists()) {
                                                         resourceFileCopied = true;
+                                                        appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
                                                         //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
                                                     } else {
-                                                        resourceCopyOutput.append(currentTarget);
-                                                        resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
-                                                        resourceCopyOutput.append("Failed" + "\n");
+                                                        resourceCopyOutput.append("Download failed: " + currentLink + " \n");
+                                                        //resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
+                                                        //resourceCopyOutput.append("Failed" + "\n");
                                                         fileCopyErrors.add(currentTarget);
                                                         resourceCopyErrors++;
                                                     }
@@ -707,13 +722,13 @@ public class ImportExportDialog {
                                     }
                                     if (destinationFile.exists() && !overwriteCheckBox.isSelected()) {
                                         appendToTaskOutput(currentTarget);
-                                        appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
-                                        appendToTaskOutput("this destination file already exists, skipping file");
+                                        appendToTaskOutput("Destination already exists, skipping file: " + destinationFile.getAbsolutePath());
+//                                        appendToTaskOutput("this destination file already exists, skipping file");
                                     } else {
                                         if (replacingExitingFile) {
-                                            appendToTaskOutput(currentTarget);
-                                            appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
-                                            appendToTaskOutput("replacing existing file...");
+                                            //appendToTaskOutput(currentTarget);
+                                            appendToTaskOutput("Replaced: " + destinationFile.getAbsolutePath());
+                                            //appendToTaskOutput("replacing existing file...");
                                         } else {
 //                                            appendToTaskOutput("saving to disk...");
                                         }
@@ -722,7 +737,7 @@ public class ImportExportDialog {
                                         boolean removeIdAttributes = exportDestinationDirectory != null;
                                         // TODO: bumpHistory();
                                         ImdiTreeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(destinationFile.toURI());
-                                        if (destinationNode.getNeedsSaveToDisk()){
+                                        if (destinationNode.getNeedsSaveToDisk()) {
                                             destinationNode.saveChangesToCache(true);
                                         }
                                         if (destinationNode.hasHistory()) {
@@ -824,8 +839,10 @@ public class ImportExportDialog {
                             // TODO: create an imdinode to contain the name and point to the location
                             for (ImdiTreeObject currentFinishedNode : finishedTopNodes.toArray(new ImdiTreeObject[]{})) {
                                 if (destinationNode != null) {
-                                    // add the nodes to their parent here
-                                    destinationNode.addCorpusLink(currentFinishedNode);
+                                    if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) { // do not try to link a node to itself (itself is passed as the lead selection node when reimporting from the context menu)
+                                        // add the nodes to their parent here
+                                        destinationNode.addCorpusLink(currentFinishedNode);
+                                    }
                                 } else {
                                     // add the nodes to the local corpus root node here
                                     if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getURI())) {
@@ -882,8 +899,11 @@ public class ImportExportDialog {
                 if (detailsOption == 0) {
                     searchDialog.setVisible(false);
                 } else {
-                    detailsCheckBox.setSelected(true);
-                    showDetails(true);
+                    if (!detailsCheckBox.isSelected()) {
+                        detailsCheckBox.setSelected(true);
+                        showDetails(true);
+                        searchDialog.pack();
+                    }
                 }
             }
         }.start();
