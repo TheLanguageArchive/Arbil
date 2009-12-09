@@ -47,6 +47,7 @@ public class ContextMenu {
     private JMenuItem exportMenuItem;
     private JMenuItem importCsvMenuItem;
     private JMenuItem importBranchMenuItem;
+    private JMenuItem reImportBranchMenuItem;
 //    private JMenu favouritesMenu;
     private JMenu mergeWithFavouritesMenu;
     private JMenuItem pasteMenuItem1;
@@ -134,6 +135,7 @@ public class ContextMenu {
         exportMenuItem = new JMenuItem();
         importCsvMenuItem = new JMenuItem();
         importBranchMenuItem = new JMenuItem();
+        reImportBranchMenuItem = new JMenuItem();
         //////////
         // table menu items
         copySelectedRowsMenuItem = new JMenuItem();
@@ -630,6 +632,33 @@ public class ContextMenu {
         });
         treePopupMenu.add(importBranchMenuItem);
 
+        reImportBranchMenuItem.setText("Re-Import this Branch");
+        reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    URI remoteImdiFile = LinorgSessionStorage.getSingleInstance().getOriginatingUri(leadSelectedTreeNode.getURI());
+                    if (remoteImdiFile != null) {
+                        ImdiTreeObject originatingNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(remoteImdiFile);
+                        if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The origional file location cannot be found", "Re Import Branch");
+                        } else if (originatingNode.isImdi()) {
+                            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
+                            importExportDialog.setDestinationNode(leadSelectedTreeNode); // TODO: do not re add the location in this case
+                            importExportDialog.copyToCache(new ImdiTreeObject[]{originatingNode});
+                        } else {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not determine the origional node type", "Re Import Branch");
+                        }
+                    } else {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not determine the origional location", "Re Import Branch");
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(reImportBranchMenuItem);
+
         //////////
         // table menu items
         copySelectedRowsMenuItem.setText("Copy");
@@ -813,10 +842,10 @@ public class ContextMenu {
 
     private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_addLocalDirectoryMenuItemActionPerformed
-        // TODO add your handling code here:    
+        // TODO add your handling code here:
         JFileChooser fc = new JFileChooser();
         //fc.setDialogTitle(getResourceMap().getString(name + ".dialogTitle"));
-        //String textFilesDesc = getResourceMap().getString("txtFileExtensionDescription");   
+        //String textFilesDesc = getResourceMap().getString("txtFileExtensionDescription");
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fc.setDialogTitle("Add Working Directory");
         int option = fc.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
@@ -1076,6 +1105,7 @@ public class ContextMenu {
         exportMenuItem.setVisible(false);
         importCsvMenuItem.setVisible(false);
         importBranchMenuItem.setVisible(false);
+        reImportBranchMenuItem.setVisible(false);
         addToFavouritesMenuItem.setVisible(false);
         treePopupMenuSeparator1.setVisible(false);
         treePopupMenuSeparator2.setVisible(false);
@@ -1192,6 +1222,7 @@ public class ContextMenu {
                 exportMenuItem.setVisible(!nodeIsImdiChild);
                 importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
                 importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
+                reImportBranchMenuItem.setVisible(leadSelectedTreeNode.hasArchiveHandle && !leadSelectedTreeNode.isImdiChild());
 
                 // set up the favourites menu
                 addFromFavouritesMenu.setVisible(true);
