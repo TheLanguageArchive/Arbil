@@ -349,7 +349,7 @@ public class ArbilTemplate {
             URL internalTemplateName = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
             if (templateConfigFile.exists()) {
                 xmlReader.parse(templateConfigFile.getPath());
-            } else if (templateName.equals("Sign Language")) {// (new File(internalTemplateName.getFile()).exists()) {
+            } else if (templateName.equals("Sign Language")||templateName.equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
                 xmlReader.parse(internalTemplateName.toExternalForm());
             } else {
                 loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
