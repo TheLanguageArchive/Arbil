@@ -128,6 +128,19 @@ public class LinorgWindowManager {
         }
     }
 
+    public boolean showMessageDialogBox(String messageString, String messageTitle) {
+        if (messageTitle == null) {
+            messageTitle = "Arbil";
+        }
+        if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                messageString, messageTitle,
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
         if (messageTitle == null) {
             messageTitle = "Arbil";
