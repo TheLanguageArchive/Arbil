@@ -50,7 +50,7 @@ public class ImdiTableCellRenderer extends DefaultTableCellRenderer {
                 super.setBackground(new Color(230, 230, 230)/*Color.lightGray*/);
             }
             if (cellObject instanceof ImdiField) {
-                if (((ImdiField) cellObject).fieldNeedsSaveToDisk) {
+                if (((ImdiField) cellObject).fieldNeedsSaveToDisk()) {
                     super.setForeground(Color.blue);
                 }
             }
