@@ -29,7 +29,11 @@
         <jar href="lib/@TypeCheckVersion@" download="eager"/>
         <jar href="lib/xalan-2.6.0.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
+        <jar href="lib/bcprov-jdk15-143.jar" download="eager"/>
     </resources>
+    <resources os="windows">
+        <nativelib href="lib/ImageMagickWin32.jar"/>
+    </resource>
     <application-desc main-class="nl.mpi.arbil.LinorgFrame">
         <argument>-update_via_javaws</argument>
     </application-desc>
