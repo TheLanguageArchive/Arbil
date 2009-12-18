@@ -2,7 +2,6 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
-import java.util.Enumeration;
 
 /**
  * Document   : ImdiField
@@ -15,20 +14,23 @@ public class ImdiField {
     public String xmlPath;
     private String translatedPath = null;
     public String fieldValue = "";
+    public String originalFieldValue = fieldValue;
     public String fieldID;
     private ImdiVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     public boolean vocabularyIsOpen;
     public boolean vocabularyIsList;
-    public boolean fieldNeedsSaveToDisk = false;
     private String keyName = null;
+    private String originalKeyName = null;
     private String languageId = null;
+    private String originalLanguageId = null;
     private int isRequiredField = -1;
     private int canValidateField = -1;
 
     public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
         parentImdi = localParentImdi;
         fieldValue = tempValue;
+        originalFieldValue = fieldValue;
         xmlPath = tempPath;
     }
 
@@ -83,6 +85,26 @@ public class ImdiField {
         return isValidValue;
     }
 
+    private boolean valuesDiffer(String leftString, String rightString) {
+        if (leftString == null) {
+            return rightString != null;
+        }
+        return (!leftString.equals(rightString));
+    }
+
+    public boolean fieldNeedsSaveToDisk() {
+        if (valuesDiffer(originalFieldValue, fieldValue)) {
+            return true;
+        }
+        if (valuesDiffer(originalLanguageId, languageId)) {
+            return true;
+        }
+        if (valuesDiffer(originalKeyName, keyName)) {
+            return true;
+        }
+        return false;
+    }
+
     public String getFieldValue() {
         return fieldValue;
     }
@@ -112,9 +134,8 @@ public class ImdiField {
             LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValueToBe, "edit");
             this.fieldValue = fieldValueToBe;
             new FieldChangeTriggers().actOnChange(this);
-            fieldNeedsSaveToDisk = true;
-            // TODO: this should scan all fields in the imdiparent to set the needs save to disk flag
-            parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
+            // this now scans all fields in the imdiparent and its child nodes to set the "needs save to disk" flag in the imdi nodes
+            parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
         }
     }
 
@@ -133,8 +154,7 @@ public class ImdiField {
             //addFieldAttribute("LanguageId", languageIdLocal);
             languageId = languageIdLocal;
 //            fieldLanguageId = languageId;
-            parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
-            fieldNeedsSaveToDisk = true;
+            parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
         }
 
     }
@@ -169,7 +189,9 @@ public class ImdiField {
     public void setFieldAttribute(String fieldIDLocal, String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
         fieldID = fieldIDLocal;
         languageId = languageIdLocal;
+        originalLanguageId = languageId;
         keyName = keyNameLocal;
+        originalKeyName = keyName;
         // set for the vocabulary type
         hasVocabularyType = false;
         if (cvType != null) {
@@ -230,8 +252,8 @@ public class ImdiField {
                 LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyNameLocal, "editkeyname");
                 keyName = keyNameLocal;
 //                addFieldAttribute("Name", keyNameLocal);
-                parentImdi.setImdiNeedsSaveToDisk(true, updateUI);
-                fieldNeedsSaveToDisk = true;
+                parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
+                translatedPath = null;
                 getTranslateFieldName();
 //                }
             }
@@ -270,6 +292,8 @@ public class ImdiField {
             }
             translatedPath = fieldName;
         }
+//        System.out.println("xmlPath: " + xmlPath);
+//        System.out.println("translatedPath: " + translatedPath);
         return translatedPath;
     }
 }
