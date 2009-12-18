@@ -11,12 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
@@ -25,7 +23,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
@@ -500,6 +497,29 @@ public class ImdiTable extends JTable {
             }
         } else {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
+        }
+    }
+
+    public void startLongFieldEditorForSelectedFields() {
+        int[] selectedRows = this.getSelectedRows();
+        if (selectedRows.length > 0) {
+            int[] selectedCols;
+            if (this.getCellSelectionEnabled()) {
+                selectedCols = this.getSelectedColumns();
+            } else {
+                selectedCols = new int[this.getColumnCount()];
+                for (int colCounter = 0; colCounter < selectedCols.length; colCounter++) {
+                    selectedCols[colCounter] = colCounter;
+                }
+            }
+            for (int currentRow : selectedRows) {
+                for (int currentCol : selectedCols) {
+                    Object currentCellValue = this.getValueAt(currentRow, currentCol);
+                    if (currentCellValue instanceof ImdiField || currentCellValue instanceof ImdiField[]) {
+                        new ImdiChildCellEditor().startLongfieldEditor(this, currentCellValue, false, currentRow, currentCol);
+                    }
+                }
+            }
         }
     }
 
