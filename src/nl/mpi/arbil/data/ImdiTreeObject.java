@@ -1597,6 +1597,12 @@ public class ImdiTreeObject implements Comparable {
         }
 //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         if (nodeText != null) {
+            if (isImdi()) {
+                File nodeFile = this.getFile();
+                if (nodeFile != null && !isHeadRevision()) {
+                    nodeText = nodeText + " (rev:" + getHistoryLabelStringForFile(nodeFile) + ")";
+                }
+            }
             lastNodeText = nodeText;
         }
         if (lastNodeText.length() == 0) {
@@ -1672,19 +1678,26 @@ public class ImdiTreeObject implements Comparable {
         return !this.isImdiChild() && new File(this.getFile().getAbsolutePath() + ".0").exists();
     }
 
+    private String getHistoryLabelStringForFile(File historyFile) {
+        Date mtime = new Date(historyFile.lastModified());
+        String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+        return mTimeString;
+    }
+    private boolean isHeadRevision() {
+        return !(new File(this.getFile().getAbsolutePath() + ".x").exists());
+    }
     public String[][] getHistoryList() {
         Vector<String[]> historyVector = new Vector<String[]>();
         int versionCounter = 0;
         File currentHistoryFile;
 //        historyVector.add(new String[]{"Current", ""});
-        if (new File(this.getFile().getAbsolutePath() + ".x").exists()) {
+        if (!isHeadRevision()) {
             historyVector.add(new String[]{"Last Save", ".x"});
         }
         do {
             currentHistoryFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
             if (currentHistoryFile.exists()) {
-                Date mtime = new Date(currentHistoryFile.lastModified());
-                String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+                String mTimeString = getHistoryLabelStringForFile(currentHistoryFile);
                 historyVector.add(new String[]{mTimeString, "." + versionCounter});
             }
             versionCounter++;
