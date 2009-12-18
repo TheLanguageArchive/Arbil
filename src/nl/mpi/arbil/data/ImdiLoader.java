@@ -259,7 +259,7 @@ public class ImdiLoader {
 //        return imdiHashTable.get(localUrlString);
 //    }
     public ImdiTreeObject getImdiObjectWithoutLoading(URI localUri) {
-        localUri = localUri.normalize();
+        localUri = ImdiTreeObject.normaliseURI(localUri);
         ImdiTreeObject currentImdiObject = null;
         if (localUri != null) {
             // correct any variations in the url string
@@ -304,21 +304,21 @@ public class ImdiLoader {
 
     public void releaseImdiObject(URI localUri) {
 //        imdiHashTable.remove(imdiUrlString); // TODO: implement this so that imdi files are not held in memory for ever
-        localUri = localUri.normalize();
+        localUri = ImdiTreeObject.normaliseURI(localUri);
         System.out.println("-imdiHashTable.size: " + imdiHashTable.size());
     }
 
     // return the node only if it has already been loaded otherwise return null
     public ImdiTreeObject getImdiObjectOnlyIfLoaded(URI imdiUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        imdiUri = imdiUri.normalize();
+        imdiUri = ImdiTreeObject.normaliseURI(imdiUri);
         return imdiHashTable.get(imdiUri.toString());
     }
 
     // reload the node only if it has already been loaded otherwise ignore
     public void requestReloadOnlyIfLoaded(URI imdiUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        imdiUri = imdiUri.normalize();
+        imdiUri = ImdiTreeObject.normaliseURI(imdiUri);
         ImdiTreeObject currentImdiObject = imdiHashTable.get(imdiUri.toString());
         if (currentImdiObject != null) {
             requestReload(currentImdiObject);
@@ -369,6 +369,9 @@ public class ImdiLoader {
             ImdiTreeObject currentNode = nodesNeedingSave.remove(0);
             if (currentNode != null) {
                 currentNode.saveChangesToCache(updateIcons); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
+                if (updateIcons) {
+                    requestReload(currentNode);
+                }
             }
         }
     }
