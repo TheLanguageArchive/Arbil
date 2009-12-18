@@ -110,7 +110,20 @@ public class ImdiTreeObject implements Comparable {
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
-        return returnUrl;
+        return normaliseURI(returnUrl);
+    }
+
+    static public URI normaliseURI(URI inputURI) {
+        boolean isUncPath = inputURI.toString().toLowerCase().startsWith("file:////");
+        URI returnURI = inputURI.normalize();
+        if (isUncPath) {
+            try {
+                returnURI = new URI(returnURI.toString().replace("file:/", "file:////"));
+            } catch (URISyntaxException urise) {
+                GuiHelper.linorgBugCatcher.logError(urise);
+            }
+        }
+        return returnURI;
     }
     // static methods for testing imdi file and object types
 
@@ -132,11 +145,11 @@ public class ImdiTreeObject implements Comparable {
     }
 
     static public boolean isStringImdi(String urlString) {
-        return urlString.endsWith(".imdi");
+        return urlString.endsWith(".imdi") || urlString.endsWith(".cmdi"); // change made for clarin
     }
 
     static public boolean isStringImdiChild(String urlString) {
-        return urlString.contains("#.METATRANSCRIPT");
+        return urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
     }
 
     static public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
@@ -154,26 +167,42 @@ public class ImdiTreeObject implements Comparable {
         return needsSaveToDisk;
     }
 
-    public void setImdiNeedsSaveToDisk(boolean imdiNeedsSaveToDisk, boolean updateUI) {
-        if (resourceUrlField != null && resourceUrlField.fieldNeedsSaveToDisk) {
+    public void setImdiNeedsSaveToDisk(ImdiField originatingField, boolean updateUI) {
+        if (resourceUrlField != null && resourceUrlField.equals(originatingField)) {
             hashString = null;
             mpiMimeType = null;
             thumbnailFile = null;
             typeCheckerMessage = null;
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
-        if (isImdiChild()) {
-            this.getParentDomNode().setImdiNeedsSaveToDisk(imdiNeedsSaveToDisk, updateUI);
-        } else {
+        boolean imdiNeedsSaveToDisk = false;
+        for (ImdiField[] currentFieldArray : this.fieldHashtable.values()) {
+            for (ImdiField currentField : currentFieldArray) {
+                if (currentField.fieldNeedsSaveToDisk()) {
+                    imdiNeedsSaveToDisk = true;
+                }
+            }
+        }
+        if (isImdi() && !isImdiChild()) {
+            if (imdiNeedsSaveToDisk == false) {
+                for (ImdiTreeObject childNode : getAllChildren()) {
+                    if (childNode.needsSaveToDisk) {
+                        imdiNeedsSaveToDisk = true;
+                    }
+                }
+            }
             if (this.needsSaveToDisk != imdiNeedsSaveToDisk) {
                 if (imdiNeedsSaveToDisk) {
                     ImdiLoader.getSingleInstance().addNodeNeedingSave(this);
                 } else {
                     ImdiLoader.getSingleInstance().removeNodesNeedingSave(this);
                 }
+                this.needsSaveToDisk = imdiNeedsSaveToDisk;
             }
+        } else {
+            this.needsSaveToDisk = imdiNeedsSaveToDisk; // this must be set before setImdiNeedsSaveToDisk is called
+            this.getParentDomNode().setImdiNeedsSaveToDisk(originatingField, updateUI);
         }
-        this.needsSaveToDisk = imdiNeedsSaveToDisk;
         if (updateUI) {
             this.clearIcon();
         }
@@ -221,7 +250,7 @@ public class ImdiTreeObject implements Comparable {
         matchesRemote = 0;
         matchesLocalFileSystem = 0;
         fileNotFound = false;
-        setImdiNeedsSaveToDisk(false, false);
+        needsSaveToDisk = false;
 //    nodeText = null;
 //    urlString = null;
 //        resourceUrlField = null;
@@ -1206,9 +1235,9 @@ public class ImdiTreeObject implements Comparable {
         LinorgJournal.getSingleInstance().clearFieldChangeHistory();
         Document nodDom;
         OurURL inUrlLocal = null;
-        if (!this.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */ ) {
+        if (!this.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */) {
             System.out.println("should not try to save remote files");
-            setImdiNeedsSaveToDisk(false, updateUI);
+            //this.setImdiNeedsSaveToDisk(null, updateUI);
             return;
         }
         System.out.println("tempUrlString: " + this.getFile());
@@ -1238,7 +1267,7 @@ public class ImdiTreeObject implements Comparable {
                             ImdiField[] currentFieldArray = fieldsEnum.nextElement();
                             for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
                                 ImdiField currentField = currentFieldArray[fieldCounter];
-                                if (currentField.fieldNeedsSaveToDisk) {
+                                if (currentField.fieldNeedsSaveToDisk()) {
                                     if (currentField.fieldID == null) {
                                         addedFields.add(currentField);
                                     } else {
@@ -1261,7 +1290,7 @@ public class ImdiTreeObject implements Comparable {
                                             System.out.println("ie.id: " + ie.getDomId());
                                             System.out.println("ie.spec: " + ie.getSpec());
                                         }
-                                        currentField.fieldNeedsSaveToDisk = false;
+//                                        currentField.fieldNeedsSaveToDisk = false;
 //                                GuiHelper.linorgJournal.saveJournalEntry(currentField.parentImdi.getUrlString(), currentField.xmlPath, currentField.getFieldValue(), "", "save");
                                         String fieldLanguageId = currentField.getLanguageId();
                                         if (fieldLanguageId != null) {
@@ -1333,7 +1362,7 @@ public class ImdiTreeObject implements Comparable {
                         api.writeDOM(nodDom, this.getFile(), false); // add the id attributes in the correct order
                     }
                     // update the icon to indicate the change
-                    setImdiNeedsSaveToDisk(false, updateUI);
+//                    setImdiNeedsSaveToDisk(false, updateUI);
                 }
             }
         } catch (Exception mue) {
@@ -1743,7 +1772,7 @@ public class ImdiTreeObject implements Comparable {
 //            System.out.println("nodeUri: " + nodeUri);
 //            URI resourceUri = new URI(targetUrlString);
 //            System.out.println("resourceUri: " + resourceUri);
-            return nodeUri.resolve(URIUtil.newURI(targetUrlString)).normalize();
+            return ImdiTreeObject.normaliseURI(nodeUri.resolve(URIUtil.newURI(targetUrlString)));
         } catch (Exception urise) {
             GuiHelper.linorgBugCatcher.logError(urise);
             System.out.println("URISyntaxException: " + urise.getMessage());
