@@ -52,6 +52,8 @@ public class ImportExportDialog {
     private JCheckBox copyFilesCheckBox;
     private JCheckBox detailsCheckBox;
     private JCheckBox overwriteCheckBox;
+    private JCheckBox shibbolethCheckBox;
+    private JPanel shibbolethPanel;
     private JProgressBar progressBar;
     private JLabel diskSpaceLabel;
     JPanel detailsPanel;
@@ -286,6 +288,8 @@ public class ImportExportDialog {
             bottomPanel.setVisible(showFlag);
             copyFilesCheckBox.setVisible(showFlag);
             overwriteCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
+            //shibbolethCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
+            shibbolethPanel.setVisible(showFlag/* && shibbolethCheckBox.isSelected()*/);
             outputNodePanel.setVisible(false);
             inputNodePanel.setVisible(false);
 //            searchDialog.pack();
@@ -375,14 +379,45 @@ public class ImportExportDialog {
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
         overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
+        shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
+        shibbolethPanel = new JPanel();
+        shibbolethCheckBox.setVisible(false);
+        shibbolethPanel.setVisible(false);
+
+        shibbolethCheckBox.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (shibbolethCheckBox.isSelected()) {
+                    if (shibbolethNegotiator == null) {
+                        shibbolethNegotiator = new ShibbolethNegotiator();
+                    }
+                    shibbolethPanel.add(shibbolethNegotiator.getControlls());
+                } else {
+                    shibbolethPanel.removeAll();
+                    shibbolethNegotiator = null;
+                }
+                searchDialog.pack();
+            }
+        });
+        copyFilesCheckBox.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                shibbolethCheckBox.setVisible(copyFilesCheckBox.isSelected());
+                shibbolethPanel.setVisible(copyFilesCheckBox.isSelected());
+                searchDialog.pack();
+            }
+        });
 
 //        JPanel copyFilesCheckBoxPanel = new JPanel();
 //        copyFilesCheckBoxPanel.setLayout(new BoxLayout(copyFilesCheckBoxPanel, BoxLayout.X_AXIS));
 //        copyFilesCheckBoxPanel.add(copyFilesCheckBox);
 //        copyFilesCheckBoxPanel.add(new JPanel());
 //        detailsPanel.add(copyFilesCheckBoxPanel, BorderLayout.NORTH);
-        detailsPanel.add(copyFilesCheckBox, BorderLayout.NORTH);
         detailsPanel.add(overwriteCheckBox, BorderLayout.NORTH);
+        detailsPanel.add(copyFilesCheckBox, BorderLayout.NORTH);
+        detailsPanel.add(shibbolethCheckBox, BorderLayout.NORTH);
+        detailsPanel.add(shibbolethPanel, BorderLayout.NORTH);
+
 //        detailsPanel.add(new JPanel());
 
         detailsTabPane = new JTabbedPane();
