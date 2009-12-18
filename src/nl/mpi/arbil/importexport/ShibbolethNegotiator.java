@@ -1,6 +1,5 @@
 package nl.mpi.arbil.importexport;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -30,6 +29,7 @@ public class ShibbolethNegotiator implements ActionListener {
 
     CAHttps myCA = null; 
     JPanel shibbolethControlPanel = null;
+    JButton infoCaMenuItem;
 
     public ShibbolethNegotiator() {
         // TODO: find a home for these properties, maybe in the jar file
@@ -106,15 +106,21 @@ public class ShibbolethNegotiator implements ActionListener {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'CA Info' failed with: " + certExcep.getMessage(), "Shibboleth Connection");
             }
         }
+        if (infoCaMenuItem != null) {
+            infoCaMenuItem.setEnabled(myCA != null);
+        }
     }
 
-    public Component getControlls() {
+    public JPanel getControlls() {
         if (shibbolethControlPanel == null) {
             shibbolethControlPanel = new JPanel();
-            JButton infoCaMenuItem = new JButton("Certificate Information");
+            shibbolethControlPanel.setLayout(new javax.swing.BoxLayout(shibbolethControlPanel, javax.swing.BoxLayout.PAGE_AXIS));
+            shibbolethControlPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+            infoCaMenuItem = new JButton("Certificate Information");
             infoCaMenuItem.setMnemonic('N');
             infoCaMenuItem.setActionCommand("caInfo");
             infoCaMenuItem.addActionListener(this);
+            infoCaMenuItem.setEnabled(myCA != null);
             shibbolethControlPanel.add(infoCaMenuItem);
             JButton initCaMenuItem = new JButton("Log in");
             initCaMenuItem.setMnemonic('I');
