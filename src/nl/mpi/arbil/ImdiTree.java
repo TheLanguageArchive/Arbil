@@ -63,10 +63,12 @@ public class ImdiTree extends JTree {
 
             @Override
             public void mouseDragged(java.awt.event.MouseEvent evt) {
-                System.out.println("jTree1MouseDragged");
-                JComponent c = (JComponent) evt.getSource();
-                TransferHandler th = c.getTransferHandler();
-                th.exportAsDrag(c, evt, TransferHandler.COPY);
+                if (evt.getModifiers() == 0 && evt.getButton() == MouseEvent.BUTTON1) {
+                    System.out.println("jTree1MouseDragged");
+                    JComponent c = (JComponent) evt.getSource();
+                    TransferHandler th = c.getTransferHandler();
+                    th.exportAsDrag(c, evt, TransferHandler.COPY);
+                }
             }
         });
         this.addTreeExpansionListener(new javax.swing.event.TreeExpansionListener() {
