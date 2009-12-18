@@ -7,6 +7,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -31,7 +32,7 @@ public class ImdiTableModel extends AbstractTableModel {
     // end variables used by the thread
     private boolean showIcons = false;
     private Hashtable<String, ImdiTreeObject> imdiObjectHash = new Hashtable<String, ImdiTreeObject>();
-    private HashMap<String, ImdiField> allColumnNames = new HashMap<String, ImdiField>();
+    private HashMap<String, ImdiField> filteredColumnNames = new HashMap<String, ImdiField>();
     Vector childColumnNames = new Vector();
     LinorgFieldView tableFieldView;
     boolean horizontalView = false;
@@ -141,30 +142,22 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     private ImdiTreeObject[] updateAllImdiObjects() {
-        ImdiTreeObject[] returnImdiArray = new ImdiTreeObject[imdiObjectHash.size()];
-        allColumnNames.clear();
+        ImdiTreeObject[] returnImdiArray = imdiObjectHash.values().toArray(new ImdiTreeObject[]{});
+        filteredColumnNames.clear();
         int hiddenColumnCount = 0;
-        Enumeration<ImdiTreeObject> nodesEnum = imdiObjectHash.elements();
-        for (int imdiArrayCounter = 0; imdiArrayCounter < returnImdiArray.length; imdiArrayCounter++) {
-            if (nodesEnum.hasMoreElements()) {
-                returnImdiArray[imdiArrayCounter] = nodesEnum.nextElement();
-            } else {
-                returnImdiArray[imdiArrayCounter] = null;
-            }
-//            System.out.println("isArchivableFile: " + imdiTreeObject.isArchivableFile());
-//            System.out.println("hasResource: " + imdiTreeObject.hasResource());
-            for (Enumeration<ImdiField[]> columnFields = returnImdiArray[imdiArrayCounter].getFields().elements(); columnFields.hasMoreElements();) {
-                for (ImdiField currentField : columnFields.nextElement()) {
+        for (ImdiTreeObject currentRowImdi : returnImdiArray) {
+            for (ImdiField[] currentFieldArray : currentRowImdi.getFields().values().toArray(new ImdiField[][]{})) {
+                for (ImdiField currentField : currentFieldArray) {
                     String currentColumnName = currentField.getTranslateFieldName();
                     if (tableFieldView.viewShowsColumn(currentColumnName)) {
-                        if (!allColumnNames.containsKey(currentColumnName)) {
-                            allColumnNames.put(currentColumnName, currentField);
+                        if (!filteredColumnNames.containsKey(currentColumnName)) {
+                            filteredColumnNames.put(currentColumnName, currentField);
                         } else {
                             // update the min id value
-                            ImdiField lastStoredField = allColumnNames.get(currentColumnName);
+                            ImdiField lastStoredField = filteredColumnNames.get(currentColumnName);
                             if (currentField.getFieldID() != -1) {
                                 if (lastStoredField.getFieldID() > currentField.getFieldID()) {
-                                    allColumnNames.put(currentColumnName, currentField);
+                                    filteredColumnNames.put(currentColumnName, currentField);
                                 }
                             }
                         }
@@ -203,7 +196,7 @@ public class ImdiTableModel extends AbstractTableModel {
             ((ImdiTreeObject) removableNodes.nextElement()).removeContainer(this);
         }
         imdiObjectHash.clear();
-        allColumnNames.clear();
+        filteredColumnNames.clear();
         columnNames = new String[0];
         data = new Object[0][0];
         cellColour = new Color[0][0];
@@ -343,11 +336,19 @@ public class ImdiTableModel extends AbstractTableModel {
                 clipBoardLines = clipBoardString.split("\n");
             }
             if (clipBoardLines.length == 1) {
-                for (ImdiField targetField : selectedCells) {
-                    targetField.setFieldValue(clipBoardString, true, false);
-                    pastedCount++;
+                String messageString = selectedCells.length + " fields will be overwritten with the single value on the clipboard.\nContinue?";
+                if (LinorgWindowManager.getSingleInstance().showMessageDialogBox(messageString, "Paste")) {
+                    for (ImdiField targetField : selectedCells) {
+                        targetField.setFieldValue(clipBoardString, true, false);
+                        pastedCount++;
+                    }
+                } else {
+                    return null;
                 }
             } else if (clipBoardLines.length > 1) {
+                String areYouSureMessageString = "";
+                ArrayList<Object[]> pasteList = new ArrayList<Object[]>();
+                int deletingValuesCounter = 0;
                 String[] firstLine = clipBoardLines[0].split("\"\\t\"");
                 if (firstLine.length == 1) {
                     firstLine = clipBoardLines[0].split("\t");
@@ -384,21 +385,31 @@ public class ImdiTableModel extends AbstractTableModel {
                                     System.out.println("targetField: " + targetField.getTranslateFieldName());
                                     //messagebox "The copied field name does not match the destination, do you want to paste anyway?"
                                     if (currentFieldName.equals(targetField.getTranslateFieldName()) || pasteOneFieldToAll) {
-                                        targetField.setFieldValue(currentFieldValue, true, false);
-                                        pastedCount++;
+                                        if (currentFieldValue.trim().length() == 0 && targetField.getFieldValue().trim().length() > 0) {
+                                            deletingValuesCounter++;
+                                        }
+                                        pasteList.add(new Object[]{targetField, currentFieldValue});
                                     }
                                 }
                             }
                         }
                     }
-
                     if (pastedFieldOverwritten) {
-                        if (resultMessage == null) {
-                            resultMessage = "";
-                        } else {
-                            resultMessage = resultMessage + "\n";
+                        areYouSureMessageString = areYouSureMessageString + "Two fields of the same name are to be pasted into this table,\nthis will cause at least one field to be overwritten by another.\n\n";
+                    }
+                    if (deletingValuesCounter > 0) {
+                        areYouSureMessageString = areYouSureMessageString + "There are " + deletingValuesCounter + " fields that will have their contents deleted by this paste action.\n\n";
+                    }
+                    if (areYouSureMessageString.length() > 0) {
+                        if (!LinorgWindowManager.getSingleInstance().showMessageDialogBox(areYouSureMessageString + "Continue?", "Paste")) {
+                            return null;
                         }
-                        resultMessage = resultMessage + "Two fields of the same name were pasted, causing at least one field to be overwritten by another";
+                    }
+                    for (Object[] pasteListObject : pasteList) {
+                        ImdiField currentField = (ImdiField) pasteListObject[0];
+                        String currentValue = (String) pasteListObject[1];
+                        currentField.setFieldValue(currentValue, true, false);
+                        pastedCount++;
                     }
                 }
             } else {
@@ -557,7 +568,7 @@ public class ImdiTableModel extends AbstractTableModel {
         if (!horizontalView) { // set the table for a single image if that is all that is shown
             //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
             // TODO: this does not account for when a resource is shown
-            if (allColumnNames.size() == 0) {
+            if (filteredColumnNames.size() == 0) {
                 horizontalView = true;
             }
         }
@@ -576,7 +587,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // display the grid view
 
             // calculate which of the available columns to show
-            ImdiField[] displayedColumnNames = allColumnNames.values().toArray(new ImdiField[allColumnNames.size()]);
+            ImdiField[] displayedColumnNames = filteredColumnNames.values().toArray(new ImdiField[filteredColumnNames.size()]);
             Arrays.sort(displayedColumnNames, new Comparator() {
 
                 public int compare(Object firstColumn, Object secondColumn) {
@@ -744,25 +755,25 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
-    public boolean hasValueChanged(int row, int col) {
-        if (row > -1 && col > -1) {
-            if (data[row][col] instanceof ImdiField) {
-                return ((ImdiField) data[row][col]).fieldNeedsSaveToDisk;
-            }
-            if (data[row][col] instanceof ImdiField[]) {
-                boolean needsSave = false;
-                ImdiField[] fieldArray = (ImdiField[]) data[row][col];
-                for (ImdiField fieldElement : fieldArray) {
-                    System.out.println("hasValueChanged: " + fieldElement);
-                    if (fieldElement.fieldNeedsSaveToDisk) {
-                        needsSave = true;
-                    }
-                }
-                return needsSave;
-            }
-        }
-        return false;
-    }
+//    public boolean hasValueChanged(int row, int col) {
+//        if (row > -1 && col > -1) {
+//            if (data[row][col] instanceof ImdiField) {
+//                return ((ImdiField) data[row][col]).fieldNeedsSaveToDisk;
+//            }
+//            if (data[row][col] instanceof ImdiField[]) {
+//                boolean needsSave = false;
+//                ImdiField[] fieldArray = (ImdiField[]) data[row][col];
+//                for (ImdiField fieldElement : fieldArray) {
+//                    System.out.println("hasValueChanged: " + fieldElement);
+//                    if (fieldElement.fieldNeedsSaveToDisk) {
+//                        needsSave = true;
+//                    }
+//                }
+//                return needsSave;
+//            }
+//        }
+//        return false;
+//    }
 
     public Color getCellColour(int row, int col) {
         return cellColour[row][col];
