@@ -45,8 +45,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
     ImdiTreeObject registeredOwner = null;
     JPanel editorPanel;
     JLabel button;
-    String columnName;
-    Object rowImdi;
+    String fieldName;
     Component editorComponent = null;
 //    boolean receivedKeyDown = false;
     Object[] cellValue;
@@ -203,7 +202,6 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
         // this will only be called when the long field editor is shown
         // when an imdi node is edited or saved or reloaded this will be called to update the displayed values
         if (cellValue instanceof ImdiField[]) {
-            String fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
             cellValue = parentImdiObject.getFields().get(fieldName);
             for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
                 fieldEditors[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getFieldValue());
@@ -253,7 +251,9 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                     }
                 }
             });
-            comboBox.setPreferredSize(new Dimension(languageSelectWidth, parentCellRect.height));
+            if (parentCellRect != null) {
+                comboBox.setPreferredSize(new Dimension(languageSelectWidth, parentCellRect.height));
+            }
             return comboBox;
         } else {
             return null;
@@ -289,6 +289,11 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
 
     private boolean cellHasControlledVocabulary() {
         return ((ImdiField) cellValue[0]).hasVocabulary();
+    }
+
+    public void startLongfieldEditor(JTable table, Object value, boolean isSelected, int row, int column) {
+        getTableCellEditorComponent(table, value, isSelected, row, column);
+        startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
     }
 
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
@@ -414,24 +419,35 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                     fieldEditors[cellFieldIndex].setWrapStyleWord(true);
 
                     JPanel tabPanel = new JPanel();
+                    JPanel tabTitlePanel = new JPanel();
                     tabPanel.setLayout(new BorderLayout());
+                    tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
                     fieldLanguageBoxs[cellFieldIndex] = getLanguageIdBox(cellFieldIndex);
                     if (fieldLanguageBoxs[cellFieldIndex] != null) {
-                        tabPanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.PAGE_START);
+                        JPanel languagePanel = new JPanel(new BorderLayout());
+                        languagePanel.add(new JLabel("Language:"), BorderLayout.LINE_START);
+                        languagePanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.CENTER);
+                        tabTitlePanel.add(languagePanel);
                     }
                     String keyName = ((ImdiField) cellValue[cellFieldIndex]).getKeyName();
                     if (keyName != null) { // if this is a key type field then show the editing options
+                        JPanel keyNamePanel = new JPanel(new BorderLayout());
                         keyEditorFields[cellFieldIndex] = new JTextField(((ImdiField[]) cellValue)[cellFieldCounter].getKeyName());
                         keyEditorFields[cellFieldIndex].addFocusListener(editorFocusListener);
                         keyEditorFields[cellFieldIndex].setEditable(((ImdiField) cellValue[cellFieldIndex]).parentImdi.getParentDomNode().isLocal());
-                        tabPanel.add(keyEditorFields[cellFieldIndex], BorderLayout.PAGE_START);
+                        keyNamePanel.add(new JLabel("Key Name:"), BorderLayout.LINE_START);
+                        keyNamePanel.add(keyEditorFields[cellFieldIndex], BorderLayout.CENTER);
+                        tabTitlePanel.add(keyNamePanel);
                     }
+//                    tabTitlePanel.add(new JLabel("Field Value"));
+//                    int layoutRowCount = tabTitlePanel.getComponentCount() / 2;
+//                    tabTitlePanel.setLayout(new GridLayout(layoutRowCount, 2));
+                    tabPanel.add(tabTitlePanel, BorderLayout.PAGE_START);
                     tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
-                    tabPane.add(((ImdiField) cellValue[cellFieldIndex]).getTranslateFieldName() + " " + titleCount++, tabPanel);
+                    tabPane.add(fieldName + " " + titleCount++, tabPanel);
                 }
-                registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
                 registeredOwner.registerContainer(this);
-                JInternalFrame editorFrame = LinorgWindowManager.getSingleInstance().createWindow(columnName + " in " + rowImdi, tabPane);
+                JInternalFrame editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + registeredOwner, tabPane);
                 editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
                     @Override
@@ -449,9 +465,10 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                 }
                 focusedTabTextArea.requestFocusInWindow();
                 fireEditingStopped();
+//                ImdiChildCellEditor.this.stopCellEditing();
             }
         } else if (cellValue instanceof ImdiTreeObject[]) {
-            LinorgWindowManager.getSingleInstance().openFloatingTableOnce((ImdiTreeObject[]) cellValue, columnName + " in " + rowImdi);
+            LinorgWindowManager.getSingleInstance().openFloatingTableOnce((ImdiTreeObject[]) cellValue, fieldName + " in " + registeredOwner);
         } else {
             try {
                 throw new Exception("Edit cell type not supported");
@@ -477,18 +494,10 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
         }
     }
 
-    public Component getTableCellEditorComponent(JTable table,
-            Object value,
-            boolean isSelected,
-            int row,
-            int column) {
-//        receivedKeyDown = true;
-        parentTable = (ImdiTable) table;
-        parentCellRect = parentTable.getCellRect(row, column, false);
-        ImdiTableCellRenderer cellRenderer = new ImdiTableCellRenderer(value);
+    private void convertCellValue(Object value) {
         if (value instanceof ImdiField) {
             // TODO: get the whole array from the parent and select the correct tab for editing
-            String fieldName = ((ImdiField) value).getTranslateFieldName();
+            fieldName = ((ImdiField) value).getTranslateFieldName();
             cellValue = ((ImdiField) value).parentImdi.getFields().get(fieldName);
             // TODO: find the chosen fields index in the array and store
             for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
@@ -500,9 +509,24 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             }
         } else {
             cellValue = (Object[]) value;
+            fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
         }
-        columnName = table.getColumnName(column);
-        rowImdi = table.getValueAt(row, 0);
+        registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
+    }
+
+    public Component getTableCellEditorComponent(JTable table,
+            Object value,
+            boolean isSelected,
+            int row,
+            int column) {
+//         TODO: something in this area is preventing the table selection change listener firing ergo the tree selection does not get updated (this symptom can also be caused by a node not being loaded into the tree)
+//        receivedKeyDown = true;
+        parentTable = (ImdiTable) table;
+        parentCellRect = parentTable.getCellRect(row, column, false);
+        ImdiTableCellRenderer cellRenderer = new ImdiTableCellRenderer(value);
+        convertCellValue(value);
+//        columnName = table.getColumnName(column);
+//        rowImdi = table.getValueAt(row, 0);
         button.setText(cellRenderer.getText());
         button.setForeground(cellRenderer.getForeground());
         button.setIcon(cellRenderer.getIcon());
