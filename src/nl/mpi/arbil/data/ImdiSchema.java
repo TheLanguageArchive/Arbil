@@ -503,9 +503,9 @@ public class ImdiSchema {
 //            linkURI = linkURI.replaceFirst("/[^/]+/\\.\\./", "/");
 //        }
 //                    System.out.println("linkPathCorrected: " + linkPath);
-        linkURI = linkURI.normalize();
+        linkURI = ImdiTreeObject.normaliseURI(linkURI);
         System.out.println("linkURI: " + linkURI.toString());
-        return linkURI.normalize();
+        return linkURI;
     }
 
     public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
@@ -532,6 +532,9 @@ public class ImdiSchema {
                     xmlNodeId = xmlNodeIdAtt.getNodeValue();
                 }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
+                if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
+                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate("template_cmdi");
+                }
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
                     Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
                     if (archiveHandleAtt != null) {
@@ -567,7 +570,7 @@ public class ImdiSchema {
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
-            String childsMetaNode = parentNode.currentTemplate.pathIsChildNode(siblingNodePath);
+            String childsMetaNode = parentNode.getParentDomNode().currentTemplate.pathIsChildNode(siblingNodePath);
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 try {
