@@ -76,6 +76,7 @@ public class ArbilDragDrop {
 
     public class ImdiObjectSelection extends TransferHandler implements Transferable, javax.swing.event.TreeSelectionListener {
 
+        long dragStartMilliSeconds;
         DataFlavor flavors[] = {imdiObjectFlavour};
         ImdiTreeObject[] draggedImdiObjects;
         DefaultMutableTreeNode[] draggedTreeNodes;
@@ -259,6 +260,7 @@ public class ArbilDragDrop {
 
         @Override
         public Transferable createTransferable(JComponent comp) {
+            dragStartMilliSeconds = System.currentTimeMillis();
             draggedImdiObjects = null;
             draggedTreeNodes = null;
             selectionContainsArchivableLocalFile = false;
@@ -370,6 +372,11 @@ public class ArbilDragDrop {
 
         @Override
         public boolean importData(JComponent comp, Transferable t) {
+            // due to the swing api being far to keen to do a drag drop action on the windows platform users frequently loose nodes by dragging them into random locations
+            // so to avoid this we check the date time from when the transferable was created and if less than x seconds reject the drop
+            if (System.currentTimeMillis() - dragStartMilliSeconds < (100 * 3)){
+                return false;
+            }
             try {
                 System.out.println("importData: " + comp.toString());
                 if (comp instanceof ImdiTable && draggedImdiObjects == null) {
