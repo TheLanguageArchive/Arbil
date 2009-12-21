@@ -186,6 +186,14 @@ public class ImdiField {
     public void finishLoading() {
     }
 
+    public void revertChanges() {
+        fieldValue = originalFieldValue;
+        languageId = originalLanguageId;
+        keyName = originalKeyName;
+        boolean updateUI = true;
+        parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
+    }
+
     public void setFieldAttribute(String fieldIDLocal, String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
         fieldID = fieldIDLocal;
         languageId = languageIdLocal;
