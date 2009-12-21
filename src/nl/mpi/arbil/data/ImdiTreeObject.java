@@ -167,6 +167,18 @@ public class ImdiTreeObject implements Comparable {
         return needsSaveToDisk;
     }
 
+    public boolean hasChangedFields() {
+        boolean fieldsHaveChanges = false;
+        for (ImdiField[] currentFieldArray : this.fieldHashtable.values()) {
+            for (ImdiField currentField : currentFieldArray) {
+                if (currentField.fieldNeedsSaveToDisk()) {
+                    fieldsHaveChanges = true;
+                }
+            }
+        }
+        return fieldsHaveChanges;
+    }
+
     public void setImdiNeedsSaveToDisk(ImdiField originatingField, boolean updateUI) {
         if (resourceUrlField != null && resourceUrlField.equals(originatingField)) {
             hashString = null;
@@ -175,14 +187,7 @@ public class ImdiTreeObject implements Comparable {
             typeCheckerMessage = null;
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
-        boolean imdiNeedsSaveToDisk = false;
-        for (ImdiField[] currentFieldArray : this.fieldHashtable.values()) {
-            for (ImdiField currentField : currentFieldArray) {
-                if (currentField.fieldNeedsSaveToDisk()) {
-                    imdiNeedsSaveToDisk = true;
-                }
-            }
-        }
+        boolean imdiNeedsSaveToDisk = hasChangedFields();
         if (isImdi() && !isImdiChild()) {
             if (imdiNeedsSaveToDisk == false) {
                 for (ImdiTreeObject childNode : getAllChildren()) {
