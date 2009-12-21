@@ -22,6 +22,8 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Size" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Format" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Type" />
+        <RequiredField FieldPath=".*\.Date"/>
+        <RequiredField FieldPath=".*\.BirthDate"/>
     </RequiredFields>
     <AutoFields>
         <comment>The fields listed here will be overwritten when the data becomes available and updated if it changes (this is primarily for resource files)</comment>
