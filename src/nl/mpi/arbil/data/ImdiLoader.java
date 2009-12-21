@@ -330,6 +330,7 @@ public class ImdiLoader {
         if (currentImdiObject.isImdiChild()) {
             currentImdiObject = currentImdiObject.getParentDomNode();
         }
+        removeNodesNeedingSave(currentImdiObject);
 //        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
         if (!imdiLocalNodesToInit.contains(currentImdiObject)) {
             System.out.println("requestReload: " + currentImdiObject.getUrlString());
@@ -356,6 +357,10 @@ public class ImdiLoader {
     public void removeNodesNeedingSave(ImdiTreeObject savedNode) {
         System.out.println("removeNodesNeedingSave: " + savedNode);
         nodesNeedingSave.remove(savedNode.getParentDomNode());
+    }
+
+    public ImdiTreeObject[] getNodesNeedSave() {
+        return nodesNeedingSave.toArray(new ImdiTreeObject[]{});
     }
 
     public boolean nodesNeedSave() {
