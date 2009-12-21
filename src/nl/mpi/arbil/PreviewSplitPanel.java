@@ -6,6 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.table.TableCellEditor;
 
 /**
  * PreviewSplitPanel.java
@@ -45,6 +46,10 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
             // remove the right split split and show only the jdesktoppane
             parentComponent.remove(this);
             selectedComponent = LinorgWindowManager.getSingleInstance().desktopPane;
+            TableCellEditor currentCellEditor = PreviewSplitPanel.previewTable.getCellEditor(); // stop any editing so the changes get stored
+            if (currentCellEditor != null) {
+                currentCellEditor.stopCellEditing();
+            }
             // clear the grid to keep things tidy
             ((ImdiTableModel) previewTable.getModel()).removeAllImdiRows();
         } else {
@@ -54,6 +59,10 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
             this.setTopComponent(previewPanel);
             this.setBottomComponent(LinorgWindowManager.getSingleInstance().desktopPane);
             // update the preview data grid
+            TableCellEditor currentCellEditor = PreviewSplitPanel.previewTable.getCellEditor(); // stop any editing so the changes get stored
+            if (currentCellEditor != null) {
+                currentCellEditor.stopCellEditing();
+            }
             ((ImdiTableModel) previewTable.getModel()).removeAllImdiRows();
             selectedComponent = this;
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
