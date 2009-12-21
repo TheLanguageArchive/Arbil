@@ -14,6 +14,7 @@ import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
+import javax.swing.table.TableCellEditor;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
@@ -112,6 +113,10 @@ public class ImdiTree extends JTree {
 
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 if (PreviewSplitPanel.previewTableShown && PreviewSplitPanel.previewTable != null) {
+                    TableCellEditor currentCellEditor = PreviewSplitPanel.previewTable.getCellEditor(); // stop any editing so the changes get stored
+                    if (currentCellEditor != null) {
+                        currentCellEditor.stopCellEditing();
+                    }
                     ((ImdiTableModel) PreviewSplitPanel.previewTable.getModel()).removeAllImdiRows();
                     ((ImdiTableModel) PreviewSplitPanel.previewTable.getModel()).addSingleImdiObject(((ImdiTree) evt.getSource()).getLeadSelectionNode());
                 }
