@@ -75,6 +75,7 @@ public class ContextMenu {
     private JMenuItem removeSelectedRowsMenuItem;
     private JMenuItem hideSelectedColumnsMenuItem;
     private JMenuItem deleteFieldMenuItem;
+    private JMenuItem revertFieldMenuItem;
     private JMenuItem copyCellToColumnMenuItem;
 //    private JSeparator cellMenuDivider;
 //    private JSeparator cellTableDivider;
@@ -142,6 +143,7 @@ public class ContextMenu {
         removeSelectedRowsMenuItem = new JMenuItem();
         hideSelectedColumnsMenuItem = new JMenuItem();
         deleteFieldMenuItem = new JMenuItem();
+        revertFieldMenuItem = new JMenuItem();
         copyCellToColumnMenuItem = new JMenuItem();
 //        cellMenuDivider = new JSeparator();
 //        cellTableDivider = new JSeparator();
@@ -233,6 +235,24 @@ public class ContextMenu {
             }
         });
         treePopupMenu.add(deleteFieldMenuItem);
+
+        revertFieldMenuItem.setText("Revert Selected Fields");
+        revertFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ImdiField[] selectedFields = currentTable.getSelectedFields();
+                    if (selectedFields != null) {
+                        for (ImdiField currentField : selectedFields) {
+                            currentField.revertChanges();
+                        }
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(revertFieldMenuItem);
 
         copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
         copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1132,6 +1152,7 @@ public class ContextMenu {
         removeSelectedRowsMenuItem.setVisible(false);
         hideSelectedColumnsMenuItem.setVisible(false);
         deleteFieldMenuItem.setVisible(false);
+        revertFieldMenuItem.setVisible(false);
         copyCellToColumnMenuItem.setVisible(false);
         matchingCellsMenuItem.setVisible(false);
         openInLongFieldEditorMenuItem.setVisible(false);
@@ -1342,6 +1363,14 @@ public class ContextMenu {
                     }
                     deleteFieldMenuItem.setText(menuText);
                     deleteFieldMenuItem.setVisible(true);
+                }
+
+                // set up the revert field menu
+                for (ImdiField currentField : currentSelection) {
+                    if (currentField.fieldNeedsSaveToDisk()) {
+                        revertFieldMenuItem.setVisible(true);
+                        break;
+                    }
                 }
             }
             if (currentTable.getSelectedRow() != -1 && currentTable.getSelectedColumn() != -1) {
