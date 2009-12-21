@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -21,6 +22,7 @@ import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.data.ImdiTreeObject;
 
 /**
  * ArbilMenuBar.java
@@ -30,6 +32,7 @@ import nl.mpi.arbil.data.ImdiSchema;
 public class ArbilMenuBar extends JMenuBar {
 
     private JMenuItem saveFileMenuItem;
+    private JMenuItem showChangedNodesMenuItem;
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private JMenuItem shortCutKeysjMenuItem;
     private JMenuItem arbilForumMenuItem;
@@ -63,6 +66,7 @@ public class ArbilMenuBar extends JMenuBar {
         previewSplitPanel = previewSplitPanelLocal;
         fileMenu = new JMenu();
         saveFileMenuItem = new JMenuItem();
+        showChangedNodesMenuItem = new JMenuItem();
         importMenuItem = new JMenuItem();
         exitMenuItem = new JMenuItem();
         editMenu = new JMenu();
@@ -99,7 +103,8 @@ public class ArbilMenuBar extends JMenuBar {
             }
 
             public void menuSelected(MenuEvent evt) {
-                fileMenuMenuSelected(evt);
+                saveFileMenuItem.setEnabled(ImdiLoader.getSingleInstance().nodesNeedSave());
+                showChangedNodesMenuItem.setEnabled(ImdiLoader.getSingleInstance().nodesNeedSave());
             }
         });
 
@@ -116,6 +121,31 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
         fileMenu.add(saveFileMenuItem);
+
+        showChangedNodesMenuItem.setText("Show Modified Nodes");
+        showChangedNodesMenuItem.setEnabled(false);
+        showChangedNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ArrayList<ImdiTreeObject> individualChangedNodes = new ArrayList<ImdiTreeObject>();
+                    for (ImdiTreeObject currentTestable : ImdiLoader.getSingleInstance().getNodesNeedSave()) {
+                        if (currentTestable.hasChangedFields()) {
+                            individualChangedNodes.add(currentTestable);
+                        }
+                        for (ImdiTreeObject currentChildSaveable : currentTestable.getAllChildren()) {
+                            if (currentChildSaveable.hasChangedFields()) {
+                                individualChangedNodes.add(currentChildSaveable);
+                            }
+                        }
+                    }
+                    LinorgWindowManager.getSingleInstance().openFloatingTable(individualChangedNodes.toArray(new ImdiTreeObject[]{}), "Modified Nodes");
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        fileMenu.add(showChangedNodesMenuItem);
 
         importMenuItem.setText("Import");
         importMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -500,11 +530,6 @@ public class ArbilMenuBar extends JMenuBar {
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 // TODO add your handling code here:
         LinorgWindowManager.getSingleInstance().openAboutPage();
-    }
-
-    private void fileMenuMenuSelected(MenuEvent evt) {
-// TODO add your handling code here:
-        saveFileMenuItem.setEnabled(ImdiLoader.getSingleInstance().nodesNeedSave());
     }
 
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
