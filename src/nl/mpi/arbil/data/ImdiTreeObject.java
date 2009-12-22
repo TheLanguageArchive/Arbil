@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import mpi.util.URIUtil;
 
 /**
  * Document   : ImdiTreeObject
@@ -102,10 +102,24 @@ public class ImdiTreeObject implements Comparable {
         URI returnUrl = null;
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
-            if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:")) {
+            if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:") && !inputUrlString.toLowerCase().startsWith(".")) {
                 returnUrl = new File(inputUrlString).toURI();
             } else {
-                returnUrl = new URI(inputUrlString);
+                String encodedString = null;
+                int protocolEndIndex = "xxxx:".length();
+                while (inputUrlString.charAt(protocolEndIndex) == '/') {
+                    protocolEndIndex++;
+                }
+                String protocolComponent = inputUrlString.substring(0, protocolEndIndex);
+                String pathComponent = inputUrlString.substring(protocolEndIndex);
+                for (String inputStringPart : pathComponent.split("/")) {
+                    if (encodedString == null) {
+                        encodedString = URLEncoder.encode(inputStringPart, "UTF-8");
+                    } else {
+                        encodedString = encodedString + "/" + URLEncoder.encode(inputStringPart, "UTF-8");
+                    }
+                }
+                returnUrl = new URI(protocolComponent + encodedString);
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -1779,18 +1793,19 @@ public class ImdiTreeObject implements Comparable {
     public URI getFullResourceURI() {
         try {
             String targetUrlString = resourceUrlField.fieldValue;
-//            boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
-//            if (!urlIsComplete || targetUrlString.startsWith(".")) {
-//                targetUrlString = this.getParentDirectory() + targetUrlString;
+            boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
+            if (!urlIsComplete || targetUrlString.startsWith(".")) {
+                String parentString = nodeUri.toString();
+                int lastSeparator = parentString.lastIndexOf("/");
+                targetUrlString = parentString.substring(0, lastSeparator + 1) + targetUrlString;
 //                //targetUrlString = targetUrlString.replace("/./", "/");
-//            }
-//            ;
+            }
 //            System.out.println("URIUtil: " + URIUtil.newURI(targetUrlString));
 //            System.out.println("resourceUri: " + targetUrlString);
 //            System.out.println("nodeUri: " + nodeUri);
 //            URI resourceUri = new URI(targetUrlString);
-//            System.out.println("resourceUri: " + resourceUri);
-            return ImdiTreeObject.normaliseURI(nodeUri.resolve(URIUtil.newURI(targetUrlString)));
+//            System.out.println("targetUrlString: " + targetUrlString);
+            return ImdiTreeObject.conformStringToUrl(targetUrlString);
         } catch (Exception urise) {
             GuiHelper.linorgBugCatcher.logError(urise);
             System.out.println("URISyntaxException: " + urise.getMessage());
