@@ -185,24 +185,20 @@ public class TreeHelper {
 
             // this also removes all locations and replaces them with normalised paths
             for (Enumeration<String> locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
-                try {
-                    URI currentLocation = new URI(locationEnum.nextElement());
-                    ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
-                    if (currentTreeObject.isLocal()) {
-                        if (currentTreeObject.isFavorite()) {
-                            favouriteNodesVector.add(currentTreeObject);
-                        } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
-                            if (currentTreeObject.isImdi() && !currentTreeObject.isImdiChild()) {
-                                localCorpusNodesVector.add(currentTreeObject);
-                            }
-                        } else {
-                            localFileNodesVector.add(currentTreeObject);
+                URI currentLocation = ImdiTreeObject.conformStringToUrl(locationEnum.nextElement());
+                ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
+                if (currentTreeObject.isLocal()) {
+                    if (currentTreeObject.isFavorite()) {
+                        favouriteNodesVector.add(currentTreeObject);
+                    } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
+                        if (currentTreeObject.isImdi() && !currentTreeObject.isImdiChild()) {
+                            localCorpusNodesVector.add(currentTreeObject);
                         }
                     } else {
-                        remoteCorpusNodesVector.add(currentTreeObject);
+                        localFileNodesVector.add(currentTreeObject);
                     }
-                } catch (URISyntaxException ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+                } else {
+                    remoteCorpusNodesVector.add(currentTreeObject);
                 }
             }
             remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ImdiTreeObject[]{});
