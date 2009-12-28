@@ -45,10 +45,16 @@ public class ImdiTreeObjectTest {
     @Test
     public void testConformStringToUrl() {
         System.out.println("conformStringToUrl");
-        String inputUrlString = "file:/C:/Documents and Settings/user/Application Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi";
-        URI expResult = URI.create("file:/C%3A/Documents+and+Settings/user/Application+Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi");
-        URI result = ImdiTreeObject.conformStringToUrl(inputUrlString);
-        assertEquals(expResult, result);
+        String[] testStringArray = {
+            //            "C:\\Documents and Settings\\user\\Application Data\\.arbil\\imdicache\\http\\corpus1.mpi.nl\\qfs1\\media-archive\\lac_data\\Corpusstructure\\southeastasia.imdi",
+            //            "/C/Documents and Settings/user/Application Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi",
+            "file:/C:/Documents and Settings/user/Application Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi"
+        };
+        for (String testString : testStringArray) {
+            URI expResult = URI.create("file:/C:/Documents%20and%20Settings/user/Application%20Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi");
+            URI result = ImdiTreeObject.conformStringToUrl(testString);
+            assertEquals(expResult, result);
+        }
     }
 
     /**
@@ -56,12 +62,48 @@ public class ImdiTreeObjectTest {
      */
     @Test
     public void testGetFullResourceURI() {
-        System.out.println("getFullResourceURI");
-        ImdiTreeObject instance = new ImdiTreeObject(URI.create("file:////test-江西-directory/test+subdirectory////test-file.imdi#test-xml-path"));
-        instance.resourceUrlField = new ImdiField(instance, "test-sub-xml-path", "../test resource file.jpg");
-        // the UNC (////) path need to be retained
-        URI expResult = URI.create("file:////test-%E6%B1%9F%E8%A5%BF-directory/test+resource+file.jpg");
-        URI result = instance.getFullResourceURI();
-        assertEquals(expResult, result);
+        System.out.println("getFullResourceURI"); // TODO: test this with unicode: 江西 : %e6%b1%9f%e8%a5%bf
+        String[][] testStringArray = {
+            {"file:////test- directory/test subdirectory////test-file.imdi#test-xml-path",
+                "../test resource file.jpg",
+                "file:////test-%20directory/test%20resource%20file.jpg"
+            },
+            {"file:////test- directory/test subdirectory////test-file.imdi#test-xml-path",
+                "file:/otherlocation/test resource file.jpg",
+                "file:/otherlocation/test%20resource%20file.jpg"
+            }
+        };
+        for (String testString[] : testStringArray) {
+            ImdiTreeObject instance = new ImdiTreeObject(ImdiTreeObject.conformStringToUrl(testString[0]));
+            instance.resourceUrlField = new ImdiField(instance, "test-sub-xml-path", testString[1]);
+            // the UNC (////) path need to be retained
+            URI expResult = URI.create(testString[2]);
+            URI result = instance.getFullResourceURI();
+            assertEquals(expResult, result);
+        }
     }
+     * Test of getFile method, of class ImdiTreeObject.
+     */
+    @Test
+    public void testGetFile() {
+        System.out.println("getFile");
+        // TODO: test this with unicode: 江西 : %e6%b1%9f%e8%a5%bf
+        System.out.println("getFullResourceURI"); // TODO: test this with unicode: 江西 : %e6%b1%9f%e8%a5%bf
+        String[][] testStringArray = {
+            //            {"file:////test-directory/test subdirectory////test-file.imdi#test-xml-path",
+            //                "//test-directory/test subdirectory/test-file.imdi"
+            // TODO: this UNC path fails the test on Mac but might pass on Windows and assumption this must be tested
+            //            },
+            {"file:/test-directory/test subdirectory////test-file.imdi#test-xml-path",
+                "/test-directory/test subdirectory/test-file.imdi"
+            }
+        };
+        for (String testString[] : testStringArray) {
+            ImdiTreeObject instance = new ImdiTreeObject(ImdiTreeObject.conformStringToUrl(testString[0]));
+            File expResult = new File(testString[1]);
+            File result = instance.getFile();
+            assertEquals(expResult, result);
+        }
+    }
+    /**
 }
