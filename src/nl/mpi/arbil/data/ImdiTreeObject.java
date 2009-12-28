@@ -98,41 +98,80 @@ public class ImdiTreeObject implements Comparable {
     }
 
     static public URI conformStringToUrl(String inputUrlString) {
-//        System.out.println("conformStringToUrl in: " + inputUrlString);
+//        System.out.println("conformStringToUrl: " + inputUrlString);
         URI returnUrl = null;
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
             if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:") && !inputUrlString.toLowerCase().startsWith(".")) {
                 returnUrl = new File(inputUrlString).toURI();
             } else {
-                String encodedString = null;
-                int protocolEndIndex = "xxxx:".length();
-                while (inputUrlString.charAt(protocolEndIndex) == '/') {
-                    protocolEndIndex++;
+                // apache method
+//                URI tempURI = new URI(inputUrlString);
+//                URI returnURI = URIUtils.createURI(tempURI.getScheme(), tempURI.getHost(), tempURI.getPort(), tempURI.getPath(), tempURI.getQuery(), tempURI.getFragment());
+//                return returnURI;
+                // end apache method : this requires the uri to be broken into its parts so we might as well do it with the standard classes
+                // mpi method
+//                URI returnURI = URIUtil.newURI(inputUrlString);
+                // end mpi method : this will url encode the # etc. and therefore loose the fragment and other parts
+//                boolean isUncPath = inputUrlString.toLowerCase().startsWith("file:////");
+//                if (isUncPath) {
+//                    try {
+//                        returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
+//                    } catch (URISyntaxException urise) {
+//                        GuiHelper.linorgBugCatcher.logError(urise);
+//                    }
+//                }
+
+                // separate the path and protocol
+                int protocolEndIndex;
+                if (inputUrlString.startsWith(".")) {
+                    // TODO: this is un tested for ./ paths, but at this stage it appears unlikey to ever be needed
+                    protocolEndIndex = 0;
+                } else {
+                    protocolEndIndex = "xxxx".length();
                 }
+//                while (inputUrlString.charAt(protocolEndIndex) == '/') {
+//                    protocolEndIndex++;
+//                }
                 String protocolComponent = inputUrlString.substring(0, protocolEndIndex);
-                String pathComponent = inputUrlString.substring(protocolEndIndex);
-                for (String inputStringPart : pathComponent.split("/")) {
-                    if (encodedString == null) {
-                        encodedString = URLEncoder.encode(inputStringPart, "UTF-8");
-                    } else {
-                        encodedString = encodedString + "/" + URLEncoder.encode(inputStringPart, "UTF-8");
-                    }
+                String remainingComponents = inputUrlString.substring(protocolEndIndex + 1);
+                String[] pathComponentArray = remainingComponents.split("#");
+                String pathComponent = pathComponentArray[0];
+                String fragmentComponent = null;
+                if (pathComponentArray.length > 1) {
+                    fragmentComponent = pathComponentArray[1];
                 }
-                returnUrl = new URI(protocolComponent + encodedString);
+                // note that this must be done as separate parameters not a single string otherwise it will not get url encoded
+                // TODO: this could require the other url components to be added here
+                returnUrl = new URI(protocolComponent, pathComponent, fragmentComponent);
+//                System.out.println("returnUrl: " + returnUrl);
+////                int protocolEndIndex = inputUrlString.lastIndexOf("/", "xxxx:".length());
+
+//                String pathComponentEncoded = URLEncoder.encode(pathComponent, "UTF-8");
+//                returnUrl = new URI(protocolComponent + pathComponentEncoded);
+//                System.out.println("returnUrl: " + returnUrl);
             }
+//            // if the imdi api finds only one / after the file: it will interpret the url as relative and make a bit of a mess of it, so we have to make sure that we have two for the url and one for the root
+//            if (returnUrl.toString().toLowerCase().startsWith("file:") && !returnUrl.toString().toLowerCase().startsWith("file:///")) {
+//                // here we assume that this application does not use relative file paths
+//                returnUrl = new URL("file", "", "//" + returnUrl.getPath());
+//            }
+//            System.out.println("conformStringToUrl URI: " + new URI(returnUrl.toString()));
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
+//        System.out.println("conformStringToUrl out: " + returnUrl.toString());
         return normaliseURI(returnUrl);
     }
 
     static public URI normaliseURI(URI inputURI) {
+//        System.out.println("normaliseURI: " + inputURI);
         boolean isUncPath = inputURI.toString().toLowerCase().startsWith("file:////");
         URI returnURI = inputURI.normalize();
         if (isUncPath) {
             try {
-                returnURI = new URI(returnURI.toString().replace("file:/", "file:////"));
+                // note that this must use the single string parameter to prevent re url encoding
+                returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
             } catch (URISyntaxException urise) {
                 GuiHelper.linorgBugCatcher.logError(urise);
             }
@@ -1792,20 +1831,25 @@ public class ImdiTreeObject implements Comparable {
      */
     public URI getFullResourceURI() {
         try {
-            String targetUrlString = resourceUrlField.fieldValue;
-            boolean urlIsComplete = (targetUrlString.startsWith("file:") || targetUrlString.startsWith("http:") || targetUrlString.startsWith("https:"));
-            if (!urlIsComplete || targetUrlString.startsWith(".")) {
-                String parentString = nodeUri.toString();
-                int lastSeparator = parentString.lastIndexOf("/");
-                targetUrlString = parentString.substring(0, lastSeparator + 1) + targetUrlString;
-//                //targetUrlString = targetUrlString.replace("/./", "/");
-            }
-//            System.out.println("URIUtil: " + URIUtil.newURI(targetUrlString));
-//            System.out.println("resourceUri: " + targetUrlString);
+            String targetUriString = resourceUrlField.fieldValue;
+            URI targetUri = new URI(null, targetUriString, null);
 //            System.out.println("nodeUri: " + nodeUri);
-//            URI resourceUri = new URI(targetUrlString);
-//            System.out.println("targetUrlString: " + targetUrlString);
-            return ImdiTreeObject.conformStringToUrl(targetUrlString);
+            URI resourceUri = nodeUri.resolve(targetUri);
+//            System.out.println("targetUriString: " + targetUriString);
+//            System.out.println("targetUri: " + targetUri);
+//            System.out.println("resourceUri: " + resourceUri);
+            if (!targetUri.equals(resourceUri)) {
+                // maintain the UNC path
+                boolean isUncPath = nodeUri.toString().toLowerCase().startsWith("file:////");
+                if (isUncPath) {
+                    try {
+                        resourceUri = new URI("file:////" + resourceUri.toString().substring("file:/".length()));
+                    } catch (URISyntaxException urise) {
+                        GuiHelper.linorgBugCatcher.logError(urise);
+                    }
+                }
+            }
+            return resourceUri;
         } catch (Exception urise) {
             GuiHelper.linorgBugCatcher.logError(urise);
             System.out.println("URISyntaxException: " + urise.getMessage());
@@ -1818,6 +1862,7 @@ public class ImdiTreeObject implements Comparable {
      * @return a URL string of the IMDI
      */
     public String getUrlString() {
+        // TODO: update the uses of this to use the uri not a string
         return nodeUri.toString();
     }
 
@@ -1828,10 +1873,12 @@ public class ImdiTreeObject implements Comparable {
      * @return ImdiTreeObject
      */
     public ImdiTreeObject getParentDomNode() {
+//        System.out.println("nodeUri: " + nodeUri);
         if (domParentImdi == null) {
-            if (isImdiChild()) {
+            if (nodeUri.getFragment() != null) {
                 try {
                     domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+//                    System.out.println("nodeUri: " + nodeUri);
                 } catch (URISyntaxException ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -1923,15 +1970,15 @@ public class ImdiTreeObject implements Comparable {
 
     public File getFile() {
 //        System.out.println("getFile: " + nodeUri.toString());
-        if (this.isLocal()) {
-            if (isImdiChild()) {
-                return this.getParentDomNode().getFile();
+        if (nodeUri.getScheme().toLowerCase().equals("file")) {
+            try {
+                return new File(new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+            } catch (Exception urise) {
+//                System.err.println("nodeUri: " + nodeUri);
+                GuiHelper.linorgBugCatcher.logError(urise);
             }
-            return new File(nodeUri);
-        } else {
-            return null;
         }
-        // TODO: (this comment might be out of date) reconsider this code. file.toUrl does not url encode and should not be used. file.toURI.toUrl does but this breaks many file actions
+        return null;
     }
 
     public String getParentDirectory() {
