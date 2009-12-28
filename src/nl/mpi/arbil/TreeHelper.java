@@ -232,7 +232,6 @@ public class TreeHelper {
     }
 
     public void addLocationGui(URI addableLocation) {
-        System.out.println(addableLocation);
         if (!addLocation(addableLocation)) {
             // alert the user when the node already exists and cannot be added again
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
@@ -246,7 +245,6 @@ public class TreeHelper {
         // make sure the added location url matches that of the imdi node format
         ImdiTreeObject addedLocationObject = ImdiLoader.getSingleInstance().getImdiObject(null, addedLocation);
         if (addedLocationObject != null) {
-            System.out.println("addedLocationObject: " + addedLocationObject.getURI());
             saveLocations(new ImdiTreeObject[]{addedLocationObject}, null);
             loadLocationsList();
             return true;
