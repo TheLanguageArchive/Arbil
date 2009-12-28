@@ -376,10 +376,14 @@ public class LinorgSessionStorage {
      * @return The path in the cache for the file.
      */
     public File getSaveLocation(String pathString) {
+        String searchString = ".linorg/imdicache";
+        if (cacheDirectory.endsWith(".arbil/imdicache/")){
+            searchString = ".arbil/imdicache";
+        }
         pathString = pathString.replace("//", "/");
-        if (pathString.indexOf(".arbil/imdicache") > -1) {
+        if (pathString.indexOf(searchString) > -1) {
             GuiHelper.linorgBugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
-            pathString = pathString.substring(pathString.lastIndexOf(".arbil/imdicache") + ".arbil/imdicache".length());
+            pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
         }
         String cachePath = cacheDirectory + pathString.replace(":/", "/").replace("//", "/");
         File returnFile = new File(cachePath);
