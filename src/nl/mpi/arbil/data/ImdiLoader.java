@@ -281,7 +281,7 @@ public class ImdiLoader {
             currentImdiObject.registerContainer(registeringObject);
 //            System.out.println(currentImdiObject.isImdiChild() + ", " + currentImdiObject.getParentDomNode().imdiDataLoaded + ", " + currentImdiObject.isLoading());
             if (!currentImdiObject.getParentDomNode().imdiDataLoaded && !currentImdiObject.isLoading()) {
-//                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
+                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
                 if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
 //                    System.out.println("cause the parent node to be loaded");
                     // cause the parent node to be loaded
