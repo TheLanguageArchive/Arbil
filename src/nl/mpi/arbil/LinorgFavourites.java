@@ -77,8 +77,15 @@ public class LinorgFavourites {
     private void addAsFavourite(URI imdiUri) {
         try {
             URI copiedFileURI = copyToFavouritesDirectory(imdiUri);
-            URI favouriteUri = new URI(copiedFileURI.getScheme(), copiedFileURI.getUserInfo(), copiedFileURI.getHost(), copiedFileURI.getPort(), copiedFileURI.getPath(), copiedFileURI.getQuery(),
-                    imdiUri.getFragment());
+            // creating a uri with separate parameters could cause the url to be reencoded
+            // hence this has been converted to use the string URI constuctor
+//            URI favouriteUri = new URI(copiedFileURI.getScheme(), copiedFileURI.getUserInfo(), copiedFileURI.getHost(), copiedFileURI.getPort(), copiedFileURI.getPath(), copiedFileURI.getQuery(),
+//                    imdiUri.getFragment());
+            String uriString = copiedFileURI.toString().split("#")[0] /* fragment removed */;
+            if (imdiUri.getFragment() != null) {
+                uriString = uriString + "#" + imdiUri.getFragment();
+            }
+            URI favouriteUri = new URI(uriString);
 //            if (!userFavourites.containsKey(favouriteUrlString)) {
 //                ImdiTreeObject favouriteImdiObject = GuiHelper.imdiLoader.getImdiObject(null, favouriteUrlString);
 //                userFavourites.put(favouriteUrlString, favouriteImdiObject);
