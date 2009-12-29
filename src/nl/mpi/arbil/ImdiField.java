@@ -129,7 +129,7 @@ public class ImdiField {
         fieldValueToBe = fieldValueToBe.trim();
         if (!this.fieldValue.equals(fieldValueToBe)) {
             if (!excludeFromUndoHistory) {
-                LinorgJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe);
+                LinorgJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe, LinorgJournal.UndoType.Value);
             }
             LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValueToBe, "edit");
             this.fieldValue = fieldValueToBe;
@@ -147,9 +147,21 @@ public class ImdiField {
         return languageId;
     }
 
-    public void setLanguageId(String languageIdLocal, boolean updateUI) {
+    public void setLanguageId(String languageIdLocal, boolean updateUI, boolean excludeFromUndoHistory) {
         String oldLanguageId = getLanguageId();
-        if (!languageIdLocal.equals(oldLanguageId)) {
+        boolean valueChanged = false;
+        // this is expanded for readability
+        if (oldLanguageId == null && languageIdLocal == null) {
+            valueChanged = false;
+        } else if (languageIdLocal == null && oldLanguageId != null) {
+            valueChanged = true;
+        } else if (!languageIdLocal.equals(oldLanguageId)) {
+            valueChanged = true;
+        }
+        if (valueChanged) {// if the value has changed then record it in the undo list and the journal
+            if (!excludeFromUndoHistory) {
+                LinorgJournal.getSingleInstance().recordFieldChange(this, this.getLanguageId(), languageIdLocal, LinorgJournal.UndoType.LanguageId);
+            }
             LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
             //addFieldAttribute("LanguageId", languageIdLocal);
             languageId = languageIdLocal;
@@ -187,9 +199,9 @@ public class ImdiField {
     }
 
     public void revertChanges() {
-        fieldValue = originalFieldValue;
-        languageId = originalLanguageId;
-        keyName = originalKeyName;
+        setFieldValue(originalFieldValue, false, false);
+        setLanguageId(originalLanguageId, false, false);
+        setKeyName(originalKeyName, false, false);
         boolean updateUI = true;
         parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
     }
@@ -249,20 +261,23 @@ public class ImdiField {
         return keyName;
     }
 
-    public void setKeyName(String keyNameLocal, boolean updateUI) {
+    public void setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
         System.out.println("setKeyName: " + keyNameLocal);
         String lastValue = getKeyName();
         System.out.println("lastValue: " + lastValue);
         if (lastValue != null) {
             if (!lastValue.equals(keyNameLocal)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name
+                if (!excludeFromUndoHistory) {
+                    LinorgJournal.getSingleInstance().recordFieldChange(this, this.getKeyName(), keyNameLocal, LinorgJournal.UndoType.KeyName);
+                }
                 // TODO: resolve how to log key name changes
                 LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyNameLocal, "editkeyname");
                 keyName = keyNameLocal;
-//                addFieldAttribute("Name", keyNameLocal);
-                parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
                 translatedPath = null;
                 getTranslateFieldName();
+//                addFieldAttribute("Name", keyNameLocal);
+                parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
 //                }
             }
         }

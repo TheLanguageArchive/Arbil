@@ -55,6 +55,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
     JTextField keyEditorFields[] = null;
     JComboBox fieldLanguageBoxs[] = null;
     Vector<Component> componentsWithFocusListners = new Vector();
+    private String defaultLanguageDropDownValue = "<select>";
 
     public ImdiChildCellEditor() {
         button = new JLabel("...");
@@ -206,7 +207,26 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
                 fieldEditors[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getFieldValue());
                 if (fieldLanguageBoxs[cellFieldCounter] != null) {
-                    fieldLanguageBoxs[cellFieldCounter].setSelectedItem(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
+                    // set the language id selection in the dropdown
+                    boolean selectedValueFound = false;
+                    for (int itemCounter = 0; itemCounter < fieldLanguageBoxs[cellFieldCounter].getItemCount(); itemCounter++) {
+                        Object currentObject = (ImdiVocabularies.VocabularyItem) fieldLanguageBoxs[cellFieldCounter].getItemAt(itemCounter);
+                        if (currentObject instanceof ImdiVocabularies.VocabularyItem) {
+                            ImdiVocabularies.VocabularyItem currentItem = (ImdiVocabularies.VocabularyItem) currentObject;
+//                        System.out.println(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
+                            System.out.println(currentItem.languageCode);
+                            if (currentItem.languageCode.equals(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId())) {
+//                            System.out.println("setting as current");
+                                fieldLanguageBoxs[cellFieldCounter].setSelectedIndex(itemCounter);
+                                selectedValueFound = true;
+                            }
+                        }
+                    }
+                    if (selectedValueFound == false) {
+                        fieldLanguageBoxs[cellFieldCounter].addItem(defaultLanguageDropDownValue);
+                        fieldLanguageBoxs[cellFieldCounter].setSelectedItem(defaultLanguageDropDownValue);
+                    }
+//                    System.out.println("field language: " + ((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
                 }
                 if (keyEditorFields[cellFieldCounter] != null) {
                     keyEditorFields[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getKeyName());
@@ -221,7 +241,6 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
         if (fieldLanguageId != null) {
             System.out.println("Has LanguageId");
             final JComboBox comboBox = new JComboBox();
-            final String defaultValue = "<select>";
             ImdiVocabularies.VocabularyItem selectedItem = null;
             comboBox.setEditable(false);
             ImdiVocabularies.VocabularyItem[] languageItemArray = cellField.getLanguageList();
@@ -236,16 +255,16 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                 System.out.println("selectedItem: " + selectedItem);
                 comboBox.setSelectedItem(selectedItem);
             } else {
-                comboBox.addItem(defaultValue);
-                comboBox.setSelectedItem(defaultValue);
+                comboBox.addItem(defaultLanguageDropDownValue);
+                comboBox.setSelectedItem(defaultLanguageDropDownValue);
             }
             comboBox.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
                     try {
                         ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                        cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true);
-                        comboBox.removeItem(defaultValue);
+                        cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true, false);
+                        comboBox.removeItem(defaultLanguageDropDownValue);
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
                     }
@@ -403,7 +422,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                             if (cellField.parentImdi.getParentDomNode().isLocal()) {
                                 cellField.setFieldValue(fieldEditors[cellFieldIndex].getText(), true, false);
                                 if (keyEditorFields[cellFieldIndex] != null) {
-                                    cellField.setKeyName(keyEditorFields[cellFieldIndex].getText(), true);
+                                    cellField.setKeyName(keyEditorFields[cellFieldIndex].getText(), true, false);
                                 }
                             }
                         }
