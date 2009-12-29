@@ -83,7 +83,7 @@ public class ImdiTreeObject implements Comparable {
     private final Object domLockObject = new Object();
 
     protected ImdiTreeObject(URI localUri) {
-//        debugOut("ImdiTreeObject: " + localNodeText + " : " + localUrlString);
+        System.out.println("ImdiTreeObject: " + localUri);
         containersOfThisNode = new Vector<Component>();
         addQueue = new Vector<String[]>();
         nodeUri = localUri;
@@ -95,6 +95,25 @@ public class ImdiTreeObject implements Comparable {
         if (nodeText == null) {
             nodeText = localNodeText;
         }
+    }
+
+    // TODO: this is not used yet but may be required for unicode paths
+    private String urlEncodePath(String inputPath) {
+        // url encode the path elements
+        String encodedString = null;
+        try {
+            for (String inputStringPart : inputPath.split("/")) {
+//                    System.out.println("inputStringPart: " + inputStringPart);
+                if (encodedString == null) {
+                    encodedString = URLEncoder.encode(inputStringPart, "UTF-8");
+                } else {
+                    encodedString = encodedString + "/" + URLEncoder.encode(inputStringPart, "UTF-8");
+                }
+            }
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        }
+        return encodedString;
     }
 
     static public URI conformStringToUrl(String inputUrlString) {
@@ -1741,9 +1760,11 @@ public class ImdiTreeObject implements Comparable {
         String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
         return mTimeString;
     }
+
     private boolean isHeadRevision() {
         return !(new File(this.getFile().getAbsolutePath() + ".x").exists());
     }
+
     public String[][] getHistoryList() {
         Vector<String[]> historyVector = new Vector<String[]>();
         int versionCounter = 0;
@@ -1877,7 +1898,9 @@ public class ImdiTreeObject implements Comparable {
         if (domParentImdi == null) {
             if (nodeUri.getFragment() != null) {
                 try {
-                    domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+                    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+                    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
+                    domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
 //                    System.out.println("nodeUri: " + nodeUri);
                 } catch (URISyntaxException ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -1972,7 +1995,7 @@ public class ImdiTreeObject implements Comparable {
 //        System.out.println("getFile: " + nodeUri.toString());
         if (nodeUri.getScheme().toLowerCase().equals("file")) {
             try {
-                return new File(new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
+                return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
             } catch (Exception urise) {
 //                System.err.println("nodeUri: " + nodeUri);
                 GuiHelper.linorgBugCatcher.logError(urise);
@@ -2028,6 +2051,7 @@ public class ImdiTreeObject implements Comparable {
 //    public void addJumpToInTreeRequest() {
 //        jumpToRequested = true;
 //    }
+
     /**
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
