@@ -83,7 +83,7 @@ public class ImdiTreeObject implements Comparable {
     private final Object domLockObject = new Object();
 
     protected ImdiTreeObject(URI localUri) {
-        System.out.println("ImdiTreeObject: " + localUri);
+//        System.out.println("ImdiTreeObject: " + localUri);
         containersOfThisNode = new Vector<Component>();
         addQueue = new Vector<String[]>();
         nodeUri = localUri;

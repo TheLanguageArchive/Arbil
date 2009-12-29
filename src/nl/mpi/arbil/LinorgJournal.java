@@ -10,6 +10,19 @@ import java.util.ArrayList;
  */
 public class LinorgJournal {
 
+    public enum UndoType {
+
+        Value, LanguageId, KeyName
+    }
+
+    private class HistoryItem {
+
+        ImdiField targetField;
+        String oldValue;
+        String newValue;
+        UndoType undoType;
+    }
+
     private LinorgJournal() {
     }
     static private LinorgJournal singleInstance = null;
@@ -21,18 +34,23 @@ public class LinorgJournal {
         }
         return singleInstance;
     }
-    ArrayList<Object[]> fieldChangeHistory;
+    ArrayList<HistoryItem> fieldChangeHistory;
     int currentFieldChangeHistoryItem = 0;
 
-    public synchronized void recordFieldChange(ImdiField targetField, String oldValue, String newValue) {
+    public synchronized void recordFieldChange(ImdiField targetField, String oldValue, String newValue, UndoType undoType) {
         if (fieldChangeHistory == null) {
-            fieldChangeHistory = new ArrayList<Object[]>();
+            fieldChangeHistory = new ArrayList<HistoryItem>();
             currentFieldChangeHistoryItem = 0;
         }
         if (currentFieldChangeHistoryItem < fieldChangeHistory.size()) {
             fieldChangeHistory = new ArrayList(fieldChangeHistory.subList(0, currentFieldChangeHistoryItem));
         }
-        fieldChangeHistory.add(new Object[]{targetField, oldValue, newValue});
+        HistoryItem historyItem = new HistoryItem();
+        historyItem.targetField = targetField;
+        historyItem.oldValue = oldValue;
+        historyItem.newValue = newValue;
+        historyItem.undoType = undoType;
+        fieldChangeHistory.add(historyItem);
         currentFieldChangeHistoryItem++;
     }
 
@@ -47,15 +65,20 @@ public class LinorgJournal {
 
     public void undoFromFieldChangeHistory() {
         if (canUndo()) {
-            Object[] changeHistoryItem = fieldChangeHistory.get(--currentFieldChangeHistoryItem);
-            makeChangeFromHistoryItem((ImdiField) changeHistoryItem[0], (String) changeHistoryItem[2], (String) changeHistoryItem[1]);
+            HistoryItem changeHistoryItem = fieldChangeHistory.get(--currentFieldChangeHistoryItem);
+            HistoryItem reversedHistoryItem = new HistoryItem();
+            reversedHistoryItem.newValue = changeHistoryItem.oldValue;
+            reversedHistoryItem.oldValue = changeHistoryItem.newValue;
+            reversedHistoryItem.targetField = changeHistoryItem.targetField;
+            reversedHistoryItem.undoType = changeHistoryItem.undoType;
+            makeChangeFromHistoryItem(reversedHistoryItem);
         }
     }
 
     public void redoFromFieldChangeHistory() {
         if (canRedo()) {
-            Object[] changeHistoryItem = fieldChangeHistory.get(currentFieldChangeHistoryItem++);
-            makeChangeFromHistoryItem((ImdiField) changeHistoryItem[0], (String) changeHistoryItem[1], (String) changeHistoryItem[2]);
+            HistoryItem changeHistoryItem = fieldChangeHistory.get(currentFieldChangeHistoryItem++);
+            makeChangeFromHistoryItem(changeHistoryItem);
         }
     }
 
@@ -64,12 +87,34 @@ public class LinorgJournal {
         currentFieldChangeHistoryItem = 0;
     }
 
-    private void makeChangeFromHistoryItem(ImdiField targetField, String oldValue, String newValue) {
-        if (!targetField.getFieldValue().equals(oldValue)) {
+    private void makeChangeFromHistoryItem(HistoryItem historyItem) {
+        String currentValue = null;
+        switch (historyItem.undoType) {
+            case KeyName:
+                currentValue = historyItem.targetField.getKeyName();
+                break;
+            case LanguageId:
+                currentValue = historyItem.targetField.getLanguageId();
+                break;
+            case Value:
+                currentValue = historyItem.targetField.getFieldValue();
+                break;
+        }
+        if (currentValue != null && !currentValue.equals(historyItem.oldValue)) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The field value is out of sync with the history item", "Undo/Redo");
             GuiHelper.linorgBugCatcher.logError(new Exception("ChangeFromHistory old value does not match current value"));
         } else {
-            targetField.setFieldValue(newValue, true, true);
+            switch (historyItem.undoType) {
+                case KeyName:
+                    historyItem.targetField.setKeyName(historyItem.newValue, true, true);
+                    break;
+                case LanguageId:
+                    historyItem.targetField.setLanguageId(historyItem.newValue, true, true);
+                    break;
+                case Value:
+                    historyItem.targetField.setFieldValue(historyItem.newValue, true, true);
+                    break;
+            }
         }
     }
 

@@ -247,7 +247,7 @@ public class LinorgFavourites {
                         }
                         String currentLanguageId = currentFavouriteFields[fieldCounter].getLanguageId();
                         if (currentLanguageId != null) {
-                            currentField.setLanguageId(currentLanguageId, false);
+                            currentField.setLanguageId(currentLanguageId, false, true);
                         }
                     }
                 }
