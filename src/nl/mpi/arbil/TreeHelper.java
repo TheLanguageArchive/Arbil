@@ -4,6 +4,7 @@ import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -162,7 +163,9 @@ public class TreeHelper {
                 }
             }
             Vector<String> locationsList = new Vector<String>(); // this vector is kept for backwards compatability
-            locationsList.addAll(locationsSet);
+            for (String currentLocation : locationsSet) {
+                locationsList.add(URLDecoder.decode(currentLocation, "UTF-8"));
+            }
             LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
             System.out.println("saved locationsList");
         } catch (Exception ex) {
