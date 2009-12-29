@@ -38,7 +38,7 @@ public class ImdiTreeObjectTest {
     @After
     public void tearDown() {
     }
-	
+
     /**
      * Test of conformStringToUrl method, of class ImdiTreeObject.
      */
@@ -94,6 +94,8 @@ public class ImdiTreeObjectTest {
             //                "//test-directory/test subdirectory/test-file.imdi"
             // TODO: this UNC path fails the test on Mac but might pass on Windows and assumption this must be tested
             //            },
+            {"file:////.host/Shared%20Folders/imdiapi-co/mpi/imdi/",
+                "////.host/Shared%20Folders/imdiapi-co/mpi/imdi/"}, // todo: should this not be decoded?
             {"file:/test-directory/test subdirectory////test-file.imdi#test-xml-path",
                 "/test-directory/test subdirectory/test-file.imdi"
             }
