@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import nl.mpi.arbil.importexport.ShibbolethNegotiator;
 import org.junit.After;
@@ -36,6 +37,31 @@ public class LinorgSessionStorageTest {
 
     @After
     public void tearDown() {
+    }
+    @Test
+    public void testGetOriginatingUri() {
+        System.out.println("getOriginatingUri");
+        String[][] testInputArray = {
+            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+                "http://www.mpi.nl/IMDI/Schema/Continents.xml"},
+            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Some%20Continents.xml",
+                "http://www.mpi.nl/IMDI/Schema/Some%20Continents.xml"
+            },
+            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Some%20Continents.imdi#some.fragment.part.here",
+                "http://www.mpi.nl/IMDI/Schema/Some%20Continents.imdi"
+            }
+        };
+        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        for (String[] currentTest : testInputArray) {
+            try {
+                URI locationInCacheURI = new URI(currentTest[0]);
+                URI expResult = new URI(currentTest[1]);
+                URI result = instance.getOriginatingUri(locationInCacheURI);
+                assertEquals(expResult, result);
+            } catch (URISyntaxException urise) {
+                fail(urise.getMessage());
+            }
+        }
     }
 
     /**
