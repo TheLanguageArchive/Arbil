@@ -9,12 +9,14 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -379,6 +381,11 @@ public class LinorgSessionStorage {
         String searchString = ".linorg/imdicache";
         if (cacheDirectory.endsWith(".arbil/imdicache/")){
             searchString = ".arbil/imdicache";
+        }
+        try {
+            pathString = URLDecoder.decode(pathString, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            GuiHelper.linorgBugCatcher.logError(uee);
         }
         pathString = pathString.replace("//", "/");
         if (pathString.indexOf(searchString) > -1) {
