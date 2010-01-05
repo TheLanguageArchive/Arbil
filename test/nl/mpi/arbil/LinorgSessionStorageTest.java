@@ -92,8 +92,8 @@ public class LinorgSessionStorageTest {
                 "/Users/testUser/.linorg/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
                 "/Users/testUser/.linorg/imdicache/"
             },
-            {"file:/Users/petwit/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
-                "/Users/testUser/.linorg/imdicache/file/Users/petwit/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+            {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+                "/Users/testUser/.linorg/imdicache/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
                 "/Users/testUser/.linorg/imdicache/"
             }
         };
