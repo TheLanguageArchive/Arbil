@@ -8,11 +8,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ImdiSchema;
 
 /**
  * Document   : MimeHashQueue
@@ -65,6 +68,9 @@ public class MimeHashQueue {
                     }
                     while (imdiObjectQueue.size() > 0) {
                         ImdiTreeObject currentImdiObject = imdiObjectQueue.remove(0);
+                        if (!currentImdiObject.isImdi()) {
+                            addFileAndExifFields(currentImdiObject);
+                        }
                         if (currentImdiObject.hasResource() && !currentImdiObject.hasLocalResource()) {
                             checkServerPermissions(currentImdiObject);
                         } else {
@@ -94,7 +100,7 @@ public class MimeHashQueue {
                                     }
                                     updateAutoFields(currentImdiObject, currentFile);
                                     updateImdiIconsToMatchingFileNodes(currentPathURI); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
-                                    }
+                                }
 //                                } catch (MalformedURLException e) {
 //                                    //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
 //                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
@@ -159,6 +165,10 @@ public class MimeHashQueue {
         }
     }
 
+    private String getFileSizeString(File targetFile) {
+        return (targetFile.length() / 1024) + "KB";
+    }
+
     private void updateAutoFields(ImdiTreeObject currentImdiObject, File resourceFile) {
         Set<String> currentNodeFieldNames = currentImdiObject.getFields().keySet();
         // loop over the auto fields from the template
@@ -168,7 +178,7 @@ public class MimeHashQueue {
             String autoValue = null;
             if (fileAttribute.equals("Size")) {
                 if (!currentImdiObject.resourceFileNotFound()) {
-                    autoValue = (resourceFile.length() / 1024) + "KB";
+                    autoValue = getFileSizeString(resourceFile);
                 }
             } else if (fileAttribute.equals("MpiMimeType")) {
                 autoValue = currentImdiObject.mpiMimeType;
@@ -243,6 +253,37 @@ public class MimeHashQueue {
                 currentImdiObject.matchesLocalFileSystem = matchesLocalFileSystem;
                 currentImdiObject.matchesRemote = matchesRemote;
                 currentImdiObject.clearIcon();
+            }
+        }
+    }
+
+    private void addFileAndExifFields(ImdiTreeObject targetLooseFile) {
+        if (!targetLooseFile.isImdi()) {
+            File fileObject = targetLooseFile.getFile();
+            if (fileObject != null && fileObject.exists()) {
+                try {
+//TODO: consider adding the mime type field here as a non mull value and updating it when available so that the field order is tidy
+                    int currentFieldId = 1;
+                    ImdiField sizeField = new ImdiField(targetLooseFile, "Size", getFileSizeString(fileObject));
+                    sizeField.fieldID = "x" + currentFieldId++;
+                    targetLooseFile.addField(sizeField);
+                    // add the modified date
+                    Date mtime = new Date(fileObject.lastModified());
+                    String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
+                    ImdiField dateField = new ImdiField(targetLooseFile, "last modified", mTimeString);
+                    dateField.fieldID = "x" + currentFieldId++;
+                    targetLooseFile.addField(dateField);
+                    // get exif tags
+//                System.out.println("get exif tags");
+                    ImdiField[] exifFields = ImdiSchema.getSingleInstance().getExifMetadata(targetLooseFile);
+                    for (ImdiField currentField : exifFields) {
+                        currentField.fieldID = "x" + currentFieldId++;
+                        targetLooseFile.addField(currentField);
+//                    System.out.println(currentField.fieldValue);
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(targetLooseFile.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
+                }
             }
         }
     }
