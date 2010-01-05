@@ -339,33 +339,13 @@ public class ImdiTreeObject implements Comparable {
             if (!isImdi() && isLocal()) {
                 File fileObject = getFile();
                 if (fileObject != null) {
+                    this.nodeText = fileObject.getName();
                     this.isDirectory = fileObject.isDirectory();
-                }
-                if (fileObject.exists()) {
-                    try {
-                        int currentFieldId = 1;
-                        nodeText = fileObject.getName();
-                        // TODO move this to the mime hash queue
-                        ImdiField sizeField = new ImdiField(this, "Size", "");
-                        sizeField.fieldID = "x" + currentFieldId++;
-                        addField(sizeField);
-                        // add the modified date
-                        Date mtime = new Date(fileObject.lastModified());
-                        String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-                        ImdiField dateField = new ImdiField(this, "last modified", mTimeString);
-                        dateField.fieldID = "x" + currentFieldId++;
-                        addField(dateField);
-                        // get exif tags
-//                System.out.println("get exif tags");
-                        ImdiField[] exifFields = ImdiSchema.getSingleInstance().getExifMetadata(this);
-                        for (ImdiField currentField : exifFields) {
-                            currentField.fieldID = "x" + currentFieldId++;
-                            addField(currentField);
-//                    System.out.println(currentField.fieldValue);
-                        }
-                    } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(this.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
-                    }
+                    // TODO: check this on a windows box with a network drive and linux with symlinks
+//                    this.isDirectory = !fileObject.isFile();
+//                    System.out.println("isFile" + fileObject.isFile());
+//                    System.out.println("isDirectory" + fileObject.isDirectory());
+//                    System.out.println("getAbsolutePath" + fileObject.getAbsolutePath());
                 }
             }
             if (!isImdi() && nodeText == null) {
@@ -398,7 +378,7 @@ public class ImdiTreeObject implements Comparable {
             getParentDomNode().loadImdiDom();
         } else {
             synchronized (domLockObject) {
-                initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
+                initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created                
                 if (!isImdi() && !isDirectory() && isLocal()) {
                     // if it is an not imdi or a loose file but not a direcotry then get the md5sum
                     MimeHashQueue.getSingleInstance().addToQueue(this);
