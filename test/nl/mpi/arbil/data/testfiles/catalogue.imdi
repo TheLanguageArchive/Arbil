@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METATRANSCRIPT xmlns="http://www.mpi.nl/IMDI/Schema/IMDI"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                Date="2010-01-06"
+                FormatId="IMDI 3.0"
+                Originator="Arbil.0.2.14710M"
+                Type="CATALOGUE"
+                Version="12"
+                id="i60"
+                xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+    <History id="i2"/>
+    <Catalogue id="i3">
+        <Name id="i4"/>
+        <Title id="i5"/>
+        <Id id="i6"/>
+		    <!--Description: minOccurs=0 maxOccurs=unbounded-->
+        <Description ArchiveHandle="" LanguageId="" Link="" Name="" id="i7"/>
+        <DocumentLanguages id="i8">
+            <!--Description: minOccurs=0 maxOccurs=unbounded-->
+            <!--Language: minOccurs=0 maxOccurs=unbounded-->
+        </DocumentLanguages>
+        <SubjectLanguages id="i9">
+            <!--Description: minOccurs=0 maxOccurs=unbounded-->
+            <!--Language: minOccurs=0 maxOccurs=unbounded-->
+        </SubjectLanguages>
+		    <!--Location: minOccurs=1 maxOccurs=unbounded-->
+        <Location id="i10">
+            <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="OpenVocabulary"
+                    id="i11"/>
+            <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"
+                  id="i12"/>
+            <Region id="i13"/>
+            <Address id="i14"/>
+        </Location>
+		    <!--ContentType: minOccurs=1 maxOccurs=unbounded-->
+        <ContentType id="i15"/>
+        <Format id="i16">
+            <Text id="i17"/>
+            <Audio id="i18"/>
+            <Video id="i19"/>
+            <Image id="i20"/>
+        </Format>
+        <Quality id="i21">
+            <Text id="i22"/>
+            <Audio id="i23"/>
+            <Video id="i24"/>
+            <Image id="i25"/>
+        </Quality>
+        <SmallestAnnotationUnit id="i26"/>
+        <Applications id="i27"/>
+        <Date id="i28">Unspecified</Date>
+        <Project id="i29">
+            <Name id="i30"/>
+            <Title id="i31"/>
+            <Id id="i32"/>
+            <Contact id="i33">
+                <Name id="i34"/>
+                <Address id="i35"/>
+                <Email id="i36"/>
+                <Organisation id="i37"/>
+            </Contact>
+			      <!--Description: minOccurs=0 maxOccurs=unbounded-->
+            <Description ArchiveHandle="" LanguageId="" Link="" Name="" id="i38"/>
+        </Project>
+		    <!--Publisher: maxOccurs=unbounded-->
+        <Publisher id="i39"/>
+		    <!--Author: maxOccurs=unbounded-->
+        <Author id="i40"/>
+        <Size id="i41"/>
+        <DistributionForm id="i42"/>
+        <Access id="i43">
+            <Availability id="i44"/>
+            <Date id="i45">Unspecified</Date>
+            <Owner id="i46"/>
+            <Publisher id="i47"/>
+            <Contact id="i48">
+                <Name id="i49"/>
+                <Address id="i50"/>
+                <Email id="i51"/>
+                <Organisation id="i52"/>
+            </Contact>
+			      <!--Description: minOccurs=0 maxOccurs=unbounded-->
+            <Description ArchiveHandle="" LanguageId="" Link="" Name="" id="i53"/>
+        </Access>
+        <Pricing id="i54"/>
+        <ContactPerson id="i55"/>
+        <ReferenceLink id="i56"/>
+        <MetadataLink id="i57"/>
+        <Publications id="i58"/>
+        <Keys id="i59">
+            <!--Key: minOccurs=0 maxOccurs=unbounded-->
+        </Keys>
+    </Catalogue>
+</METATRANSCRIPT>
