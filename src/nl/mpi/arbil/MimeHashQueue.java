@@ -52,6 +52,7 @@ public class MimeHashQueue {
         new Thread() {
 
             public void run() {
+                int serverPermissionsChecked = 0;
                 setPriority(Thread.MIN_PRIORITY);
                 System.out.println("MimeHashQueue run");
                 fileType = new mpi.bcarchive.typecheck.FileType(); //  used to check the file type
@@ -68,13 +69,16 @@ public class MimeHashQueue {
                     }
                     while (imdiObjectQueue.size() > 0) {
                         ImdiTreeObject currentImdiObject = imdiObjectQueue.remove(0);
+                        //System.out.println("MimeHashQueue checking: " + currentImdiObject.getUrlString());
                         if (!currentImdiObject.isImdi()) {
+                            System.out.println("checking exif");
                             addFileAndExifFields(currentImdiObject);
                         }
                         if (currentImdiObject.hasResource() && !currentImdiObject.hasLocalResource()) {
+                            System.out.println("checking server permissions " + serverPermissionsChecked++);
                             checkServerPermissions(currentImdiObject);
                         } else {
-//                        System.out.println("MimeHashQueue checking: " + currentImdiObject);
+                            System.out.println("checking mime type etc");
                             URI currentPathURI = getNodeURI(currentImdiObject);
                             if (currentPathURI != null && currentPathURI.toString().length() > 0) {
 //                                try {
