@@ -67,9 +67,10 @@
         <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
     </ChildNodePaths>
     <RootTemplateComponents>
-        <comment>The template components that can be added at the root or corpus branch level via the add menu and the display name for each</comment>
+        <comment>The template components that can be added as a discrete file and can be added at the root or corpus branch level via the add menu and the display name for each</comment>
         <RootTemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />
         <RootTemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
+        <RootTemplateComponent FileName="METATRANSCRIPT.Catalogue.xml" DisplayName="Catalogue" />
     </RootTemplateComponents>
     <AvailableTemplateComponents>
         <comment>The template components that can be added via the add menu and the display name for each</comment>
@@ -87,9 +88,9 @@
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Description.xml" DisplayName="Subject Languages Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Description.xml" DisplayName="Subject Languages Language Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.SubjectLanguages.Language.xml" DisplayName="Subject Languages Language" />
-        <TemplateComponent FileName="METATRANSCRIPT.Catalogue.xml" DisplayName="Catalogue" />
+        <!--<TemplateComponent FileName="METATRANSCRIPT.Catalogue.xml" DisplayName="Catalogue" />-->
         <TemplateComponent FileName="METATRANSCRIPT.Corpus.Description.xml" DisplayName="Description" />
-        <TemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />
+        <!--<TemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />-->
         <TemplateComponent FileName="METATRANSCRIPT.Session.Description.xml" DisplayName="Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml" DisplayName="Actor Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml" DisplayName="Actor Key" />
@@ -104,7 +105,7 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source.xml" DisplayName="Source" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml" DisplayName="WrittenResource Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource.xml" DisplayName="WrittenResource" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
+        <!--<TemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />-->
     </AvailableTemplateComponents>
     <FieldUsageDescriptions>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="The title of this session" />
