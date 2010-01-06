@@ -418,7 +418,8 @@ public class ImdiTreeObject implements Comparable {
                         // only read the fields into imdi tree objects if it is not going to be saved to the cache
 //            if (!useCache) {
                         if (nodDom == null) {
-                            if (this.getFile().exists()) {
+                            File nodeFile = this.getFile();
+                            if (nodeFile != null && nodeFile.exists()) {
                                 nodeText = "Could not load IMDI";
                             } else {
                                 nodeText = "File not found";
@@ -701,15 +702,15 @@ public class ImdiTreeObject implements Comparable {
      * Add a new node based on a template and optionally attach a resource
      * @return String path to the added node
      */
-    public URI addChildNode(String nodeType, String targetXmlPath, String resourcePath, String mimeType) {
-        System.out.println("addChildNode:: " + nodeType + " : " + resourcePath);
+    public URI addChildNode(String nodeType, String targetXmlPath, URI resourceUri, String mimeType) {
+        System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
         System.out.println("targetXmlPath:: " + targetXmlPath);
         if (needsSaveToDisk) {
             saveChangesToCache(true);
         }
         URI addedNodePath = null;
         ImdiTreeObject destinationNode;
-        if (currentTemplate.isImdiChildType(nodeType) || (resourcePath != null && this.isSession())) {
+        if (currentTemplate.isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
@@ -724,7 +725,7 @@ public class ImdiTreeObject implements Comparable {
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
 //                System.out.println("inUrlLocal: " + inUrlLocal);
-                        addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(this.currentTemplate, this.getFile(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourcePath, mimeType);
+                        addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(this.currentTemplate, this.getURI(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
                         bumpHistory();
