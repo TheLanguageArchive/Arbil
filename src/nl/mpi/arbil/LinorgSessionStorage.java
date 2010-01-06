@@ -379,7 +379,7 @@ public class LinorgSessionStorage {
      */
     public File getSaveLocation(String pathString) {
         String searchString = ".linorg/imdicache";
-        if (cacheDirectory.endsWith(".arbil/imdicache/")){
+        if (cacheDirectory.endsWith(".arbil/imdicache/")) {
             searchString = ".arbil/imdicache";
         }
         try {
