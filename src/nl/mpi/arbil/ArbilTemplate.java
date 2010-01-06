@@ -98,7 +98,7 @@ public class ArbilTemplate {
         </ChildNodePaths>
          */
     }
-    String[][] templatesArray;
+    String[][] templatesArray; // TODO: separate the filename from the xpath by adding the nodepath as a separate value so that there can be multiple of the same type
     String[][] rootTemplatesArray;
     public String[][] autoFieldsArray;
 
@@ -217,28 +217,29 @@ public class ArbilTemplate {
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) targetNodeUserObject).isCatalogue() || ((ImdiTreeObject) targetNodeUserObject).isSession() || ((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
-                String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
-                childTypes = getSubnodesFromTemplatesDir(xpath);
-            } else if (!((ImdiTreeObject) targetNodeUserObject).isImdiChild()) {
+            String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
+            childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
+            if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
                 for (String[] currentTemplate : rootTemplatesArray) {
-                    childTypes.add(new String[]{currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+                    boolean suppressEntry = false;
+                    if (currentTemplate[1].equals("Catalogue")) {
+                        if (((ImdiTreeObject) targetNodeUserObject).hasCatalogue()) {
+                            // make sure the catalogue can only be added once
+                            suppressEntry = true;
+                        }
+                    }
+                    if (!suppressEntry) {
+                        childTypes.add(new String[]{currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+                    }
                 }
-//                childTypes.add(new String[]{"Corpus Branch", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus"});
-                childTypes.add(new String[]{"Corpus Description", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Description"});
-//                TODO: make sure the catalogue can only be added once
-                if (!((ImdiTreeObject) targetNodeUserObject).hasCatalogue()) {
-                    childTypes.add(new String[]{"Catalogue", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Catalogue"});
-                }
-//                childTypes.add(new String[]{"Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
             }
 //            System.out.println("childTypes: " + childTypes);
         } else {
-            // corpus can be added to the root node
-//            childTypes.add(new String[]{"Unattached Corpus Branch", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus"});
-//            childTypes.add(new String[]{"Unattached Session", ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session"});
+            // add the the root node items
             for (String[] currentTemplate : rootTemplatesArray) {
-                childTypes.add(new String[]{"Unattached " + currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+                if (!currentTemplate[1].equals("Catalogue")) {// make sure the catalogue can not be added at the root level
+                    childTypes.add(new String[]{"Unattached " + currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+                }
             }
         }
         Collections.sort(childTypes, new Comparator() {
@@ -349,7 +350,7 @@ public class ArbilTemplate {
             URL internalTemplateName = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
             if (templateConfigFile.exists()) {
                 xmlReader.parse(templateConfigFile.getPath());
-            } else if (templateName.equals("Sign Language")||templateName.equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
+            } else if (templateName.equals("Sign Language") || templateName.equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
                 xmlReader.parse(internalTemplateName.toExternalForm());
             } else {
                 loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
