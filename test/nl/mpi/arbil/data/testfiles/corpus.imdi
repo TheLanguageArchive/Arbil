@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<METATRANSCRIPT xmlns="http://www.mpi.nl/IMDI/Schema/IMDI"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                Date="2009-12-23"
+                FormatId="IMDI 3.03"
+                Originator="Arbil.0.2.14710M"
+                Type="CORPUS"
+                Version="0"
+                id="i6"
+                xsi:schemaLocation="http://www.mpi.nl/IMDI/Schema/IMDI ./IMDI_3.0.xsd">
+        <Corpus id="i2">
+                <Name id="i3">Standard Corpus</Name>
+                <Title id="i4"/>
+                <Description LanguageId="" Link="" id="i5"/>
+   </Corpus>
+</METATRANSCRIPT>
