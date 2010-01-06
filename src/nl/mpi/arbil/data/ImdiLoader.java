@@ -91,23 +91,30 @@ public class ImdiLoader {
                                 }
                                 currentImdiObject.loadImdiDom();
                                 if (currentImdiObject.addQueue.size() > 0) { // add any child nodes requested
-                                    String nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType;
+                            String nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType;
+                            URI resourceUri = null;
                                     {
                                         String[] addRequestArrayString = currentImdiObject.addQueue.remove(0);
                                         nodeType = addRequestArrayString[0];
                                         targetXmlPath = addRequestArrayString[1];
                                         nodeTypeDisplayName = addRequestArrayString[2];
                                         favouriteUrlString = addRequestArrayString[3];
-                                        resourceUrl = addRequestArrayString[4];
+                                if (addRequestArrayString[4] != null) {
+                                    try {
+                                        resourceUri = new URI(addRequestArrayString[4]);
+                                    } catch (URISyntaxException urise) {
+                                        GuiHelper.linorgBugCatcher.logError(urise);
+                                    }
+                                }
                                         mimeType = addRequestArrayString[5];
                                     }
                                     String newTableTitleString = "new " + nodeTypeDisplayName;
                                     if (currentImdiObject.isImdi() && !currentImdiObject.fileNotFound) {
                                         newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
                                     }
-                                    System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUrl + "\nmimeType: " + mimeType);
+                            System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
 //                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
-                                ImdiTreeObject addedImdiObject = getImdiObjectWithoutLoading(currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUrl, mimeType));
+                            ImdiTreeObject addedImdiObject = getImdiObjectWithoutLoading(currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUri, mimeType));
                                 if (addedImdiObject != null) {
                                     Vector<ImdiTreeObject> allAddedNodes = new Vector<ImdiTreeObject>();
 //                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
@@ -281,7 +288,7 @@ public class ImdiLoader {
             currentImdiObject.registerContainer(registeringObject);
 //            System.out.println(currentImdiObject.isImdiChild() + ", " + currentImdiObject.getParentDomNode().imdiDataLoaded + ", " + currentImdiObject.isLoading());
             if (!currentImdiObject.getParentDomNode().imdiDataLoaded && !currentImdiObject.isLoading()) {
-                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
+//                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
                 if (ImdiTreeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
 //                    System.out.println("cause the parent node to be loaded");
                     // cause the parent node to be loaded
