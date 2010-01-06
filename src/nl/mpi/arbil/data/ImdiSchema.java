@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -285,8 +286,8 @@ public class ImdiSchema {
         }
     }
 
-    public URI insertFromTemplate(ArbilTemplate currentTemplate, File destinationFile, File resourceDirectory, String elementName, String targetXmlPath, Document targetImdiDom, String resourcePath, String mimeType) {
-        System.out.println("insertFromTemplate: " + elementName + " : " + resourcePath);
+    public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) {
+        System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
         System.out.println("targetXpath: " + targetXmlPath);
         URI addedPathURI = null;
 //        System.out.println("targetImdiDom: " + targetImdiDom.getTextContent());
@@ -376,29 +377,32 @@ public class ImdiSchema {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Insert from Template");
             } else {
                 // insert values into the section that about to be added
-                if (resourcePath != null) {
-                    String localFilePath = resourcePath; // will be changed when copied to the cache
+                if (resourceUrl != null) {
+                    URI finalResourceUrl = resourceUrl;
+//                    String localFilePath = resourcePath; // will be changed when copied to the cache
                     // copy the file to the imdi directory
                     try {
                         //// TODO: the resource should be optionaly copied or moved into the cache or hardlinked
                         if (copyNewResourcesToCache) {
-                            URL resourceUrl = new URL(resourcePath);
+//                            URL resourceUrl = new URL(resourcePath);
 //                    String resourcesDirName = "resources";
-                            File originalFile = new File(resourceUrl.getFile());
+                            File originalFile = new File(resourceUrl);
                             int suffixIndex = originalFile.getName().lastIndexOf(".");
                             String targetFilename = originalFile.getName().substring(0, suffixIndex);
                             String targetSuffix = originalFile.getName().substring(suffixIndex);
                             System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
                             ///////////////////////////////////////////////////////////////////////
                             // use the nodes child directory
-                            File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDirectory);
-                            localFilePath = destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
+                            File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDestinationDirectory);
+                            URI fullURI = destinationFileCopy.toURI();
+                            finalResourceUrl = targetMetadataUri.relativize(fullURI);
+                                    //destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
                             // for easy reading in the fields keep the file in the same directory
 //                        File destinationDirectory = new File(destinationFile.getParentFile().getPath());
 //                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
 //                        localFilePath = "./" + destinationFileCopy.getName();
                             ///////////////////////////////////////////////////////////////////////
-                            copyToDisk(resourceUrl, destinationFileCopy);
+                            copyToDisk(resourceUrl.toURL(), destinationFileCopy);
                             System.out.println("destinationFileCopy: " + destinationFileCopy.toString());
                         }
                     } catch (Exception ex) {
@@ -408,7 +412,8 @@ public class ImdiSchema {
 
                     // find the correct node and set the resourcePath value
                     Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*/:ResourceLink");
-                    linkNode.setTextContent(localFilePath);
+                    String decodeUrlString = URLDecoder.decode(finalResourceUrl.toString(), "UTF-8");
+                    linkNode.setTextContent(decodeUrlString);
                 }
                 if (mimeType != null) {
                     if (mimeType.equals("image/jpeg")) {
@@ -467,10 +472,10 @@ public class ImdiSchema {
                         currentNode = currentNode.getNextSibling();
                     }
                     targetFragment = targetFragment + "(" + siblingCount + ")";
-                    addedPathURI = new URI(destinationFile.toURI().toString() + "#" + targetFragment);
+                    addedPathURI = new URI(targetMetadataUri.toString() + "#" + targetFragment);
                 } else {
                     // make sure elements like description show the parent node rather than trying to get a non existing node
-                    addedPathURI = destinationFile.toURI();
+                    addedPathURI = targetMetadataUri;
                 }
             }
         } catch (Exception ex) {
@@ -495,16 +500,16 @@ public class ImdiSchema {
         }
 //                    System.out.println("linkPath: " + linkPath);
 //                    linkPath = new URL(linkPath).getPath();
-        // clean the path for the local file system
+// clean the path for the local file system
 //        linkURI = linkURI.replaceAll("/\\./", "/");
 //        linkURI = linkURI.substring(0, 6) + (linkURI.substring(6).replaceAll("[/]+/", "/"));
 //        while (linkURI.contains("/../")) {
-//                        System.out.println("linkPath: " + linkPath);
+////                        System.out.println("linkPath: " + linkPath);
 //            linkURI = linkURI.replaceFirst("/[^/]+/\\.\\./", "/");
 //        }
 //                    System.out.println("linkPathCorrected: " + linkPath);
         linkURI = ImdiTreeObject.normaliseURI(linkURI);
-        System.out.println("linkURI: " + linkURI.toString());
+//        System.out.println("linkURI: " + linkURI.toString());
         return linkURI;
     }
 
@@ -536,6 +541,7 @@ public class ImdiSchema {
                     parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate("template_cmdi");
                 }
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
+                    // these attributes exist only in the metatranscript node
                     Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
                     if (archiveHandleAtt != null) {
                         parentNode.hasArchiveHandle = true;
@@ -547,6 +553,7 @@ public class ImdiSchema {
                         if (separatorIndex > -1) {
                             parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
                         } else {
+                            // TODO: this is redundant but is here for backwards compatability
                             Node templateTypeAtt = attributesMap.getNamedItem("Type");
                             if (templateTypeAtt != null) {
                                 String templateType = templateTypeAtt.getNodeValue();
@@ -554,7 +561,7 @@ public class ImdiSchema {
                             }
                         }
                     }
-                }// end get the xml node id
+                }
                 Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
                 if (catalogueLinkAtt != null) {
                     String catalogueLink = catalogueLinkAtt.getNodeValue();
@@ -574,11 +581,11 @@ public class ImdiSchema {
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 try {
-                String siblingSpacer = "";
-                String pathUrlXpathSeparator = "";
-                if (!parentNode.getUrlString().contains("#")) {
-                    pathUrlXpathSeparator = "#";
-                }
+                    String siblingSpacer = "";
+                    String pathUrlXpathSeparator = "";
+                    if (!parentNode.getUrlString().contains("#")) {
+                        pathUrlXpathSeparator = "#";
+                    }
                     ImdiTreeObject metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
                 metaNodeImdiTreeObject.setNodeText(childsMetaNode);
 
