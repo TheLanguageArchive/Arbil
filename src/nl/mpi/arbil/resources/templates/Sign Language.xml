@@ -22,6 +22,9 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Size" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Format" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Type" />
+        <RequiredField FieldPath=".*\.Date"/>
+        <RequiredField FieldPath=".*\.BirthDate"/>
+        <!--<RequiredField FieldPath=".*\.Email"/>-->
     </RequiredFields>
     <AutoFields>
         <comment>The fields listed here will be overwritten when the data becomes available and updated if it changes (this is primarily for resource files)</comment>
@@ -65,9 +68,10 @@
         <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
     </ChildNodePaths>
     <RootTemplateComponents>
-        <comment>The template components that can be added at the root or corpus branch level via the add menu and the display name for each</comment>
+        <comment>The template components that can be added as a discrete file and can be added at the root or corpus branch level via the add menu and the display name for each</comment>
         <RootTemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />
         <RootTemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
+        <RootTemplateComponent FileName="METATRANSCRIPT.Catalogue.xml" DisplayName="Catalogue" />
         <RootTemplateComponent FileName="METATRANSCRIPT.SignLanguageSession.xml" DisplayName="Sign-Language Session" />
     </RootTemplateComponents>
     <AvailableTemplateComponents>
