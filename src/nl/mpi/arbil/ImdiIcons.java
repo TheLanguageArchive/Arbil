@@ -198,6 +198,10 @@ public class ImdiIcons {
                 iconsVector.add(writtenresourceIcon);
             } else if (mimeTypeForNode.contains("kml")) {
                 iconsVector.add(writtenresourceIcon);
+            } else if (mimeTypeForNode.contains("manual/mediafile")) {
+                iconsVector.add(picturesIcon);
+            } else if (mimeTypeForNode.contains("manual/writtenresource")) {
+                iconsVector.add(writtenresourceIcon);
             } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
                 // no icon for this
                 iconsVector.add(fileIcon);
