@@ -3,6 +3,7 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -65,6 +66,7 @@ public class ContextMenu {
     private JMenuItem viewInBrrowserMenuItem;
     private JMenuItem viewXmlMenuItemFormatted;
     private JMenuItem openXmlMenuItemFormatted;
+    private JMenuItem overrideTypeCheckerDecision;
     static private ContextMenu singleInstance = null;
     //////////
     // table menu items
@@ -115,6 +117,7 @@ public class ContextMenu {
         viewXmlMenuItem = new JMenuItem();
         viewXmlMenuItemFormatted = new JMenuItem();
         openXmlMenuItemFormatted = new JMenuItem();
+        overrideTypeCheckerDecision = new JMenuItem();
         viewInBrrowserMenuItem = new JMenuItem();
         browseForResourceFileMenuItem = new JMenuItem();
         validateMenuItem = new JMenuItem();
@@ -361,7 +364,21 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    viewSelectedNodesMenuItemActionPerformed(evt);
+                    ArrayList<ImdiTreeObject> filteredNodes = new ArrayList<ImdiTreeObject>();
+                    for (ImdiTreeObject currentItem : ((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes()) {
+                        if (currentItem.isImdi() || currentItem.getFields().size() > 0) {
+                            filteredNodes.add(currentItem);
+                        } else {
+                            try {
+                                LinorgWindowManager.getSingleInstance().openUrlWindowOnce(currentItem.toString(), currentItem.getURI().toURL());
+                            } catch (MalformedURLException murle) {
+                                GuiHelper.linorgBugCatcher.logError(murle);
+                            }
+                        }
+                    }
+                    if (filteredNodes.size() > 0) {
+                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(filteredNodes.toArray(new ImdiTreeObject[]{}), null);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -541,6 +558,31 @@ public class ContextMenu {
         treePopupMenu.add(deleteMenuItem);
 
         treePopupMenu.add(new JSeparator());
+
+        overrideTypeCheckerDecision.setText("Override Type Checker Decision");
+        overrideTypeCheckerDecision.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    String titleString = "Override Type Checker Decision";
+                    String messageString = "The type checker does not recognise the selected file/s, which means that they\nare not an archivable type. This action will override that decision and allow you\nto add the file/s to a session, as either media or written resources,\nhowever it might not be possible to import the result to the copus server.";
+                    String[] optionStrings = {"WrittenResource", "MediaFile", "Cancel"};
+                    int userSelection = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame.getContentPane(), messageString, titleString, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, optionStrings, optionStrings[2]);
+                    if (optionStrings[userSelection].equals("WrittenResource") || optionStrings[userSelection].equals("MediaFile")) {
+                        for (ImdiTreeObject currentNode : selectedTreeNodes) {
+                            if (currentNode.mpiMimeType == null) {
+                                currentNode.mpiMimeType = "Manual/" + optionStrings[userSelection];
+                                currentNode.typeCheckerMessage = "Manually overridden (might not be compatible with the archive)";
+                                currentNode.clearIcon();
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(overrideTypeCheckerDecision);
 
         viewInBrrowserMenuItem.setText("Open in External Application");
         viewInBrrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -958,13 +1000,6 @@ public class ContextMenu {
 
     }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
 
-    private void viewSelectedNodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_viewSelectedNodesMenuItemActionPerformed
-        // TODO add your handling code here:   
-        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes(), null);
-
-    }//GEN-LAST:event_viewSelectedNodesMenuItemActionPerformed
-
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_sendToServerMenuItemActionPerformed
         // TODO add your handling code here:
@@ -1124,6 +1159,7 @@ public class ContextMenu {
         viewXmlMenuItem.setVisible(false);
         viewXmlMenuItemFormatted.setVisible(false);
         openXmlMenuItemFormatted.setVisible(false);
+        overrideTypeCheckerDecision.setVisible(false);
         viewInBrrowserMenuItem.setVisible(false);
         browseForResourceFileMenuItem.setVisible(false);
         searchSubnodesMenuItem.setVisible(false);
@@ -1236,6 +1272,7 @@ public class ContextMenu {
                 openXmlMenuItemFormatted.setVisible(true);
             }
             viewInBrrowserMenuItem.setVisible(true);
+            overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isImdi() && leadSelectedTreeNode.mpiMimeType == null);
         }
     }
 
