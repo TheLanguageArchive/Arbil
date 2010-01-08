@@ -264,9 +264,13 @@ public class ImdiSchema {
     public String getNodeTypeFromMimeType(String mimeType) {
         System.out.println("getNodeTypeFromMimeType: " + mimeType);
         for (String[] formatType : new String[][]{
-                    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-                    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile"}
+                    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
+                    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
                 }) {
+            if (formatType[2].equals(mimeType)) {
+                System.out.println("UsingOverrideNodeType: " + formatType[1]);
+                return formatType[1];
+            }else
             if (ImdiVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
                 System.out.println("NodeType: " + formatType[1]);
 //                    if (mimeType.equals("image/jpeg")) {
