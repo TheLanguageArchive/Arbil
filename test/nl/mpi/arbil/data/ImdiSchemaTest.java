@@ -115,7 +115,9 @@ public class ImdiSchemaTest {
         System.out.println("getNodeTypeFromMimeType");
         String[][] testCases = {
             {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-            {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"}
+            {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"},
+            {"Manual/WrittenResource", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+            {"Manual/MediaFile", ".METATRANSCRIPT.Session.Resources.MediaFile"}
         };
         for (String[] currentTest : testCases) {
             String mimeType = currentTest[0];
