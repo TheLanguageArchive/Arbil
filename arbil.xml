@@ -205,6 +205,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
         <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
+            <fileset dir="${SRCDIR}" includes="log4j.properties"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
             <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
