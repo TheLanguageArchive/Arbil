@@ -36,6 +36,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private JMenuItem shortCutKeysjMenuItem;
     private JMenuItem arbilForumMenuItem;
+    private JMenuItem viewErrorLogMenuItem;
     private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private JMenu templatesMenu;
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
@@ -92,6 +93,7 @@ public class ArbilMenuBar extends JMenuBar {
         helpMenuItem = new JMenuItem();
         shortCutKeysjMenuItem = new JMenuItem();
         arbilForumMenuItem = new JMenuItem();
+        viewErrorLogMenuItem = new JMenuItem();
         printHelpMenuItem = new JMenuItem();
         fileMenu.setText("File");
         fileMenu.addMenuListener(new MenuListener() {
@@ -389,6 +391,18 @@ public class ArbilMenuBar extends JMenuBar {
         this.add(windowMenu);
 
         helpMenu.setText("Help");
+        helpMenu.addMenuListener(new MenuListener() {
+
+            public void menuCanceled(MenuEvent evt) {
+            }
+
+            public void menuDeselected(MenuEvent evt) {
+            }
+
+            public void menuSelected(MenuEvent evt) {
+                viewErrorLogMenuItem.setEnabled(new LinorgBugCatcher().getLogFile().exists());
+            }
+        });
 
         aboutMenuItem.setText("About");
         aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -429,6 +443,19 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
         helpMenu.add(arbilForumMenuItem);
+
+        viewErrorLogMenuItem.setText("View Error Log");
+        viewErrorLogMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    GuiHelper.getSingleInstance().openFileInExternalApplication(new LinorgBugCatcher().getLogFile().toURI());
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        helpMenu.add(viewErrorLogMenuItem);
 
         shortCutKeysjMenuItem.setText("Short Cut Keys");
         shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
