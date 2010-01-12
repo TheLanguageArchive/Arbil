@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.CookieHandler;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.security.MessageDigest;
@@ -410,16 +411,27 @@ public class MimeHashQueue {
 
     private void checkServerPermissions(ImdiTreeObject imdiObject) {
         try {
-//            System.out.println("imdiObject: " + imdiObject);
+            CookieHandler.setDefault(new ShibCookieHandler());
+//////            System.out.println("imdiObject: " + imdiObject);
             HttpURLConnection resourceConnection = (HttpURLConnection) imdiObject.getFullResourceURI().toURL().openConnection();
-//            System.out.println("conn: " + resourceConnection.getURL());
+//////            resourceConnection.getHeaderField(fileType)"Set-Cookie"
+//////            resourceConnection.set
+            resourceConnection.setRequestMethod("HEAD");
+            resourceConnection.setRequestProperty("Connection", "Close");
+//////            resourceConnection.setRequestProperty("Cookie", "somecookietext");
+////            resourceConnection.
+////
+//////            System.out.println("conn: " + resourceConnection.getURL());
             imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
             if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
                 imdiObject.fileNotFound = true;
             } else {
                 imdiObject.fileNotFound = false;
             }
-//            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
+//            CookieHandler cookieHandler = CookieHandler.getDefault();
+////            CookieHandler.setDefault(new CookieHandler());
+//            cookieHandler.put(resourceConnection, fileType)
+////            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
