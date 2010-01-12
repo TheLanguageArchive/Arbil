@@ -396,7 +396,6 @@ public class ImdiTreeObject implements Comparable {
                     try {
                         //System.out.println("tempUrlString: " + tempUrlString);
                         if (false) {
-                            // TODO: resolve why this is not functioning, till then the subsequent stanza is used
                             try {
                                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                                 nodDom = builder.parse(nodeUri.toURL().openStream());
