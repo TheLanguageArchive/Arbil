@@ -41,6 +41,7 @@ public class MimeHashQueue {
     static synchronized public MimeHashQueue getSingleInstance() {
 //        System.out.println("MimeHashQueue getSingleInstance");
         if (singleInstance == null) {
+            CookieHandler.setDefault(new ShibCookieHandler());
             singleInstance = new MimeHashQueue();
         }
         return singleInstance;
@@ -411,27 +412,18 @@ public class MimeHashQueue {
 
     private void checkServerPermissions(ImdiTreeObject imdiObject) {
         try {
-            CookieHandler.setDefault(new ShibCookieHandler());
-//////            System.out.println("imdiObject: " + imdiObject);
+//            System.out.println("imdiObject: " + imdiObject);
             HttpURLConnection resourceConnection = (HttpURLConnection) imdiObject.getFullResourceURI().toURL().openConnection();
-//////            resourceConnection.getHeaderField(fileType)"Set-Cookie"
-//////            resourceConnection.set
             resourceConnection.setRequestMethod("HEAD");
             resourceConnection.setRequestProperty("Connection", "Close");
-//////            resourceConnection.setRequestProperty("Cookie", "somecookietext");
-////            resourceConnection.
-////
-//////            System.out.println("conn: " + resourceConnection.getURL());
+//            System.out.println("conn: " + resourceConnection.getURL());
             imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
             if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
                 imdiObject.fileNotFound = true;
             } else {
                 imdiObject.fileNotFound = false;
             }
-//            CookieHandler cookieHandler = CookieHandler.getDefault();
-////            CookieHandler.setDefault(new CookieHandler());
-//            cookieHandler.put(resourceConnection, fileType)
-////            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
+//            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -446,7 +438,7 @@ public class MimeHashQueue {
     }
 
     public void addToQueue(ImdiTreeObject imdiObject) {
-//        System.out.println("MimeHashQueue addToQueue: " + imdiObject);
+        System.out.println("MimeHashQueue addToQueue: " + imdiObject.getUrlString());
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
         if (((imdiObject.isLocal() && !imdiObject.isImdi() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
