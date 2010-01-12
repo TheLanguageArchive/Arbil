@@ -2,16 +2,19 @@ package nl.mpi.arbil;
 
 /**
  * Document   : XsdChecker
- * Created on : 
+ * Created on : Mon Dec 01 14:07:40 CET 2008
  * @author Peter.Withers@mpi.nl
  */
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Color;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
+import java.util.Scanner;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 import javax.xml.validation.Schema;
@@ -20,13 +23,15 @@ import javax.xml.validation.Validator;
 import javax.xml.XMLConstants;
 import org.xml.sax.SAXException;
 import javax.swing.text.StyleConstants;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXParseException;
 
 public class XsdChecker extends JSplitPane {
 //        SimpleAttributeSet set = new SimpleAttributeSet();
 //        StyleConstants.setForeground(set, Color.red);
+
     JTextPane outputPane = new JTextPane();
     JTextPane fileViewPane = new JTextPane();
     StyledDocument doc;
@@ -85,11 +90,61 @@ public class XsdChecker extends JSplitPane {
         doc.insertString(doc.getLength(), "using schema file: " + schemaURL.getFile() + "\n\n", styleNormal);
         Source xmlFile = new StreamSource(imdiFile);
 
+        class CustomErrorHandler implements ErrorHandler {
+
+            File imdiFile;
+
+            public CustomErrorHandler(File imdiFileLocal) {
+                imdiFile = imdiFileLocal;
+            }
+
+            private String getLine(int lineNumber) {
+                try {
+                    String returnText = "";
+                    Scanner scanner = new Scanner(imdiFile);
+                    for (int lineCounter = 0; lineCounter < lineNumber - 1; lineCounter++) {
+                        returnText = scanner.nextLine();
+                    }
+                    // return the line plus the preceding and following lines
+                    return (lineNumber - 1) + ": " + returnText + "\n" + (lineNumber) + ": " + scanner.nextLine() + "\n" + (lineNumber + 1) + ": " + scanner.nextLine();
+                } catch (FileNotFoundException fileNotFoundException) {
+                    GuiHelper.linorgBugCatcher.logError(fileNotFoundException);
+                    return fileNotFoundException.getMessage();
+                }
+            }
+
+            public void warning(SAXParseException exception) throws SAXException {
+                try {
+                    doc.insertString(doc.getLength(), "warning: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleWarning);
+                } catch (BadLocationException badLocationException) {
+                    GuiHelper.linorgBugCatcher.logError(badLocationException);
+                }
+            }
+
+            public void error(SAXParseException exception) throws SAXException {
+                try {
+                    doc.insertString(doc.getLength(), "error: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleError);
+                } catch (BadLocationException badLocationException) {
+                    GuiHelper.linorgBugCatcher.logError(badLocationException);
+                }
+            }
+
+            public void fatalError(SAXParseException exception) throws SAXException {
+                try {
+                    doc.insertString(doc.getLength(), "fatalError: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleError);
+                } catch (BadLocationException badLocationException) {
+                    GuiHelper.linorgBugCatcher.logError(badLocationException);
+                }
+            }
+        }
+
+        CustomErrorHandler errorHandler = new CustomErrorHandler(imdiFile);
         Validator validator = createValidator(schemaURL);
+        validator.setErrorHandler(errorHandler);
         try {
             validator.validate(xmlFile);
-            System.out.println(xmlFile.getSystemId() + " is valid");
-            doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is valid\n", styleWarning);
+//            System.out.println(xmlFile.getSystemId() + " is valid");
+//            doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is valid\n", styleWarning);
         } catch (SAXException e) {
             System.out.println(xmlFile.getSystemId() + " is NOT valid");
             System.out.println("Reason: " + e.getLocalizedMessage());
