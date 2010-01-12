@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.imageio.ImageIO;
+//import org.apache.log4j.Logger;
 
 /**
  * Document   : LinorgBugCatcher
@@ -16,14 +17,42 @@ import javax.imageio.ImageIO;
  */
 public class LinorgBugCatcher {
 
+//    static Logger log = Logger.getLogger(ImdiIcons.class.getName());
+//            log.debug("debug message.");
+//            log.info("info message.");
+//            log.warn("warn message.");
+//            log.error("error message.");
+//            log.fatal("fatal message.");
+
     public LinorgBugCatcher() {
+        // remove all previous error logs for this version other than the one for this build number
         File errorLogFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "linorgerror.log");
         if (errorLogFile.exists()) {
             errorLogFile.delete();
         }
+        // look for previous error logs for this version only
+        LinorgVersion linorgVersion = new LinorgVersion();
+        String currentApplicationVersionMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-";
+        String currentLogFileMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log";
+        for (String currentFile : new File(LinorgSessionStorage.getSingleInstance().storageDirectory).list()) {
+            if (currentFile.startsWith(currentApplicationVersionMatch)) {
+                if (currentFile.startsWith(currentLogFileMatch)) {
+                    // keeping this builds log file
+                    System.out.println("currentLogFileMatch: " + currentFile);
+                } else {
+                    System.out.println("deleting old log file: " + currentFile);
+                    new File(LinorgSessionStorage.getSingleInstance().storageDirectory + currentFile).delete();
+                }
+            }
+        }
     }
-    
+
     private int captureCount = 0;
+
+    public File getLogFile() {
+        LinorgVersion linorgVersion = new LinorgVersion();
+        return new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
+    }
 
     public void grabApplicationShot() {
         try {
@@ -65,12 +94,12 @@ public class LinorgBugCatcher {
             System.err.println("exception: " + exception.getMessage());
             System.err.println(messageString);
             exception.printStackTrace();
-            FileWriter errorLogFile = new FileWriter(LinorgSessionStorage.getSingleInstance().storageDirectory + "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log", true);
+            FileWriter errorLogFile = new FileWriter(getLogFile(), true);
 //            System.out.println("logCatch: " + messageString);
             errorLogFile.append(messageString + System.getProperty("line.separator"));
             errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
             errorLogFile.append("Compile Date: " + linorgVersion.compileDate + System.getProperty("line.separator"));
-            errorLogFile.append("Current Revision: " + linorgVersion.currentRevision + System.getProperty("line.separator"));
+            errorLogFile.append("Current Revision: " + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + System.getProperty("line.separator"));
             errorLogFile.append("Exception Message: " + exception.getMessage() + System.getProperty("line.separator"));
             StackTraceElement[] stackTraceElements = exception.getStackTrace();
             for (StackTraceElement element : stackTraceElements) {
