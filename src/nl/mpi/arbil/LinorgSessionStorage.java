@@ -88,6 +88,14 @@ public class LinorgSessionStorage {
     // Move the storeage directory and change the local corpus tree links to the new directory.
     // After completion the application will be closed!
     public void changeStorageDirectory(String preferedDirectory) {
+        String prefferedDirectoryUriString = new File(preferedDirectory).toURI().toString() + "/";
+        String storageDirectoryUriString = new File(storageDirectory).toURI().toString();
+        try {
+            prefferedDirectoryUriString = URLDecoder.decode(prefferedDirectoryUriString, "UTF-8");
+            storageDirectoryUriString = URLDecoder.decode(storageDirectoryUriString, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            GuiHelper.linorgBugCatcher.logError(uee);
+        }
         if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             boolean success = new File(storageDirectory).renameTo(new File(preferedDirectory));
             if (!success) {
@@ -98,7 +106,10 @@ public class LinorgSessionStorage {
                     for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
                         for (ImdiTreeObject currentLocation : currentTreeArray) {
                             String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
-                            locationsList.add(currentLocationString.replace(storageDirectory, preferedDirectory));
+                            System.out.println("currentLocationString: " + currentLocationString);
+                            System.out.println("prefferedDirectoryUriString: " + prefferedDirectoryUriString);
+                            System.out.println("storageDirectoryUriString: " + storageDirectoryUriString);
+                            locationsList.add(currentLocationString.replace(storageDirectoryUriString, prefferedDirectoryUriString));
                         }
                     }
                     storageDirectory = preferedDirectory;
@@ -115,21 +126,25 @@ public class LinorgSessionStorage {
     }
 
     public String[] getLocationOptions() {
-        return new String[]{
-                    // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
-                    //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
-                    System.getenv("APPDATA") + File.separatorChar + "Local Settings" + File.separatorChar + "Application Data" + File.separatorChar + ".arbil" + File.separatorChar,
-                    System.getenv("APPDATA") + File.separatorChar + ".arbil" + File.separatorChar,
-                    //                    System.getProperty("user.home") + File.separatorChar + "directory with spaces" + File.separatorChar + ".arbil" + File.separatorChar,
-                    System.getProperty("user.home") + File.separatorChar + ".arbil" + File.separatorChar,
-                    System.getenv("USERPROFILE") + File.separatorChar + ".arbil" + File.separatorChar,
-                    System.getProperty("user.dir") + File.separatorChar + ".arbil" + File.separatorChar,
-                    // keep checking for linorg for users with old data
-                    System.getenv("APPDATA") + File.separatorChar + ".linorg" + File.separatorChar,
-                    System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
-                    System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
-                    System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
-                };
+        String[] locationOptions = new String[]{
+            // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
+            //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
+            System.getProperty("user.home") + File.separatorChar + "Local Settings" + File.separatorChar + "Application Data" + File.separatorChar + ".arbil" + File.separatorChar,
+            System.getenv("APPDATA") + File.separatorChar + ".arbil" + File.separatorChar,
+            //                    System.getProperty("user.home") + File.separatorChar + "directory with spaces" + File.separatorChar + ".arbil" + File.separatorChar,
+            System.getProperty("user.home") + File.separatorChar + ".arbil" + File.separatorChar,
+            System.getenv("USERPROFILE") + File.separatorChar + ".arbil" + File.separatorChar,
+            System.getProperty("user.dir") + File.separatorChar + ".arbil" + File.separatorChar,
+            // keep checking for linorg for users with old data
+            System.getenv("APPDATA") + File.separatorChar + ".linorg" + File.separatorChar,
+            System.getProperty("user.home") + File.separatorChar + ".linorg" + File.separatorChar,
+            System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
+            System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
+        };
+        for (String currentLocationOption : locationOptions) {
+            System.out.println("LocationOption: " + currentLocationOption);
+        }
+        return locationOptions;
     }
 
 //    public void showDirectorySelectionDialogue() {
