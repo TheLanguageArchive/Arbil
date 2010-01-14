@@ -626,11 +626,8 @@ public class ArbilMenuBar extends JMenuBar {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ArbilMenuBar.this, "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                                saveApplicationState();
-                                LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
-                                System.exit(0); // TODO: this exit might be unrequired
-                            }
+                            saveApplicationState();
+                            LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
                             // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
                         } catch (Exception e) {
                             GuiHelper.linorgBugCatcher.logError(e);
