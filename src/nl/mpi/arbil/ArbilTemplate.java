@@ -254,6 +254,7 @@ public class ArbilTemplate {
     }
 
     public String getHelpStringForField(String fieldName) {
+        fieldName = fieldName.replaceAll("\\([0-9]+\\)\\.", ".");
         for (String[] currentUsageArray : fieldUsageArray) {
             if (currentUsageArray[0].equals(fieldName)) {
                 return currentUsageArray[1];
