@@ -500,7 +500,7 @@ public class ImportExportDialog {
                         LinorgWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new String[]{}), progressFailedLabelText);
                     }
                     if (validationErrors.size() > 0) {
-                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(validationErrors.toArray(new String[]{}), progressXmlErrorsLabelText);
+                        LinorgWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new String[]{}), progressXmlErrorsLabelText);
                     }
                     if (fileCopyErrors.size() > 0) {
                         ImdiTableModel resourceFileErrorsTable = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new String[]{}), resourceCopyErrorsLabelText);
