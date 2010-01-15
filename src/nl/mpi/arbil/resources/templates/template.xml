@@ -12,7 +12,7 @@
         <comment>The fields listed here as required fields will be highlighted in the application until they have a value entered</comment>
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />
+        <!--<RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />-->
         <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Name" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).ResourceLink" />
@@ -24,6 +24,19 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Type" />
         <RequiredField FieldPath=".*\.Date"/>
         <RequiredField FieldPath=".*\.BirthDate"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).Dominant" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).SourceLanguage" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).TargetLanguage" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor\(x\).Anonymized" />
+        <RequiredField FieldPath=".*\(x\).Quality" />
+        <RequiredField FieldPath=".*\(x\).TimePosition.Start" />
+        <RequiredField FieldPath=".*\(x\).TimePosition.End" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Anonymized" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.Start" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.End" />
+        <!--<RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).Quality" />-->
+        <!--<RequiredField FieldPath=".*\.Email"/>-->
     </RequiredFields>
     <AutoFields>
         <comment>The fields listed here will be overwritten when the data becomes available and updated if it changes (this is primarily for resource files)</comment>
@@ -42,6 +55,13 @@
         <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
         <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
+        <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]" />
+        <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
+        <FieldConstraint FieldPath=".*\(x\).TimePosition.End" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" Constraint="[0-9]*|Unknown|Unspecified" />
+        <!--<RequiredField FieldPath="*\(x\).Anonymized" Constraint="True|False|Unknown|Unspecified" />-->
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.Start" Constraint="[0-9]*" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.End" Constraint="[0-9]*" />
     </FieldConstraints>
     <FieldTriggers>
         <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
@@ -133,5 +153,6 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5" />
     </FieldUsageDescriptions>
 </template>
