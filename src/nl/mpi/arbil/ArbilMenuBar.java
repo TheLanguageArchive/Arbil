@@ -615,8 +615,10 @@ public class ArbilMenuBar extends JMenuBar {
         ButtonGroup storageMenuButtonGroup = new ButtonGroup();
         String[] storageLocaations = LinorgSessionStorage.getSingleInstance().getLocationOptions();
         Arrays.sort(storageLocaations);
+        ArrayList<String> addedPaths = new ArrayList<String>();
         for (String currentTemplateName : storageLocaations) {
-            if (!currentTemplateName.startsWith("null")) {
+            if (!currentTemplateName.startsWith("null") && !addedPaths.contains(currentTemplateName)) {
+                addedPaths.add(currentTemplateName);
                 JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
                 templateMenuItem.setText(currentTemplateName);
                 templateMenuItem.setName(currentTemplateName);
