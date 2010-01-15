@@ -241,6 +241,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                 }
                 searchProgressBar.setIndeterminate(false);
                 searchProgressBar.setValue(0);
+                searchProgressBar.setMaximum(1000);
                 searchButton.setEnabled(true);
                 stopButton.setEnabled(false);
                 threadRunning = false;
