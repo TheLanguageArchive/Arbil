@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JDesktopPane;
@@ -312,17 +313,20 @@ public class LinorgWindowManager {
                     if (windowObject != null) {
                         Object currentComponent = ((JInternalFrame) windowObject).getContentPane().getComponent(0);
                         if (currentComponent != null && currentComponent instanceof LinorgSplitPanel) {
+                            // if this table has no nodes then don't save it
+                            if (0 < ((LinorgSplitPanel) currentComponent).imdiTable.getRowCount()) {
 //                System.out.println("windowObject: " + windowObject);
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane());
 //                System.out.println("getComponent: " + ((JInternalFrame) windowObject).getComponent(0));
 //                System.out.println("LinorgSplitPanel: " + ((LinorgSplitPanel)((JInternalFrame) windowObject).getContentPane()));
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane().getComponent(0));                                           
-                            Vector currentNodesVector = new Vector();
-                            for (String currentUrlString : ((ImdiTableModel) ((LinorgSplitPanel) currentComponent).imdiTable.getModel()).getImdiNodesURLs()) {
-                                currentNodesVector.add(currentUrlString);
+                                Vector currentNodesVector = new Vector();
+                                for (String currentUrlString : ((ImdiTableModel) ((LinorgSplitPanel) currentComponent).imdiTable.getModel()).getImdiNodesURLs()) {
+                                    currentNodesVector.add(currentUrlString);
+                                }
+                                windowListHashtable.put(currentWindowName, currentNodesVector);
+                                System.out.println("saved");
                             }
-                            windowListHashtable.put(currentWindowName, currentNodesVector);
-                            System.out.println("saved");
                         }
                     }
                 } catch (Exception ex) {
@@ -600,6 +604,22 @@ public class LinorgWindowManager {
             }
         }
         return openFloatingTableOnce(tableNodes, frameTitle);
+    }
+
+    public ImdiTableModel openAllChildNodesInFloatingTableOnce(String[] rowNodesArray, String frameTitle) {
+        HashSet<ImdiTreeObject> tableNodes = new HashSet();
+        for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
+            try {
+                ImdiTreeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter]));
+                tableNodes.add(currentNode);
+                for (ImdiTreeObject currentChildNode : currentNode.getAllChildren()) {
+                    tableNodes.add(currentChildNode);
+                }
+            } catch (URISyntaxException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+        return openFloatingTableOnce(tableNodes.toArray(new ImdiTreeObject[]{}), frameTitle);
     }
 
     public ImdiTableModel openFloatingTableOnce(ImdiTreeObject[] rowNodesArray, String frameTitle) {
