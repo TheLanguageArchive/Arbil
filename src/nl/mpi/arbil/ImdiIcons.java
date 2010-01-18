@@ -151,7 +151,7 @@ public class ImdiIcons {
     public ImageIcon getIconForImdi(ImdiTreeObject imdiObject) {
         Vector iconsVector = new Vector();
 
-        if (imdiObject.isLoading()) {
+        if (imdiObject.isLoading() || (imdiObject.getParentDomNode().isImdi() && !imdiObject.getParentDomNode().imdiDataLoaded)) {
             iconsVector.add(loadingIcon);
         }
         if (imdiObject.isLocal()) {
@@ -226,8 +226,10 @@ public class ImdiIcons {
             } else if (imdiObject.isCorpus()) {
                 iconsVector.add(corpusnodeColorIcon);
             } else {
-                // TODO: this icon could be reconsidered since it may not be correct in the case of a session that failed to load
-                iconsVector.add(corpusnodeColorIcon);
+                // this icon might not be the best one to show in this case
+                if (imdiObject.imdiDataLoaded) {
+                    iconsVector.add(corpusnodeColorIcon);
+                }
                 //iconsVector.add(blankIcon);
             }
         } else if (imdiObject.isDirectory()) {
