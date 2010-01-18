@@ -37,6 +37,7 @@ public class MimeHashQueue {
     private static mpi.bcarchive.typecheck.FileType fileType; //  used to check the file type
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType;
     static private MimeHashQueue singleInstance = null;
+    public boolean checkResourcePermissions = true;
 
     static synchronized public MimeHashQueue getSingleInstance() {
 //        System.out.println("MimeHashQueue getSingleInstance");
@@ -411,21 +412,23 @@ public class MimeHashQueue {
     }
 
     private void checkServerPermissions(ImdiTreeObject imdiObject) {
-        try {
+        if (checkResourcePermissions) {
+            try {
 //            System.out.println("imdiObject: " + imdiObject);
-            HttpURLConnection resourceConnection = (HttpURLConnection) imdiObject.getFullResourceURI().toURL().openConnection();
-            resourceConnection.setRequestMethod("HEAD");
-            resourceConnection.setRequestProperty("Connection", "Close");
+                HttpURLConnection resourceConnection = (HttpURLConnection) imdiObject.getFullResourceURI().toURL().openConnection();
+                resourceConnection.setRequestMethod("HEAD");
+                resourceConnection.setRequestProperty("Connection", "Close");
 //            System.out.println("conn: " + resourceConnection.getURL());
-            imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
-            if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
-                imdiObject.fileNotFound = true;
-            } else {
-                imdiObject.fileNotFound = false;
-            }
+                imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
+                if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
+                    imdiObject.fileNotFound = true;
+                } else {
+                    imdiObject.fileNotFound = false;
+                }
 //            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 
