@@ -53,6 +53,7 @@ public class ArbilMenuBar extends JMenuBar {
     public JCheckBoxMenuItem checkNewVersionAtStartCheckBoxMenuItem;
     private JMenuItem copyMenuItem;
     private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
+    private JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem;
     private JMenuItem editFieldViewsMenuItem;
 //    private JMenuItem editLocationsMenuItem;
     private JMenu editMenu;
@@ -85,6 +86,7 @@ public class ArbilMenuBar extends JMenuBar {
         showSelectionPreviewCheckBoxMenuItem = new JCheckBoxMenuItem();
         checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
         copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
+        checkResourcePermissionsCheckBoxMenuItem = new JCheckBoxMenuItem();
         trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
         viewMenu = new JMenu();
         windowMenu = new JMenu();
@@ -352,10 +354,21 @@ public class ArbilMenuBar extends JMenuBar {
         copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                copyNewResourcesCheckBoxMenuItemItemStateChanged(evt);
+                ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
             }
         });
         optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
+
+        checkResourcePermissionsCheckBoxMenuItem.setSelected(true);
+        checkResourcePermissionsCheckBoxMenuItem.setText("Check permissions for remote resources");
+        checkResourcePermissionsCheckBoxMenuItem.setToolTipText("This option checks the server permissions for remote resources and shows icons accordingly.");
+        checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
+
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
+            }
+        });
+        optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
 
         trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
         trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -491,6 +504,8 @@ public class ArbilMenuBar extends JMenuBar {
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
         copyNewResourcesCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("copyNewResources", true));
         ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+        checkResourcePermissionsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true));
+        MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
         saveWindowsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
         printHelpMenuItem.setVisible(false);
@@ -576,11 +591,6 @@ public class ArbilMenuBar extends JMenuBar {
         }
     }
 
-    private void copyNewResourcesCheckBoxMenuItemItemStateChanged(java.awt.event.ItemEvent evt) {
-// TODO add your handling code here:
-        ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
-    }
-
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
 // TODO add your handling code here:
         try {
@@ -641,6 +651,7 @@ public class ArbilMenuBar extends JMenuBar {
                 storageMenu.add(templateMenuItem);
             }
         }
+        // TODO: add other cache directory and update changeStorageDirectory to cope with the additional variables 
     }
 
     private boolean saveApplicationState() {
@@ -661,6 +672,7 @@ public class ArbilMenuBar extends JMenuBar {
             LinorgSessionStorage.getSingleInstance().saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
             LinorgSessionStorage.getSingleInstance().saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
             LinorgSessionStorage.getSingleInstance().saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
+            LinorgSessionStorage.getSingleInstance().saveObject(checkResourcePermissionsCheckBoxMenuItem.isSelected(), "checkResourcePermissions");
             LinorgSessionStorage.getSingleInstance().saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
