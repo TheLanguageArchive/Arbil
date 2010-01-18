@@ -481,7 +481,6 @@ public class ImdiTreeObject implements Comparable {
                     nodDom = null;
 //        return cacheLocation;
                     imdiDataLoaded = true;
-                    getParentDomNode().notifyAll();
 //            clearChildIcons();
                 }
             }
@@ -1549,7 +1548,7 @@ public class ImdiTreeObject implements Comparable {
 ////                        resourceUrlString = resourceFile.getCanonicalPath();
 //                resourceUrlString = fieldToAdd.fieldValue;
 ////                if (useCache) {
-////                    GuiHelper.linorgSessionStorage.updateCache(getFullResourcePath());
+////                    GuiHelper.linorgSessionStorage.updateCache(getFullResourceURI());
 ////                }
 //                mimeHashQueue.addToQueue(this);
 //            }
@@ -1590,10 +1589,21 @@ public class ImdiTreeObject implements Comparable {
         return imdiTreeNodeSorter.compare(this, o);
     }
 
+    public synchronized void notifyLoaded() {
+        System.out.println("notifyAll");
+        getParentDomNode().notifyAll();
+    }
+
     public synchronized boolean waitTillLoaded() {
+        System.out.println("waitTillLoaded");
         if (isLoading()) {
+            System.out.println("isLoading");
             try {
-                getParentDomNode().wait(1000);
+                getParentDomNode().wait();
+                System.out.println("wait");
+                if (isLoading()) {
+                    System.out.println("but still loading");
+                }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
                 return false;
@@ -1611,7 +1621,7 @@ public class ImdiTreeObject implements Comparable {
             }
             System.out.println("isLoadingCount: " + isLoadingCount);
             if (!isLoading()) {
-//                this.notifyAll();
+//                    this.notifyAll();
                 clearChildIcons();
                 clearIcon();
             }
@@ -1631,6 +1641,8 @@ public class ImdiTreeObject implements Comparable {
 ////                if (nodeText != null && nodeText.length() > 0) {
             return lastNodeText;
 //            }
+        } else if (lastNodeText.equals("loading imdi...") && imdiDataLoaded) {
+            lastNodeText = "                      ";
         }
 //        String nameText = "";
 //        TODO: move this to a list loaded from the templates or similar
@@ -1663,9 +1675,9 @@ public class ImdiTreeObject implements Comparable {
             lastNodeText = nodeText;
         }
         if (lastNodeText.length() == 0) {
-            lastNodeText = "      ";
+            lastNodeText = "                      ";
         }
-        return lastNodeText;
+        return lastNodeText;// + "-" + clearIconCounterGlobal + "-" + clearIconCounter;
 //            }
     }
 
@@ -1977,7 +1989,7 @@ public class ImdiTreeObject implements Comparable {
             try {
                 return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
             } catch (Exception urise) {
-//                System.err.println("nodeUri: " + nodeUri);
+                System.err.println("nodeUri: " + nodeUri);
                 GuiHelper.linorgBugCatcher.logError(urise);
             }
         }
