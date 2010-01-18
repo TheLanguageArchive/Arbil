@@ -522,7 +522,7 @@ public class ContextMenu {
 
         mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
 
-        browseForResourceFileMenuItem.setText("Browse for resource file");
+        browseForResourceFileMenuItem.setText("Browse For Resource File");
         browseForResourceFileMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
