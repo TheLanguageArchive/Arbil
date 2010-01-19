@@ -2,9 +2,7 @@ package nl.mpi.arbil.data;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Hashtable;
-import java.util.Vector;
-import javax.swing.ImageIcon;
+import java.net.URISyntaxException;
 import nl.mpi.arbil.ImdiField;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -58,6 +56,60 @@ public class ImdiTreeObjectTest {
     }
 
     /**
+     * Test of getNeedsSaveToDisk method, of class ImdiTreeObject.
+     */
+    @Test
+    public void testGetNeedsSaveToDisk() {
+        System.out.println("getNeedsSaveToDisk");
+        URI[][] testFileUris = null;
+        try {
+            testFileUris = new URI[][]{
+                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toURI(),
+                            new URI(ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toString() + "#.METATRANSCRIPT.Catalogue.Location(1)")},
+                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI(),
+                            ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI()},
+                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toURI(),
+                            new URI(ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toString() + "#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)")},
+                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toURI(),
+                            new URI(ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toString() + "#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2).Languages.Language(3)")}
+                    };
+        } catch (URISyntaxException urise) {
+            fail(urise.getMessage());
+        }
+        for (URI[] testCaseUri : testFileUris) {
+            System.out.println("testCaseUri[1]: " + testCaseUri[1]);
+            ImdiTreeObject instance = ImdiLoader.getSingleInstance().getImdiObject(null, testCaseUri[0]);
+            ImdiTreeObject instanceChild = ImdiLoader.getSingleInstance().getImdiObject(null, testCaseUri[1]);
+            instance.waitTillLoaded();
+            assertFalse(instance.isLoading());
+            // start modifying values
+            ImdiField[] firstRootField = instance.getFields().elements().nextElement();
+            ImdiField[] firstChildField = instanceChild.getFields().elements().nextElement();
+            for (ImdiField[] currentTestField : new ImdiField[][]{firstRootField, firstChildField}) {
+                // check that it does not need to be saved yet
+                assertFalse(instance.getUrlString(), instance.getNeedsSaveToDisk());
+                assertFalse(instanceChild.getUrlString(), instanceChild.getNeedsSaveToDisk());
+                // value test
+                currentTestField[0].setFieldValue("test", false, true);
+                // check that it now needs to be saved
+                assertTrue(instance.getUrlString(), instance.getNeedsSaveToDisk());
+                if (currentTestField[0].equals(firstChildField[0])) {
+                    assertTrue(instanceChild.getUrlString(), instanceChild.getNeedsSaveToDisk());
+                } else {
+                    assertFalse(instanceChild.getUrlString(), instanceChild.getNeedsSaveToDisk());
+                }
+                // note that the field change triggers can leave changes that require saving for nodes such as language id
+                // the test case .Actors.Actor(2).Languages.Language(3) for instance will cause this issue if the second field is reverted
+                currentTestField[0].revertChanges();
+                // check that it does not need to be saved again
+                assertFalse(instance.getUrlString() + " : " + currentTestField[0].fieldID, instance.getNeedsSaveToDisk());
+                assertFalse(instanceChild.getUrlString() + " : " + currentTestField[0].fieldID, instanceChild.getNeedsSaveToDisk());
+                // note that this does not check the state change for language id and key name changes
+            }
+        }
+    }
+    
+    /**
      * Test of getFullResourceURI method, of class ImdiTreeObject.
      */
     @Test
@@ -82,6 +134,8 @@ public class ImdiTreeObjectTest {
             assertEquals(expResult, result);
         }
     }
+
+    /**
      * Test of getFile method, of class ImdiTreeObject.
      */
     @Test
@@ -107,5 +161,5 @@ public class ImdiTreeObjectTest {
             assertEquals(expResult, result);
         }
     }
-    /**
 }
+
