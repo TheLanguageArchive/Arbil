@@ -476,9 +476,10 @@ public class ImdiSchema {
                         currentNode = currentNode.getNextSibling();
                     }
                     targetFragment = targetFragment + "(" + siblingCount + ")";
-                    addedPathURI = new URI(targetMetadataUri.toString() + "#" + targetFragment);
+//                    System.out.println("targetFragment: " + targetFragment);
+                    addedPathURI = new URI(targetMetadataUri.toString().split("#")[0] + "#" + targetFragment);
                 } else if (elementName.contains(")")) { // non child nodes that exist in child nodes must still return the child node path, eg for actor language descriptions
-                    addedPathURI = new URI(targetMetadataUri.toString() + "#" + elementName.replaceAll("\\)[^)]*$", ")"));  // remove any training field paths
+                    addedPathURI = new URI(targetMetadataUri.toString().split("#")[0] + "#" + elementName.replaceAll("\\)[^)]*$", ")"));  // remove any training field paths
                 } else {
                     // make sure elements like description show the parent node rather than trying to get a non existing node
                     addedPathURI = targetMetadataUri;
