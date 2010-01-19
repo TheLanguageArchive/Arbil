@@ -278,7 +278,7 @@ public class ImdiTreeObject implements Comparable {
             }
         } else {
             this.needsSaveToDisk = imdiNeedsSaveToDisk; // this must be set before setImdiNeedsSaveToDisk is called
-            this.getParentDomNode().setImdiNeedsSaveToDisk(originatingField, updateUI);
+            this.getParentDomNode().setImdiNeedsSaveToDisk(null, updateUI);
         }
         if (updateUI) {
             this.clearIcon();
@@ -613,7 +613,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public void getAllChildren(Vector<ImdiTreeObject> allChildren) {
         System.out.println("getAllChildren: " + this.getUrlString());
-        if (this.isSession() || this.isImdiChild()) {
+        if (this.isSession() || this.isCatalogue() || this.isImdiChild()) {
             for (ImdiTreeObject currentChild : childArray) {
                 currentChild.getAllChildren(allChildren);
                 allChildren.add(currentChild);
@@ -1273,7 +1273,7 @@ public class ImdiTreeObject implements Comparable {
 
     public void requestAddNode(String nodeType, String nodeTypeDisplayName) {
         System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
-        this.getParentDomNode().addQueue.add(new String[]{nodeType, null, nodeTypeDisplayName, null, null, null});
+        this.getParentDomNode().addQueue.add(new String[]{nodeType, nodeUri.getFragment(), nodeTypeDisplayName, null, null, null});
         ImdiLoader.getSingleInstance().requestReload(this);
     }
 
@@ -1641,7 +1641,7 @@ public class ImdiTreeObject implements Comparable {
 ////                if (nodeText != null && nodeText.length() > 0) {
             return lastNodeText;
 //            }
-        } else if (lastNodeText.equals("loading imdi...") && imdiDataLoaded) {
+        } else if (lastNodeText.equals("loading imdi...") && getParentDomNode().imdiDataLoaded) {
             lastNodeText = "                      ";
         }
 //        String nameText = "";
