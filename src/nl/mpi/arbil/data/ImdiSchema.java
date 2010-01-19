@@ -270,8 +270,7 @@ public class ImdiSchema {
             if (formatType[2].equals(mimeType)) {
                 System.out.println("UsingOverrideNodeType: " + formatType[1]);
                 return formatType[1];
-            }else
-            if (ImdiVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
+            } else if (ImdiVocabularies.getSingleInstance().vocabularyContains(formatType[0], mimeType)) {
                 System.out.println("NodeType: " + formatType[1]);
 //                    if (mimeType.equals("image/jpeg")) {
                 return formatType[1];
@@ -464,7 +463,8 @@ public class ImdiSchema {
                     addedNode = targetNode.appendChild(addableNode);
                 }
                 String targetFragment = targetRef;
-                String childsMetaNode = currentTemplate.pathIsChildNode(elementName.replaceAll("\\(\\d*?\\)", ""));
+                String pathForChildTesting = elementName.replaceAll("\\(\\d*?\\)", ""); // remove the child count brackets
+                String childsMetaNode = currentTemplate.pathIsChildNode(pathForChildTesting);
                 if (childsMetaNode != null) {
                     Node currentNode = addedNode.getParentNode().getFirstChild();
                     int siblingCount = 0;
@@ -477,6 +477,8 @@ public class ImdiSchema {
                     }
                     targetFragment = targetFragment + "(" + siblingCount + ")";
                     addedPathURI = new URI(targetMetadataUri.toString() + "#" + targetFragment);
+                } else if (elementName.contains(")")) { // non child nodes that exist in child nodes must still return the child node path, eg for actor language descriptions
+                    addedPathURI = new URI(targetMetadataUri.toString() + "#" + elementName.replaceAll("\\)[^)]*$", ")"));  // remove any training field paths
                 } else {
                     // make sure elements like description show the parent node rather than trying to get a non existing node
                     addedPathURI = targetMetadataUri;
