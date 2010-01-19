@@ -19,8 +19,13 @@ public class FieldChangeTriggers {
                 // and we need to put the (\d) back into the (x)
                 String originalFieldPath = changedImdiField.getFullXmlPath();
                 int lastBracketPos = originalFieldPath.lastIndexOf(")");
+                int lastTriggerBracket = currentTrigger[1].lastIndexOf(")");
+                if (lastTriggerBracket < 0) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error in trigger from template (missing bracket): " + currentTrigger[1], "Field Trigger");
+                    break;
+                }
                 // care must me taken here to prevet issues with child nodes greater than 9 ie (12), (x) etc.
-                String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(currentTrigger[1].lastIndexOf(")"));
+                String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(lastTriggerBracket);
                 System.out.println("originalFieldPath: " + originalFieldPath);
                 System.out.println("targetFieldPath: " + targetFieldPath);
                 ImdiField[] targetField = changedImdiField.getSiblingField(targetFieldPath);
