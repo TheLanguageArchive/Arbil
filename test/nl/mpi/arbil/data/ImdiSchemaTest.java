@@ -3,15 +3,15 @@ package nl.mpi.arbil.data;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
+import mpi.util.OurURL;
 import nl.mpi.arbil.ArbilTemplate;
-import nl.mpi.arbil.ImdiField;
+import nl.mpi.arbil.ArbilTemplateManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,8 +48,8 @@ public class ImdiSchemaTest {
     }
 
     public static void assertFileContents(URI leftUri, URI rightUri) {
-//        System.out.println("leftUri: " + leftUri);
-//        System.out.println("rightUri: " + rightUri);
+        System.out.println("leftUri: " + leftUri);
+        System.out.println("rightUri: " + rightUri);
         try {
             BufferedReader leftReader = new BufferedReader(new InputStreamReader(leftUri.toURL().openStream()));
             BufferedReader rightReader = new BufferedReader(new InputStreamReader(rightUri.toURL().openStream()));
@@ -59,9 +59,11 @@ public class ImdiSchemaTest {
                 String rightLine = rightReader.readLine().trim();
                 boolean skipLine = false;
 
-                if (leftLine.startsWith("Date=")) {
+                if (leftLine.startsWith("Date=") || leftLine.startsWith("Originator=\"Arbil")) {
                     skipLine = true; // ignore the date and creator differences
                 }
+                System.out.println("leftLine: " + leftLine);
+                System.out.println("rightLine: " + rightLine);
                 if (!skipLine) {
                     assertEquals(leftLine, rightLine);
                 }
@@ -125,6 +127,92 @@ public class ImdiSchemaTest {
             String expResult = currentTest[1];
             String result = instance.getNodeTypeFromMimeType(mimeType);
             assertEquals(expResult, result);
+        }
+    }
+
+    /**
+     * Test of insertFromTemplate method, of class ImdiSchema.
+     */
+    @Test
+    public void testInsertFromTemplate() {
+        System.out.println("insertFromTemplate");
+        ArbilTemplate currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate("Default");
+        ImdiSchema instance = ImdiSchema.getSingleInstance();
+        String[][][] testTemplates = {
+            {
+                {".METATRANSCRIPT.Catalogue.Access.Description",null},
+                {".METATRANSCRIPT.Catalogue.Author",null},
+                {".METATRANSCRIPT.Catalogue.ContentType",null},
+                {".METATRANSCRIPT.Catalogue.Description",null},
+                {".METATRANSCRIPT.Catalogue.DocumentLanguages.Description",null},
+                {".METATRANSCRIPT.Catalogue.DocumentLanguages.Language",".METATRANSCRIPT.Catalogue.DocumentLanguages.Language(1)"},
+                {".METATRANSCRIPT.Catalogue.Keys.Key",null},
+                {".METATRANSCRIPT.Catalogue.Location",".METATRANSCRIPT.Catalogue.Location(2)"}, // the plain template already contains one location
+                {".METATRANSCRIPT.Catalogue.Project.Author",null},
+                {".METATRANSCRIPT.Catalogue.Project.Description",null},
+                {".METATRANSCRIPT.Catalogue.Publisher",null},
+                {".METATRANSCRIPT.Catalogue.SubjectLanguages.Description",null},
+                {".METATRANSCRIPT.Catalogue.SubjectLanguages.Language",".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(1)"},
+                {".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(1).Description",".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(1)"}
+            },
+            {
+                {".METATRANSCRIPT.Corpus.Description",null}
+            },
+            {
+                {".METATRANSCRIPT.Session.Description",null},
+                {".METATRANSCRIPT.Session.MDGroup.Actors.Actor",".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1)"},
+                {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1).Description",".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1)"},
+                {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1).Keys.Key",".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1)"},
+                {".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1).Languages.Language",".METATRANSCRIPT.Session.MDGroup.Actors.Actor(1).Languages.Language(1)"},
+                {".METATRANSCRIPT.Session.MDGroup.Content.Keys.Key",null},
+                {".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language",".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(1)"},
+                {".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(1).Description",".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(1)"},
+                {".METATRANSCRIPT.Session.MDGroup.Keys.Key",null},
+                {".METATRANSCRIPT.Session.Resources.MediaFile",".METATRANSCRIPT.Session.Resources.MediaFile(1)"},
+                {".METATRANSCRIPT.Session.Resources.Source",".METATRANSCRIPT.Session.Resources.Source(1)"},
+                {".METATRANSCRIPT.Session.Resources.Source(1).Keys.Key",".METATRANSCRIPT.Session.Resources.Source(1)"},
+                {".METATRANSCRIPT.Session.Resources.WrittenResource",".METATRANSCRIPT.Session.Resources.WrittenResource(1)"},
+                {".METATRANSCRIPT.Session.Resources.WrittenResource(1).Keys.Key",".METATRANSCRIPT.Session.Resources.WrittenResource(1)"}
+            }
+        };
+        String[] testTemplateTypes = {".METATRANSCRIPT.Catalogue", ".METATRANSCRIPT.Corpus", ".METATRANSCRIPT.Session"};
+        URI[] baseMetadataFiles = null;
+        try {
+            baseMetadataFiles = new URI[]{
+                        ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue-withparts.imdi").toURI(),
+                        ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus-withparts.imdi").toURI(),
+                        ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-withparts.imdi").toURI()
+                    };
+        } catch (URISyntaxException urise) {
+            fail(urise.getMessage());
+        }
+        for (int testCounter = 0; testCounter < baseMetadataFiles.length; testCounter++) {
+            try {
+                File destinationFile = File.createTempFile("testFile", ".imdi");
+                System.out.println("destinationFile: " + destinationFile);
+                destinationFile.deleteOnExit();
+                String templateType = testTemplateTypes[testCounter];
+                URI expResult = baseMetadataFiles[testCounter];
+                URI targetMetadataUri = instance.addFromTemplate(destinationFile, templateType);
+                File resourceDestinationDirectory = destinationFile.getParentFile();
+                String targetXmlPath = null;
+                Document targetImdiDom = ImdiTreeObject.api.loadIMDIDocument(new OurURL(targetMetadataUri.toURL()), false);
+                URI resourceUrl = null;
+                String mimeType = null;
+
+                for (String[] currentTemplateTest : testTemplates[testCounter]) {
+                    URI subNodeResult = instance.insertFromTemplate(currentTemplate, targetMetadataUri, resourceDestinationDirectory, currentTemplateTest[0], targetXmlPath, targetImdiDom, resourceUrl, mimeType);
+                    // test the subNodeResult
+                    assertEquals(currentTemplateTest[1], subNodeResult.getFragment());
+                }
+                ImdiTreeObject.api.writeDOM(targetImdiDom, destinationFile, true); // add the id attributes
+                targetImdiDom = ImdiTreeObject.api.loadIMDIDocument(new OurURL(targetMetadataUri.toURL()), false);
+                ImdiTreeObject.api.writeDOM(targetImdiDom, destinationFile, false); // add the id attributes
+                System.out.println("assertFileContents: " + expResult);
+                assertFileContents(expResult, targetMetadataUri);
+            } catch (IOException ioe) {
+                fail(ioe.getMessage());
+            }
         }
     }
 }
