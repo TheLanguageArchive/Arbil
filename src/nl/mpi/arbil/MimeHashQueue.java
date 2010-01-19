@@ -44,6 +44,8 @@ public class MimeHashQueue {
         if (singleInstance == null) {
             CookieHandler.setDefault(new ShibCookieHandler());
             singleInstance = new MimeHashQueue();
+//            System.out.println("CookieHandler: " + java.net.CookieHandler.class.getResource("/META-INF/MANIFEST.MF"));
+//            System.out.println("CookieHandler: " + java.net.CookieHandler.class.getResource("/java/net/CookieHandler.class"));
         }
         return singleInstance;
     }
