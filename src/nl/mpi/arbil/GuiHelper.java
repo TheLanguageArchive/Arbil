@@ -38,7 +38,7 @@ public class GuiHelper {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
-        //throw new UnsupportedOperationException("Not supported yet.");
+            //throw new UnsupportedOperationException("Not supported yet.");
         }
     };
     static private GuiHelper singleInstance = null;
@@ -129,8 +129,8 @@ public class GuiHelper {
                     return;
                 }
             }
-            File nodeFile = ((ImdiTreeObject) (userObject)).getFile();
-            System.out.println("openImdiXmlWindow: " + nodeFile);
+            URI nodeUri = ((ImdiTreeObject) (userObject)).getURI();
+            System.out.println("openImdiXmlWindow: " + nodeUri);
             String nodeName = ((ImdiTreeObject) (userObject)).toString();
             if (formatXml) {
                 try {
@@ -174,7 +174,7 @@ public class GuiHelper {
                     }
                     javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
                     // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeFile), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(tempHtmlFile.getCanonicalPath())));
+                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeUri.toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(tempHtmlFile.getCanonicalPath())));
                     if (!launchInBrowser) {
                         LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
                     } else {
@@ -182,16 +182,16 @@ public class GuiHelper {
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                //System.out.println(ex.getMessage());
-                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                    //System.out.println(ex.getMessage());
+                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
                 try {
-                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeFile.toURL());
+                    LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                //System.out.println(ex.getMessage());
-                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                    //System.out.println(ex.getMessage());
+                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             }
         }
