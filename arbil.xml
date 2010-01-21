@@ -7,7 +7,7 @@
 <project name="Arbil" default="compile">
     <target name="setproperties">
         <property name="arbil.current.major" value="1"/>
-        <property name="arbil.current.minor" value="2"/>
+        <property name="arbil.current.minor" value="3"/>
         <property name="SRCDIR" value="src/"/>
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
@@ -25,7 +25,7 @@
     <target name="makeDebPackage" depends="signarbil" description="build the deb file">
         <property name="package.name" value="arbil-testing"/>
         <property name="package.jarname" value="${ArbilJarName}"/>
-        <property name="package.iconname" value="arbil128x128.png"/>
+        <property name="package.iconname" value="arbilTesting128x128.png"/>
         <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
         <desktopEntry
@@ -350,7 +350,7 @@ public class LinorgVersion {
         <scp file="${BUILDDIR}/arbil-testing.jnlp" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file= "${BUILDDIR}/ArbilApplet-testing.html" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <!-- http://lux17.mpi.nl/arbil/ArbilApplet.html -->
-        <scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>
+        <!--<scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>-->
 <!--
         <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/log4j-1.2.14.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
