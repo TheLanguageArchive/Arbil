@@ -48,7 +48,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\arbil-@ArbilVersionNumber@.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Z:\mnt\hgfs\mpi-repository\LAT\Arbil\branches\@BuildDirectory@\src\nl\mpi\arbil\resources\icons\arbil128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\arbil128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
