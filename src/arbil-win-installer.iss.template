@@ -47,9 +47,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\windows\profiles\petwit\Desktop\arbil-build-1.2.x\arbil-@ArbilVersionNumber@.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Z:\mnt\hgfs\mpi-repository\LAT\Arbil\branches\arbil.1.2.x\src\nl\mpi\arbil\resources\icons\arbil128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\windows\profiles\petwit\Desktop\arbil-build-1.2.x\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\arbil-@ArbilVersionNumber@.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Z:\mnt\hgfs\mpi-repository\LAT\Arbil\branches\@BuildDirectory@\src\nl\mpi\arbil\resources\icons\arbil128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
