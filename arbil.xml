@@ -83,18 +83,29 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <macrodef name="updateSingleFile">
             <attribute name="fileName"/>
             <sequential>
-                <copy overwrite="true" file="${SRCDIR}nl/mpi/arbil/@{fileName}.template" tofile="${BUILDDIR}/@{fileName}">
+                <copy overwrite="true" file="${SRCDIR}@{fileName}.template" tofile="${BUILDDIR}/@{fileName}">
                     <filterchain>
                         <replacetokens>
                             <token key="ArbilVersionNumber" value="${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}"/>
+                            <token key="BuildDirectory" value="arbil-build-${arbil.current.major}.${arbil.current.minor}.x"/>
                             <token key="TypeCheckVersion" value="${TypeCheckVersion}"/>
                         </replacetokens>
                     </filterchain>
                 </copy>
             </sequential>
         </macrodef>
-        <updateSingleFile fileName="arbil-testing.jnlp"/>
-        <updateSingleFile fileName="ArbilApplet-testing.html"/>
+        <updateSingleFile fileName="nl/mpi/arbil/arbil-testing.jnlp"/>
+        <updateSingleFile fileName="nl/mpi/arbil/ArbilApplet-testing.html"/>
+        <updateSingleFile fileName="arbil-win-installer.iss"/>
+    </target>
+    <target name="buildWindowsInstaller" depends="updateJnlpAndAppletHtml">
+        <mkdir dir="${OUTPUTDIR}/distribution-win32/temp/"/>
+        <copy todir="${OUTPUTDIR}/distribution-win32/temp/">
+            <fileset dir="${SRCDIR}nl/mpi/arbil/resources/icons/" includes="*.ico"/>
+        </copy>
+        <exec dir="${BUILDDIR}" executable="wine" ><!--os="Windows NT"-->
+            <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" arbil-win-installer.iss'/>
+        </exec>
     </target>
     <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil-testing.jnlp"/>
@@ -255,7 +266,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </java>
     </target>
     <target name="getsvnversion-x" depends="setproperties">
-         <property name="ArbilJarName" value="arbil-x-x-x.jar"/>
+        <property name="ArbilJarName" value="arbil-x-x-x.jar"/>
     </target>
     <target name="getsvnversion" depends="setproperties">
        <!-- <exec executable="svn" output="version.info">
