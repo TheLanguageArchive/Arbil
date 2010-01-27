@@ -15,7 +15,7 @@ AppUpdatesURL=http://www.lat-mpi.eu/tools/arbil
 DefaultDirName={pf}\Arbil
 DefaultGroupName=Language archiving tools (LAT) 
 OutputDir=C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32
-OutputBaseFilename=arbil-setup
+OutputBaseFilename=arbil-installer-@ArbilVersionNumber@
 Compression=lzma
 SolidCompression=yes
 
