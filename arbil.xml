@@ -94,8 +94,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                 </copy>
             </sequential>
         </macrodef>
-        <updateSingleFile fileName="nl/mpi/arbil/arbil-testing.jnlp"/>
-        <updateSingleFile fileName="nl/mpi/arbil/ArbilApplet-testing.html"/>
+        <updateSingleFile fileName="arbil-testing.jnlp"/>
+        <updateSingleFile fileName="ArbilApplet-testing.html"/>
         <updateSingleFile fileName="arbil-win-installer.iss"/>
     </target>
     <target name="buildWindowsInstaller" depends="updateJnlpAndAppletHtml">
@@ -106,6 +106,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <exec dir="${BUILDDIR}" executable="wine" ><!--os="Windows NT"-->
             <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" arbil-win-installer.iss'/>
         </exec>
+        <zip destfile="${OUTPUTDIR}/distribution-win32/arbil-installer.zip" >
+            <file file="${OUTPUTDIR}/distribution-win32/arbil-installer-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.exe"/>
+        </zip>
     </target>
     <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil-testing.jnlp"/>
@@ -347,7 +350,7 @@ public class LinorgVersion {
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="koekoek" />
     </target> -->
-    <target name="scp_to_lux09" depends="signarbil, makeDebPackage, updateJnlpAndAppletHtml">
+    <target name="scp_to_lux09" depends="signarbil, makeDebPackage, updateJnlpAndAppletHtml, buildWindowsInstaller">
         <echo file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt">${arbil.current.revision}</echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw">
@@ -375,6 +378,9 @@ public class LinorgVersion {
        <!--<scp file="${OUTPUTDIR}/lib/corpusstructure-1.6.1.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
        <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>-->
 
+       <!-- push the windows installer to the server -->
+        <scp file="${OUTPUTDIR}/distribution-win32/arbil-installer-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.exe" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${OUTPUTDIR}/distribution-win32/arbil-installer.zip" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
     </target>
 </project>
  
