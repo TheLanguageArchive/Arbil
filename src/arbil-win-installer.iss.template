@@ -63,3 +63,37 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil"; Filename: 
 [Run]
 Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Description: "{cm:LaunchProgram,Arbil}"; Flags: shellexec postinstall skipifsilent
 
+[Code]
+function InitializeSetup: Boolean;
+var
+    VersionsArray: TArrayOfString;
+    VersionCounter: Integer;
+    JavaInstalled : Boolean;
+    GetJavaBool : Boolean;
+    ExecResult: Integer;
+begin
+    JavaInstalled := false;
+    if RegGetSubkeyNames(HKLM, 'SOFTWARE\JavaSoft\Java Runtime Environment', VersionsArray) then
+    begin
+        for VersionCounter := 0 to GetArrayLength(VersionsArray) - 1 do
+        begin
+            if ( VersionsArray[VersionCounter][2]='.' ) and ( ( StrToInt(VersionsArray[VersionCounter][1]) > 1 ) or ( ( StrToInt(VersionsArray[VersionCounter][1]) = 1 ) and ( StrToInt(VersionsArray[VersionCounter][3]) >= 5 ) ) ) then
+            begin
+                JavaInstalled := true;
+            end;
+        end;
+    end;
+    if JavaInstalled then
+    begin
+        Result := true;
+    end else
+    begin
+        Result:=false;
+        GetJavaBool := MsgBox('Arbil requires Java version 1.5 or newer before it can be installed.'#13#10'You will need to re-run this Arbil installer once Java is installed.'#13#10'Do you want open a web browser to download the java installer now?', mbConfirmation, MB_YESNO) = idYes;
+        if GetJavaBool then
+        begin
+            ShellExec('open', 'http://www.java.com/getjava/', '','',SW_SHOWNORMAL,ewNoWait,ExecResult);
+        end;
+   end;
+end;
+
