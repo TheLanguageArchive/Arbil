@@ -197,6 +197,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <getLibFile fileName="xercesImpl-2.9.0.jar"/>
         <getLibFile fileName="ImageMagickWin32.jar"/>
         <getLibFile fileName="bcprov-jdk15-143.jar"/>
+        <getLibFile fileName="slcshttps_jdk15_v0.2.jar"/>
         <!-- get the jar files from the svn repository -->
         <!--<copy todir="${LIBDIR}">
                  TODO: this needs to be changed to use the maven repository 
@@ -230,7 +231,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar" />
+                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar" />
                 <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
                 <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
@@ -336,11 +337,11 @@ public class LinorgVersion {
         <input message="Please enter the latsoftware password:" addproperty="latsoftware.pw">
             <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
         </input>
-        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}">
+<!--        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}">
             <path>
                 <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
-        </signjar>
+        </signjar>-->
         <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
         keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}" />
