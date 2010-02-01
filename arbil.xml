@@ -195,7 +195,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <getLibFile fileName="${TypeCheckVersion}"/>
         <getLibFile fileName="xalan-2.6.0.jar"/>
         <getLibFile fileName="xercesImpl-2.9.0.jar"/>
-        <getLibFile fileName="ImageMagickWin32.jar"/>
+        <getLibFile fileName="ImageMagick-6.5.9-Win32.jar"/>
         <getLibFile fileName="bcprov-jdk15-143.jar"/>
         <getLibFile fileName="slcshttps_jdk15_v0.2.jar"/>
         <!-- get the jar files from the svn repository -->
