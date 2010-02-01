@@ -152,6 +152,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         if (ffmpegFound) {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
+                iconFile.deleteOnExit();
                 File targetFile = getTargetFile(targetImdiObject);
                 String[] execString = new String[]{"ffmpeg", "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
@@ -179,6 +180,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         if (imageMagickFound) {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
+                iconFile.deleteOnExit();
                 File targetFile = getTargetFile(targetImdiObject);
                 String[] execString = new String[]{"convert", "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
                 System.out.println(execString);
@@ -217,6 +219,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             }
             g2.dispose();
             File iconFile = File.createTempFile("arbil", ".jpg");
+            iconFile.deleteOnExit();
             ImageIO.write(resizedImg, "JPEG", iconFile);
             if (iconFile.exists()) {
                 targetImdiObject.thumbnailFile = iconFile;
