@@ -35,7 +35,7 @@
             exec="java -jar /usr/share/${package.name}/${package.jarname}"
             path="/usr/share/${package.name}/"
             icon="/usr/share/${package.name}/${package.iconname}"
-            categories="Science;Education;Office;Java"
+            categories="Science;Education;Java"
         />
         <deb
             todir="${distributionDirectory}"
