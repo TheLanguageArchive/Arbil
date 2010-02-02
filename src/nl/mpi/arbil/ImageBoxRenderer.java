@@ -32,6 +32,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     int textStartY = 0;
     boolean ffmpegFound = true;
     boolean imageMagickFound = true;
+    boolean loadedMfcDlls = false;
     // the thumbnail files are stored in a temp file on disk and the file location kept in the imditreeobject
 
     public ImageBoxRenderer() {
@@ -177,6 +178,15 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     }
 
     private void createImageThumbnail(ImdiTreeObject targetImdiObject) {
+        if (!loadedMfcDlls) {
+            loadedMfcDlls = true;
+            try {
+                // todo: this need not be done in a non windows environment or when imagemagick is installed
+                System.loadLibrary("CVCOMP90");
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
         if (imageMagickFound) {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
