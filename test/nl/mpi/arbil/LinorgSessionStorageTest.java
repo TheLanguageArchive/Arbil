@@ -95,6 +95,10 @@ public class LinorgSessionStorageTest {
             {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
                 "/Users/testUser/.linorg/imdicache/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
                 "/Users/testUser/.linorg/imdicache/"
+            },
+            {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/"
             }
         };
         LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
@@ -104,6 +108,9 @@ public class LinorgSessionStorageTest {
             File expResult = new File(currentTest[1]);
             File result = instance.getSaveLocation(currentTest[0]);
             assertEquals(expResult, result);
+            if (result.toString().length() > 259) {
+                fail("path too long: " + result);
+            }
         }
     }
 }
