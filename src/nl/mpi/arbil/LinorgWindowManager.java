@@ -594,30 +594,30 @@ public class LinorgWindowManager {
         imdiSplitPanel.addFocusListener(searchFrame);
     }
 
-    public ImdiTableModel openFloatingTableOnce(String[] rowNodesArray, String frameTitle) {
+    public ImdiTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
         ImdiTreeObject[] tableNodes = new ImdiTreeObject[rowNodesArray.length];
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
-            try {
-                tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter]));
-            } catch (URISyntaxException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
-            }
+//            try {
+            tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, rowNodesArray[arrayCounter]);
+//            } catch (URISyntaxException ex) {
+//                GuiHelper.linorgBugCatcher.logError(ex);
+//            }
         }
         return openFloatingTableOnce(tableNodes, frameTitle);
     }
 
-    public ImdiTableModel openAllChildNodesInFloatingTableOnce(String[] rowNodesArray, String frameTitle) {
+    public ImdiTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
         HashSet<ImdiTreeObject> tableNodes = new HashSet();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
-            try {
-                ImdiTreeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter]));
-                tableNodes.add(currentNode);
-                for (ImdiTreeObject currentChildNode : currentNode.getAllChildren()) {
-                    tableNodes.add(currentChildNode);
-                }
-            } catch (URISyntaxException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+//            try {
+            ImdiTreeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, rowNodesArray[arrayCounter]);
+            tableNodes.add(currentNode);
+            for (ImdiTreeObject currentChildNode : currentNode.getAllChildren()) {
+                tableNodes.add(currentChildNode);
             }
+//            } catch (URISyntaxException ex) {
+//                GuiHelper.linorgBugCatcher.logError(ex);
+//            }
         }
         return openFloatingTableOnce(tableNodes.toArray(new ImdiTreeObject[]{}), frameTitle);
     }

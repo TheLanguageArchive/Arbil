@@ -154,7 +154,7 @@ public class XsdChecker extends JSplitPane {
         }
     }
 
-    public String simpleCheck(File imdiFile, String sourceFile) {
+    public String simpleCheck(File imdiFile, File sourceFile) {
         String messageString;
 //        System.out.println("simpleCheck: " + imdiFile);
         URL schemaURL = getXsd();
