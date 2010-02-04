@@ -109,7 +109,7 @@ public class ImdiVocabularies {
 
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
-            File cachedFile = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, false, new DownloadAbortFlag());
+            File cachedFile = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, null, false, new DownloadAbortFlag());
             // this delete is for testing only!!! new File(cachePath).delete();
             if (!cachedFile.exists()) {
                 String backupPath = "/nl/mpi/arbil/resources/IMDI/FallBack/" + cachedFile.getName();

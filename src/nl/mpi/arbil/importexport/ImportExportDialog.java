@@ -724,7 +724,7 @@ public class ImportExportDialog {
 //                                                    resourceCopyOutput.append(currentLink + "\n");
                                                     File downloadFileLocation;
                                                     if (exportDestinationDirectory == null) {
-                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, false, downloadAbortFlag);
+                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
                                                     } else {
                                                         downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
@@ -757,7 +757,7 @@ public class ImportExportDialog {
                                         totalExisting++;
                                     }
                                     if (destinationFile.exists() && !overwriteCheckBox.isSelected()) {
-                                        appendToTaskOutput(new File(currentTarget).toString());
+                                        appendToTaskOutput(currentTarget.toString());
                                         appendToTaskOutput("Destination already exists, skipping file: " + destinationFile.getAbsolutePath());
 //                                        appendToTaskOutput("this destination file already exists, skipping file");
                                     } else {
@@ -780,20 +780,20 @@ public class ImportExportDialog {
                                             destinationNode.bumpHistory();
                                         }
                                         ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", new File(currentTarget).toString(), "", journalActionString);
+                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget.toString(), "", journalActionString);
                                         // validate the imdi file
 //                                        appendToTaskOutput("validating");
                                         String checkerResult;
                                         if (exportDestinationDirectory == null) {
                                             // when not exporting we need to remove the id attributes in order to validate the file
                                             ImdiTreeObject.api.writeDOM(nodDom, tempFileForValidator, true);
-                                            checkerResult = xsdChecker.simpleCheck(tempFileForValidator, new File(currentTarget));
+                                            checkerResult = xsdChecker.simpleCheck(tempFileForValidator, currentTarget);
                                         } else {
                                             // when exporting we can just validate the destination file
-                                            checkerResult = xsdChecker.simpleCheck(destinationFile, new File(currentTarget));
+                                            checkerResult = xsdChecker.simpleCheck(destinationFile, currentTarget);
                                         }
                                         if (checkerResult != null) {
-                                            xmlOutput.append(new File(currentTarget).toString() + "\n");
+                                            xmlOutput.append(currentTarget.toString() + "\n");
                                             xmlOutput.append("destination path: " + destinationFile.getAbsolutePath());
                                             System.out.println("checkerResult: " + checkerResult);
                                             xmlOutput.append(checkerResult + "\n");
@@ -815,7 +815,7 @@ public class ImportExportDialog {
 //                                        appendToTaskOutput("done");
                                     }
                                 } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(new File(currentTarget).toString(), ex);
+                                    GuiHelper.linorgBugCatcher.logError(currentTarget.toString(), ex);
                                     totalErrors++;
                                     metaDataCopyErrors.add(currentTarget);
                                     appendToTaskOutput("unable to process the file: " + currentTarget);
