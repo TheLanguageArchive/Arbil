@@ -121,7 +121,7 @@ public class ImdiTreeObject implements Comparable {
         URI returnUrl = null;
         try {
 //            localUrlString = localUrlString.replace("\\", "/");
-            if (!inputUrlString.toLowerCase().startsWith("http:") && !inputUrlString.toLowerCase().startsWith("file:") && !inputUrlString.toLowerCase().startsWith(".")) {
+            if (!inputUrlString.toLowerCase().startsWith("http") && !inputUrlString.toLowerCase().startsWith("file:") && !inputUrlString.toLowerCase().startsWith(".")) {
                 returnUrl = new File(inputUrlString).toURI();
             } else {
                 // apache method
@@ -147,7 +147,7 @@ public class ImdiTreeObject implements Comparable {
                     // TODO: this is un tested for ./ paths, but at this stage it appears unlikey to ever be needed
                     protocolEndIndex = 0;
                 } else {
-                    protocolEndIndex = "xxxx".length();
+                    protocolEndIndex = inputUrlString.indexOf(":/");
                 }
 //                while (inputUrlString.charAt(protocolEndIndex) == '/') {
 //                    protocolEndIndex++;

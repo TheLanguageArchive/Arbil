@@ -448,15 +448,15 @@ public class LinorgSessionStorage {
                     httpConnection = (HttpURLConnection) urlConnection;
                     if (shibbolethNegotiator != null) {
                         httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
-                            // work around for resources being https when under shiboleth
-                            // try https after http failed
-                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-                            System.out.println("trying https");
-                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
-                            urlConnection = targetUrl.openConnection();
-                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-                        }
+//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
+//                            // work around for resources being https when under shiboleth
+//                            // try https after http failed
+//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+//                            System.out.println("trying https");
+//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
+//                            urlConnection = targetUrl.openConnection();
+//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
+//                        }
                     }
                     //h.setFollowRedirects(false);
                     System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
