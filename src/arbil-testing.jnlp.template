@@ -5,8 +5,8 @@
         <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbilTesting128x128.png" />
         <offline-allowed/>
         <shortcut online="false">
-            <desktop />
-            <menu sub-menu="Language Archiving Tools" />
+            <!--<desktop />-->
+            <!--<menu sub-menu="Language Archiving Tools" />-->
             <!-- <menu sub-menu="" /> -->
             <!-- <menu /> -->
         </shortcut>
