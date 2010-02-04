@@ -103,6 +103,10 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <copy todir="${OUTPUTDIR}/distribution-win32/temp/">
             <fileset dir="${SRCDIR}nl/mpi/arbil/resources/icons/" includes="*.ico"/>
         </copy>
+        <!--unzip then delete the imagemagick jar-->
+        <unzip src="${OUTPUTDIR}/lib/ImageMagick-6.5.9-Win32.jar" dest="${OUTPUTDIR}/distribution-win32/temp/ImageMagick"/>
+        <delete file="${OUTPUTDIR}/lib/ImageMagick-6.5.9-Win32.jar"/>
+        <delete dir="${OUTPUTDIR}/distribution-win32/temp/ImageMagick/META-INF"/>
         <exec dir="${BUILDDIR}" executable="wine" ><!--os="Windows NT"-->
             <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" arbil-win-installer.iss'/>
         </exec>
@@ -230,9 +234,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <manifest>
-                <!--consider adding imagemagick to the class path for windows and what effect it might have on other os-->
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
-                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar lib/ImageMagick-6.5.9-Win32.jar" />
+                <!--TODO: (currently removed due to inclusion in the installer for windows) consider preventing the imagemagick jar being on the class path for windows due to the effect it might have on other os -->
+                <attribute name="Class-Path" value="lib/corpusstructure-1.6.1.jar lib/imdiapi-1.0.6.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar" />
                 <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
                 <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
