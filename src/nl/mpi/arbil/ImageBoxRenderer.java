@@ -32,7 +32,10 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     int textStartY = 0;
     boolean ffmpegFound = true;
     boolean imageMagickFound = true;
-    boolean loadedMfcDlls = false;
+    String ffmpegPath = null;
+    String imageMagickPath = null;
+    String searchPathArray[] = {"ImageMagick\\", "/opt/local/bin/", ""};
+    //    boolean loadedMfcDlls = false;
     // the thumbnail files are stored in a temp file on disk and the file location kept in the imditreeobject
 
     public ImageBoxRenderer() {
@@ -150,12 +153,25 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     }
 
     private void createVideoThumbnail(ImdiTreeObject targetImdiObject) {
+        if (ffmpegPath == null) {
+            for (String currentPath : searchPathArray) {
+                for (String currentSuffix : new String[]{".exe", ""}) {
+                    ffmpegPath = currentPath + "ffmpeg" + currentSuffix;
+                    if (new File(ffmpegPath).exists()) {
+                        break;
+                    }
+                }
+                if (new File(ffmpegPath).exists()) {
+                    break;
+                }
+            }
+        }
         if (ffmpegFound) {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 iconFile.deleteOnExit();
                 File targetFile = getTargetFile(targetImdiObject);
-                String[] execString = new String[]{"ffmpeg", "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
+                String[] execString = new String[]{ffmpegPath, "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
@@ -178,13 +194,26 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     }
 
     private void createImageThumbnail(ImdiTreeObject targetImdiObject) {
-        if (!loadedMfcDlls) {
-            loadedMfcDlls = true;
-            try {
-                // todo: this need not be done in a non windows environment or when imagemagick is installed
-                System.loadLibrary("CVCOMP90");
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+//        if (!loadedMfcDlls) {
+//            loadedMfcDlls = true;
+//            try {
+//                // todo: this need not be done in a non windows environment or when imagemagick is installed
+//                System.loadLibrary("CVCOMP90");
+//            } catch (Exception ex) {
+//                GuiHelper.linorgBugCatcher.logError(ex);
+//            }
+//        }
+        if (imageMagickPath == null) {
+            for (String currentPath : searchPathArray) {
+                for (String currentSuffix : new String[]{".exe", ""}) {
+                    imageMagickPath = currentPath + "convert" + currentSuffix;
+                    if (new File(imageMagickPath).exists()) {
+                        break;
+                    }
+                }
+                if (new File(imageMagickPath).exists()) {
+                    break;
+                }
             }
         }
         if (imageMagickFound) {
@@ -192,7 +221,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 iconFile.deleteOnExit();
                 File targetFile = getTargetFile(targetImdiObject);
-                String[] execString = new String[]{"convert", "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
+                String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
                 System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
                 BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
