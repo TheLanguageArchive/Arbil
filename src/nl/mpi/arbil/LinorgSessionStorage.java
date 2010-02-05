@@ -368,6 +368,17 @@ public class LinorgSessionStorage {
         return cachePath;
     }
 
+    public boolean replaceCacheCopy(String pathString) {
+        File cachePath = getSaveLocation(pathString);
+        boolean fileDownloadedBoolean = false;
+        try {
+           fileDownloadedBoolean =  saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag());
+        } catch (MalformedURLException mul) {
+            GuiHelper.linorgBugCatcher.logError(mul);
+        }
+        return fileDownloadedBoolean;
+    }
+
     /**
      * Removes the cache path component from a path string and appends it to the destination directory.
      * Then tests for and creates the directory structure in the destination directory if requred.
@@ -427,8 +438,10 @@ public class LinorgSessionStorage {
      * Copies a remote file over http and saves it into the cache.
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
+     * @return boolean true ony if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the dowload failed
      */
-    public void saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+        boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
 //        System.out.println("saveRemoteResource: " + targetUrlString);
@@ -484,11 +497,12 @@ public class LinorgSessionStorage {
                         outFile.write(buffer, 0, bytesread);
                     }
                     outFile.close();
-                    if (tempFile.length() > 0 && !abortFlag.abortDownload) {
+                    if (tempFile.length() > 0 && !abortFlag.abortDownload) { // TODO: this should check the file size on the server
                         if (destinationFile.exists()) {
                             destinationFile.delete();
                         }
                         tempFile.renameTo(destinationFile);
+                        downloadSucceeded = true;
                     }
                     System.out.println("Downloaded: " + totalRead / 1048576 + " Mb");
                 }
@@ -497,5 +511,6 @@ public class LinorgSessionStorage {
 //                System.out.println(ex.getMessage());
             }
         }
+        return downloadSucceeded;
     }
 }

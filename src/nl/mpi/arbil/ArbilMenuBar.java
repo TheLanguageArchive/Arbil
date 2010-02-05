@@ -56,6 +56,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem;
     private JMenuItem editFieldViewsMenuItem;
 //    private JMenuItem editLocationsMenuItem;
+    private JMenuItem updateAllLoadedVocabulariesMenuItem;
     private JMenu editMenu;
     private JMenuItem exitMenuItem;
     private JMenu fileMenu;
@@ -82,6 +83,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        viewFavouritesMenuItem = new JMenuItem();
         setStorageDirectoryMenu = new JMenu();
         editFieldViewsMenuItem = new JMenuItem();
+        updateAllLoadedVocabulariesMenuItem = new JMenuItem();
         saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
         showSelectionPreviewCheckBoxMenuItem = new JCheckBoxMenuItem();
         checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -323,6 +325,15 @@ public class ArbilMenuBar extends JMenuBar {
 //            }
 //        });
         optionsMenu.add(editFieldViewsMenuItem);
+
+        updateAllLoadedVocabulariesMenuItem.setText("Re-download Current Vocabularies");
+        updateAllLoadedVocabulariesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ImdiVocabularies.getSingleInstance().redownloadCurrentlyLoadedVocabularies();
+            }
+        });
+        optionsMenu.add(updateAllLoadedVocabulariesMenuItem);
 
         saveWindowsCheckBoxMenuItem.setSelected(true);
         saveWindowsCheckBoxMenuItem.setText("Save Windows on Exit");
@@ -762,5 +773,13 @@ public class ArbilMenuBar extends JMenuBar {
             templateMenu.add(noneMenuItem);
         }
         addTemplateAddNewMenuItem(templateMenu);
+//        CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+//        if (templateCount > 0 && cmdiProfileReader.cmdiProfileArray.size() > 0) {
+//            templateMenu.add(new JSeparator());
+//        }
+//        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentCmdiProfile.name, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+//            templateCount++;
+//        }
     }
 }

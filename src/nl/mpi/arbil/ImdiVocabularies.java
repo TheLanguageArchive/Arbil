@@ -50,6 +50,16 @@ public class ImdiVocabularies {
         }
     }
 
+    public void redownloadCurrentlyLoadedVocabularies() {
+        int succeededCount = 0;
+        for (String currentUrl : vocabulariesTable.keySet()) {
+            if (LinorgSessionStorage.getSingleInstance().replaceCacheCopy(currentUrl)) {
+                succeededCount++;
+            }
+        }
+        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect.", "Re-download Current Vocabularies");
+    }
+
     public Vocabulary getVocabulary(ImdiField originatingImdiField, String vocabularyLocation) {
         if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
             return null;
