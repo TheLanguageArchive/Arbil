@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -87,9 +88,9 @@ public class ImportExportDialog {
     File exportDestinationDirectory = null;
     DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
     ShibbolethNegotiator shibbolethNegotiator = null;
-    Vector<String> validationErrors = new Vector<String>();
-    Vector<String> metaDataCopyErrors = new Vector<String>();
-    Vector<String> fileCopyErrors = new Vector<String>();
+    Vector<URI> validationErrors = new Vector<URI>();
+    Vector<URI> metaDataCopyErrors = new Vector<URI>();
+    Vector<URI> fileCopyErrors = new Vector<URI>();
 
     private void setNodesPanel(ImdiTreeObject selectedNode, JPanel nodePanel) {
         JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
@@ -497,13 +498,13 @@ public class ImportExportDialog {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (metaDataCopyErrors.size() > 0) {
-                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new String[]{}), progressFailedLabelText);
+                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new URI[]{}), progressFailedLabelText);
                     }
                     if (validationErrors.size() > 0) {
-                        LinorgWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new String[]{}), progressXmlErrorsLabelText);
+                        LinorgWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
                     }
                     if (fileCopyErrors.size() > 0) {
-                        ImdiTableModel resourceFileErrorsTable = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new String[]{}), resourceCopyErrorsLabelText);
+                        ImdiTableModel resourceFileErrorsTable = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
                         //resourceFileErrorsTable.getFieldView().
                         resourceFileErrorsTable.addChildTypeToDisplay("MediaFiles");
                         resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
@@ -681,23 +682,23 @@ public class ImportExportDialog {
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
-                            Vector getList = new Vector(); // TODO: make this global so files do not get redone
-                            getList.add(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
+                            Vector<URI> getList = new Vector<URI>(); // TODO: make this global so files do not get redone
+                            getList.add(((ImdiTreeObject) currentElement).getParentDomNode().getURI());
                             while (!stopSearch && getList.size() > 0) {
-                                String currentTarget = (String) getList.remove(0);
+                                URI currentTarget = getList.remove(0);
 //                                appendToTaskOutput(currentTarget);
                                 try {
 //                                    appendToTaskOutput("connecting...");
-                                    OurURL inUrlLocal = new OurURL(currentTarget);
+                                    OurURL inUrlLocal = new OurURL(currentTarget.toURL());
 //                                    String destinationPath;
                                     File destinationFile;// = new File(destinationPath);
                                     String journalActionString;
                                     if (exportDestinationDirectory == null) {
-                                        destinationFile = LinorgSessionStorage.getSingleInstance().getSaveLocation(currentTarget);
+                                        destinationFile = LinorgSessionStorage.getSingleInstance().getSaveLocation(currentTarget.toString());
                                         journalActionString = "import";
                                     } else {
                                         //TODO: make sure this is correct then remove any directories that contain only one directory
-                                        destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget, exportDestinationDirectory.getPath());
+                                        destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget.toString(), exportDestinationDirectory.getPath());
                                         journalActionString = "export";
                                     }
 
@@ -714,7 +715,7 @@ public class ImportExportDialog {
                                             System.out.println("Link: " + links[linkCount].getRawURL());
                                             String currentLink = links[linkCount].getRawURL().toString();
                                             if (ImdiTreeObject.isStringImdi(currentLink)) {
-                                                getList.add(currentLink);
+                                                getList.add(ImdiTreeObject.conformStringToUrl(currentLink));
                                             } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
                                                 boolean resourceFileCopied = false;
                                                 if (copyFilesCheckBox.isSelected()) {
@@ -723,7 +724,7 @@ public class ImportExportDialog {
 //                                                    resourceCopyOutput.append(currentLink + "\n");
                                                     File downloadFileLocation;
                                                     if (exportDestinationDirectory == null) {
-                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, false, downloadAbortFlag);
+                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
                                                     } else {
                                                         downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
@@ -756,7 +757,7 @@ public class ImportExportDialog {
                                         totalExisting++;
                                     }
                                     if (destinationFile.exists() && !overwriteCheckBox.isSelected()) {
-                                        appendToTaskOutput(currentTarget);
+                                        appendToTaskOutput(currentTarget.toString());
                                         appendToTaskOutput("Destination already exists, skipping file: " + destinationFile.getAbsolutePath());
 //                                        appendToTaskOutput("this destination file already exists, skipping file");
                                     } else {
@@ -779,7 +780,7 @@ public class ImportExportDialog {
                                             destinationNode.bumpHistory();
                                         }
                                         ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget, "", journalActionString);
+                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget.toString(), "", journalActionString);
                                         // validate the imdi file
 //                                        appendToTaskOutput("validating");
                                         String checkerResult;
@@ -792,7 +793,7 @@ public class ImportExportDialog {
                                             checkerResult = xsdChecker.simpleCheck(destinationFile, currentTarget);
                                         }
                                         if (checkerResult != null) {
-                                            xmlOutput.append(currentTarget);
+                                            xmlOutput.append(currentTarget.toString() + "\n");
                                             xmlOutput.append("destination path: " + destinationFile.getAbsolutePath());
                                             System.out.println("checkerResult: " + checkerResult);
                                             xmlOutput.append(checkerResult + "\n");
@@ -814,7 +815,7 @@ public class ImportExportDialog {
 //                                        appendToTaskOutput("done");
                                     }
                                 } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(currentTarget, ex);
+                                    GuiHelper.linorgBugCatcher.logError(currentTarget.toString(), ex);
                                     totalErrors++;
                                     metaDataCopyErrors.add(currentTarget);
                                     appendToTaskOutput("unable to process the file: " + currentTarget);
@@ -858,9 +859,11 @@ public class ImportExportDialog {
 //                                System.out.println("progressXmlErrors" + xsdErrors);
 //                                System.out.println("resourceCopyErrors" + resourceCopyErrors);
                             }
-                            // add the completed node to the done list
-                            File newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
-                            finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation.toURI()));
+                            if (exportDestinationDirectory == null) {
+                                // add the completed node to the done list
+                                File newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
+                                finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation.toURI()));
+                            }
                         }
                     }
 
@@ -885,6 +888,8 @@ public class ImportExportDialog {
                                         finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
                                     }
                                 }
+                                // make sure that any changes are reflected in the tree
+                                currentFinishedNode.reloadNode();
                             }
                         }
                         if (destinationNode == null) {

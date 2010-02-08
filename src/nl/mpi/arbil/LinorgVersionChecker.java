@@ -38,7 +38,7 @@ public class LinorgVersionChecker {
     private boolean doUpdate() {
         try {
             // TODO: check the verion of javaws before calling this
-            String execString = "javaws -import http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp";
+            String execString = "javaws -import http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil.jnlp";
             System.out.println(execString);
             Process launchedProcess = Runtime.getRuntime().exec(execString);
             BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
@@ -55,7 +55,7 @@ public class LinorgVersionChecker {
 
     private void restartApplication() {
         try {
-            String restartString = "javaws http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp";
+            String restartString = "javaws http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil.jnlp";
             Process restartProcess = Runtime.getRuntime().exec(restartString);
             if (0 == restartProcess.waitFor()) {
                 System.exit(0);

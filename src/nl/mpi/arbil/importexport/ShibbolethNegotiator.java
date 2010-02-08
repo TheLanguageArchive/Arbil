@@ -27,7 +27,7 @@ import nl.nikhef.slcshttps.trust.HttxURLConnection;
  */
 public class ShibbolethNegotiator implements ActionListener {
 
-    CAHttps myCA = null; 
+    static CAHttps myCA = null;
     JPanel shibbolethControlPanel = null;
     JButton infoCaMenuItem;
 

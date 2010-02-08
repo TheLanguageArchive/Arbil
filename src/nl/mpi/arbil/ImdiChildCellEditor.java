@@ -528,9 +528,13 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             }
         } else {
             cellValue = (Object[]) value;
-            fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
+            if (cellValue[0] instanceof ImdiField) {
+                fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
+            }
         }
-        registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
+        if (cellValue[0] instanceof ImdiField) {
+            registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
+        }
     }
 
     public Component getTableCellEditorComponent(JTable table,

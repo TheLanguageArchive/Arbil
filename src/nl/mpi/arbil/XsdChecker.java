@@ -9,6 +9,7 @@ import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Scanner;
 import javax.swing.JScrollPane;
@@ -154,7 +155,7 @@ public class XsdChecker extends JSplitPane {
         }
     }
 
-    public String simpleCheck(File imdiFile, String sourceFile) {
+    public String simpleCheck(File imdiFile, URI sourceFile) {
         String messageString;
 //        System.out.println("simpleCheck: " + imdiFile);
         URL schemaURL = getXsd();

@@ -84,22 +84,24 @@ public class ImdiTable extends JTable {
                     System.out.println("columnIndex: " + targetColumn);
 
                     JPopupMenu popupMenu = new JPopupMenu();
+                    // TODO: also add show only selected columns
+                    // TODO: also add hide selected columns
+                    if (targetColumn != 0) { // prevent hide column menu showing when the session column is selected because it cannot be hidden
+                        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + imdiTableModel.getColumnName(targetColumn) + "\"");
+                        hideColumnMenuItem.setActionCommand("" + targetColumn);
+                        hideColumnMenuItem.addActionListener(new ActionListener() {
 
-                    JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + imdiTableModel.getColumnName(targetColumn) + "\"");
-                    hideColumnMenuItem.setActionCommand("" + targetColumn);
-                    hideColumnMenuItem.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                //System.out.println("hideColumnMenuItem: " + targetTable.toString());
-                                imdiTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
+                                    imdiTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
+                                } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(ex);
+                                }
                             }
-                        }
-                    });
-                    popupMenu.add(hideColumnMenuItem);
-
+                        });
+                        popupMenu.add(hideColumnMenuItem);
+                    }
                     if (imdiTableModel.horizontalView) {
                         JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
                         showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N

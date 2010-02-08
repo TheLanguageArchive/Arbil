@@ -43,14 +43,28 @@ public class ImdiTreeObjectTest {
     @Test
     public void testConformStringToUrl() {
         System.out.println("conformStringToUrl");
-        String[] testStringArray = {
-            //            "C:\\Documents and Settings\\user\\Application Data\\.arbil\\imdicache\\http\\corpus1.mpi.nl\\qfs1\\media-archive\\lac_data\\Corpusstructure\\southeastasia.imdi",
-            //            "/C/Documents and Settings/user/Application Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi",
-            "file:/C:/Documents and Settings/user/Application Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi"
+        String[][] testStringArray = {
+//            {
+//                "C:\\Documents and Settings\\user\\Application Data\\.arbil\\imdicache\\http\\corpus1.mpi.nl\\qfs1\\media-archive\\lac_data\\Corpusstructure\\southeastasia.imdi",
+//                "file:/C/Documents%20and%20Settings/user/Application%20Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi",
+//            },
+            {
+                "file:/C:/Documents and Settings/user/Application Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi",
+                "file:/C:/Documents%20and%20Settings/user/Application%20Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi"
+            }, {
+                "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi",
+                "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"
+            }, {
+                "https://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi",
+                "https://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"
+            }, {
+                "file:/Users/petwit/Library/Mail Downloads/arbil_export/20100201175544/20100201175545/20100201180205/20100201183806/20100201183822/20100202184429/20100202184443.imdi",
+                "file:/Users/petwit/Library/Mail%20Downloads/arbil_export/20100201175544/20100201175545/20100201180205/20100201183806/20100201183822/20100202184429/20100202184443.imdi"
+            }
         };
-        for (String testString : testStringArray) {
-            URI expResult = URI.create("file:/C:/Documents%20and%20Settings/user/Application%20Data/.arbil/imdicache/http/corpus1.mpi.nl/qfs1/media-archive/lac_data/Corpusstructure/southeastasia.imdi");
-            URI result = ImdiTreeObject.conformStringToUrl(testString);
+        for (String testString[] : testStringArray) {
+            URI expResult = URI.create(testString[1]);
+            URI result = ImdiTreeObject.conformStringToUrl(testString[0]);
             assertEquals(expResult, result);
         }
     }

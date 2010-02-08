@@ -20,7 +20,7 @@
     </security>
     <resources>
         <j2se version="1.5+"/>
-        <jar href="arbil-1-2-17474.jar" main="true" download="eager"/>
+        <jar href="arbil-1-1-17200.jar" main="true" download="eager"/>
         <jar href="lib/corpusstructure-1.6.1.jar" download="eager"/>
         <jar href="lib/imdiapi-1.0.6.jar" download="eager"/>
         <jar href="lib/log4j-1.2.14.jar" download="eager"/>
@@ -29,11 +29,7 @@
         <jar href="lib/typecheck-1.5.16185.jar" download="eager"/>
         <jar href="lib/xalan-2.6.0.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
-        <jar href="lib/bcprov-jdk15-143.jar" download="eager"/>
     </resources>
-    <resources os="windows">
-        <nativelib href="lib/ImageMagickWin32.jar"/>
-    </resource>
     <application-desc main-class="nl.mpi.arbil.LinorgFrame">
         <argument>-update_via_javaws</argument>
     </application-desc>

@@ -1146,94 +1146,96 @@ public class ContextMenu {
     }
 
     public void showTreePopup(Object eventSource, int posX, int posY) {
-        // set up the context menu
-        removeCachedCopyMenuItem.setVisible(false);
-        removeLocalDirectoryMenuItem.setVisible(false);
-        addLocalDirectoryMenuItem.setVisible(false);
-        showHiddenFilesMenuItem.setVisible(false);
-        removeRemoteCorpusMenuItem.setVisible(false);
-        addRemoteCorpusMenuItem.setVisible(false);
-        copyBranchMenuItem.setVisible(false);
-        copyImdiUrlMenuItem.setVisible(false);
-        pasteMenuItem1.setVisible(false);
-        viewXmlMenuItem.setVisible(false);
-        viewXmlMenuItemFormatted.setVisible(false);
-        openXmlMenuItemFormatted.setVisible(false);
-        overrideTypeCheckerDecision.setVisible(false);
-        viewInBrrowserMenuItem.setVisible(false);
-        browseForResourceFileMenuItem.setVisible(false);
-        searchSubnodesMenuItem.setVisible(false);
-        reloadSubnodesMenuItem.setVisible(false);
-        addDefaultLocationsMenuItem.setVisible(false);
-        addMenu.setVisible(false);
-        deleteMenuItem.setVisible(false);
-        viewSelectedNodesMenuItem.setVisible(false);
-        addFromFavouritesMenu.setVisible(false);
-        saveMenuItem.setVisible(false);
-        viewChangesMenuItem.setVisible(false);
-        sendToServerMenuItem.setVisible(false);
-        validateMenuItem.setVisible(false);
-        historyMenu.setVisible(false);
-        exportMenuItem.setVisible(false);
-        importCsvMenuItem.setVisible(false);
-        importBranchMenuItem.setVisible(false);
-        reImportBranchMenuItem.setVisible(false);
-        addToFavouritesMenuItem.setVisible(false);
-        //////////
-        // table menu items
-        copySelectedRowsMenuItem.setVisible(false);
-        pasteIntoSelectedRowsMenuItem.setVisible(false);
-        viewSelectedRowsMenuItem.setVisible(false);
-        matchingRowsMenuItem.setVisible(false);
-        removeSelectedRowsMenuItem.setVisible(false);
-        hideSelectedColumnsMenuItem.setVisible(false);
-        deleteFieldMenuItem.setVisible(false);
-        revertFieldMenuItem.setVisible(false);
-        copyCellToColumnMenuItem.setVisible(false);
-        matchingCellsMenuItem.setVisible(false);
-        openInLongFieldEditorMenuItem.setVisible(false);
-        clearCellColoursMenuItem.setVisible(false);
-        jumpToNodeInTreeMenuItem.setVisible(false);
-        //////////
-        // menu separators
+        if (((java.awt.Component) eventSource).isShowing()) {
+            // set up the context menu
+            removeCachedCopyMenuItem.setVisible(false);
+            removeLocalDirectoryMenuItem.setVisible(false);
+            addLocalDirectoryMenuItem.setVisible(false);
+            showHiddenFilesMenuItem.setVisible(false);
+            removeRemoteCorpusMenuItem.setVisible(false);
+            addRemoteCorpusMenuItem.setVisible(false);
+            copyBranchMenuItem.setVisible(false);
+            copyImdiUrlMenuItem.setVisible(false);
+            pasteMenuItem1.setVisible(false);
+            viewXmlMenuItem.setVisible(false);
+            viewXmlMenuItemFormatted.setVisible(false);
+            openXmlMenuItemFormatted.setVisible(false);
+            overrideTypeCheckerDecision.setVisible(false);
+            viewInBrrowserMenuItem.setVisible(false);
+            browseForResourceFileMenuItem.setVisible(false);
+            searchSubnodesMenuItem.setVisible(false);
+            reloadSubnodesMenuItem.setVisible(false);
+            addDefaultLocationsMenuItem.setVisible(false);
+            addMenu.setVisible(false);
+            deleteMenuItem.setVisible(false);
+            viewSelectedNodesMenuItem.setVisible(false);
+            addFromFavouritesMenu.setVisible(false);
+            saveMenuItem.setVisible(false);
+            viewChangesMenuItem.setVisible(false);
+            sendToServerMenuItem.setVisible(false);
+            validateMenuItem.setVisible(false);
+            historyMenu.setVisible(false);
+            exportMenuItem.setVisible(false);
+            importCsvMenuItem.setVisible(false);
+            importBranchMenuItem.setVisible(false);
+            reImportBranchMenuItem.setVisible(false);
+            addToFavouritesMenuItem.setVisible(false);
+            //////////
+            // table menu items
+            copySelectedRowsMenuItem.setVisible(false);
+            pasteIntoSelectedRowsMenuItem.setVisible(false);
+            viewSelectedRowsMenuItem.setVisible(false);
+            matchingRowsMenuItem.setVisible(false);
+            removeSelectedRowsMenuItem.setVisible(false);
+            hideSelectedColumnsMenuItem.setVisible(false);
+            deleteFieldMenuItem.setVisible(false);
+            revertFieldMenuItem.setVisible(false);
+            copyCellToColumnMenuItem.setVisible(false);
+            matchingCellsMenuItem.setVisible(false);
+            openInLongFieldEditorMenuItem.setVisible(false);
+            clearCellColoursMenuItem.setVisible(false);
+            jumpToNodeInTreeMenuItem.setVisible(false);
+            //////////
+            // menu separators
 //        treePopupMenuSeparator1.setVisible(true);
 //        treePopupMenuSeparator2.setVisible(true);
 //        cellMenuDivider.setVisible(true);
 //        cellTableDivider.setVisible(true);
-        //////////
-        currentTable = null;
-        if (eventSource instanceof ImdiTable) {
-            currentTable = ((ImdiTable) eventSource);
-            selectedTreeNodes = currentTable.getSelectedRowsFromTable();
-            leadSelectedTreeNode = currentTable.getImdiNodeForSelection();
+            //////////
+            currentTable = null;
+            if (eventSource instanceof ImdiTable) {
+                currentTable = ((ImdiTable) eventSource);
+                selectedTreeNodes = currentTable.getSelectedRowsFromTable();
+                leadSelectedTreeNode = currentTable.getImdiNodeForSelection();
 //            selectionCount = selectedTreeNodes.length;
-            setupTableMenuItems();
-        } else if (eventSource instanceof JList) {
-            JList currentJList = ((JList) eventSource);
-            Object[] selectedObjects = currentJList.getSelectedValues();
-            selectedTreeNodes = new ImdiTreeObject[selectedObjects.length];
-            for (int objectCounter = 0; objectCounter < selectedObjects.length; objectCounter++) {
-                selectedTreeNodes[objectCounter] = (ImdiTreeObject) selectedObjects[objectCounter];
+                setupTableMenuItems();
+            } else if (eventSource instanceof JList) {
+                JList currentJList = ((JList) eventSource);
+                Object[] selectedObjects = currentJList.getSelectedValues();
+                selectedTreeNodes = new ImdiTreeObject[selectedObjects.length];
+                for (int objectCounter = 0; objectCounter < selectedObjects.length; objectCounter++) {
+                    selectedTreeNodes[objectCounter] = (ImdiTreeObject) selectedObjects[objectCounter];
+                }
+                leadSelectedTreeNode = (ImdiTreeObject) currentJList.getSelectedValue();
+//            selectionCount = selectedTreeNodes.length;
+                setUpImagePreviewMenu();
+            } else if (eventSource instanceof ImdiTree) {
+
+                selectedTreeNodes = ((ImdiTree) eventSource).getSelectedNodes();
+                leadSelectedTreeNode = ((ImdiTree) eventSource).getLeadSelectionNode();
+                setUpTreeMenuItems(eventSource);
             }
-            leadSelectedTreeNode = (ImdiTreeObject) currentJList.getSelectedValue();
-//            selectionCount = selectedTreeNodes.length;
-            setUpImagePreviewMenu();
-        } else if (eventSource instanceof ImdiTree) {
+            setCommonMenuItems();
 
-            selectedTreeNodes = ((ImdiTree) eventSource).getSelectedNodes();
-            leadSelectedTreeNode = ((ImdiTree) eventSource).getLeadSelectionNode();
-            setUpTreeMenuItems(eventSource);
+            if (eventSource instanceof Component) {
+                // store the event source
+                treePopupMenu.setInvoker((Component) eventSource);
+            }
+            configureMenuSeparators();
+            // show the context menu
+            treePopupMenu.show((java.awt.Component) eventSource, posX, posY);
+            treePopupMenu.requestFocusInWindow();
         }
-        setCommonMenuItems();
-
-        if (eventSource instanceof Component) {
-            // store the event source
-            treePopupMenu.setInvoker((Component) eventSource);
-        }
-        configureMenuSeparators();
-        // show the context menu
-        treePopupMenu.show((java.awt.Component) eventSource, posX, posY);
-        treePopupMenu.requestFocusInWindow();
     }
 
     private void configureMenuSeparators() {
