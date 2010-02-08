@@ -210,6 +210,7 @@ public class TreeHelper {
             favouriteNodes = favouriteNodesVector.toArray(new ImdiTreeObject[]{});
         } catch (Exception ex) {
             System.out.println("load locationsList failed: " + ex.getMessage());
+//            GuiHelper.linorgBugCatcher.logError(ex);
 //            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
 //            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
 //            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
@@ -345,6 +346,7 @@ public class TreeHelper {
             DefaultMutableTreeNode currentChildNode = nodesToRemove.remove(0);
             //System.out.println("nodesToRemove: " + currentChildNode);
             //System.out.println("nodesToRemove: " + currentChildNode.getUserObject());
+            //System.out.println("removing from: " + parentNode.toString());
 //            if (currentChildNode.getParent() != null) {
 //                treeModel.removeNodeFromParent(currentChildNode);
 //            }

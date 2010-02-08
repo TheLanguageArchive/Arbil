@@ -154,6 +154,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     private void createVideoThumbnail(ImdiTreeObject targetImdiObject) {
         if (ffmpegPath == null) {
+            // todo: replaces this with a parameter or a properties file
             for (String currentPath : searchPathArray) {
                 for (String currentSuffix : new String[]{".exe", ""}) {
                     ffmpegPath = currentPath + "ffmpeg" + currentSuffix;
@@ -204,6 +205,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //            }
 //        }
         if (imageMagickPath == null) {
+            // todo: replaces this process with a parameter or a properties file so that the jnlp version can benifit from the installed version
             for (String currentPath : searchPathArray) {
                 for (String currentSuffix : new String[]{".exe", ""}) {
                     imageMagickPath = currentPath + "convert" + currentSuffix;
