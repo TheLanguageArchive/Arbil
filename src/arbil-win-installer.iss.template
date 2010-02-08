@@ -49,19 +49,19 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\arbil-@ArbilVersionNumber@.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\arbil128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\arbil-testing128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\ImageMagick\*"; DestDir: "{app}\ImageMagick\"; Flags: ignoreversion
 ; todo: include the imagemagick sub directories
 Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; IconFileName:"{app}\arbil128x128.ico";
+Name: "{group}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; IconFileName:"{app}\arbil-testing128x128.ico";
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil}"; Filename: "http://www.lat-mpi.eu/tools/arbil"
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil Forum}"; Filename: "http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"
 Name: "{group}\Launch Arbil Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil.jnlp"
-Name: "{commondesktop}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: desktopicon; IconFileName:"{app}\arbil128x128.ico";
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\arbil128x128.ico";
+Name: "{commondesktop}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: desktopicon; IconFileName:"{app}\arbil-testing128x128.ico";
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\arbil-testing128x128.ico";
 
 [Run]
 Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Arbil}"; Flags: shellexec postinstall skipifsilent
