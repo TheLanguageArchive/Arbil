@@ -2,7 +2,7 @@
 <jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil-testing.jnlp">
     <information>
         <title>Arbil</title>
-        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbilTesting128x128.png" />
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" />
         <offline-allowed/>
         <shortcut online="false">
             <!--<desktop />-->
