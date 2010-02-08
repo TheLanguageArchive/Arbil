@@ -48,15 +48,15 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "C:\windows\profiles\petwit\Desktop\arbil-build-1.2.x\arbil-1-2-17495.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "Z:\mnt\hgfs\mpi-repository\LAT\Arbil\branches\arbil.1.2.x\src\nl\mpi\arbil\resources\icons\arbil128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Z:\mnt\hgfs\mpi-repository\LAT\Arbil\branches\arbil.1.2.x\src\nl\mpi\arbil\resources\icons\arbil-testing128x128.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\windows\profiles\petwit\Desktop\arbil-build-1.2.x\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\Arbil"; Filename: "{app}\arbil-1-2-17495.jar"; IconFileName:"{app}\arbil128x128.ico";
+Name: "{group}\Arbil"; Filename: "{app}\arbil-1-2-17495.jar"; IconFileName:"{app}\arbil-testing128x128.ico";
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil}"; Filename: "http://www.lat-mpi.eu/tools/arbil"
-Name: "{commondesktop}\Arbil"; Filename: "{app}\arbil-1-2-17495.jar"; Tasks: desktopicon; IconFileName:"{app}\arbil128x128.ico";
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil"; Filename: "{app}\arbil-1-2-17495.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\arbil128x128.ico";
+Name: "{commondesktop}\Arbil"; Filename: "{app}\arbil-1-2-17495.jar"; Tasks: desktopicon; IconFileName:"{app}\arbil-testing128x128.ico";
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil"; Filename: "{app}\arbil-1-2-17495.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\arbil-testing128x128.ico";
 
 [Run]
 Filename: "{app}\arbil-1-2-17495.jar"; Description: "{cm:LaunchProgram,Arbil}"; Flags: shellexec postinstall skipifsilent
