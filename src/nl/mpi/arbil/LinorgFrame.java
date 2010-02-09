@@ -2,7 +2,6 @@ package nl.mpi.arbil;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Arrays;
 
 /*
  * LinorgView.java
@@ -14,7 +13,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
-    static boolean updateViaJavaws = false;
+//    static boolean updateViaJavaws = false;
 
     public LinorgFrame() {
         this.addWindowListener(new WindowAdapter() {
@@ -42,8 +41,9 @@ public class LinorgFrame extends javax.swing.JFrame {
         // load the templates and populate the templates menu
         setVisible(true);
         LinorgWindowManager.getSingleInstance().openIntroductionPage();
+
         if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
-            if (updateViaJavaws) {
+            if (new LinorgVersionChecker().hasWebStartUrl()) {
                 new LinorgVersionChecker().checkForAndUpdateViaJavaws(this);
             } else {
                 new LinorgVersionChecker().checkForUpdate(this);
@@ -78,9 +78,9 @@ public class LinorgFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        if (Arrays.asList(args).indexOf("-update_via_javaws") != -1) {
-            updateViaJavaws = true;
-        }
+//        if (Arrays.asList(args).indexOf("-update_via_javaws") != -1) {
+//            updateViaJavaws = true;
+//        }
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {

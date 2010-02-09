@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil-testing.jnlp">
+<jnlp spec="1.5+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil-testing.jnlp">
     <information>
         <title>Arbil</title>
-        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" />
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" kind="default" />
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" kind="splash" />
         <offline-allowed/>
         <shortcut online="false">
             <desktop />
-            <!--<menu sub-menu="Language Archiving Tools" />-->
-            <!-- <menu sub-menu="" /> -->
-            <!-- <menu /> -->
+            <!--<menu submenu="Language Archiving Tools" />-->
         </shortcut>
         <vendor>Max Planck Institute for Psycholinguistics</vendor>
         <homepage href="http://www.lat-mpi.eu/tools/imdi/Arbil/"/>
         <description>Arbil is a local metadata organising tool for researchers</description>
         <description kind="short">Linguistic Organiser</description>
+        <association extensions="IMDI imdi" mime-type="application/IMDI"/>
     </information>
     <security>
         <all-permissions/>
     </security>
+    <update check="timeout" policy="always"/>
     <resources>
-        <j2se version="1.5+"/>
+        <java max-heap-size="1073741824" version="1.5+"/>
         <jar href="arbil-@ArbilVersionNumber@.jar" main="true" download="eager"/>
         <jar href="lib/corpusstructure-1.6.1.jar" download="eager"/>
         <jar href="lib/imdiapi-1.0.6.jar" download="eager"/>
@@ -31,11 +32,15 @@
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
         <jar href="lib/bcprov-jdk15-143.jar" download="eager"/>
         <jar href="lib/slcshttps_jdk15_v0.2.jar" download="eager"/>
+        <property name="apple.laf.useScreenMenuBar" value="true"/>
+        <property name="apple.awt.graphics.UseQuartz" value="true"/>
+        <property name="sun.swing.enableImprovedDragGesture" value="true"/>
+        <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp"/>
     </resources>
     <resources os="windows">
         <nativelib href="lib/ImageMagick-6.5.9-Win32.jar"/>
     </resource>
     <application-desc main-class="nl.mpi.arbil.LinorgFrame">
-        <argument>-update_via_javaws</argument>
+      <!--<argument>-update_via_javaws</argument>-->
     </application-desc>
 </jnlp>

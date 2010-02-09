@@ -35,12 +35,10 @@ public class LinorgVersionChecker {
         return true;
     }
 
-    private boolean doUpdate() {
+    private boolean doUpdate(String webstartUrlString) {
         try {
-            // TODO: check the verion of javaws before calling this
-            String execString = "javaws -import http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp";
-            System.out.println(execString);
-            Process launchedProcess = Runtime.getRuntime().exec(execString);
+            //TODO: check the version of javaws before calling this
+            Process launchedProcess = Runtime.getRuntime().exec("javaws", new String[]{"-import", webstartUrlString});
             BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
             String line;
             while ((line = errorStreamReader.readLine()) != null) {
@@ -53,10 +51,9 @@ public class LinorgVersionChecker {
         return false;
     }
 
-    private void restartApplication() {
+    private void restartApplication(String webstartUrlString) {
         try {
-            String restartString = "javaws http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp";
-            Process restartProcess = Runtime.getRuntime().exec(restartString);
+            Process restartProcess = Runtime.getRuntime().exec("javaws", new String[]{webstartUrlString});
             if (0 == restartProcess.waitFor()) {
                 System.exit(0);
             } else {
@@ -79,26 +76,34 @@ public class LinorgVersionChecker {
         }.start();
     }
 
+    public boolean hasWebStartUrl() {
+        return null != System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+    }
+
     public void checkForAndUpdateViaJavaws(final LinorgFrame parentComponentLocal) {
         parentComponent = parentComponentLocal;
         //if (last check date not today)
         new Thread() {
 
             public void run() {
-                if (!isLatestVersion()) {
+                String webStartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+//                System.out.println(webStartUrlString);
+                {
+                    if (webStartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-                    switch (JOptionPane.showConfirmDialog(parentComponent, "There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                        case JOptionPane.NO_OPTION:
-                            break;
-                        case JOptionPane.YES_OPTION:
-                            if (doUpdate()) {
-                                restartApplication();
-                            } else {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There was an error updating the application.\nPlease go to the website and update via the download link.", null);
-                            }
-                            break;
-                        default:
-                            return;
+                        switch (JOptionPane.showConfirmDialog(parentComponent, "There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                            case JOptionPane.NO_OPTION:
+                                break;
+                            case JOptionPane.YES_OPTION:
+                                if (doUpdate(webStartUrlString)) {
+                                    restartApplication(webStartUrlString);
+                                } else {
+                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There was an error updating the application.\nPlease go to the website and update via the download link.", null);
+                                }
+                                break;
+                            default:
+                                return;
+                        }
                     }
                 }
             }

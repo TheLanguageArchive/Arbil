@@ -61,7 +61,7 @@ Name: "{group}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar";
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil}"; Filename: "http://www.lat-mpi.eu/tools/arbil"
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil Forum}"; Filename: "http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"
 Name: "{group}\Launch Arbil Testing Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp"
-Name: "{commondesktop}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: desktopicon; IconFileName:"{app}\arbil-testing128x128.ico";
+Name: "{commondesktop}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; Tasks: desktopicon; IconFileName:"{app}\arbil-testing128x128.ico";
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\arbil-testing128x128.ico";
 
 [Run]
