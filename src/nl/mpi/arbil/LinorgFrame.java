@@ -81,6 +81,9 @@ public class LinorgFrame extends javax.swing.JFrame {
 //        if (Arrays.asList(args).indexOf("-update_via_javaws") != -1) {
 //            updateViaJavaws = true;
 //        }
+        System.setProperty("sun.swing.enableImprovedDragGesture", "true");
+        System.setProperty("apple.awt.graphics.UseQuartz", "true");
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
