@@ -60,7 +60,7 @@ Name: "{group}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Working
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil}"; Filename: "http://www.lat-mpi.eu/tools/arbil"
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil Forum}"; Filename: "http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"
 Name: "{group}\Launch Arbil Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil.jnlp"
-Name: "{commondesktop}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: desktopicon; IconFileName:"{app}\arbil128x128.ico";
+Name: "{commondesktop}\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; Tasks: desktopicon; IconFileName:"{app}\arbil128x128.ico";
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\arbil128x128.ico";
 
 [Run]
