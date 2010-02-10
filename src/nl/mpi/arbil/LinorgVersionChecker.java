@@ -38,7 +38,7 @@ public class LinorgVersionChecker {
     private boolean doUpdate(String webstartUrlString) {
         try {
             //TODO: check the version of javaws before calling this
-            Process launchedProcess = Runtime.getRuntime().exec("javaws", new String[]{"-import", webstartUrlString});
+            Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws","-import", webstartUrlString});
             BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
             String line;
             while ((line = errorStreamReader.readLine()) != null) {
@@ -53,11 +53,11 @@ public class LinorgVersionChecker {
 
     private void restartApplication(String webstartUrlString) {
         try {
-            Process restartProcess = Runtime.getRuntime().exec("javaws", new String[]{webstartUrlString});
+            Process restartProcess = Runtime.getRuntime().exec(new String[]{"javaws", webstartUrlString});
             if (0 == restartProcess.waitFor()) {
                 System.exit(0);
             } else {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There was an restarting the application.\nThe update will take effect next time the application is restarted.", null);
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There was an error restarting the application.\nThe update will take effect next time the application is restarted.", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,6 +78,7 @@ public class LinorgVersionChecker {
 
     public boolean hasWebStartUrl() {
         System.out.println("hasWebStartUrl");
+        //System.setProperty("nl.mpi.arbil.webstartUpdateUrl", "http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp");
         String webstartUpdateUrl = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
         System.out.println("webstartUpdateUrl: " + webstartUpdateUrl);
         return null != webstartUpdateUrl;
