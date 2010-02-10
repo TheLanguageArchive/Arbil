@@ -97,8 +97,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <updateSingleFile fileName="arbil-testing.jnlp"/>
         <updateSingleFile fileName="ArbilApplet-testing.html"/>
         <updateSingleFile fileName="arbil-win-installer.iss"/>
-        <updateSingleFile fileName="Info.plist.template"/>
-        <updateSingleFile fileName="start-arbil.template"/>
+        <updateSingleFile fileName="Info.plist"/>
+        <updateSingleFile fileName="start-arbil"/>
     </target>
     <target name="buildWindowsInstaller" depends="updateJnlpAndAppletHtml">
         <mkdir dir="${OUTPUTDIR}/distribution-win32/temp/"/>
@@ -117,16 +117,18 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </zip>
     </target>
     <target name="buildMacInstaller" depends="updateJnlpAndAppletHtml">
-        <mkdir dir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/"/>
+<!--        <mkdir dir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/"/>
         <mkdir dir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/"/>
         <mkdir dir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/lib/"/>
-        <copy file="${BUILDDIR}/Info.plist" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/"/>
-        <copy file="${BUILDDIR}/start-arbil" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/"/>
-        <copy file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil-testing.icns" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Resources/"/>
-        <copy file="${OUTPUTDIR}/${ArbilJarName}" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/"/>
-        <copy todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/lib/">
+        <mkdir dir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/Resources/"/>-->
+        <copy file="${BUILDDIR}/Info.plist" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/"/>
+        <copy file="${BUILDDIR}/start-arbil" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/MacOS/"/>
+        <copy file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil-testing.icns" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/Resources/"/>
+        <copy file="${OUTPUTDIR}/${ArbilJarName}" todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/MacOS/"/>
+        <copy todir="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/MacOS/lib/">
             <fileset dir="${OUTPUTDIR}/lib/" includes="*.jar"/>
         </copy>
+        <chmod file="${OUTPUTDIR}/distribution-mac/arbil-testing.app/Contents/MacOS/start-arbil" perm="a+xr"/>
     </target>
     <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil-testing.jnlp"/>
