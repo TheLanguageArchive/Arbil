@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 public class ArbilApplet extends javax.swing.JApplet {
 
     public void init() {
+        System.setProperty("sun.swing.enableImprovedDragGesture", "true");
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
 
