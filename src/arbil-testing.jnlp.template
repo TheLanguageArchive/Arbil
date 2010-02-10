@@ -37,9 +37,9 @@
         <property name="sun.swing.enableImprovedDragGesture" value="true"/>
         <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp"/>
     </resources>
-    <resources os="windows">
+    <!--<resources os="windows">
         <nativelib href="lib/ImageMagick-6.5.9-Win32.jar"/>
-    </resource>
+    </resource>-->
     <application-desc main-class="nl.mpi.arbil.LinorgFrame">
       <!--<argument>-update_via_javaws</argument>-->
     </application-desc>
