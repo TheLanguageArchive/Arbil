@@ -32,9 +32,9 @@
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
         <jar href="lib/bcprov-jdk15-143.jar" download="eager"/>
         <jar href="lib/slcshttps_jdk15_v0.2.jar" download="eager"/>
-        <property name="apple.laf.useScreenMenuBar" value="true"/>
+        <!-- these prperties are now set in the main class<property name="apple.laf.useScreenMenuBar" value="true"/>
         <property name="apple.awt.graphics.UseQuartz" value="true"/>
-        <property name="sun.swing.enableImprovedDragGesture" value="true"/>
+        <property name="sun.swing.enableImprovedDragGesture" value="true"/>-->
         <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp"/>
     </resources>
     <!--<resources os="windows">
