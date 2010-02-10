@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 		<string>arbil-testing.icns</string>
 	<key>CFBundleIdentifier</key>
-		<string>nl.mpi.arbil.LinorgFrame</string>
+		<string>nl.mpi.arbil.arbil-testing</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 		<string>@ArbilVersionNumber@</string>
 	<key>CFBundleName</key>
@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 		<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-		<string>1.0</string>
+		<string>@ArbilVersionNumber@</string>
 	<key>CFBundleSignature</key>
 		<string>?????</string>
 	<key>CFBundleVersion</key>
