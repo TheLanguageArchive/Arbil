@@ -77,7 +77,10 @@ public class LinorgVersionChecker {
     }
 
     public boolean hasWebStartUrl() {
-        return null != System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+        System.out.println("hasWebStartUrl");
+        String webstartUpdateUrl = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+        System.out.println("webstartUpdateUrl: " + webstartUpdateUrl);
+        return null != webstartUpdateUrl;
     }
 
     public void checkForAndUpdateViaJavaws(final LinorgFrame parentComponentLocal) {
@@ -86,17 +89,17 @@ public class LinorgVersionChecker {
         new Thread() {
 
             public void run() {
-                String webStartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+                String webstartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
 //                System.out.println(webStartUrlString);
                 {
-                    if (webStartUrlString != null && !isLatestVersion()) {
+                    if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
                         switch (JOptionPane.showConfirmDialog(parentComponent, "There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             case JOptionPane.NO_OPTION:
                                 break;
                             case JOptionPane.YES_OPTION:
-                                if (doUpdate(webStartUrlString)) {
-                                    restartApplication(webStartUrlString);
+                                if (doUpdate(webstartUrlString)) {
+                                    restartApplication(webstartUrlString);
                                 } else {
                                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There was an error updating the application.\nPlease go to the website and update via the download link.", null);
                                 }
