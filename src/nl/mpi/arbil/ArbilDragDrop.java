@@ -325,7 +325,7 @@ public class ArbilDragDrop {
                         selectionContainsLocalDirectory = true;
                         System.out.println("selectionContainsLocalDirectory");
                     } else {
-                        if (!currentDraggedObject.isImdi()) {
+                        if (!currentDraggedObject.isMetaDataNode()) {
                             selectionContainsLocalFile = true;
                             System.out.println("selectionContainsLocalFile");
                             if (currentDraggedObject.isArchivableFile()) {
@@ -339,7 +339,7 @@ public class ArbilDragDrop {
                     selectionContainsRemote = true;
                     System.out.println("selectionContainsRemote");
                 }
-                if (currentDraggedObject.isImdi()) {
+                if (currentDraggedObject.isMetaDataNode()) {
                     if (currentDraggedObject.isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
                         selectionContainsImdiInCache = true;
                         System.out.println("selectionContainsImdiInCache");

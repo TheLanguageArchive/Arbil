@@ -7,11 +7,13 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -43,6 +45,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem undoMenuItem;
 //    private JMenuItem viewFavouritesMenuItem;
     private JMenu setStorageDirectoryMenu;
+    private JMenu setCacheDirectoryMenu;
     private JMenu viewMenu;
     static public JMenu windowMenu;
     private JMenu optionsMenu;
@@ -82,6 +85,7 @@ public class ArbilMenuBar extends JMenuBar {
         templatesMenu = new JMenu();
 //        viewFavouritesMenuItem = new JMenuItem();
         setStorageDirectoryMenu = new JMenu();
+        setCacheDirectoryMenu = new JMenu();
         editFieldViewsMenuItem = new JMenuItem();
         updateAllLoadedVocabulariesMenuItem = new JMenuItem();
         saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -301,7 +305,41 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(viewFavouritesMenuItem);
 
-        setStorageDirectoryMenu.setText("Storage Directory");
+        setCacheDirectoryMenu.setText("Local Working Files Directory");
+        setCacheDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
+
+            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            }
+
+            public void menuSelected(javax.swing.event.MenuEvent evt) {
+                setCacheDirectoryMenu.removeAll();
+                JMenuItem cacheDirectoryMenuItem = new JMenuItem();
+                cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
+                cacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        try {
+                            JFileChooser fileChooser = new JFileChooser();
+                            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                            fileChooser.setMultiSelectionEnabled(false);
+                            String fileDialogTitle = setCacheDirectoryMenu.getText();
+                            fileChooser.setDialogTitle(fileDialogTitle); // this must be set for mac
+                            fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
+                            if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, fileDialogTitle)) {
+                                LinorgSessionStorage.getSingleInstance().changeCacheDirectory(fileChooser.getSelectedFile(), true);
+                            }
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
+                    }
+                });
+                setCacheDirectoryMenu.add(cacheDirectoryMenuItem);
+            }
+        });
+        setStorageDirectoryMenu.setText("Congiguration Files Directory");
         setStorageDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
 
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
@@ -315,7 +353,11 @@ public class ArbilMenuBar extends JMenuBar {
 
             }
         });
-        optionsMenu.add(setStorageDirectoryMenu);
+        JMenu localStorageDirectoriesMenu = new JMenu("Local Storage Directories");
+        localStorageDirectoriesMenu.add(setStorageDirectoryMenu);
+        localStorageDirectoriesMenu.add(setCacheDirectoryMenu);
+        optionsMenu.add(localStorageDirectoriesMenu);
+
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.setEnabled(false);
 //        editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
