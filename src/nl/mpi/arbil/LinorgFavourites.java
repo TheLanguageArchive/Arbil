@@ -59,7 +59,7 @@ public class LinorgFavourites {
             }
         }
         for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
-            if (currentImdiObject.isMetaNode()) {
+            if (currentImdiObject.isEmptyMetaNode()) {
                 // note: the way that favourites are shown in a table will not show meta nodes but their child nodes instead
                 setAsTempate = false;
             }

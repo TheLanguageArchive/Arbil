@@ -32,8 +32,8 @@ import nl.mpi.arbil.importexport.ShibbolethNegotiator;
  */
 public class LinorgSessionStorage {
 
-    public String storageDirectory = null; // TODO: change this to a File
-    public String cacheDirectory; // TODO: change this to a File
+    public File storageDirectory = null;
+    private File localCacheDirectory = null;
     static private LinorgSessionStorage singleInstance = null;
 //    JDialog settingsjDialog;
 
@@ -45,6 +45,7 @@ public class LinorgSessionStorage {
     }
 
     private LinorgSessionStorage() {
+
         String storageDirectoryArray[] = getLocationOptions();
 
         // look for an existing storage directory
@@ -52,7 +53,7 @@ public class LinorgSessionStorage {
             File storageFile = new File(currentStorageDirectory);
             if (storageFile.exists()) {
                 System.out.println("existing storage directory found: " + currentStorageDirectory);
-                storageDirectory = currentStorageDirectory;
+                storageDirectory = storageFile;
                 break;
             }
         }
@@ -69,7 +70,7 @@ public class LinorgSessionStorage {
                             System.out.println("failed to create: " + currentStorageDirectory);
                         } else {
                             System.out.println("created new storage directory: " + currentStorageDirectory);
-                            storageDirectory = currentStorageDirectory;
+                            storageDirectory = storageFile;
                             break;
                         }
                     }
@@ -82,50 +83,77 @@ public class LinorgSessionStorage {
             System.exit(-1);
         }
         System.out.println("storageDirectory: " + storageDirectory);
-        System.out.println("cacheDirExists: " + cacheDirExists());
     }
 
-    // Move the storeage directory and change the local corpus tree links to the new directory.
-    // After completion the application will be closed!
-    public void changeStorageDirectory(String preferedDirectory) {
-        String prefferedDirectoryUriString = new File(preferedDirectory).toURI().toString() + "/";
-        String storageDirectoryUriString = new File(storageDirectory).toURI().toString();
-        try {
-            prefferedDirectoryUriString = URLDecoder.decode(prefferedDirectoryUriString, "UTF-8");
-            storageDirectoryUriString = URLDecoder.decode(storageDirectoryUriString, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            GuiHelper.linorgBugCatcher.logError(uee);
-        }
-        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-            boolean success = new File(storageDirectory).renameTo(new File(preferedDirectory));
-            if (!success) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the storage directory to the requested location.\n", null);
-            } else {
-                try {
-                    Vector<String> locationsList = new Vector<String>();
-                    for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
-                        for (ImdiTreeObject currentLocation : currentTreeArray) {
-                            String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
-                            System.out.println("currentLocationString: " + currentLocationString);
-                            System.out.println("prefferedDirectoryUriString: " + prefferedDirectoryUriString);
-                            System.out.println("storageDirectoryUriString: " + storageDirectoryUriString);
-                            locationsList.add(currentLocationString.replace(storageDirectoryUriString, prefferedDirectoryUriString));
-                        }
-                    }
-                    storageDirectory = preferedDirectory;
-                    LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
-                    System.out.println("updated locationsList");
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-//            System.out.println("save locationsList exception: " + ex.getMessage());
+    public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
+        if (!moveFiles || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+            try {
+                File fromDirectory = getCacheDirectory();
+                saveObject(preferedCacheDirectory, "cacheDirectory");
+                localCacheDirectory = null;
+                File toDirectory = getCacheDirectory();
+                if (moveFiles) {
+                    // move the files
+                    changeStorageDirectory(fromDirectory, toDirectory);
                 }
-                TreeHelper.getSingleInstance().loadLocationsList();
-                System.exit(0); // TODO: this exit might be unrequired
+            } catch (IOException iOException) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not change to the requested location.", null);
             }
         }
     }
 
+    public void changeStorageDirectory(String preferedDirectory) {
+        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to change the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+            File fromDirectory = storageDirectory;
+            File toDirectory = new File(preferedDirectory);
+            storageDirectory = new File(preferedDirectory);
+            changeStorageDirectory(fromDirectory, toDirectory);
+        }
+    }
+
+    // Move the storage directory and change the local corpus tree links to the new directory.
+    // After completion the application will be closed!
+    private void changeStorageDirectory(File fromDirectory, File toDirectory) {
+        String toDirectoryUriString = toDirectory.toURI().toString();
+        String fromDirectoryUriString = fromDirectory.toURI().toString();
+        try {
+            toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
+            fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+            GuiHelper.linorgBugCatcher.logError(uee);
+        }
+        boolean success = fromDirectory.renameTo(toDirectory);
+        if (!success) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
+            } else {
+            try {
+                Vector<String> locationsList = new Vector<String>();
+                for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
+                    for (ImdiTreeObject currentLocation : currentTreeArray) {
+                        String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
+                        System.out.println("currentLocationString: " + currentLocationString);
+                        System.out.println("prefferedDirectoryUriString: " + toDirectoryUriString);
+                        System.out.println("storageDirectoryUriString: " + fromDirectoryUriString);
+                        locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
+                    }
+                }
+                LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+                System.out.println("updated locationsList");
+            } catch (Exception ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("save locationsList exception: " + ex.getMessage());
+                }
+            TreeHelper.getSingleInstance().loadLocationsList();
+            System.exit(0); // TODO: this exit might be unrequired
+            }
+    }
+
     public String[] getLocationOptions() {
+//        for (Map.Entry<?, ?> e : System.getProperties().entrySet()) {
+//            System.out.println(String.format("%s = %s", e.getKey(), e.getValue()));
+//        }
+//        System.out.println("HOMEDRIVE" + System.getenv("HOMEDRIVE"));
+//        System.out.println("HOMEPATH" + System.getenv("HOMEPATH"));
         String[] locationOptions = new String[]{
             // System.getProperty("user.dir") is unreliable in the case of Vista and possibly others
             //http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519127
@@ -238,16 +266,15 @@ public class LinorgSessionStorage {
      * @return Boolean
      */
     public boolean pathIsInsideCache(File fullTestFile) {
-//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);    
-        int foundPos = fullTestFile.getPath().indexOf("imdicache");
-        if (foundPos == -1) {
-            return false;
+        File cacheDirectory = getCacheDirectory();
+        File testFile = fullTestFile;
+        while (testFile != null) {
+            if (testFile.equals(cacheDirectory)) {
+                return true;
+            }
+            testFile = testFile.getParentFile();
         }
-        File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
-//                split("imdicache")[0]); // there is an issue using split because it parses the input string as a regex
-        File storageFile = new File(storageDirectory);
-//        System.out.println("fileIsInsideCache" + storageFile + " : " + testFile);
-        return storageFile.equals(testFile);
+        return false;
     }
 
     /**
@@ -268,14 +295,23 @@ public class LinorgSessionStorage {
      * Tests that the cache directory exists and creates it if it does not.
      * @return Boolean
      */
-    public boolean cacheDirExists() {
-        cacheDirectory = storageDirectory + "imdicache" + File.separatorChar; // storageDirectory already has the file separator appended
-        File destinationFile = new File(cacheDirectory);
-        boolean cacheDirExists = destinationFile.exists();
-        if (!cacheDirExists) {
-            cacheDirExists = destinationFile.mkdir();
+    public File getCacheDirectory() {
+        if (localCacheDirectory == null) {
+            try {
+                File localWorkingDirectory = (File) loadObject("cacheDirectory");
+                localCacheDirectory = localWorkingDirectory;
+                if (!localCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !localCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
+                    localCacheDirectory = new File(localCacheDirectory, "ArbilWorkingFiles");
+                }
+            } catch (Exception exception) {
+                localCacheDirectory = new File(storageDirectory + "imdicache" + File.separatorChar); // storageDirectory already has the file separator appended
+            }
+            boolean cacheDirExists = localCacheDirectory.exists();
+            if (!cacheDirExists) {
+                cacheDirExists = localCacheDirectory.mkdirs();
+            }
         }
-        return cacheDirExists;
+        return localCacheDirectory;
     }
 
     /**
@@ -372,7 +408,7 @@ public class LinorgSessionStorage {
         File cachePath = getSaveLocation(pathString);
         boolean fileDownloadedBoolean = false;
         try {
-           fileDownloadedBoolean =  saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag());
+            fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag());
         } catch (MalformedURLException mul) {
             GuiHelper.linorgBugCatcher.logError(mul);
         }
@@ -387,7 +423,14 @@ public class LinorgSessionStorage {
      * @return The path of the file in the destination directory.
      */
     public File getExportPath(String pathString, String destinationDirectory) {
-        String cachePath = destinationDirectory + /*File.separatorChar +*/ pathString.substring(pathString.indexOf("imdicache") + 9); // this path must be inside the cache for this to work correctly
+        System.out.println("pathString: " + pathString);
+        System.out.println("destinationDirectory: " + destinationDirectory);
+        String cachePath = pathString;
+        for (String testDirectory : new String[]{"imdicache", "ArbilWorkingFiles"}) {
+            if (pathString.contains(testDirectory)) {
+                cachePath = destinationDirectory + cachePath.substring(cachePath.lastIndexOf(testDirectory) + testDirectory.length()); // this path must be inside the cache for this to work correctly
+            }
+        }
         File returnFile = new File(cachePath);
         if (!returnFile.getParentFile().exists()) {
             returnFile.getParentFile().mkdirs();
@@ -412,22 +455,20 @@ public class LinorgSessionStorage {
      * @return The path in the cache for the file.
      */
     public File getSaveLocation(String pathString) {
-        String searchString = ".linorg/imdicache";
-        if (cacheDirectory.endsWith(".arbil/imdicache/")) {
-            searchString = ".arbil/imdicache";
-        }
         try {
             pathString = URLDecoder.decode(pathString, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
             GuiHelper.linorgBugCatcher.logError(uee);
         }
         pathString = pathString.replace("//", "/");
-        if (pathString.indexOf(searchString) > -1) {
-            GuiHelper.linorgBugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
-            pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
+        for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", "ArbilWorkingFiles"}) {
+            if (pathString.indexOf(searchString) > -1) {
+                GuiHelper.linorgBugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
+                pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
+            }
         }
-        String cachePath = cacheDirectory + pathString.replace(":/", "/").replace("//", "/");
-        File returnFile = new File(cachePath);
+        String cachePath = pathString.replace(":/", "/").replace("//", "/");
+        File returnFile = new File(getCacheDirectory(), cachePath);
         if (!returnFile.getParentFile().exists()) {
             returnFile.getParentFile().mkdirs();
         }

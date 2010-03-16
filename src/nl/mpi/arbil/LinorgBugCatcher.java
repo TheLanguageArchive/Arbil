@@ -34,7 +34,7 @@ public class LinorgBugCatcher {
         LinorgVersion linorgVersion = new LinorgVersion();
         String currentApplicationVersionMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-";
         String currentLogFileMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log";
-        for (String currentFile : new File(LinorgSessionStorage.getSingleInstance().storageDirectory).list()) {
+        for (String currentFile : LinorgSessionStorage.getSingleInstance().storageDirectory.list()) {
             if (currentFile.startsWith(currentApplicationVersionMatch)) {
                 if (currentFile.startsWith(currentLogFileMatch)) {
                     // keeping this builds log file
