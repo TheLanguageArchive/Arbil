@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.5+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil-testing.jnlp">
+<jnlp spec="1.5+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp">
     <information>
         <title>Arbil</title>
         <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" kind="default" />
@@ -37,9 +37,6 @@
         <property name="sun.swing.enableImprovedDragGesture" value="true"/>
         <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp"/>
     </resources>
-    <resources os="windows">
-        <nativelib href="lib/ImageMagick-6.5.9-Win32.jar"/>
-    </resource>
     <application-desc main-class="nl.mpi.arbil.LinorgFrame">
       <!--<argument>-update_via_javaws</argument>-->
     </application-desc>
