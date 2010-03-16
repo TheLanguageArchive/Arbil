@@ -212,13 +212,17 @@ public class ImdiTreeObject implements Comparable {
         return (!urlString.startsWith("http"));
     }
 
-    static public boolean isStringImdiHistoryFile(String urlString) {
+    static public boolean isPathHistoryFile(String urlString) {
 //        System.out.println("isStringImdiHistoryFile" + urlString);
 //        System.out.println("isStringImdiHistoryFile" + urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
-        return isStringImdi(urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
+        return isPathMetadata(urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
     }
 
-    static public boolean isStringImdi(String urlString) {
+    static public boolean isPathMetadata(String urlString) { 
+        return isPathImdi(urlString);
+    }
+
+    static public boolean isPathImdi(String urlString) {
         return urlString.endsWith(".imdi") || urlString.endsWith(".cmdi"); // change made for clarin
     }
 
@@ -262,7 +266,7 @@ public class ImdiTreeObject implements Comparable {
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
         boolean imdiNeedsSaveToDisk = hasChangedFields();
-        if (isImdi() && !isImdiChild()) {
+        if (isMetaDataNode() && !isImdiChild()) {
             if (imdiNeedsSaveToDisk == false) {
                 for (ImdiTreeObject childNode : getAllChildren()) {
                     if (childNode.needsSaveToDisk) {
@@ -300,8 +304,8 @@ public class ImdiTreeObject implements Comparable {
     public void setMimeType(String[] typeCheckerMessageArray) {
         mpiMimeType = typeCheckerMessageArray[0];
         typeCheckerMessage = typeCheckerMessageArray[1];
-        if (!isImdi() && isLocal() && mpiMimeType != null) {
-            // add the mime type
+        if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
+            // add the mime type for loose files
             ImdiField mimeTypeField = new ImdiField(this, "Format", this.mpiMimeType);
             mimeTypeField.fieldID = "x" + fieldHashtable.size();
             addField(mimeTypeField);
@@ -338,7 +342,7 @@ public class ImdiTreeObject implements Comparable {
         nodeEnabled = true;
 //        isLoadingCount = true;
         if (nodeUri != null) {
-            if (!isImdi() && isLocal()) {
+            if (!isMetaDataNode() && isLocal()) {
                 File fileObject = getFile();
                 if (fileObject != null) {
                     this.nodeText = fileObject.getName();
@@ -350,7 +354,7 @@ public class ImdiTreeObject implements Comparable {
 //                    System.out.println("getAbsolutePath" + fileObject.getAbsolutePath());
                 }
             }
-            if (!isImdi() && nodeText == null) {
+            if (!isMetaDataNode() && nodeText == null) {
                 nodeText = this.getUrlString();
             }
         }
@@ -381,7 +385,7 @@ public class ImdiTreeObject implements Comparable {
         } else {
             synchronized (domLockObject) {
                 initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created                
-                if (!isImdi() && !isDirectory() && isLocal()) {
+                if (!isMetaDataNode() && !isDirectory() && isLocal()) {
                     // if it is an not imdi or a loose file but not a direcotry then get the md5sum
                     MimeHashQueue.getSingleInstance().addToQueue(this);
                     imdiDataLoaded = true;
@@ -391,7 +395,7 @@ public class ImdiTreeObject implements Comparable {
                     imdiDataLoaded = true;
 //            clearIcon();
                 }
-                if (isImdi()) {
+                if (isMetaDataNode()) {
                     Document nodDom = null;
                     // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
@@ -687,7 +691,7 @@ public class ImdiTreeObject implements Comparable {
     // if that fails then the current directory will be returned
     public File getSubDirectory() {
         String currentFileName = this.getFile().getParent();
-        if (this.getFile().getName().endsWith(".imdi")) {
+        if (ImdiTreeObject.isPathImdi(nodeUri.getPath())) {
             currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
             File destinationDir = new File(currentFileName);
             if (!destinationDir.exists()) {
@@ -1201,7 +1205,7 @@ public class ImdiTreeObject implements Comparable {
                 clipBoardString = clipBoardData.toString();
                 System.out.println("clipBoardString: " + clipBoardString);
                 if (this.isCorpus()) {
-                    if (ImdiTreeObject.isStringImdi(clipBoardString) || ImdiTreeObject.isStringImdiChild(clipBoardString)) {
+                    if (ImdiTreeObject.isPathMetadata(clipBoardString) || ImdiTreeObject.isStringImdiChild(clipBoardString)) {
                         ImdiTreeObject clipboardNode = ImdiLoader.getSingleInstance().getImdiObject(null, conformStringToUrl(clipBoardString));
                         if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(clipboardNode.getFile())) {
                             if (!(ImdiTreeObject.isStringImdiChild(clipBoardString) && (!this.isSession() && !this.isImdiChild()))) {
@@ -1230,10 +1234,9 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean requestAddNode(String nodeTypeDisplayName, ImdiTreeObject addableImdiNode) {
-//        TODO: move the arbil link on the tools page as Peter requested
         boolean returnValue = true;
         ImdiTreeObject[] sourceImdiNodeArray;
-        if (addableImdiNode.isMetaNode()) {
+        if (addableImdiNode.isEmptyMetaNode()) {
             sourceImdiNodeArray = addableImdiNode.getChildArray();
         } else {
             sourceImdiNodeArray = new ImdiTreeObject[]{addableImdiNode};
@@ -1244,7 +1247,7 @@ public class ImdiTreeObject implements Comparable {
             String favouriteUrlString = null;
             String resourceUrl = null;
             String mimeType = null;
-            if (currentImdiNode.isArchivableFile() && !currentImdiNode.isImdi()) {
+            if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
                 nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
                 resourceUrl = currentImdiNode.getUrlString();
                 mimeType = currentImdiNode.mpiMimeType;
@@ -1674,7 +1677,7 @@ public class ImdiTreeObject implements Comparable {
         }
 //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         if (nodeText != null) {
-            if (isImdi()) {
+            if (isMetaDataNode()) {
                 File nodeFile = this.getFile();
                 if (nodeFile != null && !isHeadRevision()) {
                     nodeText = nodeText + " (rev:" + getHistoryLabelStringForFile(nodeFile) + ")";
@@ -1916,12 +1919,12 @@ public class ImdiTreeObject implements Comparable {
         return isDirectory;
     }
 
-    public boolean isImdi() {
+    public boolean isMetaDataNode() {
         if (nodeUri != null /* && nodDom != null*/) {
             if (isImdiChild()) {
                 return true;
             } else {
-                return ImdiTreeObject.isStringImdi(nodeUri.getPath());
+                return ImdiTreeObject.isPathMetadata(nodeUri.getPath());
             }
         }
         return false;
@@ -1948,7 +1951,7 @@ public class ImdiTreeObject implements Comparable {
      * Tests if this node is a meta node that contains no fields and only child nodes, such as the Languages, Actors, MediaFiles nodes etc..
      * @return boolean
      */
-    public boolean isMetaNode() {
+    public boolean isEmptyMetaNode() {
         return this.getFields().size() == 0;
     }
 
@@ -1962,7 +1965,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isCorpus() {
-        // test if this node is a session
+        // test if this node is a corpus
         ImdiField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");

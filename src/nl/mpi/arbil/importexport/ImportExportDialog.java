@@ -226,15 +226,7 @@ public class ImportExportDialog {
         //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
 
         exportDestinationDirectory = destinationDirectory;
-        //exportDestinationDirectory = exportDestinationDirectory + File.separator + mirrorNameString;
-        //boolean branchDirCreated = (new File(exportDestinationDirectory)).mkdir();
-        // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
-        if (LinorgSessionStorage.getSingleInstance().cacheDirExists()) {
-//            performCopy();
-            searchDialog.setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
-        }
+        searchDialog.setVisible(true);
     }
 
     public void copyToCache(ImdiTreeObject[] localSelectedNodes) {
@@ -258,17 +250,7 @@ public class ImportExportDialog {
         if (destinationNode == null) {
             setLocalCacheToNodesPanel(outputNodePanel);
         }
-        //String mirrorNameString = JOptionPane.showInputDialog(destinationComp, "Enter a tile for the local mirror");
-
-        //exportDestinationDirectory = exportDestinationDirectory + File.separator + mirrorNameString;
-        //boolean branchDirCreated = (new File(exportDestinationDirectory)).mkdir();
-        // TODO: remove the branch directory and replace it with a named node in the locations settings or just a named imdinode
-        if (LinorgSessionStorage.getSingleInstance().cacheDirExists()) {
-//            performCopy();
-            searchDialog.setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the local directory", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
-        }
+        searchDialog.setVisible(true);
     }
 
     private boolean selectedNodesContainImdi() {
@@ -659,7 +641,7 @@ public class ImportExportDialog {
                 if (exportDestinationDirectory != null) {
                     directoryForSizeTest = exportDestinationDirectory;
                 } else {
-                    directoryForSizeTest = new File(LinorgSessionStorage.getSingleInstance().cacheDirectory);
+                    directoryForSizeTest = LinorgSessionStorage.getSingleInstance().getCacheDirectory();
                 }
                 if (copyFilesCheckBox.isSelected()) {
                     resourceCopyOutput.append("'Copy Resource Files' is selected: Resource files will be downloaded where appropriate permission are granted." + "\n");
@@ -714,7 +696,7 @@ public class ImportExportDialog {
                                         for (int linkCount = 0; linkCount < links.length && !stopSearch; linkCount++) {
                                             System.out.println("Link: " + links[linkCount].getRawURL());
                                             String currentLink = links[linkCount].getRawURL().toString();
-                                            if (ImdiTreeObject.isStringImdi(currentLink)) {
+                                            if (ImdiTreeObject.isPathMetadata(currentLink)) {
                                                 getList.add(ImdiTreeObject.conformStringToUrl(currentLink));
                                             } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
                                                 boolean resourceFileCopied = false;

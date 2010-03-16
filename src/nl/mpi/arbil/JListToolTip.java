@@ -67,7 +67,7 @@ class JListToolTip extends JToolTip {
     }
 
     private void addLabelsForImdiObject(ImdiTreeObject tempObject) {
-        if (tempObject.isImdi()) {
+        if (tempObject.isMetaDataNode()) {
             Hashtable<String, ImdiField[]> tempFields = tempObject.getFields();
             addDetailLabel("Name: ", tempFields.get("Name"));
             addDetailLabel("Title: ", tempFields.get("Title"));
@@ -87,7 +87,7 @@ class JListToolTip extends JToolTip {
         }
         //if (tempObject.matchesInCache + tempObject.matchesLocalFileSystem + tempObject.matchesRemote > 0){
 
-        if (tempObject.hasResource() || (!tempObject.isImdi() && !tempObject.isDirectory())) {
+        if (tempObject.hasResource() || (!tempObject.isMetaDataNode() && !tempObject.isDirectory())) {
             addTabbedLabel("Copies in cache: " + tempObject.matchesInCache);
             addTabbedLabel("Copies on local file system: " + tempObject.matchesLocalFileSystem);
             addTabbedLabel("Copies on server: ?"/* + tempObject.matchesRemote*/);
@@ -99,7 +99,7 @@ class JListToolTip extends JToolTip {
             if (tempObject.resourceFileNotFound()) {
                 addTabbedLabel("Resource file not found");
             }
-        } else if (tempObject.isImdi()) {
+        } else if (tempObject.isMetaDataNode()) {
             addTabbedLabel("Local file (editable)");
             if (tempObject.fileNotFound) {
                 addTabbedLabel("File not found");
