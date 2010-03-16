@@ -151,11 +151,11 @@ public class ImdiIcons {
     public ImageIcon getIconForImdi(ImdiTreeObject imdiObject) {
         Vector iconsVector = new Vector();
 
-        if (imdiObject.isLoading() || (imdiObject.getParentDomNode().isImdi() && !imdiObject.getParentDomNode().imdiDataLoaded)) {
+        if (imdiObject.isLoading() || (imdiObject.getParentDomNode().isMetaDataNode() && !imdiObject.getParentDomNode().imdiDataLoaded)) {
             iconsVector.add(loadingIcon);
         }
         if (imdiObject.isLocal()) {
-            if (imdiObject.isImdi()) {
+            if (imdiObject.isMetaDataNode()) {
                 if (imdiObject.matchesRemote == 0) {
                     if (!imdiObject.hasArchiveHandle) {
                         iconsVector.add(localicon);
@@ -212,9 +212,9 @@ public class ImdiIcons {
         } else if (imdiObject.hasResource()) {
             // the resource is not found so show a unknow resource icon
             iconsVector.add(fileIcon);
-        } else if (imdiObject.isImdi()) {
+        } else if (imdiObject.isMetaDataNode()) {
             if (imdiObject.isImdiChild()) {
-                if (imdiObject.isMetaNode()) {
+                if (imdiObject.isEmptyMetaNode()) {
                     iconsVector.add(dataemptyIcon);
                 } else {
                     iconsVector.add(dataIcon);
@@ -228,7 +228,7 @@ public class ImdiIcons {
             } else {
                 // this icon might not be the best one to show in this case
                 if (imdiObject.imdiDataLoaded) {
-                    iconsVector.add(corpusnodeColorIcon);
+                    iconsVector.add(fileIcon);
                 }
                 //iconsVector.add(blankIcon);
             }
@@ -242,7 +242,7 @@ public class ImdiIcons {
             iconsVector.add(missingRedIcon);
         }
         // add a file attached to a session icon
-        if (!imdiObject.isImdi() && imdiObject.matchesInCache + imdiObject.matchesRemote > 0) {
+        if (!imdiObject.isMetaDataNode() && imdiObject.matchesInCache + imdiObject.matchesRemote > 0) {
             if (imdiObject.matchesRemote > 0) {
                 iconsVector.add(tickGreenIcon);
             } else {

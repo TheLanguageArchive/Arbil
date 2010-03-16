@@ -366,7 +366,7 @@ public class ContextMenu {
                 try {
                     ArrayList<ImdiTreeObject> filteredNodes = new ArrayList<ImdiTreeObject>();
                     for (ImdiTreeObject currentItem : ((ImdiTree) treePopupMenu.getInvoker()).getSelectedNodes()) {
-                        if (currentItem.isImdi() || currentItem.getFields().size() > 0) {
+                        if (currentItem.isMetaDataNode() || currentItem.getFields().size() > 0) {
                             filteredNodes.add(currentItem);
                         } else {
                             try {
@@ -888,7 +888,7 @@ public class ContextMenu {
                         ImdiTreeObject originatingNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(remoteImdiFile);
                         if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
                             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The origional file location cannot be found", "Re Import Branch");
-                        } else if (originatingNode.isImdi()) {
+                        } else if (originatingNode.isMetaDataNode()) {
                             ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
                             importExportDialog.setDestinationNode(leadSelectedTreeNode); // TODO: do not re add the location in this case
                             importExportDialog.copyToCache(new ImdiTreeObject[]{originatingNode});
@@ -1268,13 +1268,13 @@ public class ContextMenu {
             if (leadSelectedTreeNode.hasResource()) {
                 browseForResourceFileMenuItem.setVisible(true);
             }
-            if (!leadSelectedTreeNode.isImdiChild() && leadSelectedTreeNode.isImdi()) {
+            if (!leadSelectedTreeNode.isImdiChild() && leadSelectedTreeNode.isMetaDataNode()) {
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItemFormatted.setVisible(true);
                 openXmlMenuItemFormatted.setVisible(true);
             }
             viewInBrrowserMenuItem.setVisible(true);
-            overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isImdi() && leadSelectedTreeNode.mpiMimeType == null);
+            overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isMetaDataNode() && leadSelectedTreeNode.mpiMimeType == null);
         }
     }
 
@@ -1358,8 +1358,8 @@ public class ContextMenu {
                 addToFavouritesMenuItem.setActionCommand("false");
                 deleteMenuItem.setEnabled(false);
             } else {
-                addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isImdi());
-                addToFavouritesMenuItem.setEnabled(!leadSelectedTreeNode.isCorpus() && leadSelectedTreeNode.isImdi());
+                addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isMetaDataNode());
+                addToFavouritesMenuItem.setEnabled(!leadSelectedTreeNode.isCorpus() && leadSelectedTreeNode.isMetaDataNode());
                 addToFavouritesMenuItem.setText("Add To Favourites List");
                 addToFavouritesMenuItem.setActionCommand("true");
             }
