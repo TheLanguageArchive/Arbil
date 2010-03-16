@@ -116,7 +116,7 @@ public class ImdiLoader {
 //                                    for (ImdiTreeObject currentFavChild : allChildren.toArray(new ImdiTreeObject[]{})) 
 
                                 String newTableTitleString = "new " + nodeTypeDisplayName;
-                                if (currentImdiObject.isImdi() && !currentImdiObject.fileNotFound) {
+                                if (currentImdiObject.isMetaDataNode() && !currentImdiObject.fileNotFound) {
                                     newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
                                 }
                                 System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
@@ -216,12 +216,12 @@ public class ImdiLoader {
         ImdiTreeObject[] currentFavChildren = favouriteImdiNode.getChildArray();
         for (ImdiTreeObject currentFavChild : currentFavChildren) {
             System.out.println("childNode: " + currentFavChild.getUrlString());
-            if (currentFavChild.isMetaNode()) {
+            if (currentFavChild.isEmptyMetaNode()) {
                 System.out.println("omitting: " + currentFavChild);
 //                System.out.println("currentFavChild.getFragment():" + currentFavChild.getURI().getFragment().toString());
 //                System.out.println("addedImdiObject.getFragment():" + addedImdiObject.getURI().getFragment().toString());
                 duplicateChildNodeStructure(currentFavChild, addedImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
-            } else if (currentFavChild.isImdi()) {
+            } else if (currentFavChild.isMetaDataNode()) {
 //                                                    ImdiTreeObject addedChildImdiObjects = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
                 String nodeType = addedImdiObject.getURI().getFragment();
 //                if (nodeType == null) {
@@ -336,11 +336,11 @@ public class ImdiLoader {
 //                    System.out.println("cause the parent node to be loaded");
                     // cause the parent node to be loaded
                     currentImdiObject.getParentDomNode();
-                } else if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
+                } else if (ImdiTreeObject.isPathMetadata(currentImdiObject.getUrlString()) || ImdiTreeObject.isPathHistoryFile(currentImdiObject.getUrlString())) {
                     currentImdiObject.updateLoadingState(+1);
                     addNodeToQueue(currentImdiObject);
                     System.out.println("+imdiHashTable.size: " + imdiHashTable.size());
-                } else if (!ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString())) {
+                } else if (!ImdiTreeObject.isPathMetadata(currentImdiObject.getUrlString())) {
 //                    currentImdiObject.clearIcon(); // do not do this
                 }
             }

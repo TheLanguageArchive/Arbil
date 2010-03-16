@@ -231,7 +231,7 @@ public class ImdiTree extends JTree {
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) this.getSelectionPaths()[selectedCount].getLastPathComponent();
             if (parentNode.getUserObject() instanceof ImdiTreeObject) {
                 ImdiTreeObject currentTreeObject = (ImdiTreeObject) parentNode.getUserObject();
-//                if (currentTreeObject.isMetaNode()) {
+//                if (currentTreeObject.isEmptyMetaNode()) {
                 // exchange the meta nodes for its child nodes
 //                    for (ImdiTreeObject subChildNode : currentTreeObject.getChildArray()) {
 //                        selectedNodes.add(subChildNode);

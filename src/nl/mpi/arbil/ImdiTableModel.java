@@ -126,7 +126,7 @@ public class ImdiTableModel extends AbstractTableModel {
     private void addImdiObject(ImdiTreeObject imdiTreeObject) {
         if (imdiTreeObject != null) {
             // on start up the previous windows are loaded and the imdi nodes will not be loaded hence they will have no fields, so we have to check for that here
-            if (imdiTreeObject.isDirectory() || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.isMetaNode())) {
+            if (imdiTreeObject.isDirectory() || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.isEmptyMetaNode())) {
                 // add child nodes if there are no fields ie actors node will add all the actors
                 // add child nodes if it is a directory
                 // this is non recursive and does not reload the table
