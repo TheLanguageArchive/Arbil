@@ -194,7 +194,7 @@ public class TreeHelper {
                     if (currentTreeObject.isFavorite()) {
                         favouriteNodesVector.add(currentTreeObject);
                     } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
-                        if (currentTreeObject.isImdi() && !currentTreeObject.isImdiChild()) {
+                        if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isImdiChild()) {
                             localCorpusNodesVector.add(currentTreeObject);
                         }
                     } else {
@@ -473,35 +473,17 @@ public class TreeHelper {
 //            System.out.println("sortChildNodes to: " + parentNode.getChildAt(childCounter));
 //            try {
             String leftUrlString = sortedChildren[childCounter].getUrlString();
-                String rightUrlString = "";
+            String rightUrlString = "";
             DefaultMutableTreeNode currentTreeNode = null;
-                if (parentNode.getChildCount() > childCounter) {
+            if (parentNode.getChildCount() > childCounter) {
                 currentTreeNode = (DefaultMutableTreeNode) parentNode.getChildAt(childCounter);
                 rightUrlString = ((ImdiTreeObject) currentTreeNode.getUserObject()).getUrlString();
-                }
-//                System.out.println("leftUrlString: " + leftUrlString);
-//                System.out.println("rightUrlString: " + rightUrlString);
-                if (!leftUrlString.equals(rightUrlString)) {
-//                    System.out.println("sortChildNodes moving: " + sortedChildren.get(childCounter) + " to " + childCounter);
-//                    try {
-//                        if (currentChildren.get(childCounter).getParent() != null) {
-//                            System.out.println("removing");
-//                            currentChildren.get(childCounter).removeFromParent();
-//                            if (!currentChildren.contains(currentChildren.get(childCounter))) {
-//                                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
-//                            }
-//                        }
-//                    } catch (Exception e) {
-//                        GuiHelper.linorgBugCatcher.logError(e);
-////                        System.out.println("sortChildNodes failed to move: " + sortedChildren.get(childCounter));
-//                    }
-//                    if (!((ImdiTreeObject) currentChildren.get(childCounter).getUserObject()).isLoading()) {
-//                    System.out.println("inserting: " + currentChildren.get(childCounter).getUserObject() + " into: " + parentNode.getUserObject());
-//                ImdiTreeObject currentImdiObject = ((ImdiTreeObject) currentChildren.get(childCounter).getUserObject());
+            }
+            if (!leftUrlString.equals(rightUrlString) /*&& !((ImdiTreeObject) currentChildren.get(childCounter).getUserObject()).isLoading()*/) {
                 sortedChildren[childCounter].removeContainer(currentTreeNode);
                 if (childCounter < parentNode.getChildCount() && parentNode.getChildAt(childCounter).getParent() != null) {
                     treeModel.removeNodeFromParent(currentTreeNode);
-                    }
+                }
                 DefaultMutableTreeNode resortedTreeNode = new DefaultMutableTreeNode(sortedChildren[childCounter]);
                 sortedChildren[childCounter].registerContainer(resortedTreeNode);
                 if (parentNode.getChildCount() > childCounter) {
@@ -510,19 +492,19 @@ public class TreeHelper {
                     treeModel.insertNodeInto(resortedTreeNode, parentNode, parentNode.getChildCount());
                 }
 //                    parentNode.insert(currentChildren.get(childCounter), childCounter);
-                //   childNodesOrderChanged = true;
+//   childNodesOrderChanged = true;
 //                    } else {
 //                        parentNode.add(currentChildren.get(childCounter));
 //                    }
 //                treeModel.nodeStructureChanged(currentChildren.get(childCounter));
 //                            treeModel.nodeChanged(itemNode);
 //            treeModel.nodeChanged(missingTreeNode);
-                } else {
+            } else {
+                // why does this need to be done? update the icon?
                 treeModel.nodeChanged(currentTreeNode);
-                }
-//            } catch (Exception ex) {
-//                GuiHelper.linorgBugCatcher.logError(ex);
             }
+        }
+        // remove excess nodes
         while (parentNode.getChildCount() > sortedChildren.length) {
             DefaultMutableTreeNode excessTreeNode = (DefaultMutableTreeNode) parentNode.getChildAt(parentNode.getChildCount() - 1);
             ((ImdiTreeObject) excessTreeNode.getUserObject()).removeContainer(excessTreeNode);
@@ -632,7 +614,7 @@ public class TreeHelper {
                     selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                     Object userObject = selectedTreeNode.getUserObject();
                     if (userObject instanceof ImdiTreeObject) {
-                        if (((ImdiTreeObject) userObject).isMetaNode()) {
+                        if (((ImdiTreeObject) userObject).isEmptyMetaNode()) {
                             toDeleteCount = toDeleteCount + ((ImdiTreeObject) userObject).getChildCount();
                         } else {
                             toDeleteCount++;
@@ -665,7 +647,7 @@ public class TreeHelper {
                                     if (!imdiChildNodeDeleteList.containsKey(childImdiNode.getParentDomNode())) {
                                         imdiChildNodeDeleteList.put(childImdiNode.getParentDomNode(), new Vector());
                                     }
-                                    if (childImdiNode.isMetaNode()) {
+                                    if (childImdiNode.isEmptyMetaNode()) {
                                         for (ImdiTreeObject metaChildNode : childImdiNode.getChildArray()) {
                                             imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(metaChildNode.xmlNodeId);
                                         }

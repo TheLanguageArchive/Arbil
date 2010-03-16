@@ -65,6 +65,62 @@ public class LinorgSessionStorageTest {
     }
 
     /**
+     * Test of pathIsInsideCache method, of class LinorgSessionStorage.
+     */
+    @Test
+    public void testPathIsInsideCache() {
+        System.out.println("pathIsInsideCache");
+        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        String oldStorageDirectory = instance.storageDirectory;
+        instance.storageDirectory = "/Users/testUser/.arbil/";
+        File[] testInputArrayTrue = {
+            new File("/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml"),
+            new File("//Users//testUser//.arbil//imdicache//http//www.mpi.nl//IMDI//Schema//Continents.xml"),
+            new File("/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml")
+        };
+        File[] testInputArrayFalse = {
+            new File("/Users/testUser/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml"),
+            new File("c:\\Users\\testUser\\.arbil\\imdicache\\http\\www.mpi.nl\\IMDI\\Schema\\Continents.xml"),
+            new File("/Users/testUser/.arbil//http/www.mpi.nl/IMDI/Schema/Continents.xml")
+        };
+        for (File fullTestFile : testInputArrayTrue) {
+            assertTrue(instance.pathIsInsideCache(fullTestFile));
+        }
+        for (File fullTestFile : testInputArrayFalse) {
+            assertFalse(instance.pathIsInsideCache(fullTestFile));
+        }
+        instance.storageDirectory = oldStorageDirectory;
+    }
+
+    /**
+     * Test of getExportPath method, of class LinorgSessionStorage.
+     */
+    @Test
+    public void testGetExportPath() {
+        System.out.println("getExportPath");
+        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        String[][] testInputArray = {
+            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+                "/home/user/exportdirectory/http/www.mpi.nl/IMDI/Schema/Continents.xml"},
+            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Some%20Continents.xml",
+                "/home/user/exportdirectory/http/www.mpi.nl/IMDI/Schema/Some%20Continents.xml"
+            },
+            {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Some%20Continents.imdi",
+                "/home/user/exportdirectory/http/www.mpi.nl/IMDI/Schema/Some%20Continents.imdi"
+            },
+            {"file:/Users/petwit/TestStorageDirectory/ArbilWorkingFiles/20100315171558/20100315171558.imdi",
+                "/home/user/exportdirectory/20100315171558/20100315171558.imdi"
+            }
+        };
+        for (String[] currentTest : testInputArray) {
+            String pathString = currentTest[0];
+            String destinationDirectory = "/home/user/exportdirectory/";
+            File expResult = new File(currentTest[1]);
+            File result = instance.getExportPath(pathString, destinationDirectory);
+            assertEquals(expResult, result);
+        }
+    }
+    /**
      * Test of getSaveLocation method, of class LinorgSessionStorage.
      */
     @Test
@@ -97,14 +153,31 @@ public class LinorgSessionStorageTest {
                 "/Users/testUser/.linorg/imdicache/"
             },
             {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
-                "file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/"
+                "/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/"
+            },
+            {"http://www.mpi.nl/IMDI/Schema/Continents.xml",
+                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/http/www.mpi.nl/IMDI/Schema/Continents.xml",
+                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/"
+            },
+            {"file:/Users/testUser/Library/Mail%20Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/file/Users/testUser/Library/Mail Downloads/MPI-Korpus/Corpusstructure/1.imdi",
+                "/Users/testUser/TestStorageDirectory/ArbilWorkingFiles/"
+            },
+            {"file:/Z/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/"
+            },
+            {"file:/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/C/Documents and Settings/micsta/Application Data/.arbil/imdicache/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/file/P/L&C_Assist_Task/Nick Corpus/Arbil_Corpus_structure/arbil_export_03/arbil_export/lac_data/Corpusstructure/l-lao/1.imdi",
+                "/Z/Documents and Settings/micsta/Application Data/TestStorageDirectory/ArbilWorkingFiles/"
             }
+
         };
         LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
 //        instance.storageDirectory = "/Users/testUser/";
         for (String[] currentTest : testInputArray) {
-            instance.cacheDirectory = currentTest[2];
+            instance.changeCacheDirectory(new File(currentTest[2]), false);
             File expResult = new File(currentTest[1]);
             File result = instance.getSaveLocation(currentTest[0]);
             assertEquals(expResult, result);

@@ -75,7 +75,7 @@ public class MimeHashQueue {
                     while (imdiObjectQueue.size() > 0) {
                         ImdiTreeObject currentImdiObject = imdiObjectQueue.remove(0);
                         //System.out.println("MimeHashQueue checking: " + currentImdiObject.getUrlString());
-                        if (!currentImdiObject.isImdi()) {
+                        if (!currentImdiObject.isMetaDataNode()) {
                             System.out.println("checking exif");
                             addFileAndExifFields(currentImdiObject);
                         }
@@ -267,7 +267,7 @@ public class MimeHashQueue {
     }
 
     private void addFileAndExifFields(ImdiTreeObject targetLooseFile) {
-        if (!targetLooseFile.isImdi()) {
+        if (!targetLooseFile.isMetaDataNode()) {
             File fileObject = targetLooseFile.getFile();
             if (fileObject != null && fileObject.exists()) {
                 try {
@@ -445,7 +445,7 @@ public class MimeHashQueue {
     public void addToQueue(ImdiTreeObject imdiObject) {
         System.out.println("MimeHashQueue addToQueue: " + imdiObject.getUrlString());
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
-        if (((imdiObject.isLocal() && !imdiObject.isImdi() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
+        if (((imdiObject.isLocal() && !imdiObject.isMetaDataNode() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            System.out.println("addToQueue session: " + imdiObject.isSession());
 //            System.out.println("addToQueue directory: " + imdiObject.isDirectory());
