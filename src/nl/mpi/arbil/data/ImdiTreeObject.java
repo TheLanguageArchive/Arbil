@@ -14,8 +14,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1662,7 +1664,13 @@ public class ImdiTreeObject implements Comparable {
             String resourcePathString = getFullResourceURI().toString();
             int lastIndex = resourcePathString.lastIndexOf("/");
 //                if (lastIndex)
-            nodeText = resourcePathString.substring(lastIndex + 1);
+            resourcePathString = resourcePathString.substring(lastIndex + 1);
+            try {
+                resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
+            } catch (UnsupportedEncodingException encodingException) {
+                GuiHelper.linorgBugCatcher.logError(encodingException);
+            }
+            nodeText = resourcePathString;
         }
 //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         if (nodeText != null) {
