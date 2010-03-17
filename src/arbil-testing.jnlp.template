@@ -13,7 +13,9 @@
         <homepage href="http://www.lat-mpi.eu/tools/imdi/Arbil/"/>
         <description>Arbil is a local metadata organising tool for researchers</description>
         <description kind="short">Linguistic Organiser</description>
+        <!-- this extension causes the arbil application icon to be displayed on all imdi files which is confusing to users, so it has been removed
         <association extensions="IMDI imdi" mime-type="application/IMDI"/>
+        -->
     </information>
     <security>
         <all-permissions/>

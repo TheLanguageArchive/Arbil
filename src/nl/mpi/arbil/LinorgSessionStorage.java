@@ -144,10 +144,11 @@ public class LinorgSessionStorage {
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
-                }
-            TreeHelper.getSingleInstance().loadLocationsList();
-            System.exit(0); // TODO: this exit might be unrequired
             }
+            TreeHelper.getSingleInstance().loadLocationsList();
+            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The requested files have been moved, Arbil will now exit.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
+            System.exit(0); // TODO: this exit might be unrequired
+        }
     }
 
     public String[] getLocationOptions() {
