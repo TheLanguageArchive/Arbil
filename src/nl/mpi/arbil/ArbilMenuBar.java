@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -318,18 +317,18 @@ public class ArbilMenuBar extends JMenuBar {
                 setCacheDirectoryMenu.removeAll();
                 JMenuItem cacheDirectoryMenuItem = new JMenuItem();
                 cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
-                cacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
+                changeCacheDirectoryMenuItem.setText("<Move Local Working Files Directory>");
+                changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            JFileChooser fileChooser = new JFileChooser();
-                            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                            fileChooser.setMultiSelectionEnabled(false);
-                            String fileDialogTitle = setCacheDirectoryMenu.getText();
-                            fileChooser.setDialogTitle(fileDialogTitle); // this must be set for mac
-                            fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
-                            if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, fileDialogTitle)) {
-                                LinorgSessionStorage.getSingleInstance().changeCacheDirectory(fileChooser.getSelectedFile(), true);
+                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Working Files Directory", true, false, false);
+                            if (selectedFiles != null && selectedFiles.length > 0) {
+                                // TODO: the change directory button text is not correct
+                                //fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
+                                LinorgSessionStorage.getSingleInstance().changeCacheDirectory(selectedFiles[0], true);
                             }
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
@@ -337,6 +336,7 @@ public class ArbilMenuBar extends JMenuBar {
                     }
                 });
                 setCacheDirectoryMenu.add(cacheDirectoryMenuItem);
+                setCacheDirectoryMenu.add(changeCacheDirectoryMenuItem);
             }
         });
         setStorageDirectoryMenu.setText("Congiguration Files Directory");
@@ -699,7 +699,7 @@ public class ArbilMenuBar extends JMenuBar {
                         }
                     }
                 });
-                templateMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().storageDirectory.equals(currentTemplateName));
+                templateMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().storageDirectory.equals(new File(currentTemplateName)));
                 storageMenuButtonGroup.add(templateMenuItem);
                 storageMenu.add(templateMenuItem);
             }

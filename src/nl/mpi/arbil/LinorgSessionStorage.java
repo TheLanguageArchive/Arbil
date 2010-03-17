@@ -86,9 +86,11 @@ public class LinorgSessionStorage {
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
-        if (!moveFiles || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+        File fromDirectory = getCacheDirectory();
+        if (!moveFiles || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                "Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n" +
+                "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             try {
-                File fromDirectory = getCacheDirectory();
                 saveObject(preferedCacheDirectory, "cacheDirectory");
                 localCacheDirectory = null;
                 File toDirectory = getCacheDirectory();
@@ -103,7 +105,7 @@ public class LinorgSessionStorage {
     }
 
     public void changeStorageDirectory(String preferedDirectory) {
-        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to change the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to move the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             File fromDirectory = storageDirectory;
             File toDirectory = new File(preferedDirectory);
             storageDirectory = new File(preferedDirectory);
@@ -304,7 +306,7 @@ public class LinorgSessionStorage {
                     localCacheDirectory = new File(localCacheDirectory, "ArbilWorkingFiles");
                 }
             } catch (Exception exception) {
-                localCacheDirectory = new File(storageDirectory + "imdicache" + File.separatorChar); // storageDirectory already has the file separator appended
+                localCacheDirectory = new File(storageDirectory, "imdicache" + File.separatorChar); // storageDirectory already has the file separator appended
             }
             boolean cacheDirExists = localCacheDirectory.exists();
             if (!cacheDirExists) {

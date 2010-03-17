@@ -24,7 +24,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -32,7 +31,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import mpi.imdi.api.*;
 import mpi.util.OurURL;
@@ -123,24 +121,10 @@ public class ImportExportDialog {
     }
 
     public void importImdiBranch() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileFilter imdiFileFilter = new FileFilter() {
-
-            @Override
-            public String getDescription() {
-                return "IMDI";
-            }
-
-            @Override
-            public boolean accept(File selectedFile) {
-                return selectedFile.getName().toLowerCase().endsWith(".imdi");
-            }
-        };
-        fileChooser.addChoosableFileFilter(imdiFileFilter);
-        fileChooser.setMultiSelectionEnabled(true);
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Import")) {
+        File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Import", false, true, true);
+        if (selectedFiles != null) {
             Vector importNodeVector = new Vector();
-            for (File currentFile : fileChooser.getSelectedFiles()) {
+            for (File currentFile : selectedFiles) {
                 ImdiTreeObject imdiToImport = ImdiLoader.getSingleInstance().getImdiObject(null, currentFile.toURI());
                 importNodeVector.add(imdiToImport);
             }
@@ -152,31 +136,14 @@ public class ImportExportDialog {
         // make sure the chosen directory is empty
         // export the tree, maybe adjusting resource links so that resource files do not need to be copied
         searchDialog.setTitle("Export Branch");
-        JFileChooser fileChooser = new JFileChooser();
-//        FileFilter emptyDirectoryFilter = new FileFilter() {
-//
-//            @Override
-//            public String getDescription() {
-//                return "Empty Directory";
-//            }
-//
-//            @Override
-//            public boolean accept(File selectedFile) {
-//                return selectedFile.isDirectory(); // && selectedFile.list().length == 0;
-//            }
-//        };
-//        fileChooser.addChoosableFileFilter(emptyDirectoryFilter);
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fileChooser.setMultiSelectionEnabled(false);
-        String fileDialogTitle = "Export Destination Directory";
-        fileChooser.setDialogTitle(fileDialogTitle); // this must be set for mac
         boolean fileSelectDone = false;
         try {
             while (!fileSelectDone) {
-                if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, fileDialogTitle)) {
+                File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Export Destination Directory", true, false, false);
+                if (selectedFiles != null && selectedFiles.length > 0) {
                     File destinationDirectory = null;
                     //Vector importNodeVector = new Vector();
-                    File parentDirectory = fileChooser.getSelectedFile();
+                    File parentDirectory = selectedFiles[0];
                     boolean createdDirectory = false;
                     if (!parentDirectory.exists() && parentDirectory.getParentFile().exists()) {
                         // create the directory provided that the parent directory exists
@@ -210,7 +177,7 @@ public class ImportExportDialog {
                 }
             }
         } catch (Exception e) {
-            System.out.println("aborting export");
+            System.out.println("aborting export: " + e.getMessage());
         }
     }
 
