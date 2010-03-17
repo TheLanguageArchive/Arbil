@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.JFileChooser;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.ImdiField;
 import nl.mpi.arbil.LinorgWindowManager;
@@ -26,23 +24,13 @@ public class ArbilCsvImporter {
     }
 
     public void doImport() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileFilter csvFileFilter = new FileFilter() {
-
-            @Override
-            public String getDescription() {
-                return "CSV File (comma or tab separated values)";
+        File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Import CSV", false, true, false);
+        if (selectedFiles != null && selectedFiles.length > 0) {
+//                return "CSV File (comma or tab separated values)";
+//                return selectedFile.getName().toLowerCase().endsWith(".csv");
+            for (File currentFile : selectedFiles) {
+                processCsvFile(currentFile);
             }
-
-            @Override
-            public boolean accept(File selectedFile) {
-                return selectedFile.getName().toLowerCase().endsWith(".csv");
-            }
-        };
-        fileChooser.addChoosableFileFilter(csvFileFilter);
-        fileChooser.setMultiSelectionEnabled(false);
-        if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Import CSV")) {
-            processCsvFile(fileChooser.getSelectedFile());
         }
     }
 

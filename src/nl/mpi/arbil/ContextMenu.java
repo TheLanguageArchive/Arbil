@@ -3,13 +3,13 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -527,12 +527,9 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    JFileChooser resourceFileChooser = new JFileChooser();
-                    resourceFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    resourceFileChooser.setDialogTitle("Select Resource File");
-                    int option = resourceFileChooser.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
-                    if (JFileChooser.APPROVE_OPTION == option) {
-                        leadSelectedTreeNode.resourceUrlField.setFieldValue(resourceFileChooser.getSelectedFile().toURL().toExternalForm(), true, false);
+                    File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Select Resource File", false, false, false);
+                    if (selectedFiles != null && selectedFiles.length > 0) {
+                        leadSelectedTreeNode.resourceUrlField.setFieldValue(selectedFiles[0].toURL().toExternalForm(), true, false);
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -919,16 +916,11 @@ public class ContextMenu {
     }
 
     private void addLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_addLocalDirectoryMenuItemActionPerformed
-        // TODO add your handling code here:
-        JFileChooser fc = new JFileChooser();
-        //fc.setDialogTitle(getResourceMap().getString(name + ".dialogTitle"));
-        //String textFilesDesc = getResourceMap().getString("txtFileExtensionDescription");
-        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fc.setDialogTitle("Add Working Directory");
-        int option = fc.showOpenDialog(LinorgWindowManager.getSingleInstance().linorgFrame);
-        if (JFileChooser.APPROVE_OPTION == option) {
-            TreeHelper.getSingleInstance().addLocationGui(fc.getSelectedFile().toURI());
+        File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Add Working Directory", true, true, false);
+        if (selectedFiles != null && selectedFiles.length > 0) {
+            for (File currentDirectory : selectedFiles) {
+                TreeHelper.getSingleInstance().addLocationGui(currentDirectory.toURI());
+            }
         }
     }
 
