@@ -5,11 +5,15 @@ import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,6 +23,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
@@ -28,6 +33,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.filechooser.FileFilter;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
@@ -127,6 +133,117 @@ public class LinorgWindowManager {
                 throw new Exception("user canceled save action");
             }
         }
+    }
+
+    public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
+        // test for os: if mac or file then awt else for other and directory use swing
+        // save/load last directory accoring to the title of the dialogue
+        Hashtable<String, File> fileSelectLocationsHashtable;
+        File workingDirectory = null;
+        try {
+            fileSelectLocationsHashtable = (Hashtable<String, File>) LinorgSessionStorage.getSingleInstance().loadObject("fileSelectLocations");
+            workingDirectory = fileSelectLocationsHashtable.get(titleText);
+        } catch (Exception exception) {
+            fileSelectLocationsHashtable = new Hashtable<String, File>();
+        }
+        if (workingDirectory == null) {
+            workingDirectory = new File(System.getProperty("user.home"));
+        }
+        File lastUsedWorkingDirectory;
+
+        File[] returnFile;
+        boolean isMac = true; // TODO: set this correctly
+        boolean useAtwSelect = false; //directorySelectOnly && isMac && !multipleSelect;
+        if (useAtwSelect) {
+            if (directorySelectOnly) {
+                System.setProperty("apple.awt.fileDialogForDirectories", "true");
+            } else {
+                System.setProperty("apple.awt.fileDialogForDirectories", "false");
+            }
+            FileDialog fileDialog = new FileDialog(linorgFrame);
+            if (requireMetadataFiles) {
+                fileDialog.setFilenameFilter(new FilenameFilter() {
+
+                    public boolean accept(File dir, String name) {
+                        return name.toLowerCase().endsWith(".imdi");
+                    }
+                });
+            }
+            fileDialog.setDirectory(workingDirectory.getAbsolutePath());
+            fileDialog.setVisible(true);
+            String selectedFile = fileDialog.getFile();
+
+            lastUsedWorkingDirectory = new File(fileDialog.getDirectory());
+            if (selectedFile != null) {
+                returnFile = new File[]{new File(selectedFile)};
+            } else {
+                returnFile = null;
+            }
+        } else {
+            JFileChooser fileChooser = new JFileChooser();
+            if (requireMetadataFiles) {
+                FileFilter imdiFileFilter = new FileFilter() {
+
+                    public String getDescription() {
+                        return "IMDI";
+                    }
+
+                    @Override
+                    public boolean accept(File selectedFile) {
+                        // the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field
+                        return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".imdi")));
+                    }
+                };
+                fileChooser.addChoosableFileFilter(imdiFileFilter);
+            }
+            if (directorySelectOnly) {
+                // this filter is only cosmetic but gives the user an indication of what to select
+                FileFilter imdiFileFilter = new FileFilter() {
+
+                    public String getDescription() {
+                        return "Directories";
+                    }
+
+                    @Override
+                    public boolean accept(File selectedFile) {
+                        return (selectedFile.exists() && selectedFile.isDirectory());
+                    }
+                };
+                fileChooser.addChoosableFileFilter(imdiFileFilter);
+            }
+            if (directorySelectOnly) {
+                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            } else {
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            }
+            fileChooser.setCurrentDirectory(workingDirectory);
+            fileChooser.setMultiSelectionEnabled(multipleSelect);
+            if (JFileChooser.APPROVE_OPTION == fileChooser.showDialog(LinorgWindowManager.getSingleInstance().linorgFrame, titleText)) {
+                returnFile = fileChooser.getSelectedFiles();
+                if (returnFile.length == 0) {
+                    returnFile = new File[]{fileChooser.getSelectedFile()};
+                }
+            } else {
+                returnFile = null;
+            }
+            if (returnFile != null && returnFile.length == 1 && !returnFile[0].exists()) {
+                // if the selected file does not exist then the "unusable" mac file select is usually to blame so try to clean up
+                returnFile[0] = returnFile[0].getParentFile();
+                // if the result still does not exist then abort the select by returning null
+                if (!returnFile[0].exists()) {
+                    returnFile = null;
+                }
+            }
+            lastUsedWorkingDirectory = fileChooser.getCurrentDirectory();
+        }
+        // save last use working directory
+        fileSelectLocationsHashtable.put(titleText, lastUsedWorkingDirectory);
+        try {
+            LinorgSessionStorage.getSingleInstance().saveObject(fileSelectLocationsHashtable, "fileSelectLocations");
+        } catch (IOException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+        return returnFile;
     }
 
     public boolean showMessageDialogBox(String messageString, String messageTitle) {
