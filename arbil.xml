@@ -193,14 +193,14 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-            <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
+            <fileset dir="${SRCDIR}../../../../trunk/src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${SRCDIR}../../../trunk/webapps/addit/web">
+            <fileset dir="${SRCDIR}../../../../trunk/webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
@@ -373,7 +373,7 @@ public class LinorgVersion {
             </path>
         </signjar>-->
         <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
-        keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
+        keystore="${SRCDIR}/../../../../trunk/cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}" />
     </target>
    <!-- <target name="image" depends="setproperties">
