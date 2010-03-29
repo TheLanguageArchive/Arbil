@@ -10,7 +10,7 @@
         <property name="arbil.current.minor" value="0"/>
         <property name="arbil.filenameidentifier" value="-clarin-testing"/>
         <property name="arbil.application-title" value="Arbil (clarin-testing)"/>
-        <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128.png"/>
+        <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/"/>
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
@@ -29,8 +29,8 @@
         <property name="package.name" value="arbil${arbil.filenameidentifier}"/>
         <property name="package.jarname" value="${ArbilJarName}"/>
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}" property="packageIconAvail"/>
-        <fail unless="packageIconAvail" message="${arbil.icon-file-name} doesn't exist!"/>
+        <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="packageIconAvail"/>
+        <fail unless="packageIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
         <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
         <desktopEntry
@@ -39,7 +39,7 @@
             comment="Arbil is an application for arranging research material and associated metadata into a format appropriate for archiving."
             exec="java -jar /usr/share/${package.name}/${package.jarname}"
             path="/usr/share/${package.name}/"
-            icon="/usr/share/${package.name}/${arbil.icon-file-name}"
+            icon="/usr/share/${package.name}/${arbil.icon-file-name}.png"
             categories="Science;Education;Java"
         />
         <deb
@@ -56,7 +56,7 @@ Arbil is an application for arranging research material and associated metadata 
 http://www.lat-mpi.eu/tools/imdi/Arbil/
             </description>
             <tarfileset file="${OUTPUTDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
-            <tarfileset file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}" prefix="usr/share/${package.name}"/>
+            <tarfileset file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" prefix="usr/share/${package.name}"/>
             <tarfileset dir="${LIBDIR}" prefix="usr/share/${package.name}/lib">
                 <include name="*.jar"/>
             </tarfileset>
@@ -93,8 +93,10 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                         <replacetokens>
                             <token key="ArbilVersionNumber" value="${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}"/>
                             <token key="BuildDirectory" value="arbil-build-${arbil.current.major}.${arbil.current.minor}.x"/>
-                            <token key="InstalledIcon" value="arbil${arbil.filenameidentifier}128x128.ico"/>
+                            <token key="InstalledIcon" value="${arbil.icon-file-name}"/>
                             <token key="TypeCheckVersion" value="${TypeCheckVersion}"/>
+                            <token key="FilenameIdentifier" value="${arbil.filenameidentifier}"/>
+                            <token key="ApplicationTitle" value="${arbil.application-title}"/>
                         </replacetokens>
                     </filterchain>
                 </copy>
@@ -108,8 +110,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="buildWindowsInstaller" depends="updateJnlpAndAppletHtml">
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}128x128.ico" property="installedIconAvail"/>
-        <fail unless="installedIconAvail" message="arbil${arbil.filenameidentifier}128x128.ico doesn't exist!"/>
+        <available file="${SRCDIR}nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.ico" property="installedIconAvail"/>
+        <fail unless="installedIconAvail" message="${arbil.icon-file-name}.ico doesn't exist!"/>
         <mkdir dir="${OUTPUTDIR}/distribution-win32/temp/"/>
         <copy todir="${OUTPUTDIR}/distribution-win32/temp/">
             <fileset dir="${SRCDIR}nl/mpi/arbil/resources/icons/" includes="*.ico"/>
@@ -126,6 +128,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </zip>
     </target>
     <target name="buildMacInstaller" depends="updateJnlpAndAppletHtml">
+        <!--check that the icon exists and fail if not-->
+        <available file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}.icns" property="installedIconAvail"/>
+        <fail unless="installedIconAvail" message="arbil${arbil.filenameidentifier}.icns doesn't exist!"/>
         <copy file="${BUILDDIR}/Info.plist" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/"/>
         <copy file="${BUILDDIR}/start-arbil" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/MacOS/"/>
         <copy file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}.icns" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/Resources/"/>
@@ -251,10 +256,10 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </fileset>
         </copy>-->
     </target>
-    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">                
+    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}" property="jarIconAvail"/>
-        <fail unless="jarIconAvail" message="${arbil.icon-file-name} doesn't exist!"/>
+        <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="jarIconAvail"/>
+        <fail unless="jarIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
         <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="log4j.properties"/>
@@ -362,7 +367,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <echo file="${SRCDIR}nl/mpi/arbil/LinorgVersion.java" append="false">package nl.mpi.arbil;
 public class LinorgVersion {
     public String applicationTitle = "${arbil.application-title}";
-    public String applicationIconName = "${arbil.icon-file-name}";    
+    public String applicationIconName = "${arbil.icon-file-name}.png";
     public String currentMajor = "${arbil.current.major}";
     public String currentMinor = "${arbil.current.minor}";
     public String currentRevision = "${arbil.current.revision}";
@@ -402,8 +407,9 @@ public class LinorgVersion {
         <scp file="${distributionDirectory}/arbil${arbil.filenameidentifier}_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil${arbil.filenameidentifier}_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.deb"/>
         <!-- push the updated the applet html and the arbil jnlp files to the server -->
-        <scp file="${BUILDDIR}/arbil.jnlp" tofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
-        <scp file= "${BUILDDIR}/ArbilApplet.html" tofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/ArbilApplet${arbil.filenameidentifier}.html"/>
+        <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
+        <scp file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file= "${BUILDDIR}/ArbilApplet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/ArbilApplet${arbil.filenameidentifier}.html"/>
         <!-- http://lux17.mpi.nl/arbil/ArbilApplet.html -->
         <!--<scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>-->
 <!--
