@@ -36,7 +36,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         mainSplitPane.setDividerLocation(0.25);
 
         LinorgWindowManager.getSingleInstance().loadGuiState(this);
-        setTitle("Arbil (Testing version) " + new LinorgVersion().compileDate);
+        setTitle(new LinorgVersion().applicationTitle + " " + new LinorgVersion().compileDate);
         setIconImage(ImdiIcons.getSingleInstance().linorgTestingIcon.getImage());
         // load the templates and populate the templates menu
         setVisible(true);
