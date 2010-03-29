@@ -7,7 +7,7 @@
 	<key>CFBundleGetInfoString</key>
 		<string>Arbil @ArbilVersionNumber@ for Mac OS X</string>
 	<key>CFBundleIconFile</key>
-		<string>arbil-testing.icns</string>
+		<string>arbil@FilenameIdentifier@.icns</string>
 	<key>CFBundleIdentifier</key>
 		<string>nl.mpi.arbil.arbil-testing</string>
 	<key>CFBundleInfoDictionaryVersion</key>
