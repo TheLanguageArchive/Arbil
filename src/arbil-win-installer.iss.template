@@ -57,7 +57,7 @@ Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{
 
 [Icons]
 ; TODO: put the text "Launch Arbil Testing Via Webstart" into the language files
-Name: "{group}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; IconFileName:"{app}\arbil-testing128x128.ico";
+Name: "{group}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; IconFileName:"{app}\@InstalledIcon@";
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil}"; Filename: "http://www.lat-mpi.eu/tools/arbil"
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil Forum}"; Filename: "http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"
 Name: "{group}\Launch Arbil Testing Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp"
