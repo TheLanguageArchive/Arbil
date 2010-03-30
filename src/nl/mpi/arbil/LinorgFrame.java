@@ -37,7 +37,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
         LinorgWindowManager.getSingleInstance().loadGuiState(this);
         setTitle(new LinorgVersion().applicationTitle + " " + new LinorgVersion().compileDate);
-        setIconImage(ImdiIcons.getSingleInstance().linorgTestingIcon.getImage());
+        setIconImage(ImdiIcons.getSingleInstance().linorgIcon.getImage());
         // load the templates and populate the templates menu
         setVisible(true);
         LinorgWindowManager.getSingleInstance().openIntroductionPage();
