@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Vector;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
 import org.xml.sax.SAXException;
 
 /**
@@ -117,11 +118,15 @@ public class ArbilTemplate {
     public boolean isImdiChildType(String childType) {
         boolean returnValue = false;
         if (childType != null) {
-            returnValue = true;
-            childType = (childType + ".xml").substring(1);
-            for (String[] currentTemplate : rootTemplatesArray) {
-                if (childType.equals(currentTemplate[0])) {
-                    returnValue = false;
+            if (CmdiProfileReader.pathIsProfile(childType)) {
+                returnValue = false;
+            } else {
+                returnValue = true;
+                childType = (childType + ".xml").substring(1);
+                for (String[] currentTemplate : rootTemplatesArray) {
+                    if (childType.equals(currentTemplate[0])) {
+                        returnValue = false;
+                    }
                 }
             }
         }
@@ -165,7 +170,7 @@ public class ArbilTemplate {
                     linesRead++;
                 }
                 if (testingListing != null) {
-                    if (testingListing.length - 1 != linesRead) {
+                    if (testingListing.length - 2 != linesRead) {
                         System.out.println(testingListing[linesRead]);
 //                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
                     }
