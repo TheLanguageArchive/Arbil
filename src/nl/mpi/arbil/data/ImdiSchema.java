@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
 import mpi.util.OurURL;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
 import org.w3c.dom.*;
 
 /**
@@ -212,8 +214,17 @@ public class ImdiSchema {
     public URI addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
         URI addedPathUri = null;
-        // copy the template to disk
-        URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
+        URL templateUrl;
+        if (CmdiProfileReader.pathIsProfile(templateType)) {
+            try {
+                templateUrl = new URL(templateType);
+            } catch (MalformedURLException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+                return null;
+            }
+        } else {
+            templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
+        }
 //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
 //        System.out.println("templateFile: " + templateFile);
         addedPathUri = copyToDisk(templateUrl, destinationFile);
@@ -522,9 +533,9 @@ public class ImdiSchema {
         return linkURI;
     }
 
-    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
-            Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
-            ) {
+    public int iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
+            Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree, //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
+            int nodeCounter) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
@@ -547,7 +558,7 @@ public class ImdiSchema {
                 }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
                 if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
-                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate("template_cmdi");
+                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(startNode.getNamespaceURI());
                 }
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
                     // these attributes exist only in the metatranscript node
@@ -642,6 +653,10 @@ public class ImdiSchema {
 
             // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
             // TODO: note that this method does not use any attributes without a node value
+            if (childNode.getLocalName() != null) {
+                nodeCounter++;
+                //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
+            }
             NamedNodeMap namedNodeMap = childNode.getAttributes();
             if (namedNodeMap != null) {
                 String fieldID = getNamedAttributeValue(namedNodeMap, "id");
@@ -695,7 +710,8 @@ public class ImdiSchema {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree);
+            nodeCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree, nodeCounter);
         }
+        return nodeCounter;
     }
 }
