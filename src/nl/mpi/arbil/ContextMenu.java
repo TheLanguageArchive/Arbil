@@ -21,6 +21,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.importexport.ArbilCsvImporter;
 
@@ -1022,6 +1023,7 @@ public class ContextMenu {
     }
 
     public void initAddMenu(JMenu addMenu, Object targetNodeUserObject) {
+        boolean menuItemsAdded = false;
         addMenu.removeAll();
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
@@ -1039,6 +1041,7 @@ public class ContextMenu {
             addMenuItem = new JMenuItem();
             addMenuItem.setText(currentField[0]);
             addMenuItem.setName(currentField[0]);
+            addMenuItem.setToolTipText("IMDI " + currentField[0]);
             addMenuItem.setActionCommand(currentField[1]);
             addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -1069,6 +1072,53 @@ public class ContextMenu {
                 }
             });
             addMenu.add(addMenuItem);
+            menuItemsAdded = true;
+        }
+        if ((targetNodeUserObject instanceof ImdiTreeObject && ((ImdiTreeObject) targetNodeUserObject).isCorpus()) || !(targetNodeUserObject instanceof ImdiTreeObject)) {
+            // Allow clarin add menu for corpus nodes and the tree root node
+            CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+            if (menuItemsAdded && cmdiProfileReader.cmdiProfileArray.size() > 0) {
+                addMenu.add(new JSeparator());
+            }
+            JMenu clarinAddMenu = new JMenu("Clarin Profiles");
+            addMenu.add(clarinAddMenu);
+            for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+                JMenuItem addMenuItem;
+                addMenuItem = new JMenuItem();
+                addMenuItem.setText(currentCmdiProfile.name);
+                addMenuItem.setName(currentCmdiProfile.name);
+                addMenuItem.setActionCommand(currentCmdiProfile.getXsdHref());
+                addMenuItem.setToolTipText(currentCmdiProfile.description);
+                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        try {
+                            if (leadSelectedTreeNode != null) {
+                                leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                            } else {
+                                // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+                                ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                            }
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
+                    }
+                });
+                clarinAddMenu.add(addMenuItem);
+            }
+            clarinAddMenu.add(new JSeparator());
+            JMenuItem reloadProfilesMenuItem;
+            reloadProfilesMenuItem = new JMenuItem();
+            reloadProfilesMenuItem.setText("<Reload This List>");
+            reloadProfilesMenuItem.setToolTipText("Reload this Clarin profile list from the server");
+            reloadProfilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+                    cmdiProfileReader.refreshProfiles();
+                }
+            });
+            clarinAddMenu.add(reloadProfilesMenuItem);
         }
     }
 
