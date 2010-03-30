@@ -71,8 +71,8 @@ public class LinorgSessionStorageTest {
     public void testPathIsInsideCache() {
         System.out.println("pathIsInsideCache");
         LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
-        String oldStorageDirectory = instance.storageDirectory;
-        instance.storageDirectory = "/Users/testUser/.arbil/";
+        File oldStorageDirectory = instance.storageDirectory;
+        instance.storageDirectory = new File("/Users/testUser/.arbil/");
         File[] testInputArrayTrue = {
             new File("/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml"),
             new File("//Users//testUser//.arbil//imdicache//http//www.mpi.nl//IMDI//Schema//Continents.xml"),

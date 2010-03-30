@@ -1,7 +1,7 @@
 package nl.mpi.arbil;
 public class LinorgVersion {
     public String applicationTitle = "";
-    public String applicationIconName = "";    
+    public String applicationIconName = "";
     public String currentMajor = "";
     public String currentMinor = "";
     public String currentRevision = "";

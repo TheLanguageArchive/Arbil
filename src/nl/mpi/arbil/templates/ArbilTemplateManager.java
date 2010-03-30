@@ -1,5 +1,7 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.templates;
 
+import nl.mpi.arbil.*;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;

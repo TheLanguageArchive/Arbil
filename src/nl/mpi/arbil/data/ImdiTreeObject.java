@@ -1,5 +1,7 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.*;
 import java.awt.Component;
 import java.awt.Toolkit;

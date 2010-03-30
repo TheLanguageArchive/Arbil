@@ -1,5 +1,6 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.templates;
 
+import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
