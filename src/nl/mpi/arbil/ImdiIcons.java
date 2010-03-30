@@ -16,8 +16,7 @@ import javax.swing.UIManager;
  */
 public class ImdiIcons {
 
-    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/arbil128x128.png"));
-    public ImageIcon linorgTestingIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/arbil-testing128x128.png"));
+    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/"+ new LinorgVersion().applicationIconName));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
