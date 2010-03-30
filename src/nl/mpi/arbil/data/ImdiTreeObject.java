@@ -35,6 +35,8 @@ import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import nl.mpi.arbil.clarin.CmdiComponentBuilder;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
 
 /**
  * Document   : ImdiTreeObject
@@ -217,24 +219,27 @@ public class ImdiTreeObject implements Comparable {
     static public boolean isPathHistoryFile(String urlString) {
 //        System.out.println("isStringImdiHistoryFile" + urlString);
 //        System.out.println("isStringImdiHistoryFile" + urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
-        return isPathMetadata(urlString.replaceAll(".imdi.[0-9]*$", ".imdi"));
+        return isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
     }
 
     static public boolean isPathMetadata(String urlString) { 
-        return isPathImdi(urlString);
+        return isPathImdi(urlString) || isPathCmdi(urlString); // change made for clarin
     }
 
     static public boolean isPathImdi(String urlString) {
-        return urlString.endsWith(".imdi") || urlString.endsWith(".cmdi"); // change made for clarin
+        return urlString.endsWith(".imdi");
     }
 
+    static public boolean isPathCmdi(String urlString) {
+        return urlString.endsWith(".cmdi");
+    }
     static public boolean isStringImdiChild(String urlString) {
         return urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
     }
 
     static public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
         ImdiTreeObject imdiTreeObject;
-        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation("")));
+        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
         imdiTreeObject.requestAddNode(nodeType, nodeTypeDisplayName);
     }
     // end static methods for testing imdi file and object types
@@ -325,7 +330,12 @@ public class ImdiTreeObject implements Comparable {
         }
         if (currentTemplate == null) {
             // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
-            currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
+            if (isPathCmdi(nodeUri.getPath())) {
+                // this must be loaded with the name space uri
+                //   currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate();
+            } else {
+                currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
+            }
         }
         fieldHashtable = new Hashtable<String, ImdiField[]>();
         imdiDataLoaded = false;
@@ -438,7 +448,7 @@ public class ImdiTreeObject implements Comparable {
                             Vector<String[]> childLinksTemp = new Vector<String[]>();
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                             // load the fields from the imdi file
-                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree);
+                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree, 0);
                             childLinks = childLinksTemp.toArray(new String[][]{});
                             ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                             for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
@@ -693,7 +703,7 @@ public class ImdiTreeObject implements Comparable {
     // if that fails then the current directory will be returned
     public File getSubDirectory() {
         String currentFileName = this.getFile().getParent();
-        if (ImdiTreeObject.isPathImdi(nodeUri.getPath())) {
+        if (ImdiTreeObject.isPathImdi(nodeUri.getPath()) || ImdiTreeObject.isPathCmdi(nodeUri.getPath())) {
             currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
             File destinationDir = new File(currentFileName);
             if (!destinationDir.exists()) {
@@ -716,7 +726,12 @@ public class ImdiTreeObject implements Comparable {
         }
         URI addedNodePath = null;
         ImdiTreeObject destinationNode;
-        if (currentTemplate.isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
+        if (this.isCmdiMetaDataNode()) {
+            // add clarin sub nodes
+            bumpHistory();
+            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+            addedNodePath = componentBuilder.insertChildComponent(this.getFile(), nodeType);
+        } else if (currentTemplate.isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
@@ -745,8 +760,18 @@ public class ImdiTreeObject implements Comparable {
 //            needsSaveToDisk = true;
         } else {
             System.out.println("adding new node");
-            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(getSubDirectory());
-            addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(getSubDirectory(), nodeType);
+            if (CmdiProfileReader.pathIsProfile(nodeType)) {
+                CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                try {
+                    addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType));
+                } catch (URISyntaxException ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                    return null;
+                }
+            } else {
+                addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+            }
             destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
             if (this.getFile().exists()) {
                 this.addCorpusLink(destinationNode);
@@ -1932,6 +1957,17 @@ public class ImdiTreeObject implements Comparable {
         return false;
     }
 
+    public boolean isCmdiMetaDataNode() {
+        if (nodeUri != null /* && nodDom != null*/) {
+            if (isImdiChild()) {
+                return getParentDomNode().isCmdiMetaDataNode();
+            } else {
+                return ImdiTreeObject.isPathCmdi(nodeUri.getPath());
+            }
+        }
+        return false;
+    }
+
     /**
      * Tests if this node represents an imdi file or if if it represents a child node from an imdi file (created by adding fields with child nodes).
      * @return boolean
@@ -1967,6 +2003,9 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean isCorpus() {
+        if (isCmdiMetaDataNode()) {
+            return false;
+        }
         // test if this node is a corpus
         ImdiField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
