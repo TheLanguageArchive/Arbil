@@ -2,6 +2,7 @@ package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.*;
 import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.CmdiTemplate;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,6 +104,21 @@ public class ArbilTemplateManager {
 
     public ArbilTemplate getCurrentTemplate() {
         return getTemplate(defaultArbilTemplateName);
+    }
+
+    public ArbilTemplate getCmdiTemplate(String nameSpaceString) {
+        if (nameSpaceString != null) {
+            CmdiTemplate cmdiTemplate = (CmdiTemplate) templatesHashTable.get(nameSpaceString);
+            if (cmdiTemplate == null) {
+                cmdiTemplate = new CmdiTemplate();
+                cmdiTemplate.loadTemplate(nameSpaceString);
+                templatesHashTable.put(nameSpaceString, cmdiTemplate);
+            }
+            return cmdiTemplate;
+        } else {
+            GuiHelper.linorgBugCatcher.logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
+            return null;
+        }
     }
 
     public ArbilTemplate getTemplate(String templateName) {
