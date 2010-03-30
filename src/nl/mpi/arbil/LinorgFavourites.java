@@ -32,7 +32,7 @@ public class LinorgFavourites {
     public void loadOldFormatFavourites() {
         try {
             Vector<String> locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
-            File oldFavouritesFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "selectedFavourites");
+            File oldFavouritesFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "selectedFavourites");
             if (oldFavouritesFile.exists()) {
                 Vector<String> userFavouritesStrings = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("selectedFavourites");
                 locationsList.addAll(userFavouritesStrings);

@@ -54,6 +54,7 @@ public class ImdiIcons {
 //    private ImageIcon sessionColorLocalIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-local.png"));
 //    private ImageIcon directoryclosed16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directoryclosed16x16.png"));
     private ImageIcon sessionColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color.png"));
+    private ImageIcon clarinIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/clarinE.png"));
     private ImageIcon catalogueColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/catalogue.png"));
     private ImageIcon exclamationBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-blue.png"));
 //    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-serverlocal.png"));
@@ -225,6 +226,8 @@ public class ImdiIcons {
                 iconsVector.add(catalogueColorIcon);
             } else if (imdiObject.isCorpus()) {
                 iconsVector.add(corpusnodeColorIcon);
+            } else if (imdiObject.isCmdiMetaDataNode()) {
+                iconsVector.add(clarinIcon);
             } else {
                 // this icon might not be the best one to show in this case
                 if (imdiObject.imdiDataLoaded) {

@@ -15,6 +15,7 @@ public class ImdiField {
     private String translatedPath = null;
     public String fieldValue = "";
     public String originalFieldValue = fieldValue;
+    @Deprecated
     public String fieldID;
     private ImdiVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;

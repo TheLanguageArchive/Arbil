@@ -26,7 +26,7 @@ public class LinorgBugCatcher {
 
     public LinorgBugCatcher() {
         // remove all previous error logs for this version other than the one for this build number
-        File errorLogFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "linorgerror.log");
+        File errorLogFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "linorgerror.log");
         if (errorLogFile.exists()) {
             errorLogFile.delete();
         }
@@ -41,7 +41,7 @@ public class LinorgBugCatcher {
                     System.out.println("currentLogFileMatch: " + currentFile);
                 } else {
                     System.out.println("deleting old log file: " + currentFile);
-                    new File(LinorgSessionStorage.getSingleInstance().storageDirectory + currentFile).delete();
+                    new File(LinorgSessionStorage.getSingleInstance().storageDirectory, currentFile).delete();
                 }
             }
         }
@@ -51,7 +51,7 @@ public class LinorgBugCatcher {
 
     public File getLogFile() {
         LinorgVersion linorgVersion = new LinorgVersion();
-        return new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
+        return new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
     }
 
     public void grabApplicationShot() {
@@ -63,7 +63,7 @@ public class LinorgBugCatcher {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String formattedDate = formatter.format(new Date());
             String formattedCount = myFormat.format(new Integer(captureCount));
-            ImageIO.write(screenShot, "JPG", new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
+            ImageIO.write(screenShot, "JPG", new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
             captureCount++;
         } catch (Exception e) {
         }
