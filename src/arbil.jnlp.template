@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.5+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil-testing.jnlp">
+<jnlp spec="1.5+" codebase="http://www.mpi.nl/tg/j2se/jnlp/arbil/" href="arbil@FilenameIdentifier@.jnlp">
     <information>
-        <title>Arbil</title>
-        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" kind="default" />
-        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" kind="splash" />
+        <title>@ApplicationTitle@</title>
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/@InstalledIcon@.png" kind="default" />
+        <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/@InstalledIcon@.png" kind="splash" />
         <offline-allowed/>
         <shortcut online="false">
             <!--<desktop /> the desktop icon on windows has some display issues-->
@@ -37,7 +37,7 @@
         <!-- these prperties are now set in the main class<property name="apple.laf.useScreenMenuBar" value="true"/>
         <property name="apple.awt.graphics.UseQuartz" value="true"/>
         <property name="sun.swing.enableImprovedDragGesture" value="true"/>-->
-        <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp"/>
+        <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil@FilenameIdentifier@.jnlp"/>
     </resources>
     <!--<resources os="windows">
         <nativelib href="lib/ImageMagick-6.5.9-Win32.jar"/>
