@@ -103,7 +103,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </sequential>
         </macrodef>
         <updateSingleFile fileName="arbil.jnlp"/>
-        <updateSingleFile fileName="ArbilApplet.html"/>
+        <updateSingleFile fileName="arbil-applet.html"/>
         <updateSingleFile fileName="arbil-win-installer.iss"/>
         <updateSingleFile fileName="Info.plist"/>
         <updateSingleFile fileName="start-arbil"/>
@@ -151,7 +151,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
-        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/ArbilApplet${arbil.filenameidentifier}.html" dest="${SRCDIR}nl/mpi/arbil/ArbilApplet${arbil.filenameidentifier}.html"/>
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html" dest="${SRCDIR}nl/mpi/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
     </target>
     <target name="getFallbackFiles-x" depends="setproperties"/>
     <target name="getFallbackFiles" depends="setproperties" description="download the latest schema and controlled vocabularies from the web server">
@@ -414,8 +414,8 @@ public class LinorgVersion {
         <!-- push the updated the applet html and the arbil jnlp files to the server -->
         <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
         <scp file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file= "${BUILDDIR}/ArbilApplet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/ArbilApplet${arbil.filenameidentifier}.html"/>
-        <!-- http://lux17.mpi.nl/arbil/ArbilApplet.html -->
+        <scp file= "${BUILDDIR}/arbil-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
+        <!-- http://lux17.mpi.nl/arbil/arbil-applet.html -->
         <!--<scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>-->
 <!--
         <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/lib/"/>
