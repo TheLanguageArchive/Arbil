@@ -285,13 +285,12 @@ public class LinorgSessionStorage {
      * @return File pointing to the favourites directory
      */
     public File getFavouritesDir() {
-        String favDirectory = storageDirectory + "favourites" + File.separatorChar; // storageDirectory already has the file separator appended
-        File destinationFile = new File(favDirectory);
-        boolean favDirExists = destinationFile.exists();
+        File favDirectory = new File(storageDirectory, "favourites"); // storageDirectory already has the file separator appended
+        boolean favDirExists = favDirectory.exists();
         if (!favDirExists) {
-            favDirExists = destinationFile.mkdir();
+            favDirExists = favDirectory.mkdir();
         }
-        return destinationFile;
+        return favDirectory;
     }
 
     /**
@@ -307,7 +306,7 @@ public class LinorgSessionStorage {
                     localCacheDirectory = new File(localCacheDirectory, "ArbilWorkingFiles");
                 }
             } catch (Exception exception) {
-                localCacheDirectory = new File(storageDirectory, "imdicache" + File.separatorChar); // storageDirectory already has the file separator appended
+                localCacheDirectory = new File(storageDirectory, "imdicache"); // storageDirectory already has the file separator appended
             }
             boolean cacheDirExists = localCacheDirectory.exists();
             if (!cacheDirExists) {
@@ -325,7 +324,7 @@ public class LinorgSessionStorage {
      */
     public void saveObject(Serializable object, String filename) throws IOException {
         System.out.println("saveObject: " + filename);
-        ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(storageDirectory + filename));
+        ObjectOutputStream objstream = new ObjectOutputStream(new FileOutputStream(new File(storageDirectory, filename)));
         objstream.writeObject(object);
         objstream.close();
     }
@@ -340,7 +339,7 @@ public class LinorgSessionStorage {
         System.out.println("loadObject: " + filename);
         Object object = null;
 //        if (new File(storageDirectory + filename).exists()) { // this must be allowed to throw so don't do checks here
-        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(storageDirectory + filename));
+        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(storageDirectory , filename)));
         object = objstream.readObject();
         objstream.close();
         if (object == null) {
