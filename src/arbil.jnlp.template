@@ -6,7 +6,7 @@
         <icon href="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing128x128.png" kind="splash" />
         <offline-allowed/>
         <shortcut online="false">
-            <desktop />
+            <!--<desktop /> the desktop icon on windows has some display issues-->
             <!--<menu submenu="Language Archiving Tools" />-->
         </shortcut>
         <vendor>Max Planck Institute for Psycholinguistics</vendor>
