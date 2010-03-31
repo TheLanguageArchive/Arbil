@@ -1,5 +1,5 @@
 #!/bin/sh
-BASEDIR=`dirname $0`
+BASEDIR=`dirname "$0"`
 exec java \
-	-classpath $BASEDIR/arbil-@ArbilVersionNumber@.jar:$BASEDIR/lib \
+	-classpath "$BASEDIR/arbil-@ArbilVersionNumber@.jar:$BASEDIR/lib" \
 	nl.mpi.arbil.LinorgFrame
