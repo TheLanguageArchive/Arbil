@@ -389,7 +389,7 @@ public class LinorgVersion {
         </input>
 <!--        <signjar keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore" alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}">
             <path>
-                <fileset dir="/data1/deb-package-unziped/arbil-clarin-testing/lib" includes="**/*.jar" />
+                <fileset dir="${LIBDIR}" includes="**/*.jar" />
             </path>
         </signjar>-->
         <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
