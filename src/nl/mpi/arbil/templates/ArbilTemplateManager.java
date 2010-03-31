@@ -68,7 +68,7 @@ public class ArbilTemplateManager {
     }
 
     private File getTemplateDirectory() {
-        return new File(LinorgSessionStorage.getSingleInstance().storageDirectory + "templates");
+        return new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "templates");
     }
 
     public String[] getAvailableTemplates() {

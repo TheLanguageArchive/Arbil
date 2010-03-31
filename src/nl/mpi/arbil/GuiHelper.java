@@ -38,7 +38,7 @@ public class GuiHelper {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
-            //throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
         }
     };
     static private GuiHelper singleInstance = null;
@@ -182,16 +182,16 @@ public class GuiHelper {
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
-                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                //System.out.println(ex.getMessage());
+                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
                 try {
                     LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
-                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                //System.out.println(ex.getMessage());
+                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             }
         }
@@ -235,13 +235,14 @@ public class GuiHelper {
                 }
                 result = true;
             } catch (MalformedURLException muE) {
-                muE.printStackTrace();
+                GuiHelper.linorgBugCatcher.logError("awtDesktopFound", muE);
             } catch (IOException ioE) {
-                ioE.printStackTrace();
+                GuiHelper.linorgBugCatcher.logError("awtDesktopFound", ioE);
             }
         } else {
+            String osNameString = null;
             try {
-                String osNameString = System.getProperty("os.name").toLowerCase();
+                osNameString = System.getProperty("os.name").toLowerCase();
 //                String openCommand = "";
                 String fileString;
                 if (ImdiTreeObject.isStringLocal(targetUri.getScheme())) {
@@ -280,7 +281,7 @@ public class GuiHelper {
                     result = true;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                GuiHelper.linorgBugCatcher.logError(osNameString, e);
             }
         }
         return result;
