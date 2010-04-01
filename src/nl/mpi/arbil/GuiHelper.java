@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.ButtonGroup;
@@ -228,8 +229,10 @@ public class GuiHelper {
         if (awtDesktopFound) {
             try {
                 if (targetUri.getScheme().toLowerCase().equals("file")) {
-                    // yes it is lame that the java classes cant figure this out!, but a path with white space will fail as a uri!
-                    Desktop.getDesktop().open(new File(targetUri));
+                    File targetFile = new File(targetUri);
+                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
+                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
+                    Desktop.getDesktop().open(targetFile);
                 } else {
                     Desktop.getDesktop().browse(targetUri);
                 }
