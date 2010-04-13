@@ -61,7 +61,7 @@ public class ArbilTemplateManager {
     public void setCurrentTemplate(String currentTemplateLocal) {
         defaultArbilTemplateName = currentTemplateLocal;
         try {
-            LinorgSessionStorage.getSingleInstance().saveObject(currentTemplateLocal, "CurrentTemplate");
+            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", currentTemplateLocal);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
@@ -95,10 +95,10 @@ public class ArbilTemplateManager {
 
     private ArbilTemplateManager() {
         templatesHashTable = new Hashtable<String, ArbilTemplate>();
-        try {
-            defaultArbilTemplateName = (String) LinorgSessionStorage.getSingleInstance().loadObject("CurrentTemplate");
-        } catch (Exception ex) {
+        defaultArbilTemplateName = LinorgSessionStorage.getSingleInstance().loadString("CurrentTemplate");
+        if (defaultArbilTemplateName == null) {
             defaultArbilTemplateName = builtInTemplates[0];
+            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", defaultArbilTemplateName);
         }
     }
 

@@ -714,7 +714,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    removeRemoteCorpusMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
+                        TreeHelper.getSingleInstance().removeLocation(selectedNode);
+                    }
+                    TreeHelper.getSingleInstance().applyRootLocations();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -770,7 +773,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    removeLocalDirectoryMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
+                        TreeHelper.getSingleInstance().removeLocation(selectedNode);
+                    }
+                    TreeHelper.getSingleInstance().applyRootLocations();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -950,19 +956,6 @@ public class ContextMenu {
         }
     }//GEN-LAST:event_addDefaultLocationsMenuItemActionPerformed
 
-    private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeRemoteCorpusMenuItemActionPerformed// TODO add your handling code here:   
-        DefaultMutableTreeNode selectedTreeNode = null;
-
-        if (TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath().getLastPathComponent();
-
-        }
-        TreeHelper.getSingleInstance().removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-        TreeHelper.getSingleInstance().applyRootLocations();
-
-    }//GEN-LAST:event_removeRemoteCorpusMenuItemActionPerformed
-
     private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
         // TODO add your handling code here://    
@@ -973,20 +966,6 @@ public class ContextMenu {
         //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
     }
     //GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
-
-    private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
-        // TODO add your handling code here: 
-        DefaultMutableTreeNode selectedTreeNode = null;
-
-        if (TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath().getLastPathComponent();
-
-        }
-        TreeHelper.getSingleInstance().removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-        TreeHelper.getSingleInstance().applyRootLocations();
-
-    }//GEN-LAST:event_removeLocalDirectoryMenuItemActionPerformed
 
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
@@ -1332,7 +1311,7 @@ public class ContextMenu {
         if (selectionCount > 0) {
             nodeLevel = ((JTree) eventSource).getSelectionPath().getPathCount();
         }
-        showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
+        showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
         showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 //        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
         //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());

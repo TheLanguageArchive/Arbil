@@ -59,7 +59,7 @@ public class GuiHelper {
     public void saveState(boolean saveWindows) {
         ImdiFieldViews.getSingleInstance().saveViewsToFile();
         // linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
-        TreeHelper.getSingleInstance().saveLocations(null, null);
+        // TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
         if (saveWindows) {
             LinorgWindowManager.getSingleInstance().saveWindowStates();
         }
@@ -228,14 +228,16 @@ public class GuiHelper {
         }
         if (awtDesktopFound) {
             try {
-                if (targetUri.getScheme().toLowerCase().equals("file")) {
-                    File targetFile = new File(targetUri);
-                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
-                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
-                    Desktop.getDesktop().open(targetFile);
-                } else {
+                // this method is failing on some windows installations so we will just use browse instead
+                // TODO: verify that removing this helps and that it does not cause issues on other OSs
+//                if (targetUri.getScheme().toLowerCase().equals("file")) {
+//                    File targetFile = new File(targetUri);
+//                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
+//                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
+//                    Desktop.getDesktop().open(targetFile);
+//                } else {
                     Desktop.getDesktop().browse(targetUri);
-                }
+//                }
                 result = true;
             } catch (MalformedURLException muE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", muE);
