@@ -43,6 +43,7 @@ public class ImdiFieldViews {
     public void setCurrentGlobalViewName(String nextViewName) {
 //        System.out.println("setCurrentGlobalViewName: " + nextViewName);
         currentGlobalViewName = nextViewName;
+        LinorgSessionStorage.getSingleInstance().saveString("currentGlobalViewName", currentGlobalViewName);
     }
 
     public Enumeration getSavedFieldViewLables() {
@@ -54,7 +55,10 @@ public class ImdiFieldViews {
 
         try {
             savedFieldViews = (Hashtable<String, LinorgFieldView>) LinorgSessionStorage.getSingleInstance().loadObject("savedFieldViewsV2");
-            currentGlobalViewName = (String) LinorgSessionStorage.getSingleInstance().loadObject("currentGlobalViewName");
+            currentGlobalViewName = LinorgSessionStorage.getSingleInstance().loadString("currentGlobalViewName");
+            if (currentGlobalViewName == null) {
+                currentGlobalViewName = (String) LinorgSessionStorage.getSingleInstance().loadObject("currentGlobalViewName");
+            }
         } catch (Exception ex) {
 //            GuiHelper.linorgBugCatcher.logError(ex);
             System.out.println("load savedFieldViews failed: " + ex.getMessage());
@@ -81,10 +85,10 @@ public class ImdiFieldViews {
     public void saveViewsToFile() {
         try {
             LinorgSessionStorage.getSingleInstance().saveObject(savedFieldViews, "savedFieldViewsV2");
-            LinorgSessionStorage.getSingleInstance().saveObject(currentGlobalViewName, "currentGlobalViewName");
+            //LinorgSessionStorage.getSingleInstance().saveString("currentGlobalViewName", currentGlobalViewName);
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-        //System.out.println("save savedFieldViews exception: " + ex.getMessage());
+            //System.out.println("save savedFieldViews exception: " + ex.getMessage());
         }
     }
 
