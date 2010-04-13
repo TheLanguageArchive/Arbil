@@ -305,7 +305,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(viewFavouritesMenuItem);
 
-        setCacheDirectoryMenu.setText("Local Working Files Directory");
+        setCacheDirectoryMenu.setText("Local Corpus Storage Directory");
         setCacheDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
 
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
@@ -314,18 +314,20 @@ public class ArbilMenuBar extends JMenuBar {
             public void menuDeselected(javax.swing.event.MenuEvent evt) {
             }
 
+      todo: template type is currently stored in the corpus xml but this level should use the global template while he sessions should use its own
             public void menuSelected(javax.swing.event.MenuEvent evt) {
                 setCacheDirectoryMenu.removeAll();
                 JMenuItem cacheDirectoryMenuItem = new JMenuItem();
                 cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
 
                 JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
-                changeCacheDirectoryMenuItem.setText("<Move Local Working Files Directory>");
+                changeCacheDirectoryMenuItem.setText("<Move Local Corpus Storage Directory>");
                 changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Working Files Directory", true, false, false);
+                            LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
                             if (selectedFiles != null && selectedFiles.length > 0) {
                                 // TODO: the change directory button text is not correct
                                 //fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
@@ -722,12 +724,12 @@ public class ArbilMenuBar extends JMenuBar {
         }
         GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
         try {
-            LinorgSessionStorage.getSingleInstance().saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
-            LinorgSessionStorage.getSingleInstance().saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
-            LinorgSessionStorage.getSingleInstance().saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
-            LinorgSessionStorage.getSingleInstance().saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
-            LinorgSessionStorage.getSingleInstance().saveObject(checkResourcePermissionsCheckBoxMenuItem.isSelected(), "checkResourcePermissions");
-            LinorgSessionStorage.getSingleInstance().saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
+            LinorgSessionStorage.getSingleInstance().saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
+            LinorgSessionStorage.getSingleInstance().saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
+            LinorgSessionStorage.getSingleInstance().saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
+            LinorgSessionStorage.getSingleInstance().saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
+            LinorgSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
+            LinorgSessionStorage.getSingleInstance().saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
         }
