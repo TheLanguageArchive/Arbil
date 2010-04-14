@@ -314,6 +314,12 @@ public class ImdiField {
             if (fieldName.startsWith(".")) {
                 fieldName = fieldName.substring(1);
             }
+            if (LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName) {
+                // add the language id to the column name if available
+                if (getLanguageId() != null && getLanguageId().length() > 0) {
+                    fieldName = fieldName + " [" + getLanguageId() + "]";
+                }
+            }
             translatedPath = fieldName;
         }
 //        System.out.println("xmlPath: " + xmlPath);
