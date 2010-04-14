@@ -40,7 +40,6 @@ public class TreeHelper {
     public ImdiTreeObject[] localFileNodes = new ImdiTreeObject[]{};
     public ImdiTreeObject[] favouriteNodes = new ImdiTreeObject[]{};
     static private TreeHelper singleInstance = null;
-    static public boolean trackTableSelection = false;
     Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
     public boolean showHiddenFilesInTree = false;

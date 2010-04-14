@@ -42,7 +42,8 @@ public class LinorgSessionStorage {
     public File storageDirectory = null;
     private File localCacheDirectory = null;
     static private LinorgSessionStorage singleInstance = null;
-//    JDialog settingsjDialog;
+    public boolean trackTableSelection = false;
+    public boolean useLanguageIdInColumnName = false;
 
     static synchronized public LinorgSessionStorage getSingleInstance() {
         if (singleInstance == null) {
@@ -89,6 +90,8 @@ public class LinorgSessionStorage {
             JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
             System.exit(-1);
         }
+        trackTableSelection = loadBoolean("trackTableSelection", false);
+        useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
         System.out.println("storageDirectory: " + storageDirectory);
     }
 
