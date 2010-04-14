@@ -222,7 +222,7 @@ public class ImdiTreeObject implements Comparable {
         return isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
     }
 
-    static public boolean isPathMetadata(String urlString) { 
+    static public boolean isPathMetadata(String urlString) {
         return isPathImdi(urlString) || isPathCmdi(urlString); // change made for clarin
     }
 
@@ -233,6 +233,7 @@ public class ImdiTreeObject implements Comparable {
     static public boolean isPathCmdi(String urlString) {
         return urlString.endsWith(".cmdi");
     }
+
     static public boolean isStringImdiChild(String urlString) {
         return urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
     }
