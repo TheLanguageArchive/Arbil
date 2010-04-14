@@ -123,9 +123,12 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <exec dir="${BUILDDIR}" executable="wine" ><!--os="Windows NT"-->
             <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" arbil-win-installer.iss'/>
         </exec>
+        <delete dir="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip"/>
         <zip destfile="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip" >
             <file file="${OUTPUTDIR}/distribution-win32/arbil-installer-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.exe"/>
         </zip>
+        <available file="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip" property="installerZipMissing"/>
+        <fail unless="installerZipMissing" message="arbil${arbil.filenameidentifier}-installer.zip doesn't exist! Is Inno Setup installed inside wine?"/>
     </target>
     <target name="buildMacInstaller" depends="updateJnlpAndAppletHtml">
         <!--check that the icon exists and fail if not-->
