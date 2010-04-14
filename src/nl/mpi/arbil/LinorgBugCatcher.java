@@ -71,7 +71,7 @@ public class LinorgBugCatcher {
 
 //    public void logMessage(String messageString) {
 //        try {
-//            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory + "linorgerror.log", true);
+//            FileWriter errorLogFile = new FileWriter(GuiHelper.linorgSessionStorage.storageDirectory, "linorgerror.log", true);
 //            System.out.println("logCatch: " + messageString);
 //            errorLogFile.append(messageString + System.getProperty("line.separator"));
 //            errorLogFile.append("Message Date: " + new Date().toString() + System.getProperty("line.separator"));

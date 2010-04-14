@@ -112,14 +112,14 @@ public class LinorgWindowManager {
 
     public void openAboutPage() {
         LinorgVersion linorgVersion = new LinorgVersion();
-        String messageString = "Archive Builder\n" +
-                "A local tool for organising linguistic data.\n" +
-                "Max Planck Institute for Psycholinguistics\n" +
-                "Application design and programming by Peter Withers\n" +
-                "Arbil also uses components of the IMDI API and Lamus Type Checker\n" +
-                "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n" +
-                linorgVersion.lastCommitDate + "\n" +
-                "Compile Date: " + linorgVersion.compileDate + "\n";
+        String messageString = "Archive Builder\n"
+                + "A local tool for organising linguistic data.\n"
+                + "Max Planck Institute for Psycholinguistics\n"
+                + "Application design and programming by Peter Withers\n"
+                + "Arbil also uses components of the IMDI API and Lamus Type Checker\n"
+                + "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n"
+                + linorgVersion.lastCommitDate + "\n"
+                + "Compile Date: " + linorgVersion.compileDate + "\n";
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
     }
 
@@ -138,16 +138,13 @@ public class LinorgWindowManager {
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
         // test for os: if mac or file then awt else for other and directory use swing
         // save/load last directory accoring to the title of the dialogue
-        Hashtable<String, File> fileSelectLocationsHashtable;
+        //Hashtable<String, File> fileSelectLocationsHashtable;
         File workingDirectory = null;
-        try {
-            fileSelectLocationsHashtable = (Hashtable<String, File>) LinorgSessionStorage.getSingleInstance().loadObject("fileSelectLocations");
-            workingDirectory = fileSelectLocationsHashtable.get(titleText);
-        } catch (Exception exception) {
-            fileSelectLocationsHashtable = new Hashtable<String, File>();
-        }
-        if (workingDirectory == null) {
+        String workingDirectoryPathString = LinorgSessionStorage.getSingleInstance().loadString("fileSelect." + titleText);
+        if (workingDirectoryPathString == null) {
             workingDirectory = new File(System.getProperty("user.home"));
+        } else {
+            workingDirectory = new File(workingDirectoryPathString);
         }
         File lastUsedWorkingDirectory;
 
@@ -237,12 +234,7 @@ public class LinorgWindowManager {
             lastUsedWorkingDirectory = fileChooser.getCurrentDirectory();
         }
         // save last use working directory
-        fileSelectLocationsHashtable.put(titleText, lastUsedWorkingDirectory);
-        try {
-            LinorgSessionStorage.getSingleInstance().saveObject(fileSelectLocationsHashtable, "fileSelectLocations");
-        } catch (IOException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-        }
+        LinorgSessionStorage.getSingleInstance().saveString("fileSelect." + titleText, lastUsedWorkingDirectory.getAbsolutePath());
         return returnFile;
     }
 

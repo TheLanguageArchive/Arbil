@@ -40,7 +40,6 @@ public class TreeHelper {
     public ImdiTreeObject[] localFileNodes = new ImdiTreeObject[]{};
     public ImdiTreeObject[] favouriteNodes = new ImdiTreeObject[]{};
     static private TreeHelper singleInstance = null;
-    static public boolean trackTableSelection = false;
     Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
     public boolean showHiddenFilesInTree = false;
@@ -63,8 +62,8 @@ public class TreeHelper {
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
         favouritesTreeModel = new DefaultTreeModel(favouritesRootNode, true);
-        // load any favourites from the previous file format
-        LinorgFavourites.getSingleInstance().loadOldFormatFavourites();
+        // load any locations from the previous file formats
+        LinorgFavourites.getSingleInstance().convertOldFormatLocationLists();
 
         loadLocationsList();
     }
@@ -166,7 +165,8 @@ public class TreeHelper {
             for (String currentLocation : locationsSet) {
                 locationsList.add(URLDecoder.decode(currentLocation, "UTF-8"));
             }
-            LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+            //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+            LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
             System.out.println("saved locationsList");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -177,7 +177,7 @@ public class TreeHelper {
     public void loadLocationsList() {
         try {
             System.out.println("loading locationsList");
-            Vector<String> locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
+            String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("locationsList");
 //            System.out.println("loaded locationsList.size: " + locationsList.size());
             // remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes
 
@@ -187,8 +187,8 @@ public class TreeHelper {
             Vector<ImdiTreeObject> favouriteNodesVector = new Vector<ImdiTreeObject>();
 
             // this also removes all locations and replaces them with normalised paths
-            for (Enumeration<String> locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
-                URI currentLocation = ImdiTreeObject.conformStringToUrl(locationEnum.nextElement());
+            for (String currentLocationString : locationsArray) {
+                URI currentLocation = ImdiTreeObject.conformStringToUrl(currentLocationString);
                 ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
                 if (currentTreeObject.isLocal()) {
                     if (currentTreeObject.isFavorite()) {
@@ -229,7 +229,7 @@ public class TreeHelper {
         showHiddenFilesInTree = showState;
         reloadNodesInTree(localDirectoryRootNode);
         try {
-            LinorgSessionStorage.getSingleInstance().saveObject(showHiddenFilesInTree, "showHiddenFilesInTree");
+            LinorgSessionStorage.getSingleInstance().saveBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
         } catch (Exception ex) {
             System.out.println("save showHiddenFilesInTree failed");
         }

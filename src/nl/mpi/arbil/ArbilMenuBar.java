@@ -41,6 +41,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private JMenu templatesMenu;
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
+    private JCheckBoxMenuItem useLanguageIdInColumnNameCheckBoxMenuItem;
     private JMenuItem undoMenuItem;
 //    private JMenuItem viewFavouritesMenuItem;
     private JMenu setStorageDirectoryMenu;
@@ -93,6 +94,7 @@ public class ArbilMenuBar extends JMenuBar {
         copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
         checkResourcePermissionsCheckBoxMenuItem = new JCheckBoxMenuItem();
         trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
+        useLanguageIdInColumnNameCheckBoxMenuItem = new JCheckBoxMenuItem();
         viewMenu = new JMenu();
         windowMenu = new JMenu();
         helpMenu = new JMenu();
@@ -304,7 +306,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(viewFavouritesMenuItem);
 
-        setCacheDirectoryMenu.setText("Local Working Files Directory");
+        setCacheDirectoryMenu.setText("Local Corpus Storage Directory");
         setCacheDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
 
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
@@ -319,12 +321,13 @@ public class ArbilMenuBar extends JMenuBar {
                 cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
 
                 JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
-                changeCacheDirectoryMenuItem.setText("<Move Local Working Files Directory>");
+                changeCacheDirectoryMenuItem.setText("<Move Local Corpus Storage Directory>");
                 changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Working Files Directory", true, false, false);
+                            LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
                             if (selectedFiles != null && selectedFiles.length > 0) {
                                 // TODO: the change directory button text is not correct
                                 //fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
@@ -390,6 +393,7 @@ public class ArbilMenuBar extends JMenuBar {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     showSelectionPreviewCheckBoxMenuItemActionPerformed(evt);
+                    LinorgSessionStorage.getSingleInstance().saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -408,6 +412,7 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+                LinorgSessionStorage.getSingleInstance().saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
             }
         });
         optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
@@ -419,6 +424,7 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
+                LinorgSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
             }
         });
         optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
@@ -428,13 +434,30 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    trackTableSelectionCheckBoxMenuItemActionPerformed(evt);
+                    LinorgSessionStorage.getSingleInstance().trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
+                    LinorgSessionStorage.getSingleInstance().saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
             }
         });
         optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
+
+        useLanguageIdInColumnNameCheckBoxMenuItem.setText("Show Language in Column Name");
+        useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                    LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName = useLanguageIdInColumnNameCheckBoxMenuItem.getState();
+                    LinorgSessionStorage.getSingleInstance().saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
+                    ImdiLoader.getSingleInstance().requestReloadAllNodes();
+                } catch (Exception ex) {
+                    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName);
+                }
+            }
+        });
+        optionsMenu.add(useLanguageIdInColumnNameCheckBoxMenuItem);
 
         this.add(optionsMenu);
 
@@ -552,8 +575,8 @@ public class ArbilMenuBar extends JMenuBar {
 
         showSelectionPreviewCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("showSelectionPreview", true));
         showSelectionPreviewCheckBoxMenuItemActionPerformed(null);
-        trackTableSelectionCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("trackTableSelection", false));
-        TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
+        trackTableSelectionCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().trackTableSelection);
+        useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName);
         checkNewVersionAtStartCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
         copyNewResourcesCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("copyNewResources", true));
         ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
@@ -665,10 +688,6 @@ public class ArbilMenuBar extends JMenuBar {
         LinorgHelp.getSingleInstance().printAsOneFile();
     }
 
-    private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
-    }
-
     private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
     }
@@ -720,16 +739,8 @@ public class ArbilMenuBar extends JMenuBar {
             }
         }
         GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
-        try {
-            LinorgSessionStorage.getSingleInstance().saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
-            LinorgSessionStorage.getSingleInstance().saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
-            LinorgSessionStorage.getSingleInstance().saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
-            LinorgSessionStorage.getSingleInstance().saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
-            LinorgSessionStorage.getSingleInstance().saveObject(checkResourcePermissionsCheckBoxMenuItem.isSelected(), "checkResourcePermissions");
-            LinorgSessionStorage.getSingleInstance().saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
+        LinorgSessionStorage.getSingleInstance().saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
+        LinorgSessionStorage.getSingleInstance().saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
         return true;
     }
 

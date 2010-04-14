@@ -1,11 +1,16 @@
 package nl.mpi.arbil;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -18,8 +23,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.importexport.ShibbolethNegotiator;
@@ -35,7 +42,8 @@ public class LinorgSessionStorage {
     public File storageDirectory = null;
     private File localCacheDirectory = null;
     static private LinorgSessionStorage singleInstance = null;
-//    JDialog settingsjDialog;
+    public boolean trackTableSelection = false;
+    public boolean useLanguageIdInColumnName = false;
 
     static synchronized public LinorgSessionStorage getSingleInstance() {
         if (singleInstance == null) {
@@ -82,23 +90,24 @@ public class LinorgSessionStorage {
             JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
             System.exit(-1);
         }
+        trackTableSelection = loadBoolean("trackTableSelection", false);
+        useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
         System.out.println("storageDirectory: " + storageDirectory);
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
         File fromDirectory = getCacheDirectory();
+        if (!preferedCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
+            preferedCacheDirectory = new File(preferedCacheDirectory, "ArbilWorkingFiles");
+        }
         if (!moveFiles || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
-                "Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n" +
-                "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-            try {
-                saveObject(preferedCacheDirectory, "cacheDirectory");
-                localCacheDirectory = null;
-                File toDirectory = getCacheDirectory();
-                if (moveFiles) {
-                    // move the files
-                    changeStorageDirectory(fromDirectory, toDirectory);
-                }
-            } catch (IOException iOException) {
+                "Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
+                + "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+            if (moveFiles) {
+                saveString("cacheDirectory", preferedCacheDirectory.getAbsolutePath());
+                // move the files
+                changeStorageDirectory(fromDirectory, preferedCacheDirectory);
+            } else {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not change to the requested location.", null);
             }
         }
@@ -116,8 +125,10 @@ public class LinorgSessionStorage {
     // Move the storage directory and change the local corpus tree links to the new directory.
     // After completion the application will be closed!
     private void changeStorageDirectory(File fromDirectory, File toDirectory) {
-        String toDirectoryUriString = toDirectory.toURI().toString();
-        String fromDirectoryUriString = fromDirectory.toURI().toString();
+        String toDirectoryUriString = toDirectory.toURI().toString().replaceAll("/$", "");
+        String fromDirectoryUriString = fromDirectory.toURI().toString().replaceAll("/$", "");
+        System.out.println("toDirectoryUriString: " + toDirectoryUriString);
+        System.out.println("fromDirectoryUriString: " + fromDirectoryUriString);
         try {
             toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
             fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
@@ -127,7 +138,7 @@ public class LinorgSessionStorage {
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
-            } else {
+        } else {
             try {
                 Vector<String> locationsList = new Vector<String>();
                 for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
@@ -139,7 +150,9 @@ public class LinorgSessionStorage {
                         locationsList.add(currentLocationString.replace(fromDirectoryUriString, toDirectoryUriString));
                     }
                 }
-                LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+                //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+                LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+
                 System.out.println("updated locationsList");
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -299,14 +312,19 @@ public class LinorgSessionStorage {
      */
     public File getCacheDirectory() {
         if (localCacheDirectory == null) {
-            try {
-                File localWorkingDirectory = (File) loadObject("cacheDirectory");
-                localCacheDirectory = localWorkingDirectory;
-                if (!localCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !localCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
-                    localCacheDirectory = new File(localCacheDirectory, "ArbilWorkingFiles");
+            // load from the text based properties file
+            String localCacheDirectoryPathString = loadString("cacheDirectory");
+            if (localCacheDirectoryPathString != null) {
+                localCacheDirectory = new File(localCacheDirectoryPathString);
+            } else {
+                // otherwise load from the to be replaced binary based storage file
+                try {
+                    File localWorkingDirectory = (File) loadObject("cacheDirectory");
+                    localCacheDirectory = localWorkingDirectory;
+                } catch (Exception exception) {
+                    localCacheDirectory = new File(storageDirectory, "imdicache"); // storageDirectory already has the file separator appended
                 }
-            } catch (Exception exception) {
-                localCacheDirectory = new File(storageDirectory, "imdicache"); // storageDirectory already has the file separator appended
+                saveString("cacheDirectory", localCacheDirectory.getAbsolutePath());
             }
             boolean cacheDirExists = localCacheDirectory.exists();
             if (!cacheDirExists) {
@@ -338,26 +356,125 @@ public class LinorgSessionStorage {
     public Object loadObject(String filename) throws Exception {
         System.out.println("loadObject: " + filename);
         Object object = null;
-//        if (new File(storageDirectory + filename).exists()) { // this must be allowed to throw so don't do checks here
-        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(storageDirectory , filename)));
+        // this must be allowed to throw so don't do checks here
+        ObjectInputStream objstream = new ObjectInputStream(new FileInputStream(new File(storageDirectory, filename)));
         object = objstream.readObject();
         objstream.close();
         if (object == null) {
             throw (new Exception("Loaded object is null"));
         }
-//        }
         return object;
     }
 
-    public boolean loadBoolean(String filename, boolean defaultValue) {
-        boolean resultValue = false;
+    public String[] loadStringArray(String filename) {
+        // read the location list from a text file that admin-users can read and hand edit if they really want to
         try {
-            resultValue = (Boolean) loadObject(filename);
-        } catch (Exception ex) {
-            System.out.println("load " + filename + " failed: " + ex.getMessage());
-            resultValue = defaultValue;
+            ArrayList<String> stringArrayList = new ArrayList<String>();
+            FileInputStream fstream = new FileInputStream(new File(storageDirectory, filename + ".config"));
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                stringArrayList.add(strLine);
+            }
+            in.close();
+            return stringArrayList.toArray(new String[]{});
+        } catch (IOException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
         }
-        return resultValue;
+        return null;
+
+//        String[] stringProperty = {};
+//        Properties propertiesObject = new Properties();
+//        try {
+//            // load the file
+//            FileInputStream propertiesInStream = new FileInputStream(new File(storageDirectory, filename + ".config"));
+//            propertiesObject.load(propertiesInStream);
+//            // load all the values into an array
+//            stringProperty = propertiesObject.values().toArray(new String[]{});
+//            // close the file
+//            propertiesInStream.close();
+//        } catch (IOException ioe) {
+//            // file not found so create the file
+//            saveStringArray(filename, stringProperty);
+//        }
+//        return stringProperty;
+    }
+
+    public void saveStringArray(String filename, String[] storableValue) {
+        // save the location list to a text file that admin-users can read and hand edit if they really want to
+        try {
+            FileWriter fstream = new FileWriter(new File(storageDirectory, filename + ".config"));
+            BufferedWriter out = new BufferedWriter(fstream);
+            for (String currentString : storableValue) {
+                out.write(currentString + "\n");
+            }
+            out.close();
+        } catch (Exception exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+//        try {
+//            Properties propertiesObject = new Properties();
+//            FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, filename + ".config"));
+//            for (int valueCounter = 0; valueCounter < storableValue.length; valueCounter++) {
+//                propertiesObject.setProperty("nl.mpi.arbil." + filename + "." + valueCounter, storableValue[valueCounter]);
+//            }
+//            propertiesObject.store(propertiesOutputStream, null);
+//            propertiesOutputStream.close();
+//        } catch (IOException ioe) {
+//            GuiHelper.linorgBugCatcher.logError(ioe);
+//        }
+    }
+
+    public String loadString(String filename) {
+        Properties configObject = getConfig();
+        String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
+        return stringProperty;
+    }
+
+    public void saveString(String filename, String storableValue) {
+        Properties configObject = getConfig();
+        configObject.setProperty("nl.mpi.arbil." + filename, storableValue);
+        saveConfig(configObject);
+    }
+
+    public boolean loadBoolean(String filename, boolean defaultValue) {
+        Properties configObject = getConfig();
+        String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
+        if (stringProperty == null) {
+            stringProperty = new Boolean(defaultValue).toString();
+            saveBoolean(filename, defaultValue);
+        }
+        return stringProperty.equalsIgnoreCase("true");
+    }
+
+    public void saveBoolean(String filename, boolean storableValue) {
+        Properties configObject = getConfig();
+        configObject.setProperty("nl.mpi.arbil." + filename, new Boolean(storableValue).toString());
+        saveConfig(configObject);
+    }
+
+    private Properties getConfig() {
+        Properties propertiesObject = new Properties();
+        try {
+            FileInputStream propertiesInStream = new FileInputStream(new File(storageDirectory, "arbil.config"));
+            propertiesObject.load(propertiesInStream);
+            propertiesInStream.close();
+        } catch (IOException ioe) {
+            // file not found so create the file
+            saveConfig(propertiesObject);
+        }
+        return propertiesObject;
+    }
+
+    private void saveConfig(Properties configObject) {
+        try {
+            FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
+            configObject.store(propertiesOutputStream, null);
+            propertiesOutputStream.close();
+        } catch (IOException ioe) {
+            GuiHelper.linorgBugCatcher.logError(ioe);
+        }
     }
 
     /**

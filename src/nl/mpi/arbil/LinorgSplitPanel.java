@@ -122,7 +122,7 @@ public class LinorgSplitPanel extends JPanel {
                                 imdiTable.scrollRectToVisible(imdiTable.getCellRect(minSelectedRow, 0, true));
                             }
                         }
-                        if (TreeHelper.trackTableSelection) {
+                        if (LinorgSessionStorage.getSingleInstance().trackTableSelection) {
                             TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ImdiTreeObject) ((JList) e.getSource()).getSelectedValue());
                         }
                     }
@@ -157,7 +157,7 @@ public class LinorgSplitPanel extends JPanel {
                     if (maxSelectedRow != -1) {
                         fileList.scrollRectToVisible(fileList.getCellBounds(minSelectedRow, maxSelectedRow));
                     }
-                    if (TreeHelper.trackTableSelection) {
+                    if (LinorgSessionStorage.getSingleInstance().trackTableSelection) {
                         TreeHelper.getSingleInstance().jumpToSelectionInTree(true, imdiTable.getImdiNodeForSelection());
                     }
                     selectionChangeInProcess = false;

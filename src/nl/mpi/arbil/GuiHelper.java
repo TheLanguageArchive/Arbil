@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.ButtonGroup;
@@ -38,7 +39,7 @@ public class GuiHelper {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
-            //throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
         }
     };
     static private GuiHelper singleInstance = null;
@@ -58,7 +59,7 @@ public class GuiHelper {
     public void saveState(boolean saveWindows) {
         ImdiFieldViews.getSingleInstance().saveViewsToFile();
         // linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
-        TreeHelper.getSingleInstance().saveLocations(null, null);
+        // TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
         if (saveWindows) {
             LinorgWindowManager.getSingleInstance().saveWindowStates();
         }
@@ -182,16 +183,16 @@ public class GuiHelper {
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
-                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                //System.out.println(ex.getMessage());
+                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             } else {
                 try {
                     LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + "-xml", nodeUri.toURL());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
-                    //System.out.println(ex.getMessage());
-                    //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
+                //System.out.println(ex.getMessage());
+                //LinorgWindowManager.getSingleInstance().openUrlWindow(nodeName, nodeUrl);
                 }
             }
         }
@@ -227,12 +228,16 @@ public class GuiHelper {
         }
         if (awtDesktopFound) {
             try {
-                if (targetUri.getScheme().toLowerCase().equals("file")) {
-                    // yes it is lame that the java classes cant figure this out!, but a path with white space will fail as a uri!
-                    Desktop.getDesktop().open(new File(targetUri));
-                } else {
+                // this method is failing on some windows installations so we will just use browse instead
+                // TODO: verify that removing this helps and that it does not cause issues on other OSs
+//                if (targetUri.getScheme().toLowerCase().equals("file")) {
+//                    File targetFile = new File(targetUri);
+//                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
+//                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
+//                    Desktop.getDesktop().open(targetFile);
+//                } else {
                     Desktop.getDesktop().browse(targetUri);
-                }
+//                }
                 result = true;
             } catch (MalformedURLException muE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", muE);

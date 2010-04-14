@@ -29,18 +29,24 @@ public class LinorgFavourites {
     }
 
     // this will load any favourites in the old format and delete the old format file
-    public void loadOldFormatFavourites() {
+    public void convertOldFormatLocationLists() {
         try {
-            Vector<String> locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
+            File oldLocationsFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "locationsList");
             File oldFavouritesFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "selectedFavourites");
-            if (oldFavouritesFile.exists()) {
-                Vector<String> userFavouritesStrings = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("selectedFavourites");
-                locationsList.addAll(userFavouritesStrings);
-                LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
-                oldFavouritesFile.deleteOnExit();
+            if (oldLocationsFile.exists()) {
+                Vector<String> locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
+                if (oldFavouritesFile.exists()) {
+                    Vector<String> userFavouritesStrings = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("selectedFavourites");
+                    locationsList.addAll(userFavouritesStrings);
+                    LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+                    oldFavouritesFile.deleteOnExit();
+                }
+                if (null == LinorgSessionStorage.getSingleInstance().loadStringArray("locationsList")) {
+                    LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+                }
             }
         } catch (Exception ex) {
-            System.out.println("load old format favourites failed: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
         }
     }
 

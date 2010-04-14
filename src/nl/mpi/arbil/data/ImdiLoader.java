@@ -73,6 +73,7 @@ public class ImdiLoader {
         // start the local imdi threads
         for (int threadCounter = 0; threadCounter < 6; threadCounter++) {
             new Thread() {
+
                 @Override
                 public void run() {
                     setPriority(Thread.NORM_PRIORITY - 1);
@@ -382,6 +383,12 @@ public class ImdiLoader {
 //        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
         addNodeToQueue(currentImdiObject);
 //        }
+    }
+
+    public void requestReloadAllNodes() {
+        for (ImdiTreeObject currentImdiObject : imdiHashTable.values()) {
+            requestReload(currentImdiObject);
+        }
     }
 
     @Override
