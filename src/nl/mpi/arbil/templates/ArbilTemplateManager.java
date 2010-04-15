@@ -29,16 +29,19 @@ public class ArbilTemplateManager {
         return singleInstance;
     }
 
-    public boolean createTemplate(String selectedTemplate) {
+    public File createTemplate(String selectedTemplate) {
         if (selectedTemplate.length() == 0) {
-            return false;
+            return null;
         } else if (Arrays.binarySearch(builtInTemplates, selectedTemplate) > -1) {
-            return false;
+            return null;
         } else {
             File selectedTemplateFile = getTemplateFile(selectedTemplate);
             selectedTemplateFile.getParentFile().mkdir();
             LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag());
-            return selectedTemplateFile.exists();
+            new File(selectedTemplateFile.getParentFile(), "components").mkdir(); // create the components directory
+            // todo: copy example components from the jar file
+            // todo: copy example "format.xsl" from the jar file which is used in the imdi to html conversion
+            return selectedTemplateFile;
         }
     }
 
@@ -67,7 +70,7 @@ public class ArbilTemplateManager {
         }
     }
 
-    private File getTemplateDirectory() {
+    public File getTemplateDirectory() {
         return new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "templates");
     }
 

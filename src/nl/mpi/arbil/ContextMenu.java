@@ -1022,7 +1022,7 @@ public class ContextMenu {
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
+            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).getNodeTemplate();
         } else {
             currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         }
@@ -1430,7 +1430,7 @@ public class ContextMenu {
                 boolean canDeleteSelectedFields = true;
                 ImdiField[] currentSelection = currentTable.getSelectedFields();
                 for (ImdiField currentField : currentSelection) {
-                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                    if (!currentField.parentImdi.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
                         canDeleteSelectedFields = false;
                         break;
                     }

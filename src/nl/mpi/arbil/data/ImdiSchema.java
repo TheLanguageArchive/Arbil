@@ -45,7 +45,7 @@ public class ImdiSchema {
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
-    public File selectedTemplateDirectory = null;
+    //public File selectedTemplateDirectory = null;
     public static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true;
 
@@ -320,7 +320,14 @@ public class ImdiSchema {
             templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
             System.out.println("templateFileString(x): " + templateFileString);
             templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
-            URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
+            URL templateUrl;
+            File templateFile = new File(currentTemplate.getTemplateComponentDirectory(), templateFileString + ".xml");
+            System.out.println("templateFile: " + templateFile.getAbsolutePath());
+            if (templateFile.exists()) {
+                templateUrl = templateFile.toURI().toURL();
+            } else {
+                templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
+            }
             // prepare the parent node
             if (targetXpath == null) {
                 targetXpath = elementName;
@@ -559,7 +566,7 @@ public class ImdiSchema {
                 }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
                 if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
-                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(startNode.getNamespaceURI());
+                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(startNode.getNamespaceURI());
                 }
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
                     // these attributes exist only in the metatranscript node
@@ -572,13 +579,13 @@ public class ImdiSchema {
                         String templateOriginator = templateOriginatorAtt.getNodeValue();
                         int separatorIndex = templateOriginator.indexOf(":");
                         if (separatorIndex > -1) {
-                            parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
+                            parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
                         } else {
                             // TODO: this is redundant but is here for backwards compatability
                             Node templateTypeAtt = attributesMap.getNamedItem("Type");
                             if (templateTypeAtt != null) {
                                 String templateType = templateTypeAtt.getNodeValue();
-                                parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                                parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
                             }
                         }
                     }
@@ -598,7 +605,7 @@ public class ImdiSchema {
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
-            String childsMetaNode = parentNode.getParentDomNode().currentTemplate.pathIsChildNode(siblingNodePath);
+            String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(siblingNodePath);
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 try {

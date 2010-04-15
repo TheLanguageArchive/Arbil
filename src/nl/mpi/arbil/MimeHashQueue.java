@@ -181,7 +181,7 @@ public class MimeHashQueue {
     private void updateAutoFields(ImdiTreeObject currentImdiObject, File resourceFile) {
         Set<String> currentNodeFieldNames = currentImdiObject.getFields().keySet();
         // loop over the auto fields from the template
-        for (String[] autoFields : currentImdiObject.currentTemplate.autoFieldsArray) {
+        for (String[] autoFields : currentImdiObject.getNodeTemplate().autoFieldsArray) {
             String fieldPath = autoFields[0];
             String fileAttribute = autoFields[1];
             String autoValue = null;

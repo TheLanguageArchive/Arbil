@@ -375,4 +375,20 @@ public class ArbilTemplate {
     public String getTemplateName() {
         return loadedTemplateName;
     }
+
+    public File getTemplateDirectory() {
+        File currentTemplateDirectory = new File(ArbilTemplateManager.getSingleInstance().getTemplateDirectory(), loadedTemplateName);
+        if (!currentTemplateDirectory.exists()) {
+            currentTemplateDirectory.mkdir();
+        }
+        return currentTemplateDirectory;
+    }
+
+    public File getTemplateComponentDirectory() {
+        File currentTemplateComponentDirectory = new File(getTemplateDirectory(), "components");
+        if (!currentTemplateComponentDirectory.exists()) {
+            currentTemplateComponentDirectory.mkdir();
+        }
+        return currentTemplateComponentDirectory;
+    }
 }

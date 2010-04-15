@@ -855,6 +855,10 @@ public class ImportExportDialog {
                         searchDialog.pack();
                     }
                 }
+                if (exportDestinationDirectory != null) {
+                    GuiHelper.getSingleInstance().openFileInExternalApplication(exportDestinationDirectory.toURI());
+                    
+                }
             }
         }.start();
     }

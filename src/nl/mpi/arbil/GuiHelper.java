@@ -190,14 +190,15 @@ public class GuiHelper {
             try {
                 // this method is failing on some windows installations so we will just use browse instead
                 // TODO: verify that removing this helps and that it does not cause issues on other OSs
-//                if (targetUri.getScheme().toLowerCase().equals("file")) {
-//                    File targetFile = new File(targetUri);
-//                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
-//                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
-//                    Desktop.getDesktop().open(targetFile);
-//                } else {
-                Desktop.getDesktop().browse(targetUri);
-//                }
+                // removing this breaks launching directories on mac
+                if (targetUri.getScheme().toLowerCase().equals("file")) {
+                    File targetFile = new File(targetUri);
+                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
+                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
+                    Desktop.getDesktop().open(targetFile);
+                } else {
+                    Desktop.getDesktop().browse(targetUri);
+                }
                 result = true;
             } catch (MalformedURLException muE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", muE);

@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
 import javax.xml.transform.TransformerException;
-import nl.mpi.arbil.data.ImdiSchema;
 import nl.mpi.arbil.data.ImdiTreeObject;
 
 /**
@@ -17,34 +15,62 @@ import nl.mpi.arbil.data.ImdiTreeObject;
  */
 public class ImdiToHtmlConverter {
 
-    public void exportImdiToHtml(ImdiTreeObject[] inputImdiArray){
-        
+    public void exportImdiToHtml(ImdiTreeObject[] inputImdiArray) {
+        File destinationDirectory = LinorgWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue("Export HTML");
+        if (destinationDirectory != null) {
+            copyDependancies(destinationDirectory, false);
+            for (ImdiTreeObject currentImdi : inputImdiArray) {
+                File destinationFile = new File(destinationDirectory, currentImdi.toString() + ".html");
+                int fileCounter = 1;
+                while (destinationFile.exists()) {
+                    destinationFile = new File(destinationDirectory, currentImdi.toString() + "(" + fileCounter + ").html");
+                }
+                try {
+                    transformImdiToHtml(currentImdi, destinationFile);
+                } catch (Exception exception) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot convert IMDI", "HTML Export");
+                    GuiHelper.linorgBugCatcher.logError(exception);
+                }
+            }
+        }
+        GuiHelper.getSingleInstance().openFileInExternalApplication(destinationDirectory.toURI());
     }
 
     public File convertToHtml(ImdiTreeObject inputImdi) throws IOException, TransformerException {
-        URI nodeUri = inputImdi.getURI();
+        File tempHtmlFile;
+        tempHtmlFile = File.createTempFile("tmp", ".html");
+        tempHtmlFile.deleteOnExit();
+        copyDependancies(tempHtmlFile.getParentFile(), true);
+        transformImdiToHtml(inputImdi, tempHtmlFile);
+        return tempHtmlFile;
+    }
+
+    private void transformImdiToHtml(ImdiTreeObject inputImdi, File destinationFile) throws IOException, TransformerException {
         // 1. Instantiate a TransformerFactory.
         javax.xml.transform.TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
         // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
         URL xslUrl = this.getClass().getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl");
-        File tempHtmlFile;
+        // look in the current template for a custom xsl
         File xslFile = null;
-        if (ImdiSchema.getSingleInstance().selectedTemplateDirectory != null) {
-            xslFile = new File(ImdiSchema.getSingleInstance().selectedTemplateDirectory.toString() + File.separatorChar + "format.xsl");
-        }
+        xslFile = new File(inputImdi.getNodeTemplate().getTemplateDirectory(), "format.xsl");
         if (xslFile != null && xslFile.exists()) {
             xslUrl = xslFile.toURL();
-            tempHtmlFile = File.createTempFile("tmp", ".html", xslFile.getParentFile());
-            tempHtmlFile.deleteOnExit();
-        } else {
-            // copy any dependent files from the jar
-            String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "additTooltip.js", "additPopup.js", "imdi-viewer.css", "additTooltip.css"};
-            tempHtmlFile = File.createTempFile("tmp", ".html");
-            tempHtmlFile.deleteOnExit();
-            for (String dependantFileString : dependentFiles) {
-                File tempDependantFile = new File(tempHtmlFile.getParent() + File.separatorChar + dependantFileString);
+        }
+        javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
+        // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
+        transformer.transform(new javax.xml.transform.stream.StreamSource(inputImdi.getURI().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
+    }
+
+    private void copyDependancies(File destinationDirectory, boolean deleteOnExit) {
+        // copy any dependent files from the jar
+        String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "additTooltip.js", "additPopup.js", "imdi-viewer.css", "additTooltip.css"};
+
+        for (String dependantFileString : dependentFiles) {
+            File tempDependantFile = new File(destinationDirectory, dependantFileString);
+            if (deleteOnExit) {
                 tempDependantFile.deleteOnExit();
-//                        File tempDependantFile = File.createTempFile(dependantFileString, "");
+            }
+            try {
                 FileOutputStream outFile = new FileOutputStream(tempDependantFile);
                 //InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
                 InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
@@ -59,11 +85,10 @@ public class ImdiToHtmlConverter {
                     outFile.write(buffer, 0, bytesread);
                 }
                 outFile.close();
+            } catch (IOException iOException) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy requisite file", "HTML Export");
+                GuiHelper.linorgBugCatcher.logError(iOException);
             }
         }
-        javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
-        // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-        transformer.transform(new javax.xml.transform.stream.StreamSource(nodeUri.toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(tempHtmlFile.getCanonicalPath())));
-        return tempHtmlFile;
     }
 }
