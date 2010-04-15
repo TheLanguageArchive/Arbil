@@ -139,7 +139,7 @@ public class LinorgWindowManager {
         boolean fileSelectDone = false;
         try {
             while (!fileSelectDone) {
-                File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Export Destination Directory", true, false, false);
+                File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox(titleText + " Destination Directory", true, false, false);
                 if (selectedFiles != null && selectedFiles.length > 0) {
                     File destinationDirectory = null;
                     //Vector importNodeVector = new Vector();
