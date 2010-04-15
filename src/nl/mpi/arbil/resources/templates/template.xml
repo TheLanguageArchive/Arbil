@@ -10,7 +10,7 @@
 <template>
     <RequiredFields>
         <comment>The fields listed here as required fields will be highlighted in the application until they have a value entered</comment>
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
+        <!--<RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />-->
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
         <!--<RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />-->
         <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Name" />
