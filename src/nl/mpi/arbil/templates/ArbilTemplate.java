@@ -1,4 +1,4 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Vector;
+import nl.mpi.arbil.GuiHelper;
+import nl.mpi.arbil.LinorgWindowManager;
 import org.xml.sax.SAXException;
 
 /**

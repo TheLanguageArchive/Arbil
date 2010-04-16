@@ -1,9 +1,12 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.templates;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import nl.mpi.arbil.DownloadAbortFlag;
+import nl.mpi.arbil.GuiHelper;
+import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.data.ImdiSchema;
 
 /**

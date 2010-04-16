@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;

@@ -1,5 +1,7 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;

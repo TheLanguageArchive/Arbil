@@ -1,5 +1,7 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.*;
 import java.io.File;
 import java.io.FileOutputStream;
