@@ -1,5 +1,6 @@
 package nl.mpi.arbil.templates;
 
+import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
@@ -10,8 +11,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Vector;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.LinorgWindowManager;
 import org.xml.sax.SAXException;
 
 /**
@@ -370,5 +369,21 @@ public class ArbilTemplate {
 
     public String getTemplateName() {
         return loadedTemplateName;
+    }
+
+    public File getTemplateDirectory() {
+        File currentTemplateDirectory = new File(ArbilTemplateManager.getSingleInstance().getTemplateDirectory(), loadedTemplateName);
+        if (!currentTemplateDirectory.exists()) {
+            currentTemplateDirectory.mkdir();
+        }
+        return currentTemplateDirectory;
+    }
+
+    public File getTemplateComponentDirectory() {
+        File currentTemplateComponentDirectory = new File(getTemplateDirectory(), "components");
+        if (!currentTemplateComponentDirectory.exists()) {
+            currentTemplateComponentDirectory.mkdir();
+        }
+        return currentTemplateComponentDirectory;
     }
 }
