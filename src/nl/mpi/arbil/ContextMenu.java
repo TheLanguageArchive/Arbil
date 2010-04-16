@@ -66,6 +66,7 @@ public class ContextMenu {
     private JMenuItem viewInBrrowserMenuItem;
     private JMenuItem viewXmlMenuItemFormatted;
     private JMenuItem openXmlMenuItemFormatted;
+    private JMenuItem exportHtmlMenuItemFormatted;
     private JMenuItem overrideTypeCheckerDecision;
     static private ContextMenu singleInstance = null;
     //////////
@@ -117,6 +118,7 @@ public class ContextMenu {
         viewXmlMenuItem = new JMenuItem();
         viewXmlMenuItemFormatted = new JMenuItem();
         openXmlMenuItemFormatted = new JMenuItem();
+        exportHtmlMenuItemFormatted = new JMenuItem();
         overrideTypeCheckerDecision = new JMenuItem();
         viewInBrrowserMenuItem = new JMenuItem();
         browseForResourceFileMenuItem = new JMenuItem();
@@ -641,6 +643,19 @@ public class ContextMenu {
         });
         treePopupMenu.add(openXmlMenuItemFormatted);
 
+        exportHtmlMenuItemFormatted.setText("Export IMDI to HTML");
+        exportHtmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    new ImdiToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(exportHtmlMenuItemFormatted);
+
         validateMenuItem.setText("Check IMDI format");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1003,7 +1018,7 @@ public class ContextMenu {
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
+            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).getNodeTemplate();
         } else {
             currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         }
@@ -1131,6 +1146,7 @@ public class ContextMenu {
             viewXmlMenuItem.setVisible(false);
             viewXmlMenuItemFormatted.setVisible(false);
             openXmlMenuItemFormatted.setVisible(false);
+            exportHtmlMenuItemFormatted.setVisible(false);
             overrideTypeCheckerDecision.setVisible(false);
             viewInBrrowserMenuItem.setVisible(false);
             browseForResourceFileMenuItem.setVisible(false);
@@ -1243,6 +1259,7 @@ public class ContextMenu {
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItemFormatted.setVisible(true);
                 openXmlMenuItemFormatted.setVisible(true);
+                exportHtmlMenuItemFormatted.setVisible(true);
             }
             viewInBrrowserMenuItem.setVisible(true);
             overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isMetaDataNode() && leadSelectedTreeNode.mpiMimeType == null);
@@ -1361,7 +1378,7 @@ public class ContextMenu {
                 boolean canDeleteSelectedFields = true;
                 ImdiField[] currentSelection = currentTable.getSelectedFields();
                 for (ImdiField currentField : currentSelection) {
-                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                    if (!currentField.parentImdi.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
                         canDeleteSelectedFields = false;
                         break;
                     }

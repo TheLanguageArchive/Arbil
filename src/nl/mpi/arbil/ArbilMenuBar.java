@@ -791,7 +791,10 @@ public class ArbilMenuBar extends JMenuBar {
                     if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
                     }
-                    if (ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName)) {
+                    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
+                    if (freshTemplateFile != null) {
+                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
+                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
                     } else {
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
                     }

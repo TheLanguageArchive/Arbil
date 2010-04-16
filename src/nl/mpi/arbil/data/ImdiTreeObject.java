@@ -43,7 +43,7 @@ public class ImdiTreeObject implements Comparable {
     // TODO: move the api into a wrapper class
 
     public static IMDIDom api = new IMDIDom();
-    public ArbilTemplate currentTemplate;
+    public ArbilTemplate nodeTemplate;
 //    static ImdiIcons imdiIcons = new ImdiIcons();
     private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
     private boolean debugOn = false;
@@ -321,10 +321,15 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-        if (currentTemplate == null) {
-            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
-            currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
-        }
+//        if (currentTemplate == null) {
+//            // this will be overwritten when the imdi file is read, provided that a template is specified in the imdi file
+//            if (isPathCmdi(nodeUri.getPath())) {
+//                // this must be loaded with the name space uri
+//                //   currentTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate();
+//            } else {
+//                currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
+//            }
+//        }
         fieldHashtable = new Hashtable<String, ImdiField[]>();
         imdiDataLoaded = false;
         hashString = null;
@@ -665,6 +670,14 @@ public class ImdiTreeObject implements Comparable {
         return null;
     }
 
+    public ArbilTemplate getNodeTemplate() {
+        if (nodeTemplate != null && !this.isCorpus()) {
+            return nodeTemplate;
+        } else {
+            return ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
+        }
+    }
+
     /**
      * Attache a child node to this node.
      * Only affects objects in memory and used when loading an imdi dom.
@@ -714,7 +727,7 @@ public class ImdiTreeObject implements Comparable {
         }
         URI addedNodePath = null;
         ImdiTreeObject destinationNode;
-        if (currentTemplate.isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
+        if (this.getNodeTemplate().isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
             try {
@@ -729,7 +742,7 @@ public class ImdiTreeObject implements Comparable {
 //                api.writeDOM(nodDom, this.getFile(), true); // remove the id attributes
 //                System.out.println("addChildNode: insertFromTemplate");
 //                System.out.println("inUrlLocal: " + inUrlLocal);
-                        addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(this.currentTemplate, this.getURI(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+                        addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(this.getNodeTemplate(), this.getURI(), getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 //                System.out.println("addChildNode: save");
 //                nodDom = api.loadIMDIDocument(inUrlLocal, false);
                         bumpHistory();

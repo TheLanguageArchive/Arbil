@@ -259,10 +259,12 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </fileset>
         </copy>-->
     </target>
-    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
+    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib, updateJnlpAndAppletHtml" description="create a Jar file">
         <!--check that the icon exists and fail if not-->
         <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="jarIconAvail"/>
         <fail unless="jarIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
+        <mkdir dir="${BUILDDIR}/JNLP-INF/"/>
+        <copy overwrite="true" file="${BUILDDIR}/arbil.jnlp" tofile="${BUILDDIR}/JNLP-INF/application.jnlp"/>
         <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="log4j.properties"/>
@@ -274,6 +276,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
+            <fileset dir="${BUILDDIR}" includes="JNLP-INF/application.jnlp"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
                 <!--TODO: (currently removed due to inclusion in the installer for windows) consider preventing the imagemagick jar being on the class path for windows due to the effect it might have on other os -->

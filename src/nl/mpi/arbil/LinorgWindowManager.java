@@ -135,6 +135,53 @@ public class LinorgWindowManager {
         }
     }
 
+    public File showEmptyExportDirectoryDialogue(String titleText) {
+        boolean fileSelectDone = false;
+        try {
+            while (!fileSelectDone) {
+                File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox(titleText + " Destination Directory", true, false, false);
+                if (selectedFiles != null && selectedFiles.length > 0) {
+                    File destinationDirectory = null;
+                    //Vector importNodeVector = new Vector();
+                    File parentDirectory = selectedFiles[0];
+                    boolean createdDirectory = false;
+                    if (!parentDirectory.exists() && parentDirectory.getParentFile().exists()) {
+                        // create the directory provided that the parent directory exists
+                        // ths is here due the the way the mac file select gui leads the user to type in a new directory name
+                        createdDirectory = parentDirectory.mkdir();
+                        destinationDirectory = parentDirectory;
+                    }
+                    if (!parentDirectory.exists()) {
+                        JOptionPane.showMessageDialog(linorgFrame, "The export directory\n\"" + parentDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
+                    } else {
+                        if (!createdDirectory) {
+                            String newDirectoryName = JOptionPane.showInputDialog(linorgFrame, "Enter Export Name", titleText, JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
+                            try {
+                                destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
+                                destinationDirectory.mkdir();
+                            } catch (Exception e) {
+                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
+                            }
+                        }
+                        if (destinationDirectory != null && destinationDirectory.exists()) {
+                            if (destinationDirectory.list().length == 0) {
+                                fileSelectDone = true;
+                                return destinationDirectory;
+                            } else {
+                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
+                            }
+                        }
+                    }
+                } else {
+                    fileSelectDone = true;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("aborting export: " + e.getMessage());
+        }
+        return null;
+    }
+
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
         // test for os: if mac or file then awt else for other and directory use swing
         // save/load last directory accoring to the title of the dialogue

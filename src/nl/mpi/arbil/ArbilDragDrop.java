@@ -48,6 +48,7 @@ public class ArbilDragDrop {
             target.addDropTargetListener(new DropTargetAdapter() {
 
                 public void dragOver(DropTargetDragEvent dtdEvent) {
+                    System.out.println("imdiObjectSelection.dropAllowed: " + imdiObjectSelection.dropAllowed);
                     if (imdiObjectSelection.dropAllowed) {
                         dtdEvent.acceptDrag(dtdEvent.getDropAction());
                     } else {
@@ -108,18 +109,24 @@ public class ArbilDragDrop {
         private boolean canDropToTarget(ImdiTree dropTree) {
             ImdiTreeObject currentLeadSelection = dropTree.getLeadSelectionNode();
             if (currentLeadSelection == null) {
+                // this check is for the root node of the trees
                 if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
                     // allow drop to the favourites tree even when no selection is made
-                    // allow drop to only toe root node of the favourites tree
+                    // allow drop to only the root node of the favourites tree
+                    System.out.println("favourites tree check");
                     return !selectionContainsFavourite;
                 } else if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
                     //if (dropTree.getSelectionPath().getPathCount() == 1) {
                     // allow import to local tree if no nodes are selected
                     // allow drop to the root node if it is an import
-                    return (selectionContainsRemote && (selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession));
+                    System.out.println("local corpus tree check");
+                    // todo: enable drag to rootnode from favourites but this change also needs to be done in the context menu
+                    return (!selectionContainsFavourite && (selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession));
                 }
+                System.out.println("no tree check");
                 return false;
             } else {
+                // this check is for the child nodes of the trees
                 System.out.println("currentLeadSelection: " + currentLeadSelection.toString());
 //                todo: prevent dragging to self but allow dragging to other branch of parent session
 //                todo: look for error dragging actor from favourites
@@ -216,6 +223,7 @@ public class ArbilDragDrop {
                             selectionContainsImdiCatalogue ||
                             selectionContainsImdiSession ||
                             selectionContainsImdiChild) {
+                        System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
                         dropAllowed = canDropToTarget((ImdiTree) comp);
                         return true;
@@ -233,6 +241,7 @@ public class ArbilDragDrop {
                             selectionContainsImdiCatalogue ||
                             selectionContainsImdiSession ||
                             selectionContainsImdiChild) {
+                        System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
                         dropAllowed = canDropToTarget((ImdiTree) comp);
                         return true;
@@ -241,6 +250,7 @@ public class ArbilDragDrop {
             } else {
                 // search through al the parent nodes to see if we can find a drop target
                 dropAllowed = (null != findImdiDropableTarget(comp));
+                System.out.println("dropAllowed: " + dropAllowed);
                 return dropAllowed;
             }
             System.out.println("canImport false");
@@ -374,7 +384,7 @@ public class ArbilDragDrop {
         public boolean importData(JComponent comp, Transferable t) {
             // due to the swing api being far to keen to do a drag drop action on the windows platform users frequently loose nodes by dragging them into random locations
             // so to avoid this we check the date time from when the transferable was created and if less than x seconds reject the drop
-            if (System.currentTimeMillis() - dragStartMilliSeconds < (100 * 3)){
+            if (System.currentTimeMillis() - dragStartMilliSeconds < (100 * 3)) {
                 return false;
             }
             try {
@@ -411,15 +421,15 @@ public class ArbilDragDrop {
 //                        }
                                     if (((ImdiTreeObject) dropTargetUserObject).getParentDomNode().isSession()/* || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()*/) {
                                         //TODO: for now we do not allow drag on to imdi child nodes
-                                        if (selectionContainsArchivableLocalFile == true &&
-                                                selectionContainsLocalFile == true &&
-                                                selectionContainsLocalDirectory == false &&
-                                                selectionContainsImdiResource == false &&
-                                                selectionContainsImdiCorpus == false &&
-                                                selectionContainsImdiSession == false &&
-                                                selectionContainsImdiChild == false &&
-                                                selectionContainsLocal == true &&
-                                                selectionContainsRemote == false) {
+                                        if (selectionContainsArchivableLocalFile == true
+                                                && selectionContainsLocalFile == true
+                                                && selectionContainsLocalDirectory == false
+                                                && selectionContainsImdiResource == false
+                                                && selectionContainsImdiCorpus == false
+                                                && selectionContainsImdiSession == false
+                                                && selectionContainsImdiChild == false
+                                                && selectionContainsLocal == true
+                                                && selectionContainsRemote == false) {
                                             System.out.println("ok to add local file");
                                             for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                                 System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
@@ -432,11 +442,11 @@ public class ArbilDragDrop {
                                 }
                                 // allow drop to the root node wich will not be an imditreeobject
 //                    if (!(dropTargetUserObject instanceof ImdiTreeObject) || ((ImdiTreeObject) dropTargetUserObject).isCorpus()) {
-                                if (selectionContainsArchivableLocalFile == false &&
-                                        //                                    selectionContainsLocalFile == true &&
-                                        selectionContainsLocalDirectory == false &&
-                                        selectionContainsImdiResource == false &&
-                                        (selectionContainsImdiCorpus == false || selectionContainsImdiSession == false) //&&
+                                if (selectionContainsArchivableLocalFile == false
+                                        // selectionContainsLocalFile == true &&
+                                        && selectionContainsLocalDirectory == false
+                                        && selectionContainsImdiResource == false
+                                        && (selectionContainsImdiCorpus == false || selectionContainsImdiSession == false) //&&
                                         //(selectionContainsImdiChild == false || GuiHelper.imdiSchema.nodeCanExistInNode((ImdiTreeObject) dropTargetUserObject, (ImdiTreeObject) draggedImdiObjects[draggedCounter]))// &&
                                         //                                    selectionContainsLocal == true &&
                                         //                                    selectionContainsRemote == false
@@ -463,7 +473,7 @@ public class ArbilDragDrop {
 
                                             if (!draggedIntoSelf) {
                                                 if (((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isFavorite()) {
-                                                    //  continue here
+                                                    //  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
                                                     ((ImdiTreeObject) dropTargetUserObject).requestAddNode(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]));
                                                 } else if (!(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile()))) {
                                                     importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);

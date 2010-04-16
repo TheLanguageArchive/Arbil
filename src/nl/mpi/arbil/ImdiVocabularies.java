@@ -70,7 +70,7 @@ public class ImdiVocabularies {
             boolean foundTrigger = false;
 //            System.out.println("vocabularyLocation: " + vocabularyLocation);
 //            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
-            for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.fieldTriggersArray) {
+            for (String[] currentTrigger : originatingImdiField.parentImdi.getNodeTemplate().fieldTriggersArray) {
                 if (fieldPath.equals(currentTrigger[0])) {
                     foundTrigger = true;
                 }
@@ -84,7 +84,7 @@ public class ImdiVocabularies {
         ///////////////////////////////
         // look for genre / sub genre redirects in the template
         String vocabularyRedirectField = null;
-        for (String[] currentRedirect : originatingImdiField.parentImdi.currentTemplate.genreSubgenreArray) {
+        for (String[] currentRedirect : originatingImdiField.parentImdi.getNodeTemplate().genreSubgenreArray) {
             if (fieldPath.equals(currentRedirect[0])) {
                 vocabularyRedirectField = currentRedirect[1];
             }
