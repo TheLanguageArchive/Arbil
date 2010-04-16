@@ -1,8 +1,6 @@
 package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.*;
-import nl.mpi.arbil.templates.ArbilTemplate;
-import nl.mpi.arbil.templates.CmdiTemplate;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +37,14 @@ public class ArbilTemplateManager {
             selectedTemplateFile.getParentFile().mkdir();
             LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag());
             new File(selectedTemplateFile.getParentFile(), "components").mkdir(); // create the components directory
-            // todo: copy example components from the jar file
-            // todo: copy example "format.xsl" from the jar file which is used in the imdi to html conversion
+            File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
+            examplesDirectory.mkdir(); // create the example components directory
+            // copy example components from the jar file            
+            for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates[0]).templatesArray) {
+                LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag());
+            }
+            // copy example "format.xsl" from the jar file which is used in the imdi to html conversion
+            LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, new DownloadAbortFlag());
             return selectedTemplateFile;
         }
     }
