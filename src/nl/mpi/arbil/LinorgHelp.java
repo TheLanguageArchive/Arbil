@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -253,6 +252,7 @@ public class LinorgHelp extends javax.swing.JPanel {
         jTree1 = new javax.swing.JTree();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+        jTextPane1.addHyperlinkListener(new LinorgHyperlinkListener());
 
         setLayout(new java.awt.BorderLayout());
 
