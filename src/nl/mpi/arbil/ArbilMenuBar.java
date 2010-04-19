@@ -343,7 +343,7 @@ public class ArbilMenuBar extends JMenuBar {
                 setCacheDirectoryMenu.add(changeCacheDirectoryMenuItem);
             }
         });
-        setStorageDirectoryMenu.setText("Congiguration Files Directory");
+        setStorageDirectoryMenu.setText("Configuration Files Directory");
         setStorageDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
 
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
