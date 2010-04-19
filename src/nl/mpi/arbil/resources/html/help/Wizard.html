@@ -1,0 +1,15 @@
+<!--
+    Document   : Wizard
+    Created on : April 19, 2010, 11:53:21 PM
+    Author     : Peter.Withers@mpi.nl
+-->
+This is a test wizard.<br>
+The input boxes will not do anything yet but could be used to fill in data that will go into the session that would be created for example: <input type="text" /><br>
+Adding nodes to the Tree root node can already be done, so try these links:<br>
+<a href="arbilscript:add=.METATRANSCRIPT.Corpus&set=.METATRANSCRIPT.Corpus.Name:wizard created corpus node">create corpus</a><br>
+<a href="arbilscript:add=.METATRANSCRIPT.Session&set=.METATRANSCRIPT.Corpus.Name:wizard created corpus node">create session</a><br>
+Adding to a non root node cannot yet be done:<br>
+<a href="actor=wizard-actor">create actor (not yet functional)</a><br>
+Maybe we can add recursively (just an idea) and (not yet functional):<br>
+<a href="arbilscript:add=.METATRANSCRIPT.Corpus&set=.METATRANSCRIPT.Corpus.Name:wizard recursive corpus node&add=.METATRANSCRIPT.Session&set=.METATRANSCRIPT.Corpus.Name:wizard recursive corpus node&add=.METATRANSCRIPT.Session.MDGroup.Actors.Actor&set=.METATRANSCRIPT.Session.MDGroup.Actors.Actor.Name:wizard recursive actor node">recursive add</a><br>
+<br>
