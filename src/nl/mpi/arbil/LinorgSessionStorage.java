@@ -114,6 +114,7 @@ public class LinorgSessionStorage {
     }
 
     public void changeStorageDirectory(String preferedDirectory) {
+        TODO: this caused isses on windows 20100416
         if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to move the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             File fromDirectory = storageDirectory;
             File toDirectory = new File(preferedDirectory);
@@ -407,7 +408,7 @@ public class LinorgSessionStorage {
             FileWriter fstream = new FileWriter(new File(storageDirectory, filename + ".config"));
             BufferedWriter out = new BufferedWriter(fstream);
             for (String currentString : storableValue) {
-                out.write(currentString + "\n");
+                out.write(currentString + "\r\n");
             }
             out.close();
         } catch (Exception exception) {
