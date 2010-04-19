@@ -157,4 +157,14 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5" />
     </FieldUsageDescriptions>
+    <PreferredTreeNodeNameFields>
+       <comment>The fields that will be used to name the node in the tree if the field contains a value. The first found value will be used, so the order of this list determines their preference of use in the tree.</comment>
+       <TreeNodeNameField FieldsShortName="Name" />
+       <TreeNodeNameField FieldsShortName="Id" />
+       <TreeNodeNameField FieldsShortName="Address" />
+       <TreeNodeNameField FieldsShortName="Region" />
+       <TreeNodeNameField FieldsShortName="Country" />
+       <TreeNodeNameField FieldsShortName="Continent" />
+    </PreferredTreeNodeNameFields>
+
 </template>
