@@ -1685,16 +1685,17 @@ public class ImdiTreeObject implements Comparable {
         } else if (lastNodeText.equals("loading imdi...") && getParentDomNode().imdiDataLoaded) {
             lastNodeText = "                      ";
         }
-//        String nameText = "";
-//        TODO: move this to a list loaded from the templates or similar
-        String[] preferredNameFields = {"Name", "Id"};
-        for (String currentPreferredName : preferredNameFields) {
+        getLabelString:
+        for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
+            System.out.println("currentField: " + currentPreferredName);
             ImdiField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
             if (currentFieldArray != null) {
                 for (ImdiField currentField : currentFieldArray) {
                     if (currentField != null) {
-                        nodeText = currentField.toString();
-                        break;
+                        if (currentField.toString().trim().length() > 0) {
+                            nodeText = currentField.toString();
+                            break getLabelString;
+                        }
                     }
                 }
             }
