@@ -1,5 +1,7 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
@@ -66,6 +68,7 @@ public class ContextMenu {
     private JMenuItem viewInBrrowserMenuItem;
     private JMenuItem viewXmlMenuItemFormatted;
     private JMenuItem openXmlMenuItemFormatted;
+    private JMenuItem exportHtmlMenuItemFormatted;
     private JMenuItem overrideTypeCheckerDecision;
     static private ContextMenu singleInstance = null;
     //////////
@@ -117,6 +120,7 @@ public class ContextMenu {
         viewXmlMenuItem = new JMenuItem();
         viewXmlMenuItemFormatted = new JMenuItem();
         openXmlMenuItemFormatted = new JMenuItem();
+        exportHtmlMenuItemFormatted = new JMenuItem();
         overrideTypeCheckerDecision = new JMenuItem();
         viewInBrrowserMenuItem = new JMenuItem();
         browseForResourceFileMenuItem = new JMenuItem();
@@ -641,6 +645,19 @@ public class ContextMenu {
         });
         treePopupMenu.add(openXmlMenuItemFormatted);
 
+        exportHtmlMenuItemFormatted.setText("Export IMDI to HTML");
+        exportHtmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    new ImdiToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(exportHtmlMenuItemFormatted);
+
         validateMenuItem.setText("Check IMDI format");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -711,7 +728,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    removeRemoteCorpusMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
+                        TreeHelper.getSingleInstance().removeLocation(selectedNode);
+                    }
+                    TreeHelper.getSingleInstance().applyRootLocations();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -767,7 +787,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    removeLocalDirectoryMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
+                        TreeHelper.getSingleInstance().removeLocation(selectedNode);
+                    }
+                    TreeHelper.getSingleInstance().applyRootLocations();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -947,19 +970,6 @@ public class ContextMenu {
         }
     }//GEN-LAST:event_addDefaultLocationsMenuItemActionPerformed
 
-    private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeRemoteCorpusMenuItemActionPerformed// TODO add your handling code here:   
-        DefaultMutableTreeNode selectedTreeNode = null;
-
-        if (TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath().getLastPathComponent();
-
-        }
-        TreeHelper.getSingleInstance().removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-        TreeHelper.getSingleInstance().applyRootLocations();
-
-    }//GEN-LAST:event_removeRemoteCorpusMenuItemActionPerformed
-
     private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
         // TODO add your handling code here://    
@@ -970,20 +980,6 @@ public class ContextMenu {
         //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
     }
     //GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
-
-    private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
-        // TODO add your handling code here: 
-        DefaultMutableTreeNode selectedTreeNode = null;
-
-        if (TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath().getLastPathComponent();
-
-        }
-        TreeHelper.getSingleInstance().removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-        TreeHelper.getSingleInstance().applyRootLocations();
-
-    }//GEN-LAST:event_removeLocalDirectoryMenuItemActionPerformed
 
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         //GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
@@ -1024,7 +1020,7 @@ public class ContextMenu {
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
+            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).getNodeTemplate();
         } else {
             currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         }
@@ -1152,6 +1148,7 @@ public class ContextMenu {
             viewXmlMenuItem.setVisible(false);
             viewXmlMenuItemFormatted.setVisible(false);
             openXmlMenuItemFormatted.setVisible(false);
+            exportHtmlMenuItemFormatted.setVisible(false);
             overrideTypeCheckerDecision.setVisible(false);
             viewInBrrowserMenuItem.setVisible(false);
             browseForResourceFileMenuItem.setVisible(false);
@@ -1264,6 +1261,7 @@ public class ContextMenu {
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItemFormatted.setVisible(true);
                 openXmlMenuItemFormatted.setVisible(true);
+                exportHtmlMenuItemFormatted.setVisible(true);
             }
             viewInBrrowserMenuItem.setVisible(true);
             overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isMetaDataNode() && leadSelectedTreeNode.mpiMimeType == null);
@@ -1280,7 +1278,7 @@ public class ContextMenu {
         if (selectionCount > 0) {
             nodeLevel = ((JTree) eventSource).getSelectionPath().getPathCount();
         }
-        showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
+        showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
         showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 //        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
         //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
@@ -1382,7 +1380,7 @@ public class ContextMenu {
                 boolean canDeleteSelectedFields = true;
                 ImdiField[] currentSelection = currentTable.getSelectedFields();
                 for (ImdiField currentField : currentSelection) {
-                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                    if (!currentField.parentImdi.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
                         canDeleteSelectedFields = false;
                         break;
                     }

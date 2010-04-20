@@ -1,5 +1,6 @@
-package nl.mpi.arbil;
+package nl.mpi.arbil.templates;
 
+import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
@@ -20,6 +21,7 @@ import org.xml.sax.SAXException;
 public class ArbilTemplate {
 
     private String loadedTemplateName;
+    public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
     /*
     <FieldTriggers>
@@ -282,6 +284,7 @@ public class ArbilTemplate {
                 ArrayList<String[]> rootTemplateComponentList = new ArrayList<String[]>();
                 ArrayList<String[]> fieldUsageList = new ArrayList<String[]>();
                 ArrayList<String[]> autoFieldsList = new ArrayList<String[]>();
+                ArrayList<String> preferredNameFieldsList = new ArrayList<String>();
 
                 @Override
                 public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
@@ -331,6 +334,10 @@ public class ArbilTemplate {
                         String fileAttribute = atts.getValue("FileAttribute");
                         autoFieldsList.add(new String[]{fieldPath, fileAttribute});
                     }
+                    if (name.equals("TreeNodeNameField")) {
+                        String fieldsShortName = atts.getValue("FieldsShortName");
+                        preferredNameFieldsList.add(fieldsShortName);
+                    }
                 }
 
                 @Override
@@ -345,6 +352,7 @@ public class ArbilTemplate {
                     rootTemplatesArray = rootTemplateComponentList.toArray(new String[][]{});
                     fieldUsageArray = fieldUsageList.toArray(new String[][]{});
                     autoFieldsArray = autoFieldsList.toArray(new String[][]{});
+                    preferredNameFields = preferredNameFieldsList.toArray(new String[]{});
                 }
             });
             loadedTemplateName = templateName;
@@ -368,5 +376,21 @@ public class ArbilTemplate {
 
     public String getTemplateName() {
         return loadedTemplateName;
+    }
+
+    public File getTemplateDirectory() {
+        File currentTemplateDirectory = new File(ArbilTemplateManager.getSingleInstance().getTemplateDirectory(), loadedTemplateName);
+        if (!currentTemplateDirectory.exists()) {
+            currentTemplateDirectory.mkdir();
+        }
+        return currentTemplateDirectory;
+    }
+
+    public File getTemplateComponentDirectory() {
+        File currentTemplateComponentDirectory = new File(getTemplateDirectory(), "components");
+        if (!currentTemplateComponentDirectory.exists()) {
+            currentTemplateComponentDirectory.mkdir();
+        }
+        return currentTemplateComponentDirectory;
     }
 }

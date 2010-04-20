@@ -38,7 +38,7 @@ public class LinorgVersionChecker {
     private boolean doUpdate(String webstartUrlString) {
         try {
             //TODO: check the version of javaws before calling this
-            Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws","-import", webstartUrlString});
+            Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", webstartUrlString});
             BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
             String line;
             while ((line = errorStreamReader.readLine()) != null) {
@@ -91,7 +91,7 @@ public class LinorgVersionChecker {
 
             public void run() {
                 String webstartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
-//                System.out.println(webStartUrlString);
+                System.out.println("webstartUrlString: " + webstartUrlString);
                 {
                     if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);

@@ -11,7 +11,7 @@ public class FieldChangeTriggers {
     public void actOnChange(ImdiField changedImdiField) {
         String fieldPath = changedImdiField.getGenericFullXmlPath();
         System.out.println("fieldPath: " + fieldPath);
-        for (String[] currentTrigger : changedImdiField.parentImdi.currentTemplate.fieldTriggersArray) {
+        for (String[] currentTrigger : changedImdiField.parentImdi.getNodeTemplate().fieldTriggersArray) {
             if (fieldPath.equals(currentTrigger[0])) {
                 // we now have the path for two fields:
                 // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id

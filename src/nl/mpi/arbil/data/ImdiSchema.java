@@ -1,5 +1,7 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.*;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,18 +30,20 @@ import org.w3c.dom.*;
 public class ImdiSchema {
 
     static private ImdiSchema singleInstance = null;
+
     static synchronized public ImdiSchema getSingleInstance() {
         if (singleInstance == null) {
             singleInstance = new ImdiSchema();
         }
         return singleInstance;
     }
+
     private ImdiSchema() {
     }
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
-    public File selectedTemplateDirectory = null;
+    //public File selectedTemplateDirectory = null;
     public static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true;
 
@@ -72,7 +76,7 @@ public class ImdiSchema {
             String nodePath = nodePathArray[1].toString();
             xpath = nodePath;
 //            System.out.println("nodePath1: " + nodePath);
-        // convert the dot path to xpath
+            // convert the dot path to xpath
 //            xpath = nodePath.replaceAll("(\\(.?\\))?\\.", ".");
 //                xpath = nodePath.replaceAll("(\\(.?\\))?", "/");
 //            System.out.println("xpath: " + xpath);
@@ -138,7 +142,6 @@ public class ImdiSchema {
 ////        System.out.println("childType: " + childType + " fieldTypes: " + fieldTypes);
 ////        return fieldTypes.elements();
 //    }
-
 // functions to extract the exif data from images
 // this will probably need to be moved to a more appropriate class
     public ImdiField[] getExifMetadata(ImdiTreeObject resourceImdi) {
@@ -205,8 +208,6 @@ public class ImdiSchema {
 //        // why put in the (x) when it is not representative of the data???
 //        return new String[]{"actors", "actor(1)", "name"};
 //    }
-
-
     public URI addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
         URI addedPathUri = null;
@@ -226,7 +227,9 @@ public class ImdiSchema {
                 LinorgVersion currentVersion = new LinorgVersion();
                 String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
                 if (!ArbilTemplateManager.getSingleInstance().defaultTemplateIsCurrentTemplate()) {
-                    arbilVersionString = arbilVersionString + ":" + ArbilTemplateManager.getSingleInstance().getCurrentTemplateName();
+                    if (!templateType.equals(".METATRANSCRIPT.Corpus")) { // prevent corpus branches getting a template so that the global template takes effect
+                        arbilVersionString = arbilVersionString + ":" + ArbilTemplateManager.getSingleInstance().getCurrentTemplateName();
+                    }
                 }
                 metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
                 //metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
@@ -306,7 +309,14 @@ public class ImdiSchema {
             templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
             System.out.println("templateFileString(x): " + templateFileString);
             templateFileString = templateFileString.replaceAll("\\(x\\)$", "");
-            URL templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
+            URL templateUrl;
+            File templateFile = new File(currentTemplate.getTemplateComponentDirectory(), templateFileString + ".xml");
+            System.out.println("templateFile: " + templateFile.getAbsolutePath());
+            if (templateFile.exists()) {
+                templateUrl = templateFile.toURI().toURL();
+            } else {
+                templateUrl = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateFileString + ".xml");
+            }
             // prepare the parent node
             if (targetXpath == null) {
                 targetXpath = elementName;
@@ -399,7 +409,7 @@ public class ImdiSchema {
                             File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDestinationDirectory);
                             URI fullURI = destinationFileCopy.toURI();
                             finalResourceUrl = targetMetadataUri.relativize(fullURI);
-                                    //destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
+                            //destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
                             // for easy reading in the fields keep the file in the same directory
 //                        File destinationDirectory = new File(destinationFile.getParentFile().getPath());
 //                        File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, destinationDirectory);
@@ -545,7 +555,7 @@ public class ImdiSchema {
                 }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
                 if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
-                    parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate("template_cmdi");
+                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(startNode.getNamespaceURI());
                 }
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
                     // these attributes exist only in the metatranscript node
@@ -558,13 +568,13 @@ public class ImdiSchema {
                         String templateOriginator = templateOriginatorAtt.getNodeValue();
                         int separatorIndex = templateOriginator.indexOf(":");
                         if (separatorIndex > -1) {
-                            parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
+                            parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
                         } else {
                             // TODO: this is redundant but is here for backwards compatability
                             Node templateTypeAtt = attributesMap.getNamedItem("Type");
                             if (templateTypeAtt != null) {
                                 String templateType = templateTypeAtt.getNodeValue();
-                                parentNode.currentTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                                parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
                             }
                         }
                     }
@@ -578,13 +588,13 @@ public class ImdiSchema {
                         parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
                     }
                 }
-                
+
             }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
-            String childsMetaNode = parentNode.getParentDomNode().currentTemplate.pathIsChildNode(siblingNodePath);
+            String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(siblingNodePath);
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 try {
@@ -594,20 +604,20 @@ public class ImdiSchema {
                         pathUrlXpathSeparator = "#";
                     }
                     ImdiTreeObject metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
-                metaNodeImdiTreeObject.setNodeText(childsMetaNode);
+                    metaNodeImdiTreeObject.setNodeText(childsMetaNode);
 
-                if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
-                    parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
-                }
-                parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
-                // add brackets to conform with the imdi api notation
-                siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
+                    if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
+                        parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
+                    }
+                    parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
+                    // add brackets to conform with the imdi api notation
+                    siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
                     ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
-                subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
-                parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
+                    subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
+                    parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
 //                parentNode.attachChildNode(metaNodeImdiTreeObject);
 //                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
-                destinationNode = subNodeImdiTreeObject;
+                    destinationNode = subNodeImdiTreeObject;
                 } catch (URISyntaxException ex) {
                     destinationNode = parentNode;
                     GuiHelper.linorgBugCatcher.logError(ex);

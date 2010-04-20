@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.ButtonGroup;
@@ -58,7 +59,7 @@ public class GuiHelper {
     public void saveState(boolean saveWindows) {
         ImdiFieldViews.getSingleInstance().saveViewsToFile();
         // linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
-        TreeHelper.getSingleInstance().saveLocations(null, null);
+        // TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
         if (saveWindows) {
             LinorgWindowManager.getSingleInstance().saveWindowStates();
         }
@@ -134,47 +135,7 @@ public class GuiHelper {
             String nodeName = ((ImdiTreeObject) (userObject)).toString();
             if (formatXml) {
                 try {
-                    // 1. Instantiate a TransformerFactory.
-                    javax.xml.transform.TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
-                    // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
-                    URL xslUrl = this.getClass().getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl");
-                    File tempHtmlFile;
-                    File xslFile = null;
-                    if (ImdiSchema.getSingleInstance().selectedTemplateDirectory != null) {
-                        xslFile = new File(ImdiSchema.getSingleInstance().selectedTemplateDirectory.toString() + File.separatorChar + "format.xsl");
-                    }
-                    if (xslFile != null && xslFile.exists()) {
-                        xslUrl = xslFile.toURL();
-                        tempHtmlFile = File.createTempFile("tmp", ".html", xslFile.getParentFile());
-                        tempHtmlFile.deleteOnExit();
-                    } else {
-                        // copy any dependent files from the jar
-                        String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "additTooltip.js", "additPopup.js", "imdi-viewer.css", "additTooltip.css"};
-                        tempHtmlFile = File.createTempFile("tmp", ".html");
-                        tempHtmlFile.deleteOnExit();
-                        for (String dependantFileString : dependentFiles) {
-                            File tempDependantFile = new File(tempHtmlFile.getParent() + File.separatorChar + dependantFileString);
-                            tempDependantFile.deleteOnExit();
-//                        File tempDependantFile = File.createTempFile(dependantFileString, "");
-                            FileOutputStream outFile = new FileOutputStream(tempDependantFile);
-                            //InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
-                            InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
-                            int bufferLength = 1024 * 4;
-                            byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
-                            int bytesread = 0;
-                            while (bytesread >= 0) {
-                                bytesread = inputStream.read(buffer);
-                                if (bytesread == -1) {
-                                    break;
-                                }
-                                outFile.write(buffer, 0, bytesread);
-                            }
-                            outFile.close();
-                        }
-                    }
-                    javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
-                    // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-                    transformer.transform(new javax.xml.transform.stream.StreamSource(nodeUri.toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(tempHtmlFile.getCanonicalPath())));
+                    File tempHtmlFile = new ImdiToHtmlConverter().convertToHtml((ImdiTreeObject) userObject);
                     if (!launchInBrowser) {
                         LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
                     } else {
@@ -227,9 +188,14 @@ public class GuiHelper {
         }
         if (awtDesktopFound) {
             try {
+                // this method is failing on some windows installations so we will just use browse instead
+                // TODO: verify that removing this helps and that it does not cause issues on other OSs
+                // removing this breaks launching directories on mac
                 if (targetUri.getScheme().toLowerCase().equals("file")) {
-                    // yes it is lame that the java classes cant figure this out!, but a path with white space will fail as a uri!
-                    Desktop.getDesktop().open(new File(targetUri));
+                    File targetFile = new File(targetUri);
+                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
+                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
+                    Desktop.getDesktop().open(targetFile);
                 } else {
                     Desktop.getDesktop().browse(targetUri);
                 }
