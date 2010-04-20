@@ -70,7 +70,7 @@ public class LinorgHyperlinkListener implements HyperlinkListener {
         System.out.println("adding into: " + parentNode);
         ImdiTreeObject addedImdiObject;
         if (parentNode == null) {
-            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
+            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
             targetFileURI = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
             addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
             TreeHelper.getSingleInstance().addLocation(targetFileURI);
