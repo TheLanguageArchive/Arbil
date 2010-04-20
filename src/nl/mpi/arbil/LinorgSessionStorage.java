@@ -407,7 +407,7 @@ public class LinorgSessionStorage {
             FileWriter fstream = new FileWriter(new File(storageDirectory, filename + ".config"));
             BufferedWriter out = new BufferedWriter(fstream);
             for (String currentString : storableValue) {
-                out.write(currentString + "\n");
+                out.write(currentString + "\r\n");
             }
             out.close();
         } catch (Exception exception) {
