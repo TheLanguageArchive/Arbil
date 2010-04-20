@@ -8,8 +8,8 @@
     <target name="setproperties">
         <property name="arbil.current.major" value="1"/>
         <property name="arbil.current.minor" value="3"/>
-        <property name="arbil.filenameidentifier" value="-testing"/>
-        <property name="arbil.application-title" value="Arbil (testing)"/>
+        <property name="arbil.filenameidentifier" value="-stable"/>
+        <property name="arbil.application-title" value="Arbil"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/"/>
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
