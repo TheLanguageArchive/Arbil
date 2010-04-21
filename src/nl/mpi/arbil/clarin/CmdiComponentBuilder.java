@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.net.URI;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -153,6 +154,7 @@ public class CmdiComponentBuilder {
         } else {
             parentElement.appendChild(currentElement);
         }
+        currentElement.setTextContent(schemaProperty.getMinOccurs() + ":" + schemaProperty.getMinOccurs());
         return currentElement;
     }
 
@@ -180,21 +182,23 @@ public class CmdiComponentBuilder {
 
         for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
             //for (int childCounter = 0; childCounter < schemaProperty.getMinOccurs().intValue(); childCounter++) {
-                // if the searched element is a child node of the given node return
-                // its SchemaType
-                //if (properties[i].getName().toString().equals(element)) {
-                pathString = pathString + "." + schemaProperty.getName().getLocalPart();
-                System.out.println("Found Element: " + pathString);
-                SchemaType currentSchemaType = schemaProperty.getType();
-                Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
-                // if the searched element was not a child of the given Node
-                // then again for each of these child nodes search recursively in
-                // their child nodes, in the case they are a complex type, because
-                // only complex types have child nodes
-                //currentSchemaType.getAttributeProperties();
-                if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
-                    constructXml(currentSchemaType, pathString, workingDocument, nameSpaceUri, currentElement);
-                }
+            // if the searched element is a child node of the given node return
+            // its SchemaType
+            //if (properties[i].getName().toString().equals(element)) {
+            pathString = pathString + "." + schemaProperty.getName().getLocalPart();
+            System.out.println("Found Element: " + pathString);
+            SchemaType currentSchemaType = schemaProperty.getType();
+            Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
+            // if the searched element was not a child of the given Node
+            // then again for each of these child nodes search recursively in
+            // their child nodes, in the case they are a complex type, because
+            // only complex types have child nodes
+            //currentSchemaType.getAttributeProperties();
+              if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
+            //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
+            constructXml(currentSchemaType, pathString, workingDocument, nameSpaceUri, currentElement);
+            //     }
+              }
             //}
         }
     }
