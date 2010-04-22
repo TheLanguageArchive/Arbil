@@ -1,7 +1,9 @@
 package nl.mpi.arbil.templates;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -13,7 +15,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgSessionStorage;
-import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -31,29 +33,53 @@ import org.apache.xmlbeans.XmlOptions;
 public class CmdiTemplate extends ArbilTemplate {
 
     public void loadTemplate(String nameSpaceString) {
+        // testing only
+        //super.readTemplate(new File(""), "template_cmdi");
+
+        // construct the template from the XSD
         try {
+            // create a temp file of the read template data so that it can be compared to a hand made version
+            File debugTempFile = File.createTempFile("templatetext", ".tmp");
+            debugTempFile.deleteOnExit();
+            BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
+
             ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
             URI xsdUri = new URI(nameSpaceString);
             readSchema(xsdUri, childNodePathsList);
             childNodePaths = childNodePathsList.toArray(new String[][]{});
             for (String[] currentArray : childNodePaths) {
-                System.out.println(currentArray[1] + ":" + currentArray[0]);
+                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
+
+            debugTemplateFileWriter.close();
+            // lanunch the hand made template and the generated template for viewing
+            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
+            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
             GuiHelper.linorgBugCatcher.logError(urise);
+        } catch (IOException urise) {
+            GuiHelper.linorgBugCatcher.logError(urise);
         }
+        // this should be adequate for cmdi templates
+        //templatesArray = childNodePaths;
         // TODO: complete these
         requiredFields = new String[]{};
         fieldConstraints = new String[][]{};
+        preferredNameFields = new String[]{};
         fieldUsageArray = new String[][]{};
     }
 
+    @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
+        // get the xpath of the target node
+        String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
+        System.out.println("targetNodeXpath: " + targetNodeXpath);
         Vector childTypes = new Vector();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
-            for (CmdiComponentLinkReader.CmdiComponentLink cmdiComponentLink : cmdiComponentLinkReader.readLinks(((ImdiTreeObject) targetNodeUserObject).getURI())) {
-                childTypes.add(new String[]{cmdiComponentLink.filename, cmdiComponentLink.componentId});
+            for (String[] childPathString : childNodePaths) {
+                childTypes.add(new String[]{childPathString[1], childPathString[0]});
             }
 
             Collections.sort(childTypes, new Comparator() {
@@ -77,18 +103,10 @@ public class CmdiTemplate extends ArbilTemplate {
             options.setCharacterEncoding("UTF-8");
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
-                System.out.println("documentTypes:");
+                System.out.println("T-documentTypes:");
                 constructXml(schemaType, childNodePathsList, "");
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
-//            for (SchemaType schemaType : sts.attributeTypes()) {
-//                System.out.println("attributeTypes:");
-//                printSchemaType(schemaType);
-//            }
-//            for (SchemaType schemaType : sts.globalTypes()) {
-//                System.out.println("globalTypes:");
-//                printSchemaType(schemaType);
-//            }
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(e);
         } catch (XmlException e) {
@@ -97,44 +115,25 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void constructXml(SchemaType schemaType, ArrayList<String[]> childNodePathsList, String pathString) {
-        //System.out.println("printSchemaType " + schemaType.toString());
-//        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
-//            System.out.println("getAnonymousTypes:");
-//            constructXml(schemaSubType, pathString + ".*getAnonymousTypes*", workingDocument, parentElement);
-//        }
-//        for (SchemaType schemaSubType : schemaType.getUnionConstituentTypes()) {
-//            System.out.println("getUnionConstituentTypes:");
-//            printSchemaType(schemaSubType);
-//        }
-//        for (SchemaType schemaSubType : schemaType.getUnionMemberTypes()) {
-//            System.out.println("getUnionMemberTypes:");
-//            constructXml(schemaSubType, pathString + ".*getUnionMemberTypes*", workingDocument, parentElement);
-//        }
-//        for (SchemaType schemaSubType : schemaType.getUnionSubTypes()) {
-//            System.out.println("getUnionSubTypes:");
-//            printSchemaType(schemaSubType);
-//        }
-        //SchemaType childType =schemaType.
-
-        /////////////////////
-
         for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
             String localName = schemaProperty.getName().getLocalPart();
-            pathString = pathString + "." + localName;
+            String currentPathString = pathString + "." + localName;
             boolean canHaveMultiple = true;
             if (schemaProperty.getMaxOccurs() != null) {
                 canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
+            } else {
+                // absence of the max occurs also means multiple
+                canHaveMultiple = true;
+                // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
             }
-            if (canHaveMultiple) {
-                childNodePathsList.add(new String[]{pathString, localName});
-            }
-            //for (int childCounter = 0; childCounter < schemaProperty.getMinOccurs().intValue(); childCounter++) {
-            System.out.println("Found Element: " + pathString);
+            boolean hasSubNodes = false;
+            System.out.println("Found template element: " + currentPathString);
             SchemaType currentSchemaType = schemaProperty.getType();
-            if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
-                constructXml(currentSchemaType, childNodePathsList, pathString);
+            constructXml(currentSchemaType, childNodePathsList, currentPathString);
+            hasSubNodes = true; // todo: complete or remove this hasSubNodes case
+            if (canHaveMultiple && hasSubNodes) {
+                childNodePathsList.add(new String[]{currentPathString, localName});
             }
-            //}
         }
     }
 }
