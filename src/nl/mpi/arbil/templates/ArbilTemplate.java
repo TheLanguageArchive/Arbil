@@ -6,7 +6,6 @@ import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -142,7 +141,7 @@ public class ArbilTemplate {
         System.out.println("nodepath: " + nodepath);
         System.out.println("targetNodePath: " + targetNodePath);
 
-        try {
+        /*try {
 //            System.out.println("get templatesDirectory");
             File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
 //            System.out.println("check templatesDirectory");
@@ -179,7 +178,7 @@ public class ArbilTemplate {
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-        }
+        }*/
         for (String[] currentTemplate : templatesArray) {
 //            ==================================== TemplateComponent-FileName-NodePath-DisplayName
 //            String templateFileName = currentTemplate[0];
