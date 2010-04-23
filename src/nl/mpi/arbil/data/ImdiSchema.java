@@ -570,9 +570,11 @@ public class ImdiSchema {
 //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
 //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
 //                    System.out.println("childNode.getAttributes():" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-                    String schemaLocation = childNode.getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue();
-                    if (schemaLocation != null) {
-                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocation);
+                    String[] schemaLocation = childNode.getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
+                    if (schemaLocation != null && schemaLocation.length > 0) {
+                        // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
+                        // this method also assumes that the xsd url is fully resolved
+                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocation[schemaLocation.length - 1]);
                     } else {
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                     }
