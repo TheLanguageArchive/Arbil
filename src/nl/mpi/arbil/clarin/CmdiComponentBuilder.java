@@ -143,13 +143,15 @@ public class CmdiComponentBuilder {
     }
 
     private Element appendNode(Document workingDocument, String nameSpaceUri, Element parentElement, SchemaProperty schemaProperty) {
-        Element currentElement = workingDocument.createElementNS(nameSpaceUri, schemaProperty.getName().getLocalPart());
+        Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
         for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
             currentElement.setAttribute(attributesProperty.getName().getLocalPart(), attributesProperty.getDefaultText());
         }
         if (parentElement == null) {
-//            currentElement.setAttributeNS(null, null, null)
+            // this is probably not the way to set these, however this will do for now (many other methods have been tested and all failed to function correctly)
+            currentElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            currentElement.setAttribute("xsi:schemaLocation", nameSpaceUri);
             workingDocument.appendChild(currentElement);
         } else {
             parentElement.appendChild(currentElement);
@@ -194,11 +196,11 @@ public class CmdiComponentBuilder {
             // their child nodes, in the case they are a complex type, because
             // only complex types have child nodes
             //currentSchemaType.getAttributeProperties();
-              if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
-            //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
-            constructXml(currentSchemaType, pathString, workingDocument, nameSpaceUri, currentElement);
-            //     }
-              }
+            if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
+                //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
+                constructXml(currentSchemaType, pathString, workingDocument, nameSpaceUri, currentElement);
+                //     }
+            }
             //}
         }
     }
