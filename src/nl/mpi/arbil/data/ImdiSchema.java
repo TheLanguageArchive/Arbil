@@ -566,7 +566,16 @@ public class ImdiSchema {
                 }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
                 if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
-                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(startNode.getNamespaceURI());
+                    // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
+//                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
+//                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
+//                    System.out.println("childNode.getAttributes():" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
+                    String schemaLocation = childNode.getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue();
+                    if (schemaLocation != null) {
+                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocation);
+                    } else {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
+                    }
                 }
                 if (childNode.getLocalName().equals("METATRANSCRIPT")) {
                     // these attributes exist only in the metatranscript node
