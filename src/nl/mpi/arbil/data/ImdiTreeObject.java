@@ -737,9 +737,8 @@ public class ImdiTreeObject implements Comparable {
         ImdiTreeObject destinationNode;
         if (this.isCmdiMetaDataNode()) {
             // add clarin sub nodes
-            bumpHistory();
             CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
-            addedNodePath = componentBuilder.insertChildComponent(this.getFile(), nodeType);
+            addedNodePath = componentBuilder.insertChildComponent(this, nodeType);
         } else if (this.getNodeTemplate().isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
@@ -1687,7 +1686,7 @@ public class ImdiTreeObject implements Comparable {
         }
         getLabelString:
         for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
-            System.out.println("currentField: " + currentPreferredName);
+            //System.out.println("currentField: " + currentPreferredName);
             ImdiField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
             if (currentFieldArray != null) {
                 for (ImdiField currentField : currentFieldArray) {
