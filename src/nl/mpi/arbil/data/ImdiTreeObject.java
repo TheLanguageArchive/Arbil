@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -412,6 +413,28 @@ public class ImdiTreeObject implements Comparable {
                     Document nodDom = null;
                     // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
+                    if (this.isLocal() && !this.getFile().exists()) {
+                        // if the file is missing then try to find a valid history file
+                        try {
+                            FileOutputStream outFile = new FileOutputStream(this.getFile());
+                            InputStream inputStream = new FileInputStream(new File(this.getFile().getAbsolutePath() + ".0"));
+                            int bufferLength = 1024 * 4;
+                            byte[] buffer = new byte[bufferLength];
+                            int bytesread = 0;
+                            while (bytesread >= 0) {
+                                bytesread = inputStream.read(buffer);
+                                if (bytesread == -1) {
+                                    break;
+                                }
+                                outFile.write(buffer, 0, bytesread);
+                            }
+                            outFile.close();
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+                        } catch (IOException iOException) {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
+                            GuiHelper.linorgBugCatcher.logError(iOException);
+                        }
+                    }
                     try {
                         //System.out.println("tempUrlString: " + tempUrlString);
                         if (false) {
