@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
  */
 public class ArbilTemplate {
 
+    public File templateFile;
     private String loadedTemplateName;
     public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
@@ -142,42 +143,42 @@ public class ArbilTemplate {
         System.out.println("targetNodePath: " + targetNodePath);
 
         /*try {
-//            System.out.println("get templatesDirectory");
-            File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
-//            System.out.println("check templatesDirectory");
-            if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
-//                System.out.println("using templatesDirectory");
-                String[] testingListing = templatesDirectory.list();
-                Arrays.sort(testingListing);
-                for (String itemString : testingListing) {
-                    System.out.println("\"" + itemString + "\",");
-                }
-                Arrays.sort(templatesArray, new Comparator() {
+        //            System.out.println("get templatesDirectory");
+        File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
+        //            System.out.println("check templatesDirectory");
+        if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
+        //                System.out.println("using templatesDirectory");
+        String[] testingListing = templatesDirectory.list();
+        Arrays.sort(testingListing);
+        for (String itemString : testingListing) {
+        System.out.println("\"" + itemString + "\",");
+        }
+        Arrays.sort(templatesArray, new Comparator() {
 
-                    public int compare(Object obj1, Object obj2) {
-                        return ((String[]) obj1)[0].compareToIgnoreCase(((String[]) obj2)[0]);
-                    }
-                });
-                int linesRead = 0;
-                for (String[] currentTemplate : templatesArray) {
-//                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
-                    if (testingListing != null) {
-                        if (!testingListing[linesRead].equals(currentTemplate[0])) {
-                            System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
-//                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
-                        }
-                    }
-                    linesRead++;
-                }
-                if (testingListing != null) {
-                    if (testingListing.length - 2 != linesRead) {
-                        System.out.println(testingListing[linesRead]);
-//                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
-                    }
-                }
-            }
+        public int compare(Object obj1, Object obj2) {
+        return ((String[]) obj1)[0].compareToIgnoreCase(((String[]) obj2)[0]);
+        }
+        });
+        int linesRead = 0;
+        for (String[] currentTemplate : templatesArray) {
+        //                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
+        if (testingListing != null) {
+        if (!testingListing[linesRead].equals(currentTemplate[0])) {
+        System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
+        //                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
+        }
+        }
+        linesRead++;
+        }
+        if (testingListing != null) {
+        if (testingListing.length - 2 != linesRead) {
+        System.out.println(testingListing[linesRead]);
+        //                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
+        }
+        }
+        }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+        GuiHelper.linorgBugCatcher.logError(ex);
         }*/
         for (String[] currentTemplate : templatesArray) {
 //            ==================================== TemplateComponent-FileName-NodePath-DisplayName
@@ -270,6 +271,7 @@ public class ArbilTemplate {
     }
 
     public boolean readTemplate(File templateConfigFile, String templateName) {
+        templateFile = templateConfigFile;
         // testing: parseXsdForUsageDescriptions();
         try {
             javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
