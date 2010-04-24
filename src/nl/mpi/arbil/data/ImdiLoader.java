@@ -301,9 +301,9 @@ public class ImdiLoader {
 //        return imdiHashTable.get(localUrlString);
 //    }
     public ImdiTreeObject getImdiObjectWithoutLoading(URI localUri) {
-        localUri = ImdiTreeObject.normaliseURI(localUri);
         ImdiTreeObject currentImdiObject = null;
         if (localUri != null) {
+            localUri = ImdiTreeObject.normaliseURI(localUri);
             // correct any variations in the url string
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
             currentImdiObject = imdiHashTable.get(localUri.toString());
