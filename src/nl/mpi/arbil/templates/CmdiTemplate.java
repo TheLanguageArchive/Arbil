@@ -69,6 +69,7 @@ public class CmdiTemplate extends ArbilTemplate {
         fieldConstraints = new String[][]{};
         preferredNameFields = new String[]{};
         fieldUsageArray = new String[][]{};
+        fieldTriggersArray = new String[][]{};
     }
 
     @Override
@@ -76,12 +77,28 @@ public class CmdiTemplate extends ArbilTemplate {
         // get the xpath of the target node
         String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
-        Vector childTypes = new Vector();
+        Vector<String[]> childTypes = new Vector<String[]>();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             for (String[] childPathString : childNodePaths) {
-                childTypes.add(new String[]{childPathString[1], childPathString[0]});
+                boolean allowEntry = false;
+                if (targetNodeXpath == null) {
+                    allowEntry = true;
+                }else if (childPathString[0].startsWith(targetNodeXpath)){
+                    allowEntry = true;
+                }           
+                System.out.println("childPathString[0]: " + childPathString[0]);
+                System.out.println("childPathString[1]: " + childPathString[1]);
+                if (allowEntry) {
+                    childTypes.add(new String[]{childPathString[1], childPathString[0]});
+                }
             }
 
+
+//            // remove types that require a container type that has not already been added to the target
+//            for (String[] childPathString : childTypes.toArray(new String[]{})) {
+//                
+//                
+//            }
             Collections.sort(childTypes, new Comparator() {
 
                 public int compare(Object o1, Object o2) {
