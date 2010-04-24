@@ -22,6 +22,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgSessionStorage;
+import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -31,6 +32,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -87,10 +89,90 @@ public class CmdiComponentBuilder {
         }
     }
 
-    public URI insertChildComponent(File cmdiNodeFile, String cmdiComponentId) {
-        System.out.println(cmdiComponentId);
-        // TODO: continue here
-        return null;
+    public URI insertChildComponent(ImdiTreeObject targetNode, String cmdiComponentId) {
+        System.out.println("insertChildComponent: " + cmdiComponentId);
+        String targetXpath = targetNode.getURI().getFragment();
+        System.out.println("targetXpath: " + targetXpath);
+        File cmdiNodeFile = targetNode.getFile();
+        try {
+            // load the schema
+            SchemaType schemaType = getFirstSchemaType(targetNode.getNodeTemplate().templateFile);
+            // load the dom
+            Document targetDocument = getDocument(cmdiNodeFile);
+            // bump the history
+            targetNode.bumpHistory();
+            // insert the new section
+            try {
+//                printoutDocument(targetDocument);
+                insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXpath, cmdiComponentId);
+            } catch (Exception exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+            // save the dom
+            savePrettyFormatting(targetDocument, cmdiNodeFile);
+        } catch (IOException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        } catch (ParserConfigurationException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        } catch (SAXException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+//       diff_match_patch diffTool= new diff_match_patch();
+//       diffTool.diff_main(targetXpath, targetXpath);
+        return targetNode.getURI(); // todo: this must return the child node
+    }
+
+    private void insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws Exception {
+        System.out.println("insertSectionToXpath");
+        Node foundNode = null;
+        SchemaProperty foundProperty = null;
+        for (String currentPathComponent : xsdPath.split("\\.")) {
+            if (currentPathComponent.length() > 0) {
+                System.out.println("currentPathComponent: " + currentPathComponent);
+                //System.out.println("documentNode: " + documentNode.getChildNodes());
+                // get the starting point in the schema
+                foundProperty = null;
+                for (SchemaProperty schemaProperty : schemaType.getProperties()) {
+                    String currentName = schemaProperty.getName().getLocalPart();
+                    if (currentPathComponent.equals(currentName)) {
+                        foundProperty = schemaProperty;
+                        break;
+                    }
+                }
+                if (foundProperty == null) {
+                    throw new Exception("failed to find the path in the schema: " + currentPathComponent);
+                } else {
+                    schemaType = foundProperty.getType();
+                }
+                // get the starting node in the xml document
+                // TODO: this will not navigate to the nth child node when the xpath is provided
+                foundNode = null;
+                while (documentNode != null) {
+                    System.out.println("documentNode: " + documentNode.getNodeName());
+                    System.out.println("documentNode: " + documentNode.toString());
+                    if (currentPathComponent.equals(documentNode.getNodeName())) {
+                        foundNode = documentNode;
+                        documentNode = documentNode.getFirstChild();
+                        break;
+                    } else {
+                        documentNode = documentNode.getNextSibling();
+                    }
+                }
+                if (foundNode == null) {
+                    throw new Exception("failed to find the node path in the document: " + currentPathComponent);
+                }
+            }
+        }
+        constructXml(foundProperty.getType(), xsdPath, targetDocument, null, foundNode);
+//        try {
+        // find the start node of the xml and of the xsd
+//            Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, targetXpath);
+
+        // add the new section to the xml
+
+//        } catch (TransformerException exception) {
+//            GuiHelper.linorgBugCatcher.logError(exception);
+//        }
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile) {
@@ -109,40 +191,30 @@ public class CmdiComponentBuilder {
         return cmdiNodeFile;
     }
 
-    private void readSchema(Document workingDocument, URI xsdFile) {
-        File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+    private SchemaType getFirstSchemaType(File schemaFile) {
         try {
-//            Element root = workingDocument.createElement("readSchema");
-//            workingDocument.appendChild(root);
             InputStream inputStream = new FileInputStream(schemaFile);
             //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
             XmlOptions options = new XmlOptions();
             options.setCharacterEncoding("UTF-8");
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
-            for (SchemaType schemaType : sts.documentTypes()) {
-                System.out.println("documentTypes:");
-
-
-
-                constructXml(schemaType, "documentTypes", workingDocument, xsdFile.toString(), null);
-                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
-            }
-//            for (SchemaType schemaType : sts.attributeTypes()) {
-//                System.out.println("attributeTypes:");
-//                printSchemaType(schemaType);
-//            }
-//            for (SchemaType schemaType : sts.globalTypes()) {
-//                System.out.println("globalTypes:");
-//                printSchemaType(schemaType);
-//            }
+            // there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
+            return sts.documentTypes()[0];
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(e);
         } catch (XmlException e) {
             GuiHelper.linorgBugCatcher.logError(e);
         }
+        return null;
     }
 
-    private Element appendNode(Document workingDocument, String nameSpaceUri, Element parentElement, SchemaProperty schemaProperty) {
+    private void readSchema(Document workingDocument, URI xsdFile) {
+        File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        SchemaType schemaType = getFirstSchemaType(schemaFile);
+        constructXml(schemaType, "documentTypes", workingDocument, xsdFile.toString(), null);
+    }
+
+    private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty) {
         Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
         for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
@@ -151,7 +223,7 @@ public class CmdiComponentBuilder {
         if (parentElement == null) {
             // this is probably not the way to set these, however this will do for now (many other methods have been tested and all failed to function correctly)
             currentElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-            currentElement.setAttribute("xsi:schemaLocation", nameSpaceUri);
+            currentElement.setAttribute("xsi:schemaLocation", "http://www.clarin.eu/cmd " + nameSpaceUri);
             workingDocument.appendChild(currentElement);
         } else {
             parentElement.appendChild(currentElement);
@@ -160,7 +232,7 @@ public class CmdiComponentBuilder {
         return currentElement;
     }
 
-    private void constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Element parentElement) {
+    private void constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement) {
         //System.out.println("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
 //            System.out.println("getAnonymousTypes:");
@@ -205,6 +277,20 @@ public class CmdiComponentBuilder {
         }
     }
 
+    private void printoutDocument(Document workingDocument) {
+        try {
+            TransformerFactory tranFactory = TransformerFactory.newInstance();
+            Transformer transformer = tranFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            Source src = new DOMSource(workingDocument);
+            Result dest = new StreamResult(System.out);
+            transformer.transform(src, dest);
+        } catch (Exception e) {
+            GuiHelper.linorgBugCatcher.logError(e);
+        }
+    }
+
     public void testWalk() {
         try {
             //new CmdiComponentBuilder().readSchema();
@@ -235,16 +321,7 @@ public class CmdiComponentBuilder {
 //            root.appendChild(childElement);
 
             readSchema(workingDocument, new URI("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264769926773/xsd"));
-
-            TransformerFactory tranFactory = TransformerFactory.newInstance();
-            Transformer transformer = tranFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            Source src = new DOMSource(workingDocument);
-            Result dest = new StreamResult(System.out);
-            transformer.transform(src, dest);
-
-
+            printoutDocument(workingDocument);
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError(e);
         }
