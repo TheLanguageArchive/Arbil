@@ -96,6 +96,7 @@ public class CmdiTemplate extends ArbilTemplate {
 
     private void readSchema(URI xsdFile, ArrayList<String[]> childNodePathsList) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        templateFile = schemaFile; // store the template file for later use such as adding child nodes
         try {
             InputStream inputStream = new FileInputStream(schemaFile);
             //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
