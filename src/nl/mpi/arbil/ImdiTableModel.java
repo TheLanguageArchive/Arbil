@@ -748,9 +748,9 @@ public class ImdiTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int row, int col) {
-        if (row > -1 && col > -1) {
+        try {
             return data[row][col];
-        } else {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -776,7 +776,11 @@ public class ImdiTableModel extends AbstractTableModel {
 //    }
 
     public Color getCellColour(int row, int col) {
-        return cellColour[row][col];
+        try {
+            return cellColour[row][col];
+        } catch (Exception e) {
+            return new Color(0xFFFFFF);
+        }
     }
 
     @Override
