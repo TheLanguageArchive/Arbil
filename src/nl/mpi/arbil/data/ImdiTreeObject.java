@@ -704,6 +704,8 @@ public class ImdiTreeObject implements Comparable {
     public ArbilTemplate getNodeTemplate() {
         if (nodeTemplate != null && !this.isCorpus()) {
             return nodeTemplate;
+        } else if (this.isImdiChild()) {
+            return this.getParentDomNode().getNodeTemplate();
         } else {
             return ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         }
