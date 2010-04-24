@@ -46,6 +46,7 @@ public class CmdiComponentBuilder {
     private Document getDocument(File inputFile) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setValidating(false);
+        documentBuilderFactory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         Document document;
         if (inputFile == null) {
@@ -254,7 +255,7 @@ public class CmdiComponentBuilder {
     }
 
     private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty) {
-        Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
+        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
         for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
             currentElement.setAttribute(attributesProperty.getName().getLocalPart(), attributesProperty.getDefaultText());
@@ -301,13 +302,13 @@ public class CmdiComponentBuilder {
             pathString = pathString + "." + schemaProperty.getName().getLocalPart();
             System.out.println("Found Element: " + pathString);
             SchemaType currentSchemaType = schemaProperty.getType();
-            Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
             // if the searched element was not a child of the given Node
             // then again for each of these child nodes search recursively in
             // their child nodes, in the case they are a complex type, because
             // only complex types have child nodes
             //currentSchemaType.getAttributeProperties();
             if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
+                Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
                 //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
                 constructXml(currentSchemaType, pathString, workingDocument, nameSpaceUri, currentElement);
                 //     }
