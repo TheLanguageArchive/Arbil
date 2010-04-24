@@ -1035,7 +1035,7 @@ public class ContextMenu {
             addMenuItem = new JMenuItem();
             addMenuItem.setText(currentField[0]);
             addMenuItem.setName(currentField[0]);
-            addMenuItem.setToolTipText("IMDI " + currentField[0]);
+            addMenuItem.setToolTipText(currentField[1]);
             addMenuItem.setActionCommand(currentField[1]);
             addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
