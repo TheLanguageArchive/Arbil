@@ -82,23 +82,31 @@ public class CmdiTemplate extends ArbilTemplate {
             for (String[] childPathString : childNodePaths) {
                 boolean allowEntry = false;
                 if (targetNodeXpath == null) {
+                    System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
-                }else if (childPathString[0].startsWith(targetNodeXpath)){
+                } else if (childPathString[0].startsWith(targetNodeXpath)) {
+                    System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
-                }           
+                }
+                // remove types that require a container type that has not already been added to the target
+                for (String[] childPathTest : childNodePaths) {
+                    // only if the test path is valid
+                    if (targetNodeXpath == null || childPathTest[0].startsWith(targetNodeXpath)) {
+                        if (childPathString[0].startsWith(childPathTest[0])) {
+                            if (childPathTest[0].length() < childPathString[0].length()) {
+                                System.out.println("removing: " + childPathString[0]);
+                                System.out.println("based on: " + childPathTest[0]);
+                                allowEntry = false;
+                            }
+                        }
+                    }
+                }
                 System.out.println("childPathString[0]: " + childPathString[0]);
                 System.out.println("childPathString[1]: " + childPathString[1]);
                 if (allowEntry) {
                     childTypes.add(new String[]{childPathString[1], childPathString[0]});
                 }
             }
-
-
-//            // remove types that require a container type that has not already been added to the target
-//            for (String[] childPathString : childTypes.toArray(new String[]{})) {
-//                
-//                
-//            }
             Collections.sort(childTypes, new Comparator() {
 
                 public int compare(Object o1, Object o2) {
