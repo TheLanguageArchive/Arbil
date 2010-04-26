@@ -51,12 +51,11 @@ public class CmdiTemplate extends ArbilTemplate {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
                 debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
-
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
-            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
-            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
+//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
+//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
             GuiHelper.linorgBugCatcher.logError(urise);
         } catch (IOException urise) {
@@ -70,12 +69,17 @@ public class CmdiTemplate extends ArbilTemplate {
         preferredNameFields = new String[]{};
         fieldUsageArray = new String[][]{};
         fieldTriggersArray = new String[][]{};
+        autoFieldsArray = new String[][]{};
     }
 
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
         // get the xpath of the target node
         String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
+        System.out.println("targetNodeXpath: " + targetNodeXpath);
+        if (targetNodeXpath != null) {
+            targetNodeXpath = targetNodeXpath.replaceAll("\\(\\d+\\)", "");
+        }
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         Vector<String[]> childTypes = new Vector<String[]>();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
@@ -87,6 +91,10 @@ public class CmdiTemplate extends ArbilTemplate {
                 } else if (childPathString[0].startsWith(targetNodeXpath)) {
                     System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
+                }
+                if (targetNodeXpath != null && childPathString[0].length() == targetNodeXpath.length()) {
+                    System.out.println("disallowing: " + childPathString[0]);
+                    allowEntry = false;
                 }
                 // remove types that require a container type that has not already been added to the target
                 for (String[] childPathTest : childNodePaths) {
@@ -101,12 +109,14 @@ public class CmdiTemplate extends ArbilTemplate {
                         }
                     }
                 }
-                System.out.println("childPathString[0]: " + childPathString[0]);
-                System.out.println("childPathString[1]: " + childPathString[1]);
+                // TODO: check that the sub node addables are being correctly listed in the context menu
+//                System.out.println("childPathString[0]: " + childPathString[0]);
+//                System.out.println("childPathString[1]: " + childPathString[1]);
                 if (allowEntry) {
                     childTypes.add(new String[]{childPathString[1], childPathString[0]});
                 }
             }
+            
             Collections.sort(childTypes, new Comparator() {
 
                 public int compare(Object o1, Object o2) {
@@ -145,12 +155,15 @@ public class CmdiTemplate extends ArbilTemplate {
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
             boolean canHaveMultiple = true;
-            if (schemaProperty.getMaxOccurs() != null) {
-                canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
-            } else {
+            if (schemaProperty.getMaxOccurs() == null) {
                 // absence of the max occurs also means multiple
                 canHaveMultiple = true;
                 // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
+            } else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
+                canHaveMultiple = true;
+            } else {
+                // todo: take into account max occurs in the add menu
+                canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
             }
             boolean hasSubNodes = false;
             System.out.println("Found template element: " + currentPathString);
