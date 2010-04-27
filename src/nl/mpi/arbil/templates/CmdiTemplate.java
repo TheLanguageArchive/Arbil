@@ -70,6 +70,7 @@ public class CmdiTemplate extends ArbilTemplate {
         fieldUsageArray = new String[][]{};
         fieldTriggersArray = new String[][]{};
         autoFieldsArray = new String[][]{};
+        genreSubgenreArray = new String[][]{};
     }
 
     @Override
@@ -78,6 +79,9 @@ public class CmdiTemplate extends ArbilTemplate {
         String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         if (targetNodeXpath != null) {
+            // remove the extraneous node name for a meta node
+            targetNodeXpath = targetNodeXpath.replaceAll("\\.[^\\.]+[^\\)]$", "");
+            // remove the sibling indexes
             targetNodeXpath = targetNodeXpath.replaceAll("\\(\\d+\\)", "");
         }
         System.out.println("targetNodeXpath: " + targetNodeXpath);
@@ -86,32 +90,16 @@ public class CmdiTemplate extends ArbilTemplate {
             for (String[] childPathString : childNodePaths) {
                 boolean allowEntry = false;
                 if (targetNodeXpath == null) {
-                    System.out.println("allowing: " + childPathString[0]);
+//                    System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
                 } else if (childPathString[0].startsWith(targetNodeXpath)) {
-                    System.out.println("allowing: " + childPathString[0]);
+//                    System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
                 }
                 if (childPathString[0].equals(targetNodeXpath)) {
-                    System.out.println("disallowing addint to itself: " + childPathString[0]);
+//                    System.out.println("disallowing addint to itself: " + childPathString[0]);
                     allowEntry = false;
                 }
-                // remove types that require a container type that has not already been added to the target
-//                for (String[] childPathTest : childNodePaths) {
-//                    // only if the test path is valid
-//                    if (targetNodeXpath == null || childPathTest[0].startsWith(targetNodeXpath)) {
-//                        if (childPathString[0].startsWith(childPathTest[0])) {
-//                            if (childPathTest[0].length() < childPathString[0].length()) {
-//                                System.out.println("removing: " + childPathString[0]);
-//                                System.out.println("based on: " + childPathTest[0]);
-//                                allowEntry = false;
-//                            }
-//                        }
-//                    }
-//                }
-                // TODO: check that the sub node addables are being correctly listed in the context menu
-//                System.out.println("childPathString[0]: " + childPathString[0]);
-//                System.out.println("childPathString[1]: " + childPathString[1]);
                 if (allowEntry) {
                     childTypes.add(new String[]{childPathString[1], childPathString[0]});
                 }
@@ -120,14 +108,14 @@ public class CmdiTemplate extends ArbilTemplate {
             childTypes.removeAllElements();
             for (String[] currentChildType : childTypesArray) {
                 boolean keepChildType = true;
-                System.out.println("currentChildType: " + currentChildType[1]);
+//                System.out.println("currentChildType: " + currentChildType[1]);
                 for (String[] subChildType : childTypesArray) {
-                    System.out.println("subChildType: " + subChildType[1]);
+//                    System.out.println("subChildType: " + subChildType[1]);
                     if (currentChildType[1].startsWith(subChildType[1])) {
                         if (currentChildType[1].length() != subChildType[1].length()) {
                             keepChildType = false;
-                            System.out.println("removing: " + currentChildType[1]);
-                            System.out.println("based on: " + subChildType[1]);
+//                            System.out.println("removing: " + currentChildType[1]);
+//                            System.out.println("based on: " + subChildType[1]);
                         }
                     }
                 }
