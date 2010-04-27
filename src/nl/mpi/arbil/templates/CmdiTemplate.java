@@ -92,23 +92,23 @@ public class CmdiTemplate extends ArbilTemplate {
                     System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
                 }
-                if (targetNodeXpath != null && childPathString[0].length() == targetNodeXpath.length()) {
-                    System.out.println("disallowing: " + childPathString[0]);
+                if (childPathString[0].equals(targetNodeXpath)) {
+                    System.out.println("disallowing addint to itself: " + childPathString[0]);
                     allowEntry = false;
                 }
                 // remove types that require a container type that has not already been added to the target
-                for (String[] childPathTest : childNodePaths) {
-                    // only if the test path is valid
-                    if (targetNodeXpath == null || childPathTest[0].startsWith(targetNodeXpath)) {
-                        if (childPathString[0].startsWith(childPathTest[0])) {
-                            if (childPathTest[0].length() < childPathString[0].length()) {
-                                System.out.println("removing: " + childPathString[0]);
-                                System.out.println("based on: " + childPathTest[0]);
-                                allowEntry = false;
-                            }
-                        }
-                    }
-                }
+//                for (String[] childPathTest : childNodePaths) {
+//                    // only if the test path is valid
+//                    if (targetNodeXpath == null || childPathTest[0].startsWith(targetNodeXpath)) {
+//                        if (childPathString[0].startsWith(childPathTest[0])) {
+//                            if (childPathTest[0].length() < childPathString[0].length()) {
+//                                System.out.println("removing: " + childPathString[0]);
+//                                System.out.println("based on: " + childPathTest[0]);
+//                                allowEntry = false;
+//                            }
+//                        }
+//                    }
+//                }
                 // TODO: check that the sub node addables are being correctly listed in the context menu
 //                System.out.println("childPathString[0]: " + childPathString[0]);
 //                System.out.println("childPathString[1]: " + childPathString[1]);
@@ -116,7 +116,25 @@ public class CmdiTemplate extends ArbilTemplate {
                     childTypes.add(new String[]{childPathString[1], childPathString[0]});
                 }
             }
-            
+            String[][] childTypesArray = childTypes.toArray(new String[][]{});
+            childTypes.removeAllElements();
+            for (String[] currentChildType : childTypesArray) {
+                boolean keepChildType = true;
+                System.out.println("currentChildType: " + currentChildType[1]);
+                for (String[] subChildType : childTypesArray) {
+                    System.out.println("subChildType: " + subChildType[1]);
+                    if (currentChildType[1].startsWith(subChildType[1])) {
+                        if (currentChildType[1].length() != subChildType[1].length()) {
+                            keepChildType = false;
+                            System.out.println("removing: " + currentChildType[1]);
+                            System.out.println("based on: " + subChildType[1]);
+                        }
+                    }
+                }
+                if (keepChildType) {
+                    childTypes.add(currentChildType);
+                }
+            }
             Collections.sort(childTypes, new Comparator() {
 
                 public int compare(Object o1, Object o2) {
