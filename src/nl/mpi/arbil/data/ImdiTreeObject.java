@@ -413,7 +413,7 @@ public class ImdiTreeObject implements Comparable {
                     Document nodDom = null;
                     // cacheLocation will be null if useCache = false hence no file has been saved
 //        String cacheLocation = null;
-                    if (this.isLocal() && !this.getFile().exists()) {
+                    if (this.isLocal() && !this.getFile().exists() && new File(this.getFile().getAbsolutePath() + ".0").exists()) {
                         // if the file is missing then try to find a valid history file
                         try {
                             FileOutputStream outFile = new FileOutputStream(this.getFile());
