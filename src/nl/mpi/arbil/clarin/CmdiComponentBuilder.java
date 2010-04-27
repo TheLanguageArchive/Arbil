@@ -23,6 +23,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgSessionStorage;
+import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -91,10 +92,10 @@ public class CmdiComponentBuilder {
         }
     }
 
-    public URI insertChildComponent(ImdiTreeObject targetNode, String cmdiComponentId) {
+    public URI insertChildComponent(ImdiTreeObject targetNode, String targetXmlPath, String cmdiComponentId) {
         System.out.println("insertChildComponent: " + cmdiComponentId);
-        String targetXpath = targetNode.getURI().getFragment();
-        System.out.println("targetXpath: " + targetXpath);
+        //String targetXpath = targetNode.getURI().getFragment();
+        //System.out.println("targetXpath: " + targetXpath);
         File cmdiNodeFile = targetNode.getFile();
         String nodeFragment = "";
         try {
@@ -102,15 +103,15 @@ public class CmdiComponentBuilder {
             SchemaType schemaType = getFirstSchemaType(targetNode.getNodeTemplate().templateFile);
             // load the dom
             Document targetDocument = getDocument(cmdiNodeFile);
-            // bump the history
-            targetNode.bumpHistory();
             // insert the new section
             try {
 //                printoutDocument(targetDocument);
-                nodeFragment = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXpath, cmdiComponentId);
+                nodeFragment = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
             } catch (Exception exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
             }
+            // bump the history
+            targetNode.bumpHistory();
             // save the dom
             savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
         } catch (IOException exception) {
@@ -135,9 +136,27 @@ public class CmdiComponentBuilder {
 
     private String insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws Exception {
         System.out.println("insertSectionToXpath");
+        System.out.println("xsdPath: " + xsdPath);
+        System.out.println("targetXpath: " + targetXpath);
         Node foundNode = null;
         Node foundPreviousNode = null;
         SchemaProperty foundProperty = null;
+        try {
+            // convert the syntax inherited from the imdi api into xpath
+            String tempXpath = targetXpath.replaceAll("\\.", "/:");
+            tempXpath = tempXpath.replaceAll("\\(", "[");
+            tempXpath = tempXpath.replaceAll("\\)", "]");
+//            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
+            System.out.println("tempXpath: " + tempXpath);
+            // find the target node of the xml
+            documentNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+        } catch (TransformerException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        }
+        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section
+        String strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
+        System.out.println("strippedXpath: " + strippedXpath);
         for (String currentPathComponent : xsdPath.split("\\.")) {
             if (currentPathComponent.length() > 0) {
                 System.out.println("currentPathComponent: " + currentPathComponent);
@@ -161,22 +180,30 @@ public class CmdiComponentBuilder {
                 // TODO: this will not navigate to the nth child node when the xpath is provided
                 //if (foundNode != null) {
                 //    // keep the last node found in the chain
-                foundPreviousNode = foundNode;
-                //}
-                foundNode = null;
-                while (documentNode != null) {
-                    System.out.println("documentNode: " + documentNode.getNodeName());
+
+                if (strippedXpath.startsWith("." + currentPathComponent)) {
+                    strippedXpath = strippedXpath.substring(currentPathComponent.length() + 1);
+                    System.out.println("strippedXpath: " + strippedXpath);
+                    foundPreviousNode = documentNode;
+                    foundNode = documentNode;
+                } else {
+                    foundPreviousNode = foundNode;
+                    //}
+                    foundNode = null;
+                    while (documentNode != null) {
+                        System.out.println("documentNode: " + documentNode.getNodeName());
 //                    System.out.println("documentNode: " + documentNode.toString());
-                    if (currentPathComponent.equals(documentNode.getNodeName())) {
-                        foundNode = documentNode;
-                        documentNode = documentNode.getFirstChild();
-                        break;
-                    } else {
-                        documentNode = documentNode.getNextSibling();
+                        if (currentPathComponent.equals(documentNode.getNodeName())) {
+                            foundNode = documentNode;
+                            documentNode = documentNode.getFirstChild();
+                            break;
+                        } else {
+                            documentNode = documentNode.getNextSibling();
+                        }
                     }
-                }
-                if (foundNode == null && foundPreviousNode == null) {
-                    throw new Exception("failed to find the node path in the document: " + currentPathComponent);
+                    if (foundNode == null && foundPreviousNode == null) {
+                        throw new Exception("failed to find the node path in the document: " + currentPathComponent);
+                    }
                 }
             }
         }
@@ -204,15 +231,7 @@ public class CmdiComponentBuilder {
         System.out.println("nodeFragment: " + nodeFragment);
         return nodeFragment;
         //return childStartElement.
-//        try {
-        // find the start node of the xml and of the xsd
-//            Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, targetXpath);
 
-        // add the new section to the xml
-
-//        } catch (TransformerException exception) {
-//            GuiHelper.linorgBugCatcher.logError(exception);
-//        }
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile) {
@@ -243,6 +262,8 @@ public class CmdiComponentBuilder {
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(e);
         } catch (XmlException e) {
+            // TODO: this is not really a good place to message this so modify to throw
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not read the XML Schema", "Error inserting node");
             GuiHelper.linorgBugCatcher.logError(e);
         }
         return null;
