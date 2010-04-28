@@ -138,24 +138,25 @@ public class CmdiComponentBuilder {
         System.out.println("insertSectionToXpath");
         System.out.println("xsdPath: " + xsdPath);
         System.out.println("targetXpath: " + targetXpath);
-        Node foundNode = null;
-        Node foundPreviousNode = null;
         SchemaProperty foundProperty = null;
-        try {
-            // convert the syntax inherited from the imdi api into xpath
-            String tempXpath = targetXpath.replaceAll("\\.", "/:");
-            tempXpath = tempXpath.replaceAll("\\(", "[");
-            tempXpath = tempXpath.replaceAll("\\)", "]");
+        String strippedXpath = "";
+        if (targetXpath != null) {
+            try {
+                // convert the syntax inherited from the imdi api into xpath
+                String tempXpath = targetXpath.replaceAll("\\.", "/:");
+                tempXpath = tempXpath.replaceAll("\\(", "[");
+                tempXpath = tempXpath.replaceAll("\\)", "]");
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
-            System.out.println("tempXpath: " + tempXpath);
-            // find the target node of the xml
-            documentNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
-        } catch (TransformerException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
+                System.out.println("tempXpath: " + tempXpath);
+                // find the target node of the xml
+                documentNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+            } catch (TransformerException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            }
+            strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
         }
-        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section
-        String strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
+        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section        
         System.out.println("strippedXpath: " + strippedXpath);
         for (String currentPathComponent : xsdPath.split("\\.")) {
             if (currentPathComponent.length() > 0) {
@@ -184,25 +185,23 @@ public class CmdiComponentBuilder {
                 if (strippedXpath.startsWith("." + currentPathComponent)) {
                     strippedXpath = strippedXpath.substring(currentPathComponent.length() + 1);
                     System.out.println("strippedXpath: " + strippedXpath);
-                    foundPreviousNode = documentNode;
-                    foundNode = documentNode;
                 } else {
-                    foundPreviousNode = foundNode;
-                    //}
-                    foundNode = null;
-                    while (documentNode != null) {
-                        System.out.println("documentNode: " + documentNode.getNodeName());
-//                    System.out.println("documentNode: " + documentNode.toString());
-                        if (currentPathComponent.equals(documentNode.getNodeName())) {
-                            foundNode = documentNode;
-                            documentNode = documentNode.getFirstChild();
+                    Node childNode = documentNode.getFirstChild();
+                    while (childNode != null) {
+                        System.out.println("childNode: " + childNode.getNodeName());
+                        if (currentPathComponent.equals(childNode.getNodeName())) {
+                            System.out.println("found existing: " + currentPathComponent);
+                            documentNode = childNode;
                             break;
                         } else {
-                            documentNode = documentNode.getNextSibling();
+                            childNode = childNode.getNextSibling();
                         }
                     }
-                    if (foundNode == null && foundPreviousNode == null) {
-                        throw new Exception("failed to find the node path in the document: " + currentPathComponent);
+                    if (documentNode != childNode) {
+                        System.out.println("Adding destination node: " + currentPathComponent);
+                        System.out.println("Into: " + documentNode.getNodeName());
+                        documentNode = (Node) appendNode(targetDocument, null, documentNode, foundProperty);
+//                        throw new Exception("failed to find the node path in the document: " + currentPathComponent);
                     }
                 }
             }
@@ -211,13 +210,11 @@ public class CmdiComponentBuilder {
 //        Element currentElement = targetDocument.createElement("AddedChildNode");
 //        currentElement.setTextContent(xsdPath);
 //        foundPreviousNode.appendChild(currentElement);
-        System.out.println("Adding destination node");
-        Element childStartElement = appendNode(targetDocument, null, foundPreviousNode, foundProperty);
         System.out.println("Adding destination sub nodes node");
-        constructXml(foundProperty.getType(), xsdPath, targetDocument, null, childStartElement);
+        constructXml(foundProperty.getType(), xsdPath, targetDocument, null, documentNode);
         System.out.println("Calculating the added fragment");
-        String nodeFragment = childStartElement.getTagName();
-        Node parentNode = childStartElement.getParentNode();
+        String nodeFragment = documentNode.getNodeName();
+        Node parentNode = documentNode.getParentNode();
         while (parentNode != null) {
             // TODO: handle sibbling node counts
             System.out.println("nodeFragment: " + nodeFragment);
