@@ -299,7 +299,7 @@ public class TreeHelper {
 
     // check that all child nodes are attached and sorted, removing any extranious nodes found
     private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, ImdiTreeObject[] childNodes, Vector<DefaultMutableTreeNode> scrollToRequests) {
-//        System.out.println("updateTreeNodeChildren");
+//        System.out.println("updateTreeNodeChildren: " + parentNode);
         ImdiTree currentTree = getTreeForNode(parentNode);
         DefaultTreeModel treeModel = getModelForNode(parentNode);
 //        if (parentNode.getUserObject() instanceof ImdiTreeObject && parentNode.getChildCount() > 0) {
@@ -609,6 +609,7 @@ public class TreeHelper {
         if (sourceObject == arbilTreePanel.localCorpusTree) {
             TreePath currentNodePaths[] = ((ImdiTree) sourceObject).getSelectionPaths();
             int toDeleteCount = 0;
+            // count the number of nodes to delete
             for (TreePath currentNodePath : currentNodePaths) {
                 if (currentNodePath != null) {
                     selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -668,6 +669,8 @@ public class TreeHelper {
 //                            }
                             }
                         }
+                        // todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
+                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
                         // make a list of all child nodes so that they can be removed from any tables etc
                         imdiNodesToRemove.add((ImdiTreeObject) userObject);
                         ((ImdiTreeObject) userObject).getAllChildren(imdiNodesToRemove);
