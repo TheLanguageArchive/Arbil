@@ -80,8 +80,11 @@ public class ArbilTemplate {
     String[][] fieldUsageArray;
 
     public String pathIsChildNode(String nodePath) {
+//        System.out.println("pathIsChildNode");
+//        System.out.println("nodePath: " + nodePath);
         for (String[] pathString : childNodePaths) {
             if (nodePath.endsWith((pathString[0]))) {
+//                System.out.println("pathString[1]: " + pathString[1]);
                 return pathString[1];
             }
         }
