@@ -544,7 +544,7 @@ public class ImdiSchema {
     public int iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree, //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
             int nodeCounter) {
-//        System.out.println("iterateChildNodes: " + nodePath);
+//        System.out.println("iterateChildNodes: " + nodePath);        
         //loop all nodes
         // each end node becomes a field
         // any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode
@@ -575,6 +575,12 @@ public class ImdiSchema {
                         // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
                         // this method also assumes that the xsd url is fully resolved
                         parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocation[schemaLocation.length - 1]);
+                        /*
+                        // TODO: pass the resource node to a class to handle the resources
+                        childNode = childNode.getAttributes().getNamedItem("Components");
+                        nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
+                        break;
+                        */
                     } else {
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                     }
@@ -616,7 +622,14 @@ public class ImdiSchema {
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
-            String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(siblingNodePath);
+            String parentNodePath = parentNode.getURI().getFragment();
+            if (parentNodePath == null) {
+                // pathIsChildNode needs to have the entire path of the node not just the local part
+                parentNodePath = "";
+            } else {
+                parentNodePath = parentNodePath.replaceAll("\\(\\d+\\)", "");
+            }
+            String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(parentNodePath + siblingNodePath);
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
             if (localName != null && childsMetaNode != null) {
                 try {
