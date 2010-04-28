@@ -10,6 +10,7 @@ import org.apache.commons.digester.Digester;
  * Created on March 12, 2010, 17:04:03
  * @author Peter.Withers@mpi.nl
  */
+@Deprecated
 public class CmdiComponentLinkReader {
 
     public ArrayList<CmdiComponentLink> cmdiComponentLinkArray = null;
