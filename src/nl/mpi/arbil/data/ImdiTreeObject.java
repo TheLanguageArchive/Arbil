@@ -763,7 +763,7 @@ public class ImdiTreeObject implements Comparable {
         if (this.isCmdiMetaDataNode()) {
             // add clarin sub nodes
             CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
-            addedNodePath = componentBuilder.insertChildComponent(this, nodeType);
+            addedNodePath = componentBuilder.insertChildComponent(this, targetXmlPath, nodeType);
         } else if (this.getNodeTemplate().isImdiChildType(nodeType) || (resourceUri != null && this.isSession())) {
             System.out.println("adding to current node");
             destinationNode = this;
