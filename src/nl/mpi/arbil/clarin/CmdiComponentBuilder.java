@@ -319,8 +319,8 @@ public class CmdiComponentBuilder {
             // if the searched element is a child node of the given node return
             // its SchemaType
             //if (properties[i].getName().toString().equals(element)) {
-            pathString = pathString + "." + schemaProperty.getName().getLocalPart();
-            System.out.println("Found Element: " + pathString);
+            String currentPathString = pathString + "." + schemaProperty.getName().getLocalPart();
+            System.out.println("Found Element: " + currentPathString);
             SchemaType currentSchemaType = schemaProperty.getType();
             // if the searched element was not a child of the given Node
             // then again for each of these child nodes search recursively in
@@ -330,7 +330,7 @@ public class CmdiComponentBuilder {
             if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
                 Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
                 //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
-                constructXml(currentSchemaType, pathString, workingDocument, nameSpaceUri, currentElement);
+                constructXml(currentSchemaType, currentPathString, workingDocument, nameSpaceUri, currentElement);
                 //     }
             }
             //}
