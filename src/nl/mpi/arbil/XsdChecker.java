@@ -81,14 +81,18 @@ public class XsdChecker extends JSplitPane {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setValidating(false);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(imdiFile);
-            nameSpaceURI = document.getDocumentElement().getAttribute("xmlns"); // this seem a poor way to get this but is the only way that returns a useable value
+            Document document = documentBuilder.parse(imdiFile);            
+            String[] schemaLocation = document.getDocumentElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
+            if (schemaLocation != null && schemaLocation.length > 0) {
+            nameSpaceURI = schemaLocation[schemaLocation.length - 1];
+            }
             System.out.println("getNamespaceURI: " + document.getFirstChild().getNamespaceURI());
             System.out.println("getBaseURI: " + document.getFirstChild().getBaseURI());
             System.out.println("getLocalName: " + document.getFirstChild().getLocalName());
             System.out.println("toString: " + document.getFirstChild().toString());
             System.out.println("getAttribute: " + document.getDocumentElement().getAttribute("xmlns"));
-            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());
+            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());             
+            //nameSpaceURI = document.getDocumentElement().getNamespaceURI();
         } catch (IOException iOException) {
             GuiHelper.linorgBugCatcher.logError(iOException);
         } catch (ParserConfigurationException parserConfigurationException) {
@@ -99,7 +103,7 @@ public class XsdChecker extends JSplitPane {
         System.out.println("nameSpaceURI: " + nameSpaceURI);
         int daysTillExpire = 15;
         File schemaFile = null;
-        if (nameSpaceURI != null) {
+        if (nameSpaceURI != null && nameSpaceURI.contains("://")) {
             schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(nameSpaceURI, daysTillExpire);
         }
         if (schemaFile == null || !schemaFile.exists()) {
