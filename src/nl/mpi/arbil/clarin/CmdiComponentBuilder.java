@@ -139,8 +139,10 @@ public class CmdiComponentBuilder {
         System.out.println("xsdPath: " + xsdPath);
         System.out.println("targetXpath: " + targetXpath);
         SchemaProperty foundProperty = null;
-        String strippedXpath = "";
-        if (targetXpath != null) {
+        String strippedXpath = null;
+        if (targetXpath == null) {
+            documentNode = documentNode.getParentNode();
+        } else {
             try {
                 // convert the syntax inherited from the imdi api into xpath
                 String tempXpath = targetXpath.replaceAll("\\.", "/:");
@@ -182,7 +184,7 @@ public class CmdiComponentBuilder {
                 //if (foundNode != null) {
                 //    // keep the last node found in the chain
 
-                if (strippedXpath.startsWith("." + currentPathComponent)) {
+                if (strippedXpath != null && strippedXpath.startsWith("." + currentPathComponent)) {
                     strippedXpath = strippedXpath.substring(currentPathComponent.length() + 1);
                     System.out.println("strippedXpath: " + strippedXpath);
                 } else {
