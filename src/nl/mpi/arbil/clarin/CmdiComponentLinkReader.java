@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import org.apache.commons.digester.Digester;
 
 /**
- * CmdiComponentLinkReader.java
+ * CmdiResourceLinkReader.java
  * Created on March 12, 2010, 17:04:03
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiComponentLinkReader {
 
-    public ArrayList<CmdiComponentLink> cmdiComponentLinkArray = null;
+    public ArrayList<CmdiResourceLink> cmdiResourceLinkArray = null;
+    public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
 
     public static void main(String args[]) {
         System.out.println("CmdiComponentLinkReader");
@@ -24,17 +25,24 @@ public class CmdiComponentLinkReader {
         }
     }
 
-    public class CmdiComponentLink {
+    public class CmdiResourceLink {
 
         public String resourceProxyId;
         public String resourceType;
         public String resourceRef;
     }
 
+    public class ResourceRelation {
+
+        String relationType;
+        String res1;
+        String res2;
+    }
+
     private CmdiComponentLinkReader() {
     }
 
-    public ArrayList<CmdiComponentLink> readLinks(URI targetCmdiNode) {
+    public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
         try {
             Digester digester = new Digester();
             digester.push(this);
@@ -43,26 +51,45 @@ public class CmdiComponentLinkReader {
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
             digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
 
-            cmdiComponentLinkArray = new ArrayList<CmdiComponentLink>();
+            digester.addCallMethod("CMD/Resources/ResourceRelationList/ResourceRelation", "addResourceRelation", 3);
+            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/RelationType", 0);
+            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res1", 1, "ref");
+            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res2", 2, "ref");
+
+            cmdiResourceLinkArray = new ArrayList<CmdiResourceLink>();
+            cmdiResourceRelationArray = new ArrayList<ResourceRelation>();
             digester.parse(targetCmdiNode.toURL());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return cmdiComponentLinkArray;
+        return cmdiResourceLinkArray;
     }
 
     public void addResourceProxy(
             String resourceProxyId,
             String resourceType,
             String resourceRef) {
-        System.out.println(resourceProxyId + " : " + resourceType + " : " + resourceRef);
+        System.out.println("addResourceProxy: " + resourceProxyId + " : " + resourceType + " : " + resourceRef);
 
-        CmdiComponentLink cmdiProfile = new CmdiComponentLink();
-        //cmdiProfile.componentId = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/components/" + componentId;
+        CmdiResourceLink cmdiProfile = new CmdiResourceLink();
         cmdiProfile.resourceProxyId = resourceProxyId;
         cmdiProfile.resourceType = resourceType;
         cmdiProfile.resourceRef = resourceRef;
 
-        cmdiComponentLinkArray.add(cmdiProfile);
+        cmdiResourceLinkArray.add(cmdiProfile);
+    }
+
+    public void addResourceRelation(
+            String RelationType,
+            String Res1,
+            String Res2) {
+        System.out.println("addResourceRelation: " + RelationType + " : " + Res1 + " : " + Res2);
+
+        ResourceRelation resourceRelation = new ResourceRelation();
+        resourceRelation.relationType = RelationType;
+        resourceRelation.res1 = Res1;
+        resourceRelation.res2 = Res2;
+
+        cmdiResourceRelationArray.add(resourceRelation);
     }
 }
