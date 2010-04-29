@@ -10,15 +10,15 @@ import org.apache.commons.digester.Digester;
  * Created on March 12, 2010, 17:04:03
  * @author Peter.Withers@mpi.nl
  */
-@Deprecated
 public class CmdiComponentLinkReader {
 
     public ArrayList<CmdiComponentLink> cmdiComponentLinkArray = null;
- 
+
     public static void main(String args[]) {
+        System.out.println("CmdiComponentLinkReader");
         CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
         try {
-            cmdiComponentLinkReader.readLinks(new URI("file:/Users/petwit/.arbil/imdicache/20100309150110/20100309150110/20100312161347/20100312161400.cmdi"));
+            cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.xml"));
         } catch (URISyntaxException exception) {
             System.err.println(exception.getMessage());
         }
@@ -26,28 +26,22 @@ public class CmdiComponentLinkReader {
 
     public class CmdiComponentLink {
 
-        public String componentId;
-        public String filename;
-        public String name;
-        public String CardinalityMax;
-        public String CardinalityMin;
-        public String href;
+        public String resourceProxyId;
+        public String resourceType;
+        public String resourceRef;
     }
 
-    public CmdiComponentLinkReader() {
+    private CmdiComponentLinkReader() {
     }
 
     public ArrayList<CmdiComponentLink> readLinks(URI targetCmdiNode) {
         try {
             Digester digester = new Digester();
-            // This method pushes this (SampleDigester) class to the Digesters
-            // object stack making its methods available to processing rules.
             digester.push(this);
-            // This set of rules calls the addProfile method and passes
-            // in five parameters to the method.
-            digester.addCallMethod("CMD_ComponentSpec/CMD_Component", "addProfile", 2);
-            digester.addCallParam("CMD_ComponentSpec/CMD_Component", 0, "ComponentId");
-            digester.addCallParam("CMD_ComponentSpec/CMD_Component", 1, "filename");
+            digester.addCallMethod("CMD/Resources/ResourceProxyList/ResourceProxy", "addResourceProxy", 3);
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy", 0, "id");
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
 
             cmdiComponentLinkArray = new ArrayList<CmdiComponentLink>();
             digester.parse(targetCmdiNode.toURL());
@@ -55,28 +49,20 @@ public class CmdiComponentLinkReader {
             e.printStackTrace();
         }
         return cmdiComponentLinkArray;
-    }  // Example method called by Digester.
+    }
 
-    public void addProfile(
-            String componentId,
-            String filename //String id,
-            //String description,
-            //String name,
-            //String registrationDate,
-            //String creatorName,
-            //String href
-            ) {
-        System.out.println(componentId + " : " + filename);
+    public void addResourceProxy(
+            String resourceProxyId,
+            String resourceType,
+            String resourceRef) {
+        System.out.println(resourceProxyId + " : " + resourceType + " : " + resourceRef);
 
         CmdiComponentLink cmdiProfile = new CmdiComponentLink();
-        cmdiProfile.componentId = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/components/" + componentId;
-        cmdiProfile.filename = filename;
-//        cmdiProfile.name = name;
-//        cmdiProfile.registrationDate = registrationDate;
-//        cmdiProfile.creatorName = creatorName;
-//        cmdiProfile.href = href;
+        //cmdiProfile.componentId = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/components/" + componentId;
+        cmdiProfile.resourceProxyId = resourceProxyId;
+        cmdiProfile.resourceType = resourceType;
+        cmdiProfile.resourceRef = resourceRef;
 
-        // todo: read the sub component for the other values like CardinalityMin CardinalityMax name etc
         cmdiComponentLinkArray.add(cmdiProfile);
     }
 }
