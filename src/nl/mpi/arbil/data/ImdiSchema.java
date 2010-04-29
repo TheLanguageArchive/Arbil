@@ -661,6 +661,9 @@ public class ImdiSchema {
                     parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
 //                parentNode.attachChildNode(metaNodeImdiTreeObject);
 //                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
+                    if (!parentChildTree.containsKey(subNodeImdiTreeObject)) {
+                        parentChildTree.put(subNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
+                    }
                     destinationNode = subNodeImdiTreeObject;
                 } catch (URISyntaxException ex) {
                     destinationNode = parentNode;
@@ -724,7 +727,7 @@ public class ImdiSchema {
                     if (cmdiComponentLinkReader != null) {
                         URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
                         childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-                        parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
+                        parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
                     }
                 }
             }
