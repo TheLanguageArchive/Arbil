@@ -545,7 +545,7 @@ public class ImdiSchema {
     public int iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree, //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
             int nodeCounter) {
-//        System.out.println("iterateChildNodes: " + nodePath);        
+//        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
         // any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode
@@ -557,6 +557,12 @@ public class ImdiSchema {
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
+            if ((nodePath + ImdiSchema.imdiPathSeparator + localName).equals(".CMD.Header")) {
+                continue;
+            }
+            if ((nodePath + ImdiSchema.imdiPathSeparator + localName).equals(".CMD.Resources")) {
+                continue;
+            }
             // get the xml node id
             String xmlNodeId = null;
             NamedNodeMap attributesMap = childNode.getAttributes();
@@ -712,7 +718,7 @@ public class ImdiSchema {
                 }
                 // get CMDI links
                 String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
-                if (clarinRefId != null) {
+                if (clarinRefId != null && clarinRefId.length() > 0) {
                     System.out.println("clarinRefId: " + clarinRefId);
                     CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
                     if (cmdiComponentLinkReader != null) {
