@@ -47,7 +47,11 @@ public class CmdiComponentLinkReader {
         for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
             if (cmdiResourceLink.resourceProxyId.equals(resourceRef)) {
                 try {
-                    return new URI(cmdiResourceLink.resourceRef);
+                    if (cmdiResourceLink.resourceRef.startsWith("hdl://")) {
+                        return new URI(cmdiResourceLink.resourceRef.replace("hdl://", "http://hdl.handle.net/"));
+                    } else {
+                        return new URI(cmdiResourceLink.resourceRef);
+                    }
                 } catch (URISyntaxException urise) {
                     GuiHelper.linorgBugCatcher.logError(urise);
                 }
