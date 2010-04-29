@@ -21,6 +21,7 @@ import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
 import mpi.util.OurURL;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import org.w3c.dom.*;
 
@@ -566,12 +567,13 @@ public class ImdiSchema {
                 }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
                 if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
-                    // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
+                    try {
+                        // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
 //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
 //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
 //                    System.out.println("childNode.getAttributes():" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-                    String[] schemaLocation = childNode.getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
-                    if (schemaLocation != null && schemaLocation.length > 0) {
+                        String[] schemaLocation = childNode.getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
+                        //if (schemaLocation != null && schemaLocation.length > 0) {
                         // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
                         // this method also assumes that the xsd url is fully resolved
                         parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocation[schemaLocation.length - 1]);
@@ -580,8 +582,9 @@ public class ImdiSchema {
                         childNode = childNode.getAttributes().getNamedItem("Components");
                         nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
                         break;
-                        */
-                    } else {
+                         */
+                    } catch (Exception exception) {
+                        //GuiHelper.linorgBugCatcher.logError(exception);
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                     }
                 }
@@ -705,6 +708,17 @@ public class ImdiSchema {
                         ImdiTreeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
                         parentChildTree.get(parentNode).add(descriptionLinkNode);
                         descriptionLinkNode.addField(fieldToAdd);
+                    }
+                }
+                // get CMDI links
+                String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
+                if (clarinRefId != null) {
+                    System.out.println("clarinRefId: " + clarinRefId);
+                    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
+                    if (cmdiComponentLinkReader != null) {
+                        URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
+                        childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
+                        parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
                     }
                 }
             }
