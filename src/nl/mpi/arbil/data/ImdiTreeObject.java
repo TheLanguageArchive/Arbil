@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 
 /**
@@ -68,6 +69,7 @@ public class ImdiTreeObject implements Comparable {
 //    private boolean nodeTextChanged = false;
     private URI nodeUri;
     public ImdiField resourceUrlField;
+    public CmdiComponentLinkReader cmdiComponentLinkReader = null;
     public boolean isDirectory;
     private ImageIcon icon;
     private boolean nodeEnabled;
@@ -469,12 +471,20 @@ public class ImdiTreeObject implements Comparable {
                         } else {
                             //set the string name to unknown, it will be updated in the tostring function
                             nodeText = "unknown";
+                            if (this.isCmdiMetaDataNode()) {
+                                // load the links from the cmdi file
+                                // the links will be hooked to the relevent nodes when the rest of the xml is read
+                                cmdiComponentLinkReader = new CmdiComponentLinkReader();
+                                cmdiComponentLinkReader.readLinks(this.getURI());
+                            } else {
+                                cmdiComponentLinkReader = null;
+                            }                            
                             Vector<String[]> childLinksTemp = new Vector<String[]>();
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                             // load the fields from the imdi file
                             ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree, 0);
                             childLinks = childLinksTemp.toArray(new String[][]{});
-                            ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
+                            //ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                             for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
 //                        System.out.println("setting childArray on: " + currentNode.getUrlString());
                                 // save the old child array
@@ -798,6 +808,10 @@ public class ImdiTreeObject implements Comparable {
                 CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
                 try {
                     addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType));
+                    // TODO: some sort of warning like: "Could not add node of type: " + nodeType; would be useful here or downstream
+//                    if (addedNodePath == null) {
+//                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
+//                    }
                 } catch (URISyntaxException ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                     return null;
