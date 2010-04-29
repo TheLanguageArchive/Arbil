@@ -3,6 +3,7 @@ package nl.mpi.arbil.clarin;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import nl.mpi.arbil.GuiHelper;
 import org.apache.commons.digester.Digester;
 
 /**
@@ -18,8 +19,8 @@ public class CmdiComponentLinkReader {
     public static void main(String args[]) {
         System.out.println("CmdiComponentLinkReader");
         CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
-        try {
-            cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.xml"));
+        try {//http://www.clarin.eu/cmd/example/example-md-instance.xml
+            cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.cmdi"));
         } catch (URISyntaxException exception) {
             System.err.println(exception.getMessage());
         }
@@ -39,7 +40,20 @@ public class CmdiComponentLinkReader {
         String res2;
     }
 
-    private CmdiComponentLinkReader() {
+    public CmdiComponentLinkReader() {
+    }
+
+    public URI getLinkUrlString(String resourceRef) {
+        for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
+            if (cmdiResourceLink.resourceProxyId.equals(resourceRef)) {
+                try {
+                    return new URI(cmdiResourceLink.resourceRef);
+                } catch (URISyntaxException urise) {
+                    GuiHelper.linorgBugCatcher.logError(urise);
+                }
+            }
+        }
+        return null;
     }
 
     public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
