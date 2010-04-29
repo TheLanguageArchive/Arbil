@@ -13,6 +13,7 @@ import org.apache.commons.digester.Digester;
 public class CmdiProfileReader {
 
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
+    // todo: move this url into the config file
     String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
     //String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264758016524/xsd";
     //"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles"
@@ -42,11 +43,21 @@ public class CmdiProfileReader {
 
     public CmdiProfileReader() {
         loadProfiles();
+        // get all the xsd files from the profile listing and store them on disk for offline use
+        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+            System.out.println("checking profile exists on disk: " + currentCmdiProfile.getXsdHref());
+            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 90);
+        }
     }
 
     public void refreshProfiles() {
         LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, 0);
         loadProfiles();
+        // get all the xsd files from the profile listing and store them on disk for offline use
+        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+            System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
+            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 0);
+        }
     }
 
     public void loadProfiles() {
@@ -71,7 +82,7 @@ public class CmdiProfileReader {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }  // Example method called by Digester.
+    }
 
     public void addProfile(String id,
             String description,
