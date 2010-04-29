@@ -726,6 +726,7 @@ public class ImdiSchema {
                     CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
                     if (cmdiComponentLinkReader != null) {
                         URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
+                        clarinLink = parentNode.getURI().resolve(clarinLink);
                         childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
                         parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
                     }
