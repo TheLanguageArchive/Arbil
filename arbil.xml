@@ -7,7 +7,7 @@
 <project name="Arbil" default="compile">
     <target name="setproperties">
         <property name="arbil.current.major" value="1"/>
-        <property name="arbil.current.minor" value="3"/>
+        <property name="arbil.current.minor" value="3.1"/>
         <property name="arbil.filenameidentifier" value="-testing"/>
         <property name="arbil.application-title" value="Arbil (testing)"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
