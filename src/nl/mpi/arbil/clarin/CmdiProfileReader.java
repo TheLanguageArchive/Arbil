@@ -27,6 +27,13 @@ public class CmdiProfileReader {
         return (pathString.startsWith("http") && pathString.contains("clarin"));
     }
 
+    public String getProfileName(String XsdHref){
+        for (CmdiProfile currentProfile:cmdiProfileArray){
+            if (currentProfile.getXsdHref().equals(XsdHref))return currentProfile.name;
+        }
+        return "unknown Clarin profile";
+    }
+
     public class CmdiProfile {
 
         public String id;
