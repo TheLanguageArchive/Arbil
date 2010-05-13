@@ -132,7 +132,14 @@ public class ArbilDragDrop {
 //                todo: look for error dragging actor from favourites
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
                 if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
-                    if (currentLeadSelection.isDirectory) {
+                    if (currentLeadSelection.isCmdiMetaDataNode()) {
+                        if (currentLeadSelection.nodeTemplate == null) {
+                            System.out.println("no template for drop target node");
+                            return false;
+                        }
+                        System.out.println("Drop to CMDI: " + currentLeadSelection.getURI().getFragment());
+                        return (currentLeadSelection.nodeTemplate.pathCanHaveResource(currentLeadSelection.getURI().getFragment()));
+                    } else if (currentLeadSelection.isDirectory) {
                         return false; // nothing can be dropped to a directory
                     } else if (currentLeadSelection.isCorpus()) {
                         if (selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession) {
@@ -213,16 +220,16 @@ public class ArbilDragDrop {
             if (comp instanceof JTree) {
                 if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(comp)) {
                     System.out.println("localcorpustree so can drop here");
-                    if (selectionContainsArchivableLocalFile ||
-                            //selectionContainsLocalFile ||
+                    if (selectionContainsArchivableLocalFile
+                            || //selectionContainsLocalFile ||
                             //selectionContainsLocalDirectory ||
                             //selectionContainsImdiResource ||
                             //selectionContainsLocal ||
                             //selectionContainsRemote ||
-                            selectionContainsImdiCorpus ||
-                            selectionContainsImdiCatalogue ||
-                            selectionContainsImdiSession ||
-                            selectionContainsImdiChild) {
+                            selectionContainsImdiCorpus
+                            || selectionContainsImdiCatalogue
+                            || selectionContainsImdiSession
+                            || selectionContainsImdiChild) {
                         System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
                         dropAllowed = canDropToTarget((ImdiTree) comp);
@@ -238,9 +245,9 @@ public class ArbilDragDrop {
                             //selectionContainsLocal ||
                             //selectionContainsRemote ||
                             //selectionContainsImdiCorpus ||
-                            selectionContainsImdiCatalogue ||
-                            selectionContainsImdiSession ||
-                            selectionContainsImdiChild) {
+                            selectionContainsImdiCatalogue
+                            || selectionContainsImdiSession
+                            || selectionContainsImdiChild) {
                         System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
                         dropAllowed = canDropToTarget((ImdiTree) comp);
@@ -384,7 +391,8 @@ public class ArbilDragDrop {
         public boolean importData(JComponent comp, Transferable t) {
             // due to the swing api being far to keen to do a drag drop action on the windows platform users frequently loose nodes by dragging them into random locations
             // so to avoid this we check the date time from when the transferable was created and if less than x seconds reject the drop
-            if (System.currentTimeMillis() - dragStartMilliSeconds < (100 * 3)) {
+            if (System.currentTimeMillis() - dragStartMilliSeconds < (100 * 1)) {
+                // todo: (has beed reduced to 100 * 1 from 100 * 3) this may be too agressive and preventing valid drag events, particularly since "improveddraggesture" property is now set.
                 return false;
             }
             try {
@@ -486,8 +494,8 @@ public class ArbilDragDrop {
                                                     }
 //                                        if (draggedTreeNodes[draggedCounter].getUserObject())
                                                     int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
-                                                            "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString() +
-                                                            /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
+                                                            "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
+                                                            + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
                                                             "Arbil",
                                                             JOptionPane.YES_NO_OPTION,
                                                             JOptionPane.PLAIN_MESSAGE,
