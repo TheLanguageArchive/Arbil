@@ -78,6 +78,23 @@ public class ArbilTemplate {
      */
     String[][] childNodePaths;
     String[][] fieldUsageArray;
+    String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
+
+    public boolean pathCanHaveResource(String nodePath) {
+        // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
+        if (nodePath == null) {
+            if (resourceNodePaths.length > 0) {
+                return true;
+            }
+        } else {
+            for (String[] currentPath : resourceNodePaths) {
+                if (currentPath[0].startsWith(nodePath)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public String pathIsChildNode(String nodePath) {
 //        System.out.println("pathIsChildNode");
