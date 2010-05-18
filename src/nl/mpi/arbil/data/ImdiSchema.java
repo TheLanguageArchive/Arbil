@@ -590,7 +590,7 @@ public class ImdiSchema {
                         break;
                          */
                     } catch (Exception exception) {
-                        //GuiHelper.linorgBugCatcher.logError(exception);
+                        GuiHelper.linorgBugCatcher.logError(exception);
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                     }
                 }
@@ -726,9 +726,11 @@ public class ImdiSchema {
                     CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
                     if (cmdiComponentLinkReader != null) {
                         URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
-                        clarinLink = parentNode.getURI().resolve(clarinLink);
-                        childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-                        parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
+                        if (clarinLink != null) {
+                            clarinLink = parentNode.getURI().resolve(clarinLink);
+                            childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
+                            parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
+                        }
                     }
                 }
             }
