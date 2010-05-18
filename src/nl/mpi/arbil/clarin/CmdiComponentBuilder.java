@@ -295,7 +295,7 @@ public class CmdiComponentBuilder {
 //        currentElement.setTextContent(xsdPath);
 //        documentNode.appendChild(currentElement);
         System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
-        constructXml(foundProperty.getType(), xsdPath, targetDocument, null, documentNode);
+        constructXml(foundProperty.getType().getOuterType(), xsdPath, targetDocument, null, documentNode, true);
         return documentNode;
     }
 
@@ -357,7 +357,7 @@ public class CmdiComponentBuilder {
     private void readSchema(Document workingDocument, URI xsdFile) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         SchemaType schemaType = getFirstSchemaType(schemaFile);
-        constructXml(schemaType, "documentTypes", workingDocument, xsdFile.toString(), null);
+        constructXml(schemaType, "documentTypes", workingDocument, xsdFile.toString(), null, false);
     }
 
     private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty) {
@@ -378,7 +378,7 @@ public class CmdiComponentBuilder {
         return currentElement;
     }
 
-    private void constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement) {
+    private void constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement, boolean forceFirstNode) {
         //System.out.println("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
 //            System.out.println("getAnonymousTypes:");
@@ -413,10 +413,11 @@ public class CmdiComponentBuilder {
             // their child nodes, in the case they are a complex type, because
             // only complex types have child nodes
             //currentSchemaType.getAttributeProperties();
-            if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
+            if (forceFirstNode || schemaProperty.getMinOccurs() != BigInteger.ZERO) {
+                forceFirstNode = false;
                 Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
                 //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
-                constructXml(currentSchemaType, currentPathString, workingDocument, nameSpaceUri, currentElement);
+                constructXml(currentSchemaType, currentPathString, workingDocument, nameSpaceUri, currentElement, false);
                 //     }
             }
             //}
