@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
 public class ArbilTemplate {
 
     public File templateFile;
-    private String loadedTemplateName;
+    public String loadedTemplateName;
     public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
     /*
@@ -87,8 +87,12 @@ public class ArbilTemplate {
                 return true;
             }
         } else {
+            // todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
+            nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
+            //System.out.println("pathThatCanHaveResource: " + nodePath);
             for (String[] currentPath : resourceNodePaths) {
-                if (currentPath[0].startsWith(nodePath)) {
+                //System.out.println("pathCanHaveResource: " + currentPath[0]);
+                if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
                     return true;
                 }
             }
