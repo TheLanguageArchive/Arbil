@@ -114,7 +114,7 @@ public class LinorgSessionStorage {
     }
 
     public void changeStorageDirectory(String preferedDirectory) {
-        TODO: this caused isses on windows 20100416
+//        TODO: this caused isses on windows 20100416 test and confirm if this is an issue
         if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to move the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             File fromDirectory = storageDirectory;
             File toDirectory = new File(preferedDirectory);
@@ -597,6 +597,8 @@ public class LinorgSessionStorage {
         while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
             cachePath = cachePath.replace(":", "_");
         }
+        // make the xsd path tidy for viewing in an editor durring testing
+        cachePath = cachePath.replaceAll("/xsd$", ".xsd");
         if (cachePath.matches(".*/[^.]*$")) {
             // rest paths will create files and then require directories of the same name and this must be avoided
             cachePath = cachePath + ".dat";
