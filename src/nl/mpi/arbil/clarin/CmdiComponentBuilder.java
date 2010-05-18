@@ -36,7 +36,6 @@ import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -128,15 +127,15 @@ public class CmdiComponentBuilder {
 //                printoutDocument(targetDocument);
                 Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
                 addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
-                NodeList childList = addedResourceNode.getChildNodes();
-                // this depends on the node order in the schema, which is a fallible way to do this, there should be some sort of check that we really have the correct nodes here
-                Node resourceTypeNode = childList.item(1);
-                Node resourceRefNode = childList.item(2);
-                System.out.println("addedResourceNode: " + addedResourceNode.getLocalName());
-                System.out.println("resourceTypeNode: " + resourceTypeNode.getLocalName());
-                System.out.println("resourceRefNode: " + resourceRefNode.getLocalName());
-                resourceTypeNode.setNodeValue(resourceNode.mpiMimeType);
-                resourceRefNode.setNodeValue(resourceNode.getUrlString());
+                for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
+                    String localName = childNode.getLocalName();
+                    if ("ResourceType".equals(localName)) {
+                        childNode.setTextContent(resourceNode.mpiMimeType);
+                    }
+                    if ("ResourceRef".equals(localName)) {
+                        childNode.setTextContent(resourceNode.getUrlString());
+                    }
+                }
             } catch (Exception exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -295,8 +294,7 @@ public class CmdiComponentBuilder {
 //        currentElement.setTextContent(xsdPath);
 //        documentNode.appendChild(currentElement);
         System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
-        constructXml(foundProperty.getType().getOuterType(), xsdPath, targetDocument, null, documentNode, true);
-        return documentNode;
+        return constructXml(foundProperty.getType().getOuterType(), xsdPath, targetDocument, null, documentNode, true);
     }
 
     private String convertNodeToNodePath(Document targetDocument, Node documentNode) {
@@ -378,7 +376,8 @@ public class CmdiComponentBuilder {
         return currentElement;
     }
 
-    private void constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement, boolean forceFirstNode) {
+    private Node constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement, boolean forceFirstNode) {
+        Node returnNode = null;
         //System.out.println("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
 //            System.out.println("getAnonymousTypes:");
@@ -416,12 +415,14 @@ public class CmdiComponentBuilder {
             if (forceFirstNode || schemaProperty.getMinOccurs() != BigInteger.ZERO) {
                 forceFirstNode = false;
                 Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
+                returnNode = currentElement;
                 //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
                 constructXml(currentSchemaType, currentPathString, workingDocument, nameSpaceUri, currentElement, false);
                 //     }
             }
             //}
         }
+        return returnNode;
     }
 
     private void printoutDocument(Document workingDocument) {
