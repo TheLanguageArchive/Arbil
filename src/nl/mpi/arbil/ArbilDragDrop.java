@@ -133,12 +133,12 @@ public class ArbilDragDrop {
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
                 if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
                     if (currentLeadSelection.isCmdiMetaDataNode()) {
-                        if (currentLeadSelection.nodeTemplate == null) {
+                        if (currentLeadSelection.getParentDomNode().nodeTemplate == null) {
                             System.out.println("no template for drop target node");
                             return false;
                         }
                         System.out.println("Drop to CMDI: " + currentLeadSelection.getURI().getFragment());
-                        return (currentLeadSelection.nodeTemplate.pathCanHaveResource(currentLeadSelection.getURI().getFragment()));
+                        return (currentLeadSelection.getParentDomNode().nodeTemplate.pathCanHaveResource(currentLeadSelection.getURI().getFragment()));
                     } else if (currentLeadSelection.isDirectory) {
                         return false; // nothing can be dropped to a directory
                     } else if (currentLeadSelection.isCorpus()) {
@@ -427,7 +427,7 @@ public class ArbilDragDrop {
 //                        if (((ImdiTreeObject) dropTargetUserObject).isImdiChild()) {
 //                            dropTargetUserObject = ((ImdiTreeObject) dropTargetUserObject).getParentDomNode();
 //                        }
-                                    if (((ImdiTreeObject) dropTargetUserObject).getParentDomNode().isSession()/* || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()*/) {
+                                    if (((ImdiTreeObject) dropTargetUserObject).getParentDomNode().isCmdiMetaDataNode() || ((ImdiTreeObject) dropTargetUserObject).getParentDomNode().isSession()/* || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()*/) {
                                         //TODO: for now we do not allow drag on to imdi child nodes
                                         if (selectionContainsArchivableLocalFile == true
                                                 && selectionContainsLocalFile == true
