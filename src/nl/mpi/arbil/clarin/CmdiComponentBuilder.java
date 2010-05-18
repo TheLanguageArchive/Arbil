@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +36,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -92,8 +94,79 @@ public class CmdiComponentBuilder {
         }
     }
 
+    public URI insertResourceProxy(ImdiTreeObject targetNode, ImdiTreeObject resourceNode) {
+//    <.CMD.Resources.ResourceProxyList.ResourceProxy>
+//        <ResourceProxyList>
+//            <ResourceProxy id="a_text">
+//                <ResourceType>Resource</ResourceType>
+//                <ResourceRef>bla.txt</ResourceRef>
+//            </ResourceProxy>
+        String targetXmlPath = targetNode.getURI().getFragment();
+        System.out.println("insertResourceProxy: " + targetXmlPath);
+        File cmdiNodeFile = targetNode.getFile();
+        String nodeFragment = "";
+
+        // geerate a uuid for new resource
+        String resourceProxyId = UUID.randomUUID().toString();
+        try {
+            // load the schema
+            SchemaType schemaType = getFirstSchemaType(targetNode.getNodeTemplate().templateFile);
+            // load the dom
+            Document targetDocument = getDocument(cmdiNodeFile);
+            // insert the new section
+            try {
+                try {
+//                    if (targetXmlPath == null) {
+//                        targetXmlPath = ".CMD.Components";
+//                    }
+                    Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
+                    documentNode.getAttributes().getNamedItem("ref").setNodeValue(resourceProxyId);
+                } catch (TransformerException exception) {
+                    GuiHelper.linorgBugCatcher.logError(exception);
+                    return null;
+                }
+//                printoutDocument(targetDocument);
+                Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
+                addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
+                NodeList childList = addedResourceNode.getChildNodes();
+                // this depends on the node order in the schema, which is a fallible way to do this, there should be some sort of check that we really have the correct nodes here
+                Node resourceTypeNode = childList.item(1);
+                Node resourceRefNode = childList.item(2);
+                System.out.println("addedResourceNode: " + addedResourceNode.getLocalName());
+                System.out.println("resourceTypeNode: " + resourceTypeNode.getLocalName());
+                System.out.println("resourceRefNode: " + resourceRefNode.getLocalName());
+                resourceTypeNode.setNodeValue(resourceNode.mpiMimeType);
+                resourceRefNode.setNodeValue(resourceNode.getUrlString());
+            } catch (Exception exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            }
+            // bump the history
+            targetNode.bumpHistory();
+            // save the dom
+            savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+        } catch (IOException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        } catch (ParserConfigurationException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        } catch (SAXException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        }
+        return targetNode.getURI();
+    }
+
     public URI insertChildComponent(ImdiTreeObject targetNode, String targetXmlPath, String cmdiComponentId) {
         System.out.println("insertChildComponent: " + cmdiComponentId);
+        System.out.println("targetXmlPath: " + targetXmlPath);
+        if (targetXmlPath == null) {
+            targetXmlPath = cmdiComponentId.replaceAll("\\.[^.]+$", "");
+        } else if (targetXmlPath.length() == cmdiComponentId.length()) {
+            targetXmlPath = targetXmlPath.replaceAll("\\.[^.]+$", "");
+        }
+        System.out.println("trimmed targetXmlPath: " + targetXmlPath);
         //String targetXpath = targetNode.getURI().getFragment();
         //System.out.println("targetXpath: " + targetXpath);
         File cmdiNodeFile = targetNode.getFile();
@@ -106,9 +179,11 @@ public class CmdiComponentBuilder {
             // insert the new section
             try {
 //                printoutDocument(targetDocument);
-                nodeFragment = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
+                Node AddedNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
+                nodeFragment = convertNodeToNodePath(targetDocument, AddedNode);
             } catch (Exception exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
             }
             // bump the history
             targetNode.bumpHistory();
@@ -116,10 +191,13 @@ public class CmdiComponentBuilder {
             savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
         } catch (IOException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
         } catch (ParserConfigurationException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
         } catch (SAXException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
         }
 //       diff_match_patch diffTool= new diff_match_patch();
 //       diffTool.diff_main(targetXpath, targetXpath);
@@ -134,7 +212,18 @@ public class CmdiComponentBuilder {
         }
     }
 
-    private String insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws Exception {
+    private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
+        // convert the syntax inherited from the imdi api into xpath
+        String tempXpath = targetXpath.replaceAll("\\.", "/:");
+        tempXpath = tempXpath.replaceAll("\\(", "[");
+        tempXpath = tempXpath.replaceAll("\\)", "]");
+//            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
+        System.out.println("tempXpath: " + tempXpath);
+        // find the target node of the xml
+        return org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+    }
+
+    private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws Exception {
         System.out.println("insertSectionToXpath");
         System.out.println("xsdPath: " + xsdPath);
         System.out.println("targetXpath: " + targetXpath);
@@ -144,14 +233,7 @@ public class CmdiComponentBuilder {
             documentNode = documentNode.getParentNode();
         } else {
             try {
-                // convert the syntax inherited from the imdi api into xpath
-                String tempXpath = targetXpath.replaceAll("\\.", "/:");
-                tempXpath = tempXpath.replaceAll("\\(", "[");
-                tempXpath = tempXpath.replaceAll("\\)", "]");
-//            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
-                System.out.println("tempXpath: " + tempXpath);
-                // find the target node of the xml
-                documentNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+                documentNode = selectSingleNode(targetDocument, targetXpath);
             } catch (TransformerException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -184,41 +266,46 @@ public class CmdiComponentBuilder {
                 //if (foundNode != null) {
                 //    // keep the last node found in the chain
 
-                if (strippedXpath != null && strippedXpath.startsWith("." + currentPathComponent)) {
-                    strippedXpath = strippedXpath.substring(currentPathComponent.length() + 1);
-                    System.out.println("strippedXpath: " + strippedXpath);
-                } else {
-                    Node childNode = documentNode.getFirstChild();
-                    while (childNode != null) {
-                        System.out.println("childNode: " + childNode.getNodeName());
-                        if (currentPathComponent.equals(childNode.getNodeName())) {
-                            System.out.println("found existing: " + currentPathComponent);
-                            documentNode = childNode;
-                            break;
-                        } else {
-                            childNode = childNode.getNextSibling();
-                        }
-                    }
-                    if (documentNode != childNode) {
-                        System.out.println("Adding destination node: " + currentPathComponent);
-                        System.out.println("Into: " + documentNode.getNodeName());
-                        documentNode = (Node) appendNode(targetDocument, null, documentNode, foundProperty);
-//                        throw new Exception("failed to find the node path in the document: " + currentPathComponent);
-                    }
-                }
+//                if (strippedXpath != null && strippedXpath.startsWith("." + currentPathComponent)) {
+//                    strippedXpath = strippedXpath.substring(currentPathComponent.length() + 1);
+//                    System.out.println("strippedXpath: " + strippedXpath);
+//                } else {
+//                    Node childNode = documentNode.getFirstChild();
+//                    while (childNode != null) {
+//                        System.out.println("childNode: " + childNode.getNodeName());
+//                        if (currentPathComponent.equals(childNode.getNodeName())) {
+//                            System.out.println("found existing: " + currentPathComponent);
+//                            documentNode = childNode;
+//                            break;
+//                        } else {
+//                            childNode = childNode.getNextSibling();
+//                        }
+//                    }
+//                    if (documentNode != childNode) {
+//                        System.out.println("Adding destination node: " + currentPathComponent);
+//                        System.out.println("Into: " + documentNode.getNodeName());
+//                        documentNode = (Node) appendNode(targetDocument, null, documentNode, foundProperty);
+////                        throw new Exception("failed to find the node path in the document: " + currentPathComponent);
+//                    }
+//                }
             }
         }
 //        System.out.println("Adding marker node");
-//        Element currentElement = targetDocument.createElement("AddedChildNode");
+//        Element currentElement = targetDocument.createElement("MarkerNode");
 //        currentElement.setTextContent(xsdPath);
-//        foundPreviousNode.appendChild(currentElement);
-        System.out.println("Adding destination sub nodes node");
+//        documentNode.appendChild(currentElement);
+        System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
         constructXml(foundProperty.getType(), xsdPath, targetDocument, null, documentNode);
+        return documentNode;
+    }
+
+    private String convertNodeToNodePath(Document targetDocument, Node documentNode) {
         System.out.println("Calculating the added fragment");
         String nodeFragment = documentNode.getNodeName();
         Node parentNode = documentNode.getParentNode();
         while (parentNode != null) {
             // TODO: handle sibbling node counts
+            // count siblings to get the correct child index for the fragment
             System.out.println("nodeFragment: " + nodeFragment);
             nodeFragment = parentNode.getNodeName() + "." + nodeFragment;
             if (parentNode.isSameNode(targetDocument.getDocumentElement())) {
@@ -230,7 +317,6 @@ public class CmdiComponentBuilder {
         System.out.println("nodeFragment: " + nodeFragment);
         return nodeFragment;
         //return childStartElement.
-
     }
 
     public URI createComponentFile(URI cmdiNodeFile, URI xsdFile) {
