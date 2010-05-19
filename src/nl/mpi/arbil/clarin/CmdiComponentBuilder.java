@@ -160,11 +160,23 @@ public class CmdiComponentBuilder {
     public URI insertChildComponent(ImdiTreeObject targetNode, String targetXmlPath, String cmdiComponentId) {
         System.out.println("insertChildComponent: " + cmdiComponentId);
         System.out.println("targetXmlPath: " + targetXmlPath);
+        // check for issues with the path
         if (targetXmlPath == null) {
             targetXmlPath = cmdiComponentId.replaceAll("\\.[^.]+$", "");
-        } else if (targetXmlPath.length() == cmdiComponentId.length()) {
+        } else if (targetXmlPath.replaceAll("\\(\\d+\\)", "").length() == cmdiComponentId.length()) {
+            // trim the last path component if the destination equals the new node path
+            // i.e. xsdPath: .CMD.Components.Session.Resources.MediaFile.Keys.Key into .CMD.Components.Session.Resources.MediaFile(1).Keys.Key
             targetXmlPath = targetXmlPath.replaceAll("\\.[^.]+$", "");
         }
+        // make sure the target xpath has all the required parts
+        String[] cmdiComponentArray = cmdiComponentId.split("\\.");
+        String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
+        for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
+            System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
+            targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
+        }
+        // end path corrections
+
         System.out.println("trimmed targetXmlPath: " + targetXmlPath);
         //String targetXpath = targetNode.getURI().getFragment();
         //System.out.println("targetXpath: " + targetXpath);
@@ -179,7 +191,7 @@ public class CmdiComponentBuilder {
             try {
 //                printoutDocument(targetDocument);
                 Node AddedNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
-                nodeFragment = convertNodeToNodePath(targetDocument, AddedNode);
+                nodeFragment = convertNodeToNodePath(targetDocument, AddedNode, targetXmlPath);
             } catch (Exception exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -294,26 +306,50 @@ public class CmdiComponentBuilder {
 //        currentElement.setTextContent(xsdPath);
 //        documentNode.appendChild(currentElement);
         System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
-        return constructXml(foundProperty.getType().getOuterType(), xsdPath, targetDocument, null, documentNode, true);
+        return constructXml(foundProperty, xsdPath, targetDocument, null, documentNode);
     }
 
-    private String convertNodeToNodePath(Document targetDocument, Node documentNode) {
+    private String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
         System.out.println("Calculating the added fragment");
-        String nodeFragment = documentNode.getNodeName();
-        Node parentNode = documentNode.getParentNode();
-        while (parentNode != null) {
-            // TODO: handle sibbling node counts
-            // count siblings to get the correct child index for the fragment
-            System.out.println("nodeFragment: " + nodeFragment);
-            nodeFragment = parentNode.getNodeName() + "." + nodeFragment;
-            if (parentNode.isSameNode(targetDocument.getDocumentElement())) {
-                break;
+        // count siblings to get the correct child index for the fragment
+        int siblingCouter = 1;
+        Node siblingNode = documentNode.getPreviousSibling();
+        while (siblingNode != null) {
+            if (documentNode.getLocalName().equals(siblingNode.getLocalName())) {
+                siblingCouter++;
             }
-            parentNode = parentNode.getParentNode();
+            siblingNode = siblingNode.getPreviousSibling();
         }
-        nodeFragment = "." + nodeFragment;
-        System.out.println("nodeFragment: " + nodeFragment);
-        return nodeFragment;
+        // get the current node name
+        String nodeFragment = documentNode.getNodeName();
+        String nodePathString = targetXmlPath + "." + nodeFragment + "(" + siblingCouter + ")";
+
+//        String nodePathString = "";
+//        Node parentNode = documentNode;
+//        while (parentNode != null) {
+//            // count siblings to get the correct child index for the fragment
+//            int siblingCouter = 1;
+//            Node siblingNode = parentNode.getPreviousSibling();
+//            while (siblingNode != null) {
+//                if (parentNode.getLocalName().equals(siblingNode.getLocalName())) {
+//                    siblingCouter++;
+//                }
+//                siblingNode = siblingNode.getPreviousSibling();
+//            }
+//            // get the current node name
+//            String nodeFragment = parentNode.getNodeName();
+//
+//            nodePathString = "." + nodeFragment + "(" + siblingCouter + ")" + nodePathString;
+//            //System.out.println("nodePathString: " + nodePathString);
+//            if (parentNode.isSameNode(targetDocument.getDocumentElement())) {
+//                break;
+//            }
+//            parentNode = parentNode.getParentNode();
+//        }
+//        nodeFragment = "." + nodeFragment;
+        System.out.println("nodeFragment: " + nodePathString);
+        System.out.println("targetXmlPath: " + targetXmlPath);
+        return nodePathString;
         //return childStartElement.
     }
 
@@ -355,7 +391,7 @@ public class CmdiComponentBuilder {
     private void readSchema(Document workingDocument, URI xsdFile) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         SchemaType schemaType = getFirstSchemaType(schemaFile);
-        constructXml(schemaType, "documentTypes", workingDocument, xsdFile.toString(), null, false);
+        constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null);
     }
 
     private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty) {
@@ -376,8 +412,14 @@ public class CmdiComponentBuilder {
         return currentElement;
     }
 
-    private Node constructXml(SchemaType schemaType, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement, boolean forceFirstNode) {
+    private Node constructXml(SchemaProperty currentSchemaProperty, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement) {
         Node returnNode = null;
+        // this must be tested against getting the actor description not the actor of an imdi profile instance
+        String currentPathString = pathString + "." + currentSchemaProperty.getName().getLocalPart();
+        System.out.println("Found Element: " + currentPathString);
+        SchemaType currentSchemaType = currentSchemaProperty.getType();
+        Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty);
+        returnNode = currentElement;
         //System.out.println("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
 //            System.out.println("getAnonymousTypes:");
@@ -399,25 +441,20 @@ public class CmdiComponentBuilder {
 
         /////////////////////
 
-        for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
+        for (SchemaProperty schemaProperty : currentSchemaType.getElementProperties()) {
             //for (int childCounter = 0; childCounter < schemaProperty.getMinOccurs().intValue(); childCounter++) {
             // if the searched element is a child node of the given node return
             // its SchemaType
             //if (properties[i].getName().toString().equals(element)) {
-            String currentPathString = pathString + "." + schemaProperty.getName().getLocalPart();
-            System.out.println("Found Element: " + currentPathString);
-            SchemaType currentSchemaType = schemaProperty.getType();
             // if the searched element was not a child of the given Node
             // then again for each of these child nodes search recursively in
             // their child nodes, in the case they are a complex type, because
             // only complex types have child nodes
             //currentSchemaType.getAttributeProperties();
-            if (forceFirstNode || schemaProperty.getMinOccurs() != BigInteger.ZERO) {
-                forceFirstNode = false;
-                Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, schemaProperty);
-                returnNode = currentElement;
-                //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
-                constructXml(currentSchemaType, currentPathString, workingDocument, nameSpaceUri, currentElement, false);
+            //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
+
+            if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
+                constructXml(schemaProperty, currentPathString, workingDocument, nameSpaceUri, currentElement);
                 //     }
             }
             //}
