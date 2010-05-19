@@ -38,6 +38,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private JMenuItem shortCutKeysjMenuItem;
     private JMenuItem arbilForumMenuItem;
+    private JMenuItem checkForUpdatesMenuItem;
     private JMenuItem viewErrorLogMenuItem;
     private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
     private JMenu templatesMenu;
@@ -103,6 +104,7 @@ public class ArbilMenuBar extends JMenuBar {
         helpMenuItem = new JMenuItem();
         shortCutKeysjMenuItem = new JMenuItem();
         arbilForumMenuItem = new JMenuItem();
+        checkForUpdatesMenuItem = new JMenuItem();
         viewErrorLogMenuItem = new JMenuItem();
         printHelpMenuItem = new JMenuItem();
         fileMenu.setText("File");
@@ -521,12 +523,12 @@ public class ArbilMenuBar extends JMenuBar {
         });
         helpMenu.add(helpMenuItem);
 
-        arbilForumMenuItem.setText("Arbil Forum (Website)");
+        arbilForumMenuItem.setText("Arbil Clarin Forum (Website)");
         arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
+                    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/post201004261386765572"));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -546,6 +548,19 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
         helpMenu.add(viewErrorLogMenuItem);
+
+        checkForUpdatesMenuItem.setText("Check for Updates");
+        checkForUpdatesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    new LinorgVersionChecker().forceUpdateCheck();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        helpMenu.add(checkForUpdatesMenuItem);
 
         shortCutKeysjMenuItem.setText("Short Cut Keys");
         shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
