@@ -478,7 +478,7 @@ public class ImdiTreeObject implements Comparable {
                                 cmdiComponentLinkReader.readLinks(this.getURI());
                             } else {
                                 cmdiComponentLinkReader = null;
-                            }                            
+                            }
                             Vector<String[]> childLinksTemp = new Vector<String[]>();
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                             // load the fields from the imdi file
@@ -665,7 +665,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public void getAllChildren(Vector<ImdiTreeObject> allChildren) {
         System.out.println("getAllChildren: " + this.getUrlString());
-        if (this.isSession() || this.isCatalogue() || this.isImdiChild()) {
+        if (this.isSession() || this.isCatalogue() || this.isImdiChild() || this.isCmdiMetaDataNode()) {
             for (ImdiTreeObject currentChild : childArray) {
                 currentChild.getAllChildren(allChildren);
                 allChildren.add(currentChild);
@@ -770,7 +770,7 @@ public class ImdiTreeObject implements Comparable {
         }
         URI addedNodePath = null;
         ImdiTreeObject destinationNode;
-        if (this.isCmdiMetaDataNode()) {
+        if (nodeType.startsWith(".") && this.isCmdiMetaDataNode()) {
             // add clarin sub nodes
             CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
             addedNodePath = componentBuilder.insertChildComponent(this, targetXmlPath, nodeType);
@@ -1308,6 +1308,14 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean requestAddNode(String nodeTypeDisplayName, ImdiTreeObject addableImdiNode) {
+        // todo: update this when functional
+        if (this.isCmdiMetaDataNode()) {
+            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+            todo handle this outside the gui thread
+            URI addedNodePath = componentBuilder.insertResourceProxy(this, addableImdiNode);
+            return true;
+        }
+
         boolean returnValue = true;
         ImdiTreeObject[] sourceImdiNodeArray;
         if (addableImdiNode.isEmptyMetaNode()) {
@@ -1659,6 +1667,31 @@ public class ImdiTreeObject implements Comparable {
         return fieldHashtable;
     }
 
+//    public String getCommonFieldPathString() {
+//        // find repetitious path strings in the fields for this node so they can be omitted from the table display
+//        if (commonFieldPathString == null) {
+//            if (fieldHashtable.size() < 2) {
+//                // if there is only one field name then it would be reduced to zero length which we do not want
+//                commonFieldPathString = "";
+//            } else {
+//                String commonPath = null;
+//                for (ImdiField[] currentField : fieldHashtable.values()) {
+//                    if (commonPath == null) {
+//                        commonPath = currentField[0].xmlPath;
+//                    } else {
+//                        int matchingIndex = commonPath.length();
+//                        while (matchingIndex > 0 && !commonPath.substring(0, matchingIndex).equals(currentField[0].xmlPath.substring(0, matchingIndex))) {
+//                            System.out.println("matchingIndex: " + matchingIndex + "\t" + commonPath.substring(0, matchingIndex));
+//                            matchingIndex--;
+//                        }
+//                        commonPath = commonPath.substring(0, matchingIndex);
+//                    }
+//                }
+//                commonFieldPathString = commonPath;
+//            }
+//        }
+//        return commonFieldPathString;
+//    }
     /**
      * Compares this node to another based on its type and string value.
      * @return The string comparison result.
@@ -1723,6 +1756,11 @@ public class ImdiTreeObject implements Comparable {
         } else if (lastNodeText.equals("loading imdi...") && getParentDomNode().imdiDataLoaded) {
             lastNodeText = "                      ";
         }
+//        if (commonFieldPathString != null && commonFieldPathString.length() > 0) {
+//            // todo: use the commonFieldPathString as the node name if not display preference is set or the ones that are set have no value
+//            nodeText = commonFieldPathString;
+//        }
+        boolean foundPreferredNameField = false;
         getLabelString:
         for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
             //System.out.println("currentField: " + currentPreferredName);
@@ -1732,12 +1770,21 @@ public class ImdiTreeObject implements Comparable {
                     if (currentField != null) {
                         if (currentField.toString().trim().length() > 0) {
                             nodeText = currentField.toString();
+                            System.out.println("nodeText: " + nodeText);
+                            foundPreferredNameField = true;
                             break getLabelString;
                         }
                     }
                 }
             }
         }
+        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && this.nodeTemplate != null) {
+            nodeText = "unnamed (" + this.nodeTemplate.getTemplateName() + ")";
+        }
+//        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
+//            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
+//            nodeText = fieldHashtable.elements().nextElement()[0].getFullXmlPath().split("\\.")[3];
+//        }
         if (hasResource()) {
             String resourcePathString = getFullResourceURI().toString();
             int lastIndex = resourcePathString.lastIndexOf("/");
