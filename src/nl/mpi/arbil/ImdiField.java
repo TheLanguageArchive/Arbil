@@ -299,6 +299,8 @@ public class ImdiField {
             fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus", "");
             fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Catalogue", "");
 
+            // handle the clarin path names
+            fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 
 //                    if (attributeName.equals("Name")) {
             if (fieldName.endsWith("Keys.Key")) {
