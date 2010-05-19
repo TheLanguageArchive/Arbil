@@ -16,6 +16,7 @@ import java.util.Vector;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -38,22 +39,38 @@ public class CmdiTemplate extends ArbilTemplate {
 
         // construct the template from the XSD
         try {
+            // get the name of this profile
+            loadedTemplateName = new CmdiProfileReader().getProfileName(nameSpaceString);
+
             // create a temp file of the read template data so that it can be compared to a hand made version
             File debugTempFile = File.createTempFile("templatetext", ".tmp");
             debugTempFile.deleteOnExit();
             BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
 
             ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
+            ArrayList<String[]> resourceNodePathsList = new ArrayList<String[]>();
+            ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
             URI xsdUri = new URI(nameSpaceString);
-            readSchema(xsdUri, childNodePathsList);
+            readSchema(xsdUri, childNodePathsList, resourceNodePathsList, fieldConstraintList);
             childNodePaths = childNodePathsList.toArray(new String[][]{});
+            resourceNodePaths = resourceNodePathsList.toArray(new String[][]{});
+            fieldConstraints = fieldConstraintList.toArray(new String[][]{});
+
             for (String[] currentArray : childNodePaths) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
                 debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
+            for (String[] currentArray : resourceNodePaths) {
+                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                debugTemplateFileWriter.write("<ResourceNodePath RefPath=\"" + currentArray[0] + "\" RefNodeName=\"" + currentArray[1] + "\" />\r\n");
+            }
+            for (String[] currentArray : fieldConstraints) {
+                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                debugTemplateFileWriter.write("<FieldConstraint FieldPath=\"" + currentArray[0] + "\" Constraint=\"" + currentArray[1] + "\" />\r\n");
+            }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+       //     LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
@@ -65,12 +82,12 @@ public class CmdiTemplate extends ArbilTemplate {
         //templatesArray = childNodePaths;
         // TODO: complete these
         requiredFields = new String[]{};
-        fieldConstraints = new String[][]{};
         preferredNameFields = new String[]{};
         fieldUsageArray = new String[][]{};
         fieldTriggersArray = new String[][]{};
         autoFieldsArray = new String[][]{};
         genreSubgenreArray = new String[][]{};
+        templatesArray = new String[][]{};
     }
 
     @Override
@@ -135,7 +152,7 @@ public class CmdiTemplate extends ArbilTemplate {
         return childTypes.elements();
     }
 
-    private void readSchema(URI xsdFile, ArrayList<String[]> childNodePathsList) {
+    private void readSchema(URI xsdFile, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         templateFile = schemaFile; // store the template file for later use such as adding child nodes
         try {
@@ -146,17 +163,34 @@ public class CmdiTemplate extends ArbilTemplate {
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
                 System.out.println("T-documentTypes:");
-                constructXml(schemaType, childNodePathsList, "");
+                constructXml(schemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, "");
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
         } catch (IOException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
+            GuiHelper.linorgBugCatcher.logError(templateFile.getName(), e);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not open the required template file: " + templateFile.getName(), "Load Clarin Template");
         } catch (XmlException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
+            GuiHelper.linorgBugCatcher.logError(templateFile.getName(), e);
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not read the required template file: " + templateFile.getName(), "Load Clarin Template");
         }
     }
 
-    private void constructXml(SchemaType schemaType, ArrayList<String[]> childNodePathsList, String pathString) {
+    private void constructXml(SchemaType schemaType, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList, String pathString) {
+//        SchemaAnnotation ann = ((SchemaLocalElement) schemaType.getContentModel()).getAnnotation();
+        //System.out.println("SchemaAnnotation: " + schemaType.getDocumentElementName());
+
+//        System.out.println((SchemaLocalElement) schemaType.getContentModel());
+//        System.out.println((SchemaLocalElement) schemaType.getContentModel());
+//        System.out.println((SchemaLocalElement) schemaType.getContentModel().getParticleChild(0));
+//
+//        SchemaLocalElement schemaElement = (SchemaLocalElement) schemaType.getContentModel().getParticleChild(0);
+//        System.out.println(schemaElement.getAnnotation().getUserInformation()[0].execQuery("//xs:documentation/text()")[0]);
+
+//        for (SchemaProperty schemaProperty : schemaType.getProperties()) {
+//            System.out.println("getProperties: " + schemaProperty.getName());
+//            System.out.println("getProperties: " + schemaProperty.toString());
+//        }
+
         for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
@@ -172,13 +206,186 @@ public class CmdiTemplate extends ArbilTemplate {
                 canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
             }
             boolean hasSubNodes = false;
+            //   SchemaAnnotation ann = ((SchemaLocalElement)ProductTypeDocument.type.getContentModel()).getAnnotation();
+            //documentation = SchemaUtils.getDocumentation( schemaType );
             System.out.println("Found template element: " + currentPathString);
             SchemaType currentSchemaType = schemaProperty.getType();
-            constructXml(currentSchemaType, childNodePathsList, currentPathString);
+//            System.out.println("getAnnotation: " + schemaProperty.getType().getAnnotation());
+//
+//            System.out.println("getAnnotation: " + schemaProperty.getContainerType().getAnnotation());
+//            System.out.println("getAnnotation: " + schemaProperty.getType().getAnnotation());
+//            for (SchemaProperty schemaSubProperty : currentSchemaType.getAttributeProperties()) {
+//                System.out.println("getAttributeProperties: " + schemaSubProperty.getName().getLocalPart());
+//            }
+//            for (SchemaProperty schemaSubProperty : currentSchemaType.getDerivedProperties()) {
+//                System.out.println("getDerivedProperties: " + schemaSubProperty.getName().getLocalPart());
+//            }
+//            for (SchemaProperty schemaSubProperty : currentSchemaType.getElementProperties()) {
+//                System.out.println("getElementProperties: " + schemaSubProperty.getName().getLocalPart());
+//            }
+//            for (SchemaProperty schemaSubProperty : currentSchemaType.getProperties()) {
+//                System.out.println("getProperties: " + schemaSubProperty.getName().getLocalPart());
+//            }
+//            for (SchemaType schemaSubType : currentSchemaType.getAnonymousTypes()) {
+//                System.out.println("getAnonymousTypes: " + schemaSubType.getAnnotation());
+//            }
+
+//             SchemaAnnotation ann = ((SchemaLocalElement) currentSchemaType.getContentModel()).getAnnotation();
+//            System.out.println("SchemaAnnotation: " + ann.getName());
+//            SchemaAnnotation ann = ((SchemaLocalElement)ProductTypeDocument.type.getContentModel()).getAnnotation();
+
+
+//            if (currentSchemaType.getContentType() == SchemaType.ELEMENT_CONTENT
+//                    || currentSchemaType.getContentType() == SchemaType.MIXED_CONTENT) {
+//                SchemaParticle topParticle = currentSchemaType.getContentModel();
+//                // topParticle is non-null if we checked the content
+//                navigateParticle(topParticle);
+//            }
+
+
+            // getAnnotations(currentSchemaType);
+
+
+            constructXml(currentSchemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, currentPathString);
             hasSubNodes = true; // todo: complete or remove this hasSubNodes case
             if (canHaveMultiple && hasSubNodes) {
                 childNodePathsList.add(new String[]{currentPathString, localName});
             }
+            boolean hasResourceAttribute = false;
+            for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
+                if (attributesProperty.getName().getLocalPart().equals("ref")) {
+                    hasResourceAttribute = true;
+                    break;
+                }
+            }
+            if (hasResourceAttribute) {
+                resourceNodePathsList.add(new String[]{currentPathString, localName});
+            }
+
+//            System.out.println("type: " + currentSchemaType.getName());
+//            System.out.println("getSourceName: " + currentSchemaType.getSourceName());
+//            System.out.println("getFullJavaName: " + currentSchemaType.getFullJavaName());
+//
+//            System.out.println("getSourceName: " + currentSchemaType.getSourceName());
+//
+//            System.out.println("getFullJavaName: " + currentSchemaType.getUserData());
+//
+//            System.out.println(".getBuiltinTypeCode: " + currentSchemaType.getBuiltinTypeCode());
+//            System.out.println("getFullJavaName: " + currentSchemaType.getFullJavaName());
+            // {http://www.w3.org/2001/XMLSchema}string
+            // {http://www.w3.org/2001/XMLSchema}date
+            // {http://www.w3.org/2001/XMLSchema}anyURI
+            switch (schemaProperty.getType().getBuiltinTypeCode()) {
+                case SchemaType.BTC_STRING:
+                    System.out.println("BTC_STRING");
+                    // no constraint relevant for string
+                    break;
+                case SchemaType.BTC_DATE:
+                    System.out.println("BTC_DATE");
+                    fieldConstraintList.add(new String[]{currentPathString, "([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"});// todo: complete this regex
+                    break;
+                case SchemaType.BTC_BOOLEAN:
+                    System.out.println("BTC_BOOLEAN");
+                    fieldConstraintList.add(new String[]{currentPathString, "true|false"});// todo: complete this regex
+                    break;
+                case SchemaType.BTC_ANY_URI:
+                    System.out.println("BTC_ANY_URI");
+                    fieldConstraintList.add(new String[]{currentPathString, "[^\\d]+://.*"});// todo: complete this regex
+                    break;
+//                case SchemaType. XML object???:
+//                    System.out.println("");
+//                    fieldConstraintList.add(new String[]{currentPathString, "[^\\d]+://.*"});// todo: complete this regex
+//                    break;
+                case 0:
+                    // no constraint relevant
+                    break;
+                default:
+                    System.out.println("uknown");
+                    break;
+            }
+//            schemaProperty.getType().
         }
     }
+
+//    public static void printPropertyInfo(SchemaProperty p) {
+//        System.out.println("Property name=\"" + p.getName() + "\", type=\"" + p.getType().getName()
+//                + "\", maxOccurs=\""
+//                + (p.getMaxOccurs() != null ? p.getMaxOccurs().toString() : "unbounded") + "\"");
+//    }
+
+//    public void getAnnotations(SchemaType schemaType) {
+//        SchemaParticle typeParticle = schemaType.getContentModel();
+//        if (typeParticle == null) {
+//            return;
+//        }
+//        SchemaParticle[] childParts =
+//                typeParticle.getParticleChildren();
+//        if (childParts == null) {
+//            return;
+//        }
+//        for (SchemaParticle part : childParts) {
+//            /* I know my property is of element type */
+//            if (part.getParticleType() == SchemaParticle.ELEMENT) {
+////                if (part.getName().equals(prop.getName())) {
+//                SchemaAnnotation ann = ((SchemaLocalElement) schemaType.getContentModel()).getAnnotation();
+//                System.out.println("SchemaAnnotation: " + ann);
+//
+//                System.out.println("SchemaLocalElement: " + ((SchemaLocalElement) part).getAnnotation());
+////                }
+//            }
+//        }
+//    }
+//
+//    public void getAnnotations(SchemaType schemaType, SchemaProperty prop) {
+//        SchemaParticle typeParticle = schemaType.getContentModel();
+//        if (typeParticle == null) {
+//            //return null;
+//        }
+//        SchemaParticle[] childParts =
+//                typeParticle.getParticleChildren();
+//        if (childParts == null) {
+//            //return null;
+//        }
+//        for (SchemaParticle part : childParts) {
+//            /* I know my property is of element type */
+//            if (part.getParticleType() == SchemaParticle.ELEMENT) {
+//                if (part.getName().equals(prop.getName())) {
+//                    System.out.println("SchemaLocalElement: " + ((SchemaLocalElement) part).getAnnotation());
+//                }
+//            }
+//        }
+//    }
+//
+//    public void navigateParticle(SchemaParticle p) {
+//        switch (p.getParticleType()) {
+//            case SchemaParticle.ALL:
+//            case SchemaParticle.CHOICE:
+//            case SchemaParticle.SEQUENCE:
+//                // These are "container" particles, so iterate over their children
+//                SchemaParticle[] children = p.getParticleChildren();
+//                for (int i = 0; i < children.length; i++) {
+//                    navigateParticle(children[i]);
+//                }
+//                break;
+//            case SchemaParticle.ELEMENT:
+//                printElementInfo((SchemaLocalElement) p);
+//                break;
+//            default:
+//            // There can also be "wildcards" corresponding to <xs:any> elements in the Schema
+//        }
+//    }
+//
+//    public void printElementInfo(SchemaLocalElement e) {
+//        System.out.println("Element name=\"" + e.getName() + "\", type=\"" + e.getType().getName()
+//                + "\", maxOccurs=\""
+//                + (e.getMaxOccurs() != null ? e.getMaxOccurs().toString() : "unbounded") + "\"");
+//        SchemaAnnotation annotation = e.getAnnotation();
+//        if (annotation != null) {
+//            SchemaAnnotation.Attribute[] att = annotation.getAttributes();
+//            if (att != null && att.length > 0) {
+//                System.out.println("  Annotation: " + att[0].getName() + "=\""
+//                        + att[0].getValue() + "\"");
+//            }
+//        }
+//    }
 }
