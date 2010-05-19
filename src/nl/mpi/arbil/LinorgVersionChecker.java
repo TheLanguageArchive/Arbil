@@ -13,7 +13,13 @@ import javax.swing.JOptionPane;
  */
 public class LinorgVersionChecker {
 
-    LinorgFrame parentComponent;
+    public void forceUpdateCheck() {
+        LinorgVersion linorgVersion = new LinorgVersion();
+        String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
+        File cachePath = LinorgSessionStorage.getSingleInstance().getSaveLocation("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt);
+        cachePath.delete();
+        this.checkForUpdate();
+    }
 
     private boolean isLatestVersion() {
         try {
@@ -38,7 +44,7 @@ public class LinorgVersionChecker {
     private boolean doUpdate(String webstartUrlString) {
         try {
             //TODO: check the version of javaws before calling this
-            Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws","-import", webstartUrlString});
+            Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", webstartUrlString});
             BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
             String line;
             while ((line = errorStreamReader.readLine()) != null) {
@@ -64,16 +70,19 @@ public class LinorgVersionChecker {
         }
     }
 
-    public void checkForUpdate(final LinorgFrame parentComponentLocal) {
-        parentComponent = parentComponentLocal;
-        new Thread() {
+    public void checkForUpdate() {
+        if (this.hasWebStartUrl()) {
+            this.checkForAndUpdateViaJavaws();
+        } else {
+            new Thread() {
 
-            public void run() {
-                if (!isLatestVersion()) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+                public void run() {
+                    if (!isLatestVersion()) {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+                    }
                 }
-            }
-        }.start();
+            }.start();
+        }
     }
 
     public boolean hasWebStartUrl() {
@@ -84,8 +93,7 @@ public class LinorgVersionChecker {
         return null != webstartUpdateUrl;
     }
 
-    public void checkForAndUpdateViaJavaws(final LinorgFrame parentComponentLocal) {
-        parentComponent = parentComponentLocal;
+    public void checkForAndUpdateViaJavaws() {
         //if (last check date not today)
         new Thread() {
 
@@ -95,7 +103,7 @@ public class LinorgVersionChecker {
                 {
                     if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-                        switch (JOptionPane.showConfirmDialog(parentComponent, "There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        switch (JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             case JOptionPane.NO_OPTION:
                                 break;
                             case JOptionPane.YES_OPTION:
