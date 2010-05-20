@@ -119,11 +119,16 @@ public class TemplateDialogue extends javax.swing.JPanel {
         jButton1.setVisible(false);
         jProgressBar1.setVisible(true);
         this.doLayout();
-        CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
-        cmdiProfileReader.refreshProfiles(jProgressBar1);
-        jProgressBar1.setVisible(false);
-        jButton1.setVisible(true);
-        this.doLayout();
+        new Thread() {
+
+            public void run() {
+                CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+                cmdiProfileReader.refreshProfiles(jProgressBar1);
+                jProgressBar1.setVisible(false);
+                jButton1.setVisible(true);
+                doLayout();
+            }
+        }.start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
