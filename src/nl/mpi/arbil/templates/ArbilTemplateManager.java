@@ -17,8 +17,9 @@ public class ArbilTemplateManager {
     private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
-    private String[] builtInTemplates = {"Default", "Sign Language"}; // the first item in this list is the default template
+//    private String[] builtInTemplates = {"Default", "Sign Language"}; // the first item in this list is the default template
 //    private ArbilTemplate defaultArbilTemplate;
+    public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
 
     static synchronized public ArbilTemplateManager getSingleInstance() {
         if (singleInstance == null) {
@@ -76,6 +77,117 @@ public class ArbilTemplateManager {
 
     public File getTemplateDirectory() {
         return new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "templates");
+    }
+
+    public void addSelectedTemplates(String templateString) {
+        ArrayList<String> selectedTamplates = new ArrayList<String>();
+        try {
+            selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+        } catch (Exception e) {
+            GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
+        }
+        selectedTamplates.add(templateString);
+        LinorgSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
+    }
+
+    public void removeSelectedTemplates(String templateString) {
+        ArrayList<String> selectedTamplates = new ArrayList<String>();
+        selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+        while (selectedTamplates.contains(templateString)) {
+            selectedTamplates.remove(templateString);
+        }
+        LinorgSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
+    }
+
+    public ArrayList<String> getSelectedTemplateArrayList() {
+        ArrayList<String> selectedTamplates = new ArrayList<String>();
+        try {
+            selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+        } catch (Exception e) {
+            GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
+        }
+        return selectedTamplates;
+    }
+
+    public String[][] getSelectedTemplates() {
+        String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+        String[][] returnArray = new String[locationsArray.length][3];
+        for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
+            returnArray[insertableCounter][0] = locationsArray[insertableCounter] + "a";
+            returnArray[insertableCounter][1] = locationsArray[insertableCounter] + "b";
+            returnArray[insertableCounter][2] = locationsArray[insertableCounter] + "c";
+        }
+        return returnArray;
+
+
+
+
+
+//     
+//                Vector childTypes = new Vector();
+//        if (targetNodeUserObject instanceof ImdiTreeObject) {
+//            String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
+//            childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
+//            if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
+//                for (String[] currentTemplate : rootTemplatesArray) {
+//                    boolean suppressEntry = false;
+//                    if (currentTemplate[1].equals("Catalogue")) {
+//                        if (((ImdiTreeObject) targetNodeUserObject).hasCatalogue()) {
+//                            // make sure the catalogue can only be added once
+//                            suppressEntry = true;
+//                        }
+//                    }
+//                    if (!suppressEntry) {
+//                        childTypes.add(new String[]{currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+//                    }
+//                }
+//            }
+////            System.out.println("childTypes: " + childTypes);
+//        } else {
+//            // add the the root node items
+//            for (String[] currentTemplate : rootTemplatesArray) {
+//                if (!currentTemplate[1].equals("Catalogue")) {// make sure the catalogue can not be added at the root level
+//                    childTypes.add(new String[]{"Unattached " + currentTemplate[1], "." + currentTemplate[0].replaceFirst("\\.xml$", "")});
+//                }
+//            }
+//        }
+//        Collections.sort(childTypes, new Comparator() {
+//
+//            public int compare(Object o1, Object o2) {
+//                String value1 = ((String[]) o1)[0];
+//                String value2 = ((String[]) o2)[0];
+//                return value1.compareTo(value2);
+//            }
+//        });
+//        return childTypes.elements();
+
+
+
+
+
+
+//    HashSet<String> locationsSet = new HashSet<String>();
+//            for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes}) {
+//                for (ImdiTreeObject currentLocation : currentTreeArray) {
+//                    locationsSet.add(currentLocation.getUrlString());
+//                }
+//            }
+//            if (nodesToAdd != null) {
+//                for (ImdiTreeObject currentAddable : nodesToAdd) {
+//                    locationsSet.add(currentAddable.getUrlString());
+//                }
+//            }
+//            if (nodesToRemove != null) {
+//                for (ImdiTreeObject currentRemoveable : nodesToRemove) {
+//                    locationsSet.remove(currentRemoveable.getUrlString());
+//                }
+//            }
+//            Vector<String> locationsList = new Vector<String>(); // this vector is kept for backwards compatability
+//            for (String currentLocation : locationsSet) {
+//                locationsList.add(URLDecoder.decode(currentLocation, "UTF-8"));
+//            }
+//            //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+//            LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
     }
 
     public String[] getAvailableTemplates() {
