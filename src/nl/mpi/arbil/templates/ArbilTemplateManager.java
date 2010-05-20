@@ -17,7 +17,7 @@ import nl.mpi.arbil.data.ImdiSchema;
  */
 public class ArbilTemplateManager {
 
-    private String defaultArbilTemplateName;
+    //private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
     private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
@@ -61,23 +61,20 @@ public class ArbilTemplateManager {
         return currentTemplateFile;
     }
 
-    public boolean defaultTemplateIsCurrentTemplate() {
-        return defaultArbilTemplateName.equals(builtInTemplates2[0]);
-    }
-
-    public String getCurrentTemplateName() {
-        return defaultArbilTemplateName;
-    }
-
-    public void setCurrentTemplate(String currentTemplateLocal) {
-        defaultArbilTemplateName = currentTemplateLocal;
-        try {
-            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", currentTemplateLocal);
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
-    }
-
+//    public boolean defaultTemplateIsCurrentTemplate() {
+//        return defaultArbilTemplateName.equals(builtInTemplates2[0]);
+//    }
+//    public String getCurrentTemplateName() {
+//        return defaultArbilTemplateName;
+//    }
+//    public void setCurrentTemplate(String currentTemplateLocal) {
+//        defaultArbilTemplateName = currentTemplateLocal;
+//        try {
+//            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", currentTemplateLocal);
+//        } catch (Exception ex) {
+//            GuiHelper.linorgBugCatcher.logError(ex);
+//        }
+//    }
     public File getTemplateDirectory() {
         return new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "templates");
     }
@@ -249,15 +246,15 @@ public class ArbilTemplateManager {
 
     private ArbilTemplateManager() {
         templatesHashTable = new Hashtable<String, ArbilTemplate>();
-        defaultArbilTemplateName = LinorgSessionStorage.getSingleInstance().loadString("CurrentTemplate");
-        if (defaultArbilTemplateName == null) {
-            defaultArbilTemplateName = builtInTemplates2[0];
-            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", defaultArbilTemplateName);
-        }
+//        defaultArbilTemplateName = LinorgSessionStorage.getSingleInstance().loadString("CurrentTemplate");
+//        if (defaultArbilTemplateName == null) {
+//            defaultArbilTemplateName = builtInTemplates2[0];
+//            LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", defaultArbilTemplateName);
+//        }
     }
 
-    public ArbilTemplate getCurrentTemplate() {
-        return getTemplate(defaultArbilTemplateName);
+    public ArbilTemplate getDefaultTemplate() {
+        return getTemplate(builtInTemplates2[0]);
     }
 
     public ArbilTemplate getCmdiTemplate(String nameSpaceString) {
