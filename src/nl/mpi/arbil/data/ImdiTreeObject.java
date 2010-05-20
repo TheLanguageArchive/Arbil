@@ -717,7 +717,8 @@ public class ImdiTreeObject implements Comparable {
         } else if (this.isImdiChild()) {
             return this.getParentDomNode().getNodeTemplate();
         } else {
-            return ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
+            //new LinorgBugCatcher().logError(new Exception("Corpus Branch Null Template"));
+            return ArbilTemplateManager.getSingleInstance().getDefaultTemplate();
         }
     }
 
