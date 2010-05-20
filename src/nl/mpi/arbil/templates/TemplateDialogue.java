@@ -165,14 +165,14 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         templatesPanel.removeAll();
         templatesPanel.setLayout(new javax.swing.BoxLayout(templatesPanel, javax.swing.BoxLayout.PAGE_AXIS));
         // add built in types
-        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().builtInTemplates) {
+        for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
             JCheckBox templateCheckBox;
             templateCheckBox = new JCheckBox();
-            templateCheckBox.setText(currentTemplateName);
-            templateCheckBox.setName(currentTemplateName);
-            templateCheckBox.setActionCommand("builtin:" + currentTemplateName);
+            templateCheckBox.setText(currentTemplateName[1] + " (internal)");
+            templateCheckBox.setName(currentTemplateName[1]);
+            templateCheckBox.setActionCommand("builtin:" + currentTemplateName[0]);
             templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
-            templateCheckBox.setToolTipText(currentTemplateName);
+            templateCheckBox.setToolTipText(currentTemplateName[1]);
             templateCheckBox.addActionListener(this);
             templatesPanel.add(templateCheckBox);
         }
