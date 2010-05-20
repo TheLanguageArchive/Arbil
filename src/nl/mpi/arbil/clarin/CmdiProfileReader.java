@@ -2,6 +2,7 @@ package nl.mpi.arbil.clarin;
 
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.JProgressBar;
 import nl.mpi.arbil.LinorgSessionStorage;
 import org.apache.commons.digester.Digester;
 
@@ -27,9 +28,11 @@ public class CmdiProfileReader {
         return (pathString.startsWith("http") && pathString.contains("clarin"));
     }
 
-    public String getProfileName(String XsdHref){
-        for (CmdiProfile currentProfile:cmdiProfileArray){
-            if (currentProfile.getXsdHref().equals(XsdHref))return currentProfile.name;
+    public String getProfileName(String XsdHref) {
+        for (CmdiProfile currentProfile : cmdiProfileArray) {
+            if (currentProfile.getXsdHref().equals(XsdHref)) {
+                return currentProfile.name;
+            }
         }
         return "unknown Clarin profile";
     }
@@ -57,14 +60,24 @@ public class CmdiProfileReader {
         }
     }
 
-    public void refreshProfiles() {
+    public void refreshProfiles(JProgressBar progressBar) {
+        progressBar.setIndeterminate(true);
+        progressBar.setString("");
         LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, 0);
         loadProfiles();
+        progressBar.setIndeterminate(false);
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(cmdiProfileArray.size() + 1);
+        progressBar.setValue(1);
         // get all the xsd files from the profile listing and store them on disk for offline use
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+            progressBar.setString(currentCmdiProfile.name);
             System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
             LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 0);
+            progressBar.setValue(progressBar.getValue() + 1);
         }
+        progressBar.setString("");
+        progressBar.setValue(0);
     }
 
     public void loadProfiles() {
