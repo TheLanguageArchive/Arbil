@@ -514,7 +514,7 @@ public class LinorgSessionStorage {
      * @return The path of the file in the cache.
      */
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
-        //TODO: There will need to be a way to expire the files in the cache.
+        // to expire the files in the cache set the expireCacheCopy flag.
         File cachePath = getSaveLocation(pathString);
         try {
             saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag);
