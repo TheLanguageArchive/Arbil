@@ -25,6 +25,7 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.data.ImdiSchema;
 import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.templates.TemplateDialogue;
 
 /**
  * ArbilMenuBar.java
@@ -41,7 +42,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem checkForUpdatesMenuItem;
     private JMenuItem viewErrorLogMenuItem;
     private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
-    private JMenu templatesMenu;
+    private JMenuItem templatesMenu;
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
     private JCheckBoxMenuItem useLanguageIdInColumnNameCheckBoxMenuItem;
     private JMenuItem undoMenuItem;
@@ -84,7 +85,7 @@ public class ArbilMenuBar extends JMenuBar {
         redoMenuItem = new JMenuItem();
         optionsMenu = new JMenu();
 //        editLocationsMenuItem = new JMenuItem();
-        templatesMenu = new JMenu();
+        templatesMenu = new JMenuItem();
 //        viewFavouritesMenuItem = new JMenuItem();
         setStorageDirectoryMenu = new JMenu();
         setCacheDirectoryMenu = new JMenu();
@@ -281,20 +282,30 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(editLocationsMenuItem);
 
-        templatesMenu.setText("Templates");
-        optionsMenu.add(templatesMenu);
-        templatesMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        templatesMenu.setText("Templates & Profiles");
+        templatesMenu.addActionListener(new java.awt.event.ActionListener() {
 
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
-            }
-
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
-            }
-
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
-                populateTemplatesMenu(templatesMenu);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    new TemplateDialogue().showTemplatesDialogue();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
+        optionsMenu.add(templatesMenu);
+//        .addMenuListener(new javax.swing.event.MenuListener() {
+//
+//            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+//            }
+//
+//            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+//            }
+//
+//            public void menuSelected(javax.swing.event.MenuEvent evt) {
+//                populateTemplatesMenu(templatesMenu);
+//            }
+//        });
 
 //        viewFavouritesMenuItem.setText("View Favourites");
 //        viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -767,84 +778,78 @@ public class ArbilMenuBar extends JMenuBar {
             System.exit(0);
         }
     }
-
-    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
-        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
-        templateMenuItem.setText(templateName);
-        templateMenuItem.setName(templateName);
-        templateMenuItem.setActionCommand(templateName);
-        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
+//    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
+//        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
+//        templateMenuItem.setText(templateName);
+//        templateMenuItem.setName(templateName);
+//        templateMenuItem.setActionCommand(templateName);
+//        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
-                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-                    System.out.println("setting template: " + evt.getActionCommand());
-                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
-                } catch (Exception e) {
-                    GuiHelper.linorgBugCatcher.logError(e);
-                }
-            }
-        });
-        templatesMenuButtonGroup.add(templateMenuItem);
-        templateMenu.add(templateMenuItem);
-        if (selectedTemplate.equals(templateName)) {
-            templateMenuItem.setSelected(true);
-        }
-    }
-
-    private void addTemplateAddNewMenuItem(JMenu templateMenu) {
-        JMenuItem templateMenuItem = new JMenuItem();
-        templateMenuItem.setText("<add new>");
-        templateMenuItem.setName("<add new>");
-        templateMenuItem.setActionCommand("<add new>");
-        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
-                    // if the user cancels the directory string will be a empty string.
-                    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
-                    }
-                    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
-                    if (freshTemplateFile != null) {
-                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
-                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
-                    } else {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
-                    }
-//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
-                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
-                } catch (Exception e) {
-                    GuiHelper.linorgBugCatcher.logError(e);
-                }
-            }
-        });
-        templateMenu.add(templateMenuItem);
-    }
-
-    public void populateTemplatesMenu(JMenu templateMenu) {
-        templateMenu.removeAll();
-        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
-
-        int templateCount = 0;
+//                } catch (Exception e) {
+//                    GuiHelper.linorgBugCatcher.logError(e);
+//                }
+//            }
+//        });
+//        templatesMenuButtonGroup.add(templateMenuItem);
+//        templateMenu.add(templateMenuItem);
+//        if (selectedTemplate.equals(templateName)) {
+//            templateMenuItem.setSelected(true);
+//        }
+//    }
+//    private void addTemplateAddNewMenuItem(JMenu templateMenu) {
+//        JMenuItem templateMenuItem = new JMenuItem();
+//        templateMenuItem.setText("<add new>");
+//        templateMenuItem.setName("<add new>");
+//        templateMenuItem.setActionCommand("<add new>");
+//        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
+//                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+//                    // if the user cancels the directory string will be a empty string.
+//                    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
+//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+//                    }
+//                    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
+//                    if (freshTemplateFile != null) {
+//                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
+//                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
+//                    } else {
+//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+//                    }
+////                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
+//                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+////                    System.out.println("setting template: " + evt.getActionCommand());
+////                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
+//                } catch (Exception e) {
+//                    GuiHelper.linorgBugCatcher.logError(e);
+//                }
+//            }
+//        });
+//        templateMenu.add(templateMenuItem);
+//    }
+//    public void populateTemplatesMenu(JMenu templateMenu) {
+//        templateMenu.removeAll();
+//        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
+//        int templateCount = 0;
 //        addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, "", "Default", ArbilTemplateManager.getSingleInstance().getCurrentTemplate());
-        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
+//        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
 //            String templatePath = templatesDir.getPath() + File.separatorChar + currentTemplateName;
 //            if (new File(templatePath).isDirectory()) {
-            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
-            templateCount++;
+//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+//            templateCount++;
 //            }
-        }
-        if (templateCount == 0) {
-            JMenuItem noneMenuItem = new JMenuItem("<none installed>");
-            noneMenuItem.setEnabled(false);
-            templateMenu.add(noneMenuItem);
-        }
-        addTemplateAddNewMenuItem(templateMenu);
+//        }
+//        if (templateCount == 0) {
+//            JMenuItem noneMenuItem = new JMenuItem("<none installed>");
+//            noneMenuItem.setEnabled(false);
+//            templateMenu.add(noneMenuItem);
+//        }
+//        addTemplateAddNewMenuItem(templateMenu);
 //        CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
 //        if (templateCount > 0 && cmdiProfileReader.cmdiProfileArray.size() > 0) {
 //            templateMenu.add(new JSeparator());
@@ -853,5 +858,5 @@ public class ArbilMenuBar extends JMenuBar {
 //            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentCmdiProfile.name, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
 //            templateCount++;
 //        }
-    }
+//    }
 }
