@@ -1,5 +1,7 @@
 package nl.mpi.arbil.templates;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
@@ -14,7 +16,7 @@ import nl.mpi.arbil.clarin.CmdiProfileReader;
  * Created on May 20, 2010, 9:03:29 AM
  * @author Peter.Withers@mpi.nl
  */
-public class TemplateDialogue extends javax.swing.JPanel {
+public class TemplateDialogue extends javax.swing.JPanel implements ActionListener {
 
     /** Creates new form TemplateDialogue */
     public TemplateDialogue() {
@@ -121,6 +123,7 @@ public class TemplateDialogue extends javax.swing.JPanel {
         this.doLayout();
         new Thread() {
 
+            @Override
             public void run() {
                 CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
                 cmdiProfileReader.refreshProfiles(jProgressBar1);
@@ -165,52 +168,26 @@ public class TemplateDialogue extends javax.swing.JPanel {
             templateCheckBox = new JCheckBox();
             templateCheckBox.setText(currentTemplateName);
             templateCheckBox.setName(currentTemplateName);
-            templateCheckBox.setActionCommand(currentTemplateName);
+            templateCheckBox.setActionCommand("builtin:" + currentTemplateName);
             templateCheckBox.setToolTipText(currentTemplateName);
-            templateCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    try {
-//                        if (leadSelectedTreeNode != null) {
-//                            leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-//                        } else {
-//                            // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-//                            ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-//                        }
-                    } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
-                    }
-                }
-            });
+            templateCheckBox.addActionListener(this);
             templatesPanel.add(templateCheckBox);
         }
         // add custom templates
+        todo: sort these entries
         for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
             JCheckBox templateCheckBox;
             templateCheckBox = new JCheckBox();
             templateCheckBox.setText(currentTemplateName);
             templateCheckBox.setName(currentTemplateName);
-            templateCheckBox.setActionCommand(currentTemplateName);
+            templateCheckBox.setActionCommand("template:" + currentTemplateName);
             templateCheckBox.setToolTipText(currentTemplateName);
-            templateCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    try {
-//                        if (leadSelectedTreeNode != null) {
-//                            leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-//                        } else {
-//                            // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-//                            ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-//                        }
-                    } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
-                    }
-                }
-            });
+            templateCheckBox.addActionListener(this);
             templatesPanel.add(templateCheckBox);
         }
         templatesPanel.doLayout();
         // add clarin types
+        todo: sort these entries
         clarinPanel.removeAll();
         clarinPanel.setLayout(new javax.swing.BoxLayout(clarinPanel, javax.swing.BoxLayout.PAGE_AXIS));
         CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
@@ -219,26 +196,20 @@ public class TemplateDialogue extends javax.swing.JPanel {
             clarinProfileCheckBox = new JCheckBox();
             clarinProfileCheckBox.setText(currentCmdiProfile.name);
             clarinProfileCheckBox.setName(currentCmdiProfile.name);
-            clarinProfileCheckBox.setActionCommand(currentCmdiProfile.getXsdHref());
+            clarinProfileCheckBox.setActionCommand("clarin:" + currentCmdiProfile.getXsdHref());
             clarinProfileCheckBox.setToolTipText(currentCmdiProfile.description);
-            clarinProfileCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    try {
-//                        if (leadSelectedTreeNode != null) {
-//                            leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-//                        } else {
-//                            // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-//                            ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-//                        }
-                    } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
-                    }
-                }
-            });
+            clarinProfileCheckBox.addActionListener(this);
             clarinPanel.add(clarinProfileCheckBox);
         }
         clarinPanel.doLayout();
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if (((JCheckBox) e.getSource()).isSelected()) {
+            ArbilTemplateManager.getSingleInstance().addSelectedTemplates(e.getActionCommand());
+        } else {
+            ArbilTemplateManager.getSingleInstance().removeSelectedTemplates(e.getActionCommand());
+        }
     }
 
     public void showTemplatesDialogue() {
