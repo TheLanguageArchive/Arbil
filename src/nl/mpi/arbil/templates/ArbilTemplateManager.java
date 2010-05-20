@@ -114,6 +114,12 @@ public class ArbilTemplateManager {
 
     public String[][] getSelectedTemplates() {
         String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+        if (locationsArray == null || locationsArray.length == 0) {
+            addSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
+            addSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
+            addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
+            locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+        }
         String[][] returnArray = new String[locationsArray.length][3];
         for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
             if (locationsArray[insertableCounter].startsWith("builtin:")) {
