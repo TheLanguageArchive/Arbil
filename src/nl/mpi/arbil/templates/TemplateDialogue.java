@@ -3,6 +3,7 @@ package nl.mpi.arbil.templates;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -160,6 +161,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void populateLists() {
+        ArrayList<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
         templatesPanel.removeAll();
         templatesPanel.setLayout(new javax.swing.BoxLayout(templatesPanel, javax.swing.BoxLayout.PAGE_AXIS));
         // add built in types
@@ -169,6 +171,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             templateCheckBox.setText(currentTemplateName);
             templateCheckBox.setName(currentTemplateName);
             templateCheckBox.setActionCommand("builtin:" + currentTemplateName);
+            templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
             templateCheckBox.setToolTipText(currentTemplateName);
             templateCheckBox.addActionListener(this);
             templatesPanel.add(templateCheckBox);
@@ -181,6 +184,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             templateCheckBox.setText(currentTemplateName);
             templateCheckBox.setName(currentTemplateName);
             templateCheckBox.setActionCommand("template:" + currentTemplateName);
+            templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
             templateCheckBox.setToolTipText(currentTemplateName);
             templateCheckBox.addActionListener(this);
             templatesPanel.add(templateCheckBox);
@@ -197,6 +201,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             clarinProfileCheckBox.setText(currentCmdiProfile.name);
             clarinProfileCheckBox.setName(currentCmdiProfile.name);
             clarinProfileCheckBox.setActionCommand("clarin:" + currentCmdiProfile.getXsdHref());
+            clarinProfileCheckBox.setSelected(selectedTamplates.contains(clarinProfileCheckBox.getActionCommand()));
             clarinProfileCheckBox.setToolTipText(currentCmdiProfile.description);
             clarinProfileCheckBox.addActionListener(this);
             clarinPanel.add(clarinProfileCheckBox);
