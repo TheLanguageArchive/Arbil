@@ -40,7 +40,7 @@ public class CmdiTemplate extends ArbilTemplate {
         // construct the template from the XSD
         try {
             // get the name of this profile
-            loadedTemplateName = new CmdiProfileReader().getProfileName(nameSpaceString);
+            loadedTemplateName = new CmdiProfileReader().getProfile(nameSpaceString).name;
 
             // create a temp file of the read template data so that it can be compared to a hand made version
             File debugTempFile = File.createTempFile("templatetext", ".tmp");
@@ -303,6 +303,8 @@ public class CmdiTemplate extends ArbilTemplate {
                     System.out.println("uknown");
                     break;
             }
+
+todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
 //            schemaProperty.getType().
         }
     }
