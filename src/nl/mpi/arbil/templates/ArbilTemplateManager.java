@@ -4,7 +4,10 @@ import nl.mpi.arbil.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.clarin.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ImdiSchema;
 
 /**
@@ -17,9 +20,9 @@ public class ArbilTemplateManager {
     private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
-//    private String[] builtInTemplates = {"Default", "Sign Language"}; // the first item in this list is the default template
+    private String[] builtInTemplates2 = {"Default", "Sign Language"}; // the first item in this list is the default template
 //    private ArbilTemplate defaultArbilTemplate;
-    public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
+    //public String[] builtInTemplates = {"Corpus Branch (internal)", "Session (internal)", "Catalogue (internal)", "Sign Language (internal)"};
 
     static synchronized public ArbilTemplateManager getSingleInstance() {
         if (singleInstance == null) {
@@ -31,7 +34,7 @@ public class ArbilTemplateManager {
     public File createTemplate(String selectedTemplate) {
         if (selectedTemplate.length() == 0) {
             return null;
-        } else if (Arrays.binarySearch(builtInTemplates, selectedTemplate) > -1) {
+        } else if (Arrays.binarySearch(builtInTemplates2, selectedTemplate) > -1) {
             return null;
         } else {
             File selectedTemplateFile = getTemplateFile(selectedTemplate);
@@ -41,7 +44,7 @@ public class ArbilTemplateManager {
             File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
             examplesDirectory.mkdir(); // create the example components directory
             // copy example components from the jar file            
-            for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates[0]).templatesArray) {
+            for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
                 LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag());
             }
             // copy example "format.xsl" from the jar file which is used in the imdi to html conversion
@@ -59,7 +62,7 @@ public class ArbilTemplateManager {
     }
 
     public boolean defaultTemplateIsCurrentTemplate() {
-        return defaultArbilTemplateName.equals(builtInTemplates[0]);
+        return defaultArbilTemplateName.equals(builtInTemplates2[0]);
     }
 
     public String getCurrentTemplateName() {
@@ -113,10 +116,36 @@ public class ArbilTemplateManager {
         String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         String[][] returnArray = new String[locationsArray.length][3];
         for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
-            returnArray[insertableCounter][0] = locationsArray[insertableCounter] + "a";
-            returnArray[insertableCounter][1] = locationsArray[insertableCounter] + "b";
-            returnArray[insertableCounter][2] = locationsArray[insertableCounter] + "c";
+            if (locationsArray[insertableCounter].startsWith("builtin:")) {
+                String currentString = locationsArray[insertableCounter].substring("builtin:".length());
+                for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
+                    if (currentString.equals(currentTemplateName[0])) {
+                        returnArray[insertableCounter][0] = currentTemplateName[1];
+                        returnArray[insertableCounter][1] = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
+                        returnArray[insertableCounter][2] = currentTemplateName[1];
+                    }
+                }
+            }
+            if (locationsArray[insertableCounter].startsWith("template:")) {
+                todo:
+                returnArray[insertableCounter][0] = locationsArray[insertableCounter] + "a";
+                returnArray[insertableCounter][1] = locationsArray[insertableCounter] + "b";
+                returnArray[insertableCounter][2] = locationsArray[insertableCounter] + "c";
+            }
+            if (locationsArray[insertableCounter].startsWith("clarin:")) {
+                String currentString = locationsArray[insertableCounter].substring("clarin:".length());
+                CmdiProfile cmdiProfile = new CmdiProfileReader().getProfile(currentString);
+                returnArray[insertableCounter][0] = cmdiProfile.name;
+                returnArray[insertableCounter][1] = cmdiProfile.getXsdHref();
+                returnArray[insertableCounter][2] = cmdiProfile.description;
+            }
         }
+        Arrays.sort(returnArray, new Comparator() {
+
+            public int compare(Object firstItem, Object secondItem) {
+                return ((String[]) firstItem)[0].compareToIgnoreCase(((String[]) secondItem)[0]);
+            }
+        });
         return returnArray;
 
 
@@ -203,10 +232,10 @@ public class ArbilTemplateManager {
                 templateList.add(currentTemplateName);
             }
         }
-        for (String currentTemplateName : builtInTemplates) {
-            // add the Default and SignLanguage built in templates
-            templateList.add(currentTemplateName);
-        }
+//        for (String currentTemplateName : builtInTemplates) {
+//            // add the Default and SignLanguage built in templates
+//            templateList.add(currentTemplateName);
+//        }
         templatesList = templateList.toArray(new String[]{});
         Arrays.sort(templatesList);
         return templatesList;
@@ -216,7 +245,7 @@ public class ArbilTemplateManager {
         templatesHashTable = new Hashtable<String, ArbilTemplate>();
         defaultArbilTemplateName = LinorgSessionStorage.getSingleInstance().loadString("CurrentTemplate");
         if (defaultArbilTemplateName == null) {
-            defaultArbilTemplateName = builtInTemplates[0];
+            defaultArbilTemplateName = builtInTemplates2[0];
             LinorgSessionStorage.getSingleInstance().saveString("CurrentTemplate", defaultArbilTemplateName);
         }
     }
@@ -243,7 +272,7 @@ public class ArbilTemplateManager {
     public ArbilTemplate getTemplate(String templateName) {
         ArbilTemplate returnTemplate = new ArbilTemplate();
         if (templateName == null) {
-            templateName = builtInTemplates[0]; // if the template does not exist the default values will be loaded
+            templateName = builtInTemplates2[0]; // if the template does not exist the default values will be loaded
         }
         if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
