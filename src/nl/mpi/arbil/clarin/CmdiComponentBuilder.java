@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,6 +24,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.GuiHelper;
+import nl.mpi.arbil.LinorgJournal;
 import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.data.ImdiTreeObject;
@@ -35,6 +37,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
@@ -93,133 +96,231 @@ public class CmdiComponentBuilder {
         }
     }
 
-    public URI insertResourceProxy(ImdiTreeObject targetNode, ImdiTreeObject resourceNode) {
+    public URI insertResourceProxy(ImdiTreeObject imdiTreeObject, ImdiTreeObject resourceNode) {
+        synchronized (imdiTreeObject.domLockObject) {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
 //            <ResourceProxy id="a_text">
 //                <ResourceType>Resource</ResourceType>
 //                <ResourceRef>bla.txt</ResourceRef>
 //            </ResourceProxy>
-        String targetXmlPath = targetNode.getURI().getFragment();
-        System.out.println("insertResourceProxy: " + targetXmlPath);
-        File cmdiNodeFile = targetNode.getFile();
-        String nodeFragment = "";
+            String targetXmlPath = imdiTreeObject.getURI().getFragment();
+            System.out.println("insertResourceProxy: " + targetXmlPath);
+            File cmdiNodeFile = imdiTreeObject.getFile();
+            String nodeFragment = "";
 
-        // geerate a uuid for new resource
-        String resourceProxyId = UUID.randomUUID().toString();
-        try {
-            // load the schema
-            SchemaType schemaType = getFirstSchemaType(targetNode.getNodeTemplate().templateFile);
-            // load the dom
-            Document targetDocument = getDocument(cmdiNodeFile);
-            // insert the new section
+            // geerate a uuid for new resource
+            String resourceProxyId = UUID.randomUUID().toString();
             try {
+                // load the schema
+                SchemaType schemaType = getFirstSchemaType(imdiTreeObject.getNodeTemplate().templateFile);
+                // load the dom
+                Document targetDocument = getDocument(cmdiNodeFile);
+                // insert the new section
                 try {
+                    try {
 //                    if (targetXmlPath == null) {
 //                        targetXmlPath = ".CMD.Components";
 //                    }
-                    Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
-                    documentNode.getAttributes().getNamedItem("ref").setNodeValue(resourceProxyId);
-                } catch (TransformerException exception) {
+                        Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
+                        documentNode.getAttributes().getNamedItem("ref").setNodeValue(resourceProxyId);
+                    } catch (TransformerException exception) {
+                        GuiHelper.linorgBugCatcher.logError(exception);
+                        return null;
+                    }
+//                printoutDocument(targetDocument);
+                    Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
+                    addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
+                    for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
+                        String localName = childNode.getLocalName();
+                        if ("ResourceType".equals(localName)) {
+                            childNode.setTextContent(resourceNode.mpiMimeType);
+                        }
+                        if ("ResourceRef".equals(localName)) {
+                            childNode.setTextContent(resourceNode.getUrlString());
+                        }
+                    }
+                } catch (Exception exception) {
                     GuiHelper.linorgBugCatcher.logError(exception);
                     return null;
                 }
-//                printoutDocument(targetDocument);
-                Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
-                addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
-                for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
-                    String localName = childNode.getLocalName();
-                    if ("ResourceType".equals(localName)) {
-                        childNode.setTextContent(resourceNode.mpiMimeType);
-                    }
-                    if ("ResourceRef".equals(localName)) {
-                        childNode.setTextContent(resourceNode.getUrlString());
-                    }
-                }
-            } catch (Exception exception) {
+                // bump the history
+                imdiTreeObject.bumpHistory();
+                // save the dom
+                savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+            } catch (IOException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            } catch (ParserConfigurationException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            } catch (SAXException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
             }
-            // bump the history
-            targetNode.bumpHistory();
-            // save the dom
-            savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
-        } catch (IOException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
-        } catch (ParserConfigurationException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
-        } catch (SAXException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
+            return imdiTreeObject.getURI();
         }
-        return targetNode.getURI();
     }
 
-    public URI insertChildComponent(ImdiTreeObject targetNode, String targetXmlPath, String cmdiComponentId) {
-        System.out.println("insertChildComponent: " + cmdiComponentId);
-        System.out.println("targetXmlPath: " + targetXmlPath);
-        // check for issues with the path
-        if (targetXmlPath == null) {
-            targetXmlPath = cmdiComponentId.replaceAll("\\.[^.]+$", "");
-        } else if (targetXmlPath.replaceAll("\\(\\d+\\)", "").length() == cmdiComponentId.length()) {
-            // trim the last path component if the destination equals the new node path
-            // i.e. xsdPath: .CMD.Components.Session.Resources.MediaFile.Keys.Key into .CMD.Components.Session.Resources.MediaFile(1).Keys.Key
-            targetXmlPath = targetXmlPath.replaceAll("\\.[^.]+$", "");
-        }
-        // make sure the target xpath has all the required parts
-        String[] cmdiComponentArray = cmdiComponentId.split("\\.");
-        String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
-        for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
-            System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
-            targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
-        }
-        // end path corrections
-
-        System.out.println("trimmed targetXmlPath: " + targetXmlPath);
-        //String targetXpath = targetNode.getURI().getFragment();
-        //System.out.println("targetXpath: " + targetXpath);
-        File cmdiNodeFile = targetNode.getFile();
-        String nodeFragment = "";
-        try {
-            // load the schema
-            SchemaType schemaType = getFirstSchemaType(targetNode.getNodeTemplate().templateFile);
-            // load the dom
-            Document targetDocument = getDocument(cmdiNodeFile);
-            // insert the new section
+    public boolean removeChildNodes(ImdiTreeObject imdiTreeObject, String nodePaths[]) {
+        synchronized (imdiTreeObject.domLockObject) {
+            System.out.println("removeChildNodes: " + imdiTreeObject);
+            File cmdiNodeFile = imdiTreeObject.getFile();
             try {
+                Document targetDocument = getDocument(cmdiNodeFile);
+                // collect up all the nodes to be deleted without changing the xpath
+                ArrayList<Node> selectedNodes = new ArrayList<Node>();
+                for (String currentNodePath : nodePaths) {
+                    System.out.println("removeChildNodes: " + currentNodePath);
+                    // todo: search for and remove any reource links referenced by this node or its sub nodes
+                    Node documentNode = selectSingleNode(targetDocument, currentNodePath);
+                    selectedNodes.add(documentNode);
+
+                }
+                // delete all the nodes now that the xpath is no longer relevant
+                for (Node currentNode : selectedNodes) {
+                    currentNode.getParentNode().removeChild(currentNode);
+                }
+                // bump the history
+                imdiTreeObject.bumpHistory();
+                // save the dom
+                savePrettyFormatting(targetDocument, cmdiNodeFile);
+                for (String currentNodePath : nodePaths) {
+                    // todo log to jornal file
+                }
+                return true;
+            } catch (ParserConfigurationException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            } catch (SAXException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            } catch (IOException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            } catch (TransformerException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+            return false;
+        }
+    }
+
+    public boolean setFieldValues(ImdiTreeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
+        synchronized (imdiTreeObject.domLockObject) {
+            System.out.println("setFieldValues: " + imdiTreeObject);
+            File cmdiNodeFile = imdiTreeObject.getFile();
+            try {
+                Document targetDocument = getDocument(cmdiNodeFile);
+                for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
+                    System.out.println("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
+                    // todo: search for and remove any reource links referenced by this node or its sub nodes
+                    Node documentNode = selectSingleNode(targetDocument, currentFieldUpdate.fieldPath);
+                    NamedNodeMap attributesMap = documentNode.getAttributes();
+                    if (currentFieldUpdate.fieldOldValue.equals(documentNode.getTextContent())) {
+                        documentNode.setTextContent(currentFieldUpdate.fieldNewValue);
+                    } else {
+                        GuiHelper.linorgBugCatcher.logError(new Exception("expecting \'" + currentFieldUpdate.fieldOldValue + "\' not \'" + documentNode.getTextContent() + "\' in " + currentFieldUpdate.fieldPath));
+                        return false;
+                    }
+                    Node keyNameNode = attributesMap.getNamedItem("Name");
+                    if (keyNameNode != null && currentFieldUpdate.keyNameValue != null) {
+                        keyNameNode.setNodeValue(currentFieldUpdate.keyNameValue);
+                    }
+                    Node languageNode = attributesMap.getNamedItem("LanguageId");
+                    if (languageNode != null && currentFieldUpdate.fieldLanguageId != null) {
+                        languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
+                    }
+                }
+                // bump the history
+                imdiTreeObject.bumpHistory();
+                // save the dom
+                savePrettyFormatting(targetDocument, cmdiNodeFile);
+                for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
+                    // log to jornal file
+                    LinorgJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath, currentFieldUpdate.fieldOldValue, currentFieldUpdate.fieldNewValue, "save");
+                    if (currentFieldUpdate.fieldLanguageId != null) {
+                        LinorgJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":LanguageId", currentFieldUpdate.fieldLanguageId, "", "save");
+                    }
+                    if (currentFieldUpdate.keyNameValue != null) {
+                        LinorgJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":Name", currentFieldUpdate.keyNameValue, "", "save");
+                    }
+                }
+                return true;
+            } catch (ParserConfigurationException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            } catch (SAXException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            } catch (IOException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            } catch (TransformerException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+            return false;
+        }
+    }
+
+    public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
+        synchronized (imdiTreeObject.domLockObject) {
+            System.out.println("insertChildComponent: " + cmdiComponentId);
+            System.out.println("targetXmlPath: " + targetXmlPath);
+            // check for issues with the path
+            if (targetXmlPath == null) {
+                targetXmlPath = cmdiComponentId.replaceAll("\\.[^.]+$", "");
+            } else if (targetXmlPath.replaceAll("\\(\\d+\\)", "").length() == cmdiComponentId.length()) {
+                // trim the last path component if the destination equals the new node path
+                // i.e. xsdPath: .CMD.Components.Session.Resources.MediaFile.Keys.Key into .CMD.Components.Session.Resources.MediaFile(1).Keys.Key
+                targetXmlPath = targetXmlPath.replaceAll("\\.[^.]+$", "");
+            }
+            // make sure the target xpath has all the required parts
+            String[] cmdiComponentArray = cmdiComponentId.split("\\.");
+            String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
+            for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
+                System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
+                targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
+            }
+            // end path corrections
+
+            System.out.println("trimmed targetXmlPath: " + targetXmlPath);
+            //String targetXpath = targetNode.getURI().getFragment();
+            //System.out.println("targetXpath: " + targetXpath);
+            File cmdiNodeFile = imdiTreeObject.getFile();
+            String nodeFragment = "";
+            try {
+                // load the schema
+                SchemaType schemaType = getFirstSchemaType(imdiTreeObject.getNodeTemplate().templateFile);
+                // load the dom
+                Document targetDocument = getDocument(cmdiNodeFile);
+                // insert the new section
+                try {
 //                printoutDocument(targetDocument);
-                Node AddedNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
-                nodeFragment = convertNodeToNodePath(targetDocument, AddedNode, targetXmlPath);
-            } catch (Exception exception) {
+                    Node AddedNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
+                    nodeFragment = convertNodeToNodePath(targetDocument, AddedNode, targetXmlPath);
+                } catch (Exception exception) {
+                    GuiHelper.linorgBugCatcher.logError(exception);
+                    return null;
+                }
+                // bump the history
+                imdiTreeObject.bumpHistory();
+                // save the dom
+                savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+            } catch (IOException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            } catch (ParserConfigurationException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            } catch (SAXException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
             }
-            // bump the history
-            targetNode.bumpHistory();
-            // save the dom
-            savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
-        } catch (IOException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
-        } catch (ParserConfigurationException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
-        } catch (SAXException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
-        }
 //       diff_match_patch diffTool= new diff_match_patch();
 //       diffTool.diff_main(targetXpath, targetXpath);
-        try {
-            System.out.println("nodeFragment: " + nodeFragment);
-            // return the child node url and path in the xml
-            // first strip off any fragment then add the full node fragment
-            return new URI(targetNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
-        } catch (URISyntaxException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            return null;
+            try {
+                System.out.println("nodeFragment: " + nodeFragment);
+                // return the child node url and path in the xml
+                // first strip off any fragment then add the full node fragment
+                return new URI(imdiTreeObject.getURI().toString().split("#")[0] + "#" + nodeFragment);
+            } catch (URISyntaxException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            }
         }
     }
 
