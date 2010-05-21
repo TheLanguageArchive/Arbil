@@ -246,7 +246,7 @@ public class LinorgFavourites {
                             currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, false);
                         } else {
                             // add sub nodes if they dont already exist
-                            currentField = new ImdiField(targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, "");
+                            currentField = new ImdiField(targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, "", 0); // this is not correct but this section should be simplified asap
                             currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, true); // this is done separatly to trigger the needs save to disk flag
                             targetImdiObject.addField(currentField);
 //                            currentField.fieldNeedsSaveToDisk = true;
