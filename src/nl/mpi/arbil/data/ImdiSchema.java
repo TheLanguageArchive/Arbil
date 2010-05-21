@@ -189,7 +189,7 @@ public class ImdiSchema {
             for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                 String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                 String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                exifTagFields.add(new ImdiField(resourceImdi, prefixString + imdiPathSeparator + attributeName, attributeValue));
+                exifTagFields.add(new ImdiField(resourceImdi, prefixString + imdiPathSeparator + attributeName, attributeValue, 0));
             }
         }
         if (node.hasChildNodes()) {
@@ -556,6 +556,7 @@ public class ImdiSchema {
         if (!parentChildTree.containsKey(parentNode)) {
             parentChildTree.put(parentNode, new HashSet<ImdiTreeObject>());
         }
+        Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
@@ -692,7 +693,16 @@ public class ImdiSchema {
             } else {
                 fieldValue = "";
             }
-            ImdiField fieldToAdd = new ImdiField(destinationNode, siblingNodePath, fieldValue);
+
+            // calculate the xpath index for multiple fields like description
+//            System.out.println("siblingNodePath: " + siblingNodePath);
+            if (!siblingNodePathCounter.containsKey(siblingNodePath)) {
+                siblingNodePathCounter.put(siblingNodePath, 0);
+            } else {
+                siblingNodePathCounter.put(siblingNodePath, siblingNodePathCounter.get(siblingNodePath) + 1);
+            }
+//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
+            ImdiField fieldToAdd = new ImdiField(destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(siblingNodePath));
 
             // TODO: about to write this function
             //GuiHelper.imdiSchema.convertXmlPathToUiPath();
