@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
@@ -384,6 +385,7 @@ public class TreeHelper {
     }
 
     synchronized public void addToSortQueue(DefaultMutableTreeNode addToQueueTreeNode) {
+        // todo: there is an issue that causes the meta node to remain when the last sub node within it is deleted
         if (!treeNodeSortQueue.contains(addToQueueTreeNode)) {
 //            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
             treeNodeSortQueue.add(addToQueueTreeNode);
@@ -625,8 +627,8 @@ public class TreeHelper {
             }
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 Vector<ImdiTreeObject> imdiNodesToRemove = new Vector<ImdiTreeObject>();
-                Hashtable<ImdiTreeObject, Vector> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector>();
-                Hashtable<ImdiTreeObject, Vector> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector>();
+                Hashtable<ImdiTreeObject, Vector<String>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<String>>();
+                Hashtable<ImdiTreeObject, Vector<String>> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector<String>>();
                 for (TreePath currentNodePath : currentNodePaths) {
                     if (currentNodePath != null) {
                         selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -650,15 +652,16 @@ public class TreeHelper {
                                     }
                                     if (childImdiNode.isEmptyMetaNode()) {
                                         for (ImdiTreeObject metaChildNode : childImdiNode.getChildArray()) {
-                                            imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(metaChildNode.xmlNodeId);
+                                            imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
                                         }
                                     }
-                                    imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.xmlNodeId);
+                                    imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.getURI().getFragment());
                                 } else {
                                     // add the parent and the child node to the deletelist
                                     if (!imdiNodesDeleteList.containsKey(parentImdiNode)) {
                                         imdiNodesDeleteList.put(parentImdiNode, new Vector());
                                     }
+                                    GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                                     imdiNodesDeleteList.get(parentImdiNode).add(childImdiNode);
                                 }
 // remove the deleted node from the favourites list if it is an imdichild node
@@ -669,7 +672,7 @@ public class TreeHelper {
 //                            }
                             }
                         }
-                        // todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
+ todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
                         TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
                         // make a list of all child nodes so that they can be removed from any tables etc
                         imdiNodesToRemove.add((ImdiTreeObject) userObject);
@@ -679,10 +682,19 @@ public class TreeHelper {
                 for (ImdiTreeObject currentParent : imdiChildNodeDeleteList.keySet()) {
                     System.out.println("deleting by child xml id link");
                     // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
-                    currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                    boolean result = componentBuilder.removeChildNodes(currentParent, (imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    if (result) {
+                        currentParent.reloadNode();
+                    } else {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting node, check the log file via the help menu for ore information.", "Delete Node");
+                    }
+                    //GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                 }
                 for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
                     System.out.println("deleting by corpus link");
+                    GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                     currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
                 }
                 for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
