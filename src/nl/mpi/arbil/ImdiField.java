@@ -27,12 +27,14 @@ public class ImdiField {
     private String originalLanguageId = null;
     private int isRequiredField = -1;
     private int canValidateField = -1;
+    private int siblingCount;
 
-    public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
+    public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue, int tempSiblingCount) {
         parentImdi = localParentImdi;
         fieldValue = tempValue;
         originalFieldValue = fieldValue;
         xmlPath = tempPath;
+        siblingCount = tempSiblingCount;
     }
 
 //private String originalValue = null;
@@ -112,7 +114,7 @@ public class ImdiField {
 
     // returns the full xml path with the path indexes replaced by x's
     public String getGenericFullXmlPath() {
-        return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)");
+        return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)").replaceFirst("\\(x\\)$", "");
     }
 
     public String getFullXmlPath() {
@@ -123,6 +125,9 @@ public class ImdiField {
         } else {
             returnValue = this.xmlPath;
         }
+        if (siblingCount > 0) {
+            returnValue = returnValue + "(" + (siblingCount + 1) + ")";
+        }
         return returnValue;
     }
 
@@ -132,7 +137,7 @@ public class ImdiField {
             if (!excludeFromUndoHistory) {
                 LinorgJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe, LinorgJournal.UndoType.Value);
             }
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValueToBe, "edit");
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), this.fieldValue, fieldValueToBe, "edit");
             this.fieldValue = fieldValueToBe;
             new FieldChangeTriggers().actOnChange(this);
             // this now scans all fields in the imdiparent and its child nodes to set the "needs save to disk" flag in the imdi nodes
@@ -163,7 +168,7 @@ public class ImdiField {
             if (!excludeFromUndoHistory) {
                 LinorgJournal.getSingleInstance().recordFieldChange(this, this.getLanguageId(), languageIdLocal, LinorgJournal.UndoType.LanguageId);
             }
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath() + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
             //addFieldAttribute("LanguageId", languageIdLocal);
             languageId = languageIdLocal;
 //            fieldLanguageId = languageId;
@@ -273,7 +278,7 @@ public class ImdiField {
                     LinorgJournal.getSingleInstance().recordFieldChange(this, this.getKeyName(), keyNameLocal, LinorgJournal.UndoType.KeyName);
                 }
                 // TODO: resolve how to log key name changes
-                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyNameLocal, "editkeyname");
+                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), lastValue, keyNameLocal, "editkeyname");
                 keyName = keyNameLocal;
                 translatedPath = null;
                 getTranslateFieldName();
