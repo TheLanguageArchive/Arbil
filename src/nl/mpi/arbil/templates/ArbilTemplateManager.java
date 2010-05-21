@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
+import javax.swing.ImageIcon;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ImdiSchema;
@@ -109,7 +110,16 @@ public class ArbilTemplateManager {
         return selectedTamplates;
     }
 
-    public String[][] getSelectedTemplates() {
+    public class MenuItemData {
+
+        public String menuText;
+        public String menuAction;
+        public String menuToolTip;
+        public ImageIcon menuIcon;
+    }
+
+    public MenuItemData[] getSelectedTemplates() {
+        ImdiIcons imdiIcons = ImdiIcons.getSingleInstance();
         String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         if (locationsArray == null || locationsArray.length == 0) {
             addSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
@@ -117,36 +127,47 @@ public class ArbilTemplateManager {
             addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
             locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         }
-        String[][] returnArray = new String[locationsArray.length][3];
+        MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
         for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
+            returnArray[insertableCounter] = new MenuItemData();
             if (locationsArray[insertableCounter].startsWith("builtin:")) {
                 String currentString = locationsArray[insertableCounter].substring("builtin:".length());
                 for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
                     if (currentString.equals(currentTemplateName[0])) {
-                        returnArray[insertableCounter][0] = currentTemplateName[1];
-                        returnArray[insertableCounter][1] = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
-                        returnArray[insertableCounter][2] = currentTemplateName[1];
+                        returnArray[insertableCounter].menuText = currentTemplateName[1];
+                        returnArray[insertableCounter].menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
+                        returnArray[insertableCounter].menuToolTip = currentTemplateName[1];
+                        if (returnArray[insertableCounter].menuText.contains("Corpus")) {
+                            returnArray[insertableCounter].menuIcon = imdiIcons.corpusnodeColorIcon;
+                        } else if (returnArray[insertableCounter].menuText.contains("Catalogue")) {
+                            returnArray[insertableCounter].menuIcon = imdiIcons.catalogueColorIcon;
+                        } else {
+                            returnArray[insertableCounter].menuIcon = imdiIcons.sessionColorIcon;
+                        }
                     }
                 }
             }
             if (locationsArray[insertableCounter].startsWith("template:")) {
-                todo:
-                returnArray[insertableCounter][0] = locationsArray[insertableCounter] + "a";
-                returnArray[insertableCounter][1] = locationsArray[insertableCounter] + "b";
-                returnArray[insertableCounter][2] = locationsArray[insertableCounter] + "c";
+                // todo:
+                String currentString = locationsArray[insertableCounter].substring("template:".length());
+                returnArray[insertableCounter].menuText = currentString + " (not available)";
+                returnArray[insertableCounter].menuAction = currentString;
+                returnArray[insertableCounter].menuToolTip = currentString;
+                returnArray[insertableCounter].menuIcon = imdiIcons.sessionColorIcon;
             }
             if (locationsArray[insertableCounter].startsWith("clarin:")) {
                 String currentString = locationsArray[insertableCounter].substring("clarin:".length());
                 CmdiProfile cmdiProfile = new CmdiProfileReader().getProfile(currentString);
-                returnArray[insertableCounter][0] = cmdiProfile.name;
-                returnArray[insertableCounter][1] = cmdiProfile.getXsdHref();
-                returnArray[insertableCounter][2] = cmdiProfile.description;
+                returnArray[insertableCounter].menuText = cmdiProfile.name;
+                returnArray[insertableCounter].menuAction = cmdiProfile.getXsdHref();
+                returnArray[insertableCounter].menuToolTip = cmdiProfile.description;
+                returnArray[insertableCounter].menuIcon = imdiIcons.clarinIcon;
             }
         }
         Arrays.sort(returnArray, new Comparator() {
 
             public int compare(Object firstItem, Object secondItem) {
-                return ((String[]) firstItem)[0].compareToIgnoreCase(((String[]) secondItem)[0]);
+                return (((MenuItemData) firstItem).menuText.compareToIgnoreCase(((MenuItemData) secondItem).menuText));
             }
         });
         return returnArray;
