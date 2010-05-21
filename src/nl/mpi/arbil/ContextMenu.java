@@ -21,8 +21,10 @@ import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.importexport.ArbilCsvImporter;
+import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;
 
 /**
  * Document   : ContextMenu
@@ -230,10 +232,18 @@ public class ContextMenu {
                                 currentList = new ArrayList();
                                 selectedFieldHashtable.put(currentField.parentImdi, currentList);
                             }
-                            currentList.add(currentField.fieldID);
+                            currentList.add(currentField.getFullXmlPath());
                         }
                         for (ImdiTreeObject currentImdiObject : selectedFieldHashtable.keySet()) {
-                            currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                            boolean result = componentBuilder.removeChildNodes(currentImdiObject, (String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                            if (result) {
+                                currentImdiObject.reloadNode();
+                            } else {
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for ore information.", "Delete Field");
+                            }
+                            //currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+//                            GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                         }
                     }
                 } catch (Exception ex) {
@@ -1021,6 +1031,7 @@ public class ContextMenu {
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
         if (targetNodeUserObject instanceof ImdiTreeObject && !((ImdiTreeObject) targetNodeUserObject).isCorpus()) {
+            ImdiIcons imdiIcons = ImdiIcons.getSingleInstance();
             currentTemplate = ((ImdiTreeObject) targetNodeUserObject).getNodeTemplate();
             for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
                 String[] currentField = (String[]) menuItemName.nextElement();
@@ -1033,6 +1044,7 @@ public class ContextMenu {
                 addMenuItem.setName(currentField[0]);
                 addMenuItem.setToolTipText(currentField[1]);
                 addMenuItem.setActionCommand(currentField[1]);
+                addMenuItem.setIcon(imdiIcons.dataIcon);
                 addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1066,13 +1078,14 @@ public class ContextMenu {
             }
         } else {
             // consume the selected templates here rather than the clarin profile list
-            for (String[] currentAddable : ArbilTemplateManager.getSingleInstance().getSelectedTemplates()) {
+            for (MenuItemData currentAddable : ArbilTemplateManager.getSingleInstance().getSelectedTemplates()) {
                 JMenuItem addMenuItem;
                 addMenuItem = new JMenuItem();
-                addMenuItem.setText(currentAddable[0]);
-                addMenuItem.setName(currentAddable[0]);
-                addMenuItem.setActionCommand(currentAddable[1]);
-                addMenuItem.setToolTipText(currentAddable[2]);
+                addMenuItem.setText(currentAddable.menuText);
+                addMenuItem.setName(currentAddable.menuText);
+                addMenuItem.setActionCommand(currentAddable.menuAction);
+                addMenuItem.setToolTipText(currentAddable.menuToolTip);
+                addMenuItem.setIcon(currentAddable.menuIcon);
                 addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
