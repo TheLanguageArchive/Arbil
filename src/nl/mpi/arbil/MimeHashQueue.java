@@ -273,13 +273,13 @@ public class MimeHashQueue {
                 try {
 //TODO: consider adding the mime type field here as a non mull value and updating it when available so that the field order is tidy
                     int currentFieldId = 1;
-                    ImdiField sizeField = new ImdiField(targetLooseFile, "Size", getFileSizeString(fileObject));
+                    ImdiField sizeField = new ImdiField(targetLooseFile, "Size", getFileSizeString(fileObject), 0);
                     sizeField.fieldID = "x" + currentFieldId++;
                     targetLooseFile.addField(sizeField);
                     // add the modified date
                     Date mtime = new Date(fileObject.lastModified());
                     String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-                    ImdiField dateField = new ImdiField(targetLooseFile, "last modified", mTimeString);
+                    ImdiField dateField = new ImdiField(targetLooseFile, "last modified", mTimeString, 0);
                     dateField.fieldID = "x" + currentFieldId++;
                     targetLooseFile.addField(dateField);
                     // get exif tags
