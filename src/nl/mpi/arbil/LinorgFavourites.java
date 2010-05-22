@@ -81,7 +81,7 @@ public class LinorgFavourites {
     private void addAsFavourite(URI imdiUri) {
         try {
             File destinationFile = File.createTempFile("fav-", ".imdi", LinorgSessionStorage.getSingleInstance().getFavouritesDir());
-            ImdiTreeObject.getMetadataUtils(imdiUri.toString()).copyImdiFile(imdiUri, destinationFile, null, true);
+            ImdiTreeObject.getMetadataUtils(imdiUri.toString()).copyMetadataFile(imdiUri, destinationFile, null, true);
 
             URI copiedFileURI = destinationFile.toURI();
             // creating a uri with separate parameters could cause the url to be reencoded
