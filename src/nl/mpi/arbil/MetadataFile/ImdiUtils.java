@@ -92,14 +92,18 @@ public class ImdiUtils implements MetadataUtils {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
                 if (links != null && updateLinks) {
                     for (mpi.imdi.api.IMDILink currentLink : links) {
-                        for (URI updatableLink : linksToUpdate) {
-                            try {
-                                if (currentLink.getRawURL().toURL().toURI().equals(updatableLink)) {
-                                    api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                        if (linksToUpdate != null) {
+                            for (URI updatableLink : linksToUpdate) {
+                                try {
+                                    if (currentLink.getRawURL().toURL().toURI().equals(updatableLink)) {
+                                        api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                                    }
+                                } catch (URISyntaxException exception) {
+                                    GuiHelper.linorgBugCatcher.logError(exception);
                                 }
-                            } catch (URISyntaxException exception) {
-                                GuiHelper.linorgBugCatcher.logError(exception);
                             }
+                        } else {
+                            api.changeIMDILink(nodDom, destinationUrl, currentLink);
                         }
                     }
                 }
