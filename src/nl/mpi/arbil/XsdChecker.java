@@ -221,17 +221,13 @@ public class XsdChecker extends JSplitPane {
             doc.insertString(doc.getLength(), "and ", styleNormal);
             doc.insertString(doc.getLength(), "Fatal Errors." + "\n\n", styleFatalError);
 
-            File tempFile = File.createTempFile("linorg", ".imdi");
             doc.insertString(doc.getLength(), "Exporting imdi file to remove the id attributes\n", styleNormal);
-            doc.insertString(doc.getLength(), "using temp file: " + tempFile.getCanonicalPath() + "\n", styleNormal);
-            imdiObject.exportImdiFile(tempFile);
-            alternateCheck(tempFile);
+            alternateCheck(imdiObject.getFile());
             try {
-                fileViewPane.setPage(tempFile.toURL());
+                fileViewPane.setPage(imdiObject.getURI().toURL());
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
-            tempFile.deleteOnExit();
         } catch (Exception ex) {
             encounteredAdditionalErrors = true;
             reportedError = ex.getMessage();
