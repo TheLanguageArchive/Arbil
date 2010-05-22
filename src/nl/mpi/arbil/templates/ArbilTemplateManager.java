@@ -146,18 +146,22 @@ public class ArbilTemplateManager {
                         }
                     }
                 }
-            }
-            if (locationsArray[insertableCounter].startsWith("template:")) {
+            } else if (locationsArray[insertableCounter].startsWith("custom:")) {
+                String currentString = locationsArray[insertableCounter].substring("custom:".length());
+                returnArray[insertableCounter].menuText = currentString.substring(currentString.lastIndexOf("/") + 1);
+                returnArray[insertableCounter].menuAction = currentString;
+                returnArray[insertableCounter].menuToolTip = currentString;
+                returnArray[insertableCounter].menuIcon = imdiIcons.clarinIcon;
+            } else if (locationsArray[insertableCounter].startsWith("template:")) {
                 // todo:
                 String currentString = locationsArray[insertableCounter].substring("template:".length());
                 returnArray[insertableCounter].menuText = currentString + " (not available)";
                 returnArray[insertableCounter].menuAction = currentString;
                 returnArray[insertableCounter].menuToolTip = currentString;
                 returnArray[insertableCounter].menuIcon = imdiIcons.sessionColorIcon;
-            }
-            if (locationsArray[insertableCounter].startsWith("clarin:")) {
+            } else if (locationsArray[insertableCounter].startsWith("clarin:")) {
                 String currentString = locationsArray[insertableCounter].substring("clarin:".length());
-                CmdiProfile cmdiProfile = new CmdiProfileReader().getProfile(currentString);
+                CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
                 returnArray[insertableCounter].menuText = cmdiProfile.name;
                 returnArray[insertableCounter].menuAction = cmdiProfile.getXsdHref();
                 returnArray[insertableCounter].menuToolTip = cmdiProfile.description;
