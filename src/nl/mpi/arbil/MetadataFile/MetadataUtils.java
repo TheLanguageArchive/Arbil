@@ -2,7 +2,6 @@ package nl.mpi.arbil.MetadataFile;
 
 import java.io.File;
 import java.net.URI;
-import nl.mpi.arbil.data.ImdiTreeObject;
 
 /**
  *  Document   : MetadataUtils
@@ -11,13 +10,9 @@ import nl.mpi.arbil.data.ImdiTreeObject;
  */
 public interface MetadataUtils {
 
-    public boolean addCorpusLink(ImdiTreeObject targetImdiNodes, ImdiTreeObject[] childImdiNodes);
+    public boolean addCorpusLink(URI nodeURI, URI linkURI[]);
 
-    public boolean removeCorpusLink(ImdiTreeObject targetImdiNodes, ImdiTreeObject[] childImdiNodes);
-
-    public boolean addCorpusLink(URI nodeURI, URI linkURI);
-
-    public boolean removeCorpusLink(URI nodeURI, URI linkURI);
+    public boolean removeCorpusLink(URI nodeURI, URI linkURI[]);
 
     public boolean moveImdiFile(URI sourceURI, File destinationFile, boolean updateLinks);
 
