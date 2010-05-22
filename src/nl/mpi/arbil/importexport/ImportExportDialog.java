@@ -689,7 +689,7 @@ public class ImportExportDialog {
                                         if (destinationNode.hasHistory()) {
                                             destinationNode.bumpHistory();
                                         }
-                                        currentMetdataUtil.copyImdiFile(currentTarget, destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
+                                        currentMetdataUtil.copyMetadataFile(currentTarget, destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
 
 //                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
                                         LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget.toString(), "", journalActionString);
