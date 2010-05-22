@@ -1,6 +1,5 @@
 package nl.mpi.arbil;
 
-import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -287,7 +286,7 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    new TemplateDialogue().showTemplatesDialogue();
+                    TemplateDialogue.showTemplatesDialogue();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
