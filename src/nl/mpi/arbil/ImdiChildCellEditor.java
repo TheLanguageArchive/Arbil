@@ -150,7 +150,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
         if (cellValue instanceof ImdiField[]) {
             ImdiTreeObject parentObject = ((ImdiField[]) cellValue)[0].parentImdi;
             // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
-            returnValue = parentObject.isLocal() && parentObject.isMetaDataNode() && ((ImdiField[]) cellValue)[0].fieldID != null;
+            returnValue = parentObject.isLocal() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
         }
         return (returnValue);
     }
