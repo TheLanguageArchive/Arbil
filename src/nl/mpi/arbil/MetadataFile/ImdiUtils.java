@@ -78,7 +78,7 @@ public class ImdiUtils implements MetadataUtils {
         return true;
     }
 
-    public boolean copyImdiFile(URI sourceURI, File destinationFile, URI[] linksToUpdate, boolean updateLinks) {
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksToUpdate, boolean updateLinks) {
         try {
             mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
             mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURL());
@@ -117,7 +117,7 @@ public class ImdiUtils implements MetadataUtils {
         }
     }
 
-    public boolean moveImdiFile(URI sourceURI, File destinationFile, boolean updateLinks) {
+    public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
