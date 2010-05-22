@@ -14,9 +14,9 @@ public interface MetadataUtils {
 
     public boolean removeCorpusLink(URI nodeURI, URI linkURI[]);
 
-    public boolean moveImdiFile(URI sourceURI, File destinationFile, boolean updateLinks);
+    public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks);
 
-    public boolean copyImdiFile(URI sourceURI, File destinationFile, URI[] linksToUpdate, boolean updateLinks);
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksToUpdate, boolean updateLinks);
 
     public URI[] getCorpusLinks(URI nodeURI);
 }
