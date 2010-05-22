@@ -3,8 +3,6 @@ package nl.mpi.arbil;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.data.ImdiSchema;
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -82,7 +80,10 @@ public class LinorgFavourites {
 
     private void addAsFavourite(URI imdiUri) {
         try {
-            URI copiedFileURI = copyToFavouritesDirectory(imdiUri);
+            File destinationFile = File.createTempFile("fav-", ".imdi", LinorgSessionStorage.getSingleInstance().getFavouritesDir());
+            ImdiTreeObject.getMetadataUtils(imdiUri.toString()).copyImdiFile(imdiUri, destinationFile, null, true);
+
+            URI copiedFileURI = destinationFile.toURI();
             // creating a uri with separate parameters could cause the url to be reencoded
             // hence this has been converted to use the string URI constuctor
 //            URI favouriteUri = new URI(copiedFileURI.getScheme(), copiedFileURI.getUserInfo(), copiedFileURI.getHost(), copiedFileURI.getPort(), copiedFileURI.getPath(), copiedFileURI.getQuery(),
@@ -103,29 +104,6 @@ public class LinorgFavourites {
             TreeHelper.getSingleInstance().applyRootLocations();
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-        }
-    }
-
-    private URI copyToFavouritesDirectory(URI imdiUri) throws MalformedURLException, IOException {
-        mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(imdiUri.toURL());
-        File destinationFile = File.createTempFile("fav-", ".imdi", LinorgSessionStorage.getSingleInstance().getFavouritesDir());
-        mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURL());
-
-        org.w3c.dom.Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
-        if (nodDom == null) {
-            GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Save Favourite");
-            return null;
-        } else {
-            mpi.imdi.api.IMDILink[] links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
-            if (links != null) {
-                for (mpi.imdi.api.IMDILink currentLink : links) {
-                    ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, currentLink);
-                }
-            }
-            boolean removeIdAttributes = false;
-            ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-            return destinationFile.toURI();
         }
     }
 
@@ -246,7 +224,7 @@ public class LinorgFavourites {
                             currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, false);
                         } else {
                             // add sub nodes if they dont already exist
-                            currentField = new ImdiField(targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, "", 0); // this is not correct but this section should be simplified asap
+                            currentField = new ImdiField(0, targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, "", 0); // this is not correct but this section should be simplified asap
                             currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, true); // this is done separatly to trigger the needs save to disk flag
                             targetImdiObject.addField(currentField);
 //                            currentField.fieldNeedsSaveToDisk = true;
