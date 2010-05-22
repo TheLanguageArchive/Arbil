@@ -6,9 +6,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nl.mpi.arbil.GuiHelper;
@@ -22,8 +22,11 @@ import nl.mpi.arbil.clarin.CmdiProfileReader;
  */
 public class TemplateDialogue extends javax.swing.JPanel implements ActionListener {
 
+    JDialog parentFrame;
+
     /** Creates new form TemplateDialogue */
-    public TemplateDialogue() {
+    public TemplateDialogue(JDialog parentFrameLocal) {
+        parentFrame = parentFrameLocal;
         initComponents();
         populateLists();
         jProgressBar1.setVisible(false);
@@ -59,6 +62,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         jButton3.setText("New Template");
         jButton3.setToolTipText("Create a new editable template");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
@@ -81,6 +85,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         jButton1.setText("Reload Clarin Profiles");
         jButton1.setToolTipText("Download the latest clarin profiles");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
+
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
@@ -94,9 +99,38 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
 
         jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jTextField1.setText("<profiles url>"); todo: complete this
-        jPanel3.add(jTextField1, java.awt.BorderLayout.PAGE_START);
+        JPanel profilesTopPanel = new JPanel();
+        profilesTopPanel.setLayout(new javax.swing.BoxLayout(profilesTopPanel, javax.swing.BoxLayout.LINE_AXIS));
 
+//        jTextField1.setText("<profile url>"); //todo: complete this
+//        profilesTopPanel.add(jTextField1);
+
+        JButton addButton = new JButton();
+        addButton.setText("Add URL");
+        addButton.setToolTipText("Add a profile URL to the list");
+        addButton.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+                ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
+                populateLists();
+            }
+        });
+        profilesTopPanel.add(addButton);
+        JButton browseButton = new JButton();
+        browseButton.setText("Add File");
+        browseButton.setToolTipText("Browse for local profiles");
+        browseButton.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                for (File selectedFile : LinorgWindowManager.getSingleInstance().showFileSelectBox("Select Profile", false, true, false)) {
+                    ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
+                }
+                populateLists();
+            }
+        });
+        profilesTopPanel.add(browseButton);
+        jPanel3.add(profilesTopPanel, java.awt.BorderLayout.PAGE_START);
         add(jPanel3);
     }
 
@@ -109,7 +143,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
 
             @Override
             public void run() {
-                CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+                CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
                 cmdiProfileReader.refreshProfiles(jProgressBar1);
                 jProgressBar1.setVisible(false);
                 jButton1.setVisible(true);
@@ -155,7 +189,6 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         for (JCheckBox checkBox : checkBoxArray) {
             targetPanel.add(checkBox);
         }
-        templatesPanel.doLayout();
     }
 
     private void populateLists() {
@@ -189,7 +222,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
 
         // add clarin types
         checkBoxArray.clear();
-        CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+        CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
             JCheckBox clarinProfileCheckBox;
             clarinProfileCheckBox = new JCheckBox();
@@ -201,7 +234,23 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             clarinProfileCheckBox.addActionListener(this);
             checkBoxArray.add(clarinProfileCheckBox);
         }
+        for (String currentSepectedProfile : selectedTamplates) {
+            if (currentSepectedProfile.startsWith("custom:")) {
+                String customUrlString = currentSepectedProfile.substring("custom:".length());
+                String customName = currentSepectedProfile.substring(currentSepectedProfile.lastIndexOf("/") + 1);
+                JCheckBox clarinProfileCheckBox;
+                clarinProfileCheckBox = new JCheckBox();
+                clarinProfileCheckBox.setText(customName);
+                clarinProfileCheckBox.setName(customName);
+                clarinProfileCheckBox.setActionCommand(customUrlString);
+                clarinProfileCheckBox.setSelected(true);
+                clarinProfileCheckBox.setToolTipText("custom profile, uncheck to remove");
+                clarinProfileCheckBox.addActionListener(this);
+                checkBoxArray.add(clarinProfileCheckBox);
+            }
+        }
         addSorted(clarinPanel, checkBoxArray);
+        parentFrame.pack();
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -212,26 +261,16 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         }
     }
 
-    public void showTemplatesDialogue() {
+    public static void showTemplatesDialogue() {
         JDialog dialog = new JDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Available Templates & Profiles", true);
-        dialog.setContentPane(new TemplateDialogue());
+        dialog.setContentPane(new TemplateDialogue(dialog));
         dialog.pack();
         dialog.setVisible(true);
-//        JFrame testFrame = new JFrame("Available Templates & Profiles");
-//        testFrame.getContentPane().add(new TemplateDialogue());
-//        testFrame.doLayout();
-//        testFrame.pack();
-//        testFrame.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-//        testFrame.setVisible(true);
     }
 
     public static void main(String[] args) {
-        JFrame testFrame = new JFrame();
-        testFrame.getContentPane().add(new TemplateDialogue());
-        testFrame.doLayout();
-        testFrame.pack();
-        testFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        testFrame.setVisible(true);
+        TemplateDialogue.showTemplatesDialogue();
+        System.exit(0);
     }
     // Variables declaration
     private javax.swing.JPanel clarinPanel;
