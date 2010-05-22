@@ -27,6 +27,7 @@ import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgJournal;
 import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.XsdChecker;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -48,16 +49,16 @@ import org.xml.sax.SAXException;
  */
 public class CmdiComponentBuilder {
 
-    private Document getDocument(File inputFile) throws ParserConfigurationException, SAXException, IOException {
+    public Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setValidating(false);
         documentBuilderFactory.setNamespaceAware(true);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         Document document;
-        if (inputFile == null) {
+        if (inputUri == null) {
             document = documentBuilder.newDocument();
         } else {
-            document = documentBuilder.parse(inputFile);
+            document = documentBuilder.parse(inputUri.toString());
         }
         return document;
     }
@@ -69,7 +70,7 @@ public class CmdiComponentBuilder {
 //        Document document = documentBuilder.newDocument();
 //        return document;
 //    }
-    private void savePrettyFormatting(Document document, File outputFile) {
+    public void savePrettyFormatting(Document document, File outputFile) {
         try {
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
@@ -82,6 +83,14 @@ public class CmdiComponentBuilder {
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(dOMSource, xmlOutput);
             xmlOutput.getOutputStream().close();
+
+            XsdChecker xsdChecker = new XsdChecker();
+            String checkerResult;
+            checkerResult = xsdChecker.simpleCheck(outputFile, outputFile.toURI());
+            if (checkerResult != null) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(checkerResult, "Schema Check");
+            }
+
             //System.out.println(xmlOutput.getWriter().toString());
         } catch (IllegalArgumentException illegalArgumentException) {
             GuiHelper.linorgBugCatcher.logError(illegalArgumentException);
@@ -106,8 +115,8 @@ public class CmdiComponentBuilder {
 //            </ResourceProxy>
             String targetXmlPath = imdiTreeObject.getURI().getFragment();
             System.out.println("insertResourceProxy: " + targetXmlPath);
-            File cmdiNodeFile = imdiTreeObject.getFile();
-            String nodeFragment = "";
+//            File cmdiNodeFile = imdiTreeObject.getFile();
+//            String nodeFragment = "";
 
             // geerate a uuid for new resource
             String resourceProxyId = UUID.randomUUID().toString();
@@ -115,7 +124,7 @@ public class CmdiComponentBuilder {
                 // load the schema
                 SchemaType schemaType = getFirstSchemaType(imdiTreeObject.getNodeTemplate().templateFile);
                 // load the dom
-                Document targetDocument = getDocument(cmdiNodeFile);
+                Document targetDocument = getDocument(imdiTreeObject.getURI());
                 // insert the new section
                 try {
                     try {
@@ -147,7 +156,7 @@ public class CmdiComponentBuilder {
                 // bump the history
                 imdiTreeObject.bumpHistory();
                 // save the dom
-                savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+                savePrettyFormatting(targetDocument, imdiTreeObject.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
             } catch (IOException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -167,7 +176,7 @@ public class CmdiComponentBuilder {
             System.out.println("removeChildNodes: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
-                Document targetDocument = getDocument(cmdiNodeFile);
+                Document targetDocument = getDocument(imdiTreeObject.getURI());
                 // collect up all the nodes to be deleted without changing the xpath
                 ArrayList<Node> selectedNodes = new ArrayList<Node>();
                 for (String currentNodePath : nodePaths) {
@@ -207,7 +216,7 @@ public class CmdiComponentBuilder {
             System.out.println("setFieldValues: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
-                Document targetDocument = getDocument(cmdiNodeFile);
+                Document targetDocument = getDocument(imdiTreeObject.getURI());
                 for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
                     System.out.println("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
                     // todo: search for and remove any reource links referenced by this node or its sub nodes
@@ -280,13 +289,13 @@ public class CmdiComponentBuilder {
             System.out.println("trimmed targetXmlPath: " + targetXmlPath);
             //String targetXpath = targetNode.getURI().getFragment();
             //System.out.println("targetXpath: " + targetXpath);
-            File cmdiNodeFile = imdiTreeObject.getFile();
+//            File cmdiNodeFile = imdiTreeObject.getFile();
             String nodeFragment = "";
             try {
                 // load the schema
                 SchemaType schemaType = getFirstSchemaType(imdiTreeObject.getNodeTemplate().templateFile);
                 // load the dom
-                Document targetDocument = getDocument(cmdiNodeFile);
+                Document targetDocument = getDocument(imdiTreeObject.getURI());
                 // insert the new section
                 try {
 //                printoutDocument(targetDocument);
@@ -299,7 +308,7 @@ public class CmdiComponentBuilder {
                 // bump the history
                 imdiTreeObject.bumpHistory();
                 // save the dom
-                savePrettyFormatting(targetDocument, cmdiNodeFile); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+                savePrettyFormatting(targetDocument, imdiTreeObject.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
             } catch (IOException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
