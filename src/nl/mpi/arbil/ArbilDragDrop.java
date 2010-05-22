@@ -417,7 +417,7 @@ public class ArbilDragDrop {
                                 TreeHelper.getSingleInstance().addToSortQueue(targetNode);
                                 Object dropTargetUserObject = targetNode.getUserObject();
                                 Vector<ImdiTreeObject> importNodeList = new Vector<ImdiTreeObject>();
-                                Hashtable<ImdiTreeObject, Vector> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector>();
+                                Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>>();
                                 System.out.println("to: " + dropTargetUserObject.toString());
 //                     TODO: add drag to local corpus tree
 //                     TODO: consider adding a are you sure you want to move that node into this node ...
@@ -546,7 +546,8 @@ public class ArbilDragDrop {
                                     }
                                     for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
                                         System.out.println("deleting by corpus link");
-                                        currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
+                                        ImdiTreeObject[] imdiNodeArray = ((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{});
+                                        currentParent.deleteCorpusLink(imdiNodeArray);
                                     }
                                     if (dropTargetUserObject instanceof ImdiTreeObject) {
                                         // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
