@@ -627,7 +627,7 @@ public class TreeHelper {
             }
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 Vector<ImdiTreeObject> imdiNodesToRemove = new Vector<ImdiTreeObject>();
-                Hashtable<ImdiTreeObject, Vector<String>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<String>>();
+                Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>>();
                 Hashtable<ImdiTreeObject, Vector<String>> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector<String>>();
                 for (TreePath currentNodePath : currentNodePaths) {
                     if (currentNodePath != null) {
@@ -661,7 +661,6 @@ public class TreeHelper {
                                     if (!imdiNodesDeleteList.containsKey(parentImdiNode)) {
                                         imdiNodesDeleteList.put(parentImdiNode, new Vector());
                                     }
-                                    GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                                     imdiNodesDeleteList.get(parentImdiNode).add(childImdiNode);
                                 }
 // remove the deleted node from the favourites list if it is an imdichild node
@@ -672,8 +671,8 @@ public class TreeHelper {
 //                            }
                             }
                         }
- todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
-                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
+// todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
+//                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
                         // make a list of all child nodes so that they can be removed from any tables etc
                         imdiNodesToRemove.add((ImdiTreeObject) userObject);
                         ((ImdiTreeObject) userObject).getAllChildren(imdiNodesToRemove);
@@ -694,7 +693,6 @@ public class TreeHelper {
                 }
                 for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
                     System.out.println("deleting by corpus link");
-                    GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                     currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
                 }
                 for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
