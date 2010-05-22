@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -32,10 +33,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
-import mpi.imdi.api.*;
-import mpi.util.OurURL;
+import nl.mpi.arbil.MetadataFile.MetadataUtils;
 import nl.mpi.arbil.data.ImdiLoader;
-import org.w3c.dom.Document;
 
 /**
  * Document   : ImportExportDialog
@@ -579,8 +578,8 @@ public class ImportExportDialog {
 
                 try {
 //                    boolean saveToCache = true;
-                    File tempFileForValidator = File.createTempFile("linorg", ".imdi");
-                    tempFileForValidator.deleteOnExit();
+//                    File tempFileForValidator = File.createTempFile("linorg", ".imdi");
+//                    tempFileForValidator.deleteOnExit();
                     XsdChecker xsdChecker = new XsdChecker();
                     waitTillVisible();
 //                    appendToTaskOutput("copying: ");
@@ -588,7 +587,7 @@ public class ImportExportDialog {
 //                    int[] childCount = countChildern();
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
                     Enumeration selectedNodesEnum = selectedNodes.elements();
-                    Vector<ImdiTreeObject> finishedTopNodes = new Vector<ImdiTreeObject>();
+                    ArrayList<URI> finishedTopNodes = new ArrayList<URI>();
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
@@ -599,7 +598,7 @@ public class ImportExportDialog {
 //                                appendToTaskOutput(currentTarget);
                                 try {
 //                                    appendToTaskOutput("connecting...");
-                                    OurURL inUrlLocal = new OurURL(currentTarget.toURL());
+                                    //OurURL inUrlLocal = new OurURL(currentTarget.toURL());
 //                                    String destinationPath;
                                     File destinationFile;// = new File(destinationPath);
                                     String journalActionString;
@@ -611,24 +610,25 @@ public class ImportExportDialog {
                                         destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget.toString(), exportDestinationDirectory.getPath());
                                         journalActionString = "export";
                                     }
+                                    MetadataUtils currentMetdataUtil = ImdiTreeObject.getMetadataUtils(currentTarget.toString());
+                                    ArrayList<URI> uncopiedLinks = new ArrayList<URI>();
+                                    URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentTarget);
 
 //                                    appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
-                                    OurURL destinationUrl = new OurURL(destinationFile.toURL());
-
-                                    Document nodDom = ImdiTreeObject.api.loadIMDIDocument(inUrlLocal, false);
 //                                    appendToTaskOutput("getting links...");
-                                    IMDILink[] links;
-                                    links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
+
 //                                        links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.CORPUS);
-                                    if (links != null) {
-                                        for (int linkCount = 0; linkCount < links.length && !stopSearch; linkCount++) {
-                                            System.out.println("Link: " + links[linkCount].getRawURL());
-                                            String currentLink = links[linkCount].getRawURL().toString();
+                                    if (linksUriArray != null) {
+                                        for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
+                                            System.out.println("Link: " + linksUriArray[linkCount].toString());
+                                            String currentLink = linksUriArray[linkCount].toString();
                                             if (ImdiTreeObject.isPathMetadata(currentLink)) {
                                                 getList.add(ImdiTreeObject.conformStringToUrl(currentLink));
                                             } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
-                                                boolean resourceFileCopied = false;
-                                                if (copyFilesCheckBox.isSelected()) {
+
+                                                if (!copyFilesCheckBox.isSelected()) {
+                                                    uncopiedLinks.add(linksUriArray[linkCount]);
+                                                } else {
 //                                                    appendToTaskOutput("getting resource file: " + links[linkCount].getType());
 //                                                    resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
 //                                                    resourceCopyOutput.append(currentLink + "\n");
@@ -642,7 +642,6 @@ public class ImportExportDialog {
                                                     }
                                                     //resourceCopyOutput.append(downloadFileLocation + "\n");
                                                     if (downloadFileLocation.exists()) {
-                                                        resourceFileCopied = true;
                                                         appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
                                                         //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
                                                     } else {
@@ -654,9 +653,10 @@ public class ImportExportDialog {
                                                     }
                                                     resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
                                                 }
-                                                if (!resourceFileCopied) {
-                                                    ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, links[linkCount]);
-                                                }
+//                                                if (!resourceFileCopied) {
+//                                                    currentMetdataUtil.updateSingleLink(currentTarget, curr)
+////                                                    ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, links[linkCount]);
+//                                                }
                                             }
 //                                            System.out.println("getIMDILinks.getRawURL: " + links[linkCount].getRawURL().toString());
 //                                            SystecurrentTree.m.out.println("getIMDILinks.getURL: " + links[linkCount].getURL().toString());
@@ -689,19 +689,14 @@ public class ImportExportDialog {
                                         if (destinationNode.hasHistory()) {
                                             destinationNode.bumpHistory();
                                         }
-                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
+                                        currentMetdataUtil.copyImdiFile(currentTarget, destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
+
+//                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
                                         LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget.toString(), "", journalActionString);
                                         // validate the imdi file
 //                                        appendToTaskOutput("validating");
                                         String checkerResult;
-                                        if (exportDestinationDirectory == null) {
-                                            // when not exporting we need to remove the id attributes in order to validate the file
-                                            ImdiTreeObject.api.writeDOM(nodDom, tempFileForValidator, true);
-                                            checkerResult = xsdChecker.simpleCheck(tempFileForValidator, currentTarget);
-                                        } else {
-                                            // when exporting we can just validate the destination file
-                                            checkerResult = xsdChecker.simpleCheck(destinationFile, currentTarget);
-                                        }
+                                        checkerResult = xsdChecker.simpleCheck(destinationFile, currentTarget);
                                         if (checkerResult != null) {
                                             xmlOutput.append(currentTarget.toString() + "\n");
                                             xmlOutput.append("destination path: " + destinationFile.getAbsolutePath());
@@ -772,7 +767,7 @@ public class ImportExportDialog {
                             if (exportDestinationDirectory == null) {
                                 // add the completed node to the done list
                                 File newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
-                                finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, newNodeLocation.toURI()));
+                                finishedTopNodes.add(newNodeLocation.toURI());
                             }
                         }
                     }
@@ -785,21 +780,21 @@ public class ImportExportDialog {
                             //appendToTaskOutput("would save location when done: " + newNodeLocation);
                             //guiHelper.addLocation("file://" + newNodeLocation);
                             // TODO: create an imdinode to contain the name and point to the location
-                            for (ImdiTreeObject currentFinishedNode : finishedTopNodes.toArray(new ImdiTreeObject[]{})) {
+                            for (URI currentFinishedNode : finishedTopNodes) {
                                 if (destinationNode != null) {
-                                    if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) { // do not try to link a node to itself (itself is passed as the lead selection node when reimporting from the context menu)
+                                    if (!destinationNode.getURI().equals(currentFinishedNode)) { // do not try to link a node to itself (itself is passed as the lead selection node when reimporting from the context menu)
                                         // add the nodes to their parent here
-                                        destinationNode.addCorpusLink(currentFinishedNode);
+                                        destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), currentFinishedNode);
                                     }
                                 } else {
                                     // add the nodes to the local corpus root node here
-                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getURI())) {
+                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode)) {
                                         // alert the user when the node already exists and cannot be added again                                        
                                         finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
                                     }
                                 }
                                 // make sure that any changes are reflected in the tree
-                                currentFinishedNode.reloadNode();
+                                ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentFinishedNode).reloadNode();
                             }
                         }
                         if (destinationNode == null) {
@@ -857,7 +852,7 @@ public class ImportExportDialog {
                 }
                 if (exportDestinationDirectory != null) {
                     GuiHelper.getSingleInstance().openFileInExternalApplication(exportDestinationDirectory.toURI());
-                    
+
                 }
             }
         }.start();
