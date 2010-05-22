@@ -15,8 +15,7 @@ public class ImdiField {
     private String translatedPath = null;
     public String fieldValue = "";
     public String originalFieldValue = fieldValue;
-    @Deprecated
-    public String fieldID;
+    private int fieldOrder = -1;
     private ImdiVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     public boolean vocabularyIsOpen;
@@ -29,7 +28,8 @@ public class ImdiField {
     private int canValidateField = -1;
     private int siblingCount;
 
-    public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue, int tempSiblingCount) {
+    public ImdiField(int fieldOrderLocal, ImdiTreeObject localParentImdi, String tempPath, String tempValue, int tempSiblingCount) {
+        fieldOrder = fieldOrderLocal;
         parentImdi = localParentImdi;
         fieldValue = tempValue;
         originalFieldValue = fieldValue;
@@ -212,8 +212,7 @@ public class ImdiField {
         parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
     }
 
-    public void setFieldAttribute(String fieldIDLocal, String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
-        fieldID = fieldIDLocal;
+    public void setFieldAttribute(String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
         languageId = languageIdLocal;
         originalLanguageId = languageId;
         keyName = keyNameLocal;
@@ -255,12 +254,8 @@ public class ImdiField {
         return fieldValue;
     }
 
-    public int getFieldID() {
-        if (fieldID != null) {
-            return Integer.parseInt(fieldID.substring(1));
-        } else {
-            return -1;
-        }
+    public int getFieldOrder() {
+        return fieldOrder;
     }
 
     public String getKeyName() {
