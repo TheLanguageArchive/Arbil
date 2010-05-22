@@ -155,8 +155,8 @@ public class ImdiTableModel extends AbstractTableModel {
                         } else {
                             // update the min id value
                             ImdiField lastStoredField = filteredColumnNames.get(currentColumnName);
-                            if (currentField.getFieldID() != -1) {
-                                if (lastStoredField.getFieldID() > currentField.getFieldID()) {
+                            if (currentField.getFieldOrder() != -1) {
+                                if (lastStoredField.getFieldOrder() > currentField.getFieldOrder()) {
                                     filteredColumnNames.put(currentColumnName, currentField);
                                 }
                             }
@@ -508,9 +508,15 @@ public class ImdiTableModel extends AbstractTableModel {
             } else {
                 try {
 //                    if (baseValueA != null && comparedValueA != null) { // if either id is null then check why it is being draw when it should be reloaded first
-                    int baseIntA = ((ImdiField) ((Object[]) firstRowArray)[1]).getFieldID();
-                    int comparedIntA = ((ImdiField) ((Object[]) secondRowArray)[1]).getFieldID();
+                    int baseIntA = ((ImdiField) ((Object[]) firstRowArray)[1]).getFieldOrder();
+                    int comparedIntA = ((ImdiField) ((Object[]) secondRowArray)[1]).getFieldOrder();
                     int returnValue = baseIntA - comparedIntA;
+                    if (returnValue == 0) {
+                        // if the xml node order is the same then also sort on the strings
+                        String baseStrA = ((ImdiField) ((Object[]) firstRowArray)[1]).getFieldValue();
+                        String comparedStrA = ((ImdiField) ((Object[]) secondRowArray)[1]).getFieldValue();
+                        returnValue = baseStrA.compareToIgnoreCase(comparedStrA);
+                    }
                     return returnValue;
 //                    } else {
 //                        return 0;
@@ -592,9 +598,15 @@ public class ImdiTableModel extends AbstractTableModel {
 
                 public int compare(Object firstColumn, Object secondColumn) {
                     try {
-                        int baseIntA = ((ImdiField) firstColumn).getFieldID();
-                        int comparedIntA = ((ImdiField) secondColumn).getFieldID();
+                        int baseIntA = ((ImdiField) firstColumn).getFieldOrder();
+                        int comparedIntA = ((ImdiField) secondColumn).getFieldOrder();
                         int returnValue = baseIntA - comparedIntA;
+                        if (returnValue == 0) {
+                            // if the xml node order is the same then also sort on the strings
+                            String baseStrA = ((ImdiField) ((Object[]) firstColumn)[1]).getFieldValue();
+                            String comparedStrA = ((ImdiField) ((Object[]) secondColumn)[1]).getFieldValue();
+                            returnValue = baseStrA.compareToIgnoreCase(comparedStrA);
+                        }
                         return returnValue;
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
@@ -774,7 +786,6 @@ public class ImdiTableModel extends AbstractTableModel {
 //        }
 //        return false;
 //    }
-
     public Color getCellColour(int row, int col) {
         try {
             return cellColour[row][col];
