@@ -22,6 +22,15 @@ public class CmdiProfileReader {
     public static void main(String args[]) {
         new CmdiProfileReader();
     }
+    static CmdiProfileReader singleInstance = null;
+
+    static synchronized public CmdiProfileReader getSingleInstance() {
+        // make sure the profiles xml need only be read once per session
+        if (singleInstance == null) {
+            singleInstance = new CmdiProfileReader();
+        }
+        return singleInstance;
+    }
 
     public static boolean pathIsProfile(String pathString) {
         // TODO: make this smarter
@@ -51,7 +60,7 @@ public class CmdiProfileReader {
         }
     }
 
-    public CmdiProfileReader() {
+    private CmdiProfileReader() {
         loadProfiles();
         // get all the xsd files from the profile listing and store them on disk for offline use
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
