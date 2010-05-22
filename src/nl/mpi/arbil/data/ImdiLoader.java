@@ -123,6 +123,9 @@ public class ImdiLoader {
                                 System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
 //                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
                                 ImdiTreeObject addedImdiObject = getImdiObjectWithoutLoading(currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUri, mimeType));
+//                                if (addedImdiObject == null) {
+//                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
+//                                } else {
                                 if (addedImdiObject != null) {
                                     Vector<ImdiTreeObject> allAddedNodes = new Vector<ImdiTreeObject>();
 //                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
@@ -131,8 +134,6 @@ public class ImdiLoader {
                                     addedImdiObject.loadImdiDom();
                                     if (favouriteUrlString != null) {
                                         mergeWithFavourite(addedImdiObject, favouriteUrlString, allAddedNodes, progressMonitor);
-                                    } else {
-                                        addedImdiObject.updateImdiFileNodeIds();
                                     }
 //                                    addedImdiObject.loadChildNodes();
                                     addedImdiObject.clearIcon();
@@ -192,7 +193,7 @@ public class ImdiLoader {
                 }
                 progressMonitor.setProgress(progressCounter++);
             }
-            addedImdiObject.updateImdiFileNodeIds();
+//            addedImdiObject.updateImdiFileNodeIds();
             for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
                 if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
                     System.out.println("merging:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
