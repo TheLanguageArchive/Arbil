@@ -587,7 +587,7 @@ public class ImportExportDialog {
 //                    int[] childCount = countChildern();
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
                     Enumeration selectedNodesEnum = selectedNodes.elements();
-                    ArrayList<URI> finishedTopNodes = new ArrayList<URI>();
+                    ArrayList<ImdiTreeObject> finishedTopNodes = new ArrayList<ImdiTreeObject>();
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
@@ -767,7 +767,7 @@ public class ImportExportDialog {
                             if (exportDestinationDirectory == null) {
                                 // add the completed node to the done list
                                 File newNodeLocation = LinorgSessionStorage.getSingleInstance().getSaveLocation(((ImdiTreeObject) currentElement).getParentDomNode().getUrlString());
-                                finishedTopNodes.add(newNodeLocation.toURI());
+                                finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(newNodeLocation.toURI()));
                             }
                         }
                     }
@@ -780,21 +780,21 @@ public class ImportExportDialog {
                             //appendToTaskOutput("would save location when done: " + newNodeLocation);
                             //guiHelper.addLocation("file://" + newNodeLocation);
                             // TODO: create an imdinode to contain the name and point to the location
-                            for (URI currentFinishedNode : finishedTopNodes) {
+                            for (ImdiTreeObject currentFinishedNode : finishedTopNodes) {
                                 if (destinationNode != null) {
-                                    if (!destinationNode.getURI().equals(currentFinishedNode)) { // do not try to link a node to itself (itself is passed as the lead selection node when reimporting from the context menu)
+                                    if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) { // do not try to link a node to itself (itself is passed as the lead selection node when reimporting from the context menu)
                                         // add the nodes to their parent here
-                                        destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), currentFinishedNode);
+                                        destinationNode.addCorpusLink(currentFinishedNode);
                                     }
                                 } else {
                                     // add the nodes to the local corpus root node here
-                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode)) {
+                                    if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getURI())) {
                                         // alert the user when the node already exists and cannot be added again                                        
                                         finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
                                     }
                                 }
                                 // make sure that any changes are reflected in the tree
-                                ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentFinishedNode).reloadNode();
+                                currentFinishedNode.reloadNode();
                             }
                         }
                         if (destinationNode == null) {
