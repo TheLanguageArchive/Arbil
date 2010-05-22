@@ -40,7 +40,7 @@ public class CmdiTemplate extends ArbilTemplate {
         // construct the template from the XSD
         try {
             // get the name of this profile
-            loadedTemplateName = new CmdiProfileReader().getProfile(nameSpaceString).name;
+            loadedTemplateName = CmdiProfileReader.getSingleInstance().getProfile(nameSpaceString).name;// this could be null
 
             // create a temp file of the read template data so that it can be compared to a hand made version
             File debugTempFile = File.createTempFile("templatetext", ".tmp");
@@ -70,7 +70,7 @@ public class CmdiTemplate extends ArbilTemplate {
             }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-       //     LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+            //     LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
@@ -314,7 +314,7 @@ todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr
 //                + "\", maxOccurs=\""
 //                + (p.getMaxOccurs() != null ? p.getMaxOccurs().toString() : "unbounded") + "\"");
 //    }
-
+    
 //    public void getAnnotations(SchemaType schemaType) {
 //        SchemaParticle typeParticle = schemaType.getContentModel();
 //        if (typeParticle == null) {
@@ -390,4 +390,7 @@ todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr
 //            }
 //        }
 //    }
+    public static void main(String args[]) {
+        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
+    }
 }
