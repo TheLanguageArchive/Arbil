@@ -1035,9 +1035,9 @@ public class ImdiTreeObject implements Comparable {
             }
             metadataUtils.removeCorpusLink(this.getURI(), copusUriList);
         }
-//        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
-//            currentChildNode.clearIcon();
-//        }
+        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
+            currentChildNode.clearIcon();
+        }
         clearIcon(); // this must be cleared so that the leaf / branch flag gets set
         reloadNode();
     }
