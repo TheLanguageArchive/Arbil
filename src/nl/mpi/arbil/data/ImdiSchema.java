@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
-import mpi.util.OurURL;
+import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import org.w3c.dom.*;
@@ -147,7 +147,7 @@ public class ImdiSchema {
 //    }
 // functions to extract the exif data from images
 // this will probably need to be moved to a more appropriate class
-    public ImdiField[] getExifMetadata(ImdiTreeObject resourceImdi) {
+    public ImdiField[] getExifMetadata(ImdiTreeObject resourceImdi, int currentFieldId) {
         Vector<ImdiField> exifTagFields = new Vector();
         System.out.println("tempGetExif: " + resourceImdi.getFile());
         try {
@@ -165,7 +165,7 @@ public class ImdiSchema {
                         for (int i = 0; i < names.length; ++i) {
                             System.out.println();
                             System.out.println("METADATA FOR FORMAT: " + names[i]);
-                            decendExifTree(resourceImdi, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields);
+                            decendExifTree(resourceImdi, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields, currentFieldId);
                         }
                     }
                 }
@@ -178,7 +178,7 @@ public class ImdiSchema {
         return exifTagFields.toArray(new ImdiField[]{});
     }
 
-    public void decendExifTree(ImdiTreeObject resourceImdi, Node node, String prefixString, Vector<ImdiField> exifTagFields) {
+    public void decendExifTree(ImdiTreeObject resourceImdi, Node node, String prefixString, Vector<ImdiField> exifTagFields, int currentFieldId) {
         if (prefixString == null) {
             prefixString = "EXIF"; // skip the first node name    
         } else {
@@ -189,13 +189,13 @@ public class ImdiSchema {
             for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                 String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                 String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                exifTagFields.add(new ImdiField(resourceImdi, prefixString + imdiPathSeparator + attributeName, attributeValue, 0));
+                exifTagFields.add(new ImdiField(currentFieldId++, resourceImdi, prefixString + imdiPathSeparator + attributeName, attributeValue, 0));
             }
         }
         if (node.hasChildNodes()) {
             NodeList children = node.getChildNodes();
             for (int i = 0, ub = children.getLength(); i < ub; ++i) {
-                decendExifTree(resourceImdi, children.item(i), prefixString, exifTagFields);
+                decendExifTree(resourceImdi, children.item(i), prefixString, exifTagFields, currentFieldId);
             }
         }
     }
@@ -229,10 +229,12 @@ public class ImdiSchema {
 //        System.out.println("templateFile: " + templateFile);
         addedPathUri = copyToDisk(templateUrl, destinationFile);
         try {
-            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUri.toURL()), false);
+            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+            Document addedDocument = componentBuilder.getDocument(addedPathUri);
+//            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUri.toURL()), false);
             if (addedDocument == null) {
-                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error inserting create date via the IMDI API", "Add from Template");
+//                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error inserting create date", "Add from Template");
             } else {
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
                 NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
@@ -248,7 +250,7 @@ public class ImdiSchema {
                 metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
                 //metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
                 metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
-                ImdiTreeObject.api.writeDOM(addedDocument, new File(addedPathUri), false);
+                componentBuilder.savePrettyFormatting(addedDocument, new File(addedPathUri));
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -398,10 +400,11 @@ public class ImdiSchema {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
                 throw (new Exception("No template found for: " + elementName.substring(1)));
             }
-            Document insertableSectionDoc = ImdiTreeObject.api.loadIMDIDocument(new OurURL(templateUrl), false);
+            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+            Document insertableSectionDoc = componentBuilder.getDocument(templateUrl.toURI());
+
             if (insertableSectionDoc == null) {
-                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Insert from Template");
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading template", "Insert from Template");
             } else {
                 // insert values into the section that about to be added
                 if (resourceUrl != null) {
@@ -544,9 +547,9 @@ public class ImdiSchema {
         return linkURI;
     }
 
-    public int iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
-            Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree, //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
-            int nodeCounter) {
+    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
+            Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
+            ) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
@@ -557,6 +560,7 @@ public class ImdiSchema {
             parentChildTree.put(parentNode, new HashSet<ImdiTreeObject>());
         }
         Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
+        int nodeCounter = 0;
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
@@ -702,7 +706,7 @@ public class ImdiSchema {
                 siblingNodePathCounter.put(siblingNodePath, siblingNodePathCounter.get(siblingNodePath) + 1);
             }
 //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-            ImdiField fieldToAdd = new ImdiField(destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(siblingNodePath));
+            ImdiField fieldToAdd = new ImdiField(nodeCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(siblingNodePath));
 
             // TODO: about to write this function
             //GuiHelper.imdiSchema.convertXmlPathToUiPath();
@@ -715,17 +719,16 @@ public class ImdiSchema {
             }
             NamedNodeMap namedNodeMap = childNode.getAttributes();
             if (namedNodeMap != null) {
-                String fieldID = getNamedAttributeValue(namedNodeMap, "id");
                 String cvType = getNamedAttributeValue(namedNodeMap, "Type");
                 String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
                 String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
                 String keyName = getNamedAttributeValue(namedNodeMap, "Name");
-                fieldToAdd.setFieldAttribute(fieldID, cvType, cvUrlString, languageId, keyName);
+                fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
                 if (fieldToAdd.xmlPath.endsWith("Description")) {
                     if (cvUrlString != null && cvUrlString.length() > 0) {
                         // TODO: this field sould be put in the link node not the parent node
                         URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
-                        childLinks.add(new String[]{correcteLink.toString(), fieldToAdd.fieldID});
+                        childLinks.add(new String[]{correcteLink.toString(), "IMDI Link"});
                         ImdiTreeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
                         parentChildTree.get(parentNode).add(descriptionLinkNode);
                         descriptionLinkNode.addField(fieldToAdd);
@@ -757,7 +760,7 @@ public class ImdiSchema {
 //                System.out.println("Parent: " + this.getUrlString());
                 try {
                     URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
-                    childLinks.add(new String[]{linkPath.toString(), fieldToAdd.fieldID});
+                    childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
                     parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -780,8 +783,7 @@ public class ImdiSchema {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            nodeCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree, nodeCounter);
+            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree);
         }
-        return nodeCounter;
     }
 }
