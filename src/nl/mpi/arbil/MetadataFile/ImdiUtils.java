@@ -121,6 +121,11 @@ public class ImdiUtils implements MetadataUtils {
         try {
             OurURL destinationUrl = new OurURL(nodeURI.toString());
             Document nodDom = api.loadIMDIDocument(destinationUrl, false);
+            if (nodDom == null) {
+                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
+                return false;
+            }
             IMDILink[] allImdiLinks;
             allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
             if (allImdiLinks != null) {
@@ -128,15 +133,15 @@ public class ImdiUtils implements MetadataUtils {
                     for (URI currentUri : linkURI) {
                         try {
                             if (currentUri.equals(currentLink.getRawURL().toURL().toURI())) {
-//                                if (currentLink.getType())
                                 api.removeIMDILink(nodDom, currentLink);
-//                                api.createIMDILink(nodDom, null, "", "", WSNodeType.CATALOGUE, "");
                             }
                         } catch (URISyntaxException exception) {
                             GuiHelper.linorgBugCatcher.logError(exception);
                         }
                     }
                 }
+                boolean removeIdAttributes = true;
+                api.writeDOM(nodDom, new File(nodeURI), removeIdAttributes);
                 return true;
             }
 
