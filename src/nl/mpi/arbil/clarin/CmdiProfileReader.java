@@ -33,8 +33,8 @@ public class CmdiProfileReader {
     }
 
     public static boolean pathIsProfile(String pathString) {
-        // TODO: make this smarter
-        return (pathString.startsWith("http") && pathString.contains("clarin"));
+        // TODO: make this smarter (this only needs to determin if the path is to a template file or an xsd)
+        return ((pathString.startsWith("http") && pathString.contains("clarin")) || pathString.endsWith(".xsd") || pathString.endsWith("/xsd"));
     }
 
     public CmdiProfile getProfile(String XsdHref) {
