@@ -43,6 +43,7 @@ public class CmdiTemplate extends ArbilTemplate {
     private class ArrayListGroup {
 
         public ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
+        public ArrayList<String[]> addableComponentPathsList = new ArrayList<String[]>();
         public ArrayList<String[]> resourceNodePathsList = new ArrayList<String[]>();
         public ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
         public ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
@@ -73,6 +74,7 @@ public class CmdiTemplate extends ArbilTemplate {
             URI xsdUri = new URI(nameSpaceString);
             readSchema(xsdUri, arrayListGroup);
             childNodePaths = arrayListGroup.childNodePathsList.toArray(new String[][]{});
+            templatesArray = arrayListGroup.addableComponentPathsList.toArray(new String[][]{});
             resourceNodePaths = arrayListGroup.resourceNodePathsList.toArray(new String[][]{});
             fieldConstraints = arrayListGroup.fieldConstraintList.toArray(new String[][]{});
             fieldUsageArray = arrayListGroup.fieldUsageDescriptionList.toArray(new String[][]{});
@@ -97,7 +99,10 @@ public class CmdiTemplate extends ArbilTemplate {
             if (fieldUsageArray.length < 1) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No field descriptions have been provided in the profile, as a result no information about each fields intended use can be provided to users of this profile", "Clarin Profile Error");
             }
-
+            for (String[] currentArray : templatesArray) {
+                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                debugTemplateFileWriter.write("<TemplateComponent FileName=\"" + currentArray[0] + "\" DisplayName=\"" + currentArray[1] + "\" />\r\n");
+            }
             for (String[] currentArray : childNodePaths) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
                 debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
@@ -138,11 +143,11 @@ public class CmdiTemplate extends ArbilTemplate {
         fieldTriggersArray = new String[][]{};
         autoFieldsArray = new String[][]{};
         genreSubgenreArray = new String[][]{};
-        templatesArray = new String[][]{};
     }
 
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
+        String filterString = ".CMD.Resources.";
         // get the xpath of the target node
         String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
@@ -155,7 +160,7 @@ public class CmdiTemplate extends ArbilTemplate {
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         Vector<String[]> childTypes = new Vector<String[]>();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            for (String[] childPathString : childNodePaths) {
+            for (String[] childPathString : templatesArray) {
                 boolean allowEntry = false;
                 if (targetNodeXpath == null) {
 //                    System.out.println("allowing: " + childPathString[0]);
@@ -166,6 +171,9 @@ public class CmdiTemplate extends ArbilTemplate {
                 }
                 if (childPathString[0].equals(targetNodeXpath)) {
 //                    System.out.println("disallowing addint to itself: " + childPathString[0]);
+                    allowEntry = false;
+                }
+                if (childPathString[0].startsWith(filterString)) {
                     allowEntry = false;
                 }
                 if (allowEntry) {
@@ -214,7 +222,7 @@ public class CmdiTemplate extends ArbilTemplate {
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
 //                System.out.println("T-documentTypes:");
-                constructXml(schemaType, arrayListGroup, "", 0);
+                constructXml(schemaType, arrayListGroup, "", "", 0);
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
         } catch (IOException e) {
@@ -226,15 +234,18 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private void constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString, int childCount) {
+    private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString, String nodeMenuName, int childCount) {
         readControlledVocabularies(schemaType, pathString);
         readDisplayNamePreferences(schemaType, pathString, arrayListGroup.displayNamePreferenceList);
         readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
         readFieldUsageDescriptions(schemaType, pathString, arrayListGroup.fieldUsageDescriptionList);
 
         for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
+            childCount++;
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
+            String currentNodeMenuName = nodeMenuName + "." + localName;
+            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
             boolean canHaveMultiple = true;
             if (schemaProperty.getMaxOccurs() == null) {
                 // absence of the max occurs also means multiple
@@ -246,15 +257,31 @@ public class CmdiTemplate extends ArbilTemplate {
                 // todo: take into account max occurs in the add menu
                 canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
             }
-            boolean hasSubNodes = false;
+//            boolean hasSubNodes = false;
             System.out.println("Found template element: " + currentPathString);
             SchemaType currentSchemaType = schemaProperty.getType();
+            String nodeMenuNameForChild;
+//            if (canHaveMultiple) {
+//                // reset the node menu name when traversing through into a subnode
+//                nodeMenuNameForChild = localName;
+////                nodeMenuName = nodeMenuName + "." + localName;
+//            } else {
+//                nodeMenuName = nodeMenuName + "." + localName;
+//                nodeMenuNameForChild = nodeMenuName;
+//            }
+            nodeMenuNameForChild = currentNodeMenuName;
+            int childNodeChildCount = constructXml(currentSchemaType, arrayListGroup, currentPathString, nodeMenuNameForChild, childCount);
 
-            constructXml(currentSchemaType, arrayListGroup, currentPathString, childCount);
-            hasSubNodes = true; // todo: complete or remove this hasSubNodes case
-            if (canHaveMultiple && hasSubNodes) {
-                todo check for case of one or only single sub element and when found do not add as a child path
-                arrayListGroup.childNodePathsList.add(new String[]{currentPathString, localName});
+            System.out.println("childNodeChildCount: " + childCount + " : " + childNodeChildCount + " : " + currentPathString);
+
+            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
+            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
+            if (canHaveMultiple && hasMultipleSubNodes) {
+//                todo check for case of one or only single sub element and when found do not add as a child path
+                arrayListGroup.childNodePathsList.add(new String[]{currentPathString, currentNodeMenuName});
+            }
+            if (canHaveMultiple) {
+                arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName});
             }
             boolean hasResourceAttribute = false;
             for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
@@ -268,6 +295,7 @@ public class CmdiTemplate extends ArbilTemplate {
             }
 todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
         }
+        return childCount;
     }
 
     private void readFieldUsageDescriptions(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldUsageDescriptionList) {
