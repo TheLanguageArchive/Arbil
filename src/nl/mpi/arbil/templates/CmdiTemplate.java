@@ -222,7 +222,7 @@ public class CmdiTemplate extends ArbilTemplate {
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
 //                System.out.println("T-documentTypes:");
-                constructXml(schemaType, arrayListGroup, "", "", 0);
+                constructXml(schemaType, arrayListGroup, "", "");
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
         } catch (IOException e) {
@@ -234,7 +234,9 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString, String nodeMenuName, int childCount) {
+    private boolean constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString, String nodeMenuName) {
+        int childCount = 0;
+        boolean hasMultipleElementsInOneNode = false;
         readControlledVocabularies(schemaType, pathString);
         readDisplayNamePreferences(schemaType, pathString, arrayListGroup.displayNamePreferenceList);
         readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
@@ -270,13 +272,16 @@ public class CmdiTemplate extends ArbilTemplate {
 //                nodeMenuNameForChild = nodeMenuName;
 //            }
             nodeMenuNameForChild = currentNodeMenuName;
-            int childNodeChildCount = constructXml(currentSchemaType, arrayListGroup, currentPathString, nodeMenuNameForChild, childCount);
+            boolean childHasMultipleElementsInOneNode = constructXml(currentSchemaType, arrayListGroup, currentPathString, nodeMenuNameForChild);
+            if (!hasMultipleElementsInOneNode) {
+                hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
+            }
 
-            System.out.println("childNodeChildCount: " + childCount + " : " + childNodeChildCount + " : " + currentPathString);
+            System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
 
             nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
-            if (canHaveMultiple && hasMultipleSubNodes) {
+//            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
+            if (canHaveMultiple && hasMultipleElementsInOneNode) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
                 arrayListGroup.childNodePathsList.add(new String[]{currentPathString, currentNodeMenuName});
             }
@@ -293,9 +298,12 @@ public class CmdiTemplate extends ArbilTemplate {
             if (hasResourceAttribute) {
                 arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
             }
-todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
+            todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
         }
-        return childCount;
+        if (childCount > 1) {
+            hasMultipleElementsInOneNode = true;
+        }
+        return hasMultipleElementsInOneNode;
     }
 
     private void readFieldUsageDescriptions(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldUsageDescriptionList) {
