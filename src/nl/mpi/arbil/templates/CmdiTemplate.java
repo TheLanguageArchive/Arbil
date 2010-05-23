@@ -40,6 +40,15 @@ public class CmdiTemplate extends ArbilTemplate {
 
     String nameSpaceString;
 
+    private class ArrayListGroup {
+
+        public ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
+        public ArrayList<String[]> resourceNodePathsList = new ArrayList<String[]>();
+        public ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
+        public ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
+        public ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
+    }
+
     public void loadTemplate(String nameSpaceStringLocal) {
         // testing only
         //super.readTemplate(new File(""), "template_cmdi");
@@ -60,20 +69,16 @@ public class CmdiTemplate extends ArbilTemplate {
             debugTempFile.deleteOnExit();
             BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
 
-            ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
-            ArrayList<String[]> resourceNodePathsList = new ArrayList<String[]>();
-            ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
-            ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
-            ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
+            ArrayListGroup arrayListGroup = new ArrayListGroup();
             URI xsdUri = new URI(nameSpaceString);
-            readSchema(xsdUri, childNodePathsList, resourceNodePathsList, fieldConstraintList, displayNamePreferenceList, fieldUsageDescriptionList);
-            childNodePaths = childNodePathsList.toArray(new String[][]{});
-            resourceNodePaths = resourceNodePathsList.toArray(new String[][]{});
-            fieldConstraints = fieldConstraintList.toArray(new String[][]{});
-            fieldUsageArray = fieldUsageDescriptionList.toArray(new String[][]{});
+            readSchema(xsdUri, arrayListGroup);
+            childNodePaths = arrayListGroup.childNodePathsList.toArray(new String[][]{});
+            resourceNodePaths = arrayListGroup.resourceNodePathsList.toArray(new String[][]{});
+            fieldConstraints = arrayListGroup.fieldConstraintList.toArray(new String[][]{});
+            fieldUsageArray = arrayListGroup.fieldUsageDescriptionList.toArray(new String[][]{});
 
             // sort and construct the preferredNameFields array
-            String[][] tempSortableArray = displayNamePreferenceList.toArray(new String[][]{});
+            String[][] tempSortableArray = arrayListGroup.displayNamePreferenceList.toArray(new String[][]{});
             Arrays.sort(tempSortableArray, new Comparator<String[]>() {
 
                 public int compare(String[] o1, String[] o2) {
@@ -198,7 +203,7 @@ public class CmdiTemplate extends ArbilTemplate {
         return childTypes.elements();
     }
 
-    private void readSchema(URI xsdFile, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList, ArrayList<String[]> displayNamePreferenceList, ArrayList<String[]> fieldUsageDescriptionList) {
+    private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         templateFile = schemaFile; // store the template file for later use such as adding child nodes
         try {
@@ -209,7 +214,7 @@ public class CmdiTemplate extends ArbilTemplate {
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
                 System.out.println("T-documentTypes:");
-                constructXml(schemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, displayNamePreferenceList, fieldUsageDescriptionList, "");
+                constructXml(schemaType, arrayListGroup, "");
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
         } catch (IOException e) {
@@ -221,7 +226,7 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private void constructXml(SchemaType schemaType, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList, ArrayList<String[]> displayNamePreferenceList, ArrayList<String[]> fieldUsageDescriptionList, String pathString) {
+    private void constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
 //        SchemaAnnotation ann = ((SchemaLocalElement) schemaType.getContentModel()).getAnnotation();
         //System.out.println("SchemaAnnotation: " + schemaType.getDocumentElementName());
 
@@ -237,9 +242,9 @@ public class CmdiTemplate extends ArbilTemplate {
 //            System.out.println("getProperties: " + schemaProperty.toString());
 //        }
         readControlledVocabularies(schemaType, pathString);
-        readDisplayNamePreferences(schemaType, pathString, displayNamePreferenceList);
-        readFieldConstrains(schemaType, pathString, fieldConstraintList);
-        readFieldUsageDescriptions(schemaType, pathString, fieldUsageDescriptionList);
+        readDisplayNamePreferences(schemaType, pathString, arrayListGroup.displayNamePreferenceList);
+        readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
+        readFieldUsageDescriptions(schemaType, pathString, arrayListGroup.fieldUsageDescriptionList);
 
         for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
             String localName = schemaProperty.getName().getLocalPart();
@@ -296,10 +301,11 @@ public class CmdiTemplate extends ArbilTemplate {
             // getAnnotations(currentSchemaType);
 
 
-            constructXml(currentSchemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, displayNamePreferenceList, fieldUsageDescriptionList, currentPathString);
+            constructXml(currentSchemaType, arrayListGroup, currentPathString);
             hasSubNodes = true; // todo: complete or remove this hasSubNodes case
             if (canHaveMultiple && hasSubNodes) {
-                childNodePathsList.add(new String[]{currentPathString, localName});
+                todo check for case of one or only single sub element and when found do not add as a child path
+                arrayListGroup.childNodePathsList.add(new String[]{currentPathString, localName});
             }
             boolean hasResourceAttribute = false;
             for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
@@ -309,7 +315,7 @@ public class CmdiTemplate extends ArbilTemplate {
                 }
             }
             if (hasResourceAttribute) {
-                resourceNodePathsList.add(new String[]{currentPathString, localName});
+                arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
             }
 
 //            System.out.println("type: " + currentSchemaType.getName());
