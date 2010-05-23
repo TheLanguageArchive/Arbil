@@ -213,8 +213,8 @@ public class CmdiTemplate extends ArbilTemplate {
             options.setCharacterEncoding("UTF-8");
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
-                System.out.println("T-documentTypes:");
-                constructXml(schemaType, arrayListGroup, "");
+//                System.out.println("T-documentTypes:");
+                constructXml(schemaType, arrayListGroup, "", 0);
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
         } catch (IOException e) {
@@ -226,21 +226,7 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private void constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
-//        SchemaAnnotation ann = ((SchemaLocalElement) schemaType.getContentModel()).getAnnotation();
-        //System.out.println("SchemaAnnotation: " + schemaType.getDocumentElementName());
-
-//        System.out.println((SchemaLocalElement) schemaType.getContentModel());
-//        System.out.println((SchemaLocalElement) schemaType.getContentModel());
-//        System.out.println((SchemaLocalElement) schemaType.getContentModel().getParticleChild(0));
-//
-//        SchemaLocalElement schemaElement = (SchemaLocalElement) schemaType.getContentModel().getParticleChild(0);
-//        System.out.println(schemaElement.getAnnotation().getUserInformation()[0].execQuery("//xs:documentation/text()")[0]);
-
-//        for (SchemaProperty schemaProperty : schemaType.getProperties()) {
-//            System.out.println("getProperties: " + schemaProperty.getName());
-//            System.out.println("getProperties: " + schemaProperty.toString());
-//        }
+    private void constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString, int childCount) {
         readControlledVocabularies(schemaType, pathString);
         readDisplayNamePreferences(schemaType, pathString, arrayListGroup.displayNamePreferenceList);
         readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
@@ -261,47 +247,10 @@ public class CmdiTemplate extends ArbilTemplate {
                 canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
             }
             boolean hasSubNodes = false;
-            //   SchemaAnnotation ann = ((SchemaLocalElement)ProductTypeDocument.type.getContentModel()).getAnnotation();
-            //documentation = SchemaUtils.getDocumentation( schemaType );
             System.out.println("Found template element: " + currentPathString);
             SchemaType currentSchemaType = schemaProperty.getType();
-//            System.out.println("getAnnotation: " + schemaProperty.getType().getAnnotation());
-//
-//            System.out.println("getAnnotation: " + schemaProperty.getContainerType().getAnnotation());
-//            System.out.println("getAnnotation: " + schemaProperty.getType().getAnnotation());
-//            for (SchemaProperty schemaSubProperty : currentSchemaType.getAttributeProperties()) {
-//                System.out.println("getAttributeProperties: " + schemaSubProperty.getName().getLocalPart());
-//            }
-//            for (SchemaProperty schemaSubProperty : currentSchemaType.getDerivedProperties()) {
-//                System.out.println("getDerivedProperties: " + schemaSubProperty.getName().getLocalPart());
-//            }
-//            for (SchemaProperty schemaSubProperty : currentSchemaType.getElementProperties()) {
-//                System.out.println("getElementProperties: " + schemaSubProperty.getName().getLocalPart());
-//            }
-//            for (SchemaProperty schemaSubProperty : currentSchemaType.getProperties()) {
-//                System.out.println("getProperties: " + schemaSubProperty.getName().getLocalPart());
-//            }
-//            for (SchemaType schemaSubType : currentSchemaType.getAnonymousTypes()) {
-//                System.out.println("getAnonymousTypes: " + schemaSubType.getAnnotation());
-//            }
 
-//             SchemaAnnotation ann = ((SchemaLocalElement) currentSchemaType.getContentModel()).getAnnotation();
-//            System.out.println("SchemaAnnotation: " + ann.getName());
-//            SchemaAnnotation ann = ((SchemaLocalElement)ProductTypeDocument.type.getContentModel()).getAnnotation();
-
-
-//            if (currentSchemaType.getContentType() == SchemaType.ELEMENT_CONTENT
-//                    || currentSchemaType.getContentType() == SchemaType.MIXED_CONTENT) {
-//                SchemaParticle topParticle = currentSchemaType.getContentModel();
-//                // topParticle is non-null if we checked the content
-//                navigateParticle(topParticle);
-//            }
-
-
-            // getAnnotations(currentSchemaType);
-
-
-            constructXml(currentSchemaType, arrayListGroup, currentPathString);
+            constructXml(currentSchemaType, arrayListGroup, currentPathString, childCount);
             hasSubNodes = true; // todo: complete or remove this hasSubNodes case
             if (canHaveMultiple && hasSubNodes) {
                 todo check for case of one or only single sub element and when found do not add as a child path
@@ -317,23 +266,7 @@ public class CmdiTemplate extends ArbilTemplate {
             if (hasResourceAttribute) {
                 arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
             }
-
-//            System.out.println("type: " + currentSchemaType.getName());
-//            System.out.println("getSourceName: " + currentSchemaType.getSourceName());
-//            System.out.println("getFullJavaName: " + currentSchemaType.getFullJavaName());
-//
-//            System.out.println("getSourceName: " + currentSchemaType.getSourceName());
-//
-//            System.out.println("getFullJavaName: " + currentSchemaType.getUserData());
-//
-//            System.out.println(".getBuiltinTypeCode: " + currentSchemaType.getBuiltinTypeCode());
-//            System.out.println("getFullJavaName: " + currentSchemaType.getFullJavaName());
-            // {http://www.w3.org/2001/XMLSchema}string
-            // {http://www.w3.org/2001/XMLSchema}date
-            // {http://www.w3.org/2001/XMLSchema}anyURI
-
 todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
-//            schemaProperty.getType().
         }
     }
 
