@@ -117,6 +117,20 @@ public class ImdiVocabularies {
         }
     }
 
+    public Vocabulary getEmptyVocabulary(String vocabularyLocation) {
+        System.out.println("getEmptyVocabulary: " + vocabularyLocation);
+        if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
+            return null;
+        } else {
+            if (!vocabulariesTable.containsKey(vocabularyLocation)) {
+                Vocabulary vocabulary = new Vocabulary(vocabularyLocation);
+                vocabulariesTable.put(vocabularyLocation, vocabulary);
+                return vocabulary;
+            }
+            return vocabulariesTable.get(vocabularyLocation);
+        }
+    }
+
     synchronized public void parseRemoteFile(String vocabRemoteUrl) {
         if (vocabRemoteUrl != null && !vocabulariesTable.containsKey(vocabRemoteUrl)) {
             File cachedFile = LinorgSessionStorage.getSingleInstance().updateCache(vocabRemoteUrl, null, false, new DownloadAbortFlag());
