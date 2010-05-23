@@ -594,17 +594,17 @@ public class ImdiTableModel extends AbstractTableModel {
 
             // calculate which of the available columns to show
             ImdiField[] displayedColumnNames = filteredColumnNames.values().toArray(new ImdiField[filteredColumnNames.size()]);
-            Arrays.sort(displayedColumnNames, new Comparator() {
+            Arrays.sort(displayedColumnNames, new Comparator<ImdiField>() {
 
-                public int compare(Object firstColumn, Object secondColumn) {
+                public int compare(ImdiField firstColumn, ImdiField secondColumn) {
                     try {
                         int baseIntA = ((ImdiField) firstColumn).getFieldOrder();
                         int comparedIntA = ((ImdiField) secondColumn).getFieldOrder();
                         int returnValue = baseIntA - comparedIntA;
                         if (returnValue == 0) {
                             // if the xml node order is the same then also sort on the strings
-                            String baseStrA = ((ImdiField) ((Object[]) firstColumn)[1]).getFieldValue();
-                            String comparedStrA = ((ImdiField) ((Object[]) secondColumn)[1]).getFieldValue();
+                            String baseStrA = firstColumn.getFieldValue();
+                            String comparedStrA = secondColumn.getFieldValue();
                             returnValue = baseStrA.compareToIgnoreCase(comparedStrA);
                         }
                         return returnValue;
