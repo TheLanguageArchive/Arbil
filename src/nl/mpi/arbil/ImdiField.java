@@ -242,6 +242,14 @@ public class ImdiField {
             if (cvUrlString != null && cvUrlString.length() > 0) {
                 fieldVocabulary = ImdiVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
             }
+        } else {
+            // vocabularies specified in the xml override vocabularies defined in the schema
+            if (parentImdi.nodeTemplate != null) {
+                // get the schema vocabularies
+//                System.out.println("parentImdi.nodeTemplate: " + parentImdi.nodeTemplate.loadedTemplateName);
+//                System.out.println("this.getGenericFullXmlPath(): " + this.getGenericFullXmlPath());
+                fieldVocabulary = parentImdi.nodeTemplate.getFieldVocabulary(this.getGenericFullXmlPath());
+            }
         }
     }
 
