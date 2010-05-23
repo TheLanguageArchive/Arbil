@@ -22,6 +22,9 @@ import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ImdiTreeObject;
+import org.apache.xmlbeans.SchemaAnnotation;
+import org.apache.xmlbeans.SchemaLocalElement;
+import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -138,8 +141,6 @@ public class CmdiTemplate extends ArbilTemplate {
         //templatesArray = childNodePaths;
         // TODO: complete these
         requiredFields = new String[]{};
-        preferredNameFields = new String[]{};
-        fieldUsageArray = new String[][]{};
         fieldTriggersArray = new String[][]{};
         autoFieldsArray = new String[][]{};
         genreSubgenreArray = new String[][]{};
@@ -220,11 +221,13 @@ public class CmdiTemplate extends ArbilTemplate {
             XmlOptions options = new XmlOptions();
             options.setCharacterEncoding("UTF-8");
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
-            for (SchemaType schemaType : sts.documentTypes()) {
-//                System.out.println("T-documentTypes:");
-                constructXml(schemaType, arrayListGroup, "", "");
-                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
-            }
+            SchemaType schemaType = sts.documentTypes()[0];
+            constructXml(schemaType, arrayListGroup, "", "");
+//            for (SchemaType schemaType : sts.documentTypes()) {
+////                System.out.println("T-documentTypes:");
+//                constructXml(schemaType, arrayListGroup, "", "");
+//                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
+//            }
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(templateFile.getName(), e);
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not open the required template file: " + templateFile.getName(), "Load Clarin Template");
@@ -238,15 +241,25 @@ public class CmdiTemplate extends ArbilTemplate {
         int childCount = 0;
         boolean hasMultipleElementsInOneNode = false;
         readControlledVocabularies(schemaType, pathString);
-        readDisplayNamePreferences(schemaType, pathString, arrayListGroup.displayNamePreferenceList);
         readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
-        readFieldUsageDescriptions(schemaType, pathString, arrayListGroup.fieldUsageDescriptionList);
 
-        for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
+        // search for annotations
+        SchemaParticle topParticle = schemaType.getContentModel();
+        searchForAnnotations(topParticle, pathString, arrayListGroup);
+        // end search for annotations
+
+        SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
+        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
+        for (SchemaProperty schemaProperty : schemaPropertyArray) {
             childCount++;
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
-            String currentNodeMenuName = nodeMenuName + "." + localName;
+            String currentNodeMenuName;
+//            if (currentHasMultipleNodes) {
+            currentNodeMenuName = nodeMenuName + "." + localName;
+//            } else {
+//                currentNodeMenuName = nodeMenuName;
+//            }
             currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
             boolean canHaveMultiple = true;
             if (schemaProperty.getMaxOccurs() == null) {
@@ -306,10 +319,33 @@ public class CmdiTemplate extends ArbilTemplate {
         return hasMultipleElementsInOneNode;
     }
 
-    private void readFieldUsageDescriptions(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldUsageDescriptionList) {
+//    SchemaParticle topParticle = schemaType.getContentModel();
+    private void searchForAnnotations(SchemaParticle schemaParticle, String nodePath, ArrayListGroup arrayListGroup) {
+        if (schemaParticle != null) {
+            switch (schemaParticle.getParticleType()) {
+                case SchemaParticle.SEQUENCE:
+                    for (SchemaParticle schemaParticleChild : schemaParticle.getParticleChildren()) {
+                        searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup);
+                    }
+                    break;
+                case SchemaParticle.ELEMENT:
+                    SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaParticle;
+                    saveAnnotationData(schemaLocalElement, nodePath, arrayListGroup);
+                    break;
+            }
+        }
     }
 
-    private void readDisplayNamePreferences(SchemaType schemaType, String nodePath, ArrayList<String[]> displayNamePreferenceList) {
+    private void saveAnnotationData(SchemaLocalElement schemaLocalElement, String nodePath, ArrayListGroup arrayListGroup) {
+        SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
+        if (schemaAnnotation != null) {
+            for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
+                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+                if ("{ann}documentation".equals(annotationAttribute.getName().toString())) {
+                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getName() + " : " + annotationAttribute.getValue()});
+                }
+            }
+        }
     }
 
     private void readFieldConstrains(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldConstraintList) {
