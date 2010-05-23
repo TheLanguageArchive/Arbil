@@ -9,18 +9,23 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.GuiHelper;
+import nl.mpi.arbil.ImdiVocabularies;
 import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.clarin.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -33,14 +38,22 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class CmdiTemplate extends ArbilTemplate {
 
-    public void loadTemplate(String nameSpaceString) {
+    String nameSpaceString;
+
+    public void loadTemplate(String nameSpaceStringLocal) {
         // testing only
         //super.readTemplate(new File(""), "template_cmdi");
-
+        vocabularyHashTable = new Hashtable<String, ImdiVocabularies.Vocabulary>();
+        nameSpaceString = nameSpaceStringLocal;
         // construct the template from the XSD
         try {
             // get the name of this profile
-            loadedTemplateName = CmdiProfileReader.getSingleInstance().getProfile(nameSpaceString).name;// this could be null
+            CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(nameSpaceString);
+            if (cmdiProfile != null) {
+                loadedTemplateName = cmdiProfile.name;// this could be null
+            } else {
+                loadedTemplateName = nameSpaceString.substring(nameSpaceString.lastIndexOf("/") + 1);
+            }
 
             // create a temp file of the read template data so that it can be compared to a hand made version
             File debugTempFile = File.createTempFile("templatetext", ".tmp");
@@ -50,11 +63,35 @@ public class CmdiTemplate extends ArbilTemplate {
             ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
             ArrayList<String[]> resourceNodePathsList = new ArrayList<String[]>();
             ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
+            ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
+            ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
             URI xsdUri = new URI(nameSpaceString);
-            readSchema(xsdUri, childNodePathsList, resourceNodePathsList, fieldConstraintList);
+            readSchema(xsdUri, childNodePathsList, resourceNodePathsList, fieldConstraintList, displayNamePreferenceList, fieldUsageDescriptionList);
             childNodePaths = childNodePathsList.toArray(new String[][]{});
             resourceNodePaths = resourceNodePathsList.toArray(new String[][]{});
             fieldConstraints = fieldConstraintList.toArray(new String[][]{});
+            fieldUsageArray = fieldUsageDescriptionList.toArray(new String[][]{});
+
+            // sort and construct the preferredNameFields array
+            String[][] tempSortableArray = displayNamePreferenceList.toArray(new String[][]{});
+            Arrays.sort(tempSortableArray, new Comparator<String[]>() {
+
+                public int compare(String[] o1, String[] o2) {
+                    return Integer.valueOf(o1[1]) - Integer.valueOf(o2[1]);
+                }
+            });
+            preferredNameFields = new String[tempSortableArray.length];
+            for (int nameFieldCounter = 0; nameFieldCounter < preferredNameFields.length; nameFieldCounter++) {
+                preferredNameFields[nameFieldCounter] = tempSortableArray[nameFieldCounter][0];
+            }
+            // end sort and construct the preferredNameFields array
+
+            if (preferredNameFields.length < 1) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No preferred field names have been specified, some nodes will not display correctly", "Clarin Profile Error");
+            }
+            if (fieldUsageArray.length < 1) {
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No field descriptions have been provided in the profile, as a result no information about each fields intended use can be provided to users of this profile", "Clarin Profile Error");
+            }
 
             for (String[] currentArray : childNodePaths) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
@@ -68,9 +105,18 @@ public class CmdiTemplate extends ArbilTemplate {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
                 debugTemplateFileWriter.write("<FieldConstraint FieldPath=\"" + currentArray[0] + "\" Constraint=\"" + currentArray[1] + "\" />\r\n");
             }
+            for (String currentArray : preferredNameFields) {
+                System.out.println("loadTemplate: " + currentArray);
+                // node that this is not a FieldsShortName but a full field path but the code now supports both while the xml file implies only short
+                debugTemplateFileWriter.write("<TreeNodeNameField FieldsShortName==\"" + currentArray + "\" />\r\n");
+            }
+            for (String[] currentArray : fieldUsageArray) {
+                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                debugTemplateFileWriter.write("<FieldUsage FieldPath=\"" + currentArray[0] + "\" FieldDescription=\"" + currentArray[1] + "\" />\r\n");
+            }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-            //     LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
@@ -152,7 +198,7 @@ public class CmdiTemplate extends ArbilTemplate {
         return childTypes.elements();
     }
 
-    private void readSchema(URI xsdFile, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList) {
+    private void readSchema(URI xsdFile, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList, ArrayList<String[]> displayNamePreferenceList, ArrayList<String[]> fieldUsageDescriptionList) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         templateFile = schemaFile; // store the template file for later use such as adding child nodes
         try {
@@ -163,7 +209,7 @@ public class CmdiTemplate extends ArbilTemplate {
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             for (SchemaType schemaType : sts.documentTypes()) {
                 System.out.println("T-documentTypes:");
-                constructXml(schemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, "");
+                constructXml(schemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, displayNamePreferenceList, fieldUsageDescriptionList, "");
                 break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
             }
         } catch (IOException e) {
@@ -175,7 +221,7 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private void constructXml(SchemaType schemaType, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList, String pathString) {
+    private void constructXml(SchemaType schemaType, ArrayList<String[]> childNodePathsList, ArrayList<String[]> resourceNodePathsList, ArrayList<String[]> fieldConstraintList, ArrayList<String[]> displayNamePreferenceList, ArrayList<String[]> fieldUsageDescriptionList, String pathString) {
 //        SchemaAnnotation ann = ((SchemaLocalElement) schemaType.getContentModel()).getAnnotation();
         //System.out.println("SchemaAnnotation: " + schemaType.getDocumentElementName());
 
@@ -190,6 +236,10 @@ public class CmdiTemplate extends ArbilTemplate {
 //            System.out.println("getProperties: " + schemaProperty.getName());
 //            System.out.println("getProperties: " + schemaProperty.toString());
 //        }
+        readControlledVocabularies(schemaType, pathString);
+        readDisplayNamePreferences(schemaType, pathString, displayNamePreferenceList);
+        readFieldConstrains(schemaType, pathString, fieldConstraintList);
+        readFieldUsageDescriptions(schemaType, pathString, fieldUsageDescriptionList);
 
         for (SchemaProperty schemaProperty : schemaType.getElementProperties()) {
             String localName = schemaProperty.getName().getLocalPart();
@@ -246,7 +296,7 @@ public class CmdiTemplate extends ArbilTemplate {
             // getAnnotations(currentSchemaType);
 
 
-            constructXml(currentSchemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, currentPathString);
+            constructXml(currentSchemaType, childNodePathsList, resourceNodePathsList, fieldConstraintList, displayNamePreferenceList, fieldUsageDescriptionList, currentPathString);
             hasSubNodes = true; // todo: complete or remove this hasSubNodes case
             if (canHaveMultiple && hasSubNodes) {
                 childNodePathsList.add(new String[]{currentPathString, localName});
@@ -275,37 +325,61 @@ public class CmdiTemplate extends ArbilTemplate {
             // {http://www.w3.org/2001/XMLSchema}string
             // {http://www.w3.org/2001/XMLSchema}date
             // {http://www.w3.org/2001/XMLSchema}anyURI
-            switch (schemaProperty.getType().getBuiltinTypeCode()) {
-                case SchemaType.BTC_STRING:
-                    System.out.println("BTC_STRING");
-                    // no constraint relevant for string
-                    break;
-                case SchemaType.BTC_DATE:
-                    System.out.println("BTC_DATE");
-                    fieldConstraintList.add(new String[]{currentPathString, "([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"});// todo: complete this regex
-                    break;
-                case SchemaType.BTC_BOOLEAN:
-                    System.out.println("BTC_BOOLEAN");
-                    fieldConstraintList.add(new String[]{currentPathString, "true|false"});// todo: complete this regex
-                    break;
-                case SchemaType.BTC_ANY_URI:
-                    System.out.println("BTC_ANY_URI");
-                    fieldConstraintList.add(new String[]{currentPathString, "[^\\d]+://.*"});// todo: complete this regex
-                    break;
+
+todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
+//            schemaProperty.getType().
+        }
+    }
+
+    private void readFieldUsageDescriptions(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldUsageDescriptionList) {
+    }
+
+    private void readDisplayNamePreferences(SchemaType schemaType, String nodePath, ArrayList<String[]> displayNamePreferenceList) {
+    }
+
+    private void readFieldConstrains(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldConstraintList) {
+        switch (schemaType.getBuiltinTypeCode()) {
+            case SchemaType.BTC_STRING:
+                System.out.println("BTC_STRING");
+                // no constraint relevant for string
+                break;
+            case SchemaType.BTC_DATE:
+                System.out.println("BTC_DATE");
+                fieldConstraintList.add(new String[]{nodePath, "([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"});// todo: complete this regex
+                break;
+            case SchemaType.BTC_BOOLEAN:
+                System.out.println("BTC_BOOLEAN");
+                fieldConstraintList.add(new String[]{nodePath, "true|false"});// todo: complete this regex
+                break;
+            case SchemaType.BTC_ANY_URI:
+                System.out.println("BTC_ANY_URI");
+                fieldConstraintList.add(new String[]{nodePath, "[^\\d]+://.*"});// todo: complete this regex
+                break;
 //                case SchemaType. XML object???:
 //                    System.out.println("");
 //                    fieldConstraintList.add(new String[]{currentPathString, "[^\\d]+://.*"});// todo: complete this regex
 //                    break;
-                case 0:
-                    // no constraint relevant
-                    break;
-                default:
-                    System.out.println("uknown");
-                    break;
-            }
+            case 0:
+                // no constraint relevant
+                break;
+            default:
+                System.out.println("uknown");
+                break;
+        }
+    }
 
-todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
-//            schemaProperty.getType().
+    private void readControlledVocabularies(SchemaType schemaType, String nodePath) {
+        if (schemaType.getEnumerationValues() != null) {
+//            System.out.println("Controlled Vocabulary: " + schemaType.toString());
+//            System.out.println("Controlled Vocabulary: " + schemaType.getName());
+
+            ImdiVocabularies.Vocabulary vocabulary = ImdiVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
+
+            for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
+//                System.out.println("Value List: " + anySimpleType.getStringValue());
+                vocabulary.addEntry(anySimpleType.getStringValue());
+            }
+            vocabularyHashTable.put(nodePath, vocabulary);
         }
     }
 
@@ -314,7 +388,6 @@ todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr
 //                + "\", maxOccurs=\""
 //                + (p.getMaxOccurs() != null ? p.getMaxOccurs().toString() : "unbounded") + "\"");
 //    }
-    
 //    public void getAnnotations(SchemaType schemaType) {
 //        SchemaParticle typeParticle = schemaType.getContentModel();
 //        if (typeParticle == null) {
@@ -391,6 +464,7 @@ todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr
 //        }
 //    }
     public static void main(String args[]) {
-        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
+//        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
+        new CmdiTemplate().loadTemplate("file:/Users/petwit/Desktop/LocalProfiles/clarin.eu_annotation-test_1272022528355.xsd");
     }
 }
