@@ -42,6 +42,7 @@ import org.apache.xmlbeans.XmlOptions;
 public class CmdiTemplate extends ArbilTemplate {
 
     String nameSpaceString;
+    String filterString = ".CMD.Resources.";
 
     private class ArrayListGroup {
 
@@ -81,6 +82,7 @@ public class CmdiTemplate extends ArbilTemplate {
             resourceNodePaths = arrayListGroup.resourceNodePathsList.toArray(new String[][]{});
             fieldConstraints = arrayListGroup.fieldConstraintList.toArray(new String[][]{});
             fieldUsageArray = arrayListGroup.fieldUsageDescriptionList.toArray(new String[][]{});
+            makeGuiNamesUnique();
 
             // sort and construct the preferredNameFields array
             String[][] tempSortableArray = arrayListGroup.displayNamePreferenceList.toArray(new String[][]{});
@@ -129,7 +131,7 @@ public class CmdiTemplate extends ArbilTemplate {
             }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+            //LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
@@ -146,9 +148,52 @@ public class CmdiTemplate extends ArbilTemplate {
         genreSubgenreArray = new String[][]{};
     }
 
+    private void makeGuiNamesUnique() {
+        // template array is the super set while childnodes array is shorter
+        boolean allGuiNamesUnique = false;
+        while (!allGuiNamesUnique) {
+            allGuiNamesUnique = true;
+            for (String[] currentTemplate : templatesArray) {
+                String currentTemplateGuiName = currentTemplate[1];
+                String currentTemplatePath = currentTemplate[0];
+                for (String[] secondTemplate : templatesArray) {
+                    String secondTemplateGuiName = secondTemplate[1];
+                    String secondTemplatePath = secondTemplate[0];
+//                    System.out.println("currentTemplateGuiName: " + currentTemplateGuiName);
+//                    System.out.println("secondTemplateGuiName: " + secondTemplateGuiName);
+                    if (!currentTemplatePath.equals(secondTemplatePath)) {
+                        if (currentTemplateGuiName.equals(secondTemplateGuiName)) {
+                            allGuiNamesUnique = false;
+                            for (String[] templateToChange : templatesArray) {
+                                String templateToChangeGuiName = templateToChange[1];
+                                String templateToChangePath = templateToChange[0];
+                                if (templateToChangeGuiName.equals(currentTemplateGuiName)) {
+                                    int pathCount = templateToChangeGuiName.split("\\.").length;
+                                    String[] templateToChangePathParts = templateToChangePath.split("\\.");
+                                    templateToChange[1] = templateToChangePathParts[templateToChangePathParts.length - pathCount - 1] + "." + templateToChangeGuiName;
+//                                    System.out.println("templateToChangeGuiName: " + templateToChangeGuiName);
+//                                    System.out.println("templateToChangePath: " + templateToChangePath);
+//                                    System.out.println("new templateToChange[1]: " + templateToChange[1]);
+                                }
+                            }
+                            for (String[] templateToChange : childNodePaths) {
+                                String templateToChangeGuiName = templateToChange[1];
+                                String templateToChangePath = templateToChange[0];
+                                if (templateToChangeGuiName.equals(currentTemplateGuiName)) {
+                                    int pathCount = templateToChangeGuiName.split("\\.").length;
+                                    String[] templateToChangePathParts = templateToChangePath.split("\\.");
+                                    templateToChange[1] = templateToChangePathParts[templateToChangePathParts.length - pathCount - 1] + "." + templateToChangeGuiName;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
-        String filterString = ".CMD.Resources.";
         // get the xpath of the target node
         String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
@@ -249,18 +294,20 @@ public class CmdiTemplate extends ArbilTemplate {
         // end search for annotations
 
         SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
-        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
+//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
         for (SchemaProperty schemaProperty : schemaPropertyArray) {
             childCount++;
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
             String currentNodeMenuName;
-//            if (currentHasMultipleNodes) {
-            currentNodeMenuName = nodeMenuName + "." + localName;
+            // while keeping the .cmd.components part filter out all unrequired path component for use in the menus
+//            if (currentHasMultipleNodes || filterString.startsWith(currentPathString)) {
+//                currentNodeMenuName = nodeMenuName + "." + localName;
 //            } else {
 //                currentNodeMenuName = nodeMenuName;
 //            }
-            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
+//                  currentNodeMenuName = localName;
+//            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
             boolean canHaveMultiple = true;
             if (schemaProperty.getMaxOccurs() == null) {
                 // absence of the max occurs also means multiple
@@ -284,7 +331,8 @@ public class CmdiTemplate extends ArbilTemplate {
 //                nodeMenuName = nodeMenuName + "." + localName;
 //                nodeMenuNameForChild = nodeMenuName;
 //            }
-            nodeMenuNameForChild = currentNodeMenuName;
+            nodeMenuNameForChild = "";
+            currentNodeMenuName = localName;
             boolean childHasMultipleElementsInOneNode = constructXml(currentSchemaType, arrayListGroup, currentPathString, nodeMenuNameForChild);
             if (!hasMultipleElementsInOneNode) {
                 hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
@@ -292,7 +340,7 @@ public class CmdiTemplate extends ArbilTemplate {
 
             System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
 
-            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
+//            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 //            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
             if (canHaveMultiple && hasMultipleElementsInOneNode) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
@@ -311,7 +359,7 @@ public class CmdiTemplate extends ArbilTemplate {
             if (hasResourceAttribute) {
                 arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
             }
-            todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
+//            todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
         }
         if (childCount > 1) {
             hasMultipleElementsInOneNode = true;
