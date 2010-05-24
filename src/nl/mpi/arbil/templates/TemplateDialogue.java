@@ -11,6 +11,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
@@ -29,7 +30,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         parentFrame = parentFrameLocal;
         initComponents();
         populateLists();
-        jProgressBar1.setVisible(false);
+        loadProfiles(false);
     }
 
     /** This method is called from within the constructor to
@@ -134,8 +135,9 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         add(jPanel3);
     }
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
+    public void loadProfiles(final boolean forceUpdate) {
+        clarinPanel.removeAll();
+        clarinPanel.add(new JTextField("Loading..."));
         jButton1.setVisible(false);
         jProgressBar1.setVisible(true);
         this.doLayout();
@@ -144,12 +146,18 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             @Override
             public void run() {
                 CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
-                cmdiProfileReader.refreshProfiles(jProgressBar1);
+                cmdiProfileReader.refreshProfiles(jProgressBar1, forceUpdate);
                 jProgressBar1.setVisible(false);
                 jButton1.setVisible(true);
+                populateLists();
                 doLayout();
             }
         }.start();
+    }
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        // TODO add your handling code here:
+        loadProfiles(true);
     }
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -219,6 +227,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             checkBoxArray.add(templateCheckBox);
         }
         addSorted(templatesPanel, checkBoxArray);
+        parentFrame.pack();
 
         // add clarin types
         checkBoxArray.clear();
