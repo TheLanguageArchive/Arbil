@@ -20,7 +20,7 @@ public class CmdiProfileReader {
     //"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles"
 
     public static void main(String args[]) {
-        new CmdiProfileReader();
+        new CmdiProfileReader().loadProfiles();
     }
     static CmdiProfileReader singleInstance = null;
 
@@ -62,17 +62,18 @@ public class CmdiProfileReader {
 
     private CmdiProfileReader() {
         loadProfiles();
-        // get all the xsd files from the profile listing and store them on disk for offline use
-        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
-            System.out.println("checking profile exists on disk: " + currentCmdiProfile.getXsdHref());
-            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 90);
-        }
     }
 
-    public void refreshProfiles(JProgressBar progressBar) {
+    public void refreshProfiles(JProgressBar progressBar, boolean forceUpdate) {
         progressBar.setIndeterminate(true);
         progressBar.setString("");
-        LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, 0);
+        int updateDays;
+        if (forceUpdate) {
+            updateDays = 0;
+        } else {
+            updateDays = 100;
+        }
+        LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, updateDays);
         loadProfiles();
         progressBar.setIndeterminate(false);
         progressBar.setMinimum(0);
@@ -82,7 +83,7 @@ public class CmdiProfileReader {
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
             progressBar.setString(currentCmdiProfile.name);
             System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
-            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 0);
+            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), updateDays);
             progressBar.setValue(progressBar.getValue() + 1);
         }
         progressBar.setString("");
@@ -111,6 +112,11 @@ public class CmdiProfileReader {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // get all the xsd files from the profile listing and store them on disk for offline use
+//        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+//            System.out.println("checking profile exists on disk: " + currentCmdiProfile.getXsdHref());
+//            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 90);
+//        }
     }
 
     public void addProfile(String id,
