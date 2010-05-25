@@ -13,10 +13,10 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -752,14 +752,29 @@ public class LinorgWindowManager {
 
     public ImdiTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
         ImdiTreeObject[] tableNodes = new ImdiTreeObject[rowNodesArray.length];
+        ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
-//            try {
-            tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, rowNodesArray[arrayCounter]);
-//            } catch (URISyntaxException ex) {
-//                GuiHelper.linorgBugCatcher.logError(ex);
-//            }
+            try {
+                ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
+                parentNode.waitTillLoaded();
+                String fieldPath = rowNodesArray[arrayCounter].getFragment();
+                String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                URI targetNode;
+                // note that the url has already be encoded and so we must not use the separate parameter version of new URI otherwise it would be encoded again which we do not want
+                if (parentNodeFragment.length() > 0) {
+                    targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0] + "#" + parentNodeFragment);
+                } else {
+                    targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0]);
+                }
+                tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, targetNode);
+                fieldPathsToHighlight.add(fieldPath);
+            } catch (URISyntaxException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
         }
-        return openFloatingTableOnce(tableNodes, frameTitle);
+        ImdiTableModel targetTableModel = openFloatingTableOnce(tableNodes, frameTitle);
+        targetTableModel.highlightMatchingFieldPaths(fieldPathsToHighlight.toArray(new String[]{}));
+        return targetTableModel;
     }
 
     public ImdiTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
