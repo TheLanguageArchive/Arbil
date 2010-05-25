@@ -56,6 +56,7 @@ public class CmdiTemplate extends ArbilTemplate {
 
     public void loadTemplate(String nameSpaceStringLocal) {
         // testing only
+//        new TestAnnotationsReader().Test();
         //super.readTemplate(new File(""), "template_cmdi");
         vocabularyHashTable = new Hashtable<String, ImdiVocabularies.Vocabulary>();
         nameSpaceString = nameSpaceStringLocal;
@@ -258,7 +259,12 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
-        File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        File schemaFile;
+        if (xsdFile.getScheme().equals("file")) {
+            schemaFile = new File(xsdFile);
+        } else {
+            schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 100);
+        }
         templateFile = schemaFile; // store the template file for later use such as adding child nodes
         try {
             InputStream inputStream = new FileInputStream(schemaFile);
@@ -266,6 +272,7 @@ public class CmdiTemplate extends ArbilTemplate {
             XmlOptions options = new XmlOptions();
             options.setCharacterEncoding("UTF-8");
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
+//            System.out.println("XmlObject.Factory:" + XmlObject.Factory.class.toString());
             SchemaType schemaType = sts.documentTypes()[0];
             constructXml(schemaType, arrayListGroup, "");
 //            for (SchemaType schemaType : sts.documentTypes()) {
@@ -283,7 +290,8 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private boolean constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
-        System.out.println("schemaType: " + schemaType.getName());
+//        System.out.println("constructXml: " + pathString);
+//        System.out.println("schemaType: " + schemaType.getName());
         int childCount = 0;
         boolean hasMultipleElementsInOneNode = false;
         readControlledVocabularies(schemaType, pathString);
@@ -340,7 +348,7 @@ public class CmdiTemplate extends ArbilTemplate {
                 hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
             }
 
-            System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
+//            System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
 
 //            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 //            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
@@ -371,6 +379,7 @@ public class CmdiTemplate extends ArbilTemplate {
 
 //    SchemaParticle topParticle = schemaType.getContentModel();
     private void searchForAnnotations(SchemaParticle schemaParticle, String nodePath, ArrayListGroup arrayListGroup) {
+//        System.out.println("searchForAnnotations" + nodePath);
         if (schemaParticle != null) {
             switch (schemaParticle.getParticleType()) {
                 case SchemaParticle.SEQUENCE:
@@ -390,8 +399,9 @@ public class CmdiTemplate extends ArbilTemplate {
     private void saveAnnotationData(SchemaLocalElement schemaLocalElement, String nodePath, ArrayListGroup arrayListGroup) {
         SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
         if (schemaAnnotation != null) {
+//            System.out.println("getAttributes length: " + schemaAnnotation.getAttributes().length);
             for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
-                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+//                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
                 //Annotation: {ann}documentation : the title of the book
                 //Annotation: {ann}displaypriority : 1
                 if ("{ann}displaypriority".equals(annotationAttribute.getName().toString())) {
