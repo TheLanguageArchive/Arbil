@@ -131,7 +131,7 @@ public class CmdiTemplate extends ArbilTemplate {
             }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-            //LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
@@ -267,7 +267,7 @@ public class CmdiTemplate extends ArbilTemplate {
             options.setCharacterEncoding("UTF-8");
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
             SchemaType schemaType = sts.documentTypes()[0];
-            constructXml(schemaType, arrayListGroup, "", "");
+            constructXml(schemaType, arrayListGroup, "");
 //            for (SchemaType schemaType : sts.documentTypes()) {
 ////                System.out.println("T-documentTypes:");
 //                constructXml(schemaType, arrayListGroup, "", "");
@@ -282,7 +282,8 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private boolean constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString, String nodeMenuName) {
+    private boolean constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
+        System.out.println("schemaType: " + schemaType.getName());
         int childCount = 0;
         boolean hasMultipleElementsInOneNode = false;
         readControlledVocabularies(schemaType, pathString);
@@ -300,6 +301,7 @@ public class CmdiTemplate extends ArbilTemplate {
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
             String currentNodeMenuName;
+
             // while keeping the .cmd.components part filter out all unrequired path component for use in the menus
 //            if (currentHasMultipleNodes || filterString.startsWith(currentPathString)) {
 //                currentNodeMenuName = nodeMenuName + "." + localName;
@@ -322,7 +324,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //            boolean hasSubNodes = false;
             System.out.println("Found template element: " + currentPathString);
             SchemaType currentSchemaType = schemaProperty.getType();
-            String nodeMenuNameForChild;
+//            String nodeMenuNameForChild;
 //            if (canHaveMultiple) {
 //                // reset the node menu name when traversing through into a subnode
 //                nodeMenuNameForChild = localName;
@@ -331,9 +333,9 @@ public class CmdiTemplate extends ArbilTemplate {
 //                nodeMenuName = nodeMenuName + "." + localName;
 //                nodeMenuNameForChild = nodeMenuName;
 //            }
-            nodeMenuNameForChild = "";
+//            nodeMenuNameForChild = "";
             currentNodeMenuName = localName;
-            boolean childHasMultipleElementsInOneNode = constructXml(currentSchemaType, arrayListGroup, currentPathString, nodeMenuNameForChild);
+            boolean childHasMultipleElementsInOneNode = constructXml(currentSchemaType, arrayListGroup, currentPathString);
             if (!hasMultipleElementsInOneNode) {
                 hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
             }
@@ -373,6 +375,7 @@ public class CmdiTemplate extends ArbilTemplate {
             switch (schemaParticle.getParticleType()) {
                 case SchemaParticle.SEQUENCE:
                     for (SchemaParticle schemaParticleChild : schemaParticle.getParticleChildren()) {
+                        nodePath = nodePath + "." + schemaParticleChild.getName().getLocalPart();
                         searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup);
                     }
                     break;
@@ -389,8 +392,13 @@ public class CmdiTemplate extends ArbilTemplate {
         if (schemaAnnotation != null) {
             for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
                 System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+                //Annotation: {ann}documentation : the title of the book
+                //Annotation: {ann}displaypriority : 1
+                if ("{ann}displaypriority".equals(annotationAttribute.getName().toString())) {
+                    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
+                }
                 if ("{ann}documentation".equals(annotationAttribute.getName().toString())) {
-                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getName() + " : " + annotationAttribute.getValue()});
+                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
                 }
             }
         }
@@ -399,19 +407,19 @@ public class CmdiTemplate extends ArbilTemplate {
     private void readFieldConstrains(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldConstraintList) {
         switch (schemaType.getBuiltinTypeCode()) {
             case SchemaType.BTC_STRING:
-                System.out.println("BTC_STRING");
+//                System.out.println("BTC_STRING");
                 // no constraint relevant for string
                 break;
             case SchemaType.BTC_DATE:
-                System.out.println("BTC_DATE");
+//                System.out.println("BTC_DATE");
                 fieldConstraintList.add(new String[]{nodePath, "([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"});// todo: complete this regex
                 break;
             case SchemaType.BTC_BOOLEAN:
-                System.out.println("BTC_BOOLEAN");
+//                System.out.println("BTC_BOOLEAN");
                 fieldConstraintList.add(new String[]{nodePath, "true|false"});// todo: complete this regex
                 break;
             case SchemaType.BTC_ANY_URI:
-                System.out.println("BTC_ANY_URI");
+//                System.out.println("BTC_ANY_URI");
                 fieldConstraintList.add(new String[]{nodePath, "[^\\d]+://.*"});// todo: complete this regex
                 break;
 //                case SchemaType. XML object???:
@@ -422,7 +430,7 @@ public class CmdiTemplate extends ArbilTemplate {
                 // no constraint relevant
                 break;
             default:
-                System.out.println("uknown");
+//                System.out.println("uknown");
                 break;
         }
     }
