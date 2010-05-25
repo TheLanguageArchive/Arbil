@@ -291,6 +291,9 @@ public class CmdiTemplate extends ArbilTemplate {
 
     private boolean constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
 //        System.out.println("constructXml: " + pathString);
+//        if (pathString.startsWith(".CMD.Components.test-profile-book.Authors.Author.")) {
+//            System.out.println("Author");
+//        }
 //        System.out.println("schemaType: " + schemaType.getName());
         int childCount = 0;
         boolean hasMultipleElementsInOneNode = false;
@@ -328,6 +331,10 @@ public class CmdiTemplate extends ArbilTemplate {
             } else {
                 // todo: take into account max occurs in the add menu
                 canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
+            }
+            if (!canHaveMultiple) {
+                // todo: limit the number of instances that can be added to a xml file basedon the max bounds
+                canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
             }
 //            boolean hasSubNodes = false;
             System.out.println("Found template element: " + currentPathString);
