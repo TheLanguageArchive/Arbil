@@ -240,6 +240,24 @@ public class ArbilTemplate {
         return returnVector;
     }
 
+    public String getParentOfField(String targetFieldPath) {
+        String testString = targetFieldPath.replaceAll("\\(\\d+\\)", "");
+        String bestMatch = "";
+        for (String[] currentTemplate : childNodePaths) {
+            String currentNodePath = currentTemplate[0];
+            if (testString.startsWith(currentNodePath)) {
+                if (bestMatch.length() < currentNodePath.length()) {
+                    bestMatch = currentNodePath;
+                }
+            }
+        }
+        String returnString = targetFieldPath;
+        while (returnString.split("\\.").length > bestMatch.split("\\.").length) {
+            returnString = returnString.replaceFirst("\\.[^\\.]+$", "");
+        }
+        return returnString;
+    }
+
     /**
      * This function is only a place holder and will be replaced.
      * @param targetNodeUserObject The imdi node that will receive the new child.
