@@ -122,7 +122,8 @@ public class ImdiLoader {
                                 }
                                 System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
 //                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
-                                ImdiTreeObject addedImdiObject = getImdiObjectWithoutLoading(currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUri, mimeType));
+                                URI addedNodeUri = currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUri, mimeType);
+                                ImdiTreeObject addedImdiObject = getImdiObjectWithoutLoading(addedNodeUri);
 //                                if (addedImdiObject == null) {
 //                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
 //                                } else {
@@ -143,8 +144,9 @@ public class ImdiLoader {
                                     if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
                                         TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
                                     }
-                                    ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(allAddedNodes.toArray(new ImdiTreeObject[]{}), newTableTitleString);
+                                    //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(allAddedNodes.toArray(new ImdiTreeObject[]{}), newTableTitleString);
                                 }
+                                ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
                             } else {
 //                                if (currentImdiObject.autoLoadChildNodes) {
 //                                    currentImdiObject.loadChildNodes();
