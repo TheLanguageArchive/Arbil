@@ -42,6 +42,7 @@ public class ImdiTableModel extends AbstractTableModel {
     boolean sortReverse = false;
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
+    String[] highFieldPaths = new String[]{};
     String[] singleNodeViewHeadings = new String[]{"IMDI Field", "Value"};
     private String[] columnNames = new String[0];
     private Object[][] data = new Object[0][0];
@@ -469,6 +470,19 @@ public class ImdiTableModel extends AbstractTableModel {
                     }
                 }
             }
+            for (String currentFeildPath : highFieldPaths) {
+                for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
+                    for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
+                        if (dataTemp[rowCounter][colCounter] instanceof ImdiField) {
+                            if (((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath)
+                                    || ((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath.replaceFirst("\\(1\\)$", ""))) {
+                                cellColourTemp[rowCounter][colCounter] = new Color(0x00CCCC);
+//                                if (dataTemp[rowCounter][0] instanceof String)
+                            }
+                        }
+                    }
+                }
+            }
         }
         return cellColourTemp;
     }
@@ -478,6 +492,7 @@ public class ImdiTableModel extends AbstractTableModel {
         return dataTemp;
     }
 
+//    private class TableRowComparator implements Comparator<ImdiField[]> {
     private class TableRowComparator implements Comparator {
 
         int sortColumn = 0;
@@ -489,6 +504,7 @@ public class ImdiTableModel extends AbstractTableModel {
 //            System.out.println("TableRowComparator: " + sortColumn + ":" + sortReverse);
         }
 
+        //public int compare(ImdiField[] firstRowArray, ImdiField[] secondRowArray) {
         public int compare(Object firstRowArray, Object secondRowArray) {
             if (sortColumn >= 0) {
                 // (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
@@ -897,6 +913,12 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public void highlightMatchingText(String highlightText) {
         highlightCells.add(highlightText);
+        cellColour = setCellColours(data);
+        fireTableDataChanged();
+    }
+
+    public void highlightMatchingFieldPaths(String[] fieldPaths) {
+        highFieldPaths = fieldPaths;
         cellColour = setCellColours(data);
         fireTableDataChanged();
     }
