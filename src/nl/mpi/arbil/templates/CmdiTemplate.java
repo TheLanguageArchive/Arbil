@@ -99,12 +99,12 @@ public class CmdiTemplate extends ArbilTemplate {
             }
             // end sort and construct the preferredNameFields array
 
-            if (preferredNameFields.length < 1) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No preferred field names have been specified, some nodes will not display correctly", "Clarin Profile Error");
-            }
-            if (fieldUsageArray.length < 1) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No field descriptions have been provided in the profile, as a result no information about each fields intended use can be provided to users of this profile", "Clarin Profile Error");
-            }
+//            if (preferredNameFields.length < 1) {
+//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No preferred field names have been specified, some nodes will not display correctly", "Clarin Profile Error");
+//            }
+//            if (fieldUsageArray.length < 1) {
+//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No field descriptions have been provided in the profile, as a result no information about each fields intended use can be provided to users of this profile", "Clarin Profile Error");
+//            }
             for (String[] currentArray : templatesArray) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
                 debugTemplateFileWriter.write("<TemplateComponent FileName=\"" + currentArray[0] + "\" DisplayName=\"" + currentArray[1] + "\" />\r\n");
@@ -132,7 +132,7 @@ public class CmdiTemplate extends ArbilTemplate {
             }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
