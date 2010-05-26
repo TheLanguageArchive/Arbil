@@ -564,7 +564,11 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    new LinorgVersionChecker().forceUpdateCheck();
+                    if (!new LinorgVersionChecker().forceUpdateCheck()) {
+                        LinorgVersion linorgVersion = new LinorgVersion();
+                        String versionString = linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision;
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
