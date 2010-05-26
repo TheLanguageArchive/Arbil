@@ -93,6 +93,7 @@
         <RootTemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />
         <RootTemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />
         <RootTemplateComponent FileName="METATRANSCRIPT.Catalogue.xml" DisplayName="Catalogue" />
+        <RootTemplateComponent FileName="METATRANSCRIPT.SignLanguageSession.xml" DisplayName="Sign-Language Session" />
     </RootTemplateComponents>
     <AvailableTemplateComponents>
         <comment>The template components that can be added via the add menu and the display name for each</comment>
