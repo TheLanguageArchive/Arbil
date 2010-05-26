@@ -471,13 +471,16 @@ public class ImdiTableModel extends AbstractTableModel {
                 }
             }
             for (String currentFeildPath : highFieldPaths) {
-                for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
-                    for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
-                        if (dataTemp[rowCounter][colCounter] instanceof ImdiField) {
-                            if (((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath)
-                                    || ((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath.replaceFirst("\\(1\\)$", ""))) {
-                                cellColourTemp[rowCounter][colCounter] = new Color(0xDDCCFF);
+                if (currentFeildPath != null) {
+                    for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
+                        for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
+                            if (dataTemp[rowCounter][colCounter] instanceof ImdiField && dataTemp[rowCounter][colCounter] != null) {
+                                String fullXmlPath = ((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath();
+                                if (fullXmlPath != null && fullXmlPath.equals(currentFeildPath)
+                                        || ((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath.replaceFirst("\\(1\\)$", ""))) {
+                                    cellColourTemp[rowCounter][colCounter] = new Color(0xDDCCFF);
 //                                if (dataTemp[rowCounter][0] instanceof String)
+                                }
                             }
                         }
                     }
