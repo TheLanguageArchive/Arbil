@@ -13,12 +13,12 @@ import javax.swing.JOptionPane;
  */
 public class LinorgVersionChecker {
 
-    public void forceUpdateCheck() {
+    public boolean forceUpdateCheck() {
         LinorgVersion linorgVersion = new LinorgVersion();
         String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
         File cachePath = LinorgSessionStorage.getSingleInstance().getSaveLocation("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt);
         cachePath.delete();
-        this.checkForUpdate();
+        return this.checkForUpdate();
     }
 
     private boolean isLatestVersion() {
@@ -70,18 +70,21 @@ public class LinorgVersionChecker {
         }
     }
 
-    public void checkForUpdate() {
-        if (this.hasWebStartUrl()) {
-            this.checkForAndUpdateViaJavaws();
-        } else {
-            new Thread() {
+    public boolean checkForUpdate() {
+        if (!isLatestVersion()) {
+            if (this.hasWebStartUrl()) {
+                this.checkForAndUpdateViaJavaws();
+            } else {
+                new Thread() {
 
-                public void run() {
-                    if (!isLatestVersion()) {
+                    public void run() {
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
                     }
-                }
-            }.start();
+                }.start();
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
