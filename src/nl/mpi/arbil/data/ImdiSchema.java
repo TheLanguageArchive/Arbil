@@ -241,7 +241,7 @@ public class ImdiSchema {
                 LinorgVersion currentVersion = new LinorgVersion();
                 String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
 
-                todo: the template must be stored at this point
+//                todo: the template must be stored at this point
 //                if (!ArbilTemplateManager.getSingleInstance().defaultTemplateIsCurrentTemplate()) {
 //                    if (!templateType.equals(".METATRANSCRIPT.Corpus")) { // prevent corpus branches getting a template so that the global template takes effect
 //                        arbilVersionString = arbilVersionString + ":" + ArbilTemplateManager.getSingleInstance().getCurrentTemplateName();
@@ -547,10 +547,9 @@ public class ImdiSchema {
         return linkURI;
     }
 
-    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
+    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
-            , Hashtable<String, Integer> siblingNodePathCounter
-             , int nodeOrderCounter) {
+            , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
@@ -635,6 +634,7 @@ public class ImdiSchema {
 
             }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
+            fullNodePath = fullNodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
@@ -663,6 +663,7 @@ public class ImdiSchema {
                     parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
                     // add brackets to conform with the imdi api notation
                     siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
+                    fullNodePath = fullNodePath + siblingSpacer;
                     ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
                     subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
                     parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
@@ -700,13 +701,14 @@ public class ImdiSchema {
 
             // calculate the xpath index for multiple fields like description
 //            System.out.println("siblingNodePath: " + siblingNodePath);
-            if (!siblingNodePathCounter.containsKey(siblingNodePath)) {
-                siblingNodePathCounter.put(siblingNodePath, 0);
+//            String siblingNodePath destinationNode.getURI().getFragment()
+            if (!siblingNodePathCounter.containsKey(fullNodePath)) {
+                siblingNodePathCounter.put(fullNodePath, 0);
             } else {
-                siblingNodePathCounter.put(siblingNodePath, siblingNodePathCounter.get(siblingNodePath) + 1);
-                }
+                siblingNodePathCounter.put(fullNodePath, siblingNodePathCounter.get(fullNodePath) + 1);
+            }
 //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-            ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(siblingNodePath));
+            ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullNodePath));
 
             // TODO: about to write this function
             //GuiHelper.imdiSchema.convertXmlPathToUiPath();
@@ -715,7 +717,7 @@ public class ImdiSchema {
             // TODO: note that this method does not use any attributes without a node value
 //            if (childNode.getLocalName() != null) {
 //                nodeCounter++;
-                //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
+            //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 //            }
             NamedNodeMap namedNodeMap = childNode.getAttributes();
             if (namedNodeMap != null) {
@@ -783,7 +785,7 @@ public class ImdiSchema {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
         }
     }
 }
