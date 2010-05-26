@@ -408,13 +408,14 @@ public class CmdiTemplate extends ArbilTemplate {
         if (schemaAnnotation != null) {
 //            System.out.println("getAttributes length: " + schemaAnnotation.getAttributes().length);
             for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
-//                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
                 //Annotation: {ann}documentation : the title of the book
                 //Annotation: {ann}displaypriority : 1
-                if ("{ann}displaypriority".equals(annotationAttribute.getName().toString())) {
+                // todo: the url here could be removed provided that it does not make it to unspecific
+                if ("{http://www.clarin.eu}displaypriority".equals(annotationAttribute.getName().toString())) {
                     arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
                 }
-                if ("{ann}documentation".equals(annotationAttribute.getName().toString())) {
+                if ("{http://www.clarin.eu}documentation".equals(annotationAttribute.getName().toString())) {
                     arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
                 }
             }
