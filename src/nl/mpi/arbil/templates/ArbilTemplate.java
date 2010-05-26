@@ -241,6 +241,9 @@ public class ArbilTemplate {
     }
 
     public String getParentOfField(String targetFieldPath) {
+        if (targetFieldPath == null) {
+            return "";
+        }
         String testString = targetFieldPath.replaceAll("\\(\\d+\\)", "");
         String bestMatch = "";
         for (String[] currentTemplate : childNodePaths) {
