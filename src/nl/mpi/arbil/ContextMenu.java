@@ -608,7 +608,7 @@ public class ContextMenu {
         });
         treePopupMenu.add(viewInBrrowserMenuItem);
 
-        viewXmlMenuItem.setText("View IMDI XML");
+        viewXmlMenuItem.setText("View XML");
 
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -668,7 +668,7 @@ public class ContextMenu {
         });
         treePopupMenu.add(exportHtmlMenuItemFormatted);
 
-        validateMenuItem.setText("Check IMDI format");
+        validateMenuItem.setText("Check XML Conformance");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
