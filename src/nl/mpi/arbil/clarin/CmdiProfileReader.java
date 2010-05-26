@@ -16,6 +16,7 @@ public class CmdiProfileReader {
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
     // todo: move this url into the config file
     String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
+//    String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles";
     //String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264758016524/xsd";
     //"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles"
 
@@ -34,7 +35,7 @@ public class CmdiProfileReader {
 
     public static boolean pathIsProfile(String pathString) {
         // TODO: make this smarter (this only needs to determin if the path is to a template file or an xsd)
-        return ((pathString.startsWith("http") && pathString.contains("clarin")) || pathString.endsWith(".xsd") || pathString.endsWith("/xsd"));
+        return (pathString.startsWith("http") || pathString.contains("clarin") || pathString.endsWith(".xsd") || pathString.endsWith("/xsd"));
     }
 
     public CmdiProfile getProfile(String XsdHref) {
