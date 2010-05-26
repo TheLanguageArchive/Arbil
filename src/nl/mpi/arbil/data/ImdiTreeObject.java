@@ -458,8 +458,9 @@ public class ImdiTreeObject implements Comparable {
                             }
                             Vector<String[]> childLinksTemp = new Vector<String[]>();
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
+                            Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
                             // load the fields from the imdi file
-                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree);
+                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree, siblingNodePathCounter, 0);
                             childLinks = childLinksTemp.toArray(new String[][]{});
                             //ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                             for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
@@ -1472,6 +1473,14 @@ public class ImdiTreeObject implements Comparable {
 
     @Override
     public String toString() {
+        if (nodeText != null) {
+            return nodeText;
+        } else {
+            return "unknown";
+        }
+    }
+
+    public String refreshStringValue() {
         if (isLoading()) {
 //            if (lastNodeText.length() > 0) {
 //                return lastNodeText;
@@ -1496,7 +1505,7 @@ public class ImdiTreeObject implements Comparable {
                     if (currentField != null) {
                         if (currentField.toString().trim().length() > 0) {
                             nodeText = currentField.toString();
-                            System.out.println("nodeText: " + nodeText);
+//                            System.out.println("nodeText: " + nodeText);
                             foundPreferredNameField = true;
                             break getLabelString;
                         }
@@ -1942,6 +1951,7 @@ public class ImdiTreeObject implements Comparable {
      * Clears the icon calculated in "getIcon()" and notifies any UI containers of this node.
      */
     public void clearIcon() {
+        refreshStringValue();
 //        System.out.println("clearIcon: " + this);
 //        System.out.println("containersOfThisNode: " + containersOfThisNode.size());
 //        SwingUtilities.invokeLater(new Runnable() {
