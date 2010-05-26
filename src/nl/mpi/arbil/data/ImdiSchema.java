@@ -549,7 +549,8 @@ public class ImdiSchema {
 
     public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath,
             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
-            ) {
+            , Hashtable<String, Integer> siblingNodePathCounter
+             , int nodeOrderCounter) {
 //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
         // each end node becomes a field
@@ -559,8 +560,7 @@ public class ImdiSchema {
         if (!parentChildTree.containsKey(parentNode)) {
             parentChildTree.put(parentNode, new HashSet<ImdiTreeObject>());
         }
-        Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
-        int nodeCounter = 0;
+//        int nodeCounter = 0;
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
@@ -704,19 +704,19 @@ public class ImdiSchema {
                 siblingNodePathCounter.put(siblingNodePath, 0);
             } else {
                 siblingNodePathCounter.put(siblingNodePath, siblingNodePathCounter.get(siblingNodePath) + 1);
-            }
+                }
 //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-            ImdiField fieldToAdd = new ImdiField(nodeCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(siblingNodePath));
+            ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(siblingNodePath));
 
             // TODO: about to write this function
             //GuiHelper.imdiSchema.convertXmlPathToUiPath();
 
             // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
             // TODO: note that this method does not use any attributes without a node value
-            if (childNode.getLocalName() != null) {
-                nodeCounter++;
+//            if (childNode.getLocalName() != null) {
+//                nodeCounter++;
                 //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
-            }
+//            }
             NamedNodeMap namedNodeMap = childNode.getAttributes();
             if (namedNodeMap != null) {
                 String cvType = getNamedAttributeValue(namedNodeMap, "Type");
@@ -783,7 +783,7 @@ public class ImdiSchema {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree);
+            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
         }
     }
 }
