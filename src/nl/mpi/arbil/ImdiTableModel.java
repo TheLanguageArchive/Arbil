@@ -43,7 +43,7 @@ public class ImdiTableModel extends AbstractTableModel {
     DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     Vector highlightCells = new Vector();
     String[] highFieldPaths = new String[]{};
-    String[] singleNodeViewHeadings = new String[]{"IMDI Field", "Value"};
+    String[] singleNodeViewHeadings = new String[]{"Field Name", "Value"};
     private String[] columnNames = new String[0];
     private Object[][] data = new Object[0][0];
     Color cellColour[][] = new Color[0][0];
@@ -476,7 +476,7 @@ public class ImdiTableModel extends AbstractTableModel {
                         if (dataTemp[rowCounter][colCounter] instanceof ImdiField) {
                             if (((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath)
                                     || ((ImdiField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath.replaceFirst("\\(1\\)$", ""))) {
-                                cellColourTemp[rowCounter][colCounter] = new Color(0x00CCCC);
+                                cellColourTemp[rowCounter][colCounter] = new Color(0xDDCCFF);
 //                                if (dataTemp[rowCounter][0] instanceof String)
                             }
                         }
@@ -714,8 +714,10 @@ public class ImdiTableModel extends AbstractTableModel {
                     for (Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
                         ImdiField[] currentFieldArray = valuesEnum.nextElement();
                         for (ImdiField currentField : currentFieldArray) {
-                            if (tableFieldView.viewShowsColumn(currentField.getTranslateFieldName())) {
-                                allRowFields.add(currentField);
+                            if (currentField.xmlPath.length() > 0) { // prevent non fields being displayed
+                                if (tableFieldView.viewShowsColumn(currentField.getTranslateFieldName())) {
+                                    allRowFields.add(currentField);
+                                }
                             }
                         }
                     }
