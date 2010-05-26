@@ -1499,6 +1499,20 @@ public class ImdiTreeObject implements Comparable {
         getLabelString:
         for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
             //System.out.println("currentField: " + currentPreferredName);
+            for (ImdiField[] currentFieldArray : fieldHashtable.values()) {
+                System.out.println(currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "") + " : " + currentPreferredName);
+                if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+                    for (ImdiField currentField : currentFieldArray) {
+                        if (currentField != null) {
+                            if (currentField.toString().trim().length() > 0) {
+                                nodeText = currentField.toString();
+                                foundPreferredNameField = true;
+                                break getLabelString;
+                            }
+                        }
+                    }
+                }
+            }
             ImdiField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
             if (currentFieldArray != null) {
                 for (ImdiField currentField : currentFieldArray) {
@@ -1513,8 +1527,13 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && this.nodeTemplate != null) {
+
+        if (!foundPreferredNameField && isCmdiMetaDataNode() /*&& fieldHashtable.size() > 0 && domParentImdi == this*/ && this.nodeTemplate != null) {
+//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
+//                nodeText = "no field specified to name this node (" + this.nodeTemplate.getTemplateName() + ")";
+//            } else {
             nodeText = "unnamed (" + this.nodeTemplate.getTemplateName() + ")";
+//            }
         }
 //        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
 //            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
