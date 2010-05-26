@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JOptionPane;
+import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.importexport.ShibbolethNegotiator;
 
 /**
@@ -560,7 +561,7 @@ public class LinorgSessionStorage {
 
     public URI getNewImdiFileName(File parentDirectory, String nodeType) {
         String suffixString;
-        if (nodeType.toLowerCase().contains("clarin")) {
+        if (CmdiProfileReader.pathIsProfile(nodeType)) {
             suffixString = ".cmdi";
         } else {
             suffixString = ".imdi";
