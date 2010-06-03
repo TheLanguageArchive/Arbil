@@ -223,18 +223,20 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 iconFile.deleteOnExit();
                 File targetFile = getTargetFile(targetImdiObject);
-                String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
-                System.out.println(execString);
-                Process launchedProcess = Runtime.getRuntime().exec(execString);
-                BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
-                String line;
-                while ((line = errorStreamReader.readLine()) != null) {
+                if (targetFile.exists()) {
+                    String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
+                    System.out.println(execString);
+                    Process launchedProcess = Runtime.getRuntime().exec(execString);
+                    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                    String line;
+                    while ((line = errorStreamReader.readLine()) != null) {
 //                    ffmpegFound = false;
-                    System.out.println("Launched process error stream: \"" + line + "\"");
-                }
-                iconFile.deleteOnExit();
-                if (iconFile.exists()) {
-                    targetImdiObject.thumbnailFile = iconFile;
+                        System.out.println("Launched process error stream: \"" + line + "\"");
+                    }
+                    iconFile.deleteOnExit();
+                    if (iconFile.exists()) {
+                        targetImdiObject.thumbnailFile = iconFile;
+                    }
                 }
 //        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
