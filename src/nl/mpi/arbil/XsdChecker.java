@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
 import javax.swing.JScrollPane;
@@ -81,17 +82,17 @@ public class XsdChecker extends JSplitPane {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setValidating(false);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(imdiFile);            
+            Document document = documentBuilder.parse(imdiFile);
             String[] schemaLocation = document.getDocumentElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
             if (schemaLocation != null && schemaLocation.length > 0) {
-            nameSpaceURI = schemaLocation[schemaLocation.length - 1];
+                nameSpaceURI = schemaLocation[schemaLocation.length - 1];
             }
             System.out.println("getNamespaceURI: " + document.getFirstChild().getNamespaceURI());
             System.out.println("getBaseURI: " + document.getFirstChild().getBaseURI());
             System.out.println("getLocalName: " + document.getFirstChild().getLocalName());
             System.out.println("toString: " + document.getFirstChild().toString());
             System.out.println("getAttribute: " + document.getDocumentElement().getAttribute("xmlns"));
-            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());             
+            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());
             //nameSpaceURI = document.getDocumentElement().getNamespaceURI();
         } catch (IOException iOException) {
             GuiHelper.linorgBugCatcher.logError(iOException);
@@ -103,8 +104,16 @@ public class XsdChecker extends JSplitPane {
         System.out.println("nameSpaceURI: " + nameSpaceURI);
         int daysTillExpire = 15;
         File schemaFile = null;
-        if (nameSpaceURI != null && nameSpaceURI.contains("://")) {
+        if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("http:/")) {
             schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(nameSpaceURI, daysTillExpire);
+        }
+        if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("file:/")) {
+            try {
+                // do not make cache copies of local schema files
+                schemaFile = new File(new URI(nameSpaceURI));
+            } catch (URISyntaxException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
         }
         if (schemaFile == null || !schemaFile.exists()) {
             // try getting the imdi schema if the name space has failed
