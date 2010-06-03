@@ -336,14 +336,21 @@ public class CmdiComponentBuilder {
 
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
         // convert the syntax inherited from the imdi api into xpath
-        //String tempXpath = targetXpath.replaceAll("\\.", "/:");
-        String tempXpath = targetXpath.replaceAll("\\.", "/");
-        tempXpath = tempXpath.replaceAll("\\(", "[");
-        tempXpath = tempXpath.replaceAll("\\)", "]");
+        // Because most imdi files use a name space syntax we need to try both queries
+        String tempXpathArray[] = new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
+        for (String tempXpath : tempXpathArray) {
+            tempXpath = tempXpath.replaceAll("\\(", "[");
+            tempXpath = tempXpath.replaceAll("\\)", "]");
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
-        System.out.println("tempXpath: " + tempXpath);
-        // find the target node of the xml
-        return org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+            System.out.println("tempXpath: " + tempXpath);
+            // find the target node of the xml
+            Node returnNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+            if (returnNode != null) {
+                return returnNode;
+            }
+        }
+        GuiHelper.linorgBugCatcher.logError(new Exception("Xpath issue, no node found for: " + targetXpath));
+        return null;
     }
 
     private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws Exception {
