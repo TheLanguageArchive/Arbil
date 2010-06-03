@@ -13,7 +13,7 @@ public class ImdiField {
     public ImdiTreeObject parentImdi;
     public String xmlPath;
     private String translatedPath = null;
-    public String fieldValue = "";
+    private String fieldValue = "";
     public String originalFieldValue = fieldValue;
     private int fieldOrder = -1;
     private ImdiVocabularies.Vocabulary fieldVocabulary = null;
@@ -109,6 +109,7 @@ public class ImdiField {
     }
 
     public String getFieldValue() {
+//        return getFullXmlPath();
         return fieldValue;
     }
 
@@ -259,7 +260,7 @@ public class ImdiField {
 //            if (!isDisplayable()) {
 //                return "check attributes";// fieldAttributes.keys().toString();
 //            }
-        return fieldValue;
+        return getFieldValue();
     }
 
     public int getFieldOrder() {
