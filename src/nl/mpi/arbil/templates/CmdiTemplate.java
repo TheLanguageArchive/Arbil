@@ -42,7 +42,7 @@ import org.apache.xmlbeans.XmlOptions;
 public class CmdiTemplate extends ArbilTemplate {
 
     String nameSpaceString;
-    String filterString = ".CMD.Resources.";
+    String filterString[] = {".CMD.Resources.", ".CMD.Header."};
 
     private class ArrayListGroup {
 
@@ -220,8 +220,10 @@ public class CmdiTemplate extends ArbilTemplate {
 //                    System.out.println("disallowing addint to itself: " + childPathString[0]);
                     allowEntry = false;
                 }
-                if (childPathString[0].startsWith(filterString)) {
-                    allowEntry = false;
+                for (String currentFilter : filterString) {
+                    if (childPathString[0].startsWith(currentFilter)) {
+                        allowEntry = false;
+                    }
                 }
                 if (allowEntry) {
                     childTypes.add(new String[]{childPathString[1], childPathString[0]});
@@ -289,14 +291,15 @@ public class CmdiTemplate extends ArbilTemplate {
         }
     }
 
-    private boolean constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
+    private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
 //        System.out.println("constructXml: " + pathString);
 //        if (pathString.startsWith(".CMD.Components.test-profile-book.Authors.Author.")) {
 //            System.out.println("Author");
 //        }
 //        System.out.println("schemaType: " + schemaType.getName());
         int childCount = 0;
-        boolean hasMultipleElementsInOneNode = false;
+//        boolean hasMultipleElementsInOneNode = false;
+        int subNodeCount = 0;
         readControlledVocabularies(schemaType, pathString);
         readFieldConstrains(schemaType, pathString, arrayListGroup.fieldConstraintList);
 
@@ -307,13 +310,16 @@ public class CmdiTemplate extends ArbilTemplate {
 
         SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
 //        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
+        int currentNodeChildCount = 0;
         for (SchemaProperty schemaProperty : schemaPropertyArray) {
             childCount++;
             String localName = schemaProperty.getName().getLocalPart();
             String currentPathString = pathString + "." + localName;
             String currentNodeMenuName;
+            if (localName != null) {
+                currentNodeChildCount++;
 
-            // while keeping the .cmd.components part filter out all unrequired path component for use in the menus
+                // while keeping the .cmd.components part filter out all unrequired path component for use in the menus
 //            if (currentHasMultipleNodes || filterString.startsWith(currentPathString)) {
 //                currentNodeMenuName = nodeMenuName + "." + localName;
 //            } else {
@@ -321,24 +327,24 @@ public class CmdiTemplate extends ArbilTemplate {
 //            }
 //                  currentNodeMenuName = localName;
 //            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-            boolean canHaveMultiple = true;
-            if (schemaProperty.getMaxOccurs() == null) {
-                // absence of the max occurs also means multiple
-                canHaveMultiple = true;
-                // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
-            } else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
-                canHaveMultiple = true;
-            } else {
-                // todo: take into account max occurs in the add menu
-                canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
-            }
-            if (!canHaveMultiple) {
-                // todo: limit the number of instances that can be added to a xml file basedon the max bounds
-                canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
-            }
+                boolean canHaveMultiple = true;
+                if (schemaProperty.getMaxOccurs() == null) {
+                    // absence of the max occurs also means multiple
+                    canHaveMultiple = true;
+                    // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
+                } else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
+                    canHaveMultiple = true;
+                } else {
+                    // todo: take into account max occurs in the add menu
+                    canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
+                }
+                if (!canHaveMultiple) {
+                    // todo: limit the number of instances that can be added to a xml file basedon the max bounds
+                    canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
+                }
 //            boolean hasSubNodes = false;
-            System.out.println("Found template element: " + currentPathString);
-            SchemaType currentSchemaType = schemaProperty.getType();
+                System.out.println("Found template element: " + currentPathString);
+                SchemaType currentSchemaType = schemaProperty.getType();
 //            String nodeMenuNameForChild;
 //            if (canHaveMultiple) {
 //                // reset the node menu name when traversing through into a subnode
@@ -349,39 +355,41 @@ public class CmdiTemplate extends ArbilTemplate {
 //                nodeMenuNameForChild = nodeMenuName;
 //            }
 //            nodeMenuNameForChild = "";
-            currentNodeMenuName = localName;
-            boolean childHasMultipleElementsInOneNode = constructXml(currentSchemaType, arrayListGroup, currentPathString);
-            if (!hasMultipleElementsInOneNode) {
-                hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
-            }
+                currentNodeMenuName = localName;
+                // boolean childHasMultipleElementsInOneNode =
+                subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString);
+//            if (!hasMultipleElementsInOneNode) {
+//                hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
+//            }
 
 //            System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
 
 //            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 //            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
-            if (canHaveMultiple && hasMultipleElementsInOneNode) {
+                if (canHaveMultiple && subNodeCount > 0) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
-                arrayListGroup.childNodePathsList.add(new String[]{currentPathString, currentNodeMenuName});
-            }
-            if (canHaveMultiple) {
-                arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName});
-            }
-            boolean hasResourceAttribute = false;
-            for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
-                if (attributesProperty.getName().getLocalPart().equals("ref")) {
-                    hasResourceAttribute = true;
-                    break;
+                    arrayListGroup.childNodePathsList.add(new String[]{currentPathString, currentNodeMenuName});
+                }
+                if (canHaveMultiple) {
+                    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName});
+                }
+                boolean hasResourceAttribute = false;
+                for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
+                    if (attributesProperty.getName().getLocalPart().equals("ref")) {
+                        hasResourceAttribute = true;
+                        break;
+                    }
+                }
+                if (hasResourceAttribute) {
+                    arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
                 }
             }
-            if (hasResourceAttribute) {
-                arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
-            }
-//            todo: read in this format            <xs:element maxOccurs="1" minOccurs="1" dcr:datcat="http://www.isocat.org/datcat/DC-2545" ann:documentation="the title of the book" ann:displaypriority="1" name="TitleOfBook" type="complextype-test-profile-book-TitleOfBook">
         }
-        if (childCount > 1) {
-            hasMultipleElementsInOneNode = true;
-        }
-        return hasMultipleElementsInOneNode;
+//        if (childCount > 1) {
+//            hasMultipleElementsInOneNode = true;
+//        }
+        subNodeCount = subNodeCount + currentNodeChildCount;
+        return subNodeCount;
     }
 
 //    SchemaParticle topParticle = schemaType.getContentModel();
