@@ -460,7 +460,7 @@ public class ImdiTreeObject implements Comparable {
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                             Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
                             // load the fields from the imdi file
-                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", parentChildTree, siblingNodePathCounter, 0);
+                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
                             childLinks = childLinksTemp.toArray(new String[][]{});
                             //ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                             for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
@@ -889,8 +889,8 @@ public class ImdiTreeObject implements Comparable {
         ImdiField[] currentFieldArray = this.fieldHashtable.get(fieldName);
         if (currentFieldArray != null) {
             for (ImdiField currentField : currentFieldArray) {
-                System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
-                if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
+                System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+                if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
                     return true;
                 }
             }
@@ -903,8 +903,8 @@ public class ImdiTreeObject implements Comparable {
         boolean findResult = false;
         for (ImdiField[] currentFieldArray : (Collection<ImdiField[]>) this.fieldHashtable.values()) {
             for (ImdiField currentField : currentFieldArray) {
-                System.out.println("containsFieldValue: " + currentField.fieldValue + ":" + searchValue);
-                if (currentField.fieldValue.toLowerCase().contains(searchValue.toLowerCase())) {
+                System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
+                if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
                     return true;
                 }
             }
@@ -1143,6 +1143,7 @@ public class ImdiTreeObject implements Comparable {
             CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
             todo handle this outside the gui thread
             URI addedNodePath = componentBuilder.insertResourceProxy(this, addableImdiNode);
+            this.reloadNode();
             return true;
         }
 
@@ -1222,7 +1223,7 @@ public class ImdiTreeObject implements Comparable {
                         FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
                         currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
                         currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
-                        currentFieldUpdateRequest.fieldNewValue = currentField.fieldValue;
+                        currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValue();
                         currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
                         currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
                         fieldUpdateRequests.add(currentFieldUpdateRequest);
@@ -1593,7 +1594,7 @@ public class ImdiTreeObject implements Comparable {
         if (!hasResource()) {
             return false;
         }
-        if (resourceUrlField.fieldValue.toLowerCase().startsWith("http")) {
+        if (resourceUrlField.getFieldValue().toLowerCase().startsWith("http")) {
             return false;
         }
         if (!this.isLocal()) {
@@ -1605,7 +1606,7 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean resourceFileNotFound() {
         if (hasLocalResource()) {
-            if (resourceUrlField.fieldValue.length() == 0) {
+            if (resourceUrlField.getFieldValue().length() == 0) {
                 return true;
             }
             try {
@@ -1623,7 +1624,7 @@ public class ImdiTreeObject implements Comparable {
      * @return a URL string of the resource file
      */
     private String getResource() {
-        return resourceUrlField.fieldValue;
+        return resourceUrlField.getFieldValue();
     }
 
     public boolean hasHistory() {
@@ -1752,7 +1753,7 @@ public class ImdiTreeObject implements Comparable {
      */
     public URI getFullResourceURI() {
         try {
-            String targetUriString = resourceUrlField.fieldValue;
+            String targetUriString = resourceUrlField.getFieldValue();
             URI targetUri = new URI(null, targetUriString, null);
 //            System.out.println("nodeUri: " + nodeUri);
             URI resourceUri = nodeUri.resolve(targetUri);
