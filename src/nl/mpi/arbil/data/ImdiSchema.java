@@ -5,6 +5,7 @@ import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.*;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
@@ -20,10 +21,13 @@ import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.*;
 import javax.imageio.metadata.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 /**
  * Document   : ImdiSchema
@@ -317,9 +321,9 @@ public class ImdiSchema {
         String targetRef;
         String templateFileString = null;
         try {
-            if (targetImdiDom == null) {
-                throw (new Exception("targetImdiDom is null"));
-            }
+//            if (targetImdiDom == null) {
+//                throw (new Exception("targetImdiDom is null"));
+//            }
             templateFileString = elementName.substring(1);//TODO: this level of path change should not be done here but in the original caller
             System.out.println("templateFileString: " + templateFileString);
             templateFileString = templateFileString.replaceAll("\\(\\d*?\\)", "(x)");
@@ -384,9 +388,10 @@ public class ImdiSchema {
                 }
                 targetXpath = targetXpath.replaceAll("\\)$", "");
             }
-            targetRef = targetXpath.replaceAll("\\(\\d*?$", ""); // clean up the end of the string
+//            targetRef = targetXpath.replaceAll("\\(\\d*?$", ""); // clean up the end of the string
 //            if (!targetXpath.endsWith(")")) {
             targetXpath = targetXpath.substring(0, targetXpath.lastIndexOf("."));
+            targetRef = targetXpath;
 //            }
             // convert to xpath for the api
             targetXpath = targetXpath.replace(".", "/:");
@@ -398,7 +403,7 @@ public class ImdiSchema {
             System.out.println("templateUrl: " + templateUrl);
             if (templateUrl == null) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
-                throw (new Exception("No template found for: " + elementName.substring(1)));
+                GuiHelper.linorgBugCatcher.logError(new Exception("No template found for: " + elementName.substring(1)));
             }
             CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
             Document insertableSectionDoc = componentBuilder.getDocument(templateUrl.toURI());
@@ -461,7 +466,7 @@ public class ImdiSchema {
 
                 Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
                 if (insertableNode == null) {
-                    throw (new Exception("InsertableSection not found in the template"));
+                    GuiHelper.linorgBugCatcher.logError(new Exception("InsertableSection not found in the template"));
                 }
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
@@ -489,34 +494,61 @@ public class ImdiSchema {
                     System.out.println("inserting");
                     addedNode = targetNode.appendChild(addableNode);
                 }
-                String targetFragment = targetRef;
-                String pathForChildTesting = elementName.replaceAll("\\(\\d*?\\)", ""); // remove the child count brackets
-                String childsMetaNode = currentTemplate.pathIsChildNode(pathForChildTesting);
-                if (childsMetaNode != null) {
-                    Node currentNode = addedNode.getParentNode().getFirstChild();
-                    int siblingCount = 0;
-                    while (currentNode != null) {
-                        System.out.println("currentNode: " + currentNode.getLocalName());
-                        if (addedNode.getLocalName().equals(currentNode.getLocalName())) {
-                            siblingCount++;
-                        }
-                        currentNode = currentNode.getNextSibling();
-                    }
-                    targetFragment = targetFragment + "(" + siblingCount + ")";
+                String nodeFragment = new CmdiComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
+//                            try {
+                System.out.println("nodeFragment: " + nodeFragment);
+                // return the child node url and path in the xml
+                // first strip off any fragment then add the full node fragment
+                return new URI(targetMetadataUri.toString().split("#")[0] + "#" + nodeFragment);
+//            } catch (URISyntaxException exception) {
+//                GuiHelper.linorgBugCatcher.logError(exception);
+//                return null;
+//            }
+//                String pathForChildTesting = elementName.replaceAll("\\(\\d*?\\)", ""); // remove the child count brackets
+//                String childsMetaNode = currentTemplate.pathIsChildNode(pathForChildTesting);
+//                if (childsMetaNode != null) {
+//                    Node currentNode = addedNode.getParentNode().getFirstChild();
+//                    int siblingCount = 0;
+//                    while (currentNode != null) {
+//                        System.out.println("currentNode: " + currentNode.getLocalName());
+//                        if (addedNode.getLocalName().equals(currentNode.getLocalName())) {
+//                            siblingCount++;
+//                        }
+//                        currentNode = currentNode.getNextSibling();
+//                    }
+//                    targetFragment = targetFragment + "(" + siblingCount + ")";
 //                    System.out.println("targetFragment: " + targetFragment);
-                    addedPathURI = new URI(targetMetadataUri.toString().split("#")[0] + "#" + targetFragment);
-                } else if (elementName.contains(")")) { // non child nodes that exist in child nodes must still return the child node path, eg for actor language descriptions
-                    addedPathURI = new URI(targetMetadataUri.toString().split("#")[0] + "#" + elementName.replaceAll("\\)[^)]*$", ")"));  // remove any training field paths
-                } else {
-                    // make sure elements like description show the parent node rather than trying to get a non existing node
-                    addedPathURI = targetMetadataUri;
-                }
+//                    addedPathURI = new URI(targetMetadataUri.toString().split("#")[0] + "#" + targetFragment);
+//                } else if (elementName.contains(")")) { // non child nodes that exist in child nodes must still return the child node path, eg for actor language descriptions
+//                    addedPathURI = new URI(targetMetadataUri.toString().split("#")[0] + "#" + elementName.replaceAll("\\)[^)]*$", ")"));  // remove any training field paths
+//                } else {
+//                     make sure elements like description show the parent node rather than trying to get a non existing node
+//                    addedPathURI = targetMetadataUri;
+//                }
             }
-        } catch (Exception ex) {
-            System.out.println("insertFromTemplate: " + ex.getMessage());
-            System.out.println("exception with targetXpath: " + targetXpath);
+        } catch (URISyntaxException ex) {
+//            System.out.println("insertFromTemplate: " + ex.getMessage());
+//            System.out.println("exception with targetXpath: " + targetXpath);
 //            System.out.println("templateUrl: " + templateUrl);
-            GuiHelper.linorgBugCatcher.logError("exception with targetXpath: " + targetXpath + "\ntemplateFileString: " + templateFileString, ex);
+//            GuiHelper.linorgBugCatcher.logError("exception with targetXpath: " + targetXpath + "\ntemplateFileString: " + templateFileString, ex);
+            GuiHelper.linorgBugCatcher.logError(ex);
+        } catch (MalformedURLException ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        } catch (DOMException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        } catch (IOException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        } catch (ParserConfigurationException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        } catch (SAXException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
+        } catch (TransformerException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+            return null;
         }
         System.out.println("addedPathString: " + addedPathURI);
         return addedPathURI;
@@ -634,7 +666,7 @@ public class ImdiSchema {
 
             }
             String siblingNodePath = nodePath + ImdiSchema.imdiPathSeparator + localName;
-            fullNodePath = fullNodePath + ImdiSchema.imdiPathSeparator + localName;
+            String fullSubNodePath = fullNodePath + ImdiSchema.imdiPathSeparator + localName;
             //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
             ImdiTreeObject destinationNode;
@@ -663,7 +695,7 @@ public class ImdiSchema {
                     parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
                     // add brackets to conform with the imdi api notation
                     siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
-                    fullNodePath = fullNodePath + siblingSpacer;
+                    fullSubNodePath = fullSubNodePath + siblingSpacer;
                     ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
                     subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
                     parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
@@ -702,13 +734,13 @@ public class ImdiSchema {
             // calculate the xpath index for multiple fields like description
 //            System.out.println("siblingNodePath: " + siblingNodePath);
 //            String siblingNodePath destinationNode.getURI().getFragment()
-            if (!siblingNodePathCounter.containsKey(fullNodePath)) {
-                siblingNodePathCounter.put(fullNodePath, 0);
+            if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
+                siblingNodePathCounter.put(fullSubNodePath, 0);
             } else {
-                siblingNodePathCounter.put(fullNodePath, siblingNodePathCounter.get(fullNodePath) + 1);
+                siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
             }
 //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-            ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullNodePath));
+            ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
 
             // TODO: about to write this function
             //GuiHelper.imdiSchema.convertXmlPathToUiPath();
@@ -785,7 +817,7 @@ public class ImdiSchema {
 //                }
 //            }
             fieldToAdd.finishLoading();
-            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
         }
     }
 }
