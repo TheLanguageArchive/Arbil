@@ -428,13 +428,13 @@ public class CmdiComponentBuilder {
         return constructXml(foundProperty, xsdPath, targetDocument, null, documentNode);
     }
 
-    private String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
+    public String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
         System.out.println("Calculating the added fragment");
         // count siblings to get the correct child index for the fragment
         int siblingCouter = 1;
         Node siblingNode = documentNode.getPreviousSibling();
         while (siblingNode != null) {
-            if (documentNode.getLocalName().equals(siblingNode.getLocalName())) {
+            if (documentNode.getNodeName().equals(siblingNode.getNodeName())) {
                 siblingCouter++;
             }
             siblingNode = siblingNode.getPreviousSibling();
