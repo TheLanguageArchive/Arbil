@@ -84,6 +84,7 @@ public class CmdiComponentBuilder {
             transformer.transform(dOMSource, xmlOutput);
             xmlOutput.getOutputStream().close();
 
+            // todo: this maybe excessive to do every time
             XsdChecker xsdChecker = new XsdChecker();
             String checkerResult;
             checkerResult = xsdChecker.simpleCheck(outputFile, outputFile.toURI());
@@ -335,7 +336,8 @@ public class CmdiComponentBuilder {
 
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
         // convert the syntax inherited from the imdi api into xpath
-        String tempXpath = targetXpath.replaceAll("\\.", "/:");
+        //String tempXpath = targetXpath.replaceAll("\\.", "/:");
+        String tempXpath = targetXpath.replaceAll("\\.", "/");
         tempXpath = tempXpath.replaceAll("\\(", "[");
         tempXpath = tempXpath.replaceAll("\\)", "]");
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
@@ -505,7 +507,8 @@ public class CmdiComponentBuilder {
     }
 
     private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty) {
-        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
+//        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
+        Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
         for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
             currentElement.setAttribute(attributesProperty.getName().getLocalPart(), attributesProperty.getDefaultText());
@@ -514,6 +517,7 @@ public class CmdiComponentBuilder {
             // this is probably not the way to set these, however this will do for now (many other methods have been tested and all failed to function correctly)
             currentElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
             currentElement.setAttribute("xsi:schemaLocation", "http://www.clarin.eu/cmd " + nameSpaceUri);
+            //          currentElement.setAttribute("xsi:schemaLocation", "cmd " + nameSpaceUri);
             workingDocument.appendChild(currentElement);
         } else {
             parentElement.appendChild(currentElement);
