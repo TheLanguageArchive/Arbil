@@ -133,9 +133,9 @@ public class ArbilTemplate {
 
     public boolean pathIsDeleteableField(String nodePath) {
         // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
-        nodePath = nodePath.substring(1) + ".xml";
+        String imdiNodePath = nodePath.substring(1) + ".xml";
         for (String[] pathString : templatesArray) {
-            if (pathString[0].equals((nodePath))) {
+            if (pathString[0].equals((nodePath)) || pathString[0].equals(imdiNodePath)) {
                 return true;
             }
         }
