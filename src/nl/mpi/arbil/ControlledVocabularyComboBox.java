@@ -21,8 +21,8 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
         targetField = targetFieldLocal;
         currentValue = targetFieldLocal.getFieldValue();
         ImdiVocabularies.Vocabulary fieldsVocabulary = targetField.getVocabulary();
-        if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(targetField.fieldValue)) {
-            this.addItem(targetField.fieldValue);
+        if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(targetField.getFieldValue())) {
+            this.addItem(targetField.getFieldValue());
         }
         if (null != fieldsVocabulary) {
             for (ImdiVocabularies.VocabularyItem vocabularyListItem : fieldsVocabulary.getVocabularyItems()) {
