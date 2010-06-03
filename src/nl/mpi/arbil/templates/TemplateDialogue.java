@@ -40,12 +40,12 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
      */
     private void initComponents() {
 
-        jPanel2 = new javax.swing.JPanel();
+        internalTemplatesPanel = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         templatesPanel = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+        clarinProfilesPanel = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jProgressBar1 = new javax.swing.JProgressBar();
@@ -53,10 +53,8 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         clarinPanel = new javax.swing.JPanel();
         jTextField1 = new javax.swing.JTextField();
 
-        setLayout(new java.awt.GridLayout(1, 0));
-
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Internal Templates"));
-        jPanel2.setLayout(new java.awt.BorderLayout());
+        internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Internal Templates"));
+        internalTemplatesPanel.setLayout(new java.awt.BorderLayout());
 
         jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -70,16 +68,15 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         });
         jPanel6.add(jButton3);
 
-        jPanel2.add(jPanel6, java.awt.BorderLayout.PAGE_END);
+        internalTemplatesPanel.add(jPanel6, java.awt.BorderLayout.PAGE_END);
 
         jScrollPane2.setViewportView(templatesPanel);
 
-        jPanel2.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+        internalTemplatesPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
-        add(jPanel2);
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
-        jPanel3.setLayout(new java.awt.BorderLayout());
+        clarinProfilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
+        clarinProfilesPanel.setLayout(new java.awt.BorderLayout());
 
         jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -94,11 +91,11 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         jPanel4.add(jButton1);
         jPanel4.add(jProgressBar1);
 
-        jPanel3.add(jPanel4, java.awt.BorderLayout.PAGE_END);
+        clarinProfilesPanel.add(jPanel4, java.awt.BorderLayout.PAGE_END);
 
         jScrollPane1.setViewportView(clarinPanel);
 
-        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        clarinProfilesPanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         JPanel profilesTopPanel = new JPanel();
         profilesTopPanel.setLayout(new javax.swing.BoxLayout(profilesTopPanel, javax.swing.BoxLayout.LINE_AXIS));
@@ -131,8 +128,27 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             }
         });
         profilesTopPanel.add(browseButton);
-        jPanel3.add(profilesTopPanel, java.awt.BorderLayout.PAGE_START);
-        add(jPanel3);
+        clarinProfilesPanel.add(profilesTopPanel, java.awt.BorderLayout.PAGE_START);
+
+        // todo: this should probably have a cancel button also
+        JPanel outerPanel = new JPanel();
+        outerPanel.setLayout(new java.awt.GridLayout(1, 0));
+        outerPanel.add(internalTemplatesPanel);
+        outerPanel.add(clarinProfilesPanel);
+        this.setLayout(new java.awt.BorderLayout());
+        this.add(outerPanel, java.awt.BorderLayout.CENTER);
+        JButton closeButton = new JButton("Close");
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                parentFrame.setVisible(false);
+            }
+        });
+        JPanel closeButtonPanel = new JPanel();
+        closeButtonPanel.setLayout(new java.awt.BorderLayout());
+        closeButtonPanel.add(closeButton, java.awt.BorderLayout.LINE_END);
+        this.add(outerPanel, java.awt.BorderLayout.CENTER);
+        this.add(closeButtonPanel, java.awt.BorderLayout.PAGE_END);
     }
 
     public void loadProfiles(final boolean forceUpdate) {
@@ -285,8 +301,8 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     private javax.swing.JPanel clarinPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel internalTemplatesPanel;
+    private javax.swing.JPanel clarinProfilesPanel;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JProgressBar jProgressBar1;
