@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Vector;
 import nl.mpi.arbil.ImdiTableModel;
 import nl.mpi.arbil.LinorgFavourites;
+import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.TreeHelper;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
@@ -14,6 +15,12 @@ import nl.mpi.arbil.clarin.CmdiComponentBuilder;
  *  Author     : Peter Withers
  */
 public class MetadataBuilder {
+
+    public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
+        ImdiTreeObject imdiTreeObject;
+        imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
+        imdiTreeObject.requestAddNode(imdiTreeObject, nodeType, nodeTypeDisplayName);
+    }
 
     public boolean requestAddNode(ImdiTreeObject destinationNode, String nodeTypeDisplayName, ImdiTreeObject addableNode) {
         // todo: update this when functional
