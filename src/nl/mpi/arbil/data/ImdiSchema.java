@@ -615,12 +615,25 @@ public class ImdiSchema {
                         // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
 //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
 //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
-//                    System.out.println("childNode.getAttributes():" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-                        String[] schemaLocation = childNode.getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
+//                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
+//                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
+                        String schemaLocationString = null;
+                        Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
+                        if (schemaLocationNode == null) {
+                            schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
+                        }
+                        if (schemaLocationNode != null) {
+                            schemaLocationString = schemaLocationNode.getNodeValue();
+                            String[] schemaLocation = schemaLocationString.split("\\s");
+                            schemaLocationString = schemaLocation[schemaLocation.length - 1];
+                            schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
+                        } else {
+                            throw new Exception("Could not find the schema url: schemaLocationNode = " + schemaLocationNode);
+                        }
                         //if (schemaLocation != null && schemaLocation.length > 0) {
                         // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
                         // this method also assumes that the xsd url is fully resolved
-                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocation[schemaLocation.length - 1]);
+                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
                         /*
                         // TODO: pass the resource node to a class to handle the resources
                         childNode = childNode.getAttributes().getNamedItem("Components");
