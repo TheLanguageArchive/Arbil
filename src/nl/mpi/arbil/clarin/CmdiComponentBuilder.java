@@ -40,6 +40,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -85,12 +86,12 @@ public class CmdiComponentBuilder {
             xmlOutput.getOutputStream().close();
 
             // todo: this maybe excessive to do every time
-            XsdChecker xsdChecker = new XsdChecker();
-            String checkerResult;
-            checkerResult = xsdChecker.simpleCheck(outputFile, outputFile.toURI());
-            if (checkerResult != null) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(checkerResult, "Schema Check");
-            }
+//            XsdChecker xsdChecker = new XsdChecker();
+//            String checkerResult;
+//            checkerResult = xsdChecker.simpleCheck(outputFile, outputFile.toURI());
+//            if (checkerResult != null) {
+//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(checkerResult, "Schema Check");
+//            }
 
             //System.out.println(xmlOutput.getWriter().toString());
         } catch (IllegalArgumentException illegalArgumentException) {
@@ -331,6 +332,32 @@ public class CmdiComponentBuilder {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
             }
+        }
+    }
+
+    public void testRemoveArchiveHandles() {
+        try {
+            Document workingDocument = getDocument(new URI("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"));
+            removeArchiveHandles(workingDocument);
+            printoutDocument(workingDocument);
+        } catch (Exception exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+    }
+
+    private void removeArchiveHandles(Document targetDocument) {
+        String handleXpath = "//*[@ArchiveHandle]";
+        try {
+            NodeList archiveHandleNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
+            for (int nodeCounter = 0; nodeCounter < archiveHandleNodeList.getLength(); nodeCounter++) {
+                Node archiveHandleNode = archiveHandleNodeList.item(nodeCounter);
+                if (archiveHandleNode != null) {
+//                    System.out.println(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").getNodeValue());
+                    archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").setNodeValue("");
+                }
+            }
+        } catch (TransformerException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
         }
     }
 
@@ -634,6 +661,7 @@ public class CmdiComponentBuilder {
     }
 
     public static void main(String args[]) {
-        new CmdiComponentBuilder().testWalk();
+        //new CmdiComponentBuilder().testWalk();
+        new CmdiComponentBuilder().testRemoveArchiveHandles();
     }
 }
