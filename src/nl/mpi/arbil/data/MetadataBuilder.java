@@ -19,68 +19,79 @@ public class MetadataBuilder {
     public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
         ImdiTreeObject imdiTreeObject;
         imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
-        imdiTreeObject.requestAddNode(imdiTreeObject, nodeType, nodeTypeDisplayName);
+        requestAddNode(imdiTreeObject, nodeType, nodeTypeDisplayName);
     }
 
-    public boolean requestAddNode(ImdiTreeObject destinationNode, String nodeTypeDisplayName, ImdiTreeObject addableNode) {
-        // todo: update this when functional
-        if (destinationNode.isCmdiMetaDataNode()) {
-            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+    public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeTypeDisplayNameLocal, final ImdiTreeObject addableNode) {
+        new Thread() {
+
+            @Override
+            public void run() {
+                synchronized (destinationNode.domLockObject) {
+                    String nodeTypeDisplayName = nodeTypeDisplayNameLocal;
+                    // todo: update this when functional
+                    if (destinationNode.isCmdiMetaDataNode()) {
+                        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
 //            todo handle this outside the gui thread
-            URI addedNodePath = componentBuilder.insertResourceProxy(destinationNode, addableNode);
-            destinationNode.reloadNode();
-            return true;
-        }
+                        URI addedNodePath = componentBuilder.insertResourceProxy(destinationNode, addableNode);
+                        destinationNode.reloadNode();
+                    }
+                    ImdiTreeObject[] sourceImdiNodeArray;
+                    if (addableNode.isEmptyMetaNode()) {
+                        sourceImdiNodeArray = addableNode.getChildArray();
+                    } else {
+                        sourceImdiNodeArray = new ImdiTreeObject[]{addableNode};
+                    }
 
-        boolean returnValue = true;
-        ImdiTreeObject[] sourceImdiNodeArray;
-        if (addableNode.isEmptyMetaNode()) {
-            sourceImdiNodeArray = addableNode.getChildArray();
-        } else {
-            sourceImdiNodeArray = new ImdiTreeObject[]{addableNode};
-        }
-
-        for (ImdiTreeObject currentImdiNode : sourceImdiNodeArray) {
-            String nodeType;
-            String favouriteUrlString = null;
-            String resourceUrl = null;
-            String mimeType = null;
-            if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
-                nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
-                resourceUrl = currentImdiNode.getUrlString();
-                mimeType = currentImdiNode.mpiMimeType;
-                nodeTypeDisplayName = "Resource";
-            } else {
-                nodeType = LinorgFavourites.getSingleInstance().getNodeType(currentImdiNode, destinationNode);
-                favouriteUrlString = currentImdiNode.getUrlString();
-            }
-            if (nodeType == null) {
-                returnValue = false;
-            }
-            String targetXmlPath = destinationNode.getURI().getFragment();
-            if (nodeType == null) { // targetXmlPath hass been  added at this point to preserve the sub node (N) which otherwise had been lost for the (x) and this is required to add to a sub node correctly
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
-            } else {
+                    for (ImdiTreeObject currentImdiNode : sourceImdiNodeArray) {
+                        String nodeType;
+                        String favouriteUrlString = null;
+                        URI resourceUrl = null;
+                        String mimeType = null;
+                        if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
+                            nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
+                            resourceUrl = currentImdiNode.getURI();
+                            mimeType = currentImdiNode.mpiMimeType;
+                            nodeTypeDisplayName = "Resource";
+                        } else {
+                            nodeType = LinorgFavourites.getSingleInstance().getNodeType(currentImdiNode, destinationNode);
+                            favouriteUrlString = currentImdiNode.getUrlString();
+                        }
+                        if (nodeType != null) {
+                            String targetXmlPath = destinationNode.getURI().getFragment();
+                            if (nodeType == null) { // targetXmlPath hass been  added at this point to preserve the sub node (N) which otherwise had been lost for the (x) and this is required to add to a sub node correctly
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+                            } else {
 //            if (this.isImdiChild()) {
 //                System.out.println("requestAddNodeChild: " + this.getUrlString());
 //                this.domParentImdi.requestAddNode(nodeType, this.nodeUrl.getRef(), nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
 //            } else {
-                System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
-                destinationNode.getParentDomNode().addQueue.add(new String[]{nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType});
-                ImdiLoader.getSingleInstance().requestReload(destinationNode);
+                                System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
+                                processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
+                                ImdiLoader.getSingleInstance().requestReload(destinationNode);
+                            }
+                        }
+                    }
+                }
             }
-        }
-//            }
-        return returnValue;
+        }.start();
     }
 
-    public void requestAddNode(ImdiTreeObject destinationNode, String nodeType, String nodeTypeDisplayName) {
-        System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
-        destinationNode.getParentDomNode().addQueue.add(new String[]{nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null});
-        ImdiLoader.getSingleInstance().requestReload(destinationNode);
+    public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeType, final String nodeTypeDisplayName) {
+        new Thread() {
+
+            @Override
+            public void run() {
+                synchronized (destinationNode.domLockObject) {
+                    System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
+                    processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
+                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
+                }
+            }
+        }.start();
     }
 
-    public void processAddNodes(ImdiTreeObject currentImdiObject, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) {
+    private void processAddNodes(ImdiTreeObject currentImdiObject, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) {
 //         if (currentImdiObject.addQueue.size() > 0) { // add any child nodes requested
 //                                ;
 //                                URI resourceUri = null;
