@@ -32,6 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
@@ -75,7 +76,7 @@ public class XsdChecker extends JSplitPane {
         return schema.newValidator();
     }
 
-    private URL getXsd(File imdiFile) {
+    private URL getXsd(File imdiFile, URI xmlFileUrl) {
         //boolean useImdiXSD = imdiFile.getAbsolutePath().toLowerCase().endsWith(".imdi");
         String nameSpaceURI = null;
         try {
@@ -83,17 +84,31 @@ public class XsdChecker extends JSplitPane {
             documentBuilderFactory.setValidating(false);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(imdiFile);
-            String[] schemaLocation = document.getDocumentElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
-            if (schemaLocation != null && schemaLocation.length > 0) {
-                nameSpaceURI = schemaLocation[schemaLocation.length - 1];
-            }
-            System.out.println("getNamespaceURI: " + document.getFirstChild().getNamespaceURI());
-            System.out.println("getBaseURI: " + document.getFirstChild().getBaseURI());
-            System.out.println("getLocalName: " + document.getFirstChild().getLocalName());
-            System.out.println("toString: " + document.getFirstChild().toString());
-            System.out.println("getAttribute: " + document.getDocumentElement().getAttribute("xmlns"));
-            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());
+//            String[] schemaLocation = document.getDocumentElement().getAttributes().getNamedItem("xsi:schemaLocation").getNodeValue().split("\\s");
+//            if (schemaLocation != null && schemaLocation.length > 0) {
+//                nameSpaceURI = schemaLocation[schemaLocation.length - 1];
+//            }
+//            System.out.println("getNamespaceURI: " + document.getFirstChild().getNamespaceURI());
+//            System.out.println("getBaseURI: " + document.getFirstChild().getBaseURI());
+//            System.out.println("getLocalName: " + document.getFirstChild().getLocalName());
+//            System.out.println("toString: " + document.getFirstChild().toString());
+//            System.out.println("getAttribute: " + document.getDocumentElement().getAttribute("xmlns"));
+//            System.out.println("getNamespaceURI: " + document.getDocumentElement().getNamespaceURI());
             //nameSpaceURI = document.getDocumentElement().getNamespaceURI();
+
+            String schemaLocationString = null;
+            Node schemaLocationNode = document.getDocumentElement().getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
+            if (schemaLocationNode == null) {
+                schemaLocationNode = document.getDocumentElement().getAttributes().getNamedItem("xsi:schemaLocation");
+            }
+            if (schemaLocationNode != null) {
+                schemaLocationString = schemaLocationNode.getNodeValue();
+                String[] schemaLocation = schemaLocationString.split("\\s");
+                schemaLocationString = schemaLocation[schemaLocation.length - 1];
+                nameSpaceURI = xmlFileUrl.resolve(schemaLocationString).toString();
+            }
+            System.out.println("schemaLocationString: " + schemaLocationString);
+
         } catch (IOException iOException) {
             GuiHelper.linorgBugCatcher.logError(iOException);
         } catch (ParserConfigurationException parserConfigurationException) {
@@ -134,8 +149,8 @@ public class XsdChecker extends JSplitPane {
         return schemaURL;
     }
 
-    private void alternateCheck(File imdiFile) throws Exception {
-        URL schemaURL = getXsd(imdiFile);
+    private void alternateCheck(File imdiFile, URI xmlFileUrl) throws Exception {
+        URL schemaURL = getXsd(imdiFile, xmlFileUrl);
         doc.insertString(doc.getLength(), "using schema file: " + schemaURL.getFile() + "\n\n", styleNormal);
         Source xmlFile = new StreamSource(imdiFile);
 
@@ -187,8 +202,8 @@ public class XsdChecker extends JSplitPane {
             }
         }
 
-        CustomErrorHandler errorHandler = new CustomErrorHandler(imdiFile);
         Validator validator = createValidator(schemaURL);
+        CustomErrorHandler errorHandler = new CustomErrorHandler(imdiFile);
         validator.setErrorHandler(errorHandler);
         try {
             validator.validate(xmlFile);
@@ -206,7 +221,7 @@ public class XsdChecker extends JSplitPane {
     public String simpleCheck(File imdiFile, URI sourceFile) {
         String messageString;
 //        System.out.println("simpleCheck: " + imdiFile);
-        URL schemaURL = getXsd(imdiFile);
+        URL schemaURL = getXsd(imdiFile, sourceFile);
         Source xmlFile = new StreamSource(imdiFile);
         try {
             Validator validator = createValidator(schemaURL);
@@ -230,8 +245,8 @@ public class XsdChecker extends JSplitPane {
             doc.insertString(doc.getLength(), "and ", styleNormal);
             doc.insertString(doc.getLength(), "Fatal Errors." + "\n\n", styleFatalError);
 
-            doc.insertString(doc.getLength(), "Exporting imdi file to remove the id attributes\n", styleNormal);
-            alternateCheck(imdiObject.getFile());
+//            doc.insertString(doc.getLength(), "Exporting imdi file to remove the id attributes\n", styleNormal);
+            alternateCheck(imdiObject.getFile(), imdiObject.getURI());
             try {
                 fileViewPane.setPage(imdiObject.getURI().toURL());
             } catch (Exception ex) {
