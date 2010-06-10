@@ -198,9 +198,11 @@ public class CmdiTemplate extends ArbilTemplate {
         // get the xpath of the target node
         String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
+        boolean isComponentPath = false;
         if (targetNodeXpath != null) {
+            isComponentPath = targetNodeXpath.endsWith(")");
             // remove the extraneous node name for a meta node
-            targetNodeXpath = targetNodeXpath.replaceAll("\\.[^\\.]+[^\\)]$", "");
+//            targetNodeXpath = targetNodeXpath.replaceAll("\\.[^\\.]+[^\\)]$", "");
             // remove the sibling indexes
             targetNodeXpath = targetNodeXpath.replaceAll("\\(\\d+\\)", "");
         }
@@ -208,15 +210,16 @@ public class CmdiTemplate extends ArbilTemplate {
         Vector<String[]> childTypes = new Vector<String[]>();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             for (String[] childPathString : templatesArray) {
+//                System.out.println("Testing: " + childPathString[1] + childPathString[0]);
                 boolean allowEntry = false;
                 if (targetNodeXpath == null) {
-//                    System.out.println("allowing: " + childPathString[0]);
+//                    System.out.println("allowing due to null path: " + childPathString[0]);
                     allowEntry = true;
                 } else if (childPathString[0].startsWith(targetNodeXpath)) {
 //                    System.out.println("allowing: " + childPathString[0]);
                     allowEntry = true;
                 }
-                if (childPathString[0].equals(targetNodeXpath)) {
+                if (childPathString[0].equals(targetNodeXpath) && isComponentPath) {
 //                    System.out.println("disallowing addint to itself: " + childPathString[0]);
                     allowEntry = false;
                 }
@@ -226,6 +229,7 @@ public class CmdiTemplate extends ArbilTemplate {
                     }
                 }
                 if (allowEntry) {
+//                    System.out.println("allowing: " + childPathString[0]);
                     childTypes.add(new String[]{childPathString[1], childPathString[0]});
                 }
             }
@@ -245,6 +249,7 @@ public class CmdiTemplate extends ArbilTemplate {
                     }
                 }
                 if (keepChildType) {
+//                    System.out.println("keeping: : " + currentChildType[1]);
                     childTypes.add(currentChildType);
                 }
             }
@@ -369,7 +374,9 @@ public class CmdiTemplate extends ArbilTemplate {
                 if (canHaveMultiple && subNodeCount > 0) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
                     arrayListGroup.childNodePathsList.add(new String[]{currentPathString, currentNodeMenuName});
-                }
+                }// else if (canHaveMultiple) {
+//                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
+//                }
                 if (canHaveMultiple) {
                     arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName});
                 }
