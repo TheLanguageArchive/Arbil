@@ -27,7 +27,7 @@ import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgJournal;
 import nl.mpi.arbil.LinorgSessionStorage;
 import nl.mpi.arbil.LinorgWindowManager;
-import nl.mpi.arbil.XsdChecker;
+import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
@@ -86,13 +86,14 @@ public class CmdiComponentBuilder {
             xmlOutput.getOutputStream().close();
 
             // todo: this maybe excessive to do every time
+            // this schema check has been moved to the point of loading the file rather than saving the file
 //            XsdChecker xsdChecker = new XsdChecker();
 //            String checkerResult;
 //            checkerResult = xsdChecker.simpleCheck(outputFile, outputFile.toURI());
 //            if (checkerResult != null) {
-//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(checkerResult, "Schema Check");
+//                hasSchemaError = true;
+////                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(checkerResult, "Schema Check");
 //            }
-
             //System.out.println(xmlOutput.getWriter().toString());
         } catch (IllegalArgumentException illegalArgumentException) {
             GuiHelper.linorgBugCatcher.logError(illegalArgumentException);
@@ -265,6 +266,61 @@ public class CmdiComponentBuilder {
             }
             return false;
         }
+    }
+
+    public void testInsertFavouriteComponent() {
+        try {
+            ImdiTreeObject favouriteImdiTreeObject1 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
+            ImdiTreeObject favouriteImdiTreeObject2 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
+            ImdiTreeObject destinationImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
+            insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject1);
+            insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject2);
+        } catch (URISyntaxException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+    }
+
+    public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) {
+        try {
+            Document favouriteDocument;
+            synchronized (favouriteImdiTreeObject.domLockObject) {
+                favouriteDocument = getDocument(favouriteImdiTreeObject.getURI());
+            }
+            synchronized (destinationImdiTreeObject.domLockObject) {
+                Document destinationDocument = getDocument(destinationImdiTreeObject.getURI());
+                String favouriteXpath = favouriteImdiTreeObject.getURI().getFragment();
+                String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
+                boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
+                System.out.println("favouriteXpath: " + favouriteXpathTrimmed);
+                Node selectedNode = selectSingleNode(favouriteDocument, favouriteXpathTrimmed);
+                Node[] favouriteNodes;
+                if (onlySubNodes) {
+                    NodeList selectedNodeList = selectedNode.getChildNodes();
+                    favouriteNodes = new Node[selectedNodeList.getLength()];
+                    for (int nodeCounter = 0; nodeCounter < selectedNodeList.getLength(); nodeCounter++) {
+                        favouriteNodes[nodeCounter] = selectedNodeList.item(nodeCounter);
+                    }
+                } else {
+                    favouriteNodes = new Node[]{selectedNode};
+                }
+                for (Node singleFavouriteNode : favouriteNodes) {
+                    if (singleFavouriteNode.getNodeType() != Node.TEXT_NODE) {
+                        System.out.println("favouriteNode1: " + singleFavouriteNode.getLocalName());
+                        System.out.println("favouriteNode2: " + singleFavouriteNode.getNodeValue());
+                        System.out.println("favouriteNode3: " + singleFavouriteNode.getNodeName());
+                    }
+                }
+            }
+        } catch (IOException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        } catch (ParserConfigurationException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        } catch (SAXException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        } catch (TransformerException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+        return null;
     }
 
     public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
@@ -662,6 +718,7 @@ public class CmdiComponentBuilder {
 
     public static void main(String args[]) {
         //new CmdiComponentBuilder().testWalk();
-        new CmdiComponentBuilder().testRemoveArchiveHandles();
+        //new CmdiComponentBuilder().testRemoveArchiveHandles();
+        new CmdiComponentBuilder().testInsertFavouriteComponent();
     }
 }
