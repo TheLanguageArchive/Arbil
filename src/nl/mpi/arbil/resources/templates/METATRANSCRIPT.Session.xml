@@ -11,7 +11,7 @@
   <Session>
     <Name>Standard (Session) Resource Bundle</Name>
     <Title/>
-    <Date/>
+    <Date>Unspecified</Date>
     <Description LanguageId="" Link=""/>
     <MDGroup>
       <Location>
@@ -64,7 +64,7 @@
         <ResourceLink></ResourceLink>
         <Access>
           <Availability/>
-          <Date></Date>
+          <Date>Unspecified</Date>
           <Owner/>
           <Publisher/>
           <Contact>
