@@ -134,8 +134,14 @@ public class CmdiComponentBuilder {
 //                    if (targetXmlPath == null) {
 //                        targetXmlPath = ".CMD.Components";
 //                    }
+
                         Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
-                        documentNode.getAttributes().getNamedItem("ref").setNodeValue(resourceProxyId);
+                        Node previousRefNode = documentNode.getAttributes().getNamedItem("ref");
+                        if (previousRefNode != null) {
+                            String previousRefValue = documentNode.getAttributes().getNamedItem("ref").getNodeValue();
+                            // todo: remove old resource nodes that this one overwrites
+                        }
+                        ((Element) documentNode).setAttribute("ref", resourceProxyId);
                     } catch (TransformerException exception) {
                         GuiHelper.linorgBugCatcher.logError(exception);
                         return null;
@@ -144,7 +150,7 @@ public class CmdiComponentBuilder {
                     Node addedResourceNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, ".CMD.Resources.ResourceProxyList", ".CMD.Resources.ResourceProxyList.ResourceProxy");
                     addedResourceNode.getAttributes().getNamedItem("id").setNodeValue(resourceProxyId);
                     for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
-                        String localName = childNode.getLocalName();
+                        String localName = childNode.getNodeName();
                         if ("ResourceType".equals(localName)) {
                             childNode.setTextContent(resourceNode.mpiMimeType);
                         }
@@ -309,6 +315,7 @@ public class CmdiComponentBuilder {
                         System.out.println("favouriteNode2: " + singleFavouriteNode.getNodeValue());
                         System.out.println("favouriteNode3: " + singleFavouriteNode.getNodeName());
                     }
+//                    todo: continue here
                 }
             }
         } catch (IOException exception) {
@@ -601,7 +608,9 @@ public class CmdiComponentBuilder {
         Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
         for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
-            currentElement.setAttribute(attributesProperty.getName().getLocalPart(), attributesProperty.getDefaultText());
+            if (attributesProperty.getMinOccurs() != null && !attributesProperty.getMinOccurs().equals(BigInteger.ZERO)) {
+                currentElement.setAttribute(attributesProperty.getName().getLocalPart(), attributesProperty.getDefaultText());
+            }
         }
         if (parentElement == null) {
             // this is probably not the way to set these, however this will do for now (many other methods have been tested and all failed to function correctly)
@@ -657,11 +666,15 @@ public class CmdiComponentBuilder {
             //currentSchemaType.getAttributeProperties();
             //     if ((schemaProperty.getType() != null) && (!(currentSchemaType.isSimpleType()))) {
 
-            if (schemaProperty.getMinOccurs() != BigInteger.ZERO) {
-                constructXml(schemaProperty, currentPathString, workingDocument, nameSpaceUri, currentElement);
-                //     }
+//            System.out.println("node name: " + schemaProperty.getName().getLocalPart());
+//            System.out.println("node.getMinOccurs(): " + schemaProperty.getMinOccurs());
+//            System.out.println("node.getMaxOccurs(): " + schemaProperty.getMaxOccurs());
+
+            if (schemaProperty.getMinOccurs() != null) {
+                for (BigInteger addNodeCounter = BigInteger.ZERO; addNodeCounter.compareTo(schemaProperty.getMinOccurs()) < 0; addNodeCounter = addNodeCounter.add(BigInteger.ONE)) {
+                    constructXml(schemaProperty, currentPathString, workingDocument, nameSpaceUri, currentElement);
+                }
             }
-            //}
         }
         return returnNode;
     }
