@@ -100,7 +100,11 @@ class JListToolTip extends JToolTip {
                 addTabbedLabel("Resource file not found");
             }
         } else if (tempObject.isMetaDataNode()) {
-            addTabbedLabel("Local file (editable)");
+            if (tempObject.isEditable()) {
+                addTabbedLabel("Local file (editable)");
+            } else {
+                addTabbedLabel("Local file (read only)");
+            }
             if (tempObject.fileNotFound) {
                 addTabbedLabel("File not found");
             }
@@ -113,6 +117,9 @@ class JListToolTip extends JToolTip {
         }
         if (tempObject.isFavorite()) {
             addTabbedLabel("Available in the favourites menu");
+        }
+        if (tempObject.hasSchemaError) {
+            addTabbedLabel("Schema validation error (Check XML Conformance for details)");
         }
     }
 
