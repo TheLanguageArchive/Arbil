@@ -258,6 +258,7 @@ public class LinorgSessionStorage {
     }
 
     public URI getOriginatingUri(URI locationInCacheURI) {
+        todo: find the issue with this
         URI returnUri = null;
         String uriPath = locationInCacheURI.getPath();
 //        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
@@ -561,7 +562,7 @@ public class LinorgSessionStorage {
 
     public URI getNewImdiFileName(File parentDirectory, String nodeType) {
         String suffixString;
-        if (CmdiProfileReader.pathIsProfile(nodeType)) {
+        if (nodeType.endsWith(".cmdi") || CmdiProfileReader.pathIsProfile(nodeType)) {
             suffixString = ".cmdi";
         } else {
             suffixString = ".imdi";
