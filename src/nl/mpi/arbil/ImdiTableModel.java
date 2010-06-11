@@ -559,7 +559,7 @@ public class ImdiTableModel extends AbstractTableModel {
         reloadRequested = true;
         if (!treeNodeSortQueueRunning) {
             treeNodeSortQueueRunning = true;
-            new Thread() {
+            new Thread("treeNodeSortQueue") {
 
                 @Override
                 public void run() {
