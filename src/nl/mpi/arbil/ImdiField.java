@@ -133,6 +133,8 @@ public class ImdiField {
     }
 
     public void setFieldValue(String fieldValueToBe, boolean updateUI, boolean excludeFromUndoHistory) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         fieldValueToBe = fieldValueToBe.trim();
         if (!this.fieldValue.equals(fieldValueToBe)) {
             if (!excludeFromUndoHistory) {
@@ -155,6 +157,8 @@ public class ImdiField {
     }
 
     public void setLanguageId(String languageIdLocal, boolean updateUI, boolean excludeFromUndoHistory) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         String oldLanguageId = getLanguageId();
         boolean valueChanged = false;
         // this is expanded for readability
@@ -214,7 +218,9 @@ public class ImdiField {
     }
 
     public void setFieldAttribute(String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
-        languageId = languageIdLocal;
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
+         languageId = languageIdLocal;
         originalLanguageId = languageId;
         keyName = keyNameLocal;
         originalKeyName = keyName;
@@ -272,6 +278,8 @@ public class ImdiField {
     }
 
     public void setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         System.out.println("setKeyName: " + keyNameLocal);
         String lastValue = getKeyName();
         System.out.println("lastValue: " + lastValue);
