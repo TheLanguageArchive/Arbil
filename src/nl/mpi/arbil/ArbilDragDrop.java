@@ -22,6 +22,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.data.MetadataBuilder;
 
 /**
  * Document   :  ArbilDragDrop
@@ -89,6 +90,7 @@ public class ArbilDragDrop {
         public boolean selectionContainsImdiInCache = false;
         public boolean selectionContainsImdiCatalogue = false;
         public boolean selectionContainsImdiSession = false;
+        public boolean selectionContainsCmdiMetadata = false;
         public boolean selectionContainsImdiChild = false;
         public boolean selectionContainsLocal = false;
         public boolean selectionContainsRemote = false;
@@ -121,7 +123,7 @@ public class ArbilDragDrop {
                     // allow drop to the root node if it is an import
                     System.out.println("local corpus tree check");
                     // todo: enable drag to rootnode from favourites but this change also needs to be done in the context menu
-                    return (!selectionContainsFavourite && (selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession));
+                    return (!selectionContainsFavourite && (selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession || selectionContainsCmdiMetadata));
                 }
                 System.out.println("no tree check");
                 return false;
@@ -138,11 +140,17 @@ public class ArbilDragDrop {
                             return false;
                         }
                         System.out.println("Drop to CMDI: " + currentLeadSelection.getURI().getFragment());
-                        return (currentLeadSelection.getParentDomNode().nodeTemplate.pathCanHaveResource(currentLeadSelection.getURI().getFragment()));
+                        String nodePath = currentLeadSelection.getURI().getFragment();
+                        if (nodePath == null) {
+                            // todo: consider making sure that the dom parent node always has a path
+                            nodePath = ".CMD.Components." + currentLeadSelection.getParentDomNode().nodeTemplate.loadedTemplateName;
+                        }
+                        System.out.println("nodePath:" + nodePath);
+                        return (currentLeadSelection.getParentDomNode().nodeTemplate.pathCanHaveResource(nodePath));
                     } else if (currentLeadSelection.isDirectory) {
                         return false; // nothing can be dropped to a directory
                     } else if (currentLeadSelection.isCorpus()) {
-                        if (selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession) {
+                        if ((selectionContainsImdiCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession) && !selectionContainsCmdiMetadata) {
                             return true;
                         }
                     } else if (currentLeadSelection.isCatalogue()) {
@@ -229,6 +237,7 @@ public class ArbilDragDrop {
                             selectionContainsImdiCorpus
                             || selectionContainsImdiCatalogue
                             || selectionContainsImdiSession
+                            || selectionContainsCmdiMetadata
                             || selectionContainsImdiChild) {
                         System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
@@ -247,6 +256,7 @@ public class ArbilDragDrop {
                             //selectionContainsImdiCorpus ||
                             selectionContainsImdiCatalogue
                             || selectionContainsImdiSession
+                            || selectionContainsCmdiMetadata
                             || selectionContainsImdiChild) {
                         System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
@@ -287,6 +297,7 @@ public class ArbilDragDrop {
             selectionContainsImdiCorpus = false;
             selectionContainsImdiCatalogue = false;
             selectionContainsImdiSession = false;
+            selectionContainsCmdiMetadata = false;
             selectionContainsImdiChild = false;
             selectionContainsLocal = false;
             selectionContainsRemote = false;
@@ -372,6 +383,9 @@ public class ArbilDragDrop {
                     } else if (currentDraggedObject.isSession()) {
                         selectionContainsImdiSession = true;
                         System.out.println("selectionContainsImdiSession");
+                    } else if (currentDraggedObject.isCmdiMetaDataNode()) {
+                        selectionContainsCmdiMetadata = true;
+                        System.out.println("selectionContainsCmdiMetadata");
                     } else if (currentDraggedObject.isCatalogue()) {
                         selectionContainsImdiCatalogue = true;
                         System.out.println("selectionContainsImdiCatalogue");
@@ -441,7 +455,7 @@ public class ArbilDragDrop {
                                             System.out.println("ok to add local file");
                                             for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                                 System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                                ((ImdiTreeObject) dropTargetUserObject).requestAddNode("Resource", draggedImdiObjects[draggedCounter]);
+                                                new MetadataBuilder().requestAddNode((ImdiTreeObject) dropTargetUserObject, "Resource", draggedImdiObjects[draggedCounter]);
                                             }
                                             createTransferable(null); // clear the transfer objects
                                             return true; // we have achieved the drag so return true
@@ -482,7 +496,7 @@ public class ArbilDragDrop {
                                             if (!draggedIntoSelf) {
                                                 if (((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isFavorite()) {
                                                     //  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
-                                                    ((ImdiTreeObject) dropTargetUserObject).requestAddNode(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]));
+                                                    new MetadataBuilder().requestAddNode((ImdiTreeObject) dropTargetUserObject, ((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]));
                                                 } else if (!(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile()))) {
                                                     importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
                                                 } else {
