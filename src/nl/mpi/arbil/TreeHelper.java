@@ -125,7 +125,8 @@ public class TreeHelper {
         remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
         for (String currentUrlString : new String[]{
                     "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
-                    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"
+                    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
+                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1.imdi"
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi",
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi",
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi",
@@ -392,7 +393,7 @@ public class TreeHelper {
         }
         if (!treeNodeSortQueueRunning) {
             treeNodeSortQueueRunning = true;
-            new Thread() {
+            new Thread("treeNodeSortQueue") {
 
                 @Override
                 public void run() {
