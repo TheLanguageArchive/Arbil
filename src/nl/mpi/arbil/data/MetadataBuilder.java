@@ -34,6 +34,8 @@ public class MetadataBuilder {
                 destinationNode.updateLoadingState(1);
                 synchronized (destinationNode.domLockObject) {
                     if (addableNode.isMetaDataNode()) {
+                        // todo: ask user to save
+                        destinationNode.saveChangesToCache(true);
                         URI addedNodeUri;
                         if (addableNode.getURI().getFragment() == null) {
                             addedNodeUri = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
@@ -129,7 +131,9 @@ public class MetadataBuilder {
                     System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
                     processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
 //                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
-                    destinationNode.getParentDomNode().loadImdiDom();
+                    if (destinationNode.getFile().exists()) {
+                        destinationNode.getParentDomNode().loadImdiDom();
+                    }
 //                    destinationNode.getParentDomNode().clearIcon();
 //                    destinationNode.getParentDomNode().clearChildIcons();
                 }
