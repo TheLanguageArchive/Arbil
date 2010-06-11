@@ -548,7 +548,7 @@ public class ImportExportDialog {
 //        System.getProperties().setProperty("sun.net.client.defaultConnectTimeout", "2000");
 //        System.getProperties().setProperty("sun.net.client.defaultReadTimeout", "2000");
 //        searchPanel.setVisible(false);
-        new Thread() {
+        new Thread("performCopy") {
 
             public void run() {
 //                setPriority(Thread.NORM_PRIORITY - 1);
@@ -689,6 +689,8 @@ public class ImportExportDialog {
                                         if (destinationNode.hasHistory()) {
                                             destinationNode.bumpHistory();
                                         }
+                                        todo: this has been observed to download a corpus branch that links to the sub nodes on the server instead of to the disk
+                                        todo: this appears to be adding too many ../../../../../../../ and must be checked
                                         currentMetdataUtil.copyMetadataFile(currentTarget, destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
 
 //                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
