@@ -71,21 +71,25 @@ public class LinorgVersionChecker {
     }
 
     public boolean checkForUpdate() {
-        if (!isLatestVersion()) {
-            if (this.hasWebStartUrl()) {
-                this.checkForAndUpdateViaJavaws();
-            } else {
-                new Thread() {
+//        if (new ArbilMenuBar().saveApplicationState())
+            // todo:        check for save required, note that this is probablay done in the on start check
+//        {
+            if (!isLatestVersion()) {
+                if (this.hasWebStartUrl()) {
+                    this.checkForAndUpdateViaJavaws();
+                } else {
+                    new Thread("checkForUpdate") {
 
-                    public void run() {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-                    }
-                }.start();
+                        public void run() {
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+                        }
+                    }.start();
+                }
+                return true;
+            } else {
+                return false;
             }
-            return true;
-        } else {
-            return false;
-        }
+//        }
     }
 
     public boolean hasWebStartUrl() {
@@ -98,7 +102,7 @@ public class LinorgVersionChecker {
 
     public void checkForAndUpdateViaJavaws() {
         //if (last check date not today)
-        new Thread() {
+        new Thread("checkForAndUpdateViaJavaws") {
 
             public void run() {
                 String webstartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
