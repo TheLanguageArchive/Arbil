@@ -3,7 +3,6 @@ package nl.mpi.arbil.data;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Vector;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.ImdiTableModel;
 import nl.mpi.arbil.LinorgFavourites;
@@ -28,19 +27,13 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeTypeDisplayNameLocal, final ImdiTreeObject addableNode) {
-        new Thread() {
+        new Thread("requestAddNode") {
 
             @Override
             public void run() {
+                destinationNode.updateLoadingState(1);
                 synchronized (destinationNode.domLockObject) {
                     String nodeTypeDisplayName = nodeTypeDisplayNameLocal;
-                    // todo: update this when functional
-                    if (destinationNode.isCmdiMetaDataNode()) {
-                        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
-//            todo handle this outside the gui thread
-                        URI addedNodePath = componentBuilder.insertResourceProxy(destinationNode, addableNode);
-                        destinationNode.reloadNode();
-                    }
                     ImdiTreeObject[] sourceImdiNodeArray;
                     if (addableNode.isEmptyMetaNode()) {
                         sourceImdiNodeArray = addableNode.getChildArray();
@@ -49,49 +42,76 @@ public class MetadataBuilder {
                     }
 
                     for (ImdiTreeObject currentImdiNode : sourceImdiNodeArray) {
-                        String nodeType;
-                        String favouriteUrlString = null;
-                        URI resourceUrl = null;
-                        String mimeType = null;
-                        if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
-                            nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
-                            resourceUrl = currentImdiNode.getURI();
-                            mimeType = currentImdiNode.mpiMimeType;
-                            nodeTypeDisplayName = "Resource";
+                        // todo: update this when functional
+                        if (destinationNode.isCmdiMetaDataNode()) {
+                            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+//            todo handle this outside the gui thread
+                            URI addedNodePath = componentBuilder.insertResourceProxy(destinationNode, addableNode);
+//                            destinationNode.reloadNode();
+                            destinationNode.getParentDomNode().loadImdiDom();
+//                            destinationNode.getParentDomNode().clearIcon();
+//                            destinationNode.getParentDomNode().clearChildIcons();
+//                        destinationNode.getParentDomNode().reloadNode();
+//                        destinationNode.getParentDomNode().clearChildIcons();
+//                        destinationNode.clearIcon();
+//                        ImdiLoader.getSingleInstance().requestReload(destinationNode.getParentDomNode());
+//                        destinationNode.getParentDomNode().waitTillLoaded();
+//                        TreeHelper.getSingleInstance().updateTreeNodeChildren(destinationNode.getParentDomNode());
                         } else {
-                            nodeType = LinorgFavourites.getSingleInstance().getNodeType(currentImdiNode, destinationNode);
-                            favouriteUrlString = currentImdiNode.getUrlString();
-                        }
-                        if (nodeType != null) {
-                            String targetXmlPath = destinationNode.getURI().getFragment();
-                            if (nodeType == null) { // targetXmlPath hass been  added at this point to preserve the sub node (N) which otherwise had been lost for the (x) and this is required to add to a sub node correctly
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+
+                            String nodeType;
+                            String favouriteUrlString = null;
+                            URI resourceUrl = null;
+                            String mimeType = null;
+                            if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
+                                nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
+                                resourceUrl = currentImdiNode.getURI();
+                                mimeType = currentImdiNode.mpiMimeType;
+                                nodeTypeDisplayName = "Resource";
                             } else {
+                                nodeType = LinorgFavourites.getSingleInstance().getNodeType(currentImdiNode, destinationNode);
+                                favouriteUrlString = currentImdiNode.getUrlString();
+                            }
+                            if (nodeType != null) {
+                                String targetXmlPath = destinationNode.getURI().getFragment();
+                                if (nodeType == null) { // targetXmlPath hass been  added at this point to preserve the sub node (N) which otherwise had been lost for the (x) and this is required to add to a sub node correctly
+                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+                                } else {
 //            if (this.isImdiChild()) {
 //                System.out.println("requestAddNodeChild: " + this.getUrlString());
 //                this.domParentImdi.requestAddNode(nodeType, this.nodeUrl.getRef(), nodeTypeDisplayName, favouriteUrlString, resourceUrl, mimeType);
 //            } else {
-                                System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
-                                processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
-                                ImdiLoader.getSingleInstance().requestReload(destinationNode);
+                                    System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
+                                    processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
+//                                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
+                                    destinationNode.getParentDomNode().loadImdiDom();
+//                                    destinationNode.getParentDomNode().clearIcon();
+//                                    destinationNode.getParentDomNode().clearChildIcons();
+                                }
                             }
                         }
                     }
                 }
+                destinationNode.updateLoadingState(-1);
             }
         }.start();
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeType, final String nodeTypeDisplayName) {
-        new Thread() {
+        new Thread("requestAddNode") {
 
             @Override
             public void run() {
+                destinationNode.updateLoadingState(1);
                 synchronized (destinationNode.domLockObject) {
                     System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
                     processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
-                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
+//                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
+                    destinationNode.getParentDomNode().loadImdiDom();
+//                    destinationNode.getParentDomNode().clearIcon();
+//                    destinationNode.getParentDomNode().clearChildIcons();
                 }
+                destinationNode.updateLoadingState(-1);
             }
         }.start();
     }
@@ -122,7 +142,7 @@ public class MetadataBuilder {
 //                                    for (ImdiTreeObject currentFavChild : allChildren.toArray(new ImdiTreeObject[]{}))
 
         String newTableTitleString = "new " + nodeTypeDisplayName;
-        if (currentImdiObject.isMetaDataNode() && !currentImdiObject.fileNotFound) {
+        if (currentImdiObject.isMetaDataNode() && currentImdiObject.getFile().exists()) {
             newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
         }
         System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
@@ -133,17 +153,21 @@ public class MetadataBuilder {
 //                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
 //                                } else {
         if (addedImdiObject != null) {
-            Vector<ImdiTreeObject> allAddedNodes = new Vector<ImdiTreeObject>();
+//            Vector<ImdiTreeObject> allAddedNodes = new Vector<ImdiTreeObject>();
 //                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
             //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(new ImdiTreeObject[]{addedImdiObject}, newTableTitleString);
-            allAddedNodes.add(addedImdiObject);
-            addedImdiObject.loadImdiDom();
+//            allAddedNodes.add(addedImdiObject);
+//            addedImdiObject.loadImdiDom();
             if (favouriteUrlString != null) {
-                mergeWithFavourite(addedImdiObject, favouriteUrlString, allAddedNodes, progressMonitor);
+//                mergeWithFavourite(addedImdiObject, favouriteUrlString, allAddedNodes, progressMonitor);
             }
 //                                    addedImdiObject.loadChildNodes();
-            addedImdiObject.clearIcon();
-            addedImdiObject.clearChildIcons();
+//            addedImdiObject.clearIcon();
+//            addedImdiObject.getParentDomNode().clearChildIcons();
+//            ImdiLoader.getSingleInstance().requestReload(addedImdiObject);
+            addedImdiObject.getParentDomNode().loadImdiDom();
+            addedImdiObject.getParentDomNode().clearIcon();
+            addedImdiObject.getParentDomNode().clearChildIcons();
             addedImdiObject.scrollToRequested = true;
             TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
             if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
@@ -168,6 +192,7 @@ public class MetadataBuilder {
         System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
         System.out.println("targetXmlPath:: " + targetXmlPath);
         URI addedNodePath = null;
+        destinationNode.updateLoadingState(1);
         synchronized (destinationNode.domLockObject) {
             if (destinationNode.getNeedsSaveToDisk()) {
                 destinationNode.saveChangesToCache(false);
@@ -210,13 +235,14 @@ public class MetadataBuilder {
                 } else {
                     addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
                 }
-                destinationNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
+//                ImdiTreeObject addedNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
                 if (destinationNode.getFile().exists()) {
-                    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{destinationNode.getURI()});
-                    destinationNode.reloadNode();
+                    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
+                    destinationNode.getParentDomNode().loadImdiDom();
+//                    destinationNode.getParentDomNode().clearIcon();
+//                    destinationNode.getParentDomNode().clearChildIcons();
                 } else {
-                    // TODO: this should not really be here
-                    TreeHelper.getSingleInstance().addLocation(destinationNode.getURI());
+                    TreeHelper.getSingleInstance().addLocation(addedNodePath);
                     TreeHelper.getSingleInstance().applyRootLocations();
                 }
 //            destinationNode.saveChangesToCache();
@@ -247,6 +273,7 @@ public class MetadataBuilder {
             //            childrenHashtable.put(destinationNode.getUrlString(), destinationNode);
             //        }
         }
+        destinationNode.updateLoadingState(-1);
         return addedNodePath;
     }
 }
