@@ -1,9 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import nl.mpi.arbil.*;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ProgressMonitor;
@@ -37,7 +35,7 @@ public class ImdiLoader {
         continueThread = true;
         // start three remote imdi loader threads
         for (int threadCounter = 0; threadCounter < 6; threadCounter++) {
-            new Thread() {
+            new Thread("ImdiLoader-remote-" + threadCounter) {
 
                 @Override
                 public void run() {
@@ -72,7 +70,7 @@ public class ImdiLoader {
         // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
         // start the local imdi threads
         for (int threadCounter = 0; threadCounter < 6; threadCounter++) {
-            new Thread() {
+            new Thread("ImdiLoader-local-" + threadCounter) {
 
                 @Override
                 public void run() {
@@ -92,66 +90,13 @@ public class ImdiLoader {
                                 currentImdiObject.saveChangesToCache(false);
                             }
                             currentImdiObject.loadImdiDom();
-                            if (currentImdiObject.addQueue.size() > 0) { // add any child nodes requested
-                                String nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType;
-                                URI resourceUri = null;
-                                {
-                                    String[] addRequestArrayString = currentImdiObject.addQueue.remove(0);
-                                    nodeType = addRequestArrayString[0];
-                                    targetXmlPath = addRequestArrayString[1];
-                                    nodeTypeDisplayName = addRequestArrayString[2];
-                                    favouriteUrlString = addRequestArrayString[3];
-                                    if (addRequestArrayString[4] != null) {
-                                        try {
-                                            resourceUri = new URI(addRequestArrayString[4]);
-                                        } catch (URISyntaxException urise) {
-                                            GuiHelper.linorgBugCatcher.logError(urise);
-                                        }
-                                    }
-                                    mimeType = addRequestArrayString[5];
+                            if () {
+                                if (currentImdiObject.isMetaDataNode()) {
+                                    XsdChecker xsdChecker = new XsdChecker();
+                                    String checkerResult;
+                                    checkerResult = xsdChecker.simpleCheck(currentImdiObject.getFile(), currentImdiObject.getURI());
+                                    currentImdiObject.hasSchemaError = (checkerResult != null);
                                 }
-//                                    Vector<ImdiTreeObject> allChildren = new Vector();
-//                                    allChildren.add(favouriteImdiNode);
-//                                    favouriteImdiNode.getAllChildren(allChildren);
-                                // sub node loop
-//                                    for (ImdiTreeObject currentFavChild : allChildren.toArray(new ImdiTreeObject[]{})) 
-
-                                String newTableTitleString = "new " + nodeTypeDisplayName;
-                                if (currentImdiObject.isMetaDataNode() && !currentImdiObject.fileNotFound) {
-                                    newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
-                                }
-                                System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
-//                                    ImdiTreeObject addedImdiObject = TreeHelper.getSingleInstance().addImdiChildNode(currentImdiObject, nodeType, nodeTypeDisplayName, resourceUrl, mimeType);
-                                URI addedNodeUri = currentImdiObject.addChildNode(nodeType, targetXmlPath, resourceUri, mimeType);
-                                ImdiTreeObject addedImdiObject = getImdiObjectWithoutLoading(addedNodeUri);
-//                                if (addedImdiObject == null) {
-//                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
-//                                } else {
-                                if (addedImdiObject != null) {
-                                    Vector<ImdiTreeObject> allAddedNodes = new Vector<ImdiTreeObject>();
-//                                    imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedImdiObject});
-                                    //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(new ImdiTreeObject[]{addedImdiObject}, newTableTitleString);
-                                    allAddedNodes.add(addedImdiObject);
-                                    addedImdiObject.loadImdiDom();
-                                    if (favouriteUrlString != null) {
-                                        mergeWithFavourite(addedImdiObject, favouriteUrlString, allAddedNodes, progressMonitor);
-                                    }
-//                                    addedImdiObject.loadChildNodes();
-                                    addedImdiObject.clearIcon();
-                                    addedImdiObject.clearChildIcons();
-                                    addedImdiObject.scrollToRequested = true;
-                                    TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
-                                    if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
-                                        TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
-                                    }
-                                    //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(allAddedNodes.toArray(new ImdiTreeObject[]{}), newTableTitleString);
-                                }
-                                ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
-                            } else {
-//                                if (currentImdiObject.autoLoadChildNodes) {
-//                                    currentImdiObject.loadChildNodes();
-//                                }
-                                TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject);
                             }
                             currentImdiObject.updateLoadingState(-1);
                             currentImdiObject.clearIcon();
@@ -174,103 +119,101 @@ public class ImdiLoader {
         }
     }
 
-    private void mergeWithFavourite(ImdiTreeObject addedImdiObject, String favouriteUrlString, Vector<ImdiTreeObject> allAddedNodes, ProgressMonitor progressMonitor) {
-        progressMonitor.setNote("Adding Child Nodes");
-        ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList<ImdiTreeObject[]>();
-        //getImdiObject/* this should not be used here because it will cause another thread to work on the node */
-        // TODO: should this favourite node be loaded here? if so it must be done without the queue
-        try {
-            ImdiTreeObject favouriteImdiNode = getImdiObjectWithoutLoading(new URI(favouriteUrlString));
-            nodesToMerge.add(new ImdiTreeObject[]{addedImdiObject, favouriteImdiNode});
-            // add all the child node templates
-            progressMonitor.setMaximum(addedImdiObject.getAllChildren().length * 3);
-
-            duplicateChildNodeStructure(favouriteImdiNode, addedImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
-            int progressCounter = nodesToMerge.size();
-            progressMonitor.setNote("Copying Data");
-            progressMonitor.setMaximum(progressCounter + nodesToMerge.size() * 2);
-            for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
-                if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
-                    System.out.println("about to merge:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
-                }
-                progressMonitor.setProgress(progressCounter++);
-            }
-//            addedImdiObject.updateImdiFileNodeIds();
-            for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
-                if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
-                    System.out.println("merging:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
-//                                                    if (!currentMergeArray[0].getUrlString().contains("#")) {
-//                                                        System.out.println("oops: " + currentMergeArray[0] + currentMergeArray[0].getParentDomNode() + "\n" + currentMergeArray[0].getUrlString());
-//                                                        System.out.println("oops: " + currentMergeArray[0] + currentMergeArray[0].getParentDomNode() + "\n" + currentMergeArray[0].getUrlString());
-//                                                    }
-                    LinorgFavourites.getSingleInstance().mergeFromFavourite(currentMergeArray[0], currentMergeArray[1], true);
-                }
-                progressMonitor.setProgress(progressCounter++);
-            }
-//                                        addedImdiObject.saveChangesToCache(true);
-        } catch (URISyntaxException ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
-    }
-
-    private void duplicateChildNodeStructure(ImdiTreeObject favouriteImdiNode, ImdiTreeObject addedImdiObject, ArrayList<ImdiTreeObject[]> nodesToMerge, ProgressMonitor progressMonitor, Vector<ImdiTreeObject> allAddedNodes) {
-        //if (addedImdiObject.getURI().getFragment() == null && addedImdiObject.isImdiChild()) {
-        //    System.out.println("Found a node to check");
-        //}
-        ImdiTreeObject[] currentFavChildren = favouriteImdiNode.getChildArray();
-        for (ImdiTreeObject currentFavChild : currentFavChildren) {
-            System.out.println("childNode: " + currentFavChild.getUrlString());
-            if (currentFavChild.isEmptyMetaNode()) {
-                System.out.println("omitting: " + currentFavChild);
-//                System.out.println("currentFavChild.getFragment():" + currentFavChild.getURI().getFragment().toString());
-//                System.out.println("addedImdiObject.getFragment():" + addedImdiObject.getURI().getFragment().toString());
-                duplicateChildNodeStructure(currentFavChild, addedImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
-            } else if (currentFavChild.isMetaDataNode()) {
-//                                                    ImdiTreeObject addedChildImdiObjects = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
-                String nodeType = addedImdiObject.getURI().getFragment();
-//                if (nodeType == null) {
-//                    nodeType = ""; // imdi parent nodes have no fragment but must not pass null as the nodeType
-//                }
-                URI addedChildImdiObjectURI = addedImdiObject.addChildNode(LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, addedImdiObject), nodeType, null, null);
-                //GuiHelper.imdiLoader.getImdiObject/* this should not be used here because it will cause another thread to work on the node */
-                ImdiTreeObject addedChildImdiObject = getImdiObjectWithoutLoading(addedChildImdiObjectURI);
-                allAddedNodes.add(addedChildImdiObject);
-//                imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedChildImdiObject});
-                nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
-                System.out.println("nodesToMerge: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
-//                                                    if (!addedChildImdiObject.getUrlString().contains("#")) {
-//                                                        System.out.println("oops A: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
-//                                                        System.out.println("oops A: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
-//                                                    }
-                progressMonitor.setProgress(nodesToMerge.size());
-                //System.out.println("addedImdiObject.getFragment():" + addedImdiObject.getURI().getFragment());
-                //System.out.println("addedChildImdiObject.getFragment():" + addedChildImdiObject.getURI().getFragment());
-                duplicateChildNodeStructure(currentFavChild, addedChildImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
-            } else {
-                System.out.println("omitting due to not being an imdi: " + currentFavChild);
-            }
-//        Arrays.sort(allChildNodes, new Comparator() {
+//    private void mergeWithFavourite(ImdiTreeObject addedImdiObject, String favouriteUrlString, Vector<ImdiTreeObject> allAddedNodes, ProgressMonitor progressMonitor) {
+//        progressMonitor.setNote("Adding Child Nodes");
+//        ArrayList<ImdiTreeObject[]> nodesToMerge = new ArrayList<ImdiTreeObject[]>();
+//        //getImdiObject/* this should not be used here because it will cause another thread to work on the node */
+//        // TODO: should this favourite node be loaded here? if so it must be done without the queue
+//        try {
+//            ImdiTreeObject favouriteImdiNode = getImdiObjectWithoutLoading(new URI(favouriteUrlString));
+//            nodesToMerge.add(new ImdiTreeObject[]{addedImdiObject, favouriteImdiNode});
+//            // add all the child node templates
+//            progressMonitor.setMaximum(addedImdiObject.getAllChildren().length * 3);
 //
-//            public int compare(Object firstColumn, Object secondColumn) {
-//                try {
-//                    String leftString = ((ImdiTreeObject) firstColumn).getUrlString();
-//                    String rightString = ((ImdiTreeObject) secondColumn).getUrlString();
-//                    int leftPathCount = leftString.split("\\.").length;
-//                    int rightPathCount = rightString.split("\\.").length;
-//                    if (leftPathCount == rightPathCount) {
-//                        return leftString.compareTo(rightString);
-//                    } else {
-//                        return leftPathCount - rightPathCount;
-//                    }
-//                } catch (Exception ex) {
-//                    GuiHelper.linorgBugCatcher.logError(ex);
-//                    return 1;
+//            duplicateChildNodeStructure(favouriteImdiNode, addedImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
+//            int progressCounter = nodesToMerge.size();
+//            progressMonitor.setNote("Copying Data");
+//            progressMonitor.setMaximum(progressCounter + nodesToMerge.size() * 2);
+//            for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
+//                if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
+//                    System.out.println("about to merge:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
 //                }
+//                progressMonitor.setProgress(progressCounter++);
 //            }
-//        });
-        }
-    }
-
+////            addedImdiObject.updateImdiFileNodeIds();
+//            for (ImdiTreeObject[] currentMergeArray : nodesToMerge.toArray(new ImdiTreeObject[][]{})) {
+//                if (currentMergeArray[0] != null && currentMergeArray[1] != null) {
+//                    System.out.println("merging:\n" + currentMergeArray[0].getUrlString() + "\n" + currentMergeArray[1].getUrlString());
+////                                                    if (!currentMergeArray[0].getUrlString().contains("#")) {
+////                                                        System.out.println("oops: " + currentMergeArray[0] + currentMergeArray[0].getParentDomNode() + "\n" + currentMergeArray[0].getUrlString());
+////                                                        System.out.println("oops: " + currentMergeArray[0] + currentMergeArray[0].getParentDomNode() + "\n" + currentMergeArray[0].getUrlString());
+////                                                    }
+//                    LinorgFavourites.getSingleInstance().mergeFromFavourite(currentMergeArray[0], currentMergeArray[1], true);
+//                }
+//                progressMonitor.setProgress(progressCounter++);
+//            }
+////                                        addedImdiObject.saveChangesToCache(true);
+//        } catch (URISyntaxException ex) {
+//            GuiHelper.linorgBugCatcher.logError(ex);
+//        }
+//    }
+//    private void duplicateChildNodeStructure(ImdiTreeObject favouriteImdiNode, ImdiTreeObject addedImdiObject, ArrayList<ImdiTreeObject[]> nodesToMerge, ProgressMonitor progressMonitor, Vector<ImdiTreeObject> allAddedNodes) {
+//        //if (addedImdiObject.getURI().getFragment() == null && addedImdiObject.isImdiChild()) {
+//        //    System.out.println("Found a node to check");
+//        //}
+//        ImdiTreeObject[] currentFavChildren = favouriteImdiNode.getChildArray();
+//        for (ImdiTreeObject currentFavChild : currentFavChildren) {
+//            System.out.println("childNode: " + currentFavChild.getUrlString());
+//            if (currentFavChild.isEmptyMetaNode()) {
+//                System.out.println("omitting: " + currentFavChild);
+////                System.out.println("currentFavChild.getFragment():" + currentFavChild.getURI().getFragment().toString());
+////                System.out.println("addedImdiObject.getFragment():" + addedImdiObject.getURI().getFragment().toString());
+//                duplicateChildNodeStructure(currentFavChild, addedImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
+//            } else if (currentFavChild.isMetaDataNode()) {
+////                                                    ImdiTreeObject addedChildImdiObjects = TreeHelper.getSingleInstance().addImdiChildNode(addedImdiObject, LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, currentImdiObject), nodeTypeDisplayName, resourceUrl, mimeType);
+//                String nodeType = addedImdiObject.getURI().getFragment();
+////                if (nodeType == null) {
+////                    nodeType = ""; // imdi parent nodes have no fragment but must not pass null as the nodeType
+////                }
+//                URI addedChildImdiObjectURI = addedImdiObject.addChildNode(LinorgFavourites.getSingleInstance().getNodeType(currentFavChild, addedImdiObject), nodeType, null, null);
+//                //GuiHelper.imdiLoader.getImdiObject/* this should not be used here because it will cause another thread to work on the node */
+//                ImdiTreeObject addedChildImdiObject = getImdiObjectWithoutLoading(addedChildImdiObjectURI);
+//                allAddedNodes.add(addedChildImdiObject);
+////                imdiTableModel.addImdiObjects(new ImdiTreeObject[]{addedChildImdiObject});
+//                nodesToMerge.add(new ImdiTreeObject[]{addedChildImdiObject, currentFavChild});
+//                System.out.println("nodesToMerge: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
+////                                                    if (!addedChildImdiObject.getUrlString().contains("#")) {
+////                                                        System.out.println("oops A: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
+////                                                        System.out.println("oops A: " + addedChildImdiObject + addedChildImdiObject.getParentDomNode() + "\n" + addedChildImdiObject.getUrlString());
+////                                                    }
+//                progressMonitor.setProgress(nodesToMerge.size());
+//                //System.out.println("addedImdiObject.getFragment():" + addedImdiObject.getURI().getFragment());
+//                //System.out.println("addedChildImdiObject.getFragment():" + addedChildImdiObject.getURI().getFragment());
+//                duplicateChildNodeStructure(currentFavChild, addedChildImdiObject, nodesToMerge, progressMonitor, allAddedNodes);
+//            } else {
+//                System.out.println("omitting due to not being an imdi: " + currentFavChild);
+//            }
+////        Arrays.sort(allChildNodes, new Comparator() {
+////
+////            public int compare(Object firstColumn, Object secondColumn) {
+////                try {
+////                    String leftString = ((ImdiTreeObject) firstColumn).getUrlString();
+////                    String rightString = ((ImdiTreeObject) secondColumn).getUrlString();
+////                    int leftPathCount = leftString.split("\\.").length;
+////                    int rightPathCount = rightString.split("\\.").length;
+////                    if (leftPathCount == rightPathCount) {
+////                        return leftString.compareTo(rightString);
+////                    } else {
+////                        return leftPathCount - rightPathCount;
+////                    }
+////                } catch (Exception ex) {
+////                    GuiHelper.linorgBugCatcher.logError(ex);
+////                    return 1;
+////                }
+////            }
+////        });
+//        }
+//    }
     synchronized private void addNodeToQueue(ImdiTreeObject nodeToAdd) {
         if (ImdiTreeObject.isStringLocal(nodeToAdd.getUrlString())) {
             if (!imdiLocalNodesToInit.contains(nodeToAdd)) {
