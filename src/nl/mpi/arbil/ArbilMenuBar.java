@@ -59,6 +59,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem copyMenuItem;
     private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
     private JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem;
+    private JCheckBoxMenuItem schemaCheckLocalFiles;
     private JMenuItem editFieldViewsMenuItem;
 //    private JMenuItem editLocationsMenuItem;
     private JMenuItem updateAllLoadedVocabulariesMenuItem;
@@ -95,6 +96,7 @@ public class ArbilMenuBar extends JMenuBar {
         checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
         copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
         checkResourcePermissionsCheckBoxMenuItem = new JCheckBoxMenuItem();
+        schemaCheckLocalFiles = new JCheckBoxMenuItem();
         trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
         useLanguageIdInColumnNameCheckBoxMenuItem = new JCheckBoxMenuItem();
         viewMenu = new JMenu();
@@ -441,6 +443,18 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
         optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
+
+        schemaCheckLocalFiles.setText("Always check local metadata files for XML conformance");
+        schemaCheckLocalFiles.setSelected(ImdiLoader.getSingleInstance().schemaCheckLocalFiles);
+        schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded.");
+        schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
+
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ImdiLoader.getSingleInstance().schemaCheckLocalFiles = schemaCheckLocalFiles.isSelected();
+                LinorgSessionStorage.getSingleInstance().saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
+            }
+        });
+        optionsMenu.add(schemaCheckLocalFiles);
 
         trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
         trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
