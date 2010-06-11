@@ -83,7 +83,7 @@ public class ArbilCsvImporter {
                     }
                     if (!skipLine) {
                         String nodeType = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session";
-                        ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, destinationCorpusNode.addChildNode(nodeType, null, null, null));
+                        ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, new MetadataBuilder().addChildNode(destinationCorpusNode,nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
                         Hashtable<String, ImdiField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);
