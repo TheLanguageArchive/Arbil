@@ -80,7 +80,8 @@ public class LinorgFavourites {
 
     private void addAsFavourite(URI imdiUri) {
         try {
-            File destinationFile = File.createTempFile("fav-", ".imdi", LinorgSessionStorage.getSingleInstance().getFavouritesDir());
+            String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
+            File destinationFile = File.createTempFile("fav-", fileSuffix, LinorgSessionStorage.getSingleInstance().getFavouritesDir());
             ImdiTreeObject.getMetadataUtils(imdiUri.toString()).copyMetadataFile(imdiUri, destinationFile, null, true);
 
             URI copiedFileURI = destinationFile.toURI();
@@ -204,38 +205,38 @@ public class LinorgFavourites {
         return returnValue;
     }
 
-    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject favouriteImdiObject, boolean overwriteValues) {
-//        System.out.println("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
-        Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
-        for (Enumeration<ImdiField[]> favouriteFieldEnum = favouriteImdiObject.getFields().elements(); favouriteFieldEnum.hasMoreElements();) {
-            ImdiField[] currentFavouriteFields = favouriteFieldEnum.nextElement();
-            if (currentFavouriteFields.length > 0) {
-                ImdiField[] targetNodeFields = targetFieldsHash.get(currentFavouriteFields[0].getTranslateFieldName());
-
-                System.out.println("TranslateFieldName: " + currentFavouriteFields[0].getTranslateFieldName());
-                System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading());
-                if (targetNodeFields != null) {
-                    System.out.println("copy fields");
-                    for (int fieldCounter = 0; fieldCounter < currentFavouriteFields.length; fieldCounter++) {
-                        ImdiField currentField;
-                        if (targetNodeFields.length > fieldCounter) {
-                            // copy to the exisiting fields
-                            currentField = targetNodeFields[fieldCounter];
-                            currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, false);
-                        } else {
-                            // add sub nodes if they dont already exist
-                            currentField = new ImdiField(0, targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, "", 0); // this is not correct but this section should be simplified asap
-                            currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, true); // this is done separatly to trigger the needs save to disk flag
-                            targetImdiObject.addField(currentField);
-//                            currentField.fieldNeedsSaveToDisk = true;
-                        }
-                        String currentLanguageId = currentFavouriteFields[fieldCounter].getLanguageId();
-                        if (currentLanguageId != null) {
-                            currentField.setLanguageId(currentLanguageId, false, true);
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject favouriteImdiObject, boolean overwriteValues) {
+////        System.out.println("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
+//        Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();
+//        for (Enumeration<ImdiField[]> favouriteFieldEnum = favouriteImdiObject.getFields().elements(); favouriteFieldEnum.hasMoreElements();) {
+//            ImdiField[] currentFavouriteFields = favouriteFieldEnum.nextElement();
+//            if (currentFavouriteFields.length > 0) {
+//                ImdiField[] targetNodeFields = targetFieldsHash.get(currentFavouriteFields[0].getTranslateFieldName());
+//
+//                System.out.println("TranslateFieldName: " + currentFavouriteFields[0].getTranslateFieldName());
+//                System.out.println("targetImdiObjectLoading: " + targetImdiObject.isLoading());
+//                if (targetNodeFields != null) {
+//                    System.out.println("copy fields");
+//                    for (int fieldCounter = 0; fieldCounter < currentFavouriteFields.length; fieldCounter++) {
+//                        ImdiField currentField;
+//                        if (targetNodeFields.length > fieldCounter) {
+//                            // copy to the exisiting fields
+//                            currentField = targetNodeFields[fieldCounter];
+//                            currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, false);
+//                        } else {
+//                            // add sub nodes if they dont already exist
+//                            currentField = new ImdiField(0, targetImdiObject, currentFavouriteFields[fieldCounter].xmlPath, "", 0); // this is not correct but this section should be simplified asap
+//                            currentField.setFieldValue(currentFavouriteFields[fieldCounter].getFieldValue(), false, true); // this is done separatly to trigger the needs save to disk flag
+//                            targetImdiObject.addField(currentField);
+////                            currentField.fieldNeedsSaveToDisk = true;
+//                        }
+//                        String currentLanguageId = currentFavouriteFields[fieldCounter].getLanguageId();
+//                        if (currentLanguageId != null) {
+//                            currentField.setLanguageId(currentLanguageId, false, true);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
