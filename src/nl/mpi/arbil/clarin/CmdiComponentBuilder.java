@@ -302,7 +302,16 @@ public class CmdiComponentBuilder {
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
                 boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
                 System.out.println("favouriteXpath: " + favouriteXpathTrimmed);
+                String destinationXpath;
+                if (onlySubNodes) {
+                    destinationXpath = favouriteXpathTrimmed;
+                } else {
+                    destinationXpath = favouriteXpathTrimmed.replaceFirst("\\.[^.]+$", "");
+                }
+                System.out.println("destinationXpath: " + destinationXpath);
+                Node destinationNode = selectSingleNode(destinationDocument, destinationXpath);
                 Node selectedNode = selectSingleNode(favouriteDocument, favouriteXpathTrimmed);
+                destinationDocument.adoptNode(selectedNode);
                 Node[] favouriteNodes;
                 if (onlySubNodes) {
                     NodeList selectedNodeList = selectedNode.getChildNodes();
@@ -315,12 +324,11 @@ public class CmdiComponentBuilder {
                 }
                 for (Node singleFavouriteNode : favouriteNodes) {
                     if (singleFavouriteNode.getNodeType() != Node.TEXT_NODE) {
-                        System.out.println("favouriteNode1: " + singleFavouriteNode.getLocalName());
-                        System.out.println("favouriteNode2: " + singleFavouriteNode.getNodeValue());
-                        System.out.println("favouriteNode3: " + singleFavouriteNode.getNodeName());
+                        destinationNode.appendChild(singleFavouriteNode);
+                        System.out.println("inserting favouriteNode: " + singleFavouriteNode.getLocalName());
                     }
-                    todo: continue here
                 }
+                savePrettyFormatting(destinationDocument, destinationImdiTreeObject.getFile());
             }
         } catch (IOException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
@@ -433,6 +441,8 @@ public class CmdiComponentBuilder {
                 if (archiveHandleNode != null) {
 //                    System.out.println(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").getNodeValue());
                     archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").setNodeValue("");
+                    // todo: completely remove the archive handle
+//                    archiveHandleNode.removeChild(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle"));
                 }
             }
         } catch (TransformerException exception) {
