@@ -23,6 +23,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;
 
@@ -1063,10 +1064,10 @@ public class ContextMenu {
 //                            imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
 //                        }
                             if (leadSelectedTreeNode != null) {
-                                leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                             } else {
                                 // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                                ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                             }
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
@@ -1091,10 +1092,10 @@ public class ContextMenu {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
                             if (leadSelectedTreeNode != null) {
-                                leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                             } else {
                                 // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                                ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                             }
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
@@ -1197,7 +1198,7 @@ public class ContextMenu {
                         String imdiFavouriteUrlString = evt.getActionCommand();
                         ImdiTreeObject templateImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, ImdiTreeObject.conformStringToUrl(imdiFavouriteUrlString));
                         if (leadSelectedTreeNode != null) {
-                            leadSelectedTreeNode.requestAddNode(((JMenuItem) evt.getSource()).getText(), templateImdiObject);
+                            new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateImdiObject);
                         }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
