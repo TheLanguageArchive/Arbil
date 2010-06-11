@@ -47,10 +47,12 @@ public class CmdiComponentLinkReader {
         for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
             if (cmdiResourceLink.resourceProxyId.equals(resourceRef)) {
                 try {
-                    if (cmdiResourceLink.resourceRef.startsWith("hdl://")) {
-                        return new URI(cmdiResourceLink.resourceRef.replace("hdl://", "http://hdl.handle.net/"));
-                    } else {
-                        return new URI(cmdiResourceLink.resourceRef);
+                    if (cmdiResourceLink.resourceRef != null && cmdiResourceLink.resourceRef.length() > 0) {
+                        if (cmdiResourceLink.resourceRef.startsWith("hdl://")) {
+                            return new URI(cmdiResourceLink.resourceRef.replace("hdl://", "http://hdl.handle.net/"));
+                        } else {
+                            return new URI(cmdiResourceLink.resourceRef);
+                        }
                     }
                 } catch (URISyntaxException urise) {
                     GuiHelper.linorgBugCatcher.logError(urise);
@@ -61,6 +63,7 @@ public class CmdiComponentLinkReader {
     }
 
     public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
+//        ArrayList<URI> returnUriList = new ArrayList<URI>();
         try {
             Digester digester = new Digester();
             digester.push(this);
