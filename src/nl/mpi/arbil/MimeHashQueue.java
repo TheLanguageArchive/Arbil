@@ -54,7 +54,7 @@ public class MimeHashQueue {
         System.out.println("MimeHashQueue init");
         imdiObjectQueue = new Vector();
         continueThread = true;
-        new Thread() {
+        new Thread("MimeHashQueue") {
 
             public void run() {
                 int serverPermissionsChecked = 0;
