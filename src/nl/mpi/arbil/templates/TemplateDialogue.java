@@ -157,7 +157,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         jButton1.setVisible(false);
         jProgressBar1.setVisible(true);
         this.doLayout();
-        new Thread() {
+        new Thread("loadProfiles") {
 
             @Override
             public void run() {
