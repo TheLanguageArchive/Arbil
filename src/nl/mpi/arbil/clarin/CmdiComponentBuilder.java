@@ -412,6 +412,18 @@ public class CmdiComponentBuilder {
         }
     }
 
+    public void removeArchiveHandles(ImdiTreeObject imdiTreeObject) {
+        synchronized (imdiTreeObject.domLockObject) {
+            try {
+                Document workingDocument = getDocument(imdiTreeObject.getURI());
+                removeArchiveHandles(workingDocument);
+                savePrettyFormatting(workingDocument, imdiTreeObject.getFile());
+            } catch (Exception exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+        }
+    }
+
     private void removeArchiveHandles(Document targetDocument) {
         String handleXpath = "//*[@ArchiveHandle]";
         try {
