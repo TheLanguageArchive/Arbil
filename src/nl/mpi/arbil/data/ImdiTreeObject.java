@@ -1740,7 +1740,8 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isEditable() {
         if (isLocal()) {
-            return (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(this.getFile()));
+            return (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(this.getFile()))
+                    || LinorgSessionStorage.getSingleInstance().pathIsInFavourites(this.getFile());
         } else {
             return false;
 
@@ -1816,8 +1817,8 @@ public class ImdiTreeObject implements Comparable {
         for (ImdiTreeObject currentChild : childArray) {
 //            if (!currentChild.equals(currentChild.getParentDomNode())) {
 //                System.out.println("clearChildIcons: " + currentChild);
-                currentChild.clearChildIcons();
-                currentChild.clearIcon();
+            currentChild.clearChildIcons();
+            currentChild.clearIcon();
 //            }
         }
     }
