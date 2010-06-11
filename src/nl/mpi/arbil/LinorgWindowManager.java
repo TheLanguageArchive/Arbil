@@ -312,7 +312,7 @@ public class LinorgWindowManager {
 
     private synchronized void showMessageDialogQueue() {
         if (!showMessageThreadrunning) {
-            new Thread() {
+            new Thread("showMessageThread") {
 
                 public void run() {
                     try {
@@ -756,7 +756,7 @@ public class LinorgWindowManager {
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
             try {
                 ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
-                parentNode.waitTillLoaded();
+//                parentNode.waitTillLoaded();
                 String fieldPath = rowNodesArray[arrayCounter].getFragment();
                 String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
                 URI targetNode;
