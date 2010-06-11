@@ -117,6 +117,10 @@ public class CmdiComponentBuilder {
 //                <ResourceRef>bla.txt</ResourceRef>
 //            </ResourceProxy>
             String targetXmlPath = imdiTreeObject.getURI().getFragment();
+            if (targetXmlPath == null) {
+                // todo: consider making sure that the dom parent node always has a path
+                targetXmlPath = ".CMD.Components." + imdiTreeObject.getParentDomNode().nodeTemplate.loadedTemplateName;
+            }
             System.out.println("insertResourceProxy: " + targetXmlPath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
@@ -315,7 +319,7 @@ public class CmdiComponentBuilder {
                         System.out.println("favouriteNode2: " + singleFavouriteNode.getNodeValue());
                         System.out.println("favouriteNode3: " + singleFavouriteNode.getNodeName());
                     }
-//                    todo: continue here
+                    todo: continue here
                 }
             }
         } catch (IOException exception) {
