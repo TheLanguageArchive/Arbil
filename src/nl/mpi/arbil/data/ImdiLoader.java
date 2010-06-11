@@ -14,6 +14,7 @@ import javax.swing.ProgressMonitor;
 public class ImdiLoader {
 
     private boolean continueThread = true;
+    public boolean schemaCheckLocalFiles = false;
     private Vector<ImdiTreeObject> imdiRemoteNodesToInit = new Vector<ImdiTreeObject>();
     private Vector<ImdiTreeObject> imdiLocalNodesToInit = new Vector<ImdiTreeObject>();
     private Hashtable<String, ImdiTreeObject> imdiHashTable = new Hashtable<String, ImdiTreeObject>();
@@ -32,6 +33,7 @@ public class ImdiLoader {
 
     private ImdiLoader() {
         System.out.println("ImdiLoader init");
+        schemaCheckLocalFiles = LinorgSessionStorage.getSingleInstance().loadBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles);
         continueThread = true;
         // start three remote imdi loader threads
         for (int threadCounter = 0; threadCounter < 6; threadCounter++) {
@@ -90,13 +92,15 @@ public class ImdiLoader {
                                 currentImdiObject.saveChangesToCache(false);
                             }
                             currentImdiObject.loadImdiDom();
-                            if () {
+                            if (schemaCheckLocalFiles) {
                                 if (currentImdiObject.isMetaDataNode()) {
                                     XsdChecker xsdChecker = new XsdChecker();
                                     String checkerResult;
                                     checkerResult = xsdChecker.simpleCheck(currentImdiObject.getFile(), currentImdiObject.getURI());
                                     currentImdiObject.hasSchemaError = (checkerResult != null);
                                 }
+                            } else {
+                                currentImdiObject.hasSchemaError = false;
                             }
                             currentImdiObject.updateLoadingState(-1);
                             currentImdiObject.clearIcon();
