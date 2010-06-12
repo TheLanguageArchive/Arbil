@@ -78,7 +78,7 @@ public class ImdiUtils implements MetadataUtils {
         return true;
     }
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksToUpdate, boolean updateLinks) {
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksNotToUpdate, boolean updateLinks) {
         try {
             mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
             mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURL());
@@ -92,17 +92,24 @@ public class ImdiUtils implements MetadataUtils {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
                 if (links != null && updateLinks) {
                     for (mpi.imdi.api.IMDILink currentLink : links) {
-                        if (linksToUpdate != null) {
-                            for (URI updatableLink : linksToUpdate) {
+                        boolean linkNotToUpdateFound = false;
+                        if (linksNotToUpdate != null) {
+                            for (URI updatableLink : linksNotToUpdate) {
                                 try {
                                     if (currentLink.getRawURL().toURL().toURI().equals(updatableLink)) {
-                                        api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                                        linkNotToUpdateFound = true;
+                                        break;
                                     }
                                 } catch (URISyntaxException exception) {
                                     GuiHelper.linorgBugCatcher.logError(exception);
                                 }
                             }
-                        } else {
+                        }
+                        System.out.println("currentLink: " + linkNotToUpdateFound + " : " + currentLink.getRawURL().toString());
+                        if (linkNotToUpdateFound) {
+                            // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
+                            // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
+                            // todo: cont... this must instead take oldurl newurl and the new imdi file location
                             api.changeIMDILink(nodDom, destinationUrl, currentLink);
                         }
                     }
