@@ -21,7 +21,7 @@ public class CmdiUtils implements MetadataUtils {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksToUpdate, boolean updateLinks) {
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksNotToUpdate, boolean updateLinks) {
         CmdiComponentBuilder cmdiComponentBuilder = new CmdiComponentBuilder();
         try {
             Document document = cmdiComponentBuilder.getDocument(sourceURI);
