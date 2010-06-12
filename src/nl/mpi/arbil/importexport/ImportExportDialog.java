@@ -649,6 +649,7 @@ public class ImportExportDialog {
                                                         //resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
                                                         //resourceCopyOutput.append("Failed" + "\n");
                                                         fileCopyErrors.add(currentTarget);
+                                                        uncopiedLinks.add(linksUriArray[linkCount]);
                                                         resourceCopyErrors++;
                                                     }
                                                     resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
@@ -680,8 +681,8 @@ public class ImportExportDialog {
                                         }
                                         // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
                                         // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
-                                        boolean removeIdAttributes = exportDestinationDirectory != null;
-                                        // TODO: bumpHistory();
+//                                        boolean removeIdAttributes = exportDestinationDirectory != null;
+
                                         ImdiTreeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(destinationFile.toURI());
                                         if (destinationNode.getNeedsSaveToDisk()) {
                                             destinationNode.saveChangesToCache(true);
@@ -689,8 +690,9 @@ public class ImportExportDialog {
                                         if (destinationNode.hasHistory()) {
                                             destinationNode.bumpHistory();
                                         }
-                                        todo: this has been observed to download a corpus branch that links to the sub nodes on the server instead of to the disk
-                                        todo: this appears to be adding too many ../../../../../../../ and must be checked
+//                                        todo: this has been observed to download a corpus branch that links to the sub nodes on the server instead of to the disk
+//                                        todo: this appears to be adding too many ../../../../../../../ and must be checked
+//                                        todo: the ../../../../../ issue is caused by the imdi api, but also there are issues with the way the imdi api 'corrects' links and the use of that method must be replaced
                                         currentMetdataUtil.copyMetadataFile(currentTarget, destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
 
 //                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
