@@ -311,16 +311,16 @@ public class CmdiComponentBuilder {
                 System.out.println("destinationXpath: " + destinationXpath);
                 Node destinationNode = selectSingleNode(destinationDocument, destinationXpath);
                 Node selectedNode = selectSingleNode(favouriteDocument, favouriteXpathTrimmed);
-                destinationDocument.adoptNode(selectedNode);
+                Node importedNode = destinationDocument.importNode(selectedNode, true);
                 Node[] favouriteNodes;
                 if (onlySubNodes) {
-                    NodeList selectedNodeList = selectedNode.getChildNodes();
+                    NodeList selectedNodeList = importedNode.getChildNodes();
                     favouriteNodes = new Node[selectedNodeList.getLength()];
                     for (int nodeCounter = 0; nodeCounter < selectedNodeList.getLength(); nodeCounter++) {
                         favouriteNodes[nodeCounter] = selectedNodeList.item(nodeCounter);
                     }
                 } else {
-                    favouriteNodes = new Node[]{selectedNode};
+                    favouriteNodes = new Node[]{importedNode};
                 }
                 for (Node singleFavouriteNode : favouriteNodes) {
                     if (singleFavouriteNode.getNodeType() != Node.TEXT_NODE) {
