@@ -16,7 +16,7 @@ import javax.swing.UIManager;
  */
 public class ImdiIcons {
 
-    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/"+ new LinorgVersion().applicationIconName));
+    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/" + new LinorgVersion().applicationIconName));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
@@ -72,7 +72,7 @@ public class ImdiIcons {
 //    private ImageIcon tickRedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-red.png"));
 //    private ImageIcon fileserverlocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/fileserverlocal16x16.png"));
 //    private ImageIcon tickYellowIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-yellow.png"));
-//    private ImageIcon infofileIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/infofile.png"));
+    private ImageIcon infofileIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/infofile.png"));
 //    private ImageIcon transcriptIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/transcript.png"));
 //    private ImageIcon lexiconIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/lexicon.png"));    //  loading icons
 //    private ImageIcon loading01Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/loading01.png"));
@@ -209,6 +209,8 @@ public class ImdiIcons {
                 iconsVector.add(questionRedIcon);
                 GuiHelper.linorgBugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
             }
+        } else if (imdiObject.isInfoLink) {
+            iconsVector.add(infofileIcon);
         } else if (imdiObject.hasResource()) {
             // the resource is not found so show a unknow resource icon
             iconsVector.add(fileIcon);
