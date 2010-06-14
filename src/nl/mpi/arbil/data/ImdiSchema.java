@@ -776,8 +776,10 @@ public class ImdiSchema {
                     if (cvUrlString != null && cvUrlString.length() > 0) {
                         // TODO: this field sould be put in the link node not the parent node
                         URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
-                        childLinks.add(new String[]{correcteLink.toString(), "IMDI Link"});
+                        childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
                         ImdiTreeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
+                        descriptionLinkNode.isInfoLink = true;
+                        descriptionLinkNode.imdiDataLoaded = true;
                         parentChildTree.get(parentNode).add(descriptionLinkNode);
                         descriptionLinkNode.addField(fieldToAdd);
                     }
