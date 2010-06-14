@@ -63,6 +63,7 @@ public class ImdiTreeObject implements Comparable {
     public int matchesRemote;
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
+    public boolean isInfoLink = false;
     private boolean needsSaveToDisk;
     private String nodeText, lastNodeText = "loading imdi...";
 //    private boolean nodeTextChanged = false;
@@ -1396,6 +1397,13 @@ public class ImdiTreeObject implements Comparable {
                 GuiHelper.linorgBugCatcher.logError(encodingException);
             }
             nodeText = resourcePathString;
+        }
+        if (isInfoLink) {
+            String infoTitle = fieldHashtable.values().iterator().next()[0].getFieldValue();
+            infoTitle = infoTitle.trim();
+            if (infoTitle.length() > 0) {
+                nodeText = infoTitle;
+            }
         }
 //        nodeTextChanged = lastNodeText.equals(nodeText + nameText);
         if (nodeText != null) {
