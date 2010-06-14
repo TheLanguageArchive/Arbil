@@ -191,18 +191,19 @@ public class MetadataBuilder {
 //            addedImdiObject.clearIcon();
 //            addedImdiObject.getParentDomNode().clearChildIcons();
 //            ImdiLoader.getSingleInstance().requestReload(addedImdiObject);
-            addedImdiObject.scrollToRequested = true;
             if (currentImdiObject.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
                 currentImdiObject.getParentDomNode().loadImdiDom();
-                currentImdiObject.getParentDomNode().clearIcon();
-                currentImdiObject.getParentDomNode().clearChildIcons();
+//                currentImdiObject.getParentDomNode().clearIcon();
+//                currentImdiObject.getParentDomNode().clearChildIcons();
             }
-            TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
             if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
                 addedImdiObject.getParentDomNode().loadImdiDom();
-                addedImdiObject.getParentDomNode().clearIcon();
-                addedImdiObject.getParentDomNode().clearChildIcons();
+//                addedImdiObject.getParentDomNode().clearIcon();
+//                addedImdiObject.getParentDomNode().clearChildIcons();
+                TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
             }
+            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
+            addedImdiObject.scrollToRequested = true;
             TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject);
             //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(allAddedNodes.toArray(new ImdiTreeObject[]{}), newTableTitleString);
         }
