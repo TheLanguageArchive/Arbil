@@ -939,12 +939,17 @@ public class ImdiTreeObject implements Comparable {
 //                }
             }
             metadataUtils.removeCorpusLink(this.getURI(), copusUriList);
+            this.getParentDomNode().loadImdiDom();
         }
-        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
-            currentChildNode.clearIcon();
-        }
-        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
-        reloadNode();
+//        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
+////            currentChildNode.clearIcon();
+//            TreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
+//        }
+        this.getParentDomNode().clearIcon();
+        this.getParentDomNode().clearChildIcons();
+//        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
+        TreeHelper.getSingleInstance().updateTreeNodeChildren(this.getParentDomNode());
+//        reloadNode();
     }
 
     public boolean hasCatalogue() {
