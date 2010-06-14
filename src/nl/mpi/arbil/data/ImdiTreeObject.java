@@ -1319,8 +1319,8 @@ public class ImdiTreeObject implements Comparable {
 
     @Override
     public String toString() {
-        if (nodeText != null) {
-            return nodeText;
+        if (lastNodeText != null) {
+            return lastNodeText;
         } else {
             return "unknown";
         }
