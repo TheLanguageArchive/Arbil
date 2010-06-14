@@ -13,6 +13,7 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -794,6 +795,14 @@ public class LinorgWindowManager {
     }
 
     public ImdiTableModel openFloatingTableOnce(ImdiTreeObject[] rowNodesArray, String frameTitle) {
+        if (rowNodesArray.length == 1 && rowNodesArray[0].isInfoLink) {
+            try {
+                openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getURI().toURL());
+                return null;
+            } catch (MalformedURLException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+        }
         // open find a table containing exactly the same nodes as requested or create a new table
         for (Component[] currentWindow : windowList.values().toArray(new Component[][]{})) {
             // loop through all the windows
