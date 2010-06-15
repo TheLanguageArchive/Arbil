@@ -553,7 +553,7 @@ public class TreeHelper {
 //        removeAndDetatchDescendantNodes(itemNode);
 //        loadDescendantNodes(itemNode);
 //    }
-    private void removeAndDetatchDescendantNodes(DefaultMutableTreeNode itemNode) {
+    public void removeAndDetatchDescendantNodes(DefaultMutableTreeNode itemNode) {
         System.out.println("removeDescendantNodes: " + itemNode);
         for (Enumeration<DefaultMutableTreeNode> childNodesEnum = itemNode.children(); childNodesEnum.hasMoreElements();) {
             removeAndDetatchDescendantNodes(childNodesEnum.nextElement());
