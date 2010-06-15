@@ -945,6 +945,9 @@ public class ImdiTreeObject implements Comparable {
 ////            currentChildNode.clearIcon();
 //            TreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
 //        }
+        for (ImdiTreeObject removedChild : targetImdiNodes) {
+            removedChild.removeFromAllContainers();
+        }
         this.getParentDomNode().clearIcon();
         this.getParentDomNode().clearChildIcons();
 //        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
@@ -1873,7 +1876,30 @@ public class ImdiTreeObject implements Comparable {
                     }
                 }
             } catch (java.util.NoSuchElementException ex) {
-                //GuiHelper.linorgBugCatcher.logError(ex);
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
+        }
+//            }
+//        });
+//        System.out.println("end clearIcon: " + this);
+    }
+
+    public void removeFromAllContainers() {
+        for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+            try {
+                Object currentContainer = containersIterator.nextElement();
+                if (currentContainer instanceof ImdiTableModel) {
+                    ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{this}); // this must be done because the fields have been replaced and nead to be reloaded in the tables
+                }
+                if (currentContainer instanceof ImdiChildCellEditor) {
+                    ((ImdiChildCellEditor) currentContainer).stopCellEditing();
+                }
+                if (currentContainer instanceof DefaultMutableTreeNode) {
+                    DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
+                    TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(currentTreeNode);
+                }
+            } catch (java.util.NoSuchElementException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
 //            }
