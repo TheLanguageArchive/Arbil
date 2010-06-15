@@ -547,12 +547,12 @@ public class ArbilMenuBar extends JMenuBar {
         });
         helpMenu.add(helpMenuItem);
 
-        arbilForumMenuItem.setText("Arbil Clarin Forum (Website)");
+        arbilForumMenuItem.setText("Arbil Forum (Website)");
         arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/post201004261386765572"));
+                    GuiHelper.getSingleInstance().openFileInExternalApplication(new URI("http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -772,6 +772,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private boolean saveApplicationState() {
         if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
+            // TODO: why is LinorgWindowManager.getSingleInstance().offerUserToSaveChanges(); not used?
             switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 case JOptionPane.NO_OPTION:
                     break;
