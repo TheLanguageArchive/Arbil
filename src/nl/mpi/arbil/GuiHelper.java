@@ -202,8 +202,10 @@ public class GuiHelper {
                 result = true;
             } catch (MalformedURLException muE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", muE);
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to open the file: " + muE.getMessage(), "Open In External Application");
             } catch (IOException ioE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", ioE);
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to find the file: " + ioE.getMessage(), "Open In External Application");
             }
         } else {
             String osNameString = null;
