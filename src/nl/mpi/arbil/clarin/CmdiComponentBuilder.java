@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
@@ -59,7 +60,8 @@ public class CmdiComponentBuilder {
         if (inputUri == null) {
             document = documentBuilder.newDocument();
         } else {
-            document = documentBuilder.parse(inputUri.toString());
+            String decodeUrlString = URLDecoder.decode(inputUri.toString(), "UTF-8");
+            document = documentBuilder.parse(decodeUrlString);
         }
         return document;
     }
