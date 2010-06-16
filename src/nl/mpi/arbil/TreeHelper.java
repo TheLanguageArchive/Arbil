@@ -126,7 +126,7 @@ public class TreeHelper {
         for (String currentUrlString : new String[]{
                     "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
                     "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1.imdi",
+                    //                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1.imdi",
                     "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi",
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi",
@@ -570,6 +570,7 @@ public class TreeHelper {
         } else {
             treeModel.nodeStructureChanged(itemNode);
         }
+        treeModel.nodeChanged(itemNode);
     }
 
 //    public void loadAndRefreshDescendantNodes(DefaultMutableTreeNode itemNode) {
@@ -699,6 +700,7 @@ public class TreeHelper {
                 }
                 for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
                     // remove the deleted node from all tables
+                    // todo: this is also done in deleteCorpusLink and need not be here
                     ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
                     for (Object currentContainer : currentDeletedNode.getRegisteredContainers()) {
                         // this is required here even though it is now also done in the reloading process
