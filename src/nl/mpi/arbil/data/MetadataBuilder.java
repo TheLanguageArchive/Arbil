@@ -198,8 +198,8 @@ public class MetadataBuilder {
             }
             if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
                 addedImdiObject.getParentDomNode().loadImdiDom();
-//                addedImdiObject.getParentDomNode().clearIcon();
-//                addedImdiObject.getParentDomNode().clearChildIcons();
+                addedImdiObject.getParentDomNode().clearIcon();
+                addedImdiObject.getParentDomNode().clearChildIcons();
                 TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
             }
             TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
