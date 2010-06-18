@@ -258,14 +258,16 @@ public class LinorgSessionStorage {
     }
 
     public URI getOriginatingUri(URI locationInCacheURI) {
-        todo: find the issue with this
         URI returnUri = null;
         String uriPath = locationInCacheURI.getPath();
 //        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
         System.out.println("uriPath: " + uriPath);
         int foundPos = uriPath.indexOf("imdicache");
         if (foundPos == -1) {
-            return null;
+            foundPos = uriPath.indexOf("ArbilWorkingFiles");
+            if (foundPos == -1) {
+                return null;
+            }
         }
         uriPath = uriPath.substring(foundPos);
         String[] uriParts = uriPath.split("/", 4);
