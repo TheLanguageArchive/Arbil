@@ -46,6 +46,7 @@ public class ImdiSchema {
     }
 
     private ImdiSchema() {
+        copyNewResourcesToCache = LinorgSessionStorage.getSingleInstance().loadBoolean("copyNewResources", false);
     }
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
