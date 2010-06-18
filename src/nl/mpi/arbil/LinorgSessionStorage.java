@@ -327,7 +327,11 @@ public class LinorgSessionStorage {
                     File localWorkingDirectory = (File) loadObject("cacheDirectory");
                     localCacheDirectory = localWorkingDirectory;
                 } catch (Exception exception) {
-                    localCacheDirectory = new File(storageDirectory, "imdicache"); // storageDirectory already has the file separator appended
+                    if (new File(storageDirectory, "imdicache").exists()) {
+                        localCacheDirectory = new File(storageDirectory, "imdicache");
+                    } else {
+                        localCacheDirectory = new File(storageDirectory, "ArbilWorkingFiles");
+                    }
                 }
                 saveString("cacheDirectory", localCacheDirectory.getAbsolutePath());
             }
