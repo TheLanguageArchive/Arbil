@@ -53,6 +53,7 @@ public class MimeHashQueue {
     public MimeHashQueue() {
         System.out.println("MimeHashQueue init");
         imdiObjectQueue = new Vector();
+        checkResourcePermissions = LinorgSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true);
         continueThread = true;
         new Thread("MimeHashQueue") {
 
