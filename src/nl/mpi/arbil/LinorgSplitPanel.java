@@ -32,6 +32,8 @@ public class LinorgSplitPanel extends JPanel {
     private JScrollPane listScroller;
     private JSplitPane splitPane;
     private JLabel hiddenColumnsLabel;
+    private FindReplacePanel findReplacePanel = null;
+    private boolean showSearchPanel = false;
     private JPanel tableOuterPanel;
     boolean selectionChangeInProcess = false; // this is to stop looping selection changes
 
@@ -164,6 +166,22 @@ public class LinorgSplitPanel extends JPanel {
                 }
             }
         });
+    }
+
+    public void showSearchPane() {
+        if (findReplacePanel == null) {
+            findReplacePanel = new FindReplacePanel(this);
+        }
+        if (!showSearchPanel) {
+            tableOuterPanel.remove(hiddenColumnsLabel);
+            tableOuterPanel.add(findReplacePanel, BorderLayout.SOUTH);
+        } else {
+            tableOuterPanel.remove(findReplacePanel);
+            tableOuterPanel.add(hiddenColumnsLabel, BorderLayout.SOUTH);
+        }
+        showSearchPanel = !showSearchPanel;
+        this.revalidate();
+        this.repaint();
     }
 
     public void setSplitDisplay() {
