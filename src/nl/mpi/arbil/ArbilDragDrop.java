@@ -31,9 +31,22 @@ import nl.mpi.arbil.data.MetadataBuilder;
  */
 public class ArbilDragDrop {
 
+    private static ArbilDragDrop singleInstance = null;
+
+    static synchronized public ArbilDragDrop getSingleInstance() {
+        if (singleInstance == null) {
+            singleInstance = new ArbilDragDrop();
+        }
+        return singleInstance;
+    }
+
+    private ArbilDragDrop() {
+        imdiObjectFlavour = new DataFlavor(ImdiTreeObject.class, "ImdiTreeObject");
+        imdiObjectSelection = new ImdiObjectSelection();
+    }
     // There are numerous limitations of drag and drop in 1.5 and to overcome the resulting issues we need to share the same transferable object on both the drag source and the drop target
-    public DataFlavor imdiObjectFlavour = new DataFlavor(ImdiTreeObject.class, "ImdiTreeObject");
-    public ImdiObjectSelection imdiObjectSelection = new ImdiObjectSelection();
+    public DataFlavor imdiObjectFlavour;
+    public ImdiObjectSelection imdiObjectSelection;
 
     public void addDrag(JTable tableSource) {
         tableSource.setDragEnabled(true);
