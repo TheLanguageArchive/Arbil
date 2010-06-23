@@ -4,7 +4,6 @@ import java.net.URI;
 import nl.mpi.arbil.*;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.ProgressMonitor;
 
 /**
  * Document   : ImdiLoader
@@ -87,7 +86,7 @@ public class ImdiLoader {
                         ImdiTreeObject currentImdiObject = getNodeFromQueue(imdiLocalNodesToInit);
                         while (currentImdiObject != null) {
                             System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
-                            ProgressMonitor progressMonitor = new ProgressMonitor(LinorgWindowManager.getSingleInstance().desktopPane, null, "Adding", 0, 100);
+//                            ProgressMonitor progressMonitor = new ProgressMonitor(LinorgWindowManager.getSingleInstance().desktopPane, null, "Adding", 0, 100);
                             if (currentImdiObject.getNeedsSaveToDisk()) {
                                 currentImdiObject.saveChangesToCache(false);
                             }
@@ -108,7 +107,7 @@ public class ImdiLoader {
                             imdiFilesLoaded++;
                             System.out.println("remoteImdiFilesLoaded: " + remoteImdiFilesLoaded + " imdiFilesLoaded: " + imdiFilesLoaded);
                             // TODO: implement a cancel action for the progress bar
-                            progressMonitor.close();
+//                            progressMonitor.close();
                             currentImdiObject.lockedByLoadingThread = false;
                             currentImdiObject.notifyLoaded();
                             currentImdiObject = getNodeFromQueue(imdiLocalNodesToInit);
