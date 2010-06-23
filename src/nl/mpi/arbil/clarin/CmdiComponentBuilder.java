@@ -543,7 +543,7 @@ public class CmdiComponentBuilder {
 //        currentElement.setTextContent(xsdPath);
 //        documentNode.appendChild(currentElement);
         System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
-        return constructXml(foundProperty, xsdPath, targetDocument, null, documentNode);
+        return constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
     }
 
     public String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
@@ -590,11 +590,11 @@ public class CmdiComponentBuilder {
         //return childStartElement.
     }
 
-    public URI createComponentFile(URI cmdiNodeFile, URI xsdFile) {
+    public URI createComponentFile(URI cmdiNodeFile, URI xsdFile, boolean addDummyData) {
         System.out.println("createComponentFile: " + cmdiNodeFile + " : " + xsdFile);
         try {
             Document workingDocument = getDocument(null);
-            readSchema(workingDocument, xsdFile);
+            readSchema(workingDocument, xsdFile, addDummyData);
             savePrettyFormatting(workingDocument, new File(cmdiNodeFile));
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(e);
@@ -625,13 +625,13 @@ public class CmdiComponentBuilder {
         return null;
     }
 
-    private void readSchema(Document workingDocument, URI xsdFile) {
+    private void readSchema(Document workingDocument, URI xsdFile, boolean addDummyData) {
         File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         SchemaType schemaType = getFirstSchemaType(schemaFile);
-        constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null);
+        constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null, addDummyData);
     }
 
-    private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty) {
+    private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 //        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
         Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
@@ -653,13 +653,13 @@ public class CmdiComponentBuilder {
         return currentElement;
     }
 
-    private Node constructXml(SchemaProperty currentSchemaProperty, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement) {
+    private Node constructXml(SchemaProperty currentSchemaProperty, String pathString, Document workingDocument, String nameSpaceUri, Node parentElement, boolean addDummyData) {
         Node returnNode = null;
         // this must be tested against getting the actor description not the actor of an imdi profile instance
         String currentPathString = pathString + "." + currentSchemaProperty.getName().getLocalPart();
         System.out.println("Found Element: " + currentPathString);
         SchemaType currentSchemaType = currentSchemaProperty.getType();
-        Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty);
+        Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty, addDummyData);
         returnNode = currentElement;
         //System.out.println("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
@@ -698,10 +698,24 @@ public class CmdiComponentBuilder {
 //            System.out.println("node.getMinOccurs(): " + schemaProperty.getMinOccurs());
 //            System.out.println("node.getMaxOccurs(): " + schemaProperty.getMaxOccurs());
 
-            if (schemaProperty.getMinOccurs() != null) {
-                for (BigInteger addNodeCounter = BigInteger.ZERO; addNodeCounter.compareTo(schemaProperty.getMinOccurs()) < 0; addNodeCounter = addNodeCounter.add(BigInteger.ONE)) {
-                    constructXml(schemaProperty, currentPathString, workingDocument, nameSpaceUri, currentElement);
+            BigInteger maxNumberToAdd;
+            if (addDummyData) {
+                maxNumberToAdd = schemaProperty.getMaxOccurs();
+                if (maxNumberToAdd == null) {
+                    BigInteger dummyNumberToAdd = BigInteger.ONE.add(BigInteger.ONE).add(BigInteger.ONE);
+                    if (dummyNumberToAdd.compareTo(maxNumberToAdd) == -1) {
+                        // limit the number added and make sure it is less than the max number to add
+                        maxNumberToAdd = dummyNumberToAdd;
+                    }
                 }
+            } else {
+                maxNumberToAdd = schemaProperty.getMinOccurs();
+                if (maxNumberToAdd == null) {
+                    maxNumberToAdd = BigInteger.ZERO;
+                }
+            }
+            for (BigInteger addNodeCounter = BigInteger.ZERO; addNodeCounter.compareTo(maxNumberToAdd) < 0; addNodeCounter = addNodeCounter.add(BigInteger.ONE)) {
+                constructXml(schemaProperty, currentPathString, workingDocument, nameSpaceUri, currentElement, addDummyData);
             }
         }
         return returnNode;
@@ -750,7 +764,7 @@ public class CmdiComponentBuilder {
 //            childElement.setAttribute("attribute1", "The value of Attribute 1");
 //            root.appendChild(childElement);
 
-            readSchema(workingDocument, new URI("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264769926773/xsd"));
+            readSchema(workingDocument, new URI("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264769926773/xsd"), true);
             printoutDocument(workingDocument);
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError(e);
