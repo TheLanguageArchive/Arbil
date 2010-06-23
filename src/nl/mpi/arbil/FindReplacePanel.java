@@ -97,6 +97,8 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
                     }
                 }
             }
+            // in the case where a user has selected a number of rows to replace in we do not want to clear their selection
+            return;
         }
 
         boolean replaceAll = (actionEvent.getSource().equals(replaceButton) && replaceAllCheckBox.isSelected());
