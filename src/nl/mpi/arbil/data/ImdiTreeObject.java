@@ -35,7 +35,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.MetadataFile.CmdiUtils;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.clarin.FieldUpdateRequest;
 import nl.mpi.arbil.MetadataFile.ImdiUtils;
 import nl.mpi.arbil.MetadataFile.MetadataUtils;
@@ -50,7 +49,7 @@ public class ImdiTreeObject implements Comparable {
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
 //    static ImdiIcons imdiIcons = new ImdiIcons();
-    private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing    
+//    private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing
     private boolean debugOn = false;
     private Hashtable<String, ImdiField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     private ImdiTreeObject[] childArray = new ImdiTreeObject[0];
