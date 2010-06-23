@@ -30,7 +30,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class GuiHelper {
 
-    static ArbilDragDrop arbilDragDrop = new ArbilDragDrop();
+//    static ArbilDragDrop arbilDragDrop = new ArbilDragDrop();
     public static LinorgBugCatcher linorgBugCatcher = new LinorgBugCatcher();
 //    private JPanel selectedFilesPanel;
     //static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
