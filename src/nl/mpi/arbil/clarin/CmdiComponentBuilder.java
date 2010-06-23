@@ -701,8 +701,10 @@ public class CmdiComponentBuilder {
             BigInteger maxNumberToAdd;
             if (addDummyData) {
                 maxNumberToAdd = schemaProperty.getMaxOccurs();
+                BigInteger dummyNumberToAdd = BigInteger.ONE.add(BigInteger.ONE).add(BigInteger.ONE);
                 if (maxNumberToAdd == null) {
-                    BigInteger dummyNumberToAdd = BigInteger.ONE.add(BigInteger.ONE).add(BigInteger.ONE);
+                    maxNumberToAdd = dummyNumberToAdd;
+                } else {
                     if (dummyNumberToAdd.compareTo(maxNumberToAdd) == -1) {
                         // limit the number added and make sure it is less than the max number to add
                         maxNumberToAdd = dummyNumberToAdd;
