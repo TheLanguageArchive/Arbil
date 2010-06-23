@@ -192,14 +192,14 @@ public class LinorgSplitPanel extends JPanel {
             splitPane.setTopComponent(tableOuterPanel);
 //            splitPane.setTopComponent(tableScrollPane);
             splitPane.setBottomComponent(listScroller);
-            GuiHelper.arbilDragDrop.addDrag(fileList);
-            GuiHelper.arbilDragDrop.addTransferHandler(tableScrollPane);
+            ArbilDragDrop.getSingleInstance().addDrag(fileList);
+            ArbilDragDrop.getSingleInstance().addTransferHandler(tableScrollPane);
             this.add(splitPane);
             this.doLayout();
             splitPane.setDividerLocation(0.5);
         }
-        GuiHelper.arbilDragDrop.addDrag(imdiTable);
-        GuiHelper.arbilDragDrop.addTransferHandler(this);
+        ArbilDragDrop.getSingleInstance().addDrag(imdiTable);
+        ArbilDragDrop.getSingleInstance().addTransferHandler(this);
         this.doLayout();
     }
 
