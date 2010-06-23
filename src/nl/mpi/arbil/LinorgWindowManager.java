@@ -650,6 +650,16 @@ public class LinorgWindowManager {
 //                                    System.out.println(ex.getMessage());
                                 }
                             }
+                            if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_F) {
+                                JInternalFrame windowToSearch = desktopPane.getSelectedFrame();
+                                //System.out.println(windowToSearch.getContentPane());
+                                for (Component childComponent : windowToSearch.getContentPane().getComponents()) {
+                                    // loop through all the child components in the window (there will probably only be one)
+                                    if (childComponent instanceof LinorgSplitPanel) {
+                                        ((LinorgSplitPanel) childComponent).showSearchPane();
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -756,19 +766,21 @@ public class LinorgWindowManager {
         ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
             try {
-                ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
+                if (rowNodesArray[arrayCounter] != null) {
+                    ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
 //                parentNode.waitTillLoaded();
-                String fieldPath = rowNodesArray[arrayCounter].getFragment();
-                String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
-                URI targetNode;
-                // note that the url has already be encoded and so we must not use the separate parameter version of new URI otherwise it would be encoded again which we do not want
-                if (parentNodeFragment.length() > 0) {
-                    targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0] + "#" + parentNodeFragment);
-                } else {
-                    targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0]);
+                    String fieldPath = rowNodesArray[arrayCounter].getFragment();
+                    String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                    URI targetNode;
+                    // note that the url has already be encoded and so we must not use the separate parameter version of new URI otherwise it would be encoded again which we do not want
+                    if (parentNodeFragment.length() > 0) {
+                        targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0] + "#" + parentNodeFragment);
+                    } else {
+                        targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0]);
+                    }
+                    tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, targetNode);
+                    fieldPathsToHighlight.add(fieldPath);
                 }
-                tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, targetNode);
-                fieldPathsToHighlight.add(fieldPath);
             } catch (URISyntaxException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
@@ -795,10 +807,12 @@ public class LinorgWindowManager {
     }
 
     public ImdiTableModel openFloatingTableOnce(ImdiTreeObject[] rowNodesArray, String frameTitle) {
-        if (rowNodesArray.length == 1 && rowNodesArray[0].isInfoLink) {
+        if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
             try {
-                openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getURI().toURL());
-                return null;
+                if (rowNodesArray[0].getUrlString().toLowerCase().endsWith(".html") || rowNodesArray[0].getUrlString().toLowerCase().endsWith(".txt")) {
+                    openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getURI().toURL());
+                    return null;
+                }
             } catch (MalformedURLException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
             }
