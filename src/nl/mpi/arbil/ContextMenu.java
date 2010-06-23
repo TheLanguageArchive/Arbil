@@ -82,6 +82,7 @@ public class ContextMenu {
     private JMenuItem matchingRowsMenuItem;
     private JMenuItem removeSelectedRowsMenuItem;
     private JMenuItem hideSelectedColumnsMenuItem;
+    private JMenuItem searchReplaceMenuItem;
     private JMenuItem deleteFieldMenuItem;
     private JMenuItem revertFieldMenuItem;
     private JMenuItem copyCellToColumnMenuItem;
@@ -152,6 +153,7 @@ public class ContextMenu {
         matchingRowsMenuItem = new JMenuItem();
         removeSelectedRowsMenuItem = new JMenuItem();
         hideSelectedColumnsMenuItem = new JMenuItem();
+        searchReplaceMenuItem = new JMenuItem();
         deleteFieldMenuItem = new JMenuItem();
         revertFieldMenuItem = new JMenuItem();
         copyCellToColumnMenuItem = new JMenuItem();
@@ -315,6 +317,19 @@ public class ContextMenu {
             }
         });
         treePopupMenu.add(clearCellColoursMenuItem);
+
+        searchReplaceMenuItem.setText("Find/Replace");
+        searchReplaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {                    
+                    ((LinorgSplitPanel) currentTable.getParent().getParent().getParent().getParent()).showSearchPane();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(searchReplaceMenuItem);
 
         treePopupMenu.add(new JSeparator());
         // row menu items
@@ -1007,6 +1022,7 @@ public class ContextMenu {
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         for (ImdiTreeObject currentNode : selectedTreeNodes) {
+            // todo: offer to save node first
             XsdChecker xsdChecker = new XsdChecker();
             LinorgWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
             xsdChecker.checkXML(currentNode);
@@ -1272,6 +1288,7 @@ public class ContextMenu {
             matchingCellsMenuItem.setVisible(false);
             openInLongFieldEditorMenuItem.setVisible(false);
             clearCellColoursMenuItem.setVisible(false);
+            searchReplaceMenuItem.setVisible(false);
             jumpToNodeInTreeMenuItem.setVisible(false);
             //////////
             // menu separators
@@ -1505,6 +1522,10 @@ public class ContextMenu {
                 }
                 jumpToNodeInTreeMenuItem.setVisible(true);
                 clearCellColoursMenuItem.setVisible(true);
+            }
+            if (currentTable.getParent().getParent().getParent().getParent() instanceof LinorgSplitPanel) {
+                // test the LinorgSplitPanel exists before showing this
+                searchReplaceMenuItem.setVisible(true);
             }
         }
     }
