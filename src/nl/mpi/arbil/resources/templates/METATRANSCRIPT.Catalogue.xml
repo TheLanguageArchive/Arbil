@@ -32,10 +32,10 @@
             <Image/>
         </Format>
         <Quality>
-            <Text/>
-            <Audio/>
-            <Video/>
-            <Image/>
+            <Text>Unspecified</Text>
+            <Audio>Unspecified</Audio>
+            <Video>Unspecified</Video>
+            <Image>Unspecified</Image>
         </Quality>
         <SmallestAnnotationUnit/>
         <Applications/>
