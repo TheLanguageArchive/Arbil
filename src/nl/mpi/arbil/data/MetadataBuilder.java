@@ -256,7 +256,7 @@ public class MetadataBuilder {
                 if (CmdiProfileReader.pathIsProfile(nodeType)) {
                     CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
                     try {
-                        addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType));
+                        addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType), false);
                         // TODO: some sort of warning like: "Could not add node of type: " + nodeType; would be useful here or downstream
 //                    if (addedNodePath == null) {
 //                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
