@@ -62,6 +62,7 @@ public class ImdiLoader {
                                 remoteImdiFilesLoaded++;
                                 currentImdiObject.notifyLoaded();
                             }
+                            currentImdiObject.lockedByLoadingThread = false;
                             currentImdiObject = getNodeFromQueue(imdiRemoteNodesToInit);
                         }
                     }
