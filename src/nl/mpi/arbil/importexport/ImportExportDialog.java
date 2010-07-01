@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -48,6 +49,7 @@ public class ImportExportDialog {
     private JPanel inputNodePanel;
     private JPanel outputNodePanel;
     private JCheckBox copyFilesCheckBox;
+    private JCheckBox renameFileToNodeName;
     private JCheckBox detailsCheckBox;
     private JCheckBox overwriteCheckBox;
     private JCheckBox shibbolethCheckBox;
@@ -197,6 +199,7 @@ public class ImportExportDialog {
             detailsTabPane.setVisible(showFlag);
             bottomPanel.setVisible(showFlag);
             copyFilesCheckBox.setVisible(showFlag);
+            renameFileToNodeName.setVisible(showFlag && exportDestinationDirectory != null);
             overwriteCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
             //shibbolethCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
             shibbolethPanel.setVisible(showFlag/* && shibbolethCheckBox.isSelected()*/);
@@ -288,6 +291,7 @@ public class ImportExportDialog {
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.PAGE_AXIS));
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
+        renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", false);
         overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
         shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
         shibbolethPanel = new JPanel();
@@ -323,6 +327,7 @@ public class ImportExportDialog {
 //        copyFilesCheckBoxPanel.add(copyFilesCheckBox);
 //        copyFilesCheckBoxPanel.add(new JPanel());
 //        detailsPanel.add(copyFilesCheckBoxPanel, BorderLayout.NORTH);
+        detailsPanel.add(renameFileToNodeName, BorderLayout.NORTH);
         detailsPanel.add(overwriteCheckBox, BorderLayout.NORTH);
         detailsPanel.add(copyFilesCheckBox, BorderLayout.NORTH);
         detailsPanel.add(shibbolethCheckBox, BorderLayout.NORTH);
@@ -588,147 +593,191 @@ public class ImportExportDialog {
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
                     Enumeration selectedNodesEnum = selectedNodes.elements();
                     ArrayList<ImdiTreeObject> finishedTopNodes = new ArrayList<ImdiTreeObject>();
+                    Hashtable<URI, File> doneList = new Hashtable<URI, File>();
+                    class RetrievableFile {
+
+                        public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
+                            sourceURI = sourceURILocal;
+                            destinationDirectory = destinationDirectoryLocal;
+                        }
+
+                        public void calculateUriFileName() {
+                            if (destinationDirectory != null) {
+                                destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(sourceURI.toString(), destinationDirectory.getPath());
+                            } else {
+                                destinationFile = LinorgSessionStorage.getSingleInstance().getSaveLocation(sourceURI.toString());
+                            }
+                            childDestinationDirectory = destinationDirectory;
+                        }
+
+                        public void calculateTreeFileName() {
+                            fileSuffix = sourceURI.toString().substring(sourceURI.toString().lastIndexOf("."));
+                            ImdiTreeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, sourceURI); // rather than use ImdiLoader this metadata could be loaded directly and then garbaged to save memory
+                            currentNode.waitTillLoaded();
+                            destinationFile = new File(destinationDirectory, currentNode.toString() + fileSuffix);
+                            childDestinationDirectory = new File(destinationDirectory, currentNode.toString());
+                            int fileCounter = 1;
+                            while (destinationFile.exists()) {
+                                destinationFile = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")" + fileSuffix);
+                                childDestinationDirectory = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")");
+                            }
+                        }
+                        URI sourceURI;
+                        File destinationDirectory; // if null then getSaveLocation in LinorgSessionStorage will be used
+                        File childDestinationDirectory;
+                        File destinationFile;
+                        String fileSuffix;
+                    }
+                    ArrayList<RetrievableFile> getList = new ArrayList<RetrievableFile>(); // TODO: make this global so files do not get redone
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
-                            Vector<URI> getList = new Vector<URI>(); // TODO: make this global so files do not get redone
-                            getList.add(((ImdiTreeObject) currentElement).getParentDomNode().getURI());
+                            getList.add(new RetrievableFile(((ImdiTreeObject) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
                             while (!stopSearch && getList.size() > 0) {
-                                URI currentTarget = getList.remove(0);
+                                RetrievableFile currentRetrievableFile = getList.remove(0);
 //                                appendToTaskOutput(currentTarget);
                                 try {
-//                                    appendToTaskOutput("connecting...");
-                                    //OurURL inUrlLocal = new OurURL(currentTarget.toURL());
-//                                    String destinationPath;
-                                    File destinationFile;// = new File(destinationPath);
-                                    String journalActionString;
-                                    if (exportDestinationDirectory == null) {
-                                        destinationFile = LinorgSessionStorage.getSingleInstance().getSaveLocation(currentTarget.toString());
-                                        journalActionString = "import";
-                                    } else {
-                                        //TODO: make sure this is correct then remove any directories that contain only one directory
-                                        destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(currentTarget.toString(), exportDestinationDirectory.getPath());
-                                        journalActionString = "export";
-                                    }
-                                    MetadataUtils currentMetdataUtil = ImdiTreeObject.getMetadataUtils(currentTarget.toString());
-                                    ArrayList<URI> uncopiedLinks = new ArrayList<URI>();
-                                    URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentTarget);
+                                    if (!doneList.containsKey(currentRetrievableFile.sourceURI)) {
+//                                        File destinationFile;
+                                        //                                    appendToTaskOutput("connecting...");
+                                        //OurURL inUrlLocal = new OurURL(currentTarget.toURL());
+                                        //                                    String destinationPath;
+//                                        File destinationFile;// = new File(destinationPath);
+                                        String journalActionString;
+                                        if (exportDestinationDirectory == null) {
+                                            currentRetrievableFile.calculateUriFileName();
+                                            journalActionString = "import";
+                                        } else {
+                                            if (renameFileToNodeName.isSelected()) {
+                                                currentRetrievableFile.calculateTreeFileName();
+                                            } else {
+                                                currentRetrievableFile.calculateUriFileName();
+                                            }
+                                            journalActionString = "export";
+                                        }
+                                        MetadataUtils currentMetdataUtil = ImdiTreeObject.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
+                                        ArrayList<URI> uncopiedLinks = new ArrayList<URI>();
+                                        URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
 
 //                                    appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
 //                                    appendToTaskOutput("getting links...");
 
 //                                        links = ImdiTreeObject.api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.CORPUS);
-                                    if (linksUriArray != null) {
-                                        for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
-                                            System.out.println("Link: " + linksUriArray[linkCount].toString());
-                                            String currentLink = linksUriArray[linkCount].toString();
-                                            if (ImdiTreeObject.isPathMetadata(currentLink)) {
-                                                getList.add(ImdiTreeObject.conformStringToUrl(currentLink));
-                                            } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
-
-                                                if (!copyFilesCheckBox.isSelected()) {
-                                                    uncopiedLinks.add(linksUriArray[linkCount]);
-                                                } else {
+                                        if (linksUriArray != null) {
+                                            for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
+                                                System.out.println("Link: " + linksUriArray[linkCount].toString());
+                                                String currentLink = linksUriArray[linkCount].toString();
+                                                if (ImdiTreeObject.isPathMetadata(currentLink)) {
+                                                    getList.add(new RetrievableFile(ImdiTreeObject.conformStringToUrl(currentLink), currentRetrievableFile.childDestinationDirectory));
+                                                } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
+                                                    if (!copyFilesCheckBox.isSelected()) {
+                                                        uncopiedLinks.add(linksUriArray[linkCount]);
+                                                    } else {
 //                                                    appendToTaskOutput("getting resource file: " + links[linkCount].getType());
 //                                                    resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
 //                                                    resourceCopyOutput.append(currentLink + "\n");
-                                                    File downloadFileLocation;
-                                                    if (exportDestinationDirectory == null) {
-                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
-                                                    } else {
-                                                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
+                                                        File downloadFileLocation;
+                                                        // todo: warning! this appears to beable to create a directory called "file:"
+                                                        if (exportDestinationDirectory == null) {
+                                                            downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
+                                                        } else {
+                                                            downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag);
+                                                            LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag);
+                                                        }
+                                                        //resourceCopyOutput.append(downloadFileLocation + "\n");
+                                                        if (downloadFileLocation.exists()) {
+                                                            appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
+                                                            //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
+                                                        } else {
+                                                            resourceCopyOutput.append("Download failed: " + currentLink + " \n");
+                                                            //resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
+                                                            //resourceCopyOutput.append("Failed" + "\n");
+                                                            fileCopyErrors.add(currentRetrievableFile.sourceURI);
+                                                            uncopiedLinks.add(linksUriArray[linkCount]);
+                                                            resourceCopyErrors++;
+                                                        }
+                                                        resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
                                                     }
-                                                    //resourceCopyOutput.append(downloadFileLocation + "\n");
-                                                    if (downloadFileLocation.exists()) {
-                                                        appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
-                                                        //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
-                                                    } else {
-                                                        resourceCopyOutput.append("Download failed: " + currentLink + " \n");
-                                                        //resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
-                                                        //resourceCopyOutput.append("Failed" + "\n");
-                                                        fileCopyErrors.add(currentTarget);
-                                                        uncopiedLinks.add(linksUriArray[linkCount]);
-                                                        resourceCopyErrors++;
-                                                    }
-                                                    resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
-                                                }
 //                                                if (!resourceFileCopied) {
 //                                                    currentMetdataUtil.updateSingleLink(currentTarget, curr)
 ////                                                    ImdiTreeObject.api.changeIMDILink(nodDom, destinationUrl, links[linkCount]);
 //                                                }
-                                            }
+                                                }
 //                                            System.out.println("getIMDILinks.getRawURL: " + links[linkCount].getRawURL().toString());
 //                                            SystecurrentTree.m.out.println("getIMDILinks.getURL: " + links[linkCount].getURL().toString());
+                                            }
                                         }
-                                    }
-                                    boolean replacingExitingFile = destinationFile.exists() && overwriteCheckBox.isSelected();
-                                    if (destinationFile.exists()) {
-                                        totalExisting++;
-                                    }
-                                    if (destinationFile.exists() && !overwriteCheckBox.isSelected()) {
-                                        appendToTaskOutput(currentTarget.toString());
-                                        appendToTaskOutput("Destination already exists, skipping file: " + destinationFile.getAbsolutePath());
+                                        boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && overwriteCheckBox.isSelected();
+                                        if (currentRetrievableFile.destinationFile.exists()) {
+                                            totalExisting++;
+                                        }
+                                        if (currentRetrievableFile.destinationFile.exists() && !overwriteCheckBox.isSelected()) {
+                                            appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
+                                            appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 //                                        appendToTaskOutput("this destination file already exists, skipping file");
-                                    } else {
-                                        if (replacingExitingFile) {
-                                            //appendToTaskOutput(currentTarget);
-                                            appendToTaskOutput("Replaced: " + destinationFile.getAbsolutePath());
-                                            //appendToTaskOutput("replacing existing file...");
                                         } else {
+                                            if (replacingExitingFile) {
+                                                //appendToTaskOutput(currentTarget);
+                                                appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                                                //appendToTaskOutput("replacing existing file...");
+                                            } else {
 //                                            appendToTaskOutput("saving to disk...");
-                                        }
-                                        // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
-                                        // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
+                                            }
+                                            // this function of the imdi.api will modify the imdi file as it saves it "(will be normalized and possibly de-domId-ed)"
+                                            // this will make it dificult to determin if changes are from this function of by the user deliberatly making a chage
 //                                        boolean removeIdAttributes = exportDestinationDirectory != null;
 
-                                        ImdiTreeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(destinationFile.toURI());
-                                        if (destinationNode.getNeedsSaveToDisk()) {
-                                            destinationNode.saveChangesToCache(true);
-                                        }
-                                        if (destinationNode.hasHistory()) {
-                                            destinationNode.bumpHistory();
-                                        }
+                                            ImdiTreeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentRetrievableFile.destinationFile.toURI());
+                                            if (destinationNode.getNeedsSaveToDisk()) {
+                                                destinationNode.saveChangesToCache(true);
+                                            }
+                                            if (destinationNode.hasHistory()) {
+                                                destinationNode.bumpHistory();
+                                            }
 //                                        todo: this has been observed to download a corpus branch that links to the sub nodes on the server instead of to the disk
 //                                        todo: this appears to be adding too many ../../../../../../../ and must be checked
 //                                        todo: the ../../../../../ issue is caused by the imdi api, but also there are issues with the way the imdi api 'corrects' links and the use of that method must be replaced
-                                        currentMetdataUtil.copyMetadataFile(currentTarget, destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
+                                            if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
+                                                currentRetrievableFile.destinationFile.getParentFile().mkdir();
+                                            }
+                                            currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
 
 //                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-                                        LinorgJournal.getSingleInstance().saveJournalEntry(destinationFile.getAbsolutePath(), "", currentTarget.toString(), "", journalActionString);
-                                        // validate the imdi file
+                                            LinorgJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
+                                            // validate the imdi file
 //                                        appendToTaskOutput("validating");
-                                        String checkerResult;
-                                        checkerResult = xsdChecker.simpleCheck(destinationFile, currentTarget);
-                                        if (checkerResult != null) {
-                                            xmlOutput.append(currentTarget.toString() + "\n");
-                                            xmlOutput.append("destination path: " + destinationFile.getAbsolutePath());
-                                            System.out.println("checkerResult: " + checkerResult);
-                                            xmlOutput.append(checkerResult + "\n");
-                                            xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
+                                            String checkerResult;
+                                            checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile, currentRetrievableFile.sourceURI);
+                                            if (checkerResult != null) {
+                                                xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
+                                                xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                                                System.out.println("checkerResult: " + checkerResult);
+                                                xmlOutput.append(checkerResult + "\n");
+                                                xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
 //                                            appendToTaskOutput(checkerResult);
-                                            validationErrors.add(currentTarget);
-                                            xsdErrors++;
-                                        }
-                                        // at this point the file should exist and not have been modified by the user
-                                        // create hash index with server url but basedon the saved file
-                                        // note that if the imdi.api has changed this file then it will not be detected
-                                        // TODO: it will be best to change this to use the server api get mb5 sum when it is written
-                                        // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
-                                        //getHash(tempFile, this.getUrl());
-                                        if (replacingExitingFile) {
+                                                validationErrors.add(currentRetrievableFile.sourceURI);
+                                                xsdErrors++;
+                                            }
+                                            // at this point the file should exist and not have been modified by the user
+                                            // create hash index with server url but basedon the saved file
+                                            // note that if the imdi.api has changed this file then it will not be detected
+                                            // TODO: it will be best to change this to use the server api get mb5 sum when it is written
+                                            // TODO: there needs to be some mechanism to check for changes on the server and update the local copy
+                                            //getHash(tempFile, this.getUrl());
+                                            if (replacingExitingFile) {
 //                                            appendToTaskOutput("reloading existing data");
-                                            ImdiLoader.getSingleInstance().requestReloadOnlyIfLoaded(destinationFile.toURI());
-                                        }
+                                                ImdiLoader.getSingleInstance().requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
+                                            }
 //                                        appendToTaskOutput("done");
+                                        }
                                     }
                                 } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(currentTarget.toString(), ex);
+                                    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
                                     totalErrors++;
-                                    metaDataCopyErrors.add(currentTarget);
-                                    appendToTaskOutput("unable to process the file: " + currentTarget);
-                                    System.out.println("Error getting links from: " + currentTarget);
+                                    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+                                    appendToTaskOutput("unable to process the file: " + currentRetrievableFile.sourceURI);
+                                    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
                                 }
                                 totalLoaded++;
 
