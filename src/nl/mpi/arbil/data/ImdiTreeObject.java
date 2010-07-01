@@ -1087,7 +1087,7 @@ public class ImdiTreeObject implements Comparable {
         CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
         boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
         if (result != true) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for ore information.", "Save");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
         } else {
             this.needsSaveToDisk = false;
 //            // update the icon to indicate the change
