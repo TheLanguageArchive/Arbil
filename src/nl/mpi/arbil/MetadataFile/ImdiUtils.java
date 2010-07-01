@@ -78,10 +78,10 @@ public class ImdiUtils implements MetadataUtils {
         return true;
     }
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksNotToUpdate, boolean updateLinks) {
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
         try {
             mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
-            mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURL());
+            mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURI().toURL());
 
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             if (nodDom == null) {
@@ -92,12 +92,12 @@ public class ImdiUtils implements MetadataUtils {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
                 if (links != null && updateLinks) {
                     for (mpi.imdi.api.IMDILink currentLink : links) {
-                        boolean linkNotToUpdateFound = false;
-                        if (linksNotToUpdate != null) {
-                            for (URI updatableLink : linksNotToUpdate) {
+                        URI linkUriToUpdate = null;
+                        if (linksToUpdate != null) {
+                            for (URI[] updatableLink : linksToUpdate) {
                                 try {
-                                    if (currentLink.getRawURL().toURL().toURI().equals(updatableLink)) {
-                                        linkNotToUpdateFound = true;
+                                    if (currentLink.getRawURL().toURL().toURI().equals(updatableLink[0])) {
+                                        linkUriToUpdate = updatableLink[1];
                                         break;
                                     }
                                 } catch (URISyntaxException exception) {
@@ -105,12 +105,15 @@ public class ImdiUtils implements MetadataUtils {
                                 }
                             }
                         }
-                        System.out.println("currentLink: " + linkNotToUpdateFound + " : " + currentLink.getRawURL().toString());
-                        if (linkNotToUpdateFound) {
+                        System.out.println("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
+                        if (linkUriToUpdate != null) {
                             // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
                             // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
                             // todo: cont... this must instead take oldurl newurl and the new imdi file location
-                            api.changeIMDILink(nodDom, destinationUrl, currentLink);
+//                            api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+                            api.removeIMDILink(nodDom, currentLink);
+                            api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toASCIIString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
                         }
                     }
                 }
