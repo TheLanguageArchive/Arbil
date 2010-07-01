@@ -16,7 +16,7 @@ public interface MetadataUtils {
 
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks);
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[] linksNotToUpdate, boolean updateLinks);
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks);
 
     public URI[] getCorpusLinks(URI nodeURI);
 }
