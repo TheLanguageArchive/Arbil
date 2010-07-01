@@ -591,9 +591,6 @@ public class ImportExportDialog {
                     progressBar.setIndeterminate(true);
 //                    int[] childCount = countChildern();
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
-                    Enumeration selectedNodesEnum = selectedNodes.elements();
-                    ArrayList<ImdiTreeObject> finishedTopNodes = new ArrayList<ImdiTreeObject>();
-                    Hashtable<URI, File> doneList = new Hashtable<URI, File>();
                     class RetrievableFile {
 
                         public RetrievableFile(URI sourceURILocal, File destinationDirectoryLocal) {
@@ -622,22 +619,34 @@ public class ImportExportDialog {
                                 childDestinationDirectory = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")");
                             }
                         }
+
+                        public URI getDestinationUri() {
+                            return ImdiTreeObject.conformStringToUrl(destinationFile.toURI().toString());
+                        }
                         URI sourceURI;
                         File destinationDirectory; // if null then getSaveLocation in LinorgSessionStorage will be used
                         File childDestinationDirectory;
                         File destinationFile;
                         String fileSuffix;
                     }
-                    ArrayList<RetrievableFile> getList = new ArrayList<RetrievableFile>(); // TODO: make this global so files do not get redone
+                    Enumeration selectedNodesEnum = selectedNodes.elements();
+                    ArrayList<ImdiTreeObject> finishedTopNodes = new ArrayList<ImdiTreeObject>();
+                    Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
+                    ArrayList<URI> getList = new ArrayList<URI>(); // TODO: make this global so files do not get redone
+                    ArrayList<URI> doneList = new ArrayList<URI>();
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
-                            getList.add(new RetrievableFile(((ImdiTreeObject) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
+                            URI currentGettableUri = ((ImdiTreeObject) currentElement).getParentDomNode().getURI();
+                            getList.add(currentGettableUri);
+                            if (!seenFiles.containsKey(currentGettableUri)) {
+                                seenFiles.put(currentGettableUri, new RetrievableFile(((ImdiTreeObject) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
+                            }
                             while (!stopSearch && getList.size() > 0) {
-                                RetrievableFile currentRetrievableFile = getList.remove(0);
+                                RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
 //                                appendToTaskOutput(currentTarget);
                                 try {
-                                    if (!doneList.containsKey(currentRetrievableFile.sourceURI)) {
+                                    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
 //                                        File destinationFile;
                                         //                                    appendToTaskOutput("connecting...");
                                         //OurURL inUrlLocal = new OurURL(currentTarget.toURL());
@@ -656,7 +665,7 @@ public class ImportExportDialog {
                                             journalActionString = "export";
                                         }
                                         MetadataUtils currentMetdataUtil = ImdiTreeObject.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
-                                        ArrayList<URI> uncopiedLinks = new ArrayList<URI>();
+                                        ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
                                         URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
 
 //                                    appendToTaskOutput("destination path: " + destinationFile.getAbsolutePath());
@@ -667,11 +676,23 @@ public class ImportExportDialog {
                                             for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
                                                 System.out.println("Link: " + linksUriArray[linkCount].toString());
                                                 String currentLink = linksUriArray[linkCount].toString();
+                                                URI gettableLinkUri = ImdiTreeObject.conformStringToUrl(currentLink);
+                                                if (!seenFiles.containsKey(gettableLinkUri)) {
+                                                    seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
+                                                }
+                                                RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
                                                 if (ImdiTreeObject.isPathMetadata(currentLink)) {
-                                                    getList.add(new RetrievableFile(ImdiTreeObject.conformStringToUrl(currentLink), currentRetrievableFile.childDestinationDirectory));
+                                                    getList.add(gettableLinkUri);
+                                                    if (renameFileToNodeName.isSelected()) {
+                                                        retrievableLink.calculateTreeFileName();
+                                                    } else {
+                                                        retrievableLink.calculateUriFileName();
+                                                    }
+                                                    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.getDestinationUri()});
                                                 } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
                                                     if (!copyFilesCheckBox.isSelected()) {
-                                                        uncopiedLinks.add(linksUriArray[linkCount]);
+//                                                        retrievableLink.setFileNotCopied();
+                                                        uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
                                                     } else {
 //                                                    appendToTaskOutput("getting resource file: " + links[linkCount].getType());
 //                                                    resourceCopyOutput.append("Type: " + links[linkCount].getType() + "\n");
@@ -681,7 +702,15 @@ public class ImportExportDialog {
                                                         if (exportDestinationDirectory == null) {
                                                             downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
                                                         } else {
-                                                            downloadFileLocation = LinorgSessionStorage.getSingleInstance().getExportPath(currentLink, exportDestinationDirectory.getPath());
+                                                            if (renameFileToNodeName.isSelected()) {
+                                                                retrievableLink.calculateTreeFileName();
+                                                            } else {
+                                                                retrievableLink.calculateUriFileName();
+                                                            }
+                                                            if (!retrievableLink.destinationFile.getParentFile().exists()) {
+                                                                retrievableLink.destinationFile.getParentFile().mkdir();
+                                                            }
+                                                            downloadFileLocation = retrievableLink.destinationFile;
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
                                                             LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag);
                                                         }
@@ -689,12 +718,13 @@ public class ImportExportDialog {
                                                         if (downloadFileLocation.exists()) {
                                                             appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
                                                             //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
+                                                            uncopiedLinks.add(new URI[]{linksUriArray[linkCount], ImdiTreeObject.conformStringToUrl(downloadFileLocation.toURI().toString())});
                                                         } else {
                                                             resourceCopyOutput.append("Download failed: " + currentLink + " \n");
                                                             //resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
                                                             //resourceCopyOutput.append("Failed" + "\n");
                                                             fileCopyErrors.add(currentRetrievableFile.sourceURI);
-                                                            uncopiedLinks.add(linksUriArray[linkCount]);
+                                                            uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
                                                             resourceCopyErrors++;
                                                         }
                                                         resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
@@ -741,7 +771,7 @@ public class ImportExportDialog {
                                             if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
                                                 currentRetrievableFile.destinationFile.getParentFile().mkdir();
                                             }
-                                            currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[]{}), true);
+                                            currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
 
 //                                        ImdiTreeObject.api.writeDOM(nodDom, destinationFile, removeIdAttributes);
                                             LinorgJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
