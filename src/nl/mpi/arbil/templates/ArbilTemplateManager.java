@@ -106,6 +106,7 @@ public class ArbilTemplateManager {
             selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
+            addDefaultTemplates();
         }
         return selectedTamplates;
     }
@@ -118,13 +119,17 @@ public class ArbilTemplateManager {
         public ImageIcon menuIcon;
     }
 
+    private void addDefaultTemplates() {
+        addSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
+        addSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
+        addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
+    }
+
     public MenuItemData[] getSelectedTemplates() {
         ImdiIcons imdiIcons = ImdiIcons.getSingleInstance();
         String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         if (locationsArray == null || locationsArray.length == 0) {
-            addSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
-            addSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
-            addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
+            addDefaultTemplates();
             locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         }
         MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
