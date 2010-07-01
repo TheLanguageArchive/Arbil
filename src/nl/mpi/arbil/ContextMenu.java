@@ -243,7 +243,7 @@ public class ContextMenu {
                             if (result) {
                                 currentImdiObject.reloadNode();
                             } else {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for ore information.", "Delete Field");
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for more information.", "Delete Field");
                             }
                             //currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
 //                            GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
