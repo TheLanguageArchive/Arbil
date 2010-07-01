@@ -600,6 +600,11 @@ public class TreeHelper {
         addToSortQueue(localCorpusRootNode);
         addToSortQueue(localDirectoryRootNode);
         addToSortQueue(favouritesRootNode);
+        // todo: update the sort method (remove addToSortQueue) or remove the following lines (rootNodeChildren)
+        arbilTreePanel.localCorpusTree.rootNodeChildren = localCorpusNodes;
+        arbilTreePanel.remoteCorpusTree.rootNodeChildren = remoteCorpusNodes;
+        arbilTreePanel.localDirectoryTree.rootNodeChildren = localFileNodes;
+        arbilTreePanel.favouritesTree.rootNodeChildren = favouriteNodes;
     }
 
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
@@ -690,7 +695,7 @@ public class TreeHelper {
                     if (result) {
                         currentParent.reloadNode();
                     } else {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting node, check the log file via the help menu for ore information.", "Delete Node");
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
                     }
                     //GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                 }
