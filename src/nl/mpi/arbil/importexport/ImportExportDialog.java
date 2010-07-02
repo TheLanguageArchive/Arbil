@@ -634,10 +634,6 @@ public class ImportExportDialog {
                                 childDestinationDirectory = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")");
                             }
                         }
-
-                        public URI getDestinationUri() {
-                            return ImdiTreeObject.conformStringToUrl(destinationFile.toURI().toString());
-                        }
                         URI sourceURI;
                         File destinationDirectory; // if null then getSaveLocation in LinorgSessionStorage will be used
                         File childDestinationDirectory;
@@ -650,6 +646,10 @@ public class ImportExportDialog {
                     ArrayList<URI> getList = new ArrayList<URI>(); // TODO: make this global so files do not get redone
                     ArrayList<URI> doneList = new ArrayList<URI>();
                     while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
+                        // todo: test for export keeping file names
+                        // todo: test for export when there are nodes imported from the local file system
+                        // todo: test all the options for a unusal sotrage directory
+                        // todo: and test on windows
                         Object currentElement = selectedNodesEnum.nextElement();
                         if (currentElement instanceof ImdiTreeObject) {
                             URI currentGettableUri = ((ImdiTreeObject) currentElement).getParentDomNode().getURI();
@@ -704,7 +704,7 @@ public class ImportExportDialog {
                                                     } else {
                                                         retrievableLink.calculateUriFileName();
                                                     }
-                                                    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.getDestinationUri()});
+                                                    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
                                                 } else /*if (links[linkCount].getType() != null) this null also exists when a resource is local *//* filter out non resources */ {
                                                     if (!copyFilesCheckBox.isSelected()) {
 //                                                        retrievableLink.setFileNotCopied();
@@ -734,7 +734,7 @@ public class ImportExportDialog {
                                                         if (downloadFileLocation.exists()) {
                                                             appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
                                                             //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
-                                                            uncopiedLinks.add(new URI[]{linksUriArray[linkCount], ImdiTreeObject.conformStringToUrl(downloadFileLocation.toURI().toString())});
+                                                            uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
                                                         } else {
                                                             resourceCopyOutput.append("Download failed: " + currentLink + " \n");
                                                             //resourceCopyOutput.append("path: " + destinationFile.getAbsolutePath());
