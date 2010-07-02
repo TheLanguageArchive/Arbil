@@ -113,7 +113,7 @@ public class ImdiUtils implements MetadataUtils {
 //                            api.changeIMDILink(nodDom, destinationUrl, currentLink);
                             // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
                             api.removeIMDILink(nodDom, currentLink);
-                            api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toASCIIString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
+                            api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
                         }
                     }
                 }
