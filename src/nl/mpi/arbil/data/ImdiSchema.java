@@ -557,14 +557,19 @@ public class ImdiSchema {
     }
 
     public URI correctLinkPath(URI parentPath, String linkString) {
-        URI linkURI;
-        if (!linkString.toLowerCase().startsWith("http:") && !linkString.toLowerCase().startsWith("file:")) {
+        URI linkURI = null;
+        try {
+            if (!linkString.toLowerCase().startsWith("http:") && !linkString.toLowerCase().startsWith("file:")) {
 //                    linkPath = parentPath /*+ File.separatorChar*/ + fieldToAdd.getFieldValue();
-            linkURI = parentPath.resolve(linkString);
-        } else if (linkString.toLowerCase().startsWith("&root;")) {
-            linkURI = parentPath.resolve(linkString.substring(6));
-        } else {
-            linkURI = parentPath.resolve(linkString);
+                linkURI = parentPath.resolve(new URI(null, linkString, null));
+            } else if (linkString.toLowerCase().startsWith("&root;")) {
+                // some imdi files contain "&root;" in its link paths
+                linkURI = parentPath.resolve(new URI(null, linkString.substring(6), null));
+            } else {
+                linkURI = parentPath.resolve(linkString);
+            }
+        } catch (URISyntaxException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
         }
 //                    System.out.println("linkPath: " + linkPath);
 //                    linkPath = new URL(linkPath).getPath();
@@ -576,7 +581,9 @@ public class ImdiSchema {
 //            linkURI = linkURI.replaceFirst("/[^/]+/\\.\\./", "/");
 //        }
 //                    System.out.println("linkPathCorrected: " + linkPath);
-        linkURI = ImdiTreeObject.normaliseURI(linkURI);
+        if (linkURI != null) {
+            linkURI = ImdiTreeObject.normaliseURI(linkURI);
+        }
 //        System.out.println("linkURI: " + linkURI.toString());
         return linkURI;
     }
