@@ -142,34 +142,33 @@ public class LinorgWindowManager {
             while (!fileSelectDone) {
                 File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox(titleText + " Destination Directory", true, false, false);
                 if (selectedFiles != null && selectedFiles.length > 0) {
-                    File destinationDirectory = null;
-                    //Vector importNodeVector = new Vector();
-                    File parentDirectory = selectedFiles[0];
-                    boolean createdDirectory = false;
-                    if (!parentDirectory.exists() && parentDirectory.getParentFile().exists()) {
+                    File destinationDirectory = selectedFiles[0];
+                    if (!destinationDirectory.exists()/* && parentDirectory.getParentFile().exists()*/) {
                         // create the directory provided that the parent directory exists
                         // ths is here due the the way the mac file select gui leads the user to type in a new directory name
-                        createdDirectory = parentDirectory.mkdir();
-                        destinationDirectory = parentDirectory;
+                        destinationDirectory.mkdirs();
                     }
-                    if (!parentDirectory.exists()) {
-                        JOptionPane.showMessageDialog(linorgFrame, "The export directory\n\"" + parentDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
+                    if (!destinationDirectory.exists()) {
+                        JOptionPane.showMessageDialog(linorgFrame, "The export directory\n\"" + destinationDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
                     } else {
-                        if (!createdDirectory) {
-                            String newDirectoryName = JOptionPane.showInputDialog(linorgFrame, "Enter Export Name", titleText, JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
-                            try {
-                                destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
-                                destinationDirectory.mkdir();
-                            } catch (Exception e) {
-                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
-                            }
-                        }
+//                        if (!createdDirectory) {
+//                            String newDirectoryName = JOptionPane.showInputDialog(linorgFrame, "Enter Export Name", titleText, JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
+//                            try {
+//                                destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
+//                                destinationDirectory.mkdir();
+//                            } catch (Exception e) {
+//                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
+//                            }
+//                        }
                         if (destinationDirectory != null && destinationDirectory.exists()) {
                             if (destinationDirectory.list().length == 0) {
                                 fileSelectDone = true;
                                 return destinationDirectory;
                             } else {
-                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
+                                if (showMessageDialogBox("The selected export directory is not empty.\nTo continue will merge and may overwrite files.\nDo you want to continue?", titleText)) {
+                                    return destinationDirectory;
+                                }
+                                //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
                             }
                         }
                     }
