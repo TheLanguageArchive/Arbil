@@ -292,7 +292,7 @@ public class ImportExportDialog {
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.PAGE_AXIS));
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
-        renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", false);
+        renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true); 
         overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
         shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
         shibbolethPanel = new JPanel();
@@ -632,6 +632,7 @@ public class ImportExportDialog {
                             while (destinationFile.exists()) {
                                 destinationFile = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")" + fileSuffix);
                                 childDestinationDirectory = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")");
+                                fileCounter++;
                             }
                         }
                         URI sourceURI;
@@ -672,7 +673,7 @@ public class ImportExportDialog {
                                             currentRetrievableFile.calculateUriFileName();
                                             journalActionString = "import";
                                         } else {
-                                            if (renameFileToNodeName.isSelected()) {
+                                            if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
                                                 currentRetrievableFile.calculateTreeFileName();
                                             } else {
                                                 currentRetrievableFile.calculateUriFileName();
@@ -699,7 +700,7 @@ public class ImportExportDialog {
                                                 RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
                                                 if (ImdiTreeObject.isPathMetadata(currentLink)) {
                                                     getList.add(gettableLinkUri);
-                                                    if (renameFileToNodeName.isSelected()) {
+                                                    if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
                                                         retrievableLink.calculateTreeFileName();
                                                     } else {
                                                         retrievableLink.calculateUriFileName();
@@ -718,7 +719,7 @@ public class ImportExportDialog {
                                                         if (exportDestinationDirectory == null) {
                                                             downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
                                                         } else {
-                                                            if (renameFileToNodeName.isSelected()) {
+                                                            if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
                                                                 retrievableLink.calculateTreeFileName();
                                                             } else {
                                                                 retrievableLink.calculateUriFileName();
