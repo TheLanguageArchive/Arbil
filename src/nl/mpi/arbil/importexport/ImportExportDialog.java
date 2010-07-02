@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -611,7 +612,21 @@ public class ImportExportDialog {
                             fileSuffix = sourceURI.toString().substring(sourceURI.toString().lastIndexOf("."));
                             ImdiTreeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, sourceURI); // rather than use ImdiLoader this metadata could be loaded directly and then garbaged to save memory
                             currentNode.waitTillLoaded();
-                            destinationFile = new File(destinationDirectory, currentNode.toString() + fileSuffix);
+                            String fileNameString;
+                            if (currentNode.isMetaDataNode()) {
+                                fileNameString = currentNode.toString();
+                            } else {
+                                String urlString = sourceURI.toString();
+                                try {
+                                    urlString = URLDecoder.decode(urlString, "UTF-8");
+                                } catch (Exception ex) {
+                                    GuiHelper.linorgBugCatcher.logError(urlString, ex);
+                                    appendToTaskOutput("unable to decode the file name for: " + urlString);
+                                    System.out.println("unable to decode the file name for: " + urlString);
+                                }
+                                fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, urlString.lastIndexOf("."));
+                            }
+                            destinationFile = new File(destinationDirectory, fileNameString + fileSuffix);
                             childDestinationDirectory = new File(destinationDirectory, currentNode.toString());
                             int fileCounter = 1;
                             while (destinationFile.exists()) {
@@ -676,7 +691,8 @@ public class ImportExportDialog {
                                             for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
                                                 System.out.println("Link: " + linksUriArray[linkCount].toString());
                                                 String currentLink = linksUriArray[linkCount].toString();
-                                                URI gettableLinkUri = ImdiTreeObject.conformStringToUrl(currentLink);
+//                                                URI gettableLinkUri = ImdiTreeObject.conformStringToUrl(currentLink);
+                                                URI gettableLinkUri = linksUriArray[linkCount].normalize();
                                                 if (!seenFiles.containsKey(gettableLinkUri)) {
                                                     seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
                                                 }
@@ -708,7 +724,7 @@ public class ImportExportDialog {
                                                                 retrievableLink.calculateUriFileName();
                                                             }
                                                             if (!retrievableLink.destinationFile.getParentFile().exists()) {
-                                                                retrievableLink.destinationFile.getParentFile().mkdir();
+                                                                retrievableLink.destinationFile.getParentFile().mkdirs();
                                                             }
                                                             downloadFileLocation = retrievableLink.destinationFile;
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
