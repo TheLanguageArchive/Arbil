@@ -276,7 +276,6 @@ public class LinorgHelp extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
 private void jTree1ValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_jTree1ValueChanged
-// TODO add your handling code here:
     DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
     if (node != null) {
