@@ -974,18 +974,14 @@ public class ContextMenu {
     }
 
     private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_addRemoteCorpusMenuItemActionPerformed
-        // TODO add your handling code here:    
         String addableLocation = (String) JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
         if ((addableLocation != null) && (addableLocation.length() > 0)) {
             TreeHelper.getSingleInstance().addLocationGui(ImdiTreeObject.conformStringToUrl(addableLocation));
         }
-    }//GEN-LAST:event_addRemoteCorpusMenuItemActionPerformed
+    }
 
     private void addDefaultLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_addDefaultLocationsMenuItemActionPerformed
-        // TODO add your handling code here:    
         if (0 < TreeHelper.getSingleInstance().addDefaultCorpusLocations()) {
             TreeHelper.getSingleInstance().applyRootLocations();
 
@@ -994,31 +990,18 @@ public class ContextMenu {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The defalut locations already exists and will not be added again", "Add Default Locations");
 
         }
-    }//GEN-LAST:event_addDefaultLocationsMenuItemActionPerformed
+    }
 
     private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
-        // TODO add your handling code here://    
         DefaultMutableTreeNode selectedTreeNode = null;
-        //    if (localCorpusTree.getSelectionPath() != null) {
-        //        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
-        //    }
-        //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
     }
-    //GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
 
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
-        // TODO add your handling code here:    
         LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSelectedNodes(), "Search");
-
-    }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
+    }
 
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_sendToServerMenuItemActionPerformed
-        // TODO add your handling code here:
     }
-    //GEN-LAST:event_sendToServerMenuItemActionPerformed
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         for (ImdiTreeObject currentNode : selectedTreeNodes) {
