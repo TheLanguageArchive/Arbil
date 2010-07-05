@@ -2,7 +2,7 @@ package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -272,7 +272,7 @@ public class ArbilTemplate {
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
+            String xpath = MetadataReader.getNodePath((ImdiTreeObject) targetNodeUserObject);
             childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
             if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
                 for (String[] currentTemplate : rootTemplatesArray) {
@@ -417,7 +417,7 @@ public class ArbilTemplate {
                 }
             });
             loadedTemplateName = templateName;
-            URL internalTemplateName = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
+            URL internalTemplateName = MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
             if (templateConfigFile.exists()) {
                 xmlReader.parse(templateConfigFile.getPath());
             } else if (templateName.equals("Sign Language") || templateName.equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
@@ -425,7 +425,7 @@ public class ArbilTemplate {
             } else {
                 loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
                 // todo: LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "\nThe default template will be used instead.", "Load Template");
-                xmlReader.parse(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
+                xmlReader.parse(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
             }
             return true;
         } catch (Exception ex) {
