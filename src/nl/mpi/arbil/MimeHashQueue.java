@@ -16,7 +16,7 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 
 /**
  * Document   : MimeHashQueue
