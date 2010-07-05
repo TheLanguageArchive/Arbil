@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.*;
@@ -455,7 +456,7 @@ public class ImdiTreeObject implements Comparable {
                             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree = new Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>>();
                             Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
                             // load the fields from the imdi file
-                            ImdiSchema.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
+                            MetadataReader.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
                             childLinks = childLinksTemp.toArray(new String[][]{});
                             //ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
                             for (ImdiTreeObject currentNode : parentChildTree.keySet()) {
@@ -1210,7 +1211,7 @@ public class ImdiTreeObject implements Comparable {
 ////                    }
 ////                }
 //            // if the node contains a ResourceLink then save the location in resourceUrlString and create a hash for the file
-//            if (childsLabel.equals(ImdiSchema.imdiPathSeparator + "ResourceLink")) {
+//            if (childsLabel.equals(MetadataReader.imdiPathSeparator + "ResourceLink")) {
 ////                        // resolve the relative location of the file
 ////                        File resourceFile = new File(this.getFile().getParent(), fieldToAdd.fieldValue);
 ////                        resourceUrlString = resourceFile.getCanonicalPath();
@@ -1711,7 +1712,7 @@ public class ImdiTreeObject implements Comparable {
         // test if this node is a session
         ImdiField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
-            return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Name");
+            return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Name");
         }
         return false;
     }
@@ -1728,7 +1729,7 @@ public class ImdiTreeObject implements Comparable {
         // test if this node is a catalogue
         ImdiField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
-            return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Catalogue" + ImdiSchema.imdiPathSeparator + "Name");
+            return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue" + MetadataReader.imdiPathSeparator + "Name");
         }
         return false;
     }
@@ -1740,7 +1741,7 @@ public class ImdiTreeObject implements Comparable {
         // test if this node is a corpus
         ImdiField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
-            return nameFields[0].xmlPath.equals(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus" + ImdiSchema.imdiPathSeparator + "Name");
+            return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus" + MetadataReader.imdiPathSeparator + "Name");
         }
         return false;
     }
