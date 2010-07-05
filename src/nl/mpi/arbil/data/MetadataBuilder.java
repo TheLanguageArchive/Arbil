@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -86,7 +87,7 @@ public class MetadataBuilder {
                                 URI resourceUrl = null;
                                 String mimeType = null;
                                 if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
-                                    nodeType = ImdiSchema.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
+                                    nodeType = MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
                                     resourceUrl = currentImdiNode.getURI();
                                     mimeType = currentImdiNode.mpiMimeType;
                                     nodeTypeDisplayName = "Resource";
@@ -241,7 +242,7 @@ public class MetadataBuilder {
                     if (nodDom == null) {
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
                     } else {
-                        addedNodePath = ImdiSchema.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
+                        addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
                         destinationNode.bumpHistory();
                         new CmdiComponentBuilder().savePrettyFormatting(nodDom, destinationNode.getFile());
                     }
@@ -266,7 +267,7 @@ public class MetadataBuilder {
                         return null;
                     }
                 } else {
-                    addedNodePath = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+                    addedNodePath = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
                 }
 //                ImdiTreeObject addedNode = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
                 if (destinationNode.getFile().exists()) {
