@@ -22,7 +22,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.templates.TemplateDialogue;
 
@@ -421,13 +421,13 @@ public class ArbilMenuBar extends JMenuBar {
         checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
         optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
 
-        copyNewResourcesCheckBoxMenuItem.setSelected(ImdiSchema.getSingleInstance().copyNewResourcesToCache);
+        copyNewResourcesCheckBoxMenuItem.setSelected(MetadataReader.getSingleInstance().copyNewResourcesToCache);
         copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
         copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session copy the file into the local cache.");
         copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+                MetadataReader.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
                 LinorgSessionStorage.getSingleInstance().saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
             }
         });
