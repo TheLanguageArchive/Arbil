@@ -485,7 +485,7 @@ public class MimeHashQueue {
 //
 //        // there is no point counting matches when the hash does not exist, ie when there is no file.          
 //        if (hashString != null) {
-//            //System.out.println("countMatches <<<<<<<<<<< " + this.toString());
+//            //System.out.println("countMatches" + this.toString());
 //            matchesLocal = 0;
 //            matchesRemote = 0;
 //            matchesLocalResource = 0;
