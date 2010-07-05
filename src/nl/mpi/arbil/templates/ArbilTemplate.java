@@ -102,6 +102,16 @@ public class ArbilTemplate {
         return false;
     }
 
+    public boolean pathIsEditableField(String nodePath) {
+//        System.out.println("nodePath: " + nodePath);
+        for (String[] pathString : childNodePaths) {
+            if (pathString[0].startsWith(nodePath) || pathString[0].equals(nodePath)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public String pathIsChildNode(String nodePath) {
 //        System.out.println("pathIsChildNode");
 //        System.out.println("nodePath: " + nodePath);
