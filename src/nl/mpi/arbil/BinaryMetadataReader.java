@@ -6,7 +6,7 @@ import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -56,14 +56,14 @@ public class BinaryMetadataReader {
         if (prefixString == null) {
             prefixString = "EXIF"; // skip the first node name
         } else {
-            prefixString = prefixString + ImdiSchema.imdiPathSeparator + node.getNodeName();
+            prefixString = prefixString + MetadataReader.imdiPathSeparator + node.getNodeName();
         }
         NamedNodeMap namedNodeMap = node.getAttributes();
         if (namedNodeMap != null) {
             for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                 String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                 String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                exifTagFields.add(new ImdiField(currentFieldId++, resourceImdi, prefixString + ImdiSchema.imdiPathSeparator + attributeName, attributeValue, 0));
+                exifTagFields.add(new ImdiField(currentFieldId++, resourceImdi, prefixString + MetadataReader.imdiPathSeparator + attributeName, attributeValue, 0));
             }
         }
         if (node.hasChildNodes()) {
