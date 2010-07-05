@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader.CmdiProfile;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 
 /**
  * ArbilTemplateManager.java
@@ -40,16 +40,16 @@ public class ArbilTemplateManager {
         } else {
             File selectedTemplateFile = getTemplateFile(selectedTemplate);
             selectedTemplateFile.getParentFile().mkdir();
-            LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag());
+            LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag());
             new File(selectedTemplateFile.getParentFile(), "components").mkdir(); // create the components directory
             File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
             examplesDirectory.mkdir(); // create the example components directory
             // copy example components from the jar file            
             for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
-                LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag());
+                LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag());
             }
             // copy example "format.xsl" from the jar file which is used in the imdi to html conversion
-            LinorgSessionStorage.getSingleInstance().saveRemoteResource(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, new DownloadAbortFlag());
+            LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, new DownloadAbortFlag());
             return selectedTemplateFile;
         }
     }
@@ -188,7 +188,7 @@ public class ArbilTemplateManager {
 //     
 //                Vector childTypes = new Vector();
 //        if (targetNodeUserObject instanceof ImdiTreeObject) {
-//            String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
+//            String xpath = MetadataReader.getNodePath((ImdiTreeObject) targetNodeUserObject);
 //            childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
 //            if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
 //                for (String[] currentTemplate : rootTemplatesArray) {
