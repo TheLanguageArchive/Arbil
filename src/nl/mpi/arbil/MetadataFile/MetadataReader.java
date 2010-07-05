@@ -52,8 +52,9 @@ public class MetadataReader {
      */
     //public File selectedTemplateDirectory = null;
     public static String imdiPathSeparator = ".";
-    public boolean copyNewResourcesToCache = true;
+    public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
 
+    // todo: this should probably be moved into the arbiltemplate class
     public boolean nodeCanExistInNode(ImdiTreeObject targetImdiObject, ImdiTreeObject childImdiObject) {
         String targetImdiPath = getNodePath((ImdiTreeObject) targetImdiObject);
         String childPath = getNodePath((ImdiTreeObject) childImdiObject);
@@ -489,227 +490,229 @@ public class MetadataReader {
         // add the fields and nodes 
         for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
             String localName = childNode.getLocalName();
-            if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Header")) {
-                continue;
-            }
-            if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Resources")) {
-                continue;
-            }
-            // get the xml node id
-            String xmlNodeId = null;
-            NamedNodeMap attributesMap = childNode.getAttributes();
-            if (attributesMap != null) {
-                Node xmlNodeIdAtt = attributesMap.getNamedItem("id");
-                if (xmlNodeIdAtt != null) {
-                    xmlNodeId = xmlNodeIdAtt.getNodeValue();
-                }// end get the xml node id
+            if (localName != null) {
+                if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Header")) {
+                    continue;
+                }
+                if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Resources")) {
+                    continue;
+                }
+                // get the xml node id
+                String xmlNodeId = null;
+                NamedNodeMap attributesMap = childNode.getAttributes();
+                if (attributesMap != null) {
+                    Node xmlNodeIdAtt = attributesMap.getNamedItem("id");
+                    if (xmlNodeIdAtt != null) {
+                        xmlNodeId = xmlNodeIdAtt.getNodeValue();
+                    }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
-                if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
-                    try {
-                        // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
+                    if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
+                        try {
+                            // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
 //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
 //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
 //                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
 //                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
-                        String schemaLocationString = null;
-                        Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
-                        if (schemaLocationNode == null) {
-                            schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
+                            String schemaLocationString = null;
+                            Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
+                            if (schemaLocationNode == null) {
+                                schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
+                            }
+                            if (schemaLocationNode != null) {
+                                schemaLocationString = schemaLocationNode.getNodeValue();
+                                String[] schemaLocation = schemaLocationString.split("\\s");
+                                schemaLocationString = schemaLocation[schemaLocation.length - 1];
+                                schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
+                            } else {
+                                throw new Exception("Could not find the schema url: schemaLocationNode = " + schemaLocationNode);
+                            }
+                            //if (schemaLocation != null && schemaLocation.length > 0) {
+                            // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
+                            // this method also assumes that the xsd url is fully resolved
+                            parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
+                            /*
+                            // TODO: pass the resource node to a class to handle the resources
+                            childNode = childNode.getAttributes().getNamedItem("Components");
+                            nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
+                            break;
+                             */
+                        } catch (Exception exception) {
+                            GuiHelper.linorgBugCatcher.logError(exception);
+                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                         }
-                        if (schemaLocationNode != null) {
-                            schemaLocationString = schemaLocationNode.getNodeValue();
-                            String[] schemaLocation = schemaLocationString.split("\\s");
-                            schemaLocationString = schemaLocation[schemaLocation.length - 1];
-                            schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
-                        } else {
-                            throw new Exception("Could not find the schema url: schemaLocationNode = " + schemaLocationNode);
+                    }
+                    if (childNode.getLocalName().equals("METATRANSCRIPT")) {
+                        // these attributes exist only in the metatranscript node
+                        Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
+                        if (archiveHandleAtt != null) {
+                            parentNode.hasArchiveHandle = true;
                         }
-                        //if (schemaLocation != null && schemaLocation.length > 0) {
-                        // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
-                        // this method also assumes that the xsd url is fully resolved
-                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
-                        /*
-                        // TODO: pass the resource node to a class to handle the resources
-                        childNode = childNode.getAttributes().getNamedItem("Components");
-                        nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
-                        break;
-                         */
-                    } catch (Exception exception) {
-                        GuiHelper.linorgBugCatcher.logError(exception);
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
-                    }
-                }
-                if (childNode.getLocalName().equals("METATRANSCRIPT")) {
-                    // these attributes exist only in the metatranscript node
-                    Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
-                    if (archiveHandleAtt != null) {
-                        parentNode.hasArchiveHandle = true;
-                    }
-                    Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
-                    if (templateOriginatorAtt != null) {
-                        String templateOriginator = templateOriginatorAtt.getNodeValue();
-                        int separatorIndex = templateOriginator.indexOf(":");
-                        if (separatorIndex > -1) {
-                            parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
-                        } else {
-                            // TODO: this is redundant but is here for backwards compatability
-                            Node templateTypeAtt = attributesMap.getNamedItem("Type");
-                            if (templateTypeAtt != null) {
-                                String templateType = templateTypeAtt.getNodeValue();
-                                parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                        Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
+                        if (templateOriginatorAtt != null) {
+                            String templateOriginator = templateOriginatorAtt.getNodeValue();
+                            int separatorIndex = templateOriginator.indexOf(":");
+                            if (separatorIndex > -1) {
+                                parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
+                            } else {
+                                // TODO: this is redundant but is here for backwards compatability
+                                Node templateTypeAtt = attributesMap.getNamedItem("Type");
+                                if (templateTypeAtt != null) {
+                                    String templateType = templateTypeAtt.getNodeValue();
+                                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                                }
                             }
                         }
                     }
-                }
-                Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
-                if (catalogueLinkAtt != null) {
-                    String catalogueLink = catalogueLinkAtt.getNodeValue();
-                    if (catalogueLink.length() > 0) {
-                        URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
-                        childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
-                        parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
+                    Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
+                    if (catalogueLinkAtt != null) {
+                        String catalogueLink = catalogueLinkAtt.getNodeValue();
+                        if (catalogueLink.length() > 0) {
+                            URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
+                            childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
+                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
+                        }
                     }
+
                 }
+                String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
+                String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
+                //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
-            }
-            String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
-            String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
-            //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
-
-            ImdiTreeObject destinationNode;
-            String parentNodePath = parentNode.getURI().getFragment();
-            if (parentNodePath == null) {
-                // pathIsChildNode needs to have the entire path of the node not just the local part
-                parentNodePath = "";
-            } else {
-                parentNodePath = parentNodePath.replaceAll("\\(\\d+\\)", "");
-            }
-            String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(parentNodePath + siblingNodePath);
+                ImdiTreeObject destinationNode;
+                String parentNodePath = parentNode.getURI().getFragment();
+                if (parentNodePath == null) {
+                    // pathIsChildNode needs to have the entire path of the node not just the local part
+                    parentNodePath = "";
+                } else {
+                    parentNodePath = parentNodePath.replaceAll("\\(\\d+\\)", "");
+                }
+                String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(parentNodePath + siblingNodePath);
 //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
-            if (localName != null && childsMetaNode != null) {
-                try {
-                    String siblingSpacer = "";
-                    String pathUrlXpathSeparator = "";
-                    if (!parentNode.getUrlString().contains("#")) {
-                        pathUrlXpathSeparator = "#";
-                    }
-                    ImdiTreeObject metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
-                    metaNodeImdiTreeObject.setNodeText(childsMetaNode);
+                if (localName != null && childsMetaNode != null) {
+                    try {
+                        String siblingSpacer = "";
+                        String pathUrlXpathSeparator = "";
+                        if (!parentNode.getUrlString().contains("#")) {
+                            pathUrlXpathSeparator = "#";
+                        }
+                        ImdiTreeObject metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
+                        metaNodeImdiTreeObject.setNodeText(childsMetaNode);
 
-                    if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
-                        parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
-                    }
-                    parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
-                    // add brackets to conform with the imdi api notation
-                    siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
-                    fullSubNodePath = fullSubNodePath + siblingSpacer;
-                    ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
-                    subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
-                    parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
+                        if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
+                            parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
+                        }
+                        parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
+                        // add brackets to conform with the imdi api notation
+                        siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
+                        fullSubNodePath = fullSubNodePath + siblingSpacer;
+                        ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
+                        subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
+                        parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
 //                parentNode.attachChildNode(metaNodeImdiTreeObject);
 //                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
-                    if (!parentChildTree.containsKey(subNodeImdiTreeObject)) {
-                        parentChildTree.put(subNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
+                        if (!parentChildTree.containsKey(subNodeImdiTreeObject)) {
+                            parentChildTree.put(subNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
+                        }
+                        destinationNode = subNodeImdiTreeObject;
+                    } catch (URISyntaxException ex) {
+                        destinationNode = parentNode;
+                        GuiHelper.linorgBugCatcher.logError(ex);
                     }
-                    destinationNode = subNodeImdiTreeObject;
-                } catch (URISyntaxException ex) {
+                    siblingNodePath = "";
+                } else {
                     destinationNode = parentNode;
-                    GuiHelper.linorgBugCatcher.logError(ex);
                 }
-                siblingNodePath = "";
-            } else {
-                destinationNode = parentNode;
-            }
 //            System.out.println("destinationNode: " + destinationNode);
 //            System.out.println("getLocalName: " + childNode.getLocalName());
 //            System.out.println("hasChildNodes: " + childNode.hasChildNodes());
-            boolean shouldAddCurrent = false;
-            NodeList childNodes = childNode.getChildNodes();
-            // if there is no child nodes or there is only one and it is text then add the field
-            if ((childNodes.getLength() == 0 && localName != null) || (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE)) {
+                boolean shouldAddCurrent = false;
+                NodeList childNodes = childNode.getChildNodes();
+                // if there is no child nodes or there is only one and it is text then add the field
+                if ((childNodes.getLength() == 0 && localName != null) || (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE)) {
 //                System.out.println("should add");
-                shouldAddCurrent = true;
-            }
+                    shouldAddCurrent = true;
+                }
 //            System.out.println("getChildNodes: " + childNode.getChildNodes().getLength());
-            String fieldValue;
-            if (childNodes.getLength() == 1) {
-                fieldValue = childNodes.item(0).getTextContent();
-            } else {
-                fieldValue = "";
-            }
+                String fieldValue;
+                if (childNodes.getLength() == 1) {
+                    fieldValue = childNodes.item(0).getTextContent();
+                } else {
+                    fieldValue = "";
+                }
 
-            // calculate the xpath index for multiple fields like description
+                // calculate the xpath index for multiple fields like description
 //            System.out.println("siblingNodePath: " + siblingNodePath);
 //            String siblingNodePath destinationNode.getURI().getFragment()
-            if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
-                siblingNodePathCounter.put(fullSubNodePath, 0);
-            } else {
-                siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
-            }
+                if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
+                    siblingNodePathCounter.put(fullSubNodePath, 0);
+                } else {
+                    siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
+                }
+                if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { // is a leaf not a branch
 //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-            ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
+                    ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
 
-            // TODO: about to write this function
-            //GuiHelper.imdiSchema.convertXmlPathToUiPath();
+                    // TODO: about to write this function
+                    //GuiHelper.imdiSchema.convertXmlPathToUiPath();
 
-            // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
-            // TODO: note that this method does not use any attributes without a node value
+                    // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
+                    // TODO: note that this method does not use any attributes without a node value
 //            if (childNode.getLocalName() != null) {
 //                nodeCounter++;
-            //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
+                    //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 //            }
-            NamedNodeMap namedNodeMap = childNode.getAttributes();
-            if (namedNodeMap != null) {
-                String cvType = getNamedAttributeValue(namedNodeMap, "Type");
-                String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
-                String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
-                String keyName = getNamedAttributeValue(namedNodeMap, "Name");
-                fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
-                if (fieldToAdd.xmlPath.endsWith("Description")) {
-                    if (cvUrlString != null && cvUrlString.length() > 0) {
-                        // TODO: this field sould be put in the link node not the parent node
-                        URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
-                        childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
-                        ImdiTreeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
-                        descriptionLinkNode.isInfoLink = true;
-                        descriptionLinkNode.imdiDataLoaded = true;
-                        parentChildTree.get(parentNode).add(descriptionLinkNode);
-                        descriptionLinkNode.addField(fieldToAdd);
-                    }
-                }
-                // get CMDI links
-                String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
-                if (clarinRefId != null && clarinRefId.length() > 0) {
-                    System.out.println("clarinRefId: " + clarinRefId);
-                    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
-                    if (cmdiComponentLinkReader != null) {
-                        URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
-                        if (clarinLink != null) {
-                            clarinLink = parentNode.getURI().resolve(clarinLink);
-                            childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-                            parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
+                    NamedNodeMap namedNodeMap = childNode.getAttributes();
+                    if (namedNodeMap != null) {
+                        String cvType = getNamedAttributeValue(namedNodeMap, "Type");
+                        String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
+                        String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
+                        String keyName = getNamedAttributeValue(namedNodeMap, "Name");
+                        fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
+                        if (fieldToAdd.xmlPath.endsWith("Description")) {
+                            if (cvUrlString != null && cvUrlString.length() > 0) {
+                                // TODO: this field sould be put in the link node not the parent node
+                                URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
+                                childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
+                                ImdiTreeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
+                                descriptionLinkNode.isInfoLink = true;
+                                descriptionLinkNode.imdiDataLoaded = true;
+                                parentChildTree.get(parentNode).add(descriptionLinkNode);
+                                descriptionLinkNode.addField(fieldToAdd);
+                            }
+                        }
+                        // get CMDI links
+                        String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
+                        if (clarinRefId != null && clarinRefId.length() > 0) {
+                            System.out.println("clarinRefId: " + clarinRefId);
+                            CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
+                            if (cmdiComponentLinkReader != null) {
+                                URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
+                                if (clarinLink != null) {
+                                    clarinLink = parentNode.getURI().resolve(clarinLink);
+                                    childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
+                                    parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
+                                }
+                            }
                         }
                     }
-                }
-            }
-            if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
+                    if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
 //                System.out.println("Adding: " + fieldToAdd);
 //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
 //                fieldToAdd.translateFieldName(siblingNodePath);
-                destinationNode.addField(fieldToAdd);
-            } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
+                        destinationNode.addField(fieldToAdd);
+                    } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
 //                System.out.println("LinkValue: " + fieldValue);
 //                System.out.println("ParentPath: " + parentPath);
 //                System.out.println("Parent: " + this.getUrlString());
-                try {
-                    URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
-                    childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
-                    parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath));
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                    System.out.println("Exception CorpusLink: " + ex.getMessage());
-                }
-            }
+                        try {
+                            URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
+                            childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
+                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath));
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                            System.out.println("Exception CorpusLink: " + ex.getMessage());
+                        }
+                    }
 //            if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
 //                // the corpus link nodes are used but via the api.getlinks so dont log them here
 //                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
@@ -725,8 +728,10 @@ public class MetadataReader {
 //                    }
 //                }
 //            }
-            fieldToAdd.finishLoading();
-            iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+                    fieldToAdd.finishLoading();
+                }
+                iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+            }
         }
     }
 }
