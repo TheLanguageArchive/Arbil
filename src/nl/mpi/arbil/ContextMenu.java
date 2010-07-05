@@ -322,7 +322,7 @@ public class ContextMenu {
         searchReplaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {                    
+                try {
                     ((LinorgSplitPanel) currentTable.getParent().getParent().getParent().getParent()).showSearchPane();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -1061,7 +1061,11 @@ public class ContextMenu {
                 addMenuItem.setName(currentField[0]);
                 addMenuItem.setToolTipText(currentField[1]);
                 addMenuItem.setActionCommand(currentField[1]);
-                addMenuItem.setIcon(imdiIcons.dataIcon);
+                if (null != currentTemplate.pathIsChildNode(currentField[1])) {
+                    addMenuItem.setIcon(imdiIcons.dataIcon);
+                } else {
+                    addMenuItem.setIcon(imdiIcons.fieldIcon);
+                }
                 addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
