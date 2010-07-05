@@ -334,7 +334,7 @@ public class ArbilMenuBar extends JMenuBar {
                 setCacheDirectoryMenu.removeAll();
                 JMenuItem cacheDirectoryMenuItem = new JMenuItem();
                 cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
-
+                cacheDirectoryMenuItem.setEnabled(false);
                 JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
                 changeCacheDirectoryMenuItem.setText("<Move Local Corpus Storage Directory>");
                 changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -344,7 +344,6 @@ public class ArbilMenuBar extends JMenuBar {
                             LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
                             File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
                             if (selectedFiles != null && selectedFiles.length > 0) {
-                                // TODO: the change directory button text is not correct
                                 //fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
                                 LinorgSessionStorage.getSingleInstance().changeCacheDirectory(selectedFiles[0], true);
                             }
@@ -668,27 +667,19 @@ public class ArbilMenuBar extends JMenuBar {
         }, AWTEvent.KEY_EVENT_MASK);
     }
 
-//    private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-//// TODO add your handling code here:
-//        TreeHelper.getSingleInstance().showLocationsDialog();
-//    }
     private void viewMenuMenuSelected(MenuEvent evt) {
-// TODO add your handling code here:
         GuiHelper.getSingleInstance().initViewMenu(viewMenu);
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         performCleanExit();
     }
 
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         LinorgWindowManager.getSingleInstance().openAboutPage();
     }
 
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, helpComponent);
@@ -697,7 +688,6 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             // forcus existing or create a new help window
             LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
@@ -705,7 +695,6 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         try {
             ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
             importExportDialog.importImdiBranch();
@@ -714,9 +703,6 @@ public class ArbilMenuBar extends JMenuBar {
         }
     }
 
-//    private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-//        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
-//    }
     private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             // forcus existing or create a new help window
