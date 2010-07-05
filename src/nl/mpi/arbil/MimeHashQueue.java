@@ -283,7 +283,7 @@ public class MimeHashQueue {
                     targetLooseFile.addField(dateField);
                     // get exif tags
 //                System.out.println("get exif tags");
-                    ImdiField[] exifFields = ImdiSchema.getSingleInstance().getExifMetadata(targetLooseFile, currentFieldId);
+                    ImdiField[] exifFields = new BinaryMetadataReader().getExifMetadata(targetLooseFile, currentFieldId);
                     for (ImdiField currentField : exifFields) {
                         targetLooseFile.addField(currentField);
 //                    System.out.println(currentField.fieldValue);
