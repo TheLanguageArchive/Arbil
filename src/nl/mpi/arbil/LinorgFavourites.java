@@ -1,7 +1,7 @@
 package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import java.io.File;
 import java.net.URI;
 import java.util.Enumeration;
@@ -141,9 +141,9 @@ public class LinorgFavourites {
                 if (targetIsCorpus && !currentFavouritesObject.isImdiChild()) {
                     addThisFavourites = true;
                 } else if (targetIsSession && currentFavouritesObject.isImdiChild()) {
-                    addThisFavourites = ImdiSchema.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
+                    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
                 } else if (targetIsImdiChild && currentFavouritesObject.isImdiChild()) {
-                    addThisFavourites = ImdiSchema.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
+                    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
                 }
                 if (addThisFavourites) {
 //                    System.out.println("adding: " + currentFavouritesObject);
@@ -174,9 +174,9 @@ public class LinorgFavourites {
         System.out.println("getNodeType: \nfavouriteXmlPath: " + favouriteXmlPath + "\ntargetXmlPath:" + targetXmlPath);
         String returnValue;
         if (favouriteImdiObject.isSession()) {
-            returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session";
+            returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
         } else if (favouriteImdiObject.isCorpus()) {
-            returnValue = ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus";
+            returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus";
         } else if (favouriteImdiObject.isImdiChild()) {
             if (targetXmlPath == null) {
                 returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
