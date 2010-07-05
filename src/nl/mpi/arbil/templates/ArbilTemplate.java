@@ -214,7 +214,7 @@ public class ArbilTemplate {
 //            String templateDisplayName = currentTemplate[2];
 //            if (!templateFileName.endsWith("Session") && !templateFileName.endsWith("Catalogue")) { // sessions cannot be added to a session
 //                if (templateNodePath.startsWith(nodepath)) {
-//                    if (targetNodePath.replaceAll("[^(]*", "").length() >= templateNodePath.replaceAll("[^(]*", "").length()) {//TODO: check the string engh has not changed here due to the lack of the .xml
+//                    if (targetNodePath.replaceAll("[^(]*", "").length() >= templateNodePath.replaceAll("[^(]*", "").length()) {// check the string engh has not changed here due to the lack of the .xml
 //            currentTemplate[0] = "." + currentTemplate[0];
 //            ==================================== TemplateComponent-FileName-NodePath-DisplayName
             if (!currentTemplate[0].endsWith("Session.xml") && !currentTemplate[0].endsWith("Catalogue.xml")) { // sessions cannot be added to a session
