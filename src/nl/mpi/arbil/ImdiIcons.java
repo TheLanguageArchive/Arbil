@@ -47,6 +47,7 @@ public class ImdiIcons {
 //    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusserverlocal16x16c.png"));
     private ImageIcon questionRedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/question-red.png"));
     public ImageIcon dataIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
+    public ImageIcon fieldIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
 //    private ImageIcon server16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
 //    private ImageIcon directory16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
