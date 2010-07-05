@@ -685,6 +685,9 @@ public class LinorgWindowManager {
         } else {
             tempWindowHeight = desktopPane.getHeight() - 50;
         }
+        if (tempWindowHeight < 100) {
+            tempWindowHeight = 100;
+        }
         currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
 
         currentInternalFrame.setClosable(true);
