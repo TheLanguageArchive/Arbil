@@ -248,6 +248,9 @@ public class CmdiComponentBuilder {
                         keyNameNode.setNodeValue(currentFieldUpdate.keyNameValue);
                     }
                     Node languageNode = attributesMap.getNamedItem("LanguageId");
+                    if (languageNode == null) {
+                        languageNode = attributesMap.getNamedItem("xml:lang");
+                    }
                     if (languageNode != null && currentFieldUpdate.fieldLanguageId != null) {
                         languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
                     }
@@ -482,6 +485,7 @@ public class CmdiComponentBuilder {
         } else {
             try {
                 documentNode = selectSingleNode(targetDocument, targetXpath);
+                // todo: make sure the node is insterted before then next addable type, eg actors, description
             } catch (TransformerException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
