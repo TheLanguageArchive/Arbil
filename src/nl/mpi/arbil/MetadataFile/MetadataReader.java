@@ -666,6 +666,9 @@ public class MetadataReader {
                         String cvType = getNamedAttributeValue(namedNodeMap, "Type");
                         String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
                         String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
+                        if (languageId == null) {
+                            languageId = getNamedAttributeValue(namedNodeMap, "xml:lang");
+                        }
                         String keyName = getNamedAttributeValue(namedNodeMap, "Name");
                         fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
                         if (fieldToAdd.xmlPath.endsWith("Description")) {
