@@ -182,11 +182,6 @@ public class ImdiField {
 
     }
 
-    public ImdiVocabularies.VocabularyItem[] getLanguageList() {
-        // TODO: move this url to somewhere appropriate (preferably in the imdi file)
-        return ImdiVocabularies.getSingleInstance().getVocabulary(this, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").getVocabularyItems();
-    }
-
     public ImdiVocabularies.Vocabulary getVocabulary() {
         return fieldVocabulary;
     }
