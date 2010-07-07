@@ -296,6 +296,7 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) {
+        URI returnUri = null;
         try {
             Document favouriteDocument;
             synchronized (favouriteImdiTreeObject.domLockObject) {
@@ -334,6 +335,20 @@ public class CmdiComponentBuilder {
                     }
                 }
                 savePrettyFormatting(destinationDocument, destinationImdiTreeObject.getFile());
+                try {
+                    String nodeFragment;
+                    if (favouriteNodes.length != 1) {
+                        nodeFragment = destinationXpath; // in this case show the target node
+                    } else {
+                        nodeFragment = convertNodeToNodePath(destinationDocument, favouriteNodes[0], destinationXpath);
+                    }
+                    System.out.println("nodeFragment: " + nodeFragment);
+                    // return the child node url and path in the xml
+                    // first strip off any fragment then add the full node fragment
+                    returnUri = new URI(destinationImdiTreeObject.getURI().toString().split("#")[0] + "#" + nodeFragment);
+                } catch (URISyntaxException exception) {
+                    GuiHelper.linorgBugCatcher.logError(exception);
+                }
             }
         } catch (IOException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
@@ -344,7 +359,7 @@ public class CmdiComponentBuilder {
         } catch (TransformerException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
         }
-        return null;
+        return returnUri;
     }
 
     public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
