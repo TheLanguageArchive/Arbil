@@ -11,8 +11,17 @@ import nl.mpi.arbil.ImdiVocabularies.VocabularyItem;
  */
 public class DocumentationLanguages {
 
+    static String languageVocabularyUrl = null;
+
     public VocabularyItem[] getallLanguages() {
-        return ImdiVocabularies.getSingleInstance().getVocabulary(null, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").getVocabularyItems();
+        if (languageVocabularyUrl == null) {
+            languageVocabularyUrl = LinorgSessionStorage.getSingleInstance().loadString("languageVocabularyUrl");
+            if (languageVocabularyUrl == null) {
+                languageVocabularyUrl = "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml";
+                LinorgSessionStorage.getSingleInstance().saveString("LanguageVocabularyUrl", languageVocabularyUrl);
+            }
+        }
+        return ImdiVocabularies.getSingleInstance().getVocabulary(null, languageVocabularyUrl).getVocabularyItems();
     }
 
     public ArrayList<String> getSelectedLanguagesArrayList() {
@@ -24,6 +33,17 @@ public class DocumentationLanguages {
             addDefaultTemplates();
         }
         return selectedLanguages;
+    }
+
+    public ImdiVocabularies.VocabularyItem[] getLanguageListSubset() {
+        ArrayList<VocabularyItem> languageListSubset = new ArrayList<VocabularyItem>();
+        ArrayList<String> selectedLanguages = getSelectedLanguagesArrayList();
+        for (VocabularyItem currentVocabItem : getallLanguages()) {
+            if (selectedLanguages.contains(currentVocabItem.languageName)) {
+                languageListSubset.add(currentVocabItem);
+            }
+        }
+        return languageListSubset.toArray(new VocabularyItem[]{});
     }
 
     private void addDefaultTemplates() {
