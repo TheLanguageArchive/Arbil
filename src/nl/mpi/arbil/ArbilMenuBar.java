@@ -60,6 +60,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
     private JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem;
     private JCheckBoxMenuItem schemaCheckLocalFiles;
+    private JMenuItem editPreferredLanguagesMenuItem;
     private JMenuItem editFieldViewsMenuItem;
 //    private JMenuItem editLocationsMenuItem;
     private JMenuItem updateAllLoadedVocabulariesMenuItem;
@@ -89,6 +90,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        viewFavouritesMenuItem = new JMenuItem();
 //        setStorageDirectoryMenu = new JMenu();
         setCacheDirectoryMenu = new JMenu();
+        editPreferredLanguagesMenuItem = new JMenuItem();
         editFieldViewsMenuItem = new JMenuItem();
         updateAllLoadedVocabulariesMenuItem = new JMenuItem();
         saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -375,6 +377,16 @@ public class ArbilMenuBar extends JMenuBar {
 //        localStorageDirectoriesMenu.add(setCacheDirectoryMenu);
 //        optionsMenu.add(localStorageDirectoriesMenu);
         optionsMenu.add(setCacheDirectoryMenu);
+
+        editPreferredLanguagesMenuItem.setText("Edit Language List");
+        editPreferredLanguagesMenuItem.setEnabled(true);
+        editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LanguageListDialogue.showLanguageDialogue();
+            }
+        });
+        optionsMenu.add(editPreferredLanguagesMenuItem);
 
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.setEnabled(false);
