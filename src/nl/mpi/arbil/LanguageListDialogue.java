@@ -66,6 +66,7 @@ public class LanguageListDialogue extends TemplateDialogue {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 for (JCheckBox currentCheckBox : checkBoxArray) {
                     currentCheckBox.setSelected(true);
+                    new DocumentationLanguages().addselectedLanguages(currentCheckBox.getActionCommand());
                 }
             }
         });
@@ -76,6 +77,7 @@ public class LanguageListDialogue extends TemplateDialogue {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 for (JCheckBox currentCheckBox : checkBoxArray) {
                     currentCheckBox.setSelected(false);
+                    new DocumentationLanguages().removeselectedLanguages(currentCheckBox.getActionCommand());
                 }
             }
         });
