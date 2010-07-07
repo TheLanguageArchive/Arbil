@@ -29,8 +29,6 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     public TemplateDialogue(JDialog parentFrameLocal) {
         parentFrame = parentFrameLocal;
         initComponents();
-        populateLists();
-        loadProfiles(false);
     }
 
     /** This method is called from within the constructor to
@@ -41,7 +39,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     private void initComponents() {
 
         internalTemplatesPanel = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
+        internalTemplatesButtonPanel = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         templatesPanel = new javax.swing.JPanel();
@@ -56,7 +54,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Internal Templates"));
         internalTemplatesPanel.setLayout(new java.awt.BorderLayout());
 
-        jPanel6.setLayout(new javax.swing.BoxLayout(jPanel6, javax.swing.BoxLayout.LINE_AXIS));
+        internalTemplatesButtonPanel.setLayout(new javax.swing.BoxLayout(internalTemplatesButtonPanel, javax.swing.BoxLayout.LINE_AXIS));
 
         jButton3.setText("New Template");
         jButton3.setToolTipText("Create a new editable template");
@@ -66,9 +64,9 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel6.add(jButton3);
+        internalTemplatesButtonPanel.add(jButton3);
 
-        internalTemplatesPanel.add(jPanel6, java.awt.BorderLayout.PAGE_END);
+        internalTemplatesPanel.add(internalTemplatesButtonPanel, java.awt.BorderLayout.PAGE_END);
 
         jScrollPane2.setViewportView(templatesPanel);
 
@@ -199,7 +197,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         populateLists();
     }
 
-    private void addSorted(JPanel targetPanel, ArrayList<JCheckBox> checkBoxArray) {
+    protected void addSorted(JPanel targetPanel, ArrayList<JCheckBox> checkBoxArray) {
         targetPanel.removeAll();
         targetPanel.setLayout(new javax.swing.BoxLayout(targetPanel, javax.swing.BoxLayout.PAGE_AXIS));
         Collections.sort(checkBoxArray, new Comparator() {
@@ -211,9 +209,10 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         for (JCheckBox checkBox : checkBoxArray) {
             targetPanel.add(checkBox);
         }
+        parentFrame.pack();
     }
 
-    private void populateLists() {
+    protected void populateLists() {
         ArrayList<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
         ArrayList<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
         // add built in types
@@ -241,7 +240,6 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             checkBoxArray.add(templateCheckBox);
         }
         addSorted(templatesPanel, checkBoxArray);
-        parentFrame.pack();
 
         // add clarin types
         checkBoxArray.clear();
@@ -273,7 +271,6 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
             }
         }
         addSorted(clarinPanel, checkBoxArray);
-        parentFrame.pack();
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -285,8 +282,15 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     }
 
     public static void showTemplatesDialogue() {
-        JDialog dialog = new JDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Available Templates & Profiles", true);
-        dialog.setContentPane(new TemplateDialogue(dialog));
+        showDialogue("Available Templates & Profiles");
+    }
+
+    protected static void showDialogue(String titleStirng) {
+        JDialog dialog = new JDialog(LinorgWindowManager.getSingleInstance().linorgFrame, titleStirng, true);
+        TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
+        dialog.setContentPane(templateDialogue);
+        templateDialogue.populateLists();
+        templateDialogue.loadProfiles(false);
         dialog.pack();
         dialog.setVisible(true);
     }
@@ -299,14 +303,14 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     private javax.swing.JPanel clarinPanel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton3;
-    private javax.swing.JPanel internalTemplatesPanel;
-    private javax.swing.JPanel clarinProfilesPanel;
+    protected javax.swing.JPanel internalTemplatesPanel;
+    protected javax.swing.JPanel clarinProfilesPanel;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel6;
+    protected javax.swing.JPanel internalTemplatesButtonPanel;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JPanel templatesPanel;
+    protected javax.swing.JPanel templatesPanel;
     // End of variables declaration
 }
