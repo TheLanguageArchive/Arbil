@@ -92,6 +92,7 @@ public class ContextMenu {
     private JMenuItem openInLongFieldEditorMenuItem;
     private JMenuItem clearCellColoursMenuItem;
     private JMenuItem jumpToNodeInTreeMenuItem;
+    private JMenuItem showChildNodesMenuItem;
     //////////
     ImdiTreeObject[] selectedTreeNodes = null;
     ImdiTreeObject leadSelectedTreeNode = null;
@@ -163,6 +164,7 @@ public class ContextMenu {
         openInLongFieldEditorMenuItem = new JMenuItem();
         clearCellColoursMenuItem = new JMenuItem();
         jumpToNodeInTreeMenuItem = new JMenuItem();
+        showChildNodesMenuItem = new JMenuItem();
         //////////
         // table menu items
         copySelectedRowsMenuItem.setText("Copy");
@@ -218,6 +220,19 @@ public class ContextMenu {
             }
         });
         treePopupMenu.add(hideSelectedColumnsMenuItem);
+
+        showChildNodesMenuItem.setText("Show Child Nodes");
+        showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.showRowChildData();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(showChildNodesMenuItem);
 
         deleteFieldMenuItem.setText("Delete MultiField");
         deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -1277,6 +1292,7 @@ public class ContextMenu {
             clearCellColoursMenuItem.setVisible(false);
             searchReplaceMenuItem.setVisible(false);
             jumpToNodeInTreeMenuItem.setVisible(false);
+            showChildNodesMenuItem.setVisible(false);
             //////////
             // menu separators
 //        treePopupMenuSeparator1.setVisible(true);
@@ -1469,6 +1485,7 @@ public class ContextMenu {
                     viewSelectedRowsMenuItem.setVisible(true);
                     matchingRowsMenuItem.setVisible(true);
                     removeSelectedRowsMenuItem.setVisible(true);
+                    showChildNodesMenuItem.setVisible(true);
                 }
                 boolean canDeleteSelectedFields = true;
                 ImdiField[] currentSelection = currentTable.getSelectedFields();
