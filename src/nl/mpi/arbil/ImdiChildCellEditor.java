@@ -243,7 +243,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             final JComboBox comboBox = new JComboBox();
             ImdiVocabularies.VocabularyItem selectedItem = null;
             comboBox.setEditable(false);
-            ImdiVocabularies.VocabularyItem[] languageItemArray = cellField.getLanguageList();
+            ImdiVocabularies.VocabularyItem[] languageItemArray = new DocumentationLanguages().getLanguageListSubset();
             Arrays.sort(languageItemArray);
             for (ImdiVocabularies.VocabularyItem currentItem : languageItemArray) {
                 comboBox.addItem(currentItem);
