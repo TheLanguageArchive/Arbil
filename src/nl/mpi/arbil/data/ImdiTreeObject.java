@@ -1395,16 +1395,19 @@ public class ImdiTreeObject implements Comparable {
 //            nodeText = fieldHashtable.elements().nextElement()[0].getFullXmlPath().split("\\.")[3];
 //        }
         if (hasResource()) {
-            String resourcePathString = getFullResourceURI().toString();
-            int lastIndex = resourcePathString.lastIndexOf("/");
+            URI resourceUri = getFullResourceURI();
+            if (resourceUri != null) {
+                String resourcePathString = resourceUri.toString();
+                int lastIndex = resourcePathString.lastIndexOf("/");
 //                if (lastIndex)
-            resourcePathString = resourcePathString.substring(lastIndex + 1);
-            try {
-                resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
-            } catch (UnsupportedEncodingException encodingException) {
-                GuiHelper.linorgBugCatcher.logError(encodingException);
+                resourcePathString = resourcePathString.substring(lastIndex + 1);
+                try {
+                    resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
+                } catch (UnsupportedEncodingException encodingException) {
+                    GuiHelper.linorgBugCatcher.logError(encodingException);
+                }
+                nodeText = resourcePathString;
             }
-            nodeText = resourcePathString;
         }
         if (isInfoLink) {
             String infoTitle = fieldHashtable.values().iterator().next()[0].getFieldValue();
@@ -1615,7 +1618,20 @@ public class ImdiTreeObject implements Comparable {
     public URI getFullResourceURI() {
         try {
             String targetUriString = resourceUrlField.getFieldValue();
-            URI targetUri = new URI(null, targetUriString, null);
+            String[] uriParts = targetUriString.split(":/", 2);
+            URI targetUri;
+            if (uriParts.length > 1) {
+                // todo: this will not allow urls that have square brackets in them due to yet another bug in the java URI class
+//                String bracketEncodedPath = uriParts[1].replaceAll("\\[", "%5B");
+//                bracketEncodedPath = bracketEncodedPath.replaceAll("\\]", "%5D");
+                String bracketEncodedPath = uriParts[1];
+                //org.apache.commons.httpclient.URI test = null;
+
+                //if (bracketEncodedPath.c)
+                targetUri = new URI(uriParts[0], "/" + bracketEncodedPath, null);
+            } else {
+                targetUri = new URI(null, targetUriString, null);
+            }
 //            System.out.println("nodeUri: " + nodeUri);
             URI resourceUri = nodeUri.resolve(targetUri);
 //            System.out.println("targetUriString: " + targetUriString);
