@@ -474,7 +474,7 @@ public class MetadataReader {
         return linkURI;
     }
 
-    public void iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
+    public int iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
             , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
 //        System.out.println("iterateChildNodes: " + nodePath);
@@ -733,8 +733,9 @@ public class MetadataReader {
 //            }
                     fieldToAdd.finishLoading();
                 }
-                iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+                nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
             }
         }
+        return nodeOrderCounter;
     }
 }
