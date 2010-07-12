@@ -21,9 +21,11 @@ import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.importexport.ArbilCsvImporter;
+import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;
 
 /**
  * Document   : ContextMenu
@@ -69,6 +71,7 @@ public class ContextMenu {
     private JMenuItem viewInBrrowserMenuItem;
     private JMenuItem viewXmlMenuItemFormatted;
     private JMenuItem openXmlMenuItemFormatted;
+    private JMenuItem exportHtmlMenuItemFormatted;
     private JMenuItem overrideTypeCheckerDecision;
     static private ContextMenu singleInstance = null;
     //////////
@@ -79,6 +82,7 @@ public class ContextMenu {
     private JMenuItem matchingRowsMenuItem;
     private JMenuItem removeSelectedRowsMenuItem;
     private JMenuItem hideSelectedColumnsMenuItem;
+    private JMenuItem searchReplaceMenuItem;
     private JMenuItem deleteFieldMenuItem;
     private JMenuItem revertFieldMenuItem;
     private JMenuItem copyCellToColumnMenuItem;
@@ -88,6 +92,7 @@ public class ContextMenu {
     private JMenuItem openInLongFieldEditorMenuItem;
     private JMenuItem clearCellColoursMenuItem;
     private JMenuItem jumpToNodeInTreeMenuItem;
+    private JMenuItem showChildNodesMenuItem;
     //////////
     ImdiTreeObject[] selectedTreeNodes = null;
     ImdiTreeObject leadSelectedTreeNode = null;
@@ -120,6 +125,7 @@ public class ContextMenu {
         viewXmlMenuItem = new JMenuItem();
         viewXmlMenuItemFormatted = new JMenuItem();
         openXmlMenuItemFormatted = new JMenuItem();
+        exportHtmlMenuItemFormatted = new JMenuItem();
         overrideTypeCheckerDecision = new JMenuItem();
         viewInBrrowserMenuItem = new JMenuItem();
         browseForResourceFileMenuItem = new JMenuItem();
@@ -148,6 +154,7 @@ public class ContextMenu {
         matchingRowsMenuItem = new JMenuItem();
         removeSelectedRowsMenuItem = new JMenuItem();
         hideSelectedColumnsMenuItem = new JMenuItem();
+        searchReplaceMenuItem = new JMenuItem();
         deleteFieldMenuItem = new JMenuItem();
         revertFieldMenuItem = new JMenuItem();
         copyCellToColumnMenuItem = new JMenuItem();
@@ -157,6 +164,7 @@ public class ContextMenu {
         openInLongFieldEditorMenuItem = new JMenuItem();
         clearCellColoursMenuItem = new JMenuItem();
         jumpToNodeInTreeMenuItem = new JMenuItem();
+        showChildNodesMenuItem = new JMenuItem();
         //////////
         // table menu items
         copySelectedRowsMenuItem.setText("Copy");
@@ -213,6 +221,19 @@ public class ContextMenu {
         });
         treePopupMenu.add(hideSelectedColumnsMenuItem);
 
+        showChildNodesMenuItem.setText("Show Child Nodes");
+        showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    currentTable.showRowChildData();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(showChildNodesMenuItem);
+
         deleteFieldMenuItem.setText("Delete MultiField");
         deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -229,10 +250,18 @@ public class ContextMenu {
                                 currentList = new ArrayList();
                                 selectedFieldHashtable.put(currentField.parentImdi, currentList);
                             }
-                            currentList.add(currentField.fieldID);
+                            currentList.add(currentField.getFullXmlPath());
                         }
                         for (ImdiTreeObject currentImdiObject : selectedFieldHashtable.keySet()) {
-                            currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                            boolean result = componentBuilder.removeChildNodes(currentImdiObject, (String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                            if (result) {
+                                currentImdiObject.reloadNode();
+                            } else {
+                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for more information.", "Delete Field");
+                            }
+                            //currentImdiObject.deleteFromDomViaId((String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+//                            GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                         }
                     }
                 } catch (Exception ex) {
@@ -303,6 +332,19 @@ public class ContextMenu {
             }
         });
         treePopupMenu.add(clearCellColoursMenuItem);
+
+        searchReplaceMenuItem.setText("Find/Replace");
+        searchReplaceMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ((LinorgSplitPanel) currentTable.getParent().getParent().getParent().getParent()).showSearchPane();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(searchReplaceMenuItem);
 
         treePopupMenu.add(new JSeparator());
         // row menu items
@@ -597,7 +639,7 @@ public class ContextMenu {
         });
         treePopupMenu.add(viewInBrrowserMenuItem);
 
-        viewXmlMenuItem.setText("View IMDI XML");
+        viewXmlMenuItem.setText("View XML");
 
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -644,7 +686,20 @@ public class ContextMenu {
         });
         treePopupMenu.add(openXmlMenuItemFormatted);
 
-        validateMenuItem.setText("Check IMDI format");
+        exportHtmlMenuItemFormatted.setText("Export IMDI to HTML");
+        exportHtmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    new ImdiToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(exportHtmlMenuItemFormatted);
+
+        validateMenuItem.setText("Check XML Conformance");
 
         validateMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -714,7 +769,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    removeRemoteCorpusMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
+                        TreeHelper.getSingleInstance().removeLocation(selectedNode);
+                    }
+                    TreeHelper.getSingleInstance().applyRootLocations();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -770,7 +828,10 @@ public class ContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    removeLocalDirectoryMenuItemActionPerformed(evt);
+                    for (ImdiTreeObject selectedNode : selectedTreeNodes) {
+                        TreeHelper.getSingleInstance().removeLocation(selectedNode);
+                    }
+                    TreeHelper.getSingleInstance().applyRootLocations();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -928,18 +989,14 @@ public class ContextMenu {
     }
 
     private void addRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_addRemoteCorpusMenuItemActionPerformed
-        // TODO add your handling code here:    
         String addableLocation = (String) JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
         if ((addableLocation != null) && (addableLocation.length() > 0)) {
             TreeHelper.getSingleInstance().addLocationGui(ImdiTreeObject.conformStringToUrl(addableLocation));
         }
-    }//GEN-LAST:event_addRemoteCorpusMenuItemActionPerformed
+    }
 
     private void addDefaultLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_addDefaultLocationsMenuItemActionPerformed
-        // TODO add your handling code here:    
         if (0 < TreeHelper.getSingleInstance().addDefaultCorpusLocations()) {
             TreeHelper.getSingleInstance().applyRootLocations();
 
@@ -948,61 +1005,22 @@ public class ContextMenu {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The defalut locations already exists and will not be added again", "Add Default Locations");
 
         }
-    }//GEN-LAST:event_addDefaultLocationsMenuItemActionPerformed
-
-    private void removeRemoteCorpusMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeRemoteCorpusMenuItemActionPerformed// TODO add your handling code here:   
-        DefaultMutableTreeNode selectedTreeNode = null;
-
-        if (TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree.getSelectionPath().getLastPathComponent();
-
-        }
-        TreeHelper.getSingleInstance().removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-        TreeHelper.getSingleInstance().applyRootLocations();
-
-    }//GEN-LAST:event_removeRemoteCorpusMenuItemActionPerformed
+    }
 
     private void removeCachedCopyMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeCachedCopyMenuItemActionPerformed
-        // TODO add your handling code here://    
         DefaultMutableTreeNode selectedTreeNode = null;
-        //    if (localCorpusTree.getSelectionPath() != null) {
-        //        selectedTreeNode = (DefaultMutableTreeNode) localCorpusTree.getSelectionPath().getLastPathComponent();
-        //    }
-        //    GuiHelper.treeHelper.removeSelectedLocation(selectedTreeNode);
     }
-    //GEN-LAST:event_removeCachedCopyMenuItemActionPerformed
-
-    private void removeLocalDirectoryMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_removeLocalDirectoryMenuItemActionPerformed
-        // TODO add your handling code here: 
-        DefaultMutableTreeNode selectedTreeNode = null;
-
-        if (TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath() != null) {
-            selectedTreeNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree.getSelectionPath().getLastPathComponent();
-
-        }
-        TreeHelper.getSingleInstance().removeLocation((ImdiTreeObject) selectedTreeNode.getUserObject());
-        TreeHelper.getSingleInstance().applyRootLocations();
-
-    }//GEN-LAST:event_removeLocalDirectoryMenuItemActionPerformed
 
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_searchSubnodesMenuItemActionPerformed
-        // TODO add your handling code here:    
         LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSelectedNodes(), "Search");
-
-    }//GEN-LAST:event_searchSubnodesMenuItemActionPerformed
+    }
 
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        //GEN-FIRST:event_sendToServerMenuItemActionPerformed
-        // TODO add your handling code here:
     }
-    //GEN-LAST:event_sendToServerMenuItemActionPerformed
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         for (ImdiTreeObject currentNode : selectedTreeNodes) {
+            // todo: offer to save node first
             XsdChecker xsdChecker = new XsdChecker();
             LinorgWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
             xsdChecker.checkXML(currentNode);
@@ -1027,26 +1045,29 @@ public class ContextMenu {
         addMenu.removeAll();
 //        System.out.println("initAddMenu: " + targetNodeUserObject);
         ArbilTemplate currentTemplate;
-        if (targetNodeUserObject instanceof ImdiTreeObject) {
-            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).currentTemplate;
-        } else {
-            currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
-        }
-        for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
-            String[] currentField = (String[]) menuItemName.nextElement();
+        if (targetNodeUserObject instanceof ImdiTreeObject && !((ImdiTreeObject) targetNodeUserObject).isCorpus()) {
+            ImdiIcons imdiIcons = ImdiIcons.getSingleInstance();
+            currentTemplate = ((ImdiTreeObject) targetNodeUserObject).getNodeTemplate();
+            for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
+                String[] currentField = (String[]) menuItemName.nextElement();
 //            System.out.println("MenuText: " + currentField[0]);
 //            System.out.println("ActionCommand: " + currentField[1]);
 
-            JMenuItem addMenuItem;
-            addMenuItem = new JMenuItem();
-            addMenuItem.setText(currentField[0]);
-            addMenuItem.setName(currentField[0]);
-            addMenuItem.setToolTipText("IMDI " + currentField[0]);
-            addMenuItem.setActionCommand(currentField[1]);
-            addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+                JMenuItem addMenuItem;
+                addMenuItem = new JMenuItem();
+                addMenuItem.setText(currentField[0]);
+                addMenuItem.setName(currentField[0]);
+                addMenuItem.setToolTipText(currentField[1]);
+                addMenuItem.setActionCommand(currentField[1]);
+                if (null != currentTemplate.pathIsChildNode(currentField[1])) {
+                    addMenuItem.setIcon(imdiIcons.dataIcon);
+                } else {
+                    addMenuItem.setIcon(imdiIcons.fieldIcon);
+                }
+                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    try {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        try {
 //                        boolean nodesFoundToAddTo = false;
 //                        for (ImdiTreeObject currentNode : selectedTreeNodes) {
 //                            if (currentNode != null) {
@@ -1060,65 +1081,95 @@ public class ContextMenu {
 //                            imdiTreeObject = new ImdiTreeObject(LinorgSessionStorage.getSingleInstance().getSaveLocation(LinorgSessionStorage.getSingleInstance().getNewImdiFileName()));
 //                            imdiTreeObject.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
 //                        }
-                        if (leadSelectedTreeNode != null) {
-                            leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-                        } else {
-                            // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                            ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
-                        }
-                    } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
-                    }
-                }
-            });
-            addMenu.add(addMenuItem);
-            menuItemsAdded = true;
-        }
-        if ((targetNodeUserObject instanceof ImdiTreeObject && ((ImdiTreeObject) targetNodeUserObject).isCorpus()) || !(targetNodeUserObject instanceof ImdiTreeObject)) {
-            // Allow clarin add menu for corpus nodes and the tree root node
-            CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
-            if (menuItemsAdded && cmdiProfileReader.cmdiProfileArray.size() > 0) {
-                addMenu.add(new JSeparator());
-            }
-            JMenu clarinAddMenu = new JMenu("Clarin Profiles");
-            addMenu.add(clarinAddMenu);
-            for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
-                JMenuItem addMenuItem;
-                addMenuItem = new JMenuItem();
-                addMenuItem.setText(currentCmdiProfile.name);
-                addMenuItem.setName(currentCmdiProfile.name);
-                addMenuItem.setActionCommand(currentCmdiProfile.getXsdHref());
-                addMenuItem.setToolTipText(currentCmdiProfile.description);
-                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
                             if (leadSelectedTreeNode != null) {
-                                leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                             } else {
                                 // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                                ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                             }
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
                         }
                     }
                 });
-                clarinAddMenu.add(addMenuItem);
+                addMenu.add(addMenuItem);
+                menuItemsAdded = true;
             }
-            clarinAddMenu.add(new JSeparator());
-            JMenuItem reloadProfilesMenuItem;
-            reloadProfilesMenuItem = new JMenuItem();
-            reloadProfilesMenuItem.setText("<Reload This List>");
-            reloadProfilesMenuItem.setToolTipText("Reload this Clarin profile list from the server");
-            reloadProfilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        } else {
+            // consume the selected templates here rather than the clarin profile list
+            for (MenuItemData currentAddable : ArbilTemplateManager.getSingleInstance().getSelectedTemplates()) {
+                JMenuItem addMenuItem;
+                addMenuItem = new JMenuItem();
+                addMenuItem.setText(currentAddable.menuText);
+                addMenuItem.setName(currentAddable.menuText);
+                addMenuItem.setActionCommand(currentAddable.menuAction);
+                addMenuItem.setToolTipText(currentAddable.menuToolTip);
+                addMenuItem.setIcon(currentAddable.menuIcon);
+                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
-                    cmdiProfileReader.refreshProfiles();
-                }
-            });
-            clarinAddMenu.add(reloadProfilesMenuItem);
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        try {
+                            if (leadSelectedTreeNode != null) {
+                                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                            } else {
+                                // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+                                new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                            }
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
+                    }
+                });
+                addMenu.add(addMenuItem);
+            }
+
+
+            //if ((targetNodeUserObject instanceof ImdiTreeObject && ((ImdiTreeObject) targetNodeUserObject).isCorpus()) || !(targetNodeUserObject instanceof ImdiTreeObject)) {
+            // Allow clarin add menu for corpus nodes and the tree root node
+//                CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+//                if (menuItemsAdded && cmdiProfileReader.cmdiProfileArray.size() > 0) {
+//                    addMenu.add(new JSeparator());
+//                }
+//                JMenu clarinAddMenu = new JMenu("Clarin Profiles");
+//                addMenu.add(clarinAddMenu);
+//                for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+//                    JMenuItem addMenuItem;
+//                    addMenuItem = new JMenuItem();
+//                    addMenuItem.setText(currentCmdiProfile.name);
+//                    addMenuItem.setName(currentCmdiProfile.name);
+//                    addMenuItem.setActionCommand(currentCmdiProfile.getXsdHref());
+//                    addMenuItem.setToolTipText(currentCmdiProfile.description);
+//                    addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                            try {
+//                                if (leadSelectedTreeNode != null) {
+//                                    leadSelectedTreeNode.requestAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+//                                } else {
+//                                    // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+//                                    ImdiTreeObject.requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+//                                }
+//                            } catch (Exception ex) {
+//                                GuiHelper.linorgBugCatcher.logError(ex);
+//                            }
+//                        }
+//                    });
+//                    clarinAddMenu.add(addMenuItem);
+//                }
+//                clarinAddMenu.add(new JSeparator());
+//                JMenuItem reloadProfilesMenuItem;
+//                reloadProfilesMenuItem = new JMenuItem();
+//                reloadProfilesMenuItem.setText("<Reload This List>");
+//                reloadProfilesMenuItem.setToolTipText("Reload this Clarin profile list from the server");
+//                reloadProfilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                        CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
+//                        cmdiProfileReader.refreshProfiles();
+//                    }
+//                });
+//                clarinAddMenu.add(reloadProfilesMenuItem);
+            //  }
         }
     }
 
@@ -1165,7 +1216,7 @@ public class ContextMenu {
                         String imdiFavouriteUrlString = evt.getActionCommand();
                         ImdiTreeObject templateImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, ImdiTreeObject.conformStringToUrl(imdiFavouriteUrlString));
                         if (leadSelectedTreeNode != null) {
-                            leadSelectedTreeNode.requestAddNode(((JMenuItem) evt.getSource()).getText(), templateImdiObject);
+                            new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateImdiObject);
                         }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
@@ -1204,6 +1255,7 @@ public class ContextMenu {
             viewXmlMenuItem.setVisible(false);
             viewXmlMenuItemFormatted.setVisible(false);
             openXmlMenuItemFormatted.setVisible(false);
+            exportHtmlMenuItemFormatted.setVisible(false);
             overrideTypeCheckerDecision.setVisible(false);
             viewInBrrowserMenuItem.setVisible(false);
             browseForResourceFileMenuItem.setVisible(false);
@@ -1238,7 +1290,9 @@ public class ContextMenu {
             matchingCellsMenuItem.setVisible(false);
             openInLongFieldEditorMenuItem.setVisible(false);
             clearCellColoursMenuItem.setVisible(false);
+            searchReplaceMenuItem.setVisible(false);
             jumpToNodeInTreeMenuItem.setVisible(false);
+            showChildNodesMenuItem.setVisible(false);
             //////////
             // menu separators
 //        treePopupMenuSeparator1.setVisible(true);
@@ -1316,6 +1370,7 @@ public class ContextMenu {
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItemFormatted.setVisible(true);
                 openXmlMenuItemFormatted.setVisible(true);
+                exportHtmlMenuItemFormatted.setVisible(true);
             }
             viewInBrrowserMenuItem.setVisible(true);
             overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isMetaDataNode() && leadSelectedTreeNode.mpiMimeType == null);
@@ -1332,7 +1387,7 @@ public class ContextMenu {
         if (selectionCount > 0) {
             nodeLevel = ((JTree) eventSource).getSelectionPath().getPathCount();
         }
-        showRemoveLocationsTasks = selectionCount == 1 && nodeLevel == 2;
+        showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
         showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 //        Object leadSelectedTreeObject = ((ImdiTree) eventSource).getSingleSelectedNode();
         //System.out.println("path count: " + ((JTree) evt.getSource()).getSelectionPath().getPathCount());
@@ -1430,11 +1485,12 @@ public class ContextMenu {
                     viewSelectedRowsMenuItem.setVisible(true);
                     matchingRowsMenuItem.setVisible(true);
                     removeSelectedRowsMenuItem.setVisible(true);
+                    showChildNodesMenuItem.setVisible(true);
                 }
                 boolean canDeleteSelectedFields = true;
                 ImdiField[] currentSelection = currentTable.getSelectedFields();
                 for (ImdiField currentField : currentSelection) {
-                    if (!currentField.parentImdi.currentTemplate.pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                    if (!currentField.parentImdi.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
                         canDeleteSelectedFields = false;
                         break;
                     }
@@ -1470,6 +1526,10 @@ public class ContextMenu {
                 }
                 jumpToNodeInTreeMenuItem.setVisible(true);
                 clearCellColoursMenuItem.setVisible(true);
+            }
+            if (currentTable.getParent().getParent().getParent().getParent() instanceof LinorgSplitPanel) {
+                // test the LinorgSplitPanel exists before showing this
+                searchReplaceMenuItem.setVisible(true);
             }
         }
     }

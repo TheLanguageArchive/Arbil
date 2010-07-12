@@ -2,6 +2,7 @@ package nl.mpi.arbil.clarin;
 
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.JProgressBar;
 import nl.mpi.arbil.LinorgSessionStorage;
 import org.apache.commons.digester.Digester;
 
@@ -13,17 +14,37 @@ import org.apache.commons.digester.Digester;
 public class CmdiProfileReader {
 
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
+    // todo: move this url into the config file
     String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
+//    String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles";
     //String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264758016524/xsd";
     //"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles"
 
     public static void main(String args[]) {
-        new CmdiProfileReader();
+        new CmdiProfileReader().loadProfiles();
+    }
+    static CmdiProfileReader singleInstance = null;
+
+    static synchronized public CmdiProfileReader getSingleInstance() {
+        // make sure the profiles xml need only be read once per session
+        if (singleInstance == null) {
+            singleInstance = new CmdiProfileReader();
+        }
+        return singleInstance;
     }
 
     public static boolean pathIsProfile(String pathString) {
-        // TODO: make this smarter
-        return (pathString.startsWith("http") && pathString.contains("clarin"));
+        // TODO: make this smarter (this only needs to determin if the path is to a template file or an xsd)
+        return (pathString.startsWith("http") || pathString.contains("clarin") || pathString.endsWith(".xsd") || pathString.endsWith("/xsd"));
+    }
+
+    public CmdiProfile getProfile(String XsdHref) {
+        for (CmdiProfile currentProfile : cmdiProfileArray) {
+            if (currentProfile.getXsdHref().equals(XsdHref)) {
+                return currentProfile;
+            }
+        }
+        return null;
     }
 
     public class CmdiProfile {
@@ -40,13 +61,34 @@ public class CmdiProfileReader {
         }
     }
 
-    public CmdiProfileReader() {
+    private CmdiProfileReader() {
         loadProfiles();
     }
 
-    public void refreshProfiles() {
-        LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, 0);
+    public void refreshProfiles(JProgressBar progressBar, boolean forceUpdate) {
+        progressBar.setIndeterminate(true);
+        progressBar.setString("");
+        int updateDays;
+        if (forceUpdate) {
+            updateDays = 0;
+        } else {
+            updateDays = 100;
+        }
+        LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, updateDays);
         loadProfiles();
+        progressBar.setIndeterminate(false);
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(cmdiProfileArray.size() + 1);
+        progressBar.setValue(1);
+        // get all the xsd files from the profile listing and store them on disk for offline use
+        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+            progressBar.setString(currentCmdiProfile.name);
+            System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
+            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), updateDays);
+            progressBar.setValue(progressBar.getValue() + 1);
+        }
+        progressBar.setString("");
+        progressBar.setValue(0);
     }
 
     public void loadProfiles() {
@@ -71,7 +113,12 @@ public class CmdiProfileReader {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }  // Example method called by Digester.
+        // get all the xsd files from the profile listing and store them on disk for offline use
+//        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
+//            System.out.println("checking profile exists on disk: " + currentCmdiProfile.getXsdHref());
+//            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 90);
+//        }
+    }
 
     public void addProfile(String id,
             String description,

@@ -2,8 +2,8 @@
 <METATRANSCRIPT 
 	Date="2003-09-23" 
 	FormatId="IMDI 3.03" 
-	Originator="" 
-	Type="Sign-Language Session"
+	Originator="Sign Language"
+	Type="SESSION"
 	Version="0"
 	xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -11,7 +11,7 @@
     <Session>
         <Name>Sign-Language Session</Name>
         <Title/>
-        <Date/>
+    <Date>Unspecified</Date>
         <Description LanguageId="" Link=""/>
         <MDGroup>
             <Location>

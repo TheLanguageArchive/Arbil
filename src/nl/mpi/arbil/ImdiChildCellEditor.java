@@ -72,16 +72,16 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             public void keyReleased(KeyEvent evt) {
                 if (!cellHasControlledVocabulary() && isStartLongFieldKey(evt)) {// prevent ctrl key events getting through etc.
                     startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-                } else if (!evt.isActionKey() &&
-                        !evt.isMetaDown() && // these key down checks will not catch a key up event hence the key codes below which work for up and down events
-                        !evt.isAltDown() &&
-                        !evt.isAltGraphDown() &&
-                        !evt.isControlDown() &&
-                        evt.getKeyCode() != 16 && /* 16 is a shift key up or down event */
-                        evt.getKeyCode() != 17 && /* 17 is the ctrl key*/
-                        evt.getKeyCode() != 18 && /* 18 is the alt key*/
-                        evt.getKeyCode() != 157 &&/* 157 is the meta key*/
-                        evt.getKeyCode() != 27 /* 27 is the esc key*/) {
+                } else if (!evt.isActionKey()
+                        && !evt.isMetaDown() && // these key down checks will not catch a key up event hence the key codes below which work for up and down events
+                        !evt.isAltDown()
+                        && !evt.isAltGraphDown()
+                        && !evt.isControlDown()
+                        && evt.getKeyCode() != 16
+                        && /* 16 is a shift key up or down event */ evt.getKeyCode() != 17
+                        && /* 17 is the ctrl key*/ evt.getKeyCode() != 18
+                        && /* 18 is the alt key*/ evt.getKeyCode() != 157
+                        &&/* 157 is the meta key*/ evt.getKeyCode() != 27 /* 27 is the esc key*/) {
                     startEditorMode(false, evt.getKeyCode(), evt.getKeyChar());
                 }
             }
@@ -150,7 +150,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
         if (cellValue instanceof ImdiField[]) {
             ImdiTreeObject parentObject = ((ImdiField[]) cellValue)[0].parentImdi;
             // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
-            returnValue = parentObject.isLocal() && parentObject.isMetaDataNode() && ((ImdiField[]) cellValue)[0].fieldID != null;
+            returnValue = !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
         }
         return (returnValue);
     }
@@ -210,7 +210,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                     // set the language id selection in the dropdown
                     boolean selectedValueFound = false;
                     for (int itemCounter = 0; itemCounter < fieldLanguageBoxs[cellFieldCounter].getItemCount(); itemCounter++) {
-                        Object currentObject = (ImdiVocabularies.VocabularyItem) fieldLanguageBoxs[cellFieldCounter].getItemAt(itemCounter);
+                        Object currentObject = fieldLanguageBoxs[cellFieldCounter].getItemAt(itemCounter);
                         if (currentObject instanceof ImdiVocabularies.VocabularyItem) {
                             ImdiVocabularies.VocabularyItem currentItem = (ImdiVocabularies.VocabularyItem) currentObject;
 //                        System.out.println(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
@@ -243,7 +243,7 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
             final JComboBox comboBox = new JComboBox();
             ImdiVocabularies.VocabularyItem selectedItem = null;
             comboBox.setEditable(false);
-            ImdiVocabularies.VocabularyItem[] languageItemArray = cellField.getLanguageList();
+            ImdiVocabularies.VocabularyItem[] languageItemArray = new DocumentationLanguages().getLanguageListSubset();
             Arrays.sort(languageItemArray);
             for (ImdiVocabularies.VocabularyItem currentItem : languageItemArray) {
                 comboBox.addItem(currentItem);
@@ -263,7 +263,9 @@ public class ImdiChildCellEditor extends AbstractCellEditor implements TableCell
                 public void actionPerformed(ActionEvent e) {
                     try {
                         ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                        cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true, false);
+                        if (comboBox.getSelectedItem() instanceof ImdiVocabularies.VocabularyItem) {
+                            cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) comboBox.getSelectedItem()).languageCode, true, false);
+                        }
                         comboBox.removeItem(defaultLanguageDropDownValue);
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);

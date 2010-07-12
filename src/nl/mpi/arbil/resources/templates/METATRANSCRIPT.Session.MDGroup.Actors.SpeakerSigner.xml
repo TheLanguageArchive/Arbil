@@ -5,16 +5,16 @@
         <Name>Speaker/Signer Actor</Name>
         <FullName/>
         <Code/>
-        <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" Type="OpenVocabularyList"/>
+        <FamilySocialRole Link="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" Type="OpenVocabularyList"></FamilySocialRole>
         <Languages>
             <Description LanguageId="" Link=""/>
         </Languages>
         <EthnicGroup/>
-        <Age/>
-        <BirthDate/>
-        <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" Type="ClosedVocabulary"/>
-        <Education/>
-        <Anonymized Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary"/>
+        <Age>Unspecified</Age>
+        <BirthDate>Unspecified</BirthDate>
+        <Sex Link="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" Type="ClosedVocabulary"></Sex>
+        <Education>Unspecified</Education>
+        <Anonymized Link="http://www.mpi.nl/IMDI/Schema/Boolean.xml" Type="ClosedVocabulary">Unspecified</Anonymized>
         <Contact>
             <Name/>
             <Address/>

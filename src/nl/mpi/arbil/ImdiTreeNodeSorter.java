@@ -43,19 +43,22 @@ public class ImdiTreeNodeSorter implements Comparator {
     }
 
     private int getTypeIndex(ImdiTreeObject targetImdiObject) {
+        if (targetImdiObject.isInfoLink) {
+            return 1;
+        }
         if (targetImdiObject.imdiDataLoaded) { // caution: this sort can cause the tree to collapse when nodes reload because the nodes will be removed if not in order
             if (targetImdiObject.isCorpus()) {
-                return 1;
-            } else if (targetImdiObject.isCatalogue()) {
                 return 2;
-            } else if (targetImdiObject.isSession()) {
+            } else if (targetImdiObject.isCatalogue()) {
                 return 3;
-            } else if (targetImdiObject.isImdiChild()) {
+            } else if (targetImdiObject.isSession()) {
                 return 4;
-            } else if (targetImdiObject.isDirectory()) {
+            } else if (targetImdiObject.isImdiChild()) {
                 return 5;
-            } else {
+            } else if (targetImdiObject.isDirectory()) {
                 return 6;
+            } else {
+                return 7;
             }
         } else {
             // put the loading nodes at the end to help the tree sorting and rendering process

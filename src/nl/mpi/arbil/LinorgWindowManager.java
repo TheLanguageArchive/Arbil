@@ -13,10 +13,11 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -67,7 +68,7 @@ public class LinorgWindowManager {
     private LinorgWindowManager() {
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(new java.awt.Color(204, 204, 204));
-        GuiHelper.arbilDragDrop.addTransferHandler(desktopPane);
+        ArbilDragDrop.getSingleInstance().addTransferHandler(desktopPane);
     }
 
     public void loadGuiState(JFrame linorgFrameLocal) {
@@ -112,14 +113,14 @@ public class LinorgWindowManager {
 
     public void openAboutPage() {
         LinorgVersion linorgVersion = new LinorgVersion();
-        String messageString = "Archive Builder\n" +
-                "A local tool for organising linguistic data.\n" +
-                "Max Planck Institute for Psycholinguistics\n" +
-                "Application design and programming by Peter Withers\n" +
-                "Arbil also uses components of the IMDI API and Lamus Type Checker\n" +
-                "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n" +
-                linorgVersion.lastCommitDate + "\n" +
-                "Compile Date: " + linorgVersion.compileDate + "\n";
+        String messageString = "Archive Builder\n"
+                + "A local tool for organising linguistic data.\n"
+                + "Max Planck Institute for Psycholinguistics\n"
+                + "Application design and programming by Peter Withers\n"
+                + "Arbil also uses components of the IMDI API and Lamus Type Checker\n"
+                + "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n"
+                + linorgVersion.lastCommitDate + "\n"
+                + "Compile Date: " + linorgVersion.compileDate + "\n";
         JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
     }
 
@@ -135,19 +136,62 @@ public class LinorgWindowManager {
         }
     }
 
+    public File showEmptyExportDirectoryDialogue(String titleText) {
+        boolean fileSelectDone = false;
+        try {
+            while (!fileSelectDone) {
+                File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox(titleText + " Destination Directory", true, false, false);
+                if (selectedFiles != null && selectedFiles.length > 0) {
+                    File destinationDirectory = selectedFiles[0];
+                    if (!destinationDirectory.exists()/* && parentDirectory.getParentFile().exists()*/) {
+                        // create the directory provided that the parent directory exists
+                        // ths is here due the the way the mac file select gui leads the user to type in a new directory name
+                        destinationDirectory.mkdirs();
+                    }
+                    if (!destinationDirectory.exists()) {
+                        JOptionPane.showMessageDialog(linorgFrame, "The export directory\n\"" + destinationDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
+                    } else {
+//                        if (!createdDirectory) {
+//                            String newDirectoryName = JOptionPane.showInputDialog(linorgFrame, "Enter Export Name", titleText, JOptionPane.PLAIN_MESSAGE, null, null, "arbil_export").toString();
+//                            try {
+//                                destinationDirectory = new File(parentDirectory.getCanonicalPath() + File.separatorChar + newDirectoryName);
+//                                destinationDirectory.mkdir();
+//                            } catch (Exception e) {
+//                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
+//                            }
+//                        }
+                        if (destinationDirectory != null && destinationDirectory.exists()) {
+                            if (destinationDirectory.list().length == 0) {
+                                fileSelectDone = true;
+                                return destinationDirectory;
+                            } else {
+                                if (showMessageDialogBox("The selected export directory is not empty.\nTo continue will merge and may overwrite files.\nDo you want to continue?", titleText)) {
+                                    return destinationDirectory;
+                                }
+                                //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
+                            }
+                        }
+                    }
+                } else {
+                    fileSelectDone = true;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("aborting export: " + e.getMessage());
+        }
+        return null;
+    }
+
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
         // test for os: if mac or file then awt else for other and directory use swing
         // save/load last directory accoring to the title of the dialogue
-        Hashtable<String, File> fileSelectLocationsHashtable;
+        //Hashtable<String, File> fileSelectLocationsHashtable;
         File workingDirectory = null;
-        try {
-            fileSelectLocationsHashtable = (Hashtable<String, File>) LinorgSessionStorage.getSingleInstance().loadObject("fileSelectLocations");
-            workingDirectory = fileSelectLocationsHashtable.get(titleText);
-        } catch (Exception exception) {
-            fileSelectLocationsHashtable = new Hashtable<String, File>();
-        }
-        if (workingDirectory == null) {
+        String workingDirectoryPathString = LinorgSessionStorage.getSingleInstance().loadString("fileSelect." + titleText);
+        if (workingDirectoryPathString == null) {
             workingDirectory = new File(System.getProperty("user.home"));
+        } else {
+            workingDirectory = new File(workingDirectoryPathString);
         }
         File lastUsedWorkingDirectory;
 
@@ -237,12 +281,7 @@ public class LinorgWindowManager {
             lastUsedWorkingDirectory = fileChooser.getCurrentDirectory();
         }
         // save last use working directory
-        fileSelectLocationsHashtable.put(titleText, lastUsedWorkingDirectory);
-        try {
-            LinorgSessionStorage.getSingleInstance().saveObject(fileSelectLocationsHashtable, "fileSelectLocations");
-        } catch (IOException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-        }
+        LinorgSessionStorage.getSingleInstance().saveString("fileSelect." + titleText, lastUsedWorkingDirectory.getAbsolutePath());
         return returnFile;
     }
 
@@ -273,7 +312,7 @@ public class LinorgWindowManager {
 
     private synchronized void showMessageDialogQueue() {
         if (!showMessageThreadrunning) {
-            new Thread() {
+            new Thread("showMessageThread") {
 
                 public void run() {
                     try {
@@ -610,6 +649,16 @@ public class LinorgWindowManager {
 //                                    System.out.println(ex.getMessage());
                                 }
                             }
+                            if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_F) {
+                                JInternalFrame windowToSearch = desktopPane.getSelectedFrame();
+                                //System.out.println(windowToSearch.getContentPane());
+                                for (Component childComponent : windowToSearch.getContentPane().getComponents()) {
+                                    // loop through all the child components in the window (there will probably only be one)
+                                    if (childComponent instanceof LinorgSplitPanel) {
+                                        ((LinorgSplitPanel) childComponent).showSearchPane();
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -635,6 +684,9 @@ public class LinorgWindowManager {
             tempWindowHeight = nextWindowHeight;
         } else {
             tempWindowHeight = desktopPane.getHeight() - 50;
+        }
+        if (tempWindowHeight < 100) {
+            tempWindowHeight = 100;
         }
         currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
 
@@ -713,14 +765,31 @@ public class LinorgWindowManager {
 
     public ImdiTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
         ImdiTreeObject[] tableNodes = new ImdiTreeObject[rowNodesArray.length];
+        ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
-//            try {
-            tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, rowNodesArray[arrayCounter]);
-//            } catch (URISyntaxException ex) {
-//                GuiHelper.linorgBugCatcher.logError(ex);
-//            }
+            try {
+                if (rowNodesArray[arrayCounter] != null) {
+                    ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
+//                parentNode.waitTillLoaded();
+                    String fieldPath = rowNodesArray[arrayCounter].getFragment();
+                    String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                    URI targetNode;
+                    // note that the url has already be encoded and so we must not use the separate parameter version of new URI otherwise it would be encoded again which we do not want
+                    if (parentNodeFragment.length() > 0) {
+                        targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0] + "#" + parentNodeFragment);
+                    } else {
+                        targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0]);
+                    }
+                    tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, targetNode);
+                    fieldPathsToHighlight.add(fieldPath);
+                }
+            } catch (URISyntaxException ex) {
+                GuiHelper.linorgBugCatcher.logError(ex);
+            }
         }
-        return openFloatingTableOnce(tableNodes, frameTitle);
+        ImdiTableModel targetTableModel = openFloatingTableOnce(tableNodes, frameTitle);
+        targetTableModel.highlightMatchingFieldPaths(fieldPathsToHighlight.toArray(new String[]{}));
+        return targetTableModel;
     }
 
     public ImdiTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
@@ -740,6 +809,16 @@ public class LinorgWindowManager {
     }
 
     public ImdiTableModel openFloatingTableOnce(ImdiTreeObject[] rowNodesArray, String frameTitle) {
+        if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
+            try {
+                if (rowNodesArray[0].getUrlString().toLowerCase().endsWith(".html") || rowNodesArray[0].getUrlString().toLowerCase().endsWith(".txt")) {
+                    openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getURI().toURL());
+                    return null;
+                }
+            } catch (MalformedURLException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+        }
         // open find a table containing exactly the same nodes as requested or create a new table
         for (Component[] currentWindow : windowList.values().toArray(new Component[][]{})) {
             // loop through all the windows

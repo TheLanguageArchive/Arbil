@@ -72,7 +72,7 @@ class JListToolTip extends JToolTip {
             addDetailLabel("Name: ", tempFields.get("Name"));
             addDetailLabel("Title: ", tempFields.get("Title"));
             addDetailLabel("Description: ", tempFields.get("Description"));
-            addTabbedLabel("Template: " + tempObject.currentTemplate.getTemplateName());
+            addTabbedLabel("Template: " + tempObject.getNodeTemplate().getTemplateName());
             addDetailLabel("Format: ", tempFields.get("Format"));
         } else {
             if (!tempObject.isDirectory()) {
@@ -100,7 +100,11 @@ class JListToolTip extends JToolTip {
                 addTabbedLabel("Resource file not found");
             }
         } else if (tempObject.isMetaDataNode()) {
-            addTabbedLabel("Local file (editable)");
+            if (tempObject.isEditable()) {
+                addTabbedLabel("Local file (editable)");
+            } else {
+                addTabbedLabel("Local file (read only)");
+            }
             if (tempObject.fileNotFound) {
                 addTabbedLabel("File not found");
             }
@@ -114,6 +118,9 @@ class JListToolTip extends JToolTip {
         if (tempObject.isFavorite()) {
             addTabbedLabel("Available in the favourites menu");
         }
+        if (tempObject.hasSchemaError) {
+            addTabbedLabel("Schema validation error (Check XML Conformance for details)");
+        }
     }
 
     public void updateList() {
@@ -125,7 +132,7 @@ class JListToolTip extends JToolTip {
                     addIconLabel(((Object[]) targetObject)[childCounter]);
                 }
                 if (((Object[]) targetObject)[0] != null && ((Object[]) targetObject)[0] instanceof ImdiField) {
-                    addDetailLabel(((ImdiField) ((Object[]) targetObject)[0]).parentImdi.currentTemplate.getHelpStringForField(((ImdiField) ((Object[]) targetObject)[0]).getFullXmlPath()));
+                    addDetailLabel(((ImdiField) ((Object[]) targetObject)[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) ((Object[]) targetObject)[0]).getFullXmlPath()));
                 }
             } else if (targetObject instanceof ImdiTreeObject) {
                 addIconLabel(targetObject);
@@ -133,7 +140,7 @@ class JListToolTip extends JToolTip {
             } else {
                 addDetailLabel(targetObject.toString());
                 if (targetObject instanceof ImdiField) {
-                    addDetailLabel(((ImdiField) targetObject).parentImdi.currentTemplate.getHelpStringForField(((ImdiField) targetObject).getFullXmlPath()));
+                    addDetailLabel(((ImdiField) targetObject).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) targetObject).getFullXmlPath()));
                 }
                 //JTextField
 //                JTextArea jTextArea = new JTextArea();

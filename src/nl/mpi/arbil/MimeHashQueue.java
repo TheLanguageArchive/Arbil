@@ -16,7 +16,7 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 
 /**
  * Document   : MimeHashQueue
@@ -53,8 +53,9 @@ public class MimeHashQueue {
     public MimeHashQueue() {
         System.out.println("MimeHashQueue init");
         imdiObjectQueue = new Vector();
+        checkResourcePermissions = LinorgSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true);
         continueThread = true;
-        new Thread() {
+        new Thread("MimeHashQueue") {
 
             public void run() {
                 int serverPermissionsChecked = 0;
@@ -181,7 +182,7 @@ public class MimeHashQueue {
     private void updateAutoFields(ImdiTreeObject currentImdiObject, File resourceFile) {
         Set<String> currentNodeFieldNames = currentImdiObject.getFields().keySet();
         // loop over the auto fields from the template
-        for (String[] autoFields : currentImdiObject.currentTemplate.autoFieldsArray) {
+        for (String[] autoFields : currentImdiObject.getNodeTemplate().autoFieldsArray) {
             String fieldPath = autoFields[0];
             String fileAttribute = autoFields[1];
             String autoValue = null;
@@ -273,20 +274,17 @@ public class MimeHashQueue {
                 try {
 //TODO: consider adding the mime type field here as a non mull value and updating it when available so that the field order is tidy
                     int currentFieldId = 1;
-                    ImdiField sizeField = new ImdiField(targetLooseFile, "Size", getFileSizeString(fileObject));
-                    sizeField.fieldID = "x" + currentFieldId++;
+                    ImdiField sizeField = new ImdiField(currentFieldId++, targetLooseFile, "Size", getFileSizeString(fileObject), 0);
                     targetLooseFile.addField(sizeField);
                     // add the modified date
                     Date mtime = new Date(fileObject.lastModified());
                     String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-                    ImdiField dateField = new ImdiField(targetLooseFile, "last modified", mTimeString);
-                    dateField.fieldID = "x" + currentFieldId++;
+                    ImdiField dateField = new ImdiField(currentFieldId++, targetLooseFile, "last modified", mTimeString, 0);
                     targetLooseFile.addField(dateField);
                     // get exif tags
 //                System.out.println("get exif tags");
-                    ImdiField[] exifFields = ImdiSchema.getSingleInstance().getExifMetadata(targetLooseFile);
+                    ImdiField[] exifFields = new BinaryMetadataReader().getExifMetadata(targetLooseFile, currentFieldId);
                     for (ImdiField currentField : exifFields) {
-                        currentField.fieldID = "x" + currentFieldId++;
                         targetLooseFile.addField(currentField);
 //                    System.out.println(currentField.fieldValue);
                     }
@@ -487,7 +485,7 @@ public class MimeHashQueue {
 //
 //        // there is no point counting matches when the hash does not exist, ie when there is no file.          
 //        if (hashString != null) {
-//            //System.out.println("countMatches <<<<<<<<<<< " + this.toString());
+//            //System.out.println("countMatches" + this.toString());
 //            matchesLocal = 0;
 //            matchesRemote = 0;
 //            matchesLocalResource = 0;

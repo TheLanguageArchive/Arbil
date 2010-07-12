@@ -137,7 +137,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
     }
 
     private void performSearch() {
-        new Thread() {
+        new Thread("performSearch") {
 
             @Override
             public void run() {

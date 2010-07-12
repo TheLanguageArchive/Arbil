@@ -32,6 +32,8 @@ public class LinorgSplitPanel extends JPanel {
     private JScrollPane listScroller;
     private JSplitPane splitPane;
     private JLabel hiddenColumnsLabel;
+    private FindReplacePanel findReplacePanel = null;
+    private boolean showSearchPanel = false;
     private JPanel tableOuterPanel;
     boolean selectionChangeInProcess = false; // this is to stop looping selection changes
 
@@ -122,7 +124,7 @@ public class LinorgSplitPanel extends JPanel {
                                 imdiTable.scrollRectToVisible(imdiTable.getCellRect(minSelectedRow, 0, true));
                             }
                         }
-                        if (TreeHelper.trackTableSelection) {
+                        if (LinorgSessionStorage.getSingleInstance().trackTableSelection) {
                             TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ImdiTreeObject) ((JList) e.getSource()).getSelectedValue());
                         }
                     }
@@ -157,13 +159,29 @@ public class LinorgSplitPanel extends JPanel {
                     if (maxSelectedRow != -1) {
                         fileList.scrollRectToVisible(fileList.getCellBounds(minSelectedRow, maxSelectedRow));
                     }
-                    if (TreeHelper.trackTableSelection) {
+                    if (LinorgSessionStorage.getSingleInstance().trackTableSelection) {
                         TreeHelper.getSingleInstance().jumpToSelectionInTree(true, imdiTable.getImdiNodeForSelection());
                     }
                     selectionChangeInProcess = false;
                 }
             }
         });
+    }
+
+    public void showSearchPane() {
+        if (findReplacePanel == null) {
+            findReplacePanel = new FindReplacePanel(this);
+        }
+        if (!showSearchPanel) {
+            tableOuterPanel.remove(hiddenColumnsLabel);
+            tableOuterPanel.add(findReplacePanel, BorderLayout.SOUTH);
+        } else {
+            tableOuterPanel.remove(findReplacePanel);
+            tableOuterPanel.add(hiddenColumnsLabel, BorderLayout.SOUTH);
+        }
+        showSearchPanel = !showSearchPanel;
+        this.revalidate();
+        this.repaint();
     }
 
     public void setSplitDisplay() {
@@ -174,14 +192,14 @@ public class LinorgSplitPanel extends JPanel {
             splitPane.setTopComponent(tableOuterPanel);
 //            splitPane.setTopComponent(tableScrollPane);
             splitPane.setBottomComponent(listScroller);
-            GuiHelper.arbilDragDrop.addDrag(fileList);
-            GuiHelper.arbilDragDrop.addTransferHandler(tableScrollPane);
+            ArbilDragDrop.getSingleInstance().addDrag(fileList);
+            ArbilDragDrop.getSingleInstance().addTransferHandler(tableScrollPane);
             this.add(splitPane);
             this.doLayout();
             splitPane.setDividerLocation(0.5);
         }
-        GuiHelper.arbilDragDrop.addDrag(imdiTable);
-        GuiHelper.arbilDragDrop.addTransferHandler(this);
+        ArbilDragDrop.getSingleInstance().addDrag(imdiTable);
+        ArbilDragDrop.getSingleInstance().addTransferHandler(this);
         this.doLayout();
     }
 

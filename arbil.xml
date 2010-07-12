@@ -8,8 +8,8 @@
     <target name="setproperties">
         <property name="arbil.current.major" value="2"/>
         <property name="arbil.current.minor" value="0"/>
-        <property name="arbil.filenameidentifier" value="-clarin-testing"/>
-        <property name="arbil.application-title" value="Arbil (clarin-testing)"/>
+        <property name="arbil.filenameidentifier" value=""/>
+        <property name="arbil.application-title" value="Arbil"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/"/>
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
@@ -123,9 +123,12 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <exec dir="${BUILDDIR}" executable="wine" ><!--os="Windows NT"-->
             <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" arbil-win-installer.iss'/>
         </exec>
+        <delete dir="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip"/>
         <zip destfile="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip" >
             <file file="${OUTPUTDIR}/distribution-win32/arbil-installer-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.exe"/>
         </zip>
+        <available file="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip" property="installerZipMissing"/>
+        <fail unless="installerZipMissing" message="arbil${arbil.filenameidentifier}-installer.zip doesn't exist! Is Inno Setup installed inside wine?"/>
     </target>
     <target name="buildMacInstaller" depends="updateJnlpAndAppletHtml">
         <!--check that the icon exists and fail if not-->
@@ -199,6 +202,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="copyFilesForXSL" depends="setproperties">
         <!-- TODO: this should be removed and these files used from within the relevent jar file which in turn comes from the maven repository -->
+        <available file="${SRCDIR}../../../trunk/src/html/imdi-viewer/imdi-viewer.xsl" property="packageAdditAvail"/>
+        <fail unless="packageAdditAvail" message="missing files from trunk: the xsl, javascript and images must be available for imdi files to be converted to html"/>
         <copy todir="${BUILDDIR}/nl/mpi/arbil/resources/xsl/">
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
@@ -261,10 +266,12 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </fileset>
         </copy>-->
     </target>
-    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib" description="create a Jar file">
+    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib, updateJnlpAndAppletHtml" description="create a Jar file">
         <!--check that the icon exists and fail if not-->
         <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="jarIconAvail"/>
         <fail unless="jarIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
+        <mkdir dir="${BUILDDIR}/JNLP-INF/"/>
+        <copy overwrite="true" file="${BUILDDIR}/arbil.jnlp" tofile="${BUILDDIR}/JNLP-INF/application.jnlp"/>
         <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
             <fileset dir="${SRCDIR}" includes="log4j.properties"/>
@@ -276,6 +283,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
+            <fileset dir="${BUILDDIR}" includes="JNLP-INF/application.jnlp"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.LinorgFrame"/>
                 <!--TODO: (currently removed due to inclusion in the installer for windows) consider preventing the imagemagick jar being on the class path for windows due to the effect it might have on other os -->
@@ -408,13 +416,9 @@ public class LinorgVersion {
             <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
         </input>
         <scp file="${OUTPUTDIR}/${ArbilJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil${arbil.filenameidentifier}_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil${arbil.filenameidentifier}_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.deb"/>
-        <!-- push the updated the applet html and the arbil jnlp files to the server -->
-        <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
         <scp file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
-        <scp file= "${BUILDDIR}/arbil-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
         <!-- http://lux17.mpi.nl/arbil/arbil-applet.html -->
         <!--<scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>-->
 <!--
@@ -434,6 +438,10 @@ public class LinorgVersion {
         <scp file="${OUTPUTDIR}/distribution-win32/arbil-installer-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.exe" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${OUTPUTDIR}/distribution-win32/arbil${arbil.filenameidentifier}-installer.zip" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}-mac.tar" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <!-- push the updated the applet html and the arbil jnlp files to the server -->
+        <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
+        <scp file= "${BUILDDIR}/arbil-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
+        <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
     </target>
 </project>
  

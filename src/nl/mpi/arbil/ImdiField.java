@@ -1,7 +1,7 @@
 package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 
 /**
  * Document   : ImdiField
@@ -13,10 +13,9 @@ public class ImdiField {
     public ImdiTreeObject parentImdi;
     public String xmlPath;
     private String translatedPath = null;
-    public String fieldValue = "";
+    private String fieldValue = "";
     public String originalFieldValue = fieldValue;
-    @Deprecated
-    public String fieldID;
+    private int fieldOrder = -1;
     private ImdiVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     public boolean vocabularyIsOpen;
@@ -27,12 +26,15 @@ public class ImdiField {
     private String originalLanguageId = null;
     private int isRequiredField = -1;
     private int canValidateField = -1;
+    private int siblingCount;
 
-    public ImdiField(ImdiTreeObject localParentImdi, String tempPath, String tempValue) {
+    public ImdiField(int fieldOrderLocal, ImdiTreeObject localParentImdi, String tempPath, String tempValue, int tempSiblingCount) {
+        fieldOrder = fieldOrderLocal;
         parentImdi = localParentImdi;
         fieldValue = tempValue;
         originalFieldValue = fieldValue;
         xmlPath = tempPath;
+        siblingCount = tempSiblingCount;
     }
 
 //private String originalValue = null;
@@ -47,7 +49,7 @@ public class ImdiField {
         if (isRequiredField < 0) {
             isRequiredField = 0;
             String fullXmlPath = getGenericFullXmlPath();
-            for (String currentRequiredField : parentImdi.currentTemplate.requiredFields) {
+            for (String currentRequiredField : parentImdi.getNodeTemplate().requiredFields) {
                 if (fullXmlPath.matches(currentRequiredField)) {
                     isRequiredField = 1;
                     break;
@@ -75,7 +77,7 @@ public class ImdiField {
         if (canValidateField != 0) { // only do this the first time or once a field constraint has been found
             canValidateField = 0;
             String fullXmlPath = getGenericFullXmlPath();
-            for (String[] currentRequiredField : parentImdi.currentTemplate.fieldConstraints) {
+            for (String[] currentRequiredField : parentImdi.getNodeTemplate().fieldConstraints) {
                 if (fullXmlPath.matches(currentRequiredField[0])) {
                     canValidateField = 1;
                     isValidValue = (fieldValue.matches(currentRequiredField[1]));
@@ -107,12 +109,13 @@ public class ImdiField {
     }
 
     public String getFieldValue() {
+//        return getFullXmlPath();
         return fieldValue;
     }
 
     // returns the full xml path with the path indexes replaced by x's
     public String getGenericFullXmlPath() {
-        return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)");
+        return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)").replaceFirst("\\(x\\)$", "");
     }
 
     public String getFullXmlPath() {
@@ -123,16 +126,21 @@ public class ImdiField {
         } else {
             returnValue = this.xmlPath;
         }
+        if (siblingCount > 0) {
+            returnValue = returnValue + "(" + (siblingCount + 1) + ")";
+        }
         return returnValue;
     }
 
     public void setFieldValue(String fieldValueToBe, boolean updateUI, boolean excludeFromUndoHistory) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         fieldValueToBe = fieldValueToBe.trim();
         if (!this.fieldValue.equals(fieldValueToBe)) {
             if (!excludeFromUndoHistory) {
                 LinorgJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe, LinorgJournal.UndoType.Value);
             }
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, this.fieldValue, fieldValueToBe, "edit");
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), this.fieldValue, fieldValueToBe, "edit");
             this.fieldValue = fieldValueToBe;
             new FieldChangeTriggers().actOnChange(this);
             // this now scans all fields in the imdiparent and its child nodes to set the "needs save to disk" flag in the imdi nodes
@@ -149,6 +157,8 @@ public class ImdiField {
     }
 
     public void setLanguageId(String languageIdLocal, boolean updateUI, boolean excludeFromUndoHistory) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         String oldLanguageId = getLanguageId();
         boolean valueChanged = false;
         // this is expanded for readability
@@ -163,18 +173,13 @@ public class ImdiField {
             if (!excludeFromUndoHistory) {
                 LinorgJournal.getSingleInstance().recordFieldChange(this, this.getLanguageId(), languageIdLocal, LinorgJournal.UndoType.LanguageId);
             }
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
+            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath() + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
             //addFieldAttribute("LanguageId", languageIdLocal);
             languageId = languageIdLocal;
 //            fieldLanguageId = languageId;
             parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
         }
 
-    }
-
-    public ImdiVocabularies.VocabularyItem[] getLanguageList() {
-        // TODO: move this url to somewhere appropriate (preferably in the imdi file)
-        return ImdiVocabularies.getSingleInstance().getVocabulary(this, "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml").getVocabularyItems();
     }
 
     public ImdiVocabularies.Vocabulary getVocabulary() {
@@ -207,9 +212,10 @@ public class ImdiField {
         parentImdi.setImdiNeedsSaveToDisk(this, updateUI);
     }
 
-    public void setFieldAttribute(String fieldIDLocal, String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
-        fieldID = fieldIDLocal;
-        languageId = languageIdLocal;
+    public void setFieldAttribute(String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
+         languageId = languageIdLocal;
         originalLanguageId = languageId;
         keyName = keyNameLocal;
         originalKeyName = keyName;
@@ -238,6 +244,14 @@ public class ImdiField {
             if (cvUrlString != null && cvUrlString.length() > 0) {
                 fieldVocabulary = ImdiVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
             }
+        } else {
+            // vocabularies specified in the xml override vocabularies defined in the schema
+            if (parentImdi.nodeTemplate != null) {
+                // get the schema vocabularies
+//                System.out.println("parentImdi.nodeTemplate: " + parentImdi.nodeTemplate.loadedTemplateName);
+//                System.out.println("this.getGenericFullXmlPath(): " + this.getGenericFullXmlPath());
+                fieldVocabulary = parentImdi.nodeTemplate.getFieldVocabulary(this.getGenericFullXmlPath());
+            }
         }
     }
 
@@ -247,15 +261,11 @@ public class ImdiField {
 //            if (!isDisplayable()) {
 //                return "check attributes";// fieldAttributes.keys().toString();
 //            }
-        return fieldValue;
+        return getFieldValue();
     }
 
-    public int getFieldID() {
-        if (fieldID != null) {
-            return Integer.parseInt(fieldID.substring(1));
-        } else {
-            return -1;
-        }
+    public int getFieldOrder() {
+        return fieldOrder;
     }
 
     public String getKeyName() {
@@ -263,6 +273,8 @@ public class ImdiField {
     }
 
     public void setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
+        // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
+        // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         System.out.println("setKeyName: " + keyNameLocal);
         String lastValue = getKeyName();
         System.out.println("lastValue: " + lastValue);
@@ -273,7 +285,7 @@ public class ImdiField {
                     LinorgJournal.getSingleInstance().recordFieldChange(this, this.getKeyName(), keyNameLocal, LinorgJournal.UndoType.KeyName);
                 }
                 // TODO: resolve how to log key name changes
-                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), this.xmlPath, lastValue, keyNameLocal, "editkeyname");
+                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), lastValue, keyNameLocal, "editkeyname");
                 keyName = keyNameLocal;
                 translatedPath = null;
                 getTranslateFieldName();
@@ -289,16 +301,18 @@ public class ImdiField {
             String fieldName = xmlPath;
             // TODO: move this to the imdischema class
             // replace the xml paths with user friendly node names
-//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "WrittenResource", "WrittenResource");
-//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup" + ImdiSchema.imdiPathSeparator + "Actors" + ImdiSchema.imdiPathSeparator + "Actor", "Actors");
-//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "Anonyms", "Anonyms");
-//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "Resources" + ImdiSchema.imdiPathSeparator + "MediaFile", "MediaFiles");
-//            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup", "");
-            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session" + ImdiSchema.imdiPathSeparator + "MDGroup", "");
-            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Session", "");
-            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Corpus", "");
-            fieldName = fieldName.replace(ImdiSchema.imdiPathSeparator + "METATRANSCRIPT" + ImdiSchema.imdiPathSeparator + "Catalogue", "");
+//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Resources" + MetadataReader.imdiPathSeparator + "WrittenResource", "WrittenResource");
+//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "MDGroup" + MetadataReader.imdiPathSeparator + "Actors" + MetadataReader.imdiPathSeparator + "Actor", "Actors");
+//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Resources" + MetadataReader.imdiPathSeparator + "Anonyms", "Anonyms");
+//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Resources" + MetadataReader.imdiPathSeparator + "MediaFile", "MediaFiles");
+//            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "MDGroup", "");
+            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "MDGroup", "");
+            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session", "");
+            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus", "");
+            fieldName = fieldName.replace(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue", "");
 
+            // handle the clarin path names
+            fieldName = fieldName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
 
 //                    if (attributeName.equals("Name")) {
             if (fieldName.endsWith("Keys.Key")) {
@@ -306,13 +320,19 @@ public class ImdiField {
                 //String keyValue = getFieldAttribute("Name");
                 if (keyName != null) {
 //                    System.out.println("Key value valid: " + keyValue.toString());
-                    fieldName = fieldName + ImdiSchema.imdiPathSeparator + keyName;
+                    fieldName = fieldName + MetadataReader.imdiPathSeparator + keyName;
                 }
-//                xmlPath = xmlPath + ImdiSchema.imdiPathSeparator + attributeValue;
+//                xmlPath = xmlPath + MetadataReader.imdiPathSeparator + attributeValue;
 
             }
             if (fieldName.startsWith(".")) {
                 fieldName = fieldName.substring(1);
+            }
+            if (LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName) {
+                // add the language id to the column name if available
+                if (getLanguageId() != null && getLanguageId().length() > 0) {
+                    fieldName = fieldName + " [" + getLanguageId() + "]";
+                }
             }
             translatedPath = fieldName;
         }

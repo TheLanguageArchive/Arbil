@@ -43,13 +43,8 @@ public class LinorgFrame extends javax.swing.JFrame {
         LinorgWindowManager.getSingleInstance().openIntroductionPage();
 
         if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
-            if (new LinorgVersionChecker().hasWebStartUrl()) {
-                new LinorgVersionChecker().checkForAndUpdateViaJavaws(this);
-            } else {
-                new LinorgVersionChecker().checkForUpdate(this);
-            }
+            new LinorgVersionChecker().checkForUpdate();
         }
-
     }
 
     /** This method is called from within the constructor to

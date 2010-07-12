@@ -289,11 +289,13 @@ public class ImdiTable extends JTable {
         return /*getParent() instanceof JViewport && */ getPreferredSize().height < getParent().getHeight();
     }
 
+    @Override
     public JToolTip createToolTip() {
 //        System.out.println("createToolTip");
         listToolTip.updateList();
         return listToolTip;
     }
+
     @Override
     public boolean isCellEditable(int row, int column) {
         Object cellValue = imdiTableModel.getValueAt(row, convertColumnIndexToModel(column));
@@ -487,7 +489,9 @@ public class ImdiTable extends JTable {
         if (selectedRows.length > 0) {
             System.out.println("coll select mode: " + this.getColumnSelectionAllowed());
             System.out.println("cell select mode: " + this.getCellSelectionEnabled());
-            if (this.getCellSelectionEnabled()) {
+            // when a user selects a cell and uses ctrl+a to change the selection the selection mode does not change from cell to row allCellsSelected is to resolve this error
+            boolean allCellsSelected = this.getSelectedRowCount() == this.getRowCount() && this.getSelectedColumnCount() == this.getColumnCount();
+            if (this.getCellSelectionEnabled() && !allCellsSelected) {
                 System.out.println("cell select mode");
                 ImdiField[] selectedFields = getSelectedFields();
                 if (selectedFields != null) {

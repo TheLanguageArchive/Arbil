@@ -2,7 +2,7 @@
 <METATRANSCRIPT 
 	Date="2003-09-23" 
 	FormatId="IMDI 3.03" 
-	Originator="" 
+	Originator=""
 	Type="SESSION" 
 	Version="0"
 	xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" 
@@ -11,7 +11,7 @@
   <Session>
     <Name>Standard (Session) Resource Bundle</Name>
     <Title/>
-    <Date/>
+    <Date>Unspecified</Date>
     <Description LanguageId="" Link=""/>
     <MDGroup>
       <Location>

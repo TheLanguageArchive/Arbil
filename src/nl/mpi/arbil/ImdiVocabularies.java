@@ -61,48 +61,50 @@ public class ImdiVocabularies {
     }
 
     public Vocabulary getVocabulary(ImdiField originatingImdiField, String vocabularyLocation) {
-        if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
-            return null;
-        }
-        String fieldPath = originatingImdiField.getGenericFullXmlPath();
-        // testing code for checking the language fields have the required triggers
-        if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
-            boolean foundTrigger = false;
+        if (originatingImdiField != null) {
+            if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
+                return null;
+            }
+            String fieldPath = originatingImdiField.getGenericFullXmlPath();
+            // testing code for checking the language fields have the required triggers
+            if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
+                boolean foundTrigger = false;
 //            System.out.println("vocabularyLocation: " + vocabularyLocation);
 //            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
-            for (String[] currentTrigger : originatingImdiField.parentImdi.currentTemplate.fieldTriggersArray) {
-                if (fieldPath.equals(currentTrigger[0])) {
-                    foundTrigger = true;
+                for (String[] currentTrigger : originatingImdiField.parentImdi.getNodeTemplate().fieldTriggersArray) {
+                    if (fieldPath.equals(currentTrigger[0])) {
+                        foundTrigger = true;
+                    }
+                }
+                if (!foundTrigger) {
+                    if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
+                        GuiHelper.linorgBugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingImdiField.parentImdi.getUrlString()));
+                    }
                 }
             }
-            if (!foundTrigger) {
-                if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
-                    GuiHelper.linorgBugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingImdiField.parentImdi.getUrlString()));
+            ///////////////////////////////
+            // look for genre / sub genre redirects in the template
+            String vocabularyRedirectField = null;
+            for (String[] currentRedirect : originatingImdiField.parentImdi.getNodeTemplate().genreSubgenreArray) {
+                if (fieldPath.equals(currentRedirect[0])) {
+                    vocabularyRedirectField = currentRedirect[1];
                 }
             }
-        }
-        ///////////////////////////////
-        // look for genre / sub genre redirects in the template
-        String vocabularyRedirectField = null;
-        for (String[] currentRedirect : originatingImdiField.parentImdi.currentTemplate.genreSubgenreArray) {
-            if (fieldPath.equals(currentRedirect[0])) {
-                vocabularyRedirectField = currentRedirect[1];
-            }
-        }
-        if (vocabularyRedirectField != null) {
-            ImdiField[] tempField = originatingImdiField.getSiblingField(vocabularyRedirectField);
-            if (tempField != null) {
-                String redirectFieldString = tempField[0].toString();
-                // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
-                Vocabulary tempVocabulary = tempField[0].getVocabulary();
-                VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
+            if (vocabularyRedirectField != null) {
+                ImdiField[] tempField = originatingImdiField.getSiblingField(vocabularyRedirectField);
+                if (tempField != null) {
+                    String redirectFieldString = tempField[0].toString();
+                    // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
+                    Vocabulary tempVocabulary = tempField[0].getVocabulary();
+                    VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
 //                System.out.println("redirectFieldString: " + redirectFieldString);
-                if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
-                    System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
-                    String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
-                    // change the requested vocabulary string to the redirected value
-                    vocabularyLocation = correctedUrl;
-                    System.out.println("redirected vocabularyLocation: " + vocabularyLocation);
+                    if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
+                        System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
+                        String correctedUrl = tempVocabulary.resolveFollowUpUrl(redirectFieldVocabItem.followUpVocabulary);
+                        // change the requested vocabulary string to the redirected value
+                        vocabularyLocation = correctedUrl;
+                        System.out.println("redirected vocabularyLocation: " + vocabularyLocation);
+                    }
                 }
             }
         }
@@ -112,6 +114,20 @@ public class ImdiVocabularies {
         } else {
             if (!vocabulariesTable.containsKey(vocabularyLocation)) {
                 parseRemoteFile(vocabularyLocation);
+            }
+            return vocabulariesTable.get(vocabularyLocation);
+        }
+    }
+
+    public Vocabulary getEmptyVocabulary(String vocabularyLocation) {
+        System.out.println("getEmptyVocabulary: " + vocabularyLocation);
+        if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
+            return null;
+        } else {
+            if (!vocabulariesTable.containsKey(vocabularyLocation)) {
+                Vocabulary vocabulary = new Vocabulary(vocabularyLocation);
+                vocabulariesTable.put(vocabularyLocation, vocabulary);
+                return vocabulary;
             }
             return vocabulariesTable.get(vocabularyLocation);
         }
@@ -203,7 +219,7 @@ public class ImdiVocabularies {
             vocabularyUrl = locationUrl;
         }
 
-        public void addEntry(String entryString) {
+        public void addEntry(String entryString, String entryCode) {
             boolean itemExistsInVocab = false;
             for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
                 if (currentVocabularyItem.languageName.equals(entryString)) {
@@ -211,7 +227,7 @@ public class ImdiVocabularies {
                 }
             }
             if (!itemExistsInVocab) {
-                vocabularyItems.add(new VocabularyItem(entryString, null, null));
+                vocabularyItems.add(new VocabularyItem(entryString, entryCode, null));
             }
         }
 

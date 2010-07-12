@@ -2,14 +2,14 @@ package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import org.xml.sax.SAXException;
@@ -21,7 +21,10 @@ import org.xml.sax.SAXException;
  */
 public class ArbilTemplate {
 
-    private String loadedTemplateName;
+    public File templateFile;
+    Hashtable<String, ImdiVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
+    public String loadedTemplateName;
+    public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
     /*
     <FieldTriggers>
@@ -77,10 +80,44 @@ public class ArbilTemplate {
      */
     String[][] childNodePaths;
     String[][] fieldUsageArray;
+    String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
+
+    public boolean pathCanHaveResource(String nodePath) {
+        // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
+        if (nodePath == null) {
+            if (resourceNodePaths.length > 0) {
+                return true;
+            }
+        } else {
+            // todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
+            nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
+            //System.out.println("pathThatCanHaveResource: " + nodePath);
+            for (String[] currentPath : resourceNodePaths) {
+                //System.out.println("pathCanHaveResource: " + currentPath[0]);
+                if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean pathIsEditableField(String nodePath) {
+//        System.out.println("nodePath: " + nodePath);
+        for (String[] pathString : childNodePaths) {
+            if (pathString[0].startsWith(nodePath) || pathString[0].equals(nodePath)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public String pathIsChildNode(String nodePath) {
+//        System.out.println("pathIsChildNode");
+//        System.out.println("nodePath: " + nodePath);
         for (String[] pathString : childNodePaths) {
             if (nodePath.endsWith((pathString[0]))) {
+//                System.out.println("pathString[1]: " + pathString[1]);
                 return pathString[1];
             }
         }
@@ -106,9 +143,10 @@ public class ArbilTemplate {
 
     public boolean pathIsDeleteableField(String nodePath) {
         // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
-        nodePath = nodePath.substring(1) + ".xml";
+        String imdiNodePath = nodePath.substring(1) + ".xml";
+        String cmdiNodePath = nodePath.replaceAll("\\(x\\)", "");
         for (String[] pathString : templatesArray) {
-            if (pathString[0].equals((nodePath))) {
+            if (pathString[0].equals((cmdiNodePath)) || pathString[0].equals(imdiNodePath)) {
                 return true;
             }
         }
@@ -141,44 +179,44 @@ public class ArbilTemplate {
         System.out.println("nodepath: " + nodepath);
         System.out.println("targetNodePath: " + targetNodePath);
 
-        try {
-//            System.out.println("get templatesDirectory");
-            File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
-//            System.out.println("check templatesDirectory");
-            if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
-//                System.out.println("using templatesDirectory");
-                String[] testingListing = templatesDirectory.list();
-                Arrays.sort(testingListing);
-                for (String itemString : testingListing) {
-                    System.out.println("\"" + itemString + "\",");
-                }
-                Arrays.sort(templatesArray, new Comparator() {
-
-                    public int compare(Object obj1, Object obj2) {
-                        return ((String[]) obj1)[0].compareToIgnoreCase(((String[]) obj2)[0]);
-                    }
-                });
-                int linesRead = 0;
-                for (String[] currentTemplate : templatesArray) {
-//                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
-                    if (testingListing != null) {
-                        if (!testingListing[linesRead].equals(currentTemplate[0])) {
-                            System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
-//                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
-                        }
-                    }
-                    linesRead++;
-                }
-                if (testingListing != null) {
-                    if (testingListing.length - 2 != linesRead) {
-                        System.out.println(testingListing[linesRead]);
-//                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+        /*try {
+        //            System.out.println("get templatesDirectory");
+        File templatesDirectory = new File(this.getClass().getResource("/nl/mpi/arbil/resources/templates/").getFile());
+        //            System.out.println("check templatesDirectory");
+        if (templatesDirectory.exists()) { // compare the templates directory to the array and throw if there is a discrepancy
+        //                System.out.println("using templatesDirectory");
+        String[] testingListing = templatesDirectory.list();
+        Arrays.sort(testingListing);
+        for (String itemString : testingListing) {
+        System.out.println("\"" + itemString + "\",");
         }
+        Arrays.sort(templatesArray, new Comparator() {
+
+        public int compare(Object obj1, Object obj2) {
+        return ((String[]) obj1)[0].compareToIgnoreCase(((String[]) obj2)[0]);
+        }
+        });
+        int linesRead = 0;
+        for (String[] currentTemplate : templatesArray) {
+        //                    System.out.println("currentTemplate: " + currentTemplate + " : " + testingListing[linesRead]);
+        if (testingListing != null) {
+        if (!testingListing[linesRead].equals(currentTemplate[0])) {
+        System.out.println("error: " + currentTemplate[0] + " : " + testingListing[linesRead]);
+        //                            GuiHelper.linorgBugCatcher.logError(new Exception("error in the templates array"));
+        }
+        }
+        linesRead++;
+        }
+        if (testingListing != null) {
+        if (testingListing.length - 2 != linesRead) {
+        System.out.println(testingListing[linesRead]);
+        //                        GuiHelper.linorgBugCatcher.logError(new Exception("error missing line in the templates array"));
+        }
+        }
+        }
+        } catch (Exception ex) {
+        GuiHelper.linorgBugCatcher.logError(ex);
+        }*/
         for (String[] currentTemplate : templatesArray) {
 //            ==================================== TemplateComponent-FileName-NodePath-DisplayName
 //            String templateFileName = currentTemplate[0];
@@ -186,7 +224,7 @@ public class ArbilTemplate {
 //            String templateDisplayName = currentTemplate[2];
 //            if (!templateFileName.endsWith("Session") && !templateFileName.endsWith("Catalogue")) { // sessions cannot be added to a session
 //                if (templateNodePath.startsWith(nodepath)) {
-//                    if (targetNodePath.replaceAll("[^(]*", "").length() >= templateNodePath.replaceAll("[^(]*", "").length()) {//TODO: check the string engh has not changed here due to the lack of the .xml
+//                    if (targetNodePath.replaceAll("[^(]*", "").length() >= templateNodePath.replaceAll("[^(]*", "").length()) {// check the string engh has not changed here due to the lack of the .xml
 //            currentTemplate[0] = "." + currentTemplate[0];
 //            ==================================== TemplateComponent-FileName-NodePath-DisplayName
             if (!currentTemplate[0].endsWith("Session.xml") && !currentTemplate[0].endsWith("Catalogue.xml")) { // sessions cannot be added to a session
@@ -213,6 +251,27 @@ public class ArbilTemplate {
         return returnVector;
     }
 
+    public String getParentOfField(String targetFieldPath) {
+        if (targetFieldPath == null) {
+            return "";
+        }
+        String testString = targetFieldPath.replaceAll("\\(\\d+\\)", "");
+        String bestMatch = "";
+        for (String[] currentTemplate : childNodePaths) {
+            String currentNodePath = currentTemplate[0];
+            if (testString.startsWith(currentNodePath)) {
+                if (bestMatch.length() < currentNodePath.length()) {
+                    bestMatch = currentNodePath;
+                }
+            }
+        }
+        String returnString = targetFieldPath;
+        while (returnString.split("\\.").length > bestMatch.split("\\.").length) {
+            returnString = returnString.replaceFirst("\\.[^\\.]+$", "");
+        }
+        return returnString;
+    }
+
     /**
      * This function is only a place holder and will be replaced.
      * @param targetNodeUserObject The imdi node that will receive the new child.
@@ -223,7 +282,7 @@ public class ArbilTemplate {
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
         if (targetNodeUserObject instanceof ImdiTreeObject) {
-            String xpath = ImdiSchema.getNodePath((ImdiTreeObject) targetNodeUserObject);
+            String xpath = MetadataReader.getNodePath((ImdiTreeObject) targetNodeUserObject);
             childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
             if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
                 for (String[] currentTemplate : rootTemplatesArray) {
@@ -269,7 +328,15 @@ public class ArbilTemplate {
         return "No usage description found in this template for: " + fieldName;
     }
 
+    public ImdiVocabularies.Vocabulary getFieldVocabulary(String nodePath) {
+        if (vocabularyHashTable != null) {
+            return vocabularyHashTable.get(nodePath);
+        }
+        return null;
+    }
+
     public boolean readTemplate(File templateConfigFile, String templateName) {
+        templateFile = templateConfigFile;
         // testing: parseXsdForUsageDescriptions();
         try {
             javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
@@ -288,6 +355,7 @@ public class ArbilTemplate {
                 ArrayList<String[]> rootTemplateComponentList = new ArrayList<String[]>();
                 ArrayList<String[]> fieldUsageList = new ArrayList<String[]>();
                 ArrayList<String[]> autoFieldsList = new ArrayList<String[]>();
+                ArrayList<String> preferredNameFieldsList = new ArrayList<String>();
 
                 @Override
                 public void startElement(String uri, String name, String qName, org.xml.sax.Attributes atts) {
@@ -337,6 +405,10 @@ public class ArbilTemplate {
                         String fileAttribute = atts.getValue("FileAttribute");
                         autoFieldsList.add(new String[]{fieldPath, fileAttribute});
                     }
+                    if (name.equals("TreeNodeNameField")) {
+                        String fieldsShortName = atts.getValue("FieldsShortName");
+                        preferredNameFieldsList.add(fieldsShortName);
+                    }
                 }
 
                 @Override
@@ -351,10 +423,11 @@ public class ArbilTemplate {
                     rootTemplatesArray = rootTemplateComponentList.toArray(new String[][]{});
                     fieldUsageArray = fieldUsageList.toArray(new String[][]{});
                     autoFieldsArray = autoFieldsList.toArray(new String[][]{});
+                    preferredNameFields = preferredNameFieldsList.toArray(new String[]{});
                 }
             });
             loadedTemplateName = templateName;
-            URL internalTemplateName = ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
+            URL internalTemplateName = MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateName + ".xml");
             if (templateConfigFile.exists()) {
                 xmlReader.parse(templateConfigFile.getPath());
             } else if (templateName.equals("Sign Language") || templateName.equals("template_cmdi")) {// (new File(internalTemplateName.getFile()).exists()) {
@@ -362,7 +435,7 @@ public class ArbilTemplate {
             } else {
                 loadedTemplateName = "Default"; // (" + loadedTemplateName + ") n/a";
                 // todo: LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A template could not be read.\n" + templateConfigFile.getAbsolutePath() + "\nThe default template will be used instead.", "Load Template");
-                xmlReader.parse(ImdiSchema.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
+                xmlReader.parse(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml").toExternalForm());
             }
             return true;
         } catch (Exception ex) {
@@ -374,5 +447,21 @@ public class ArbilTemplate {
 
     public String getTemplateName() {
         return loadedTemplateName;
+    }
+
+    public File getTemplateDirectory() {
+        File currentTemplateDirectory = new File(ArbilTemplateManager.getSingleInstance().getTemplateDirectory(), loadedTemplateName);
+        if (!currentTemplateDirectory.exists()) {
+            currentTemplateDirectory.mkdir();
+        }
+        return currentTemplateDirectory;
+    }
+
+    public File getTemplateComponentDirectory() {
+        File currentTemplateComponentDirectory = new File(getTemplateDirectory(), "components");
+        if (!currentTemplateComponentDirectory.exists()) {
+            currentTemplateComponentDirectory.mkdir();
+        }
+        return currentTemplateComponentDirectory;
     }
 }

@@ -16,7 +16,7 @@ import javax.swing.UIManager;
  */
 public class ImdiIcons {
 
-    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/"+ new LinorgVersion().applicationIconName));
+    public ImageIcon linorgIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/" + new LinorgVersion().applicationIconName));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
@@ -35,7 +35,7 @@ public class ImdiIcons {
 //    private ImageIcon mediafileIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/mediafile.png"));
 //    private ImageIcon corpuslocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpuslocal16x16c.png"));
 //    private ImageIcon metadataIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/metadata.png"));
-    private ImageIcon corpusnodeColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusnode_color.png"));
+    public ImageIcon corpusnodeColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusnode_color.png"));
     //private ImageIcon missingRedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/missing-red.png"));
     private ImageIcon missingRedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/notfound.png"));
 //    private ImageIcon corpusnodeIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusnode.png"));
@@ -46,15 +46,16 @@ public class ImdiIcons {
     private ImageIcon picturesIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/pictures.png"));
 //    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusserverlocal16x16c.png"));
     private ImageIcon questionRedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/question-red.png"));
-    private ImageIcon dataIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
+    public ImageIcon dataIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
+    public ImageIcon fieldIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
 //    private ImageIcon server16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
 //    private ImageIcon directory16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
 //    private ImageIcon sessionColorLocalIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-local.png"));
 //    private ImageIcon directoryclosed16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/directoryclosed16x16.png"));
-    private ImageIcon sessionColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color.png"));
-    private ImageIcon clarinIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/clarinE.png"));
-    private ImageIcon catalogueColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/catalogue.png"));
+    public ImageIcon sessionColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color.png"));
+    public ImageIcon clarinIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/clarinE.png"));
+    public ImageIcon catalogueColorIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/catalogue.png"));
     private ImageIcon exclamationBlueIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-blue.png"));
 //    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-serverlocal.png"));
 //    private ImageIcon exclamationGreenIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-green.png"));
@@ -72,7 +73,7 @@ public class ImdiIcons {
 //    private ImageIcon tickRedIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-red.png"));
 //    private ImageIcon fileserverlocal16x16Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/fileserverlocal16x16.png"));
 //    private ImageIcon tickYellowIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/tick-yellow.png"));
-//    private ImageIcon infofileIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/infofile.png"));
+    private ImageIcon infofileIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/infofile.png"));
 //    private ImageIcon transcriptIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/transcript.png"));
 //    private ImageIcon lexiconIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/lexicon.png"));    //  loading icons
 //    private ImageIcon loading01Icon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/loading01.png"));
@@ -209,6 +210,8 @@ public class ImdiIcons {
                 iconsVector.add(questionRedIcon);
                 GuiHelper.linorgBugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
             }
+        } else if (imdiObject.isInfoLink) {
+            iconsVector.add(infofileIcon);
         } else if (imdiObject.hasResource()) {
             // the resource is not found so show a unknow resource icon
             iconsVector.add(fileIcon);

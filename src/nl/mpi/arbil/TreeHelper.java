@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
@@ -40,7 +41,6 @@ public class TreeHelper {
     public ImdiTreeObject[] localFileNodes = new ImdiTreeObject[]{};
     public ImdiTreeObject[] favouriteNodes = new ImdiTreeObject[]{};
     static private TreeHelper singleInstance = null;
-    static public boolean trackTableSelection = false;
     Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
     public boolean showHiddenFilesInTree = false;
@@ -63,8 +63,8 @@ public class TreeHelper {
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
         localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
         favouritesTreeModel = new DefaultTreeModel(favouritesRootNode, true);
-        // load any favourites from the previous file format
-        LinorgFavourites.getSingleInstance().loadOldFormatFavourites();
+        // load any locations from the previous file formats
+        LinorgFavourites.getSingleInstance().convertOldFormatLocationLists();
 
         loadLocationsList();
     }
@@ -125,7 +125,9 @@ public class TreeHelper {
         remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
         for (String currentUrlString : new String[]{
                     "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
-                    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi"
+                    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
+                    //                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1.imdi",
+                    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi",
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi",
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi",
@@ -166,7 +168,8 @@ public class TreeHelper {
             for (String currentLocation : locationsSet) {
                 locationsList.add(URLDecoder.decode(currentLocation, "UTF-8"));
             }
-            LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+            //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
+            LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
             System.out.println("saved locationsList");
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -177,7 +180,7 @@ public class TreeHelper {
     public void loadLocationsList() {
         try {
             System.out.println("loading locationsList");
-            Vector<String> locationsList = (Vector<String>) LinorgSessionStorage.getSingleInstance().loadObject("locationsList");
+            String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("locationsList");
 //            System.out.println("loaded locationsList.size: " + locationsList.size());
             // remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes
 
@@ -187,8 +190,8 @@ public class TreeHelper {
             Vector<ImdiTreeObject> favouriteNodesVector = new Vector<ImdiTreeObject>();
 
             // this also removes all locations and replaces them with normalised paths
-            for (Enumeration<String> locationEnum = locationsList.elements(); locationEnum.hasMoreElements();) {
-                URI currentLocation = ImdiTreeObject.conformStringToUrl(locationEnum.nextElement());
+            for (String currentLocationString : locationsArray) {
+                URI currentLocation = ImdiTreeObject.conformStringToUrl(currentLocationString);
                 ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
                 if (currentTreeObject.isLocal()) {
                     if (currentTreeObject.isFavorite()) {
@@ -229,7 +232,7 @@ public class TreeHelper {
         showHiddenFilesInTree = showState;
         reloadNodesInTree(localDirectoryRootNode);
         try {
-            LinorgSessionStorage.getSingleInstance().saveObject(showHiddenFilesInTree, "showHiddenFilesInTree");
+            LinorgSessionStorage.getSingleInstance().saveBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
         } catch (Exception ex) {
             System.out.println("save showHiddenFilesInTree failed");
         }
@@ -299,7 +302,7 @@ public class TreeHelper {
 
     // check that all child nodes are attached and sorted, removing any extranious nodes found
     private void updateTreeNodeChildren(DefaultMutableTreeNode parentNode, ImdiTreeObject[] childNodes, Vector<DefaultMutableTreeNode> scrollToRequests) {
-//        System.out.println("updateTreeNodeChildren");
+//        System.out.println("updateTreeNodeChildren: " + parentNode);
         ImdiTree currentTree = getTreeForNode(parentNode);
         DefaultTreeModel treeModel = getModelForNode(parentNode);
 //        if (parentNode.getUserObject() instanceof ImdiTreeObject && parentNode.getChildCount() > 0) {
@@ -384,13 +387,14 @@ public class TreeHelper {
     }
 
     synchronized public void addToSortQueue(DefaultMutableTreeNode addToQueueTreeNode) {
+        // todo: there is an issue that causes the meta node to remain when the last sub node within it is deleted
         if (!treeNodeSortQueue.contains(addToQueueTreeNode)) {
 //            System.out.println("requestSort: " + currentTreeNode.getUserObject().toString());
             treeNodeSortQueue.add(addToQueueTreeNode);
         }
         if (!treeNodeSortQueueRunning) {
             treeNodeSortQueueRunning = true;
-            new Thread() {
+            new Thread("treeNodeSortQueue") {
 
                 @Override
                 public void run() {
@@ -549,7 +553,7 @@ public class TreeHelper {
 //        removeAndDetatchDescendantNodes(itemNode);
 //        loadDescendantNodes(itemNode);
 //    }
-    private void removeAndDetatchDescendantNodes(DefaultMutableTreeNode itemNode) {
+    public void removeAndDetatchDescendantNodes(DefaultMutableTreeNode itemNode) {
         System.out.println("removeDescendantNodes: " + itemNode);
         for (Enumeration<DefaultMutableTreeNode> childNodesEnum = itemNode.children(); childNodesEnum.hasMoreElements();) {
             removeAndDetatchDescendantNodes(childNodesEnum.nextElement());
@@ -566,6 +570,7 @@ public class TreeHelper {
         } else {
             treeModel.nodeStructureChanged(itemNode);
         }
+        treeModel.nodeChanged(itemNode);
     }
 
 //    public void loadAndRefreshDescendantNodes(DefaultMutableTreeNode itemNode) {
@@ -595,6 +600,11 @@ public class TreeHelper {
         addToSortQueue(localCorpusRootNode);
         addToSortQueue(localDirectoryRootNode);
         addToSortQueue(favouritesRootNode);
+        // todo: update the sort method (remove addToSortQueue) or remove the following lines (rootNodeChildren)
+        arbilTreePanel.localCorpusTree.rootNodeChildren = localCorpusNodes;
+        arbilTreePanel.remoteCorpusTree.rootNodeChildren = remoteCorpusNodes;
+        arbilTreePanel.localDirectoryTree.rootNodeChildren = localFileNodes;
+        arbilTreePanel.favouritesTree.rootNodeChildren = favouriteNodes;
     }
 
     public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
@@ -609,6 +619,7 @@ public class TreeHelper {
         if (sourceObject == arbilTreePanel.localCorpusTree) {
             TreePath currentNodePaths[] = ((ImdiTree) sourceObject).getSelectionPaths();
             int toDeleteCount = 0;
+            // count the number of nodes to delete
             for (TreePath currentNodePath : currentNodePaths) {
                 if (currentNodePath != null) {
                     selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -624,8 +635,8 @@ public class TreeHelper {
             }
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 Vector<ImdiTreeObject> imdiNodesToRemove = new Vector<ImdiTreeObject>();
-                Hashtable<ImdiTreeObject, Vector> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector>();
-                Hashtable<ImdiTreeObject, Vector> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector>();
+                Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>>();
+                Hashtable<ImdiTreeObject, Vector<String>> imdiChildNodeDeleteList = new Hashtable<ImdiTreeObject, Vector<String>>();
                 for (TreePath currentNodePath : currentNodePaths) {
                     if (currentNodePath != null) {
                         selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -649,10 +660,10 @@ public class TreeHelper {
                                     }
                                     if (childImdiNode.isEmptyMetaNode()) {
                                         for (ImdiTreeObject metaChildNode : childImdiNode.getChildArray()) {
-                                            imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(metaChildNode.xmlNodeId);
+                                            imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
                                         }
                                     }
-                                    imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.xmlNodeId);
+                                    imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.getURI().getFragment());
                                 } else {
                                     // add the parent and the child node to the deletelist
                                     if (!imdiNodesDeleteList.containsKey(parentImdiNode)) {
@@ -668,6 +679,8 @@ public class TreeHelper {
 //                            }
                             }
                         }
+// todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
+//                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
                         // make a list of all child nodes so that they can be removed from any tables etc
                         imdiNodesToRemove.add((ImdiTreeObject) userObject);
                         ((ImdiTreeObject) userObject).getAllChildren(imdiNodesToRemove);
@@ -676,7 +689,15 @@ public class TreeHelper {
                 for (ImdiTreeObject currentParent : imdiChildNodeDeleteList.keySet()) {
                     System.out.println("deleting by child xml id link");
                     // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
-                    currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                    boolean result = componentBuilder.removeChildNodes(currentParent, (imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    if (result) {
+                        currentParent.reloadNode();
+                    } else {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
+                    }
+                    //GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                 }
                 for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
                     System.out.println("deleting by corpus link");
@@ -684,6 +705,7 @@ public class TreeHelper {
                 }
                 for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
                     // remove the deleted node from all tables
+                    // todo: this is also done in deleteCorpusLink and need not be here
                     ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
                     for (Object currentContainer : currentDeletedNode.getRegisteredContainers()) {
                         // this is required here even though it is now also done in the reloading process

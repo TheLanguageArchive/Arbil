@@ -3,79 +3,114 @@ package nl.mpi.arbil.clarin;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import nl.mpi.arbil.GuiHelper;
 import org.apache.commons.digester.Digester;
 
 /**
- * CmdiComponentLinkReader.java
+ * CmdiResourceLinkReader.java
  * Created on March 12, 2010, 17:04:03
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiComponentLinkReader {
 
-    public ArrayList<CmdiComponentLink> cmdiComponentLinkArray = null;
- 
+    public ArrayList<CmdiResourceLink> cmdiResourceLinkArray = null;
+    public ArrayList<ResourceRelation> cmdiResourceRelationArray = null;
+
     public static void main(String args[]) {
+        System.out.println("CmdiComponentLinkReader");
         CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
-        try {
-            cmdiComponentLinkReader.readLinks(new URI("file:/Users/petwit/.arbil/imdicache/20100309150110/20100309150110/20100312161347/20100312161400.cmdi"));
+        try {//http://www.clarin.eu/cmd/example/example-md-instance.xml
+            cmdiComponentLinkReader.readLinks(new URI("http://www.clarin.eu/cmd/example/example-md-instance.cmdi"));
         } catch (URISyntaxException exception) {
             System.err.println(exception.getMessage());
         }
     }
 
-    public class CmdiComponentLink {
+    public class CmdiResourceLink {
 
-        public String componentId;
-        public String filename;
-        public String name;
-        public String CardinalityMax;
-        public String CardinalityMin;
-        public String href;
+        public String resourceProxyId;
+        public String resourceType;
+        public String resourceRef;
+    }
+
+    public class ResourceRelation {
+
+        String relationType;
+        String res1;
+        String res2;
     }
 
     public CmdiComponentLinkReader() {
     }
 
-    public ArrayList<CmdiComponentLink> readLinks(URI targetCmdiNode) {
+    public URI getLinkUrlString(String resourceRef) {
+        for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
+            if (cmdiResourceLink.resourceProxyId.equals(resourceRef)) {
+                try {
+                    if (cmdiResourceLink.resourceRef != null && cmdiResourceLink.resourceRef.length() > 0) {
+                        if (cmdiResourceLink.resourceRef.startsWith("hdl://")) {
+                            return new URI(cmdiResourceLink.resourceRef.replace("hdl://", "http://hdl.handle.net/"));
+                        } else {
+                            return new URI(cmdiResourceLink.resourceRef);
+                        }
+                    }
+                } catch (URISyntaxException urise) {
+                    GuiHelper.linorgBugCatcher.logError(urise);
+                }
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<CmdiResourceLink> readLinks(URI targetCmdiNode) {
+//        ArrayList<URI> returnUriList = new ArrayList<URI>();
         try {
             Digester digester = new Digester();
-            // This method pushes this (SampleDigester) class to the Digesters
-            // object stack making its methods available to processing rules.
             digester.push(this);
-            // This set of rules calls the addProfile method and passes
-            // in five parameters to the method.
-            digester.addCallMethod("CMD_ComponentSpec/CMD_Component", "addProfile", 2);
-            digester.addCallParam("CMD_ComponentSpec/CMD_Component", 0, "ComponentId");
-            digester.addCallParam("CMD_ComponentSpec/CMD_Component", 1, "filename");
+            digester.addCallMethod("CMD/Resources/ResourceProxyList/ResourceProxy", "addResourceProxy", 3);
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy", 0, "id");
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceType", 1);
+            digester.addCallParam("CMD/Resources/ResourceProxyList/ResourceProxy/ResourceRef", 2);
 
-            cmdiComponentLinkArray = new ArrayList<CmdiComponentLink>();
+            digester.addCallMethod("CMD/Resources/ResourceRelationList/ResourceRelation", "addResourceRelation", 3);
+            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/RelationType", 0);
+            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res1", 1, "ref");
+            digester.addCallParam("CMD/Resources/ResourceRelationList/ResourceRelation/Res2", 2, "ref");
+
+            cmdiResourceLinkArray = new ArrayList<CmdiResourceLink>();
+            cmdiResourceRelationArray = new ArrayList<ResourceRelation>();
             digester.parse(targetCmdiNode.toURL());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return cmdiComponentLinkArray;
-    }  // Example method called by Digester.
+        return cmdiResourceLinkArray;
+    }
 
-    public void addProfile(
-            String componentId,
-            String filename //String id,
-            //String description,
-            //String name,
-            //String registrationDate,
-            //String creatorName,
-            //String href
-            ) {
-        System.out.println(componentId + " : " + filename);
+    public void addResourceProxy(
+            String resourceProxyId,
+            String resourceType,
+            String resourceRef) {
+        System.out.println("addResourceProxy: " + resourceProxyId + " : " + resourceType + " : " + resourceRef);
 
-        CmdiComponentLink cmdiProfile = new CmdiComponentLink();
-        cmdiProfile.componentId = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/components/" + componentId;
-        cmdiProfile.filename = filename;
-//        cmdiProfile.name = name;
-//        cmdiProfile.registrationDate = registrationDate;
-//        cmdiProfile.creatorName = creatorName;
-//        cmdiProfile.href = href;
+        CmdiResourceLink cmdiProfile = new CmdiResourceLink();
+        cmdiProfile.resourceProxyId = resourceProxyId;
+        cmdiProfile.resourceType = resourceType;
+        cmdiProfile.resourceRef = resourceRef;
 
-        // todo: read the sub component for the other values like CardinalityMin CardinalityMax name etc
-        cmdiComponentLinkArray.add(cmdiProfile);
+        cmdiResourceLinkArray.add(cmdiProfile);
+    }
+
+    public void addResourceRelation(
+            String RelationType,
+            String Res1,
+            String Res2) {
+        System.out.println("addResourceRelation: " + RelationType + " : " + Res1 + " : " + Res2);
+
+        ResourceRelation resourceRelation = new ResourceRelation();
+        resourceRelation.relationType = RelationType;
+        resourceRelation.res1 = Res1;
+        resourceRelation.res2 = Res2;
+
+        cmdiResourceRelationArray.add(resourceRelation);
     }
 }

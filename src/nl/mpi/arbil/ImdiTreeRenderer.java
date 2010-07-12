@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import java.awt.Color;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
 import javax.swing.JLabel;
@@ -17,6 +18,7 @@ public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
     public ImdiTreeRenderer() {
     }
 
+    @Override
     public Component getTreeCellRendererComponent(
             JTree tree,
             Object value,
@@ -33,12 +35,14 @@ public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         if (node.getUserObject() instanceof ImdiTreeObject) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) node.getUserObject();
-
+            if (/*!sel && */imdiTreeObject.hasSchemaError) {
+                setForeground(Color.RED);
+            }
             setIcon(imdiTreeObject.getIcon());
 //            setToolTipText(imdiTreeObject.toString());
             //listToolTip.setTartgetObject(imdiTreeObject);
             setEnabled(imdiTreeObject.getNodeEnabled());
-        //setVisible(imdiTreeObject.getNodeEnabled());
+            //setVisible(imdiTreeObject.getNodeEnabled());
         } else if (node.getUserObject() instanceof JLabel) {
             setIcon(((JLabel) node.getUserObject()).getIcon());
             setText(((JLabel) node.getUserObject()).getText());

@@ -1,6 +1,5 @@
 package nl.mpi.arbil;
 
-import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.importexport.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -23,8 +22,9 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.templates.TemplateDialogue;
 
 /**
  * ArbilMenuBar.java
@@ -38,13 +38,15 @@ public class ArbilMenuBar extends JMenuBar {
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem;
     private JMenuItem shortCutKeysjMenuItem;
     private JMenuItem arbilForumMenuItem;
+    private JMenuItem checkForUpdatesMenuItem;
     private JMenuItem viewErrorLogMenuItem;
     private JCheckBoxMenuItem showSelectionPreviewCheckBoxMenuItem;
-    private JMenu templatesMenu;
+    private JMenuItem templatesMenu;
     private JCheckBoxMenuItem trackTableSelectionCheckBoxMenuItem;
+    private JCheckBoxMenuItem useLanguageIdInColumnNameCheckBoxMenuItem;
     private JMenuItem undoMenuItem;
 //    private JMenuItem viewFavouritesMenuItem;
-    private JMenu setStorageDirectoryMenu;
+//    private JMenu setStorageDirectoryMenu;
     private JMenu setCacheDirectoryMenu;
     private JMenu viewMenu;
     static public JMenu windowMenu;
@@ -57,6 +59,8 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem copyMenuItem;
     private JCheckBoxMenuItem copyNewResourcesCheckBoxMenuItem;
     private JCheckBoxMenuItem checkResourcePermissionsCheckBoxMenuItem;
+    private JCheckBoxMenuItem schemaCheckLocalFiles;
+    private JMenuItem editPreferredLanguagesMenuItem;
     private JMenuItem editFieldViewsMenuItem;
 //    private JMenuItem editLocationsMenuItem;
     private JMenuItem updateAllLoadedVocabulariesMenuItem;
@@ -82,10 +86,11 @@ public class ArbilMenuBar extends JMenuBar {
         redoMenuItem = new JMenuItem();
         optionsMenu = new JMenu();
 //        editLocationsMenuItem = new JMenuItem();
-        templatesMenu = new JMenu();
+        templatesMenu = new JMenuItem();
 //        viewFavouritesMenuItem = new JMenuItem();
-        setStorageDirectoryMenu = new JMenu();
+//        setStorageDirectoryMenu = new JMenu();
         setCacheDirectoryMenu = new JMenu();
+        editPreferredLanguagesMenuItem = new JMenuItem();
         editFieldViewsMenuItem = new JMenuItem();
         updateAllLoadedVocabulariesMenuItem = new JMenuItem();
         saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -93,7 +98,9 @@ public class ArbilMenuBar extends JMenuBar {
         checkNewVersionAtStartCheckBoxMenuItem = new JCheckBoxMenuItem();
         copyNewResourcesCheckBoxMenuItem = new JCheckBoxMenuItem();
         checkResourcePermissionsCheckBoxMenuItem = new JCheckBoxMenuItem();
+        schemaCheckLocalFiles = new JCheckBoxMenuItem();
         trackTableSelectionCheckBoxMenuItem = new JCheckBoxMenuItem();
+        useLanguageIdInColumnNameCheckBoxMenuItem = new JCheckBoxMenuItem();
         viewMenu = new JMenu();
         windowMenu = new JMenu();
         helpMenu = new JMenu();
@@ -101,6 +108,7 @@ public class ArbilMenuBar extends JMenuBar {
         helpMenuItem = new JMenuItem();
         shortCutKeysjMenuItem = new JMenuItem();
         arbilForumMenuItem = new JMenuItem();
+        checkForUpdatesMenuItem = new JMenuItem();
         viewErrorLogMenuItem = new JMenuItem();
         printHelpMenuItem = new JMenuItem();
         fileMenu.setText("File");
@@ -277,20 +285,30 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(editLocationsMenuItem);
 
-        templatesMenu.setText("Templates");
-        optionsMenu.add(templatesMenu);
-        templatesMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        templatesMenu.setText("Templates & Profiles");
+        templatesMenu.addActionListener(new java.awt.event.ActionListener() {
 
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
-            }
-
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
-            }
-
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
-                populateTemplatesMenu(templatesMenu);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    TemplateDialogue.showTemplatesDialogue();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
             }
         });
+        optionsMenu.add(templatesMenu);
+//        .addMenuListener(new javax.swing.event.MenuListener() {
+//
+//            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+//            }
+//
+//            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+//            }
+//
+//            public void menuSelected(javax.swing.event.MenuEvent evt) {
+//                populateTemplatesMenu(templatesMenu);
+//            }
+//        });
 
 //        viewFavouritesMenuItem.setText("View Favourites");
 //        viewFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -305,7 +323,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(viewFavouritesMenuItem);
 
-        setCacheDirectoryMenu.setText("Local Working Files Directory");
+        setCacheDirectoryMenu.setText("Local Corpus Storage Directory");
         setCacheDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
 
             public void menuCanceled(javax.swing.event.MenuEvent evt) {
@@ -318,16 +336,16 @@ public class ArbilMenuBar extends JMenuBar {
                 setCacheDirectoryMenu.removeAll();
                 JMenuItem cacheDirectoryMenuItem = new JMenuItem();
                 cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
-
+                cacheDirectoryMenuItem.setEnabled(false);
                 JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
-                changeCacheDirectoryMenuItem.setText("<Move Local Working Files Directory>");
+                changeCacheDirectoryMenuItem.setText("<Move Local Corpus Storage Directory>");
                 changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
-                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Working Files Directory", true, false, false);
+                            LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                            File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
                             if (selectedFiles != null && selectedFiles.length > 0) {
-                                // TODO: the change directory button text is not correct
                                 //fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
                                 LinorgSessionStorage.getSingleInstance().changeCacheDirectory(selectedFiles[0], true);
                             }
@@ -340,24 +358,35 @@ public class ArbilMenuBar extends JMenuBar {
                 setCacheDirectoryMenu.add(changeCacheDirectoryMenuItem);
             }
         });
-        setStorageDirectoryMenu.setText("Congiguration Files Directory");
-        setStorageDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
+//        setStorageDirectoryMenu.setText("Configuration Files Directory");
+//        setStorageDirectoryMenu.addMenuListener(new javax.swing.event.MenuListener() {
+//
+//            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+//            }
+//
+//            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+//            }
+//
+//            public void menuSelected(javax.swing.event.MenuEvent evt) {
+//                populateStorageLocationMenu(setStorageDirectoryMenu);
+//
+//            }
+//        });
+//        JMenu localStorageDirectoriesMenu = new JMenu("Local Storage Directories");
+//        localStorageDirectoriesMenu.add(setStorageDirectoryMenu);
+//        localStorageDirectoriesMenu.add(setCacheDirectoryMenu);
+//        optionsMenu.add(localStorageDirectoriesMenu);
+        optionsMenu.add(setCacheDirectoryMenu);
 
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
-            }
+        editPreferredLanguagesMenuItem.setText("Edit Language List");
+        editPreferredLanguagesMenuItem.setEnabled(true);
+        editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
-            }
-
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
-                populateStorageLocationMenu(setStorageDirectoryMenu);
-
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LanguageListDialogue.showLanguageDialogue();
             }
         });
-        JMenu localStorageDirectoriesMenu = new JMenu("Local Storage Directories");
-        localStorageDirectoriesMenu.add(setStorageDirectoryMenu);
-        localStorageDirectoriesMenu.add(setCacheDirectoryMenu);
-        optionsMenu.add(localStorageDirectoriesMenu);
+        optionsMenu.add(editPreferredLanguagesMenuItem);
 
         editFieldViewsMenuItem.setText("Field Views");
         editFieldViewsMenuItem.setEnabled(false);
@@ -378,19 +407,21 @@ public class ArbilMenuBar extends JMenuBar {
         });
         optionsMenu.add(updateAllLoadedVocabulariesMenuItem);
 
-        saveWindowsCheckBoxMenuItem.setSelected(true);
+        saveWindowsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
         saveWindowsCheckBoxMenuItem.setText("Save Windows on Exit");
         optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
+        showSelectionPreviewCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("showSelectionPreview", true));
+        previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
         showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
-        showSelectionPreviewCheckBoxMenuItem.setSelected(true);
         showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
         showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    showSelectionPreviewCheckBoxMenuItemActionPerformed(evt);
+                    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
+                    LinorgSessionStorage.getSingleInstance().saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -398,44 +429,77 @@ public class ArbilMenuBar extends JMenuBar {
         });
         optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
 
-        checkNewVersionAtStartCheckBoxMenuItem.setSelected(true);
+        checkNewVersionAtStartCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
         checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
         optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
 
-        copyNewResourcesCheckBoxMenuItem.setSelected(true);
+        copyNewResourcesCheckBoxMenuItem.setSelected(MetadataReader.getSingleInstance().copyNewResourcesToCache);
         copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
         copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session copy the file into the local cache.");
         copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+                MetadataReader.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
+                LinorgSessionStorage.getSingleInstance().saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
             }
         });
         optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
-        checkResourcePermissionsCheckBoxMenuItem.setSelected(true);
+        checkResourcePermissionsCheckBoxMenuItem.setSelected(MimeHashQueue.getSingleInstance().checkResourcePermissions);
         checkResourcePermissionsCheckBoxMenuItem.setText("Check permissions for remote resources");
         checkResourcePermissionsCheckBoxMenuItem.setToolTipText("This option checks the server permissions for remote resources and shows icons accordingly.");
         checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
+                LinorgSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
             }
         });
         optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
 
+        schemaCheckLocalFiles.setText("Always check local metadata files for XML conformance");
+        schemaCheckLocalFiles.setSelected(ImdiLoader.getSingleInstance().schemaCheckLocalFiles);
+        schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded.");
+        schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
+
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ImdiLoader.getSingleInstance().schemaCheckLocalFiles = schemaCheckLocalFiles.isSelected();
+                LinorgSessionStorage.getSingleInstance().saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
+            }
+        });
+        optionsMenu.add(schemaCheckLocalFiles);
+
+        trackTableSelectionCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().trackTableSelection);
         trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
         trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    trackTableSelectionCheckBoxMenuItemActionPerformed(evt);
+                    LinorgSessionStorage.getSingleInstance().trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
+                    LinorgSessionStorage.getSingleInstance().saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
             }
         });
         optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
+
+        useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName);
+        useLanguageIdInColumnNameCheckBoxMenuItem.setText("Show Language in Column Name");
+        useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                    LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName = useLanguageIdInColumnNameCheckBoxMenuItem.getState();
+                    LinorgSessionStorage.getSingleInstance().saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
+                    ImdiLoader.getSingleInstance().requestReloadAllNodes();
+                } catch (Exception ex) {
+                    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName);
+                }
+            }
+        });
+        optionsMenu.add(useLanguageIdInColumnNameCheckBoxMenuItem);
 
         this.add(optionsMenu);
 
@@ -524,6 +588,23 @@ public class ArbilMenuBar extends JMenuBar {
         });
         helpMenu.add(viewErrorLogMenuItem);
 
+        checkForUpdatesMenuItem.setText("Check for Updates");
+        checkForUpdatesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    if (!new LinorgVersionChecker().forceUpdateCheck()) {
+                        LinorgVersion linorgVersion = new LinorgVersion();
+                        String versionString = linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision;
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        helpMenu.add(checkForUpdatesMenuItem);
+
         shortCutKeysjMenuItem.setText("Short Cut Keys");
         shortCutKeysjMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -551,17 +632,6 @@ public class ArbilMenuBar extends JMenuBar {
         helpMenu.add(printHelpMenuItem);
         this.add(helpMenu);
 
-        showSelectionPreviewCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("showSelectionPreview", true));
-        showSelectionPreviewCheckBoxMenuItemActionPerformed(null);
-        trackTableSelectionCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("trackTableSelection", false));
-        TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
-        checkNewVersionAtStartCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
-        copyNewResourcesCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("copyNewResources", true));
-        ImdiSchema.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
-        checkResourcePermissionsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true));
-        MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
-        saveWindowsCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
-        showSelectionPreviewCheckBoxMenuItemActionPerformed(null); // this is to set the preview table visible or not
         printHelpMenuItem.setVisible(false);
         setUpHotKeys();
     }
@@ -609,27 +679,19 @@ public class ArbilMenuBar extends JMenuBar {
         }, AWTEvent.KEY_EVENT_MASK);
     }
 
-//    private void editLocationsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-//// TODO add your handling code here:
-//        TreeHelper.getSingleInstance().showLocationsDialog();
-//    }
     private void viewMenuMenuSelected(MenuEvent evt) {
-// TODO add your handling code here:
         GuiHelper.getSingleInstance().initViewMenu(viewMenu);
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         performCleanExit();
     }
 
     private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         LinorgWindowManager.getSingleInstance().openAboutPage();
     }
 
     private void shortCutKeysjMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         LinorgHelp helpComponent = LinorgHelp.getSingleInstance();
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, helpComponent);
@@ -638,7 +700,6 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             // forcus existing or create a new help window
             LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
@@ -646,7 +707,6 @@ public class ArbilMenuBar extends JMenuBar {
     }
 
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-// TODO add your handling code here:
         try {
             ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
             importExportDialog.importImdiBranch();
@@ -655,23 +715,12 @@ public class ArbilMenuBar extends JMenuBar {
         }
     }
 
-//    private void viewFavouritesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-//        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(LinorgFavourites.getSingleInstance().listAllFavourites(), "Favourites");
-//    }
     private void printHelpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         if (null == LinorgWindowManager.getSingleInstance().focusWindow(LinorgHelp.helpWindowTitle)) {
             // forcus existing or create a new help window
             LinorgWindowManager.getSingleInstance().createWindow(LinorgHelp.helpWindowTitle, LinorgHelp.getSingleInstance());
         }
         LinorgHelp.getSingleInstance().printAsOneFile();
-    }
-
-    private void trackTableSelectionCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        TreeHelper.trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
-    }
-
-    private void showSelectionPreviewCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
     }
 
     private void populateStorageLocationMenu(JMenu storageMenu) {
@@ -710,6 +759,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private boolean saveApplicationState() {
         if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
+            // TODO: why is LinorgWindowManager.getSingleInstance().offerUserToSaveChanges(); not used?
             switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 case JOptionPane.NO_OPTION:
                     break;
@@ -721,16 +771,8 @@ public class ArbilMenuBar extends JMenuBar {
             }
         }
         GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
-        try {
-            LinorgSessionStorage.getSingleInstance().saveObject(showSelectionPreviewCheckBoxMenuItem.isSelected(), "showSelectionPreview");
-            LinorgSessionStorage.getSingleInstance().saveObject(trackTableSelectionCheckBoxMenuItem.isSelected(), "trackTableSelection");
-            LinorgSessionStorage.getSingleInstance().saveObject(checkNewVersionAtStartCheckBoxMenuItem.isSelected(), "checkNewVersionAtStart");
-            LinorgSessionStorage.getSingleInstance().saveObject(copyNewResourcesCheckBoxMenuItem.isSelected(), "copyNewResources");
-            LinorgSessionStorage.getSingleInstance().saveObject(checkResourcePermissionsCheckBoxMenuItem.isSelected(), "checkResourcePermissions");
-            LinorgSessionStorage.getSingleInstance().saveObject(saveWindowsCheckBoxMenuItem.isSelected(), "saveWindows");
-        } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
-        }
+        LinorgSessionStorage.getSingleInstance().saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
+        LinorgSessionStorage.getSingleInstance().saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
         return true;
     }
 
@@ -741,81 +783,78 @@ public class ArbilMenuBar extends JMenuBar {
             System.exit(0);
         }
     }
-
-    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
-        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
-        templateMenuItem.setText(templateName);
-        templateMenuItem.setName(templateName);
-        templateMenuItem.setActionCommand(templateName);
-        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
+//    private void addTemplateMenuItem(JMenu templateMenu, ButtonGroup templatesMenuButtonGroup, String templateName, String selectedTemplate) {
+//        JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
+//        templateMenuItem.setText(templateName);
+//        templateMenuItem.setName(templateName);
+//        templateMenuItem.setActionCommand(templateName);
+//        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
-                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
-                    System.out.println("setting template: " + evt.getActionCommand());
-                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
-                } catch (Exception e) {
-                    GuiHelper.linorgBugCatcher.logError(e);
-                }
-            }
-        });
-        templatesMenuButtonGroup.add(templateMenuItem);
-        templateMenu.add(templateMenuItem);
-        if (selectedTemplate.equals(templateName)) {
-            templateMenuItem.setSelected(true);
-        }
-    }
-
-    private void addTemplateAddNewMenuItem(JMenu templateMenu) {
-        JMenuItem templateMenuItem = new JMenuItem();
-        templateMenuItem.setText("<add new>");
-        templateMenuItem.setName("<add new>");
-        templateMenuItem.setActionCommand("<add new>");
-        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
-                    // if the user cancels the directory string will be a empty string.
-                    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
-                    }
-                    if (ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName)) {
-                    } else {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
-                    }
-//                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
-                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
-                } catch (Exception e) {
-                    GuiHelper.linorgBugCatcher.logError(e);
-                }
-            }
-        });
-        templateMenu.add(templateMenuItem);
-    }
-
-    public void populateTemplatesMenu(JMenu templateMenu) {
-        templateMenu.removeAll();
-        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
-
-        int templateCount = 0;
+//                } catch (Exception e) {
+//                    GuiHelper.linorgBugCatcher.logError(e);
+//                }
+//            }
+//        });
+//        templatesMenuButtonGroup.add(templateMenuItem);
+//        templateMenu.add(templateMenuItem);
+//        if (selectedTemplate.equals(templateName)) {
+//            templateMenuItem.setSelected(true);
+//        }
+//    }
+//    private void addTemplateAddNewMenuItem(JMenu templateMenu) {
+//        JMenuItem templateMenuItem = new JMenuItem();
+//        templateMenuItem.setText("<add new>");
+//        templateMenuItem.setName("<add new>");
+//        templateMenuItem.setActionCommand("<add new>");
+//        templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
+//                    String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+//                    // if the user cancels the directory string will be a empty string.
+//                    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
+//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+//                    }
+//                    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
+//                    if (freshTemplateFile != null) {
+//                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
+//                        GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
+//                    } else {
+//                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+//                    }
+////                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
+//                    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+////                    System.out.println("setting template: " + evt.getActionCommand());
+////                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
+//                } catch (Exception e) {
+//                    GuiHelper.linorgBugCatcher.logError(e);
+//                }
+//            }
+//        });
+//        templateMenu.add(templateMenuItem);
+//    }
+//    public void populateTemplatesMenu(JMenu templateMenu) {
+//        templateMenu.removeAll();
+//        ButtonGroup templatesMenuButtonGroup = new javax.swing.ButtonGroup();
+//        int templateCount = 0;
 //        addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, "", "Default", ArbilTemplateManager.getSingleInstance().getCurrentTemplate());
-        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
+//        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
 //            String templatePath = templatesDir.getPath() + File.separatorChar + currentTemplateName;
 //            if (new File(templatePath).isDirectory()) {
-            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
-            templateCount++;
+//            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentTemplateName, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+//            templateCount++;
 //            }
-        }
-        if (templateCount == 0) {
-            JMenuItem noneMenuItem = new JMenuItem("<none installed>");
-            noneMenuItem.setEnabled(false);
-            templateMenu.add(noneMenuItem);
-        }
-        addTemplateAddNewMenuItem(templateMenu);
+//        }
+//        if (templateCount == 0) {
+//            JMenuItem noneMenuItem = new JMenuItem("<none installed>");
+//            noneMenuItem.setEnabled(false);
+//            templateMenu.add(noneMenuItem);
+//        }
+//        addTemplateAddNewMenuItem(templateMenu);
 //        CmdiProfileReader cmdiProfileReader = new CmdiProfileReader();
 //        if (templateCount > 0 && cmdiProfileReader.cmdiProfileArray.size() > 0) {
 //            templateMenu.add(new JSeparator());
@@ -824,5 +863,5 @@ public class ArbilMenuBar extends JMenuBar {
 //            addTemplateMenuItem(templateMenu, templatesMenuButtonGroup, currentCmdiProfile.name, ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
 //            templateCount++;
 //        }
-    }
+//    }
 }

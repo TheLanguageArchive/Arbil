@@ -10,7 +10,7 @@
 <template>
     <RequiredFields>
         <comment>The fields listed here as required fields will be highlighted in the application until they have a value entered</comment>
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />
+        <!--<RequiredField FieldPath=".METATRANSCRIPT.Session.Title" />-->
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Name" />
         <!--<RequiredField FieldPath=".METATRANSCRIPT.Session.Description" />-->
         <RequiredField FieldPath=".METATRANSCRIPT.Corpus.Name" />
@@ -71,7 +71,7 @@
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id" SourceFieldValue = "Content" />
-        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id" SourceFieldValue = "Content" />
+        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language(x).Id" SourceFieldValue = "Content" />
         <comment>The LexiconResource field has no related id field and so is excluded from this list ".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language"</comment>
     </FieldTriggers>
     <ChildNodePaths>
@@ -85,6 +85,8 @@
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language" SubNodeName="DocumentLanguages" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguage" />
     </ChildNodePaths>
     <RootTemplateComponents>
         <comment>The template components that can be added as a discrete file and can be added at the root or corpus branch level via the add menu and the display name for each</comment>
@@ -188,4 +190,14 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5" />
     </FieldUsageDescriptions>
+    <PreferredTreeNodeNameFields>
+       <comment>The fields that will be used to name the node in the tree if the field contains a value. The first found value will be used, so the order of this list determines their preference of use in the tree.</comment>
+       <TreeNodeNameField FieldsShortName="Name" />
+       <TreeNodeNameField FieldsShortName="Id" />
+       <TreeNodeNameField FieldsShortName="Address" />
+       <TreeNodeNameField FieldsShortName="Region" />
+       <TreeNodeNameField FieldsShortName="Country" />
+       <TreeNodeNameField FieldsShortName="Continent" />
+    </PreferredTreeNodeNameFields>
+
 </template>
