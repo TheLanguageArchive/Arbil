@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.MetadataFile.MetadataReaderTest;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -78,14 +79,14 @@ public class ImdiTreeObjectTest {
         URI[][] testFileUris = null;
         try {
             testFileUris = new URI[][]{
-                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toURI(),
-                            new URI(ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toString() + "#.METATRANSCRIPT.Catalogue.Location(1)")},
-                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI(),
-                            ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI()},
-                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toURI(),
-                            new URI(ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toString() + "#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)")},
-                        {ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toURI(),
-                            new URI(ImdiSchemaTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toString() + "#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2).Languages.Language(3)")}
+                        {MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toURI(),
+                            new URI(MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toString() + "#.METATRANSCRIPT.Catalogue.Location(1)")},
+                        {MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI(),
+                            MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI()},
+                        {MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toURI(),
+                            new URI(MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toString() + "#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)")},
+                        {MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toURI(),
+                            new URI(MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session-with-actors.imdi").toString() + "#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2).Languages.Language(3)")}
                     };
         } catch (URISyntaxException urise) {
             fail(urise.getMessage());
@@ -116,8 +117,8 @@ public class ImdiTreeObjectTest {
                 // the test case .Actors.Actor(2).Languages.Language(3) for instance will cause this issue if the second field is reverted
                 currentTestField[0].revertChanges();
                 // check that it does not need to be saved again
-                assertFalse(instance.getUrlString() + " : " + currentTestField[0].fieldID, instance.getNeedsSaveToDisk());
-                assertFalse(instanceChild.getUrlString() + " : " + currentTestField[0].fieldID, instanceChild.getNeedsSaveToDisk());
+                assertFalse(instance.getUrlString(), instance.getNeedsSaveToDisk());
+                assertFalse(instanceChild.getUrlString(), instanceChild.getNeedsSaveToDisk());
                 // note that this does not check the state change for language id and key name changes
             }
         }
@@ -141,7 +142,7 @@ public class ImdiTreeObjectTest {
         };
         for (String testString[] : testStringArray) {
             ImdiTreeObject instance = new ImdiTreeObject(ImdiTreeObject.conformStringToUrl(testString[0]));
-            instance.resourceUrlField = new ImdiField(instance, "test-sub-xml-path", testString[1]);
+            instance.resourceUrlField = new ImdiField(-1, instance, "test-sub-xml-path", testString[1], -1);
             // the UNC (////) path need to be retained
             URI expResult = URI.create(testString[2]);
             URI result = instance.getFullResourceURI();
