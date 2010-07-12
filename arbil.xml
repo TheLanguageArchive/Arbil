@@ -388,6 +388,7 @@ public class LinorgVersion {
     public String lastCommitDate = "${arbil.last.commit.date}";
     public String compileDate = "${arbil.build.date}";
     public String fullInfo = "${arbil.info.all}";
+    public String currentVersionFile = "http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}-current.txt";
 }
         </echo>
         <property name="ArbilJarName" value="arbil-${arbil.current.major}-${arbil.current.minor}-${arbil.current.revision}.jar"/>
@@ -411,7 +412,7 @@ public class LinorgVersion {
         alias="latsoftware's max-planck-gesellschaft id" storepass="koekoek" />
     </target> -->
     <target name="scp_to_lux09" depends="signarbil, makeDebPackage, updateJnlpAndAppletHtml, buildWindowsInstaller, buildMacInstaller">
-        <echo file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt">${arbil.current.revision}</echo>
+        <echo file="${OUTPUTDIR}/arbil${arbil.filenameidentifier}-current.txt">${arbil.current.revision}</echo>
         <input message="Please enter lux09 username:" addproperty="lux09.user" />
         <input message="Please enter lux09 password:" addproperty="lux09.pw">
             <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
@@ -442,7 +443,7 @@ public class LinorgVersion {
         <!-- push the updated the applet html and the arbil jnlp files to the server -->
         <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
         <scp file= "${BUILDDIR}/arbil-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
-        <scp file="${OUTPUTDIR}/arbil-${arbil.current.major}-${arbil.current.minor}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${OUTPUTDIR}/arbil${arbil.filenameidentifier}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
     </target>
 </project>
  
