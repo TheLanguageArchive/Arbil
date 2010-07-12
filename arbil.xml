@@ -8,7 +8,7 @@
     <target name="setproperties">
         <property name="arbil.current.major" value="2"/>
         <property name="arbil.current.minor" value="0"/>
-        <property name="arbil.filenameidentifier" value=""/>
+        <property name="arbil.filenameidentifier" value="-stable"/>
         <property name="arbil.application-title" value="Arbil"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/"/>
@@ -16,6 +16,7 @@
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
         <property name="TypeCheckVersion" value="typecheck-1.5.16185.jar"/>
+        <property name="pathToMpiTrunk" value="${SRCDIR}../../../../trunk/"/> <!-- pathToMpiTrunk is being used until a better method becomes available (such as when the required files are in a maven like repository) -->
         <!-- todo: add all the dependancies here like the type checker -->
     </target>
 <!-- start package creation -->
@@ -202,20 +203,20 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="copyFilesForXSL" depends="setproperties">
         <!-- TODO: this should be removed and these files used from within the relevent jar file which in turn comes from the maven repository -->
-        <available file="${SRCDIR}../../../trunk/src/html/imdi-viewer/imdi-viewer.xsl" property="packageAdditAvail"/>
+        <available file="${pathToMpiTrunk}src/html/imdi-viewer/imdi-viewer.xsl" property="packageAdditAvail"/>
         <fail unless="packageAdditAvail" message="missing files from trunk: the xsl, javascript and images must be available for imdi files to be converted to html"/>
         <copy todir="${BUILDDIR}/nl/mpi/arbil/resources/xsl/">
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-           <fileset dir="${SRCDIR}../../../trunk/src/html/imdi-viewer/">
+           <fileset dir="${pathToMpiTrunk}src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${SRCDIR}../../../trunk/webapps/addit/web">
+            <fileset dir="${pathToMpiTrunk}webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
@@ -401,7 +402,7 @@ public class LinorgVersion {
             </path>
         </signjar>-->
         <signjar jar="${OUTPUTDIR}/${ArbilJarName}"
-        keystore="${SRCDIR}/../../../trunk/cert/mpi.keystore"
+        keystore="${pathToMpiTrunk}cert/mpi.keystore"
         alias="latsoftware's max-planck-gesellschaft id" storepass="${latsoftware.pw}" />
     </target>
    <!-- <target name="image" depends="setproperties">
