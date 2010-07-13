@@ -514,7 +514,7 @@ public class ImportExportDialog {
             }
         } else {
             try {
-                File tempFile = destinationFile[0] = File.createTempFile(currentDirectory.getName(), "", exportDestinationDirectory);
+                File tempFile = destinationFile[0] = File.createTempFile("tmp-" + currentDirectory.getName(), "", exportDestinationDirectory);
                 destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
                 tempFile.delete();
                 if (!currentDirectory.renameTo(tempFile)) {
