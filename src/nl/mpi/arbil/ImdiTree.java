@@ -302,7 +302,7 @@ public class ImdiTree extends JTree {
 //        ArrayList<Integer> updatedIndexes = new ArrayList<Integer>();
         System.out.println("currentNode: " + currentNode);
         boolean isExpanded = true;
-        boolean allowsChildren = true;
+//        boolean allowsChildren = true;
         ImdiTreeObject[] childImdiObjectArray = rootNodeChildren;
         if (currentNode instanceof DefaultMutableTreeNode) {
             if (currentNode.getUserObject() instanceof ImdiTreeObject) {
@@ -310,15 +310,22 @@ public class ImdiTree extends JTree {
                 if (curentImdiObject != null) {
                     childImdiObjectArray = curentImdiObject.getChildArray();
                     isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
-                    allowsChildren = curentImdiObject.canHaveChildren();
+                    //allowsChildren = curentImdiObject.canHaveChildren();
                 }
             }
         }
-
-        currentNode.setAllowsChildren(allowsChildren);
+        if (childImdiObjectArray.length > 0) {
+            // never disable allows children when there are child nodes!
+            // but allows children must be set before nodes can be added (what on earth were they thinking!)
+            currentNode.setAllowsChildren(true);
+        }
         if (!isExpanded) {
-            currentNode.removeAllChildren();
+//            if (!allowsChildren) {
+//                currentNode.removeAllChildren();
+//                currentNode.setAllowsChildren(allowsChildren);
+//            }
         } else {
+
 //            // test the sort order
 //            boolean nodesOutOfOrder = (currentNode.getChildCount() != childImdiObjectArray.length);
 //            if (!nodesOutOfOrder) {
@@ -353,29 +360,35 @@ public class ImdiTree extends JTree {
             for (int childIndex = childImdiObjectArray.length; childIndex < currentNode.getChildCount(); childIndex++) {
                 // todo: maybe reverse the order so the last gets removed first (might helpo the tre model)
                 DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
+                ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
                 currentNode.remove(childIndex);
 //                removedIndexes.add(childIndex);
                 ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{childIndex}, new DefaultMutableTreeNode[]{removedNode});
-                childImdiObjectArray[childIndex].removeContainer(this);
+                removedTreeObject.removeContainer(this);
             }
             for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
                 if (!((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).getUserObject().equals(childImdiObjectArray[childIndex])) {
                     ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
                     //updatedNodes.add((DefaultMutableTreeNode) currentNode.getChildAt(childIndex));
 //                    updatedIndexes.add(childIndex);
-                    ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
+//                    ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
 //                ((DefaultTreeModel) this.getModel()).nodeChanged((DefaultMutableTreeNode) currentNode.getChildAt(childIndex));
                     childImdiObjectArray[childIndex].registerContainer(this);
                 }
+                ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
             }
             for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
                 sortDescendentNodes(childTreeNodeEnum.nextElement());
             }
+            // set allows children must! be done ofter any nodes are removed, otherwise the child count will return zero and the model will not get updated! (yay, swing sucks)
+//            currentNode.setAllowsChildren(allowsChildren);
         }
+        // set allows children must! be done ofter any nodes are removed, otherwise the child count will return zero and the model will not get updated! (yay, swing sucks)
+        currentNode.setAllowsChildren(childImdiObjectArray.length > 0/* || currentNode.getChildCount() > 0*/);
 //        while (updatedNodes.size()>0){
 //            ((DefaultTreeModel) treeModel).updatedNodes.remove(0)
 //        }
-        //((DefaultTreeModel) treeModel).nodeChanged(currentNode);
+//        ((DefaultTreeModel) treeModel).nodeChanged(currentNode);
     }
     static final Object sortLockObject = new Object();
     private boolean sortThreadRunning = false;
@@ -389,7 +402,11 @@ public class ImdiTree extends JTree {
 
                     @Override
                     public void run() {
-                        sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
+                        try {
+                            sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
+                        } catch (Exception exception) {
+                            GuiHelper.linorgBugCatcher.logError(exception);
+                        }
                         synchronized (sortLockObject) {
                             // syncronising this is excessive but harmless
                             sortThreadRunning = false;
