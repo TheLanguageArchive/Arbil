@@ -262,9 +262,9 @@ public class ImdiIcons {
         if (imdiObject.hasHistory()) {
             iconsVector.add(exclamationBlueIcon);
         }
-        if (imdiObject.getNeedsSaveToDisk()) {
-            iconsVector.add(exclamationRedIcon);
-        }
+//        if (imdiObject.getNeedsSaveToDisk()) {
+//            iconsVector.add(exclamationRedIcon);
+//        }
         return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
     }
 }
