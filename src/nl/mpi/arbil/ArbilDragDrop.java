@@ -439,9 +439,10 @@ public class ArbilDragDrop {
                                 createTransferable(null); // clear the transfer objects
                                 return resultValue;
                             } else {
-                                JTree dropTree = (JTree) comp;
+                                ImdiTree dropTree = (ImdiTree) comp;
+                                //dropTree.requestResort(); // why is this done here and not at the end of the process???
                                 DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
-                                TreeHelper.getSingleInstance().addToSortQueue(targetNode);
+//                                TreeHelper.getSingleInstance().addToSortQueue(targetNode);
                                 Object dropTargetUserObject = targetNode.getUserObject();
                                 Vector<ImdiTreeObject> importNodeList = new Vector<ImdiTreeObject>();
                                 Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>>();
@@ -578,7 +579,7 @@ public class ArbilDragDrop {
                                     }
                                     if (dropTargetUserObject instanceof ImdiTreeObject) {
                                         // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
-                                        ((ImdiTreeObject) dropTargetUserObject).saveChangesToCache(false);
+//                                        ((ImdiTreeObject) dropTargetUserObject).saveChangesToCache(false);
                                         ((ImdiTreeObject) dropTargetUserObject).reloadNode();
                                     } else {
                                         TreeHelper.getSingleInstance().applyRootLocations();
