@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
@@ -16,6 +17,7 @@ import javax.swing.ToolTipManager;
 import javax.swing.TransferHandler;
 import javax.swing.table.TableCellEditor;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 
@@ -58,7 +60,7 @@ public class ImdiTree extends JTree {
 //                public void keyPressed(java.awt.event.KeyEvent evt) {
 //                    treeKeyTyped(evt);
 //                }
-            });
+        });
 
         this.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
 
@@ -81,7 +83,8 @@ public class ImdiTree extends JTree {
                 } else {
                     parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
                     // load imdi data if not already loaded
-                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+                    ImdiTree.this.requestResort();
+//                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 }
             }
 
@@ -290,4 +293,110 @@ public class ImdiTree extends JTree {
 //        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
 //        scrollToNode(targetImdiNode);
 //    }
+
+    private void sortDescendentNodes(DefaultMutableTreeNode currentNode) {
+        // todo: consider returning a list of tree paths for the nodes that are opened and have no open children
+//        ArrayList<DefaultMutableTreeNode> updatedNodes = new ArrayList<DefaultMutableTreeNode>();
+//        ArrayList<Integer> addedIndexes = new ArrayList<Integer>();
+//        ArrayList<Integer> removedIndexes = new ArrayList<Integer>();
+//        ArrayList<Integer> updatedIndexes = new ArrayList<Integer>();
+        System.out.println("currentNode: " + currentNode);
+        boolean isExpanded = true;
+        boolean allowsChildren = true;
+        ImdiTreeObject[] childImdiObjectArray = rootNodeChildren;
+        if (currentNode instanceof DefaultMutableTreeNode) {
+            if (currentNode.getUserObject() instanceof ImdiTreeObject) {
+                ImdiTreeObject curentImdiObject = (ImdiTreeObject) currentNode.getUserObject();
+                if (curentImdiObject != null) {
+                    childImdiObjectArray = curentImdiObject.getChildArray();
+                    isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
+                    allowsChildren = curentImdiObject.canHaveChildren();
+                }
+            }
+        }
+
+        currentNode.setAllowsChildren(allowsChildren);
+        if (!isExpanded) {
+            currentNode.removeAllChildren();
+        } else {
+//            // test the sort order
+//            boolean nodesOutOfOrder = (currentNode.getChildCount() != childImdiObjectArray.length);
+//            if (!nodesOutOfOrder) {
+//                for (int nodeCounter = 0; nodeCounter < childImdiObjectArray.length; nodeCounter++) {
+//                    if (!((DefaultMutableTreeNode) currentNode.getChildAt(nodeCounter)).getUserObject().equals(childImdiObjectArray[nodeCounter])) {
+//                        nodesOutOfOrder = true;
+//                        break;
+//                    }
+//                }
+//            }
+//            if (nodesOutOfOrder) {
+//                // remove all if not correct
+//                for (int nodeCounter = 0; nodeCounter < currentNode.getChildCount(); nodeCounter++) {
+//                    ((DefaultTreeModel) this.getModel()).removeNodeFromParent((DefaultMutableTreeNode) currentNode.getChildAt(nodeCounter));
+//                }
+//                //add all if they were removed
+//                for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
+//                    ((DefaultTreeModel) this.getModel()).insertNodeInto(currentNode, new DefaultMutableTreeNode(childImdiObjectArray[childIndex]), childIndex);
+//                }
+//            }
+
+
+            for (int childIndex = currentNode.getChildCount(); childIndex < childImdiObjectArray.length; childIndex++) {
+                DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childImdiObjectArray[childIndex]);
+                currentNode.add(addableNode);
+//                addedIndexes.add(childIndex);
+                //updatedNodes.add(addableNode);
+                ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
+                childImdiObjectArray[childIndex].registerContainer(this);
+            }
+//            ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, ArrayUtils.toPrimitive(addedIndexes.toArray(new Integer[]{})));
+            for (int childIndex = childImdiObjectArray.length; childIndex < currentNode.getChildCount(); childIndex++) {
+                // todo: maybe reverse the order so the last gets removed first (might helpo the tre model)
+                DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
+                currentNode.remove(childIndex);
+//                removedIndexes.add(childIndex);
+                ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{childIndex}, new DefaultMutableTreeNode[]{removedNode});
+                childImdiObjectArray[childIndex].removeContainer(this);
+            }
+            for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
+                if (!((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).getUserObject().equals(childImdiObjectArray[childIndex])) {
+                    ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
+                    //updatedNodes.add((DefaultMutableTreeNode) currentNode.getChildAt(childIndex));
+//                    updatedIndexes.add(childIndex);
+                    ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
+//                ((DefaultTreeModel) this.getModel()).nodeChanged((DefaultMutableTreeNode) currentNode.getChildAt(childIndex));
+                    childImdiObjectArray[childIndex].registerContainer(this);
+                }
+            }
+            for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
+                sortDescendentNodes(childTreeNodeEnum.nextElement());
+            }
+        }
+//        while (updatedNodes.size()>0){
+//            ((DefaultTreeModel) treeModel).updatedNodes.remove(0)
+//        }
+        //((DefaultTreeModel) treeModel).nodeChanged(currentNode);
+    }
+    static final Object sortLockObject = new Object();
+    private boolean sortThreadRunning = false;
+    public ImdiTreeObject[] rootNodeChildren;
+
+    public void requestResort() {
+        synchronized (sortLockObject) {
+            if (!sortThreadRunning) {
+                sortThreadRunning = true;
+                new Thread() {
+
+                    @Override
+                    public void run() {
+                        sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
+                        synchronized (sortLockObject) {
+                            // syncronising this is excessive but harmless
+                            sortThreadRunning = false;
+                        }
+                    }
+                }.start();
+            }
+        }
+    }
 }
