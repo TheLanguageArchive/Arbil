@@ -52,7 +52,7 @@ public class MetadataBuilder {
                             new CmdiComponentBuilder().removeArchiveHandles(destinationNode);
                         }
                         destinationNode.getParentDomNode().loadImdiDom();
-                        TreeHelper.getSingleInstance().updateTreeNodeChildren(destinationNode.getParentDomNode());
+//                        TreeHelper.getSingleInstance().updateTreeNodeChildren(destinationNode.getParentDomNode()); // maybe no point doing this here because the nodes are still loading
                         String newTableTitleString = "new " + addableNode + " in " + destinationNode;
                         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
                     } else {
@@ -199,13 +199,13 @@ public class MetadataBuilder {
             }
             if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
                 addedImdiObject.getParentDomNode().loadImdiDom();
-                addedImdiObject.getParentDomNode().clearIcon();
-                addedImdiObject.getParentDomNode().clearChildIcons();
-                TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
+//                TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
             }
-            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
+//            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
             addedImdiObject.scrollToRequested = true;
-            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject);
+            addedImdiObject.getParentDomNode().clearIcon();
+            addedImdiObject.getParentDomNode().clearChildIcons();
+//            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject);
             //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(allAddedNodes.toArray(new ImdiTreeObject[]{}), newTableTitleString);
         }
         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
