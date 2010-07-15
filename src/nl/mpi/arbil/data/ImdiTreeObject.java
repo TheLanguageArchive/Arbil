@@ -477,16 +477,9 @@ public class ImdiTreeObject implements Comparable {
                                             if (currentContainer instanceof ImdiTableModel) {
                                                 ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentOldChild});
                                             }
-                                            if (currentContainer instanceof DefaultMutableTreeNode) {
-                                                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                                                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                                                if (parentNode != null) { // TODO this could be reduced as it is also sort of done in clear icon
-                                                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
-                                                } else {
-                                                    TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
-                                                }
+                                            if (currentContainer instanceof ImdiTree) {
+                                                ((ImdiTree) currentContainer).requestResort();
                                             }
-
                                         }
                                     }
                                 }
@@ -950,9 +943,7 @@ public class ImdiTreeObject implements Comparable {
         }
         this.getParentDomNode().clearIcon();
         this.getParentDomNode().clearChildIcons();
-//        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
-        TreeHelper.getSingleInstance().updateTreeNodeChildren(this.getParentDomNode());
-//        reloadNode();
+        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
     }
 
     public boolean hasCatalogue() {
@@ -1818,7 +1809,9 @@ public class ImdiTreeObject implements Comparable {
         }
         if (containerToAdd != null) {
             // todo: handle null here more agressively
-            containersOfThisNode.add(containerToAdd);
+            if (!containersOfThisNode.contains(containerToAdd)) {
+                containersOfThisNode.add(containerToAdd);
+            }
         }
     }
 
@@ -1882,14 +1875,8 @@ public class ImdiTreeObject implements Comparable {
                 if (currentContainer instanceof ImdiChildCellEditor) {
                     ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
                 }
-                if (currentContainer instanceof DefaultMutableTreeNode) {
-                    DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                    if (parentNode != null) {
-                        TreeHelper.getSingleInstance().addToSortQueue(parentNode);
-                    } else {
-                        TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
-                    }
+                if (currentContainer instanceof ImdiTree) {
+                    ((ImdiTree) currentContainer).requestResort();
                 }
             } catch (java.util.NoSuchElementException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -1910,9 +1897,9 @@ public class ImdiTreeObject implements Comparable {
                 if (currentContainer instanceof ImdiChildCellEditor) {
                     ((ImdiChildCellEditor) currentContainer).stopCellEditing();
                 }
-                if (currentContainer instanceof DefaultMutableTreeNode) {
-                    DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                    TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(currentTreeNode);
+                if (currentContainer instanceof ImdiTree) {
+                    ImdiTree currentTreeNode = (ImdiTree) currentContainer;
+                    currentTreeNode.requestResort();
                 }
             } catch (java.util.NoSuchElementException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
