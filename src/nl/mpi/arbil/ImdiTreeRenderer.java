@@ -34,7 +34,7 @@ public class ImdiTreeRenderer implements TreeCellRenderer {
             //setVisible(imdiTreeObject.getNodeEnabled());
         } else if (node.getUserObject() instanceof JLabel) {
             // create the object with parameters so the jvm has a chance to reused objects in memory
-            returnComponent = ((JLabel) node.getUserObject()); //new JLabel(((JLabel) node.getUserObject()).getText(), ((JLabel) node.getUserObject()).getIcon(), JLabel.LEFT);
+            returnComponent = new JLabel(((JLabel) node.getUserObject()).getText(), ((JLabel) node.getUserObject()).getIcon(), JLabel.LEFT);
         } else {
             return new JLabel();
         }
