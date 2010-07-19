@@ -369,6 +369,7 @@ public class ImdiTree extends JTree {
                     public void run() {
                         try {
                             while (sortRequested) {
+                                sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
                                 sortRequested = false;
                                 sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
                             }
