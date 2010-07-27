@@ -75,9 +75,9 @@ public class CmdiComponentBuilder {
 //    }
     public void savePrettyFormatting(Document document, File outputFile) {
         try {
+            removeDomIds(document);  // remove any dom id attributes left over by the imdi api
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
-            todo: strip out any dom id attributes
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
             StreamResult xmlOutput = new StreamResult(fileOutputStream);
             // configure transformer
@@ -231,6 +231,7 @@ public class CmdiComponentBuilder {
 
     public boolean setFieldValues(ImdiTreeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
         synchronized (imdiTreeObject.getParentDomLockObject()) {
+            //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
             System.out.println("setFieldValues: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
@@ -452,6 +453,21 @@ public class CmdiComponentBuilder {
             } catch (Exception exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
             }
+        }
+    }
+
+    private void removeDomIds(Document targetDocument) {
+        String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
+        try {
+            NodeList domIdNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
+            for (int nodeCounter = 0; nodeCounter < domIdNodeList.getLength(); nodeCounter++) {
+                Node domIdNode = domIdNodeList.item(nodeCounter);
+                if (domIdNode != null) {
+                    domIdNode.getAttributes().removeNamedItem("id");
+                }
+            }
+        } catch (TransformerException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
         }
     }
 
