@@ -91,7 +91,7 @@ public class ImdiTreeObject implements Comparable {
     private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
     public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
-    public final Object domLockObject = new Object();
+    private final Object domLockObjectPrivate = new Object();
 
     protected ImdiTreeObject(URI localUri) {
 //        System.out.println("ImdiTreeObject: " + localUri);
@@ -402,12 +402,12 @@ public class ImdiTreeObject implements Comparable {
 //        }
     }
 
-    synchronized public void loadImdiDom() {
+    public void loadImdiDom() {
         System.out.println("loadImdiDom: " + nodeUri.toString());
         if (getParentDomNode() != this) {
             getParentDomNode().loadImdiDom();
         } else {
-            synchronized (domLockObject) {
+            synchronized (getParentDomLockObject()) {
                 initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created                
                 if (!isMetaDataNode() && !isDirectory() && isLocal()) {
                     // if it is an not imdi or a loose file but not a direcotry then get the md5sum
@@ -921,7 +921,7 @@ public class ImdiTreeObject implements Comparable {
         }
         bumpHistory();
         copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-        synchronized (domLockObject) {
+        synchronized (getParentDomLockObject()) {
             System.out.println("deleting by corpus link");
             URI[] copusUriList = new URI[targetImdiNodes.length];
             for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
@@ -993,7 +993,7 @@ public class ImdiTreeObject implements Comparable {
             }
             bumpHistory();
             copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-            synchronized (domLockObject) {
+            synchronized (getParentDomLockObject()) {
                 metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
             }
             //loadChildNodes(); // this must not be done here
@@ -1654,6 +1654,10 @@ public class ImdiTreeObject implements Comparable {
     public String getUrlString() {
         // TODO: update the uses of this to use the uri not a string
         return nodeUri.toString();
+    }
+
+    public Object getParentDomLockObject() {
+        return getParentDomNode().domLockObjectPrivate;
     }
 
     /**
