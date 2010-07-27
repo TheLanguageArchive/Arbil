@@ -77,6 +77,7 @@ public class CmdiComponentBuilder {
         try {
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
+            todo: strip out any dom id attributes
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
             StreamResult xmlOutput = new StreamResult(fileOutputStream);
             // configure transformer
@@ -111,7 +112,7 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertResourceProxy(ImdiTreeObject imdiTreeObject, ImdiTreeObject resourceNode) {
-        synchronized (imdiTreeObject.domLockObject) {
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
 //            <ResourceProxy id="a_text">
@@ -187,7 +188,8 @@ public class CmdiComponentBuilder {
     }
 
     public boolean removeChildNodes(ImdiTreeObject imdiTreeObject, String nodePaths[]) {
-        synchronized (imdiTreeObject.domLockObject) {
+        todo: offer to save files
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("removeChildNodes: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
@@ -203,6 +205,7 @@ public class CmdiComponentBuilder {
                 }
                 // delete all the nodes now that the xpath is no longer relevant
                 for (Node currentNode : selectedNodes) {
+                    todo: there is an issue here when deleting a languages node with two languages within it
                     currentNode.getParentNode().removeChild(currentNode);
                 }
                 // bump the history
@@ -227,7 +230,7 @@ public class CmdiComponentBuilder {
     }
 
     public boolean setFieldValues(ImdiTreeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
-        synchronized (imdiTreeObject.domLockObject) {
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("setFieldValues: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
@@ -299,10 +302,10 @@ public class CmdiComponentBuilder {
         URI returnUri = null;
         try {
             Document favouriteDocument;
-            synchronized (favouriteImdiTreeObject.domLockObject) {
+            synchronized (favouriteImdiTreeObject.getParentDomLockObject()) {
                 favouriteDocument = getDocument(favouriteImdiTreeObject.getURI());
             }
-            synchronized (destinationImdiTreeObject.domLockObject) {
+            synchronized (destinationImdiTreeObject.getParentDomLockObject()) {
                 Document destinationDocument = getDocument(destinationImdiTreeObject.getURI());
                 String favouriteXpath = favouriteImdiTreeObject.getURI().getFragment();
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
@@ -363,7 +366,7 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
-        synchronized (imdiTreeObject.domLockObject) {
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("insertChildComponent: " + cmdiComponentId);
             System.out.println("targetXmlPath: " + targetXmlPath);
             // check for issues with the path
@@ -441,7 +444,7 @@ public class CmdiComponentBuilder {
     }
 
     public void removeArchiveHandles(ImdiTreeObject imdiTreeObject) {
-        synchronized (imdiTreeObject.domLockObject) {
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             try {
                 Document workingDocument = getDocument(imdiTreeObject.getURI());
                 removeArchiveHandles(workingDocument);
