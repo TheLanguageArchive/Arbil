@@ -49,6 +49,26 @@ public class ImdiUtils implements MetadataUtils {
         return false;
     }
 
+    // addDomIds is only used for testing
+//    public boolean addDomIds(URI nodeURI) {
+//        try {
+//            Document nodDom;
+//            OurURL inUrlLocal = new OurURL(nodeURI.toURL());
+//            nodDom = api.loadIMDIDocument(inUrlLocal, false);
+//            if (nodDom == null) {
+//                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
+//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
+//                return false;
+//            } else {
+//                api.writeDOM(nodDom, new File(nodeURI), false);
+//                return true;
+//            }
+//        } catch (MalformedURLException ex) {
+//            GuiHelper.linorgBugCatcher.logError(ex);
+//        }
+//        return true;
+//    }
+
     public boolean addCorpusLink(URI nodeURI, URI linkURI[]) {
         try {
             Document nodDom;
