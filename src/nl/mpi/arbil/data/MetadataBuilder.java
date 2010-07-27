@@ -34,7 +34,7 @@ public class MetadataBuilder {
             @Override
             public void run() {
                 destinationNode.updateLoadingState(1);
-                synchronized (destinationNode.domLockObject) {
+                synchronized (destinationNode.getParentDomLockObject()) {
                     if (addableNode.isMetaDataNode()) {
                         destinationNode.saveChangesToCache(true);
                         URI addedNodeUri;
@@ -128,7 +128,7 @@ public class MetadataBuilder {
             @Override
             public void run() {
                 destinationNode.updateLoadingState(1);
-                synchronized (destinationNode.domLockObject) {
+                synchronized (destinationNode.getParentDomLockObject()) {
                     System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
                     processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
 //                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
@@ -227,7 +227,7 @@ public class MetadataBuilder {
         // todo: ask user to save
         URI addedNodePath = null;
         destinationNode.updateLoadingState(1);
-        synchronized (destinationNode.domLockObject) {
+        synchronized (destinationNode.getParentDomLockObject()) {
             if (destinationNode.getNeedsSaveToDisk()) {
                 destinationNode.saveChangesToCache(false);
             }
