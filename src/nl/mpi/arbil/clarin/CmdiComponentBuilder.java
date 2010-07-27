@@ -472,16 +472,13 @@ public class CmdiComponentBuilder {
     }
 
     private void removeArchiveHandles(Document targetDocument) {
-        String handleXpath = "//*[@ArchiveHandle]";
+        String handleXpath = "/:METATRANSCRIPT[@ArchiveHandle]|/:METATRANSCRIPT//*[@ArchiveHandle]";
         try {
             NodeList archiveHandleNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
             for (int nodeCounter = 0; nodeCounter < archiveHandleNodeList.getLength(); nodeCounter++) {
                 Node archiveHandleNode = archiveHandleNodeList.item(nodeCounter);
                 if (archiveHandleNode != null) {
-//                    System.out.println(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").getNodeValue());
-                    archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").setNodeValue("");
-                    // todo: completely remove the archive handle
-//                    archiveHandleNode.removeChild(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle"));
+                    archiveHandleNode.getAttributes().removeNamedItem("ArchiveHandle");
                 }
             }
         } catch (TransformerException exception) {
