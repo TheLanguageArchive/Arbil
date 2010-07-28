@@ -541,6 +541,21 @@ public class LinorgWindowManager {
         return currentWindowName;
     }
 
+    public void closeAllWindows() {
+        for (JInternalFrame focusedWindow : desktopPane.getAllFrames()) {
+            if (focusedWindow != null) {
+                String windowName = focusedWindow.getName();
+                Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+                if (windowAndMenu != null && ArbilMenuBar.windowMenu != null) {
+                    ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+                }
+                windowList.remove(windowName);
+                desktopPane.remove(focusedWindow);
+            }
+        }
+        desktopPane.repaint();
+    }
+
     public JInternalFrame focusWindow(String windowName) {
         if (windowList.containsKey(windowName)) {
             Object windowObject = ((Component[]) windowList.get(windowName))[0];
