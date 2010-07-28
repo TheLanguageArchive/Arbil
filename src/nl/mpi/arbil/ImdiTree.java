@@ -331,8 +331,7 @@ public class ImdiTree extends JTree {
                 ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
                 childImdiObjectArray[childIndex].registerContainer(this);
             }
-            for (int childIndex = childImdiObjectArray.length; childIndex < currentNode.getChildCount(); childIndex++) {
-                // todo: maybe reverse the order so the last gets removed first (might helpo the tre model)
+            for (int childIndex = currentNode.getChildCount() - 1; childIndex >= childImdiObjectArray.length; childIndex--) {
                 DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
                 ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
                 currentNode.remove(childIndex);
