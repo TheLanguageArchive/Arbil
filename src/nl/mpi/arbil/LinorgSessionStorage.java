@@ -140,10 +140,10 @@ public class LinorgSessionStorage {
             //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
             if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
                     "The files in your 'Local Corpus' could not be moved to the requested location.\n"
-                    + "You can cancel now and nothing will be changed,\n"
-                    + "or you can change the working directory anyway.\n"
-                    + "If you continue, any corpus and session files in you 'Local Corpus' will move\n"
-                    + "into you 'Working Directories' tree and you will have to import them manually.\n"
+                    + "You can cancel now and nothing will be changed, or you can change the working\n"
+                    + "directory anyway.\n"
+                    + "If you continue, any corpus and session files in your 'Local Corpus' will move\n"
+                    + "into your 'Working Directories' tree and you will have to import them manually.\n"
                     + "Do you wish to change the working directory despite this?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 saveString("cacheDirectory", toDirectory.getAbsolutePath());
                 localCacheDirectory = null;
