@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 		<string>arbil@FilenameIdentifier@.icns</string>
 	<key>CFBundleIdentifier</key>
-		<string>nl.mpi.arbil.arbil-testing</string>
+		<string>nl.mpi.arbil.arbil@FilenameIdentifier@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 		<string>@ArbilVersionNumber@</string>
 	<key>CFBundleName</key>
