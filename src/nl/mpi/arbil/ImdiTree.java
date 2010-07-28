@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
@@ -83,8 +84,8 @@ public class ImdiTree extends JTree {
                 } else {
                     parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
                     // load imdi data if not already loaded
-                    //ImdiTree.this.requestResort(parentNode);
-                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+                    ImdiTree.this.requestResort();
+//                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 }
             }
 
@@ -298,7 +299,6 @@ public class ImdiTree extends JTree {
         // todo: consider returning a list of tree paths for the nodes that are opened and have no open children
         System.out.println("currentNode: " + currentNode);
         boolean isExpanded = true;
-        boolean allowsChildren = true;
         ImdiTreeObject[] childImdiObjectArray = rootNodeChildren;
         if (currentNode instanceof DefaultMutableTreeNode) {
             if (currentNode.getUserObject() instanceof ImdiTreeObject) {
@@ -306,48 +306,75 @@ public class ImdiTree extends JTree {
                 if (curentImdiObject != null) {
                     childImdiObjectArray = curentImdiObject.getChildArray();
                     isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
-                    allowsChildren = curentImdiObject.canHaveChildren();
                 }
             }
         }
-
-        if (!isExpanded) {
-            currentNode.removeAllChildren();
+        Arrays.sort(childImdiObjectArray);
+        if (childImdiObjectArray.length > 0) {
+            // never disable allows children when there are child nodes!
+            // but allows children must be set before nodes can be added (what on earth were they thinking!)
+            currentNode.setAllowsChildren(true);
         }
-        currentNode.setAllowsChildren(allowsChildren);
-
-        if (isExpanded) {
-            while (currentNode.getChildCount() < childImdiObjectArray.length) {
-                currentNode.add(new DefaultMutableTreeNode());
+        if (!isExpanded) {
+            for (int childIndex = childImdiObjectArray.length; childIndex < currentNode.getChildCount(); childIndex++) {
+                // remove any excess nodes so that if set allows children is to be cleared then the nodes will be de registered
+                DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
+                ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
+                removedTreeObject.removeContainer(this);
             }
-            while (currentNode.getChildCount() > childImdiObjectArray.length) {
-                currentNode.remove(currentNode.getChildCount() - 1);
-                // treeModel.nodeStructureChanged(itemNode);
+            // set allows children must not be called before the nodes are deregistered from their imdi tree nodes
+            currentNode.setAllowsChildren(childImdiObjectArray.length > 0);
+        } else {
+            for (int childIndex = currentNode.getChildCount(); childIndex < childImdiObjectArray.length; childIndex++) {
+                DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childImdiObjectArray[childIndex]);
+                currentNode.add(addableNode);
+                ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
+                childImdiObjectArray[childIndex].registerContainer(this);
+            }
+            for (int childIndex = currentNode.getChildCount() - 1; childIndex >= childImdiObjectArray.length; childIndex--) {
+                DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
+                ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
+                currentNode.remove(childIndex);
+                ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{childIndex}, new DefaultMutableTreeNode[]{removedNode});
+                removedTreeObject.removeContainer(this);
             }
             for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
-                ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
-                //treeModel.nodeStructureChanged(itemNode);
-//                ((DefaultTreeModel) treeModel).nodeChanged(currentNode.getChildAt(childIndex));
+                if (!((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).getUserObject().equals(childImdiObjectArray[childIndex])) {
+                    ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
+                    childImdiObjectArray[childIndex].registerContainer(this);
+                }
+                ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
             }
             for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
                 sortDescendentNodes(childTreeNodeEnum.nextElement());
             }
+            // set allows children must! be done ofter any nodes are removed, otherwise the child count will return zero and the model will not get updated! (yay, swing sucks)
+//            currentNode.setAllowsChildren(allowsChildren);
         }
-        ((DefaultTreeModel) treeModel).nodeChanged(currentNode);
     }
     static final Object sortLockObject = new Object();
     private boolean sortThreadRunning = false;
+    private boolean sortRequested = false;
     public ImdiTreeObject[] rootNodeChildren;
 
-    public void requestResort(DefaultMutableTreeNode currentNode) {
+    public void requestResort() {
         synchronized (sortLockObject) {
+            sortRequested = true;
             if (!sortThreadRunning) {
                 sortThreadRunning = true;
                 new Thread() {
 
                     @Override
                     public void run() {
-                        sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
+                        try {
+                            while (sortRequested) {
+                                sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
+                                sortRequested = false;
+                                sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
+                            }
+                        } catch (Exception exception) {
+                            GuiHelper.linorgBugCatcher.logError(exception);
+                        }
                         synchronized (sortLockObject) {
                             // syncronising this is excessive but harmless
                             sortThreadRunning = false;

@@ -251,15 +251,16 @@ public class ImdiLoader {
     }
 
     public void addNodeNeedingSave(ImdiTreeObject nodeToSave) {
+        nodeToSave = nodeToSave.getParentDomNode();
         if (!nodesNeedingSave.contains(nodeToSave)) {
             System.out.println("addNodeNeedingSave: " + nodeToSave);
-            nodesNeedingSave.add(nodeToSave.getParentDomNode());
+            nodesNeedingSave.add(nodeToSave);
         }
     }
 
     public void removeNodesNeedingSave(ImdiTreeObject savedNode) {
         System.out.println("removeNodesNeedingSave: " + savedNode);
-        nodesNeedingSave.remove(savedNode.getParentDomNode());
+        nodesNeedingSave.remove(savedNode);
     }
 
     public ImdiTreeObject[] getNodesNeedSave() {
