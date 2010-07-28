@@ -723,39 +723,39 @@ public class ArbilMenuBar extends JMenuBar {
         LinorgHelp.getSingleInstance().printAsOneFile();
     }
 
-    private void populateStorageLocationMenu(JMenu storageMenu) {
-        storageMenu.removeAll();
-        ButtonGroup storageMenuButtonGroup = new ButtonGroup();
-        String[] storageLocaations = LinorgSessionStorage.getSingleInstance().getLocationOptions();
-        Arrays.sort(storageLocaations);
-        ArrayList<String> addedPaths = new ArrayList<String>();
-        for (String currentTemplateName : storageLocaations) {
-            if (!currentTemplateName.startsWith("null") && !addedPaths.contains(currentTemplateName)) {
-                addedPaths.add(currentTemplateName);
-                JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
-                templateMenuItem.setText(currentTemplateName);
-                templateMenuItem.setName(currentTemplateName);
-                templateMenuItem.setActionCommand(currentTemplateName);
-//                templateMenuItem.setEnabled(false);
-                templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            saveApplicationState();
-                            LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
-                            // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
-                        } catch (Exception e) {
-                            GuiHelper.linorgBugCatcher.logError(e);
-                        }
-                    }
-                });
-                templateMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().storageDirectory.equals(new File(currentTemplateName)));
-                storageMenuButtonGroup.add(templateMenuItem);
-                storageMenu.add(templateMenuItem);
-            }
-        }
-        // TODO: add other cache directory and update changeStorageDirectory to cope with the additional variables 
-    }
+//    private void populateStorageLocationMenu(JMenu storageMenu) {
+//        storageMenu.removeAll();
+//        ButtonGroup storageMenuButtonGroup = new ButtonGroup();
+//        String[] storageLocaations = LinorgSessionStorage.getSingleInstance().getLocationOptions();
+//        Arrays.sort(storageLocaations);
+//        ArrayList<String> addedPaths = new ArrayList<String>();
+//        for (String currentTemplateName : storageLocaations) {
+//            if (!currentTemplateName.startsWith("null") && !addedPaths.contains(currentTemplateName)) {
+//                addedPaths.add(currentTemplateName);
+//                JRadioButtonMenuItem templateMenuItem = new JRadioButtonMenuItem();
+//                templateMenuItem.setText(currentTemplateName);
+//                templateMenuItem.setName(currentTemplateName);
+//                templateMenuItem.setActionCommand(currentTemplateName);
+////                templateMenuItem.setEnabled(false);
+//                templateMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                        try {
+//                            saveApplicationState();
+//                            LinorgSessionStorage.getSingleInstance().changeStorageDirectory(evt.getActionCommand());
+//                            // LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Storage Directory");
+//                        } catch (Exception e) {
+//                            GuiHelper.linorgBugCatcher.logError(e);
+//                        }
+//                    }
+//                });
+//                templateMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().storageDirectory.equals(new File(currentTemplateName)));
+//                storageMenuButtonGroup.add(templateMenuItem);
+//                storageMenu.add(templateMenuItem);
+//            }
+//        }
+//        // TODO: add other cache directory and update changeStorageDirectory to cope with the additional variables
+//    }
 
     private boolean saveApplicationState() {
         if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
