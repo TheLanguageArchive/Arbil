@@ -83,13 +83,14 @@ public class ImdiTreeObject implements Comparable {
     public boolean lockedByLoadingThread = false;
 //    private boolean isFavourite;
     public boolean hasArchiveHandle = false;
+    public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
 //    public boolean autoLoadChildNodes = false;
     //public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
 //    public Vector<ImdiTreeObject> mergeQueue;
 //    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
     private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
-    public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
+    //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
 
@@ -284,7 +285,7 @@ public class ImdiTreeObject implements Comparable {
             typeCheckerMessage = null;
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
-        boolean imdiNeedsSaveToDisk = hasChangedFields();
+        boolean imdiNeedsSaveToDisk = hasChangedFields() || hasDomIdAttribute;
         if (isMetaDataNode() && !isImdiChild()) {
             if (imdiNeedsSaveToDisk == false) {
                 for (ImdiTreeObject childNode : getAllChildren()) {
