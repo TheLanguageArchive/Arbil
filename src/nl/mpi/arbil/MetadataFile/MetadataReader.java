@@ -510,10 +510,10 @@ public class MetadataReader {
                 NamedNodeMap attributesMap = childNode.getAttributes();
                 if (attributesMap != null) {
                     if (attributesMap.getNamedItem("id") != null) {
-                        if (!parentNode.hasDomIdHandle) {
+                        if (!parentNode.hasDomIdAttribute) {
                             if (!parentNode.isCmdiMetaDataNode()) {
                                 // only if this is an imdi file we will require the node to be saved which will remove the dom id attributes
-                                parentNode.hasDomIdHandle = true;
+                                parentNode.hasDomIdAttribute = true;
                                 showDomIdFoundMessage();
                                 parentNode.setImdiNeedsSaveToDisk(null, false);
                             }
