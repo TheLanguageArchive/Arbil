@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 public class MetadataReader {
 
     static private MetadataReader singleInstance = null;
+//    boolean domIdMessageShown = false;
 
     static synchronized public MetadataReader getSingleInstance() {
         if (singleInstance == null) {
@@ -474,6 +475,14 @@ public class MetadataReader {
         return linkURI;
     }
 
+    private void showDomIdFoundMessage() {
+        //if (!domIdMessageShown) {
+        if (!ImdiLoader.getSingleInstance().nodesNeedSave()){
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
+            //domIdMessageShown = true;
+        }
+    }
+
     public int iterateChildNodes(ImdiTreeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
             Hashtable<ImdiTreeObject, HashSet<ImdiTreeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
             , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
@@ -498,12 +507,17 @@ public class MetadataReader {
                     continue;
                 }
                 // get the xml node id
-                String xmlNodeId = null;
                 NamedNodeMap attributesMap = childNode.getAttributes();
                 if (attributesMap != null) {
-                    Node xmlNodeIdAtt = attributesMap.getNamedItem("id");
-                    if (xmlNodeIdAtt != null) {
-                        xmlNodeId = xmlNodeIdAtt.getNodeValue();
+                    if (attributesMap.getNamedItem("id") != null) {
+                        if (!parentNode.hasDomIdHandle) {
+                            if (!parentNode.isCmdiMetaDataNode()) {
+                                // only if this is an imdi file we will require the node to be saved which will remove the dom id attributes
+                                parentNode.hasDomIdHandle = true;
+                                showDomIdFoundMessage();
+                                parentNode.setImdiNeedsSaveToDisk(null, false);
+                            }
+                        }
                     }// end get the xml node id
 //                System.out.println(childNode.getLocalName());
                     if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
@@ -606,7 +620,6 @@ public class MetadataReader {
                         siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
                         fullSubNodePath = fullSubNodePath + siblingSpacer;
                         ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
-                        subNodeImdiTreeObject.xmlNodeId = xmlNodeId;
                         parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
 //                parentNode.attachChildNode(metaNodeImdiTreeObject);
 //                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
