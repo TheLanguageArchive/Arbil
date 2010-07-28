@@ -103,27 +103,25 @@ public class LinorgSessionStorage {
         }
         if (!moveFiles || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
                 "Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
-                + "Arbil will need to close in order to change the working directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                + "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             if (moveFiles) {
-                saveString("cacheDirectory", preferedCacheDirectory.getAbsolutePath());
                 // move the files
                 changeStorageDirectory(fromDirectory, preferedCacheDirectory);
             } else {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not change to the requested location.", null);
+                saveString("cacheDirectory", preferedCacheDirectory.getAbsolutePath());
             }
         }
     }
 
-    public void changeStorageDirectory(String preferedDirectory) {
-//        TODO: this caused isses on windows 20100416 test and confirm if this is an issue
-        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to move the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-            File fromDirectory = storageDirectory;
-            File toDirectory = new File(preferedDirectory);
-            storageDirectory = new File(preferedDirectory);
-            changeStorageDirectory(fromDirectory, toDirectory);
-        }
-    }
-
+//    public void changeStorageDirectory(String preferedDirectory) {
+////        TODO: this caused isses on windows 20100416 test and confirm if this is an issue
+//        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Arbil will need to close in order to move the storage directory.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+//            File fromDirectory = storageDirectory;
+//            File toDirectory = new File(preferedDirectory);
+//            storageDirectory = new File(preferedDirectory);
+//            changeStorageDirectory(fromDirectory, toDirectory);
+//        }
+//    }
     // Move the storage directory and change the local corpus tree links to the new directory.
     // After completion the application will be closed!
     private void changeStorageDirectory(File fromDirectory, File toDirectory) {
@@ -139,7 +137,20 @@ public class LinorgSessionStorage {
         }
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
+            //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
+            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame,
+                    "The files in your 'Local Corpus' could not be moved to the requested location.\n"
+                    + "You can cancel now and nothing will be changed,\n"
+                    + "or you can change the working directory anyway.\n"
+                    + "If you continue, any corpus and session files in you 'Local Corpus' will move\n"
+                    + "into you 'Working Directories' tree and you will have to import them manually.\n"
+                    + "Do you wish to change the working directory despite this?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                saveString("cacheDirectory", toDirectory.getAbsolutePath());
+                localCacheDirectory = null;
+                getCacheDirectory();
+                TreeHelper.getSingleInstance().loadLocationsList();
+                TreeHelper.getSingleInstance().applyRootLocations();
+            }
         } else {
             try {
                 Vector<String> locationsList = new Vector<String>();
@@ -154,15 +165,19 @@ public class LinorgSessionStorage {
                 }
                 //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
                 LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-
-                System.out.println("updated locationsList");
+                saveString("cacheDirectory", toDirectory.getAbsolutePath());
+                localCacheDirectory = null;
+                getCacheDirectory();
+                TreeHelper.getSingleInstance().loadLocationsList();
+                TreeHelper.getSingleInstance().applyRootLocations();
+                LinorgWindowManager.getSingleInstance().closeAllWindows();
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
             }
-            TreeHelper.getSingleInstance().loadLocationsList();
-            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The requested files have been moved, Arbil will now exit.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
-            System.exit(0); // TODO: this exit might be unrequired
+//            TreeHelper.getSingleInstance().loadLocationsList();
+//            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The working files have been moved.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
+//            System.exit(0); // TODO: this exit might be unrequired
         }
     }
 
