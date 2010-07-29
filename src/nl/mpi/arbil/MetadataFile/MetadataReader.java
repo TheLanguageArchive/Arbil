@@ -36,7 +36,6 @@ import org.xml.sax.SAXException;
 public class MetadataReader {
 
     static private MetadataReader singleInstance = null;
-//    boolean domIdMessageShown = false;
 
     static synchronized public MetadataReader getSingleInstance() {
         if (singleInstance == null) {
@@ -306,7 +305,6 @@ public class MetadataReader {
 //                    String localFilePath = resourcePath; // will be changed when copied to the cache
                     // copy the file to the imdi directory
                     try {
-                        //// TODO: the resource should be optionaly copied or moved into the cache or hardlinked
                         if (copyNewResourcesToCache) {
 //                            URL resourceUrl = new URL(resourcePath);
 //                    String resourcesDirName = "resources";
@@ -317,7 +315,12 @@ public class MetadataReader {
                             System.out.println("targetFilename: " + targetFilename + " targetSuffix: " + targetSuffix);
                             ///////////////////////////////////////////////////////////////////////
                             // use the nodes child directory
-                            File destinationFileCopy = File.createTempFile(targetFilename, targetSuffix, resourceDestinationDirectory);
+                            File destinationFileCopy = new File(resourceDestinationDirectory, targetFilename + targetSuffix);
+                            int fileCounter = 0;
+                            while (destinationFileCopy.exists()) {
+                                fileCounter++;
+                                destinationFileCopy = new File(resourceDestinationDirectory, targetFilename + "(" + fileCounter + ")" + targetSuffix);
+                            }
                             URI fullURI = destinationFileCopy.toURI();
                             finalResourceUrl = targetMetadataUri.relativize(fullURI);
                             //destinationFileCopy.getAbsolutePath().replace(destinationFile.getParentFile().getPath(), "./").replace("\\", "/").replace("//", "/");
@@ -476,10 +479,8 @@ public class MetadataReader {
     }
 
     private void showDomIdFoundMessage() {
-        //if (!domIdMessageShown) {
-        if (!ImdiLoader.getSingleInstance().nodesNeedSave()){
+        if (!ImdiLoader.getSingleInstance().nodesNeedSave()) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
-            //domIdMessageShown = true;
         }
     }
 
