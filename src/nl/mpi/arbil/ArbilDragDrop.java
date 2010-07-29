@@ -440,7 +440,6 @@ public class ArbilDragDrop {
                                 return resultValue;
                             } else {
                                 ImdiTree dropTree = (ImdiTree) comp;
-                                //dropTree.requestResort(); // why is this done here and not at the end of the process???
                                 DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
 //                                TreeHelper.getSingleInstance().addToSortQueue(targetNode);
                                 Object dropTargetUserObject = targetNode.getUserObject();
