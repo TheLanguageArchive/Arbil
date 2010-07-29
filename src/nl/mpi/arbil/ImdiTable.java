@@ -334,6 +334,12 @@ public class ImdiTable extends JTable {
         setColumnWidths();
     }
 
+    @Override
+    public int getRowHeight() {
+        FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
+        int requiredHeight = fontMetrics.getHeight();
+        return requiredHeight;
+    }
     int lastColumnCount = -1;
     int lastRowCount = -1;
     int lastColumnPreferedWidth = 0;
