@@ -679,6 +679,7 @@ public class LinorgWindowManager {
                                 if (fontScale < 1) {
                                     fontScale = 1;
                                 }
+                                System.out.println("fontScale: " + fontScale);
                                 UIDefaults defaults = UIManager.getDefaults();
                                 Enumeration keys = defaults.keys();
                                 while (keys.hasMoreElements()) {
