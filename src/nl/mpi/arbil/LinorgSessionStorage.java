@@ -49,6 +49,7 @@ public class LinorgSessionStorage {
     static synchronized public LinorgSessionStorage getSingleInstance() {
         if (singleInstance == null) {
             singleInstance = new LinorgSessionStorage();
+            singleInstance.checkForMultipleStorageDirectories();
         }
         return singleInstance;
     }
@@ -90,10 +91,43 @@ public class LinorgSessionStorage {
             //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.", null);
             JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
             System.exit(-1);
+        } else {
+            try {
+                File testFile = File.createTempFile("testfile", ".tmp", storageDirectory);
+                testFile.createNewFile();
+                testFile.deleteOnExit();
+                if (!testFile.exists()) {
+                    // test the storage directory is writable and add a warning message box here if not
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
+                }
+            } catch (IOException exception) {
+                System.out.println(exception);
+                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(-1);
+            }
         }
         trackTableSelection = loadBoolean("trackTableSelection", false);
         useLanguageIdInColumnName = loadBoolean("useLanguageIdInColumnName", false);
         System.out.println("storageDirectory: " + storageDirectory);
+    }
+
+    private void checkForMultipleStorageDirectories(){
+        // look for any additional storage directories
+        int foundDirectoryCount = 0;
+        String storageDirectoryMessageString = "";
+        for (String currentStorageDirectory : getLocationOptions()) {
+            File storageFile = new File(currentStorageDirectory);
+            if (storageFile.exists()) {
+                foundDirectoryCount++;
+                storageDirectoryMessageString = storageDirectoryMessageString + currentStorageDirectory + "\n";
+            }
+        }
+        if (foundDirectoryCount > 1) {
+            String errorMessage = "More than one storage directory has been found.\nIt is recommended to remove any unused directories in this list.\nNote that the first occurrence is currently in use:\n" + storageDirectoryMessageString;
+            //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, errorMessage, "Arbil Storage Directory Error", JOptionPane.ERROR_MESSAGE);
+            new LinorgBugCatcher().logError(new Exception(errorMessage));
+        }
+
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
@@ -392,19 +426,22 @@ public class LinorgSessionStorage {
 
     public String[] loadStringArray(String filename) {
         // read the location list from a text file that admin-users can read and hand edit if they really want to
-        try {
-            ArrayList<String> stringArrayList = new ArrayList<String>();
-            FileInputStream fstream = new FileInputStream(new File(storageDirectory, filename + ".config"));
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine;
-            while ((strLine = br.readLine()) != null) {
-                stringArrayList.add(strLine);
+        File currentConfigFile = new File(storageDirectory, filename + ".config");
+        if (currentConfigFile.exists()) {
+            try {
+                ArrayList<String> stringArrayList = new ArrayList<String>();
+                FileInputStream fstream = new FileInputStream(currentConfigFile);
+                DataInputStream in = new DataInputStream(fstream);
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String strLine;
+                while ((strLine = br.readLine()) != null) {
+                    stringArrayList.add(strLine);
+                }
+                in.close();
+                return stringArrayList.toArray(new String[]{});
+            } catch (IOException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
             }
-            in.close();
-            return stringArrayList.toArray(new String[]{});
-        } catch (IOException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
         }
         return null;
 
@@ -427,13 +464,17 @@ public class LinorgSessionStorage {
 
     public void saveStringArray(String filename, String[] storableValue) {
         // save the location list to a text file that admin-users can read and hand edit if they really want to
+        File destinationConfigFile = new File(storageDirectory, filename + ".config");
+        File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
         try {
-            FileWriter fstream = new FileWriter(new File(storageDirectory, filename + ".config"));
+            FileWriter fstream = new FileWriter(tempConfigFile);
             BufferedWriter out = new BufferedWriter(fstream);
             for (String currentString : storableValue) {
                 out.write(currentString + "\r\n");
             }
             out.close();
+            destinationConfigFile.delete();
+            tempConfigFile.renameTo(destinationConfigFile);
         } catch (Exception exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
         }
@@ -673,8 +714,12 @@ public class LinorgSessionStorage {
                     //h.setFollowRedirects(false);
                     System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
                 }
-                if (httpConnection != null && httpConnection.getResponseCode() != 200) {
-                    System.out.println("non 200 response, skipping file");
+                if (httpConnection == null || httpConnection.getResponseCode() != 200) {
+                    if (httpConnection == null) {
+                        System.out.println("httpConnection is null, skipping file");
+                    } else {
+                        System.out.println("non 200 response, skipping file");
+                    }
                 } else {
                     File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
                     tempFile.deleteOnExit();
@@ -682,7 +727,7 @@ public class LinorgSessionStorage {
                     FileOutputStream outFile = new FileOutputStream(tempFile); //targetUrlString
                     System.out.println("getting file");
                     InputStream stream = urlConnection.getInputStream();
-                    byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
+                    byte[] buffer = new byte[bufferLength]; // make this 1024*4 or something and read chunks not the whole file
                     int bytesread = 0;
                     int totalRead = 0;
                     while (bytesread >= 0 && !abortFlag.abortDownload) {
