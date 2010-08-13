@@ -14,7 +14,7 @@ import java.util.Vector;
  * @author Peter.Withers@mpi.nl
  */
 public class LinorgFavourites {
-
+    todo: look into ways to import favourites bulk or to share them on a server
 //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private LinorgFavourites singleInstance = null;
 
@@ -27,7 +27,8 @@ public class LinorgFavourites {
     }
 
     // this will load any favourites in the old format and delete the old format file
-    public void convertOldFormatLocationLists() {
+    // this is not used now but should be kept in case some users need to import locations from olde versions of the application
+    public void convertOldFormatLocationListsX() {
         try {
             File oldLocationsFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "locationsList");
             File oldFavouritesFile = new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "selectedFavourites");
@@ -128,6 +129,7 @@ public class LinorgFavourites {
 //    public ImdiTreeObject[] listAllFavourites() {
 //        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
 //    }
+     todo: on windows add from favourites fails for sessions but works for actors
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
         System.out.println("listFavouritesFor: " + targetNodeUserObject);
         Vector<String[]> validFavourites = new Vector<String[]>();
