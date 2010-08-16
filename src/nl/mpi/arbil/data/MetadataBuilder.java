@@ -28,7 +28,9 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeTypeDisplayNameLocal, final ImdiTreeObject addableNode) {
-        // todo: ask user to save
+        if (destinationNode.getNeedsSaveToDisk()) {
+            destinationNode.saveChangesToCache(true);
+        }
         new Thread("requestAddNode") {
 
             @Override
@@ -36,7 +38,7 @@ public class MetadataBuilder {
                 destinationNode.updateLoadingState(1);
                 synchronized (destinationNode.getParentDomLockObject()) {
                     if (addableNode.isMetaDataNode()) {
-                        destinationNode.saveChangesToCache(true);
+//                        destinationNode.saveChangesToCache(true);
                         URI addedNodeUri;
                         if (addableNode.getURI().getFragment() == null) {
                             addedNodeUri = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
@@ -122,7 +124,9 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeType, final String nodeTypeDisplayName) {
-        // todo: ask user to save
+        if (destinationNode.getNeedsSaveToDisk()) {
+            destinationNode.saveChangesToCache(true);
+        }
         new Thread("requestAddNode") {
 
             @Override
@@ -224,7 +228,9 @@ public class MetadataBuilder {
     public URI addChildNode(ImdiTreeObject destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
         System.out.println("targetXmlPath:: " + targetXmlPath);
-        // todo: ask user to save
+        if (destinationNode.getNeedsSaveToDisk()) {
+            destinationNode.saveChangesToCache(true);
+        }
         URI addedNodePath = null;
         destinationNode.updateLoadingState(1);
         synchronized (destinationNode.getParentDomLockObject()) {

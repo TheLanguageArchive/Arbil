@@ -112,6 +112,7 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertResourceProxy(ImdiTreeObject imdiTreeObject, ImdiTreeObject resourceNode) {
+        // there is no need to save the node at this point because metadatabuilder has already done so
         synchronized (imdiTreeObject.getParentDomLockObject()) {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
@@ -188,6 +189,9 @@ public class CmdiComponentBuilder {
     }
 
     public boolean removeChildNodes(ImdiTreeObject imdiTreeObject, String nodePaths[]) {
+        if (imdiTreeObject.getNeedsSaveToDisk()) {
+            imdiTreeObject.saveChangesToCache(true);
+        }
         synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("removeChildNodes: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
@@ -298,6 +302,11 @@ public class CmdiComponentBuilder {
 
     public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) {
         URI returnUri = null;
+        // this node has already been saved in the metadatabuilder which called this
+        // but lets check this again in case this gets called elsewhere and to make things consistant
+        if (destinationImdiTreeObject.getNeedsSaveToDisk()) {
+            destinationImdiTreeObject.saveChangesToCache(true);
+        }
         try {
             Document favouriteDocument;
             synchronized (favouriteImdiTreeObject.getParentDomLockObject()) {
@@ -364,6 +373,9 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
+        if (imdiTreeObject.getNeedsSaveToDisk()) {
+            imdiTreeObject.saveChangesToCache(true);
+        }
         synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("insertChildComponent: " + cmdiComponentId);
             System.out.println("targetXmlPath: " + targetXmlPath);
