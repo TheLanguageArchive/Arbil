@@ -116,6 +116,14 @@ public class MetadataReader {
         } else {
             templateUrl = MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
         }
+        if (templateUrl == null) {
+            try {
+                templateUrl = ArbilTemplateManager.getSingleInstance().getDefaultComponentOfTemplate(templateType).toURI().toURL();
+            } catch (MalformedURLException exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+                return null;
+            }
+        }
 //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
 //        System.out.println("templateFile: " + templateFile);
         addedPathUri = copyToDisk(templateUrl, destinationFile);
