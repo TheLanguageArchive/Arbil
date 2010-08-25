@@ -672,7 +672,13 @@ public class CmdiComponentBuilder {
     }
 
     private void readSchema(Document workingDocument, URI xsdFile, boolean addDummyData) {
-        File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        File schemaFile;
+        if (xsdFile.getScheme().toLowerCase().equals("file")) {
+            // do not cache local xsd files
+            schemaFile = new File(xsdFile);
+        } else {
+            schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        }
         SchemaType schemaType = getFirstSchemaType(schemaFile);
         constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null, addDummyData);
     }
