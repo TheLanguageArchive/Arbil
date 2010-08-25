@@ -41,7 +41,9 @@ public class ArbilTemplateManager {
             File selectedTemplateFile = getTemplateFile(selectedTemplate);
             selectedTemplateFile.getParentFile().mkdir();
             LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag());
-            new File(selectedTemplateFile.getParentFile(), "components").mkdir(); // create the components directory
+            File componentsDirectory = new File(selectedTemplateFile.getParentFile(), "components");
+            componentsDirectory.mkdir(); // create the components directory
+            LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, new DownloadAbortFlag());
             File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
             examplesDirectory.mkdir(); // create the example components directory
             // copy example components from the jar file            
@@ -61,7 +63,10 @@ public class ArbilTemplateManager {
 //        }
         return currentTemplateFile;
     }
-
+    public File getDefaultComponentOfTemplate(String currentTemplate) {
+        File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "components"  + File.separatorChar + "default.xml");
+        return currentTemplateFile;
+    }
 //    public boolean defaultTemplateIsCurrentTemplate() {
 //        return defaultArbilTemplateName.equals(builtInTemplates2[0]);
 //    }
