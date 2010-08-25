@@ -714,9 +714,9 @@ public class LinorgSessionStorage {
                     //h.setFollowRedirects(false);
                     System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
                 }
-                if (httpConnection == null || httpConnection.getResponseCode() != 200) {
+                if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
                     if (httpConnection == null) {
-                        System.out.println("httpConnection is null, skipping file");
+                        System.out.println("httpConnection is null, hence this is a local file and we should not have been testing the response code");
                     } else {
                         System.out.println("non 200 response, skipping file");
                     }
