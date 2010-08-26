@@ -467,7 +467,7 @@ public class MetadataReader {
                 linkURI = parentPath.resolve(linkString);
             }
         } catch (URISyntaxException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            GuiHelper.linorgBugCatcher.logError(parentPath.toString() + " : " + linkString, exception);
         }
 //                    System.out.println("linkPath: " + linkPath);
 //                    linkPath = new URL(linkPath).getPath();
