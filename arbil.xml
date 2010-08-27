@@ -209,7 +209,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <!--<fileset dir="${SRCDIR}mpi/metadata/transformations/xslt">
                 <include name="IMDI_3_0_TO_WEB.xsl"/>
             </fileset>-->
-           <fileset dir="${pathToMpiTrunk}src/html/imdi-viewer/">
+            <fileset dir="${pathToMpiTrunk}src/html/imdi-viewer/">
                 <include name="imdi-viewer-open.gif"/>
                 <include name="imdi-viewer-closed.gif"/>
                 <include name="imdi-viewer.js"/>
@@ -444,6 +444,36 @@ public class LinorgVersion {
         <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
         <scp file= "${BUILDDIR}/arbil-applet.html" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
         <scp file="${OUTPUTDIR}/arbil${arbil.filenameidentifier}-current.txt" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+    </target>
+    <target name="scp_to_lux17" depends="signarbil, updateJnlpAndAppletHtml">
+        <input message="Please enter lux09 username:" addproperty="lux09.user" />
+        <input message="Please enter lux09 password:" addproperty="lux09.pw">
+            <handler classname="org.apache.tools.ant.input.SecureInputHandler" />
+        </input>
+        <!-- http://lux17.mpi.nl/arbil/index.html -->
+        <!-- push the applet jar-->
+        <scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>
+        <!-- push the jnlp jar-->
+        <scp file="${OUTPUTDIR}/${ArbilJarName}" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/"/>
+        <!-- push the jnlp -->
+        <!-- the url in the webstart must be updated for the applet and also must be before signing-->
+        <scp file="${BUILDDIR}/arbil.jnlp" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
+        <!-- push all the lib jar files -->
+        <scp file="${OUTPUTDIR}/lib/corpusstructure-1.6.1.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/imdiapi-1.0.6.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/log4j-1.2.14.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/saxon8.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/saxon8-dom.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/${TypeCheckVersion}" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xalan-2.6.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xercesImpl-2.9.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/bcprov-jdk15-143.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/slcshttps_jdk15_v0.2.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xbean.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/commons-digester-2.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/commons-logging-1.1.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/commons-beanutils-1.8.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xmlpublic.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
     </target>
 </project>
  
