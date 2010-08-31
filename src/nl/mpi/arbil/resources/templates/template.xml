@@ -52,8 +52,8 @@
     </GenreSubgenres>
     <FieldConstraints>
         <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
-        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
-        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
+        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
+        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
         <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
@@ -78,6 +78,9 @@
         <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
         <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
+<!--  Project and content seem to cause issues that should be resolved before making them separate nodes     -->
+<!--        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Project" SubNodeName="Project" />
+        <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content" SubNodeName="Content" />-->
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Actors" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFiles" />
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResources" />
