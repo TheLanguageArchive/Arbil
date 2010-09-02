@@ -105,6 +105,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </macrodef>
         <updateSingleFile fileName="arbil.jnlp"/>
         <updateSingleFile fileName="arbil-applet.html"/>
+        <updateSingleFile fileName="arbil-applet-lux17.html"/>
         <updateSingleFile fileName="arbil-win-installer.iss"/>
         <updateSingleFile fileName="Info.plist"/>
         <updateSingleFile fileName="start-arbil"/>
@@ -474,6 +475,8 @@ public class LinorgVersion {
         <scp file="${OUTPUTDIR}/lib/commons-logging-1.1.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/commons-beanutils-1.8.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/xmlpublic.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <!-- push the applet html -->
+        <scp file= "${BUILDDIR}/arbil-applet-lux17.html" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/index.html"/>
     </target>
 </project>
  
