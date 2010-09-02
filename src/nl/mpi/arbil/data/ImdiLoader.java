@@ -43,7 +43,7 @@ public class ImdiLoader {
 
     public void startLoaderThreads() {
         // start the remote imdi loader threads
-        while (remoteLoaderThreadGroup.activeCount() < 6) {
+        while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) {
             String threadName = "ImdiLoader-remote-" + threadStartCounter++;
             new Thread(remoteLoaderThreadGroup, threadName) {
 
@@ -80,7 +80,7 @@ public class ImdiLoader {
         }
         // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
         // start the local imdi threads
-        while (localLoaderThreadGroup.activeCount() < 6) {
+        while (continueThread && localLoaderThreadGroup.activeCount() < 6) {
             String threadName = "ImdiLoader-local-" + threadStartCounter++;
             new Thread(localLoaderThreadGroup, threadName) {
 
