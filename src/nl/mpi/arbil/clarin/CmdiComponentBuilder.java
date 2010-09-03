@@ -75,7 +75,9 @@ public class CmdiComponentBuilder {
 //    }
     public void savePrettyFormatting(Document document, File outputFile) {
         try {
-            removeDomIds(document);  // remove any dom id attributes left over by the imdi api
+            if (outputFile.toString().endsWith(".imdi")) {
+                removeDomIds(document);  // remove any dom id attributes left over by the imdi api
+            }
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
