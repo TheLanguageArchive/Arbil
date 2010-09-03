@@ -71,8 +71,10 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem helpMenuItem;
     private JMenuItem importMenuItem;
     private PreviewSplitPanel previewSplitPanel;
+    private boolean isApplet;
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal) {
+    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, boolean isAppletLocal) {
+        isApplet = isAppletLocal;
         previewSplitPanel = previewSplitPanelLocal;
         fileMenu = new JMenu();
         saveFileMenuItem = new JMenuItem();
@@ -132,6 +134,7 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
+                    LinorgWindowManager.getSingleInstance().stopEditingInCurrentWindow();
                     ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -189,7 +192,9 @@ public class ArbilMenuBar extends JMenuBar {
                 }
             }
         });
-        fileMenu.add(exitMenuItem);
+        if (!isApplet) {
+            fileMenu.add(exitMenuItem);
+        }
 
         this.add(fileMenu);
 
@@ -662,6 +667,7 @@ public class ArbilMenuBar extends JMenuBar {
                         compFocusOwner = compFocusOwner.getParent();
                     }
                     if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
+                        LinorgWindowManager.getSingleInstance().stopEditingInCurrentWindow();
                         ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
                     }
                     if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Z) {
