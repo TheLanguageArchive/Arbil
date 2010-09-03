@@ -1002,7 +1002,7 @@ public class ContextMenu {
 
         } else {
             // alert the user when the node already exists and cannot be added again       
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The defalut locations already exists and will not be added again", "Add Default Locations");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The default locations already exists and will not be added again", "Add Default Locations");
 
         }
     }
