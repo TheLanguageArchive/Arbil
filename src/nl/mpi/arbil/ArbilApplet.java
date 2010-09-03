@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
 public class ArbilApplet extends javax.swing.JApplet {
 
     public void init() {
-        System.setProperty("sun.swing.enableImprovedDragGesture", "true");
+        //System.setProperty("sun.swing.enableImprovedDragGesture", "true");
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
 
@@ -23,7 +23,7 @@ public class ArbilApplet extends javax.swing.JApplet {
                     arbilTreePanels = new ArbilTreePanels();
                     mainSplitPane.setLeftComponent(arbilTreePanels);
                     previewSplitPanel.setPreviewPanel(true);
-                    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel);
+                    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, true);
                     setJMenuBar(arbilMenuBar);
 //                  LinorgWindowManager.getSingleInstance().setComponents(this);
                     LinorgWindowManager.getSingleInstance().openIntroductionPage();
