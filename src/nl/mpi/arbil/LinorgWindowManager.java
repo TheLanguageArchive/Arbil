@@ -547,6 +547,22 @@ public class LinorgWindowManager {
         return currentWindowName;
     }
 
+    public void stopEditingInCurrentWindow() {
+       todo: move the log field editor into a separate class so that it can be detected and its data saved at this point
+        // when saving make sure the current editing table or long field editor saves its data first
+//        Component focusedComponent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+//        KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
+//        desktopPane.requestFocusInWindow();
+//        focusedComponent.requestFocusInWindow();
+//        for (FocusListener curentListener : focusedComponent.getFocusListeners()) {
+//            curentListener.focusLost(null);
+//        }
+//        while (focusedComponent != null) {
+//            System.out.println("FocusOwner: " + focusedComponent);
+//            focusedComponent = focusedComponent.getParent();
+//        }
+    }
+
     public void closeAllWindows() {
         for (JInternalFrame focusedWindow : desktopPane.getAllFrames()) {
             if (focusedWindow != null) {
@@ -819,7 +835,13 @@ public class LinorgWindowManager {
                     ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
 //                parentNode.waitTillLoaded();
                     String fieldPath = rowNodesArray[arrayCounter].getFragment();
-                    String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                    String parentNodeFragment;
+                    if (parentNode.nodeTemplate == null) {
+                        GuiHelper.linorgBugCatcher.logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
+                        parentNodeFragment = "";
+                    } else {
+                        parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                    }
                     URI targetNode;
                     // note that the url has already be encoded and so we must not use the separate parameter version of new URI otherwise it would be encoded again which we do not want
                     if (parentNodeFragment.length() > 0) {
