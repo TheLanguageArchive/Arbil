@@ -41,7 +41,7 @@ public class ImdiLoader {
         localLoaderThreadGroup = new ThreadGroup("LocalLoaderThreads");
     }
 
-    public void startLoaderThreads() {
+    synchronized public void startLoaderThreads() {
         // start the remote imdi loader threads
         while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) {
             String threadName = "ImdiLoader-remote-" + threadStartCounter++;
