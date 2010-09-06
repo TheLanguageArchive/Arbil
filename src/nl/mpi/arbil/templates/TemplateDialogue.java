@@ -263,7 +263,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
                 clarinProfileCheckBox = new JCheckBox();
                 clarinProfileCheckBox.setText(customName);
                 clarinProfileCheckBox.setName(customName);
-                clarinProfileCheckBox.setActionCommand(customUrlString);
+                clarinProfileCheckBox.setActionCommand(currentSepectedProfile);
                 clarinProfileCheckBox.setSelected(true);
                 clarinProfileCheckBox.setToolTipText("custom profile, uncheck to remove");
                 clarinProfileCheckBox.addActionListener(this);
