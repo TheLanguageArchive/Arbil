@@ -518,6 +518,7 @@ public class MetadataReader {
                 // get the xml node id
                 NamedNodeMap attributesMap = childNode.getAttributes();
                 if (attributesMap != null) {
+                    // look for node id attribites that should be removed from imdi files
                     if (attributesMap.getNamedItem("id") != null) {
                         if (!parentNode.hasDomIdAttribute) {
                             if (!parentNode.isCmdiMetaDataNode()) {
@@ -528,8 +529,12 @@ public class MetadataReader {
                             }
                         }
                     }// end get the xml node id
-//                System.out.println(childNode.getLocalName());
-                    if (childNode.getLocalName().equals("CMD")) {  // change made for clarin
+                }
+                //System.out.println(fullNodePath);
+                //System.out.println(childNode.getLocalName());
+                if (fullNodePath.length() == 0) {
+                    // if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
+                    if (!childNode.getLocalName().equals("METATRANSCRIPT")) {  // change made for clarin
                         try {
                             // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
 //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
@@ -564,38 +569,41 @@ public class MetadataReader {
                             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                         }
                     }
-                    if (childNode.getLocalName().equals("METATRANSCRIPT")) {
-                        // these attributes exist only in the metatranscript node
-                        Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
-                        if (archiveHandleAtt != null) {
-                            parentNode.hasArchiveHandle = true;
-                        }
-                        Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
-                        if (templateOriginatorAtt != null) {
-                            String templateOriginator = templateOriginatorAtt.getNodeValue();
-                            int separatorIndex = templateOriginator.indexOf(":");
-                            if (separatorIndex > -1) {
-                                parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
-                            } else {
-                                // TODO: this is redundant but is here for backwards compatability
-                                Node templateTypeAtt = attributesMap.getNamedItem("Type");
-                                if (templateTypeAtt != null) {
-                                    String templateType = templateTypeAtt.getNodeValue();
-                                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                    if (attributesMap != null) {
+                        // this is an imdi file so get an imdi template etc
+                        if (childNode.getLocalName().equals("METATRANSCRIPT")) {
+                            // these attributes exist only in the metatranscript node
+                            Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
+                            if (archiveHandleAtt != null) {
+                                parentNode.hasArchiveHandle = true;
+                            }
+                            Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
+                            if (templateOriginatorAtt != null) {
+                                String templateOriginator = templateOriginatorAtt.getNodeValue();
+                                int separatorIndex = templateOriginator.indexOf(":");
+                                if (separatorIndex > -1) {
+                                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
+                                } else {
+                                    // TODO: this is redundant but is here for backwards compatability
+                                    Node templateTypeAtt = attributesMap.getNamedItem("Type");
+                                    if (templateTypeAtt != null) {
+                                        String templateType = templateTypeAtt.getNodeValue();
+                                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                                    }
+                                }
+                            }
+                            // get the imdi catalogue if it exists
+                            Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
+                            if (catalogueLinkAtt != null) {
+                                String catalogueLink = catalogueLinkAtt.getNodeValue();
+                                if (catalogueLink.length() > 0) {
+                                    URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
+                                    childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
+                                    parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
                                 }
                             }
                         }
                     }
-                    Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
-                    if (catalogueLinkAtt != null) {
-                        String catalogueLink = catalogueLinkAtt.getNodeValue();
-                        if (catalogueLink.length() > 0) {
-                            URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
-                            childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
-                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
-                        }
-                    }
-
                 }
                 String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
                 String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
