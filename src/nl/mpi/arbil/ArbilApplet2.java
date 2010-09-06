@@ -46,15 +46,33 @@ public class ArbilApplet2 extends JApplet {
      */
     public void init() {
         // TODO start asynchronous download of heavy resources
-        System.setProperty("sun.swing.enableImprovedDragGesture", "true");
-        System.setProperty("apple.awt.graphics.UseQuartz", "true");
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        initComponents();
+        try {
+            javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
+
+                public void run() {
+                    System.setProperty("sun.swing.enableImprovedDragGesture", "true");
+                    System.setProperty("apple.awt.graphics.UseQuartz", "true");
+                    System.setProperty("apple.laf.useScreenMenuBar", "true");
+                    initComponents();
+                }
+            });
+        } catch (Exception e) {
+            System.err.println("init didn't successfully complete");
+        }
     }
     // TODO overwrite start(), stop() and destroy() methods
 
     public void start() {
-        ImdiLoader.getSingleInstance().startLoaderThreads();
+        try {
+            javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
+
+                public void run() {
+                    ImdiLoader.getSingleInstance().startLoaderThreads();
+                }
+            });
+        } catch (Exception e) {
+            System.err.println("start didn't successfully complete");
+        }
     }
 
     public void stop() {
