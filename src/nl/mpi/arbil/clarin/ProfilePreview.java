@@ -38,7 +38,7 @@ public class ProfilePreview {
             ImdiTree demoTree = new ImdiTree();
             demoTree.rootNodeChildren = new ImdiTreeObject[]{demoNode};
             demoTree.setModel(demoTreeModel);
-            demoTree.requestResort(rootTreeNode);
+            demoTree.requestResort();
             JDialog demoDialogue = new JDialog();
             demoDialogue.setDefaultCloseOperation(JDialog.EXIT_ON_CLOSE);
             demoDialogue.pack();

@@ -25,8 +25,8 @@ public class LinorgVersionChecker {
         try {
             LinorgVersion linorgVersion = new LinorgVersion();
             int daysTillExpire = 1;
-            String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
-            File cachePath = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt, daysTillExpire);
+            //String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
+            File cachePath = LinorgSessionStorage.getSingleInstance().updateCache(linorgVersion.currentVersionFile, daysTillExpire);
             BufferedReader bufferedReader = new BufferedReader(new FileReader(cachePath));
             String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name

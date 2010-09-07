@@ -1,52 +1,47 @@
 package nl.mpi.arbil;
 
 import java.awt.Color;
-import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
+import nl.mpi.arbil.data.ImdiTreeObject;
 
 /**
  * Document   : ImdiTreeRenderer
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ImdiTreeRenderer extends DefaultTreeCellRenderer {
+public class ImdiTreeRenderer implements TreeCellRenderer {
 
-    public ImdiTreeRenderer() {
-    }
-
-    @Override
-    public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean hasFocus) {
-
-        super.getTreeCellRendererComponent(
-                tree, value, sel,
-                expanded, leaf, row,
-                hasFocus);
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        JLabel returnComponent;
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
         if (node.getUserObject() instanceof ImdiTreeObject) {
             ImdiTreeObject imdiTreeObject = (ImdiTreeObject) node.getUserObject();
+            // create the object with parameters so the jvm has a chance to reused objects in memory
+            returnComponent = new JLabel(imdiTreeObject.toString(), imdiTreeObject.getIcon(), JLabel.LEFT);
             if (/*!sel && */imdiTreeObject.hasSchemaError) {
-                setForeground(Color.RED);
+                returnComponent.setForeground(Color.RED);
             }
-            setIcon(imdiTreeObject.getIcon());
+            if (/*!sel && */imdiTreeObject.getNeedsSaveToDisk()) {
+                returnComponent.setForeground(Color.BLUE);
+            }
 //            setToolTipText(imdiTreeObject.toString());
             //listToolTip.setTartgetObject(imdiTreeObject);
-            setEnabled(imdiTreeObject.getNodeEnabled());
+            //setEnabled(imdiTreeObject.getNodeEnabled());
             //setVisible(imdiTreeObject.getNodeEnabled());
         } else if (node.getUserObject() instanceof JLabel) {
-            setIcon(((JLabel) node.getUserObject()).getIcon());
-            setText(((JLabel) node.getUserObject()).getText());
+            // create the object with parameters so the jvm has a chance to reused objects in memory
+            returnComponent = new JLabel(((JLabel) node.getUserObject()).getText(), ((JLabel) node.getUserObject()).getIcon(), JLabel.LEFT);
+        } else {
+            return new JLabel();
         }
-        return this;
+        if (selected) {
+            returnComponent.setOpaque(true);
+            returnComponent.setBackground(tree.getBackground().darker());
+        }
+        return returnComponent;
     }
 }

@@ -167,9 +167,15 @@ public class ArbilTemplateManager {
             } else if (locationsArray[insertableCounter].startsWith("clarin:")) {
                 String currentString = locationsArray[insertableCounter].substring("clarin:".length());
                 CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
-                returnArray[insertableCounter].menuText = cmdiProfile.name;
-                returnArray[insertableCounter].menuAction = cmdiProfile.getXsdHref();
-                returnArray[insertableCounter].menuToolTip = cmdiProfile.description;
+                if (cmdiProfile == null) {
+                    returnArray[insertableCounter].menuText = "<unknown>";
+                    returnArray[insertableCounter].menuAction = "<unknown>";
+                    returnArray[insertableCounter].menuToolTip = currentString;
+                } else {
+                    returnArray[insertableCounter].menuText = cmdiProfile.name;
+                    returnArray[insertableCounter].menuAction = cmdiProfile.getXsdHref();
+                    returnArray[insertableCounter].menuToolTip = cmdiProfile.description;
+                }
                 returnArray[insertableCounter].menuIcon = imdiIcons.clarinIcon;
             }
         }

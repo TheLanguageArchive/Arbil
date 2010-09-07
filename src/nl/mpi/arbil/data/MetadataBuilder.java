@@ -28,15 +28,17 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeTypeDisplayNameLocal, final ImdiTreeObject addableNode) {
-        // todo: ask user to save
+        if (destinationNode.getNeedsSaveToDisk()) {
+            destinationNode.saveChangesToCache(true);
+        }
         new Thread("requestAddNode") {
 
             @Override
             public void run() {
                 destinationNode.updateLoadingState(1);
-                synchronized (destinationNode.domLockObject) {
+                synchronized (destinationNode.getParentDomLockObject()) {
                     if (addableNode.isMetaDataNode()) {
-                        destinationNode.saveChangesToCache(true);
+//                        destinationNode.saveChangesToCache(true);
                         URI addedNodeUri;
                         if (addableNode.getURI().getFragment() == null) {
                             addedNodeUri = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
@@ -52,7 +54,7 @@ public class MetadataBuilder {
                             new CmdiComponentBuilder().removeArchiveHandles(destinationNode);
                         }
                         destinationNode.getParentDomNode().loadImdiDom();
-                        TreeHelper.getSingleInstance().updateTreeNodeChildren(destinationNode.getParentDomNode()); // maybe no point doing this here because the nodes are still loading
+//                        TreeHelper.getSingleInstance().updateTreeNodeChildren(destinationNode.getParentDomNode()); // maybe no point doing this here because the nodes are still loading
                         String newTableTitleString = "new " + addableNode + " in " + destinationNode;
                         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
                     } else {
@@ -122,13 +124,15 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeType, final String nodeTypeDisplayName) {
-        // todo: ask user to save
+        if (destinationNode.getNeedsSaveToDisk()) {
+            destinationNode.saveChangesToCache(true);
+        }
         new Thread("requestAddNode") {
 
             @Override
             public void run() {
                 destinationNode.updateLoadingState(1);
-                synchronized (destinationNode.domLockObject) {
+                synchronized (destinationNode.getParentDomLockObject()) {
                     System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
                     processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
 //                    ImdiLoader.getSingleInstance().requestReload(destinationNode);
@@ -199,13 +203,13 @@ public class MetadataBuilder {
             }
             if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
                 addedImdiObject.getParentDomNode().loadImdiDom();
-                addedImdiObject.getParentDomNode().clearIcon();
-                addedImdiObject.getParentDomNode().clearChildIcons();
-                TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
+//                TreeHelper.getSingleInstance().updateTreeNodeChildren(currentImdiObject.getParentDomNode());
             }
-            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
+//            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject.getParentDomNode());
             addedImdiObject.scrollToRequested = true;
-            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject);
+            addedImdiObject.getParentDomNode().clearIcon();
+            addedImdiObject.getParentDomNode().clearChildIcons();
+//            TreeHelper.getSingleInstance().updateTreeNodeChildren(addedImdiObject);
             //ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(allAddedNodes.toArray(new ImdiTreeObject[]{}), newTableTitleString);
         }
         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
@@ -224,10 +228,12 @@ public class MetadataBuilder {
     public URI addChildNode(ImdiTreeObject destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) {
         System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
         System.out.println("targetXmlPath:: " + targetXmlPath);
-        // todo: ask user to save
+        if (destinationNode.getNeedsSaveToDisk()) {
+            destinationNode.saveChangesToCache(true);
+        }
         URI addedNodePath = null;
         destinationNode.updateLoadingState(1);
-        synchronized (destinationNode.domLockObject) {
+        synchronized (destinationNode.getParentDomLockObject()) {
             if (destinationNode.getNeedsSaveToDisk()) {
                 destinationNode.saveChangesToCache(false);
             }

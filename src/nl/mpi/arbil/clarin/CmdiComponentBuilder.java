@@ -75,6 +75,7 @@ public class CmdiComponentBuilder {
 //    }
     public void savePrettyFormatting(Document document, File outputFile) {
         try {
+            removeDomIds(document);  // remove any dom id attributes left over by the imdi api
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
@@ -111,7 +112,8 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertResourceProxy(ImdiTreeObject imdiTreeObject, ImdiTreeObject resourceNode) {
-        synchronized (imdiTreeObject.domLockObject) {
+        // there is no need to save the node at this point because metadatabuilder has already done so
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
 //            <ResourceProxy id="a_text">
@@ -187,7 +189,10 @@ public class CmdiComponentBuilder {
     }
 
     public boolean removeChildNodes(ImdiTreeObject imdiTreeObject, String nodePaths[]) {
-        synchronized (imdiTreeObject.domLockObject) {
+        if (imdiTreeObject.getNeedsSaveToDisk()) {
+            imdiTreeObject.saveChangesToCache(true);
+        }
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("removeChildNodes: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
@@ -227,7 +232,7 @@ public class CmdiComponentBuilder {
     }
 
     public boolean setFieldValues(ImdiTreeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
-        synchronized (imdiTreeObject.domLockObject) {
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("setFieldValues: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
@@ -297,12 +302,17 @@ public class CmdiComponentBuilder {
 
     public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) {
         URI returnUri = null;
+        // this node has already been saved in the metadatabuilder which called this
+        // but lets check this again in case this gets called elsewhere and to make things consistant
+        if (destinationImdiTreeObject.getNeedsSaveToDisk()) {
+            destinationImdiTreeObject.saveChangesToCache(true);
+        }
         try {
             Document favouriteDocument;
-            synchronized (favouriteImdiTreeObject.domLockObject) {
+            synchronized (favouriteImdiTreeObject.getParentDomLockObject()) {
                 favouriteDocument = getDocument(favouriteImdiTreeObject.getURI());
             }
-            synchronized (destinationImdiTreeObject.domLockObject) {
+            synchronized (destinationImdiTreeObject.getParentDomLockObject()) {
                 Document destinationDocument = getDocument(destinationImdiTreeObject.getURI());
                 String favouriteXpath = favouriteImdiTreeObject.getURI().getFragment();
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
@@ -363,7 +373,10 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
-        synchronized (imdiTreeObject.domLockObject) {
+        if (imdiTreeObject.getNeedsSaveToDisk()) {
+            imdiTreeObject.saveChangesToCache(true);
+        }
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             System.out.println("insertChildComponent: " + cmdiComponentId);
             System.out.println("targetXmlPath: " + targetXmlPath);
             // check for issues with the path
@@ -441,7 +454,7 @@ public class CmdiComponentBuilder {
     }
 
     public void removeArchiveHandles(ImdiTreeObject imdiTreeObject) {
-        synchronized (imdiTreeObject.domLockObject) {
+        synchronized (imdiTreeObject.getParentDomLockObject()) {
             try {
                 Document workingDocument = getDocument(imdiTreeObject.getURI());
                 removeArchiveHandles(workingDocument);
@@ -452,17 +465,29 @@ public class CmdiComponentBuilder {
         }
     }
 
+    private void removeDomIds(Document targetDocument) {
+        String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
+        try {
+            NodeList domIdNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
+            for (int nodeCounter = 0; nodeCounter < domIdNodeList.getLength(); nodeCounter++) {
+                Node domIdNode = domIdNodeList.item(nodeCounter);
+                if (domIdNode != null) {
+                    domIdNode.getAttributes().removeNamedItem("id");
+                }
+            }
+        } catch (TransformerException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+    }
+
     private void removeArchiveHandles(Document targetDocument) {
-        String handleXpath = "//*[@ArchiveHandle]";
+        String handleXpath = "/:METATRANSCRIPT[@ArchiveHandle]|/:METATRANSCRIPT//*[@ArchiveHandle]";
         try {
             NodeList archiveHandleNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
             for (int nodeCounter = 0; nodeCounter < archiveHandleNodeList.getLength(); nodeCounter++) {
                 Node archiveHandleNode = archiveHandleNodeList.item(nodeCounter);
                 if (archiveHandleNode != null) {
-//                    System.out.println(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").getNodeValue());
-                    archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle").setNodeValue("");
-                    // todo: completely remove the archive handle
-//                    archiveHandleNode.removeChild(archiveHandleNode.getAttributes().getNamedItem("ArchiveHandle"));
+                    archiveHandleNode.getAttributes().removeNamedItem("ArchiveHandle");
                 }
             }
         } catch (TransformerException exception) {

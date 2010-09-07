@@ -83,15 +83,16 @@ public class ImdiTreeObject implements Comparable {
     public boolean lockedByLoadingThread = false;
 //    private boolean isFavourite;
     public boolean hasArchiveHandle = false;
+    public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
 //    public boolean autoLoadChildNodes = false;
     //public Vector<String[]> addQueue;
     public boolean scrollToRequested = false;
 //    public Vector<ImdiTreeObject> mergeQueue;
 //    public boolean jumpToRequested = false; // dubious about this being here but it seems to fit here best
     private ImdiTreeObject domParentImdi = null; // the parent imdi containing the dom, only set for imdi child nodes
-    public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
+    //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
-    public final Object domLockObject = new Object();
+    private final Object domLockObjectPrivate = new Object();
 
     protected ImdiTreeObject(URI localUri) {
 //        System.out.println("ImdiTreeObject: " + localUri);
@@ -284,7 +285,7 @@ public class ImdiTreeObject implements Comparable {
             typeCheckerMessage = null;
             MimeHashQueue.getSingleInstance().addToQueue(this);
         }
-        boolean imdiNeedsSaveToDisk = hasChangedFields();
+        boolean imdiNeedsSaveToDisk = hasChangedFields() || hasDomIdAttribute;
         if (isMetaDataNode() && !isImdiChild()) {
             if (imdiNeedsSaveToDisk == false) {
                 for (ImdiTreeObject childNode : getAllChildren()) {
@@ -402,12 +403,12 @@ public class ImdiTreeObject implements Comparable {
 //        }
     }
 
-    synchronized public void loadImdiDom() {
+    public void loadImdiDom() {
         System.out.println("loadImdiDom: " + nodeUri.toString());
         if (getParentDomNode() != this) {
             getParentDomNode().loadImdiDom();
         } else {
-            synchronized (domLockObject) {
+            synchronized (getParentDomLockObject()) {
                 initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created                
                 if (!isMetaDataNode() && !isDirectory() && isLocal()) {
                     // if it is an not imdi or a loose file but not a direcotry then get the md5sum
@@ -477,16 +478,9 @@ public class ImdiTreeObject implements Comparable {
                                             if (currentContainer instanceof ImdiTableModel) {
                                                 ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentOldChild});
                                             }
-                                            if (currentContainer instanceof DefaultMutableTreeNode) {
-                                                DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                                                DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                                                if (parentNode != null) { // TODO this could be reduced as it is also sort of done in clear icon
-                                                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
-                                                } else {
-                                                    TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
-                                                }
+                                            if (currentContainer instanceof ImdiTree) {
+                                                ((ImdiTree) currentContainer).requestResort();
                                             }
-
                                         }
                                     }
                                 }
@@ -928,7 +922,7 @@ public class ImdiTreeObject implements Comparable {
         }
         bumpHistory();
         copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-        synchronized (domLockObject) {
+        synchronized (getParentDomLockObject()) {
             System.out.println("deleting by corpus link");
             URI[] copusUriList = new URI[targetImdiNodes.length];
             for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
@@ -950,9 +944,7 @@ public class ImdiTreeObject implements Comparable {
         }
         this.getParentDomNode().clearIcon();
         this.getParentDomNode().clearChildIcons();
-//        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
-        TreeHelper.getSingleInstance().updateTreeNodeChildren(this.getParentDomNode());
-//        reloadNode();
+        clearIcon(); // this must be cleared so that the leaf / branch flag gets set
     }
 
     public boolean hasCatalogue() {
@@ -1002,7 +994,7 @@ public class ImdiTreeObject implements Comparable {
             }
             bumpHistory();
             copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-            synchronized (domLockObject) {
+            synchronized (getParentDomLockObject()) {
                 metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
             }
             //loadChildNodes(); // this must not be done here
@@ -1665,6 +1657,10 @@ public class ImdiTreeObject implements Comparable {
         return nodeUri.toString();
     }
 
+    public Object getParentDomLockObject() {
+        return getParentDomNode().domLockObjectPrivate;
+    }
+
     /**
      * Gets the ImdiTreeObject parent of an imdi child node.
      * The returned node will be able to reload/save the dom for this node.
@@ -1818,7 +1814,9 @@ public class ImdiTreeObject implements Comparable {
         }
         if (containerToAdd != null) {
             // todo: handle null here more agressively
-            containersOfThisNode.add(containerToAdd);
+            if (!containersOfThisNode.contains(containerToAdd)) {
+                containersOfThisNode.add(containerToAdd);
+            }
         }
     }
 
@@ -1882,14 +1880,8 @@ public class ImdiTreeObject implements Comparable {
                 if (currentContainer instanceof ImdiChildCellEditor) {
                     ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
                 }
-                if (currentContainer instanceof DefaultMutableTreeNode) {
-                    DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                    DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) currentContainer).getParent();
-                    if (parentNode != null) {
-                        TreeHelper.getSingleInstance().addToSortQueue(parentNode);
-                    } else {
-                        TreeHelper.getSingleInstance().addToSortQueue(currentTreeNode);
-                    }
+                if (currentContainer instanceof ImdiTree) {
+                    ((ImdiTree) currentContainer).requestResort();
                 }
             } catch (java.util.NoSuchElementException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
@@ -1910,9 +1902,9 @@ public class ImdiTreeObject implements Comparable {
                 if (currentContainer instanceof ImdiChildCellEditor) {
                     ((ImdiChildCellEditor) currentContainer).stopCellEditing();
                 }
-                if (currentContainer instanceof DefaultMutableTreeNode) {
-                    DefaultMutableTreeNode currentTreeNode = (DefaultMutableTreeNode) currentContainer;
-                    TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(currentTreeNode);
+                if (currentContainer instanceof ImdiTree) {
+                    ImdiTree currentTreeNode = (ImdiTree) currentContainer;
+                    currentTreeNode.requestResort();
                 }
             } catch (java.util.NoSuchElementException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);

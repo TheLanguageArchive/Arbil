@@ -56,13 +56,13 @@ Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-; TODO: put the text "Launch Arbil Testing Via Webstart" into the language files
-Name: "{group}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; IconFileName:"{app}\@InstalledIcon@.ico";
+; TODO: put the text "Launch @ApplicationTitle@ Via Webstart" into the language files
+Name: "{group}\@ApplicationTitle@"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; IconFileName:"{app}\@InstalledIcon@.ico";
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil}"; Filename: "http://www.lat-mpi.eu/tools/arbil"
 Name: "{group}\{cm:ProgramOnTheWeb,Arbil Forum}"; Filename: "http://www.lat-mpi.eu/tools/arbil/Arbil-forum/"
-Name: "{group}\Launch Arbil Testing Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/linorg/arbil-testing.jnlp"
-Name: "{commondesktop}\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; Tasks: desktopicon; IconFileName:"{app}\@InstalledIcon@.ico";
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\Arbil Testing"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\@InstalledIcon@.ico";
+Name: "{group}\Launch @ApplicationTitle@ Via Webstart"; Filename: "http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil@FilenameIdentifier@.jnlp"
+Name: "{commondesktop}\@ApplicationTitle@"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; Tasks: desktopicon; IconFileName:"{app}\@InstalledIcon@.ico";
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\@ApplicationTitle@"; Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; Tasks: quicklaunchicon; IconFileName:"{app}\@InstalledIcon@.ico";
 
 [Run]
 Filename: "{app}\arbil-@ArbilVersionNumber@.jar"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Arbil}"; Flags: shellexec postinstall skipifsilent

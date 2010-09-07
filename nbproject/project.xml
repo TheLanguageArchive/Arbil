@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <name>Arbil-2-0-x</name>
+        </general-data>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/2">
+            <!-- Do not use Project Properties customizer when editing this file manually. -->
+            <name>Arbil-2-0-x</name>
+            <properties>
+                <property name="ant.script">arbil.xml</property>
+            </properties>
+            <folders>
+                <source-folder>
+                    <label>test</label>
+                    <type>java</type>
+                    <location>test</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>src</label>
+                    <type>java</type>
+                    <location>src</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>Arbil-2-0-x</label>
+                    <location>.</location>
+                    <encoding>UTF-8</encoding>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <script>${ant.script}</script>
+                    <target>jar</target>
+                </action>
+                <action name="clean">
+                    <script>${ant.script}</script>
+                    <target>clobber</target>
+                </action>
+                <action name="run">
+                    <script>${ant.script}</script>
+                    <target>all</target>
+                </action>
+                <action name="rebuild">
+                    <script>${ant.script}</script>
+                    <target>clobber</target>
+                    <target>jar</target>
+                </action>
+                <action name="debug.single">
+                    <script>nbproject/ide-file-targets.xml</script>
+                    <target>debug-selected-file-in-src</target>
+                    <context>
+                        <property>debug.class</property>
+                        <folder>src</folder>
+                        <pattern>\.java$</pattern>
+                        <format>java-name</format>
+                        <arity>
+                            <one-file-only/>
+                        </arity>
+                    </context>
+                </action>
+            </ide-actions>
+            <export>
+                <type>folder</type>
+                <location>/Users/petwit/Desktop/Arbil-build-2.0.x</location>
+                <script>${ant.script}</script>
+                <build-target>jar</build-target>
+            </export>
+            <export>
+                <type>folder</type>
+                <location>/Users/petwit/Desktop/Arbil-build-2.0.x</location>
+                <script>${ant.script}</script>
+                <build-target>jar</build-target>
+            </export>
+            <view>
+                <items>
+                    <source-folder style="packages">
+                        <label>test</label>
+                        <location>test</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>src</label>
+                        <location>src</location>
+                    </source-folder>
+                    <source-file>
+                        <location>${ant.script}</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="build"/>
+                    <ide-action name="rebuild"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="run"/>
+                </context-menu>
+            </view>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
+            <compilation-unit>
+                <package-root>test</package-root>
+                <unit-tests/>
+                <classpath mode="compile">/Users/petwit/Desktop/Arbil-build-2.0.x/lib</classpath>
+                <built-to>/Users/petwit/Desktop/Arbil-build-2.0.x</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>src</package-root>
+                <classpath mode="compile">/Users/petwit/Desktop/Arbil-build-2.0.x/lib</classpath>
+                <built-to>/Users/petwit/Desktop/Arbil-build-2.0.x</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+        </java-data>
+    </configuration>
+</project>

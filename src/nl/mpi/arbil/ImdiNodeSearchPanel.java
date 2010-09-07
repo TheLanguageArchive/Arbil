@@ -221,7 +221,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 }
                                 searchProgressBar.setMaximum(totalNodesToSearch);
                                 searchProgressBar.setValue(totalSearched);
-                                searchProgressBar.setString("searched: " + totalSearched + " found: " + totalNodesToSearch);
+                                searchProgressBar.setString("searched: " + totalSearched + " found: " + foundNodes.size());
                             }
                         }
                         if (!parentFrame.isVisible()) {
