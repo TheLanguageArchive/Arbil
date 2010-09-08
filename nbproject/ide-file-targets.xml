@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir=".." name="Arbil-2-0-x-IDE">
+<project basedir=".." name="Arbil-2-1-x-IDE">
     <property name="ant.script" value="arbil.xml"/>
     <!-- TODO: edit the following target according to your needs -->
     <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#runsingle) -->
@@ -15,10 +15,10 @@
             <target name="getCurrentJnlp"/>
         </ant>
         <path id="cp">
-            <pathelement path="/Users/petwit/Desktop/Arbil-build-2.0.x/lib"/>
-            <pathelement location="/Users/petwit/Desktop/Arbil-build-2.0.x"/>
+            <pathelement path="/Users/petwit/Desktop/Arbil-build-2.1.x/lib"/>
+            <pathelement location="/Users/petwit/Desktop/Arbil-build-2.1.x"/>
         </path>
-        <nbjpdastart addressproperty="jpda.address" name="Arbil-2-0-x" transport="dt_socket">
+        <nbjpdastart addressproperty="jpda.address" name="Arbil-2-1-x" transport="dt_socket">
             <classpath refid="cp"/>
         </nbjpdastart>
         <java classname="${debug.class}" fork="true">
