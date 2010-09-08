@@ -51,6 +51,7 @@ public class ImportExportDialog {
     private JPanel outputNodePanel;
     private JCheckBox copyFilesCheckBox;
     private JCheckBox renameFileToNodeName;
+    private JCheckBox renameFileToLamusFriendlyName;
     private JCheckBox detailsCheckBox;
     private JCheckBox overwriteCheckBox;
     private JCheckBox shibbolethCheckBox;
@@ -201,6 +202,7 @@ public class ImportExportDialog {
             bottomPanel.setVisible(showFlag);
             copyFilesCheckBox.setVisible(showFlag);
             renameFileToNodeName.setVisible(showFlag && exportDestinationDirectory != null);
+            renameFileToLamusFriendlyName.setVisible(showFlag && exportDestinationDirectory != null);
             overwriteCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
             //shibbolethCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
             shibbolethPanel.setVisible(showFlag/* && shibbolethCheckBox.isSelected()*/);
@@ -292,7 +294,8 @@ public class ImportExportDialog {
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.PAGE_AXIS));
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
-        renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true); 
+        renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
+        renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", false);
         overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
         shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
         shibbolethPanel = new JPanel();
@@ -329,6 +332,7 @@ public class ImportExportDialog {
 //        copyFilesCheckBoxPanel.add(new JPanel());
 //        detailsPanel.add(copyFilesCheckBoxPanel, BorderLayout.NORTH);
         detailsPanel.add(renameFileToNodeName, BorderLayout.NORTH);
+        detailsPanel.add(renameFileToLamusFriendlyName, BorderLayout.NORTH);
         detailsPanel.add(overwriteCheckBox, BorderLayout.NORTH);
         detailsPanel.add(copyFilesCheckBox, BorderLayout.NORTH);
         detailsPanel.add(shibbolethCheckBox, BorderLayout.NORTH);
@@ -599,6 +603,11 @@ public class ImportExportDialog {
                             destinationDirectory = destinationDirectoryLocal;
                         }
 
+                        private String makeFileNameLamusFriendly(String fileNameString) {
+                            // as requested by Eric: x = x.replaceAll("[^A-Za-z0-9._-]", "_"); // keep only "nice" chars
+                            return fileNameString.replaceAll("[^A-Za-z0-9-]", "_"); // this will only be passed the file name without suffix so "." should not be allowed, also there is no point replacing "_" with "_".
+                        }
+
                         public void calculateUriFileName() {
                             if (destinationDirectory != null) {
                                 destinationFile = LinorgSessionStorage.getSingleInstance().getExportPath(sourceURI.toString(), destinationDirectory.getPath());
@@ -608,7 +617,7 @@ public class ImportExportDialog {
                             childDestinationDirectory = destinationDirectory;
                         }
 
-                        public void calculateTreeFileName() {
+                        public void calculateTreeFileName(boolean lamusFriendly) {
                             fileSuffix = sourceURI.toString().substring(sourceURI.toString().lastIndexOf("."));
                             ImdiTreeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, sourceURI); // rather than use ImdiLoader this metadata could be loaded directly and then garbaged to save memory
                             currentNode.waitTillLoaded();
@@ -626,12 +635,26 @@ public class ImportExportDialog {
                                 }
                                 fileNameString = urlString.substring(urlString.lastIndexOf("/") + 1, urlString.lastIndexOf("."));
                             }
+                            fileNameString = fileNameString.replace("\\", "_");
+                            fileNameString = fileNameString.replace("/", "_");
+                            // other potential problem chars can be removed with the lamus friendly option, if it was done always then all non asc11 languages will be destroyed and non english like languages would be unreadable
+                            if (lamusFriendly) {
+                                fileNameString = makeFileNameLamusFriendly(fileNameString);
+                            }
+                            if (fileNameString.length() < 1) {
+                                fileNameString = "unnamed";
+                            }
                             destinationFile = new File(destinationDirectory, fileNameString + fileSuffix);
-                            childDestinationDirectory = new File(destinationDirectory, currentNode.toString());
+                            childDestinationDirectory = new File(destinationDirectory, fileNameString);
                             int fileCounter = 1;
                             while (destinationFile.exists()) {
-                                destinationFile = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")" + fileSuffix);
-                                childDestinationDirectory = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ")");
+                                if (lamusFriendly) {
+                                    destinationFile = new File(destinationDirectory, fileNameString + "_" + fileCounter + fileSuffix);
+                                    childDestinationDirectory = new File(destinationDirectory, fileNameString + "_" + fileCounter);
+                                } else {
+                                    destinationFile = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")" + fileSuffix);
+                                    childDestinationDirectory = new File(destinationDirectory, fileNameString + "(" + fileCounter + ")");
+                                }
                                 fileCounter++;
                             }
                         }
@@ -674,7 +697,7 @@ public class ImportExportDialog {
                                             journalActionString = "import";
                                         } else {
                                             if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-                                                currentRetrievableFile.calculateTreeFileName();
+                                                currentRetrievableFile.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
                                             } else {
                                                 currentRetrievableFile.calculateUriFileName();
                                             }
@@ -701,7 +724,7 @@ public class ImportExportDialog {
                                                 if (ImdiTreeObject.isPathMetadata(currentLink)) {
                                                     getList.add(gettableLinkUri);
                                                     if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-                                                        retrievableLink.calculateTreeFileName();
+                                                        retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
                                                     } else {
                                                         retrievableLink.calculateUriFileName();
                                                     }
@@ -720,7 +743,7 @@ public class ImportExportDialog {
                                                             downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
                                                         } else {
                                                             if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-                                                                retrievableLink.calculateTreeFileName();
+                                                                retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
                                                             } else {
                                                                 retrievableLink.calculateUriFileName();
                                                             }
