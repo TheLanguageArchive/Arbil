@@ -3,11 +3,11 @@
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
-            <name>Arbil-2-0-x</name>
+            <name>Arbil-2-1-x</name>
         </general-data>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/2">
             <!-- Do not use Project Properties customizer when editing this file manually. -->
-            <name>Arbil-2-0-x</name>
+            <name>Arbil-2-1-x</name>
             <properties>
                 <property name="ant.script">arbil.xml</property>
             </properties>
@@ -25,7 +25,7 @@
                     <encoding>UTF-8</encoding>
                 </source-folder>
                 <source-folder>
-                    <label>Arbil-2-0-x</label>
+                    <label>Arbil-2-1-x</label>
                     <location>.</location>
                     <encoding>UTF-8</encoding>
                 </source-folder>
@@ -64,13 +64,13 @@
             </ide-actions>
             <export>
                 <type>folder</type>
-                <location>/Users/petwit/Desktop/Arbil-build-2.0.x</location>
+                <location>/Users/petwit/Desktop/Arbil-build-2.1.x</location>
                 <script>${ant.script}</script>
                 <build-target>jar</build-target>
             </export>
             <export>
                 <type>folder</type>
-                <location>/Users/petwit/Desktop/Arbil-build-2.0.x</location>
+                <location>/Users/petwit/Desktop/Arbil-build-2.1.x</location>
                 <script>${ant.script}</script>
                 <build-target>jar</build-target>
             </export>
@@ -100,14 +100,14 @@
             <compilation-unit>
                 <package-root>test</package-root>
                 <unit-tests/>
-                <classpath mode="compile">/Users/petwit/Desktop/Arbil-build-2.0.x/lib</classpath>
-                <built-to>/Users/petwit/Desktop/Arbil-build-2.0.x</built-to>
+                <classpath mode="compile">/Users/petwit/Desktop/Arbil-build-2.1.x/lib</classpath>
+                <built-to>/Users/petwit/Desktop/Arbil-build-2.1.x</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
                 <package-root>src</package-root>
-                <classpath mode="compile">/Users/petwit/Desktop/Arbil-build-2.0.x/lib</classpath>
-                <built-to>/Users/petwit/Desktop/Arbil-build-2.0.x</built-to>
+                <classpath mode="compile">/Users/petwit/Desktop/Arbil-build-2.1.x/lib</classpath>
+                <built-to>/Users/petwit/Desktop/Arbil-build-2.1.x</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
