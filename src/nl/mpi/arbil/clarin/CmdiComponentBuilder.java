@@ -75,7 +75,9 @@ public class CmdiComponentBuilder {
 //    }
     public void savePrettyFormatting(Document document, File outputFile) {
         try {
-            removeDomIds(document);  // remove any dom id attributes left over by the imdi api
+            if (outputFile.toString().endsWith(".imdi")) {
+                removeDomIds(document);  // remove any dom id attributes left over by the imdi api
+            }
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
@@ -670,7 +672,13 @@ public class CmdiComponentBuilder {
     }
 
     private void readSchema(Document workingDocument, URI xsdFile, boolean addDummyData) {
-        File schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        File schemaFile;
+        if (xsdFile.getScheme().toLowerCase().equals("file")) {
+            // do not cache local xsd files
+            schemaFile = new File(xsdFile);
+        } else {
+            schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+        }
         SchemaType schemaType = getFirstSchemaType(schemaFile);
         constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null, addDummyData);
     }
