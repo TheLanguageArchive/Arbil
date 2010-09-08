@@ -494,7 +494,7 @@ public class ImdiTreeObject implements Comparable {
 ////                cacheLocation = saveNodeToCache(nodDom);
 //            }
                     } catch (Exception mue) {
-                        GuiHelper.linorgBugCatcher.logError(mue);
+                        GuiHelper.linorgBugCatcher.logError(this.getUrlString(), mue);
 //            System.out.println("Invalid input URL: " + mue);
                     }
                     //we are now done with the dom so free the memory
