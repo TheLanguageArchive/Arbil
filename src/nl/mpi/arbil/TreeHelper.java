@@ -179,39 +179,40 @@ public class TreeHelper {
         try {
             System.out.println("loading locationsList");
             String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("locationsList");
-//            System.out.println("loaded locationsList.size: " + locationsList.size());
-            // remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes
+            if (locationsArray == null) {
+                addDefaultCorpusLocations();
+            } else {
+                Vector<ImdiTreeObject> remoteCorpusNodesVector = new Vector<ImdiTreeObject>();
+                Vector<ImdiTreeObject> localCorpusNodesVector = new Vector<ImdiTreeObject>();
+                Vector<ImdiTreeObject> localFileNodesVector = new Vector<ImdiTreeObject>();
+                Vector<ImdiTreeObject> favouriteNodesVector = new Vector<ImdiTreeObject>();
 
-            Vector<ImdiTreeObject> remoteCorpusNodesVector = new Vector<ImdiTreeObject>();
-            Vector<ImdiTreeObject> localCorpusNodesVector = new Vector<ImdiTreeObject>();
-            Vector<ImdiTreeObject> localFileNodesVector = new Vector<ImdiTreeObject>();
-            Vector<ImdiTreeObject> favouriteNodesVector = new Vector<ImdiTreeObject>();
-
-            // this also removes all locations and replaces them with normalised paths
-            for (String currentLocationString : locationsArray) {
-                URI currentLocation = ImdiTreeObject.conformStringToUrl(currentLocationString);
-                ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
-                if (currentTreeObject.isLocal()) {
-                    if (currentTreeObject.isFavorite()) {
-                        favouriteNodesVector.add(currentTreeObject);
-                    } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
-                        if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isImdiChild()) {
-                            localCorpusNodesVector.add(currentTreeObject);
+                // this also removes all locations and replaces them with normalised paths
+                for (String currentLocationString : locationsArray) {
+                    URI currentLocation = ImdiTreeObject.conformStringToUrl(currentLocationString);
+                    ImdiTreeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
+                    if (currentTreeObject.isLocal()) {
+                        if (currentTreeObject.isFavorite()) {
+                            favouriteNodesVector.add(currentTreeObject);
+                        } else if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
+                            if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isImdiChild()) {
+                                localCorpusNodesVector.add(currentTreeObject);
+                            }
+                        } else {
+                            localFileNodesVector.add(currentTreeObject);
                         }
                     } else {
-                        localFileNodesVector.add(currentTreeObject);
+                        remoteCorpusNodesVector.add(currentTreeObject);
                     }
-                } else {
-                    remoteCorpusNodesVector.add(currentTreeObject);
                 }
+                remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ImdiTreeObject[]{});
+                localCorpusNodes = localCorpusNodesVector.toArray(new ImdiTreeObject[]{});
+                localFileNodes = localFileNodesVector.toArray(new ImdiTreeObject[]{});
+                favouriteNodes = favouriteNodesVector.toArray(new ImdiTreeObject[]{});
             }
-            remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ImdiTreeObject[]{});
-            localCorpusNodes = localCorpusNodesVector.toArray(new ImdiTreeObject[]{});
-            localFileNodes = localFileNodesVector.toArray(new ImdiTreeObject[]{});
-            favouriteNodes = favouriteNodesVector.toArray(new ImdiTreeObject[]{});
         } catch (Exception ex) {
-            System.out.println("load locationsList failed: " + ex.getMessage());
-//            GuiHelper.linorgBugCatcher.logError(ex);
+//            System.out.println("load locationsList failed: " + ex.getMessage());
+            GuiHelper.linorgBugCatcher.logError(ex);
 //            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
 //            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
 //            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
@@ -220,8 +221,8 @@ public class TreeHelper {
 //            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
 //            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Comprehension/Elizabeth_Johnson/Corpusstructure/1.imdi");
 //            //locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
-            addDefaultCorpusLocations();
-            System.out.println("created new locationsList");
+
+//            System.out.println("created new locationsList");
         }
         showHiddenFilesInTree = LinorgSessionStorage.getSingleInstance().loadBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
     }
