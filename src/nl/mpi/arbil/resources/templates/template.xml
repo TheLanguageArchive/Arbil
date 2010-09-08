@@ -52,8 +52,8 @@
     </GenreSubgenres>
     <FieldConstraints>
         <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
-        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
-        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?"/>
+        <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
+        <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
         <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
@@ -124,6 +124,7 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Description.xml" DisplayName="Content Language Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Keys.Key.xml" DisplayName="MediaFile Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml" DisplayName="Source Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source.xml" DisplayName="Source" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml" DisplayName="WrittenResource Key" />
