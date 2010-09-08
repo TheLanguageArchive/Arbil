@@ -8,7 +8,8 @@
     <target name="setproperties">
         <property name="arbil.current.major" value="2"/>
         <property name="arbil.current.minor" value="1"/>
-        <property name="arbil.filenameidentifier" value="-stable"/>
+<!--        <property name="arbil.filenameidentifier" value="-stable"/>-->
+        <property name="arbil.filenameidentifier" value="-staging"/>
         <property name="arbil.application-title" value="Arbil"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/"/>
