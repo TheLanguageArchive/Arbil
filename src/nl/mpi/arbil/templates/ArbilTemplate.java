@@ -160,10 +160,19 @@ public class ArbilTemplate {
                 returnValue = false;
             } else {
                 returnValue = true;
-                childType = (childType + ".xml").substring(1);
+                String childTypeTemp = (childType + ".xml").substring(1);
                 for (String[] currentTemplate : rootTemplatesArray) {
-                    if (childType.equals(currentTemplate[0])) {
+                    if (childTypeTemp.equals(currentTemplate[0])) {
                         returnValue = false;
+                    }
+                }
+                if (returnValue) {
+                    // this has been added to resolve an issue detecting custom templates
+                    returnValue = false;
+                    for (String[] currentTemplate : templatesArray) {
+                        if (childTypeTemp.equals(currentTemplate[0])) {
+                            returnValue = true;
+                        }
                     }
                 }
             }
