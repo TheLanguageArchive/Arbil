@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import java.awt.FontMetrics;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -206,6 +207,17 @@ public class ImdiTree extends JTree {
 //        return super.createToolTip();
         listToolTip.updateList();
         return listToolTip;
+    }
+
+    @Override
+    public int getRowHeight() {
+        try {
+            FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
+            int requiredHeight = fontMetrics.getHeight();
+            return requiredHeight;
+        } catch (Exception exception) {
+            return super.getRowHeight();
+        }
     }
 
     @Override
