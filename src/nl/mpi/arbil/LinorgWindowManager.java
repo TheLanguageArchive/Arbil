@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
+import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -32,9 +33,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
@@ -52,6 +57,7 @@ public class LinorgWindowManager {
     int nextWindowY = 50;
     int nextWindowWidth = 800;
     int nextWindowHeight = 600;
+    float fontScale = 1;
     private Hashtable<String, String> messageDialogQueue = new Hashtable<String, String>();
     private boolean messagesCanBeShown = false;
     boolean showMessageThreadrunning = false;
@@ -664,6 +670,32 @@ public class LinorgWindowManager {
 //                                    System.out.println(ex.getMessage());
                                 }
                             }
+                            if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && (((KeyEvent) e).getKeyCode() == KeyEvent.VK_MINUS || ((KeyEvent) e).getKeyCode() == KeyEvent.VK_EQUALS || ((KeyEvent) e).getKeyCode() == KeyEvent.VK_PLUS)) {
+                                if (((KeyEvent) e).getKeyCode() != KeyEvent.VK_MINUS) {
+                                    fontScale = fontScale + (float) 0.1;
+                                } else {
+                                    fontScale = fontScale - (float) 0.1;
+                                }
+                                if (fontScale < 1) {
+                                    fontScale = 1;
+                                }
+                                System.out.println("fontScale: " + fontScale);
+                                UIDefaults defaults = UIManager.getDefaults();
+                                Enumeration keys = defaults.keys();
+                                while (keys.hasMoreElements()) {
+                                    Object key = keys.nextElement();
+                                    Object value = defaults.get(key);
+                                    if (value != null && value instanceof Font) {
+                                        UIManager.put(key, null);
+                                        Font font = UIManager.getFont(key);
+                                        if (font != null) {
+                                            float size = font.getSize2D();
+                                            UIManager.put(key, new FontUIResource(font.deriveFont(size * fontScale)));
+                                        }
+                                    }
+                                }
+                                SwingUtilities.updateComponentTreeUI(desktopPane.getParent().getParent());
+                            }
                             if ((((KeyEvent) e).isMetaDown() || ((KeyEvent) e).isControlDown()) && ((KeyEvent) e).getKeyCode() == KeyEvent.VK_F) {
                                 JInternalFrame windowToSearch = desktopPane.getSelectedFrame();
                                 //System.out.println(windowToSearch.getContentPane());
@@ -787,7 +819,13 @@ public class LinorgWindowManager {
                     ImdiTreeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
 //                parentNode.waitTillLoaded();
                     String fieldPath = rowNodesArray[arrayCounter].getFragment();
-                    String parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                    String parentNodeFragment;
+                    if (parentNode.nodeTemplate == null) {
+                        GuiHelper.linorgBugCatcher.logError(new Exception("nodeTemplate null in: " + parentNode.getUrlString()));
+                        parentNodeFragment = "";
+                    } else {
+                        parentNodeFragment = parentNode.nodeTemplate.getParentOfField(fieldPath);
+                    }
                     URI targetNode;
                     // note that the url has already be encoded and so we must not use the separate parameter version of new URI otherwise it would be encoded again which we do not want
                     if (parentNodeFragment.length() > 0) {
