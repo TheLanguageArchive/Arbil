@@ -33,6 +33,10 @@ public class LinorgVersionChecker {
 //            System.out.println("currentRevision: " + localVersionString);
             System.out.println("currentRevision: " + linorgVersion.currentRevision);
             System.out.println("serverVersionString: " + serverVersionString);
+            if (!serverVersionString.matches("[0-9]*")){
+                // ignore any strings that are not a number because it might be a 404 or other error page
+                return true;
+            }
             // either exact or greater version matches will be considered correct because there will be cases where the txt file is older than the jar
             return (linorgVersion.currentRevision.compareTo(serverVersionString) >= 0);
         } catch (Exception ex) {
