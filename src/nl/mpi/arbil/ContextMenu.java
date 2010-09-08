@@ -1002,7 +1002,7 @@ public class ContextMenu {
 
         } else {
             // alert the user when the node already exists and cannot be added again       
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The defalut locations already exists and will not be added again", "Add Default Locations");
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The default locations already exists and will not be added again", "Add Default Locations");
 
         }
     }
@@ -1396,54 +1396,56 @@ public class ContextMenu {
         mergeWithFavouritesMenu.setEnabled(false);
         deleteMenuItem.setEnabled(true);
 
-        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree) {
-            removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
-            addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
-            copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
-        }
-        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
-            viewSelectedNodesMenuItem.setText("View/Edit Selected");
-            //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
-            pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
-            searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
-            // a corpus can be added even at the root node
-            addMenu.setVisible(selectionCount == 1); // && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
+        if (TreeHelper.getSingleInstance().arbilTreePanel != null) {
+            if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree) {
+                removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
+                addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
+                copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+                addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
+            }
+            if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
+                viewSelectedNodesMenuItem.setText("View/Edit Selected");
+                //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
+                pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
+                searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+                // a corpus can be added even at the root node
+                addMenu.setVisible(selectionCount == 1); // && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
-            deleteMenuItem.setVisible(nodeLevel > 1);
-            boolean nodeIsImdiChild = false;
-            if (leadSelectedTreeNode != null) {
-                nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
-                //if (leadSelectedTreeNode.getNeedsSaveToDisk()) {
-                // saveMenuItem.setVisible(true);
-                //} else if (leadSelectedTreeNode.hasHistory()) {
-                //viewChangesMenuItem.setVisible(true);
-                //sendToServerMenuItem.setVisible(true);
-                //}
-                validateMenuItem.setVisible(!nodeIsImdiChild);
-                historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
-                exportMenuItem.setVisible(!nodeIsImdiChild);
-                importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
-                importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
-                reImportBranchMenuItem.setVisible(leadSelectedTreeNode.hasArchiveHandle && !leadSelectedTreeNode.isImdiChild());
+                deleteMenuItem.setVisible(nodeLevel > 1);
+                boolean nodeIsImdiChild = false;
+                if (leadSelectedTreeNode != null) {
+                    nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
+                    //if (leadSelectedTreeNode.getNeedsSaveToDisk()) {
+                    // saveMenuItem.setVisible(true);
+                    //} else if (leadSelectedTreeNode.hasHistory()) {
+                    //viewChangesMenuItem.setVisible(true);
+                    //sendToServerMenuItem.setVisible(true);
+                    //}
+                    validateMenuItem.setVisible(!nodeIsImdiChild);
+                    historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
+                    exportMenuItem.setVisible(!nodeIsImdiChild);
+                    importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
+                    importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
+                    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.hasArchiveHandle && !leadSelectedTreeNode.isImdiChild());
 
-                // set up the favourites menu
-                addFromFavouritesMenu.setVisible(true);
-            }
-            //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
+                    // set up the favourites menu
+                    addFromFavouritesMenu.setVisible(true);
+                }
+                //deleteMenuItem.setEnabled(!nodeIsImdiChild && selectionCount == 1);
 //            addMenu.setEnabled(!nodeIsImdiChild);
 //            showContextMenu = true; //nodeLevel != 1;
-        }
-        if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree) {
-            removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
-            if (showAddLocationsTasks) {
-                showHiddenFilesMenuItem.setState(TreeHelper.getSingleInstance().showHiddenFilesInTree);
-                showHiddenFilesMenuItem.setVisible(true);
             }
-            addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
-            if (leadSelectedTreeNode != null) {
-                copyBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus() || leadSelectedTreeNode.isSession());
+            if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localDirectoryTree) {
+                removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
+                if (showAddLocationsTasks) {
+                    showHiddenFilesMenuItem.setState(TreeHelper.getSingleInstance().showHiddenFilesInTree);
+                    showHiddenFilesMenuItem.setVisible(true);
+                }
+                addLocalDirectoryMenuItem.setVisible(showAddLocationsTasks);
+                if (leadSelectedTreeNode != null) {
+                    copyBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus() || leadSelectedTreeNode.isSession());
+                }
             }
         }
         if (leadSelectedTreeNode != null) {
