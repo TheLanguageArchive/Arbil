@@ -9,15 +9,13 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
@@ -71,8 +69,11 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem helpMenuItem;
     private JMenuItem importMenuItem;
     private PreviewSplitPanel previewSplitPanel;
+    private boolean isApplet;
+    public javax.swing.JApplet containerApplet = null;
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal) {
+    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, boolean isAppletLocal) {
+        isApplet = isAppletLocal;
         previewSplitPanel = previewSplitPanelLocal;
         fileMenu = new JMenu();
         saveFileMenuItem = new JMenuItem();
@@ -189,7 +190,30 @@ public class ArbilMenuBar extends JMenuBar {
                 }
             }
         });
-        fileMenu.add(exitMenuItem);
+
+        // create the applet shibboleth menu items
+        JMenuItem logoutButton = new JMenuItem("Log Out");
+        logoutButton.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    String logoutUrl = containerApplet.getParameter("LogoutUrl");
+                    if (containerApplet == null) {
+                        // todo: change this to use a property from the applet tag
+                        //LinorgWindowManager.getSingleInstance().openUrlWindowOnce("Log out", new URL(logoutUrl));
+                    } else {
+                        containerApplet.getAppletContext().showDocument(new URL(logoutUrl));
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        if (!isApplet) {
+            fileMenu.add(exitMenuItem);
+        } else {
+            fileMenu.add(logoutButton);
+        }
 
         this.add(fileMenu);
 
