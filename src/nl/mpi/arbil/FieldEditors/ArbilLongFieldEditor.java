@@ -14,7 +14,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import nl.mpi.arbil.ImdiChildCellEditor;
 import nl.mpi.arbil.ImdiField;
 import nl.mpi.arbil.ImdiTable;
 import nl.mpi.arbil.ImdiVocabularies;
@@ -170,8 +169,8 @@ public class ArbilLongFieldEditor {
                         }
                     }
                     if (selectedValueFound == false) {
-                        fieldLanguageBoxs[cellFieldCounter].addItem(ImdiChildCellEditor.defaultLanguageDropDownValue);
-                        fieldLanguageBoxs[cellFieldCounter].setSelectedItem(ImdiChildCellEditor.defaultLanguageDropDownValue);
+                        fieldLanguageBoxs[cellFieldCounter].addItem(LanguageIdBox.defaultLanguageDropDownValue);
+                        fieldLanguageBoxs[cellFieldCounter].setSelectedItem(LanguageIdBox.defaultLanguageDropDownValue);
                     }
 //                    System.out.println("field language: " + ((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
                 }
