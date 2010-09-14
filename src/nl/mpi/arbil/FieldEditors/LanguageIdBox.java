@@ -8,7 +8,6 @@ import java.util.Arrays;
 import javax.swing.JComboBox;
 import nl.mpi.arbil.DocumentationLanguages;
 import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.ImdiChildCellEditor;
 import nl.mpi.arbil.ImdiField;
 import nl.mpi.arbil.ImdiVocabularies;
 
@@ -20,6 +19,7 @@ import nl.mpi.arbil.ImdiVocabularies;
 public class LanguageIdBox extends JComboBox {
 
     public static int languageSelectWidth = 100;
+    static String defaultLanguageDropDownValue = "<select>";
 
     public LanguageIdBox(final ImdiField cellField, Rectangle parentCellRect) {
         String fieldLanguageId = cellField.getLanguageId();
@@ -39,8 +39,8 @@ public class LanguageIdBox extends JComboBox {
             System.out.println("selectedItem: " + selectedItem);
             this.setSelectedItem(selectedItem);
         } else {
-            this.addItem(ImdiChildCellEditor.defaultLanguageDropDownValue);
-            this.setSelectedItem(ImdiChildCellEditor.defaultLanguageDropDownValue);
+            this.addItem(defaultLanguageDropDownValue);
+            this.setSelectedItem(defaultLanguageDropDownValue);
         }
         this.addActionListener(new ActionListener() {
 
@@ -50,7 +50,7 @@ public class LanguageIdBox extends JComboBox {
                     if (LanguageIdBox.this.getSelectedItem() instanceof ImdiVocabularies.VocabularyItem) {
                         cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) LanguageIdBox.this.getSelectedItem()).languageCode, true, false);
                     }
-                    LanguageIdBox.this.removeItem(ImdiChildCellEditor.defaultLanguageDropDownValue);
+                    LanguageIdBox.this.removeItem(defaultLanguageDropDownValue);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
