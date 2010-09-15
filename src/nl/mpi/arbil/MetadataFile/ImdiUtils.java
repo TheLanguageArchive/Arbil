@@ -132,8 +132,12 @@ public class ImdiUtils implements MetadataUtils {
                             // todo: cont... this must instead take oldurl newurl and the new imdi file location
 //                            api.changeIMDILink(nodDom, destinationUrl, currentLink);
                             // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+                            String archiveHandle = currentLink.getURID();
                             api.removeIMDILink(nodDom, currentLink);
-                            api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
+                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
+                            // preserve the archive handle so that LAMUS knows where it came from
+                            replacementLink.setURID(archiveHandle);
+                            api.changeIMDILink(nodDom, destinationUrl, replacementLink);
                         }
                     }
                 }
