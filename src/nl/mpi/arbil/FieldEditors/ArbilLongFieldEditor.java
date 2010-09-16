@@ -34,6 +34,7 @@ public class ArbilLongFieldEditor {
     JTextArea fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
     JLabel fieldDescription = null;
+    JInternalFrame editorFrame = null;
 
     public ArbilLongFieldEditor(ImdiTable parentTableLocal) {
         parentTable = parentTableLocal;
@@ -54,7 +55,7 @@ public class ArbilLongFieldEditor {
         String parentNodeName = "unknown";
         String fieldName = "unknown";
         if (cellValue[0] instanceof ImdiField) {
-            ((ImdiField) cellValue[0]).parentImdi.registerContainer(this);
+            ((ImdiField) cellValue[0]).parentImdi.getParentDomNode().registerContainer(this);
             parentNodeName = ((ImdiField) cellValue[0]).parentImdi.toString();
             fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
         }
@@ -129,14 +130,16 @@ public class ArbilLongFieldEditor {
         fieldDescription.setText(((ImdiField) cellValue[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) cellValue[0]).getFullXmlPath()));
         outerPanel.add(fieldDescription, BorderLayout.PAGE_START);
         outerPanel.add(tabPane, BorderLayout.CENTER);
-        JInternalFrame editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, outerPanel);
+        // todo: add next and previous buttons for the current file
+        // todo: add all unused attributes as editable text
+        editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, outerPanel);
         editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
             @Override
             public void internalFrameClosed(InternalFrameEvent e) {
                 // deregister component from imditreenode
                 if (cellValue[0] instanceof ImdiField) {
-                    ((ImdiField) cellValue[0]).parentImdi.removeContainer(this);
+                    ((ImdiField) cellValue[0]).parentImdi.getParentDomNode().removeContainer(this);
                 }
                 super.internalFrameClosed(e);
                 parentTable.requestFocusInWindow();
@@ -186,5 +189,9 @@ public class ArbilLongFieldEditor {
                 }
             }
         }
+    }
+
+    public void closeWindow() {
+        editorFrame.setVisible(false);
     }
 }
