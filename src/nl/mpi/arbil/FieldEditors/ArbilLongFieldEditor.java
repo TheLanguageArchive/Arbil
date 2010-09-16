@@ -33,6 +33,7 @@ public class ArbilLongFieldEditor {
     JTextField keyEditorFields[] = null;
     JTextArea fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
+    JLabel fieldDescription = null;
 
     public ArbilLongFieldEditor(ImdiTable parentTableLocal) {
         parentTable = parentTableLocal;
@@ -47,6 +48,7 @@ public class ArbilLongFieldEditor {
         fieldEditors = new JTextArea[cellValue.length];
         keyEditorFields = new JTextField[cellValue.length];
         fieldLanguageBoxs = new JComboBox[cellValue.length];
+        fieldDescription = new JLabel();
 
 
         String parentNodeName = "unknown";
@@ -123,7 +125,11 @@ public class ArbilLongFieldEditor {
             tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
             tabPane.add(fieldName + " " + titleCount++, tabPanel);
         }
-        JInternalFrame editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, tabPane);
+        JPanel outerPanel = new JPanel(new BorderLayout());
+        fieldDescription.setText(((ImdiField) cellValue[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) cellValue[0]).getFullXmlPath()));
+        outerPanel.add(fieldDescription, BorderLayout.PAGE_START);
+        outerPanel.add(tabPane, BorderLayout.CENTER);
+        JInternalFrame editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, outerPanel);
         editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
             @Override
@@ -148,6 +154,7 @@ public class ArbilLongFieldEditor {
         // this will only be called when the long field editor is shown
         // when an imdi node is edited or saved or reloaded this will be called to update the displayed values
         if (cellValue instanceof ImdiField[]) {
+            fieldDescription.setText(((ImdiField) cellValue[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) cellValue[0]).getFullXmlPath()));
             String fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
             cellValue = parentImdiObject.getFields().get(fieldName);
             for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
