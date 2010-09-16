@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import nl.mpi.arbil.ArbilEntityResolver;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.ImdiVocabularies;
 import nl.mpi.arbil.LinorgSessionStorage;
@@ -132,7 +133,7 @@ public class CmdiTemplate extends ArbilTemplate {
             }
             debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
-//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatetext", debugTempFile.toURL());
+//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nameSpaceString, debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
@@ -276,9 +277,11 @@ public class CmdiTemplate extends ArbilTemplate {
         try {
             InputStream inputStream = new FileInputStream(schemaFile);
             //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
-            XmlOptions options = new XmlOptions();
-            options.setCharacterEncoding("UTF-8");
-            SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setCharacterEncoding("UTF-8");
+            xmlOptions.setEntityResolver(new ArbilEntityResolver());
+//            xmlOptions.setCompileDownloadUrls();
+            SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
 //            System.out.println("XmlObject.Factory:" + XmlObject.Factory.class.toString());
             SchemaType schemaType = sts.documentTypes()[0];
             constructXml(schemaType, arrayListGroup, "");
@@ -297,6 +300,12 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
+//        System.out.println("sub element count: " + pathString.split("\\.").length);
+//        System.out.println("sub element list: " + pathString);
+//        if (pathString.split("\\.").length > 20) {
+//            // todo: look into recursion issue
+//            return 0;
+//        }
 //        System.out.println("constructXml: " + pathString);
 //        if (pathString.startsWith(".CMD.Components.test-profile-book.Authors.Author.")) {
 //            System.out.println("Author");
@@ -348,7 +357,20 @@ public class CmdiTemplate extends ArbilTemplate {
                     canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
                 }
 //            boolean hasSubNodes = false;
-                System.out.println("Found template element: " + currentPathString);
+                // start: temp code for extracting all field names
+//                System.out.println("Found template element: " + currentPathString);
+//                boolean foundEntry = false;
+//                for (String[] currentEntry : arrayListGroup.fieldUsageDescriptionList) {
+//                    if (currentPathString.startsWith(currentEntry[0])) {
+//                        currentEntry[0] = currentPathString;
+//                        foundEntry = true;
+//                        break;
+//                    }
+//                }
+//                if (!foundEntry) {
+//                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{currentPathString, ""});
+//                }
+                // end: temp code for extracting all field names
                 SchemaType currentSchemaType = schemaProperty.getType();
 //            String nodeMenuNameForChild;
 //            if (canHaveMultiple) {
@@ -406,7 +428,12 @@ public class CmdiTemplate extends ArbilTemplate {
             switch (schemaParticle.getParticleType()) {
                 case SchemaParticle.SEQUENCE:
                     for (SchemaParticle schemaParticleChild : schemaParticle.getParticleChildren()) {
-                        nodePath = nodePath + "." + schemaParticleChild.getName().getLocalPart();
+                        if (schemaParticleChild.getName() != null) {
+                            nodePath = nodePath + "." + schemaParticleChild.getName().getLocalPart();
+                        } else {
+                            GuiHelper.linorgBugCatcher.logError(new Exception("unnamed node at: " + nodePath));
+                            nodePath = nodePath + ".unnamed";
+                        }
                         searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup);
                     }
                     break;
@@ -476,9 +503,49 @@ public class CmdiTemplate extends ArbilTemplate {
             ImdiVocabularies.Vocabulary vocabulary = ImdiVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
             for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
-//                System.out.println("Value List: " + anySimpleType.getStringValue());
-                vocabulary.addEntry(anySimpleType.getStringValue());
+                System.out.println("Value List: " + anySimpleType.getStringValue());
+                vocabulary.addEntry(anySimpleType.getStringValue(), null);
+                // todo: get the ann:label
+//
+//                SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaType;
+//                        SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
+//        if (schemaAnnotation != null) {
+////            System.out.println("getAttributes length: " + schemaAnnotation.getAttributes().length);
+//            for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
+//                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+//                //Annotation: {ann}documentation : the title of the book
+//                //Annotation: {ann}displaypriority : 1
+//                // todo: the url here could be removed provided that it does not make it to unspecific
+////                if ("{http://www.clarin.eu}displaypriority".equals(annotationAttribute.getName().toString())) {
+////                    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
+////                }
+////                if ("{http://www.clarin.eu}documentation".equals(annotationAttribute.getName().toString())) {
+////                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
+////                }
+//            }
+//        }
+
+
+//                <item AppInfo="Central Sudanic languages"
+//                ConceptLink="http://cdb.iso.org/lg/CDB-00138674-001">csu</item>
+//
+//                used to be transformed into:
+//
+//                <xs:enumeration value="csu"
+//                dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001">
+//                     <xs:annotation>
+//                      <xs:appinfo>Central Sudanic languages</xs:appinfo>
+//                     </xs:annotation>
+//                </xs:enumeration>
+//
+//                and now it becomes:
+//
+//                <xs:enumeration value="csu"
+//                dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001" ann:label="Central
+//                Sudanic languages"/>
+
             }
+            System.out.println("vocabularyHashTable.put: " + nodePath);
             vocabularyHashTable.put(nodePath, vocabulary);
         }
     }
