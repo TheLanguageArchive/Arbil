@@ -261,6 +261,7 @@ public class TreeHelper {
     public void removeLocation(ImdiTreeObject removeObject) {
         if (removeObject != null) {
             saveLocations(null, new ImdiTreeObject[]{removeObject});
+            removeObject.removeFromAllContainers();
             loadLocationsList();
         }
     }
