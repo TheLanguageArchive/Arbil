@@ -356,6 +356,7 @@ public class TreeHelper {
                                         }
                                     }
                                     imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.getURI().getFragment());
+                                    childImdiNode.removeFromAllContainers();
                                 } else {
                                     // add the parent and the child node to the deletelist
                                     if (!imdiNodesDeleteList.containsKey(parentImdiNode)) {
@@ -395,17 +396,18 @@ public class TreeHelper {
                     System.out.println("deleting by corpus link");
                     currentParent.deleteCorpusLink(((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{}));
                 }
-                for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
-                    // remove the deleted node from all tables
-                    // todo: this is also done in deleteCorpusLink and need not be here
-                    ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
-                    for (Object currentContainer : currentDeletedNode.getRegisteredContainers()) {
-                        // this is required here even though it is now also done in the reloading process
-                        if (currentContainer instanceof ImdiTableModel) {
-                            ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentDeletedNode});
-                        }
-                    }
-                }
+//                // todo: this could probably be removed
+//                for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
+//                    // remove the deleted node from all tables
+//                    // todo: this is also done in deleteCorpusLink and need not be here
+//                    ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
+//                    for (Object currentContainer : currentDeletedNode.getRegisteredContainers()) {
+//                        // this is required here even though it is now also done in the reloading process
+//                        if (currentContainer instanceof ImdiTableModel) {
+//                            ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentDeletedNode});
+//                        }
+//                    }
+//                }
             }
         } else {
             System.out.println("cannot delete from this tree");
