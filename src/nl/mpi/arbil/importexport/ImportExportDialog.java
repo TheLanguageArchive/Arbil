@@ -56,6 +56,8 @@ public class ImportExportDialog {
     private JCheckBox overwriteCheckBox;
     private JCheckBox shibbolethCheckBox;
     private JPanel shibbolethPanel;
+//    private JProgressBar resourceProgressBar;
+    private JLabel resourceProgressLabel;
     private JProgressBar progressBar;
     private JLabel diskSpaceLabel;
     JPanel detailsPanel;
@@ -385,6 +387,9 @@ public class ImportExportDialog {
         bottomPanel.add(showInTableButton);
         bottomPanel.add(diskSpaceLabel);
 
+        resourceProgressLabel = new JLabel(" ");
+        bottomPanel.add(resourceProgressLabel);
+
 //        bottomPanel = new JPanel();
 //        bottomPanel.setLayout(new java.awt.GridLayout());
 //        bottomPanel.add(bottomInnerPanel);
@@ -405,6 +410,13 @@ public class ImportExportDialog {
         progressBar.setStringPainted(true);
         progressBar.setString("");
         buttonsPanel.add(progressBar);
+
+//        resourceProgressBar = new JProgressBar(0, 100);
+//        resourceProgressBar.setValue(0);
+//        resourceProgressBar.setStringPainted(true);
+//        resourceProgressBar.setString("");
+//        buttonsPanel.add(resourceProgressBar);
+
         buttonsPanel.add(startButton);
 
         searchPanel.add(buttonsPanel, BorderLayout.SOUTH);
@@ -486,6 +498,8 @@ public class ImportExportDialog {
         searchDialog.setCursor(null); //turn off the wait cursor
         //appendToTaskOutput("Done!");
         progressBar.setIndeterminate(false);
+//        resourceProgressBar.setIndeterminate(false);
+        resourceProgressLabel.setText(" ");
 //        progressLabel.setText("");
         stopButton.setEnabled(false);
         startButton.setEnabled(selectedNodes.size() > 0);
@@ -594,6 +608,7 @@ public class ImportExportDialog {
                     waitTillVisible();
 //                    appendToTaskOutput("copying: ");
                     progressBar.setIndeterminate(true);
+//                    resourceProgressBar.setIndeterminate(true);
 //                    int[] childCount = countChildern();
 //                    appendToTaskOutput("corpus to load: " + childCount[0] + "corpus loaded: " + childCount[1]);
                     class RetrievableFile {
@@ -740,7 +755,7 @@ public class ImportExportDialog {
                                                         File downloadFileLocation;
                                                         // todo: warning! this appears to beable to create a directory called "file:"
                                                         if (exportDestinationDirectory == null) {
-                                                            downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag);
+                                                            downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag, resourceProgressLabel);
                                                         } else {
                                                             if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
                                                                 retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
@@ -752,7 +767,11 @@ public class ImportExportDialog {
                                                             }
                                                             downloadFileLocation = retrievableLink.destinationFile;
 //                                                        System.out.println("downloadLocation: " + downloadLocation);
-                                                            LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag);
+//                                                            resourceProgressBar.setIndeterminate(false);
+                                                            resourceProgressLabel.setText(" ");
+                                                            LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag, resourceProgressLabel);
+//                                                            resourceProgressBar.setIndeterminate(true);
+                                                            resourceProgressLabel.setText(" ");
                                                         }
                                                         //resourceCopyOutput.append(downloadFileLocation + "\n");
                                                         if (downloadFileLocation.exists()) {
