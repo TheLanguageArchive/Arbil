@@ -24,6 +24,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import nl.mpi.arbil.ArbilEntityResolver;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgJournal;
 import nl.mpi.arbil.LinorgSessionStorage;
@@ -658,9 +659,12 @@ public class CmdiComponentBuilder {
         try {
             InputStream inputStream = new FileInputStream(schemaFile);
             //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
-            XmlOptions options = new XmlOptions();
-            options.setCharacterEncoding("UTF-8");
-            SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, options)}, XmlBeans.getBuiltinTypeSystem(), null);
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setCharacterEncoding("UTF-8");
+//            CatalogDocument catalogDoc = CatalogDocument.Factory.newInstance(); 
+            xmlOptions.setEntityResolver(new ArbilEntityResolver());
+            //xmlOptions.setCompileDownloadUrls();
+            SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
             // there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
             return sts.documentTypes()[0];
         } catch (IOException e) {
