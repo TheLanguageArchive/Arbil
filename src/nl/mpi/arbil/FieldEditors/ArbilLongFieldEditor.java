@@ -25,11 +25,14 @@ import nl.mpi.arbil.data.ImdiTreeObject;
  *  Created on : Sep 14, 2010, 1:53:15 PM
  *  Author     : Peter Withers
  */
-public class ArbilLongFieldEditor {
+public class ArbilLongFieldEditor extends JPanel {
 
     ImdiTable parentTable = null;
+    ImdiTreeObject parentImdiTreeObject;
+    ImdiField[] imdiFields;
+    String fieldName = "unknown";
     int selectedField = -1;
-    Object[] cellValue;
+//    Object[] cellValue;
     JTextField keyEditorFields[] = null;
     JTextArea fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
@@ -38,30 +41,40 @@ public class ArbilLongFieldEditor {
 
     public ArbilLongFieldEditor(ImdiTable parentTableLocal) {
         parentTable = parentTableLocal;
+        setLayout(new BorderLayout());
     }
 
-    public void showEditor(Object[] cellValueLocal, String currentEditorText) {
-        cellValue = cellValueLocal;
+    public void showEditor(ImdiField[] cellValueLocal, String currentEditorText) {
+        imdiFields = cellValueLocal;
         int titleCount = 1;
         JTextArea focusedTabTextArea = null;
         JTabbedPane tabPane = new JTabbedPane();
 
-        fieldEditors = new JTextArea[cellValue.length];
-        keyEditorFields = new JTextField[cellValue.length];
-        fieldLanguageBoxs = new JComboBox[cellValue.length];
+        fieldEditors = new JTextArea[imdiFields.length];
+        keyEditorFields = new JTextField[imdiFields.length];
+        fieldLanguageBoxs = new JComboBox[imdiFields.length];
         fieldDescription = new JLabel();
 
 
         String parentNodeName = "unknown";
-        String fieldName = "unknown";
-        if (cellValue[0] instanceof ImdiField) {
-            // todo: registerContainer should not be done on the parent node and the remove should scan all child nodes also, such that deleting a child like and actor would remove the correct nodes
-            ((ImdiField) cellValue[0]).parentImdi.registerContainer(this);
-            parentNodeName = ((ImdiField) cellValue[0]).parentImdi.toString();
-            fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
-        }
 
-        for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
+        parentImdiTreeObject = imdiFields[0].parentImdi;
+        // todo: registerContainer should not be done on the parent node and the remove should scan all child nodes also, such that deleting a child like and actor would remove the correct nodes
+        parentImdiTreeObject.registerContainer(this);
+        parentNodeName = parentImdiTreeObject.toString();
+        fieldName = imdiFields[0].getTranslateFieldName();
+
+        FocusListener editorFocusListener = new FocusListener() {
+
+            public void focusGained(FocusEvent e) {
+            }
+
+            public void focusLost(FocusEvent e) {
+                storeChanges();
+            }
+        };
+
+        for (int cellFieldCounter = 0; cellFieldCounter < imdiFields.length; cellFieldCounter++) {
             final int cellFieldIndex = cellFieldCounter;
 //                    ImdiField cellField = ((ImdiField) cellValue[cellFieldIndex]);
 //                    final ImdiField sourceField = cellValueItem;
@@ -70,28 +83,13 @@ public class ArbilLongFieldEditor {
                 // set the selected field as the first one or in the case of a single node being selected tab to its pane
                 focusedTabTextArea = fieldEditors[cellFieldIndex];
             }
-            fieldEditors[cellFieldIndex].setEditable(((ImdiField) cellValue[cellFieldIndex]).parentImdi.getParentDomNode().isLocal());
-            FocusListener editorFocusListener = new FocusListener() {
-
-                public void focusGained(FocusEvent e) {
-                }
-
-                public void focusLost(FocusEvent e) {
-                    ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                    if (cellField.parentImdi.getParentDomNode().isLocal()) {
-                        cellField.setFieldValue(fieldEditors[cellFieldIndex].getText(), true, false);
-                        if (keyEditorFields[cellFieldIndex] != null) {
-                            cellField.setKeyName(keyEditorFields[cellFieldIndex].getText(), true, false);
-                        }
-                    }
-                }
-            };
+            fieldEditors[cellFieldIndex].setEditable(parentImdiTreeObject.getParentDomNode().isEditable());
             fieldEditors[cellFieldIndex].addFocusListener(editorFocusListener);
             // insert the last key for only the selected field
             if (selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0)) {
                 fieldEditors[cellFieldIndex].setText(currentEditorText);
             } else {
-                fieldEditors[cellFieldIndex].setText(((ImdiField) cellValue[cellFieldIndex]).getFieldValue());
+                fieldEditors[cellFieldIndex].setText(imdiFields[cellFieldIndex].getFieldValue());
             }
             fieldEditors[cellFieldIndex].setLineWrap(true);
             fieldEditors[cellFieldIndex].setWrapStyleWord(true);
@@ -101,21 +99,25 @@ public class ArbilLongFieldEditor {
             tabPanel.setLayout(new BorderLayout());
             tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
             fieldLanguageBoxs[cellFieldIndex] = null;
-            if (cellValue[cellFieldIndex] instanceof ImdiField) {
-                if (((ImdiField) cellValue[cellFieldIndex]).getLanguageId() != null) {
-                    fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox((ImdiField) cellValue[cellFieldIndex], null);
+            if (imdiFields[cellFieldIndex] instanceof ImdiField) {
+                if (imdiFields[cellFieldIndex].getLanguageId() != null) {
+                    fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(imdiFields[cellFieldIndex], null);
                     JPanel languagePanel = new JPanel(new BorderLayout());
                     languagePanel.add(new JLabel("Language:"), BorderLayout.LINE_START);
-                    languagePanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.CENTER);
+                    if (parentImdiTreeObject.getParentDomNode().isEditable()) {
+                        languagePanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.CENTER);
+                    } else {
+                        languagePanel.add(new JLabel(fieldLanguageBoxs[cellFieldIndex].getSelectedItem().toString()), BorderLayout.CENTER);
+                    }
                     tabTitlePanel.add(languagePanel);
                 }
             }
-            String keyName = ((ImdiField) cellValue[cellFieldIndex]).getKeyName();
+            String keyName = imdiFields[cellFieldIndex].getKeyName();
             if (keyName != null) { // if this is a key type field then show the editing options
                 JPanel keyNamePanel = new JPanel(new BorderLayout());
-                keyEditorFields[cellFieldIndex] = new JTextField(((ImdiField[]) cellValue)[cellFieldCounter].getKeyName());
+                keyEditorFields[cellFieldIndex] = new JTextField(imdiFields[cellFieldCounter].getKeyName());
                 keyEditorFields[cellFieldIndex].addFocusListener(editorFocusListener);
-                keyEditorFields[cellFieldIndex].setEditable(((ImdiField) cellValue[cellFieldIndex]).parentImdi.getParentDomNode().isLocal());
+                keyEditorFields[cellFieldIndex].setEditable(parentImdiTreeObject.getParentDomNode().isEditable());
                 keyNamePanel.add(new JLabel("Key Name:"), BorderLayout.LINE_START);
                 keyNamePanel.add(keyEditorFields[cellFieldIndex], BorderLayout.CENTER);
                 tabTitlePanel.add(keyNamePanel);
@@ -127,21 +129,18 @@ public class ArbilLongFieldEditor {
             tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
             tabPane.add(fieldName + " " + titleCount++, tabPanel);
         }
-        JPanel outerPanel = new JPanel(new BorderLayout());
-        fieldDescription.setText(((ImdiField) cellValue[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) cellValue[0]).getFullXmlPath()));
-        outerPanel.add(fieldDescription, BorderLayout.PAGE_START);
-        outerPanel.add(tabPane, BorderLayout.CENTER);
+        fieldDescription.setText(parentImdiTreeObject.getNodeTemplate().getHelpStringForField(imdiFields[0].getFullXmlPath()));
+        this.add(fieldDescription, BorderLayout.PAGE_START);
+        this.add(tabPane, BorderLayout.CENTER);
         // todo: add next and previous buttons for the current file
         // todo: add all unused attributes as editable text
-        editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, outerPanel);
+        editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, this);
         editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
             @Override
             public void internalFrameClosed(InternalFrameEvent e) {
                 // deregister component from imditreenode
-                if (cellValue[0] instanceof ImdiField) {
-                    ((ImdiField) cellValue[0]).parentImdi.removeContainer(this);
-                }
+                parentImdiTreeObject.removeContainer(this);
                 super.internalFrameClosed(e);
                 parentTable.requestFocusInWindow();
             }
@@ -154,45 +153,58 @@ public class ArbilLongFieldEditor {
         focusedTabTextArea.requestFocusInWindow();
     }
 
-    public void updateEditor(ImdiTreeObject parentImdiObject) {
+    public void updateEditor() {
+        imdiFields = parentImdiTreeObject.getFields().get(fieldName);
+        // todo: the number of fields might have changed so we really should update the tabs or re create the form
         // this will only be called when the long field editor is shown
         // when an imdi node is edited or saved or reloaded this will be called to update the displayed values
-        if (cellValue instanceof ImdiField[]) {
-            fieldDescription.setText(((ImdiField) cellValue[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ImdiField) cellValue[0]).getFullXmlPath()));
-            String fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
-            cellValue = parentImdiObject.getFields().get(fieldName);
-            for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
-                fieldEditors[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getFieldValue());
-                if (fieldLanguageBoxs[cellFieldCounter] != null) {
-                    // set the language id selection in the dropdown
-                    boolean selectedValueFound = false;
-                    for (int itemCounter = 0; itemCounter < fieldLanguageBoxs[cellFieldCounter].getItemCount(); itemCounter++) {
-                        Object currentObject = fieldLanguageBoxs[cellFieldCounter].getItemAt(itemCounter);
-                        if (currentObject instanceof ImdiVocabularies.VocabularyItem) {
-                            ImdiVocabularies.VocabularyItem currentItem = (ImdiVocabularies.VocabularyItem) currentObject;
+        fieldDescription.setText(parentImdiTreeObject.getNodeTemplate().getHelpStringForField(imdiFields[0].getFullXmlPath()));
+        for (int cellFieldCounter = 0; cellFieldCounter < imdiFields.length; cellFieldCounter++) {
+            fieldEditors[cellFieldCounter].setText(imdiFields[cellFieldCounter].getFieldValue());
+            if (fieldLanguageBoxs[cellFieldCounter] != null) {
+                // set the language id selection in the dropdown
+                boolean selectedValueFound = false;
+                for (int itemCounter = 0; itemCounter < fieldLanguageBoxs[cellFieldCounter].getItemCount(); itemCounter++) {
+                    Object currentObject = fieldLanguageBoxs[cellFieldCounter].getItemAt(itemCounter);
+                    if (currentObject instanceof ImdiVocabularies.VocabularyItem) {
+                        ImdiVocabularies.VocabularyItem currentItem = (ImdiVocabularies.VocabularyItem) currentObject;
 //                        System.out.println(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
-                            System.out.println(currentItem.languageCode);
-                            if (currentItem.languageCode.equals(((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId())) {
+//                            System.out.println(currentItem.languageCode);
+                        if (currentItem.languageCode.equals(imdiFields[cellFieldCounter].getLanguageId())) {
 //                            System.out.println("setting as current");
-                                fieldLanguageBoxs[cellFieldCounter].setSelectedIndex(itemCounter);
-                                selectedValueFound = true;
-                            }
+//                            System.out.println(currentItem.languageCode);
+//                            System.out.println(imdiFields[cellFieldCounter].getLanguageId());
+                            fieldLanguageBoxs[cellFieldCounter].setSelectedIndex(itemCounter);
+                            selectedValueFound = true;
                         }
                     }
-                    if (selectedValueFound == false) {
-                        fieldLanguageBoxs[cellFieldCounter].addItem(LanguageIdBox.defaultLanguageDropDownValue);
-                        fieldLanguageBoxs[cellFieldCounter].setSelectedItem(LanguageIdBox.defaultLanguageDropDownValue);
-                    }
+                }
+                if (selectedValueFound == false) {
+                    fieldLanguageBoxs[cellFieldCounter].addItem(LanguageIdBox.defaultLanguageDropDownValue);
+                    fieldLanguageBoxs[cellFieldCounter].setSelectedItem(LanguageIdBox.defaultLanguageDropDownValue);
+                }
 //                    System.out.println("field language: " + ((ImdiField[]) cellValue)[cellFieldCounter].getLanguageId());
-                }
-                if (keyEditorFields[cellFieldCounter] != null) {
-                    keyEditorFields[cellFieldCounter].setText(((ImdiField[]) cellValue)[cellFieldCounter].getKeyName());
-                }
+            }
+            if (keyEditorFields[cellFieldCounter] != null) {
+                keyEditorFields[cellFieldCounter].setText(imdiFields[cellFieldCounter].getKeyName());
             }
         }
     }
 
     public void closeWindow() {
         editorFrame.doDefaultCloseAction();
+    }
+
+    public void storeChanges() {
+        for (int cellFieldCounter = 0; cellFieldCounter < imdiFields.length; cellFieldCounter++) {
+            ImdiField cellField = (ImdiField) imdiFields[cellFieldCounter];
+            if (cellField.parentImdi.getParentDomNode().isEditable()) {
+                cellField.setFieldValue(fieldEditors[cellFieldCounter].getText(), true, false);
+                if (keyEditorFields[cellFieldCounter] != null) {
+                    cellField.setKeyName(keyEditorFields[cellFieldCounter].getText(), true, false);
+
+                }
+            }
+        }
     }
 }
