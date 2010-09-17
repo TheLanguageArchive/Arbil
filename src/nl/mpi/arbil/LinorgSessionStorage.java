@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
 import nl.mpi.arbil.importexport.ShibbolethNegotiator;
@@ -50,6 +51,7 @@ public class LinorgSessionStorage {
         if (singleInstance == null) {
             singleInstance = new LinorgSessionStorage();
             singleInstance.checkForMultipleStorageDirectories();
+            HttpURLConnection.setFollowRedirects(false); // how sad it is that this method is static and global, sigh
         }
         return singleInstance;
     }
@@ -100,6 +102,7 @@ public class LinorgSessionStorage {
                     // test the storage directory is writable and add a warning message box here if not
                     LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
                 }
+                testFile.delete();
             } catch (IOException exception) {
                 System.out.println(exception);
                 JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
@@ -111,7 +114,7 @@ public class LinorgSessionStorage {
         System.out.println("storageDirectory: " + storageDirectory);
     }
 
-    private void checkForMultipleStorageDirectories(){
+    private void checkForMultipleStorageDirectories() {
         // look for any additional storage directories
         int foundDirectoryCount = 0;
         String storageDirectoryMessageString = "";
@@ -127,7 +130,6 @@ public class LinorgSessionStorage {
             //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, errorMessage, "Arbil Storage Directory Error", JOptionPane.ERROR_MESSAGE);
             new LinorgBugCatcher().logError(new Exception(errorMessage));
         }
-
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
@@ -568,7 +570,7 @@ public class LinorgSessionStorage {
             System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
         }
         System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
-        return updateCache(pathString, null, fileNeedsUpdate, new DownloadAbortFlag());
+        return updateCache(pathString, null, fileNeedsUpdate, new DownloadAbortFlag(), null);
     }
 
     /**
@@ -577,11 +579,11 @@ public class LinorgSessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
         // to expire the files in the cache set the expireCacheCopy flag.
         File cachePath = getSaveLocation(pathString);
         try {
-            saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag);
+            saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
         } catch (MalformedURLException mul) {
             GuiHelper.linorgBugCatcher.logError(mul);
         }
@@ -592,7 +594,7 @@ public class LinorgSessionStorage {
         File cachePath = getSaveLocation(pathString);
         boolean fileDownloadedBoolean = false;
         try {
-            fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag());
+            fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag(), null);
         } catch (MalformedURLException mul) {
             GuiHelper.linorgBugCatcher.logError(mul);
         }
@@ -678,19 +680,21 @@ public class LinorgSessionStorage {
      * Copies a remote file over http and saves it into the cache.
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
-     * @return boolean true ony if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the dowload failed
+     * @return boolean true only if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the download failed
      */
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag) {
-        boolean downloadSucceeded = false;
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+          boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
 //        System.out.println("saveRemoteResource: " + targetUrlString);
 //        System.out.println("destinationPath: " + destinationPath);
 //        File destinationFile = new File(destinationPath);
         if (destinationFile.length() == 0) {
+            // todo: check the file size on the server and maybe its date also
             // if the file is zero length then is presumably should either be replaced or the version in the jar used.
             destinationFile.delete();
         }
+        String fileName = destinationFile.getName();
         if (destinationFile.exists() && !expireCacheCopy && destinationFile.length() > 0) {
             System.out.println("this resource is already in the cache");
         } else {
@@ -699,6 +703,7 @@ public class LinorgSessionStorage {
                 HttpURLConnection httpConnection = null;
                 if (urlConnection instanceof HttpURLConnection) {
                     httpConnection = (HttpURLConnection) urlConnection;
+//                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
                     if (shibbolethNegotiator != null) {
                         httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
 //                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
@@ -739,6 +744,9 @@ public class LinorgSessionStorage {
                             break;
                         }
                         outFile.write(buffer, 0, bytesread);
+                        if (progressLabel != null) {
+                            progressLabel.setText(fileName + " : " + totalRead / 1024 + " Kb");
+                        }
                     }
                     outFile.close();
                     if (tempFile.length() > 0 && !abortFlag.abortDownload) { // TODO: this should check the file size on the server
