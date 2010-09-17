@@ -55,7 +55,8 @@ public class ArbilLongFieldEditor {
         String parentNodeName = "unknown";
         String fieldName = "unknown";
         if (cellValue[0] instanceof ImdiField) {
-            ((ImdiField) cellValue[0]).parentImdi.getParentDomNode().registerContainer(this);
+            // todo: registerContainer should not be done on the parent node and the remove should scan all child nodes also, such that deleting a child like and actor would remove the correct nodes
+            ((ImdiField) cellValue[0]).parentImdi.registerContainer(this);
             parentNodeName = ((ImdiField) cellValue[0]).parentImdi.toString();
             fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
         }
@@ -139,7 +140,7 @@ public class ArbilLongFieldEditor {
             public void internalFrameClosed(InternalFrameEvent e) {
                 // deregister component from imditreenode
                 if (cellValue[0] instanceof ImdiField) {
-                    ((ImdiField) cellValue[0]).parentImdi.getParentDomNode().removeContainer(this);
+                    ((ImdiField) cellValue[0]).parentImdi.removeContainer(this);
                 }
                 super.internalFrameClosed(e);
                 parentTable.requestFocusInWindow();
@@ -192,6 +193,6 @@ public class ArbilLongFieldEditor {
     }
 
     public void closeWindow() {
-        editorFrame.setVisible(false);
+        editorFrame.doDefaultCloseAction();
     }
 }
