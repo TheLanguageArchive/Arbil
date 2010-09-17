@@ -16,12 +16,12 @@ import nl.mpi.arbil.ImdiVocabularies;
  */
 public class ControlledVocabularyComboBox extends JComboBox implements KeyListener, ActionListener {
 
-    ImdiField targetField;
+//    ImdiField targetField;
     String currentValue;
 
-    public ControlledVocabularyComboBox(ImdiField targetFieldLocal) {
-        targetField = targetFieldLocal;
-        currentValue = targetFieldLocal.getFieldValue();
+    public ControlledVocabularyComboBox(ImdiField targetField) {
+//        targetField = targetFieldLocal;
+        currentValue = targetField.getFieldValue();
         ImdiVocabularies.Vocabulary fieldsVocabulary = targetField.getVocabulary();
         if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(targetField.getFieldValue())) {
             this.addItem(targetField.getFieldValue());
