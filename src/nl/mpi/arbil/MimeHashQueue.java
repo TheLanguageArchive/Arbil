@@ -16,7 +16,6 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
 
 /**
  * Document   : MimeHashQueue
@@ -38,11 +37,14 @@ public class MimeHashQueue {
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType;
     static private MimeHashQueue singleInstance = null;
     public boolean checkResourcePermissions = true;
+    static public boolean allowCookies = false; // this is a silly place for this and should find a better home, but the cookies are only dissabled for the permissions test in this class
 
     static synchronized public MimeHashQueue getSingleInstance() {
 //        System.out.println("MimeHashQueue getSingleInstance");
         if (singleInstance == null) {
-            CookieHandler.setDefault(new ShibCookieHandler());
+            if (!allowCookies) {
+                CookieHandler.setDefault(new ShibCookieHandler());
+            }
             singleInstance = new MimeHashQueue();
 //            System.out.println("CookieHandler: " + java.net.CookieHandler.class.getResource("/META-INF/MANIFEST.MF"));
 //            System.out.println("CookieHandler: " + java.net.CookieHandler.class.getResource("/java/net/CookieHandler.class"));
@@ -194,16 +196,17 @@ public class MimeHashQueue {
                 autoValue = currentImdiObject.mpiMimeType;
             } else if (fileAttribute.equals("FileType")) {
                 autoValue = mpi.bcarchive.typecheck.FileType.resultToMimeType(currentImdiObject.typeCheckerMessage);
+                // todo: consider checking that the mime type matches the node type such as written resource or media file, such that a server sending html (with 200 response) rather than a media file would be discovered, although that could only be detected for media files not written resources
                 if (autoValue != null) {
                     int indexOfChar = autoValue.indexOf("/");
                     if (indexOfChar > 0) {
-                        autoValue = autoValue.substring(0, indexOfChar); // TODO: does the tyoe checker not provide this???
+                        autoValue = autoValue.substring(0, indexOfChar); // TODO: does the type checker not provide this???
                     }
                 }
             }
-            if (autoValue == null) {
-                autoValue = ""; // clear any fields that have no new data but may be out of date
-            }
+//            if (autoValue == null) {
+//                autoValue = ""; // clear any fields that have no new data but may be out of date
+//            }
             if (autoValue != null) {
                 // loop over the field names in the imdi tree node
                 for (String currentKeyString : currentNodeFieldNames) {
