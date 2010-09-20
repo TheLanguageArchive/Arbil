@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -40,6 +41,7 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
+import nl.mpi.arbil.FieldEditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
@@ -532,8 +534,9 @@ public class LinorgWindowManager {
             @Override
             public void internalFrameClosed(InternalFrameEvent e) {
                 String windowName = e.getInternalFrame().getName();
+                System.out.println("Closing window: " + windowName);
                 Component[] windowAndMenu = (Component[]) windowList.get(windowName);
-                if (ArbilMenuBar.windowMenu != null) {
+                if (ArbilMenuBar.windowMenu != null && windowAndMenu != null) {
                     ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
                 }
                 windowList.remove(windowName);
@@ -548,19 +551,14 @@ public class LinorgWindowManager {
     }
 
     public void stopEditingInCurrentWindow() {
-       todo: move the log field editor into a separate class so that it can be detected and its data saved at this point
         // when saving make sure the current editing table or long field editor saves its data first
-//        Component focusedComponent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-//        KeyboardFocusManager.getCurrentKeyboardFocusManager().focusNextComponent();
-//        desktopPane.requestFocusInWindow();
-//        focusedComponent.requestFocusInWindow();
-//        for (FocusListener curentListener : focusedComponent.getFocusListeners()) {
-//            curentListener.focusLost(null);
-//        }
-//        while (focusedComponent != null) {
-//            System.out.println("FocusOwner: " + focusedComponent);
-//            focusedComponent = focusedComponent.getParent();
-//        }
+        Component focusedComponent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+        while (focusedComponent != null) {
+            if (focusedComponent instanceof ArbilLongFieldEditor) {
+                ((ArbilLongFieldEditor) focusedComponent).storeChanges();
+            }
+            focusedComponent = focusedComponent.getParent();
+        }
     }
 
     public void closeAllWindows() {
