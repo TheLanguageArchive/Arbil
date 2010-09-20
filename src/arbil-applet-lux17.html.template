@@ -1,5 +1,5 @@
 <!--
- * ArbilTestPage.java
+ * Arbil Applet Page
  * Created on 31 July 2009, 14:56
  * @author Peter.Withers@mpi.nl
 -->
@@ -8,9 +8,13 @@
     <head>
         <title>Arbil Test Applet</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+        <META HTTP-EQUIV="Expires" CONTENT="-1">
     </head>
     <body>
         <APPLET CODEBASE="http://lux17.mpi.nl/arbil/" CODE="nl.mpi.arbil.ArbilApplet2.class" ARCHIVE="lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/@TypeCheckVersion@,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar,lib/bcprov-jdk15-143.jar,lib/slcshttps_jdk15_v0.2.jar,lib/xbean.jar,lib/commons-digester-2.0.jar,lib/commons-logging-1.1.jar,lib/commons-beanutils-1.8.0.jar,lib/xmlpublic.jar,arbil-@ArbilVersionNumber@.jar" WIDTH=100% HEIGHT=100%>
+            <PARAM NAME="LogoutUrl" VALUE="http://lux17.mpi.nl/Shibboleth.sso/Logout">
+            <PARAM NAME="UserName" VALUE="a html user">
         </APPLET>
     </body>
 </html>
