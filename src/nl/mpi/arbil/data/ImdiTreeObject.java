@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.FieldEditors.ArbilTableCellEditor;
 import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -32,7 +33,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.FieldEditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.MetadataFile.CmdiUtils;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
@@ -244,7 +245,7 @@ public class ImdiTreeObject implements Comparable {
     }
 
     static public boolean isStringImdiChild(String urlString) {
-        return urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
+        return urlString.contains("#."); // anything with a fragment is a sub node //urlString.contains("#.METATRANSCRIPT") || urlString.contains("#.CMD"); // change made for clarin
     }
 
     static public MetadataUtils getMetadataUtils(String urlString) {
@@ -472,11 +473,14 @@ public class ImdiTreeObject implements Comparable {
                                     if (currentChildList.indexOf(currentOldChild) == -1) {
                                         // remove from any containers that its found in
                                         for (Object currentContainer : currentOldChild.getRegisteredContainers()) {
-                                            if (currentContainer instanceof ImdiChildCellEditor) {
-                                                ((ImdiChildCellEditor) currentContainer).stopCellEditing();
+                                            if (currentContainer instanceof ArbilTableCellEditor) {
+                                                ((ArbilTableCellEditor) currentContainer).stopCellEditing();
                                             }
                                             if (currentContainer instanceof ImdiTableModel) {
                                                 ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentOldChild});
+                                            }
+                                            if (currentContainer instanceof ArbilLongFieldEditor) {
+                                                ((ArbilLongFieldEditor) currentContainer).closeWindow();
                                             }
                                             if (currentContainer instanceof ImdiTree) {
                                                 ((ImdiTree) currentContainer).requestResort();
@@ -1047,7 +1051,8 @@ public class ImdiTreeObject implements Comparable {
      * the caller is responsible for reloading the node if that is required
      */
     public void saveChangesToCache(boolean updateUI) {
-        if (this.isImdiChild()) {
+        if (this != getParentDomNode()) {
+//        if (this.isImdiChild()) {
             getParentDomNode().saveChangesToCache(updateUI);
             return;
         }
@@ -1282,20 +1287,24 @@ public class ImdiTreeObject implements Comparable {
 
     public synchronized boolean waitTillLoaded() {
         System.out.println("waitTillLoaded");
-        if (isLoading()) {
-            System.out.println("isLoading");
-            try {
-                getParentDomNode().wait();
-                System.out.println("wait");
-                if (isLoading()) {
-                    System.out.println("but still loading");
+        if (this != getParentDomNode()) { // isloading does this parent check pretty much already
+            return getParentDomNode().waitTillLoaded();
+        } else {
+            if (isLoading()) {
+                System.out.println("isLoading");
+                try {
+                    getParentDomNode().wait();
+                    System.out.println("wait");
+                    if (isLoading()) {
+                        GuiHelper.linorgBugCatcher.logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
+                    }
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                    return false;
                 }
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
-                return false;
             }
+            return true;
         }
-        return true;
     }
 
     public void updateLoadingState(int countChange) {
@@ -1809,7 +1818,9 @@ public class ImdiTreeObject implements Comparable {
 
     public void registerContainer(Object containerToAdd) {
 //        System.out.println("registerContainer: " + containerToAdd + " : " + this);
-        if (!getParentDomNode().imdiDataLoaded && !isLoading()) { // TODO: this is probably not the best way to do this and might be better in a manager class
+        if (!getParentDomNode().imdiDataLoaded && !isLoading()) {
+            // this is the main place where the load request is made
+            // TODO: this is probably not the best way to do this and might be better in a manager class
             ImdiLoader.getSingleInstance().requestReload(getParentDomNode());
         }
         if (containerToAdd != null) {
@@ -1877,8 +1888,8 @@ public class ImdiTreeObject implements Comparable {
                 if (currentContainer instanceof ImdiTableModel) {
                     ((ImdiTableModel) currentContainer).requestReloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
                 }
-                if (currentContainer instanceof ImdiChildCellEditor) {
-                    ((ImdiChildCellEditor) currentContainer).updateEditor(ImdiTreeObject.this);
+                if (currentContainer instanceof ArbilLongFieldEditor) {
+                    ((ArbilLongFieldEditor) currentContainer).updateEditor();
                 }
                 if (currentContainer instanceof ImdiTree) {
                     ((ImdiTree) currentContainer).requestResort();
@@ -1893,14 +1904,21 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public void removeFromAllContainers() {
+        // todo: this should also scan all child nodes and also remove them in the same way
+        for (ImdiTreeObject currentChildNode : this.getAllChildren()) {
+            currentChildNode.removeFromAllContainers();
+        }
         for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
             try {
                 Object currentContainer = containersIterator.nextElement();
                 if (currentContainer instanceof ImdiTableModel) {
                     ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{this}); // this must be done because the fields have been replaced and nead to be reloaded in the tables
                 }
-                if (currentContainer instanceof ImdiChildCellEditor) {
-                    ((ImdiChildCellEditor) currentContainer).stopCellEditing();
+                if (currentContainer instanceof ArbilTableCellEditor) {
+                    ((ArbilTableCellEditor) currentContainer).stopCellEditing();
+                }
+                if (currentContainer instanceof ArbilLongFieldEditor) {
+                    ((ArbilLongFieldEditor) currentContainer).closeWindow();
                 }
                 if (currentContainer instanceof ImdiTree) {
                     ImdiTree currentTreeNode = (ImdiTree) currentContainer;
