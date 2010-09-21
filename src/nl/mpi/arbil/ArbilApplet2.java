@@ -20,8 +20,7 @@ public class ArbilApplet2 extends JApplet {
         ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
         mainSplitPane.setLeftComponent(arbilTreePanels);
         mainSplitPane.setRightComponent(previewSplitPanel);
-        arbilMenuBar = new ArbilMenuBar(previewSplitPanel, true);
-        arbilMenuBar.containerApplet = this;
+        arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this);
         MimeHashQueue.allowCookies = true;
         add(mainSplitPane, java.awt.BorderLayout.CENTER);
         setJMenuBar(arbilMenuBar);
