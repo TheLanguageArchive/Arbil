@@ -12,9 +12,10 @@
         <META HTTP-EQUIV="Expires" CONTENT="-1">
     </head>
     <body>
-        <APPLET CODEBASE="http://lux17.mpi.nl/arbil/" CODE="nl.mpi.arbil.ArbilApplet2.class" ARCHIVE="lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/@TypeCheckVersion@,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar,lib/bcprov-jdk15-143.jar,lib/slcshttps_jdk15_v0.2.jar,lib/xbean.jar,lib/commons-digester-2.0.jar,lib/commons-logging-1.1.jar,lib/commons-beanutils-1.8.0.jar,lib/xmlpublic.jar,arbil-@ArbilVersionNumber@.jar" WIDTH=100% HEIGHT=100%>
-            <PARAM NAME="LogoutUrl" VALUE="http://lux17.mpi.nl/Shibboleth.sso/Logout">
-            <PARAM NAME="UserName" VALUE="a html user">
+        <? $anAntiCacheString = date("Ymdhis"); ?>
+        <APPLET CODEBASE="http://lux17.mpi.nl/arbil/" CODE="nl.mpi.arbil.ArbilApplet2.class" ARCHIVE="lib/corpusstructure-1.6.1.jar?<? echo $anAntiCacheString; ?>,lib/imdiapi-1.0.6.jar?<? echo $anAntiCacheString; ?>,lib/log4j-1.2.14.jar?<? echo $anAntiCacheString; ?>,lib/saxon8.jar?<? echo $anAntiCacheString; ?>,lib/saxon8-dom.jar?<? echo $anAntiCacheString; ?>,lib/@TypeCheckVersion@?<? echo $anAntiCacheString; ?>,lib/xalan-2.6.0.jar?<? echo $anAntiCacheString; ?>,lib/xercesImpl-2.9.0.jar?<? echo $anAntiCacheString; ?>,lib/bcprov-jdk15-143.jar?<? echo $anAntiCacheString; ?>,lib/slcshttps_jdk15_v0.2.jar?<? echo $anAntiCacheString; ?>,lib/xbean.jar?<? echo $anAntiCacheString; ?>,lib/commons-digester-2.0.jar?<? echo $anAntiCacheString; ?>,lib/commons-logging-1.1.jar?<? echo $anAntiCacheString; ?>,lib/commons-beanutils-1.8.0.jar?<? echo $anAntiCacheString; ?>,lib/xmlpublic.jar?<? echo $anAntiCacheString; ?>,arbil-@ArbilVersionNumber@.jar?<? echo $anAntiCacheString; ?>" WIDTH=100% HEIGHT=100%>
+            <PARAM NAME="LogoutUrl" VALUE="http://<? echo $_SERVER["HTTP_HOST"]; ?>/Shibboleth.sso/Logout">
+            <PARAM NAME="UserName" VALUE="<? echo $_SERVER["REMOTE_USER"]; ?>">
         </APPLET>
     </body>
 </html>
