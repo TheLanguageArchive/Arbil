@@ -30,7 +30,7 @@ public class LinorgFrame extends javax.swing.JFrame {
         mainSplitPane.setRightComponent(previewSplitPanel);
         ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
         mainSplitPane.setLeftComponent(arbilTreePanels);
-        arbilMenuBar = new ArbilMenuBar(previewSplitPanel, false);
+        arbilMenuBar = new ArbilMenuBar(previewSplitPanel, null);
         setJMenuBar(arbilMenuBar);
 
         mainSplitPane.setDividerLocation(0.25);
