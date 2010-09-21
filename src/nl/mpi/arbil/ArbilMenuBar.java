@@ -8,9 +8,11 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import javax.swing.JApplet;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -69,11 +71,11 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem helpMenuItem;
     private JMenuItem importMenuItem;
     private PreviewSplitPanel previewSplitPanel;
-    private boolean isApplet;
-    public javax.swing.JApplet containerApplet = null;
+//    private boolean isApplet;
+    private JApplet containerApplet = null;
 
-    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, boolean isAppletLocal) {
-        isApplet = isAppletLocal;
+    public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal) {
+        containerApplet = containerAppletLocal;
         previewSplitPanel = previewSplitPanelLocal;
         fileMenu = new JMenu();
         saveFileMenuItem = new JMenuItem();
@@ -192,30 +194,34 @@ public class ArbilMenuBar extends JMenuBar {
             }
         });
 
-        // create the applet shibboleth menu items
-        JMenuItem logoutButton = new JMenuItem("Log Out");
-        logoutButton.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    if (containerApplet == null) {
-                        LinorgWindowManager.getSingleInstance().openUrlWindowOnce("Log out", new URL(/*http://lux17.mpi.nl */"/Shibboleth.sso/Logout"));
-                    } else {
-                        containerApplet.getAppletContext().showDocument(new URL(/* http://lux17.mpi.nl */"/Shibboleth.sso/Logout"));
-                    }
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-
-
-        if (!isApplet) {
+        if (containerApplet == null) {
             fileMenu.add(exitMenuItem);
         } else {
+            // create the applet shibboleth menu items
+            String loggedInUserName = containerApplet.getParameter("UserName");
+            // in php this could be: $_SERVER["REMOTE_USER"] or $_SERVER["eduPersonPrincipalName"] or $_SERVER["HTTP_EDUPERSONPRINCIPALNAME"]
+            if (loggedInUserName == null) {
+                loggedInUserName = "unknown user";
+            }
+            JMenuItem logoutButton = new JMenuItem("Log Out (" + loggedInUserName + ")");
+            logoutButton.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    String logoutUrl = containerApplet.getParameter("LogoutUrl");
+                    try {
+//			String userName = containerApplet.getParameter("UserName");
+                        if (containerApplet != null) {
+                            //LinorgWindowManager.getSingleInstance().openUrlWindowOnce("Log out", new URL(logoutUrl));
+                            containerApplet.getAppletContext().showDocument(new URL(logoutUrl));
+                        }
+                    } catch (MalformedURLException ex) {
+                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Invalid logout url:\n" + logoutUrl, "Logout Error");
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
             fileMenu.add(logoutButton);
         }
-
         this.add(fileMenu);
 
         editMenu.setText("Edit");
@@ -782,7 +788,6 @@ public class ArbilMenuBar extends JMenuBar {
 //        }
 //        // TODO: add other cache directory and update changeStorageDirectory to cope with the additional variables
 //    }
-    
     private boolean saveApplicationState() {
         if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
             // TODO: why is LinorgWindowManager.getSingleInstance().offerUserToSaveChanges(); not used?
