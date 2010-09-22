@@ -43,7 +43,7 @@ public class LanguageListDialogue extends TemplateDialogue {
     @Override
     protected void populateLists() {
         clarinProfilesPanel.getParent().remove(clarinProfilesPanel);
-        internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the feild language select box"));
+        internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box"));
         ArrayList<String> selectedLanguages = new DocumentationLanguages().getSelectedLanguagesArrayList();
         checkBoxArray = new ArrayList<JCheckBox>();
         for (VocabularyItem currentTemplate : new DocumentationLanguages().getallLanguages()) {
