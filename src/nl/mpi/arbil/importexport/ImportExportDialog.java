@@ -297,7 +297,7 @@ public class ImportExportDialog {
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
         renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
-        renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", false);
+        renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
         overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
         shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
         shibbolethPanel = new JPanel();
