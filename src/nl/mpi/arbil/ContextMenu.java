@@ -43,6 +43,7 @@ public class ContextMenu {
     private JMenuItem addRemoteCorpusMenuItem;
     private JMenuItem addToFavouritesMenuItem;
     private JMenuItem copyBranchMenuItem;
+    private JMenuItem searchRemoteBranchMenuItem;
     private JMenuItem copyImdiUrlMenuItem;
     private JMenuItem deleteMenuItem;
     private JMenuItem exportMenuItem;
@@ -113,6 +114,7 @@ public class ContextMenu {
         copyImdiUrlMenuItem = new JMenuItem();
         pasteMenuItem1 = new JMenuItem();
         copyBranchMenuItem = new JMenuItem();
+        searchRemoteBranchMenuItem = new JMenuItem();
         searchSubnodesMenuItem = new JMenuItem();
         reloadSubnodesMenuItem = new JMenuItem();
         addMenu = new JMenu();
@@ -466,8 +468,22 @@ public class ContextMenu {
         });
 
         treePopupMenu.add(pasteMenuItem1);
-        copyBranchMenuItem.setText("Import to Local Corpus");
 
+        searchRemoteBranchMenuItem.setText("Search Remote Corpus");
+
+        searchRemoteBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    searchRemoteSubnodesMenuItemActionPerformed(evt);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        treePopupMenu.add(searchRemoteBranchMenuItem);
+
+        copyBranchMenuItem.setText("Import to Local Corpus");
         copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -478,10 +494,9 @@ public class ContextMenu {
                 }
             }
         });
-
         treePopupMenu.add(copyBranchMenuItem);
-        searchSubnodesMenuItem.setText("Search");
 
+        searchSubnodesMenuItem.setText("Search");
         searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -492,10 +507,9 @@ public class ContextMenu {
                 }
             }
         });
-
         treePopupMenu.add(searchSubnodesMenuItem);
-        reloadSubnodesMenuItem.setText("Reload");
 
+        reloadSubnodesMenuItem.setText("Reload");
         reloadSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -627,6 +641,7 @@ public class ContextMenu {
         treePopupMenu.add(overrideTypeCheckerDecision);
 
         viewInBrrowserMenuItem.setText("Open in External Application");
+        todo: add custom applicaitons menu with dialogue to enter them: suffix, switches, applicaiton file
         viewInBrrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1015,6 +1030,10 @@ public class ContextMenu {
         LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSelectedNodes(), "Search");
     }
 
+    private void searchRemoteSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+        LinorgWindowManager.getSingleInstance().openSearchTable(((ImdiTree) TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree).getSelectedNodes(), "Search Remote Corpus");
+    }
+
     private void sendToServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
@@ -1250,6 +1269,7 @@ public class ContextMenu {
             removeRemoteCorpusMenuItem.setVisible(false);
             addRemoteCorpusMenuItem.setVisible(false);
             copyBranchMenuItem.setVisible(false);
+            searchRemoteBranchMenuItem.setVisible(false);
             copyImdiUrlMenuItem.setVisible(false);
             pasteMenuItem1.setVisible(false);
             viewXmlMenuItem.setVisible(false);
@@ -1401,6 +1421,7 @@ public class ContextMenu {
                 removeRemoteCorpusMenuItem.setVisible(showRemoveLocationsTasks);
                 addRemoteCorpusMenuItem.setVisible(showAddLocationsTasks);
                 copyBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+                searchRemoteBranchMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
                 addDefaultLocationsMenuItem.setVisible(showAddLocationsTasks);
             }
             if (eventSource == TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree) {
@@ -1427,7 +1448,7 @@ public class ContextMenu {
                     exportMenuItem.setVisible(!nodeIsImdiChild);
                     importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
                     importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
-                    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.hasArchiveHandle && !leadSelectedTreeNode.isImdiChild());
+                    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.archiveHandle != null && !leadSelectedTreeNode.isImdiChild());
 
                     // set up the favourites menu
                     addFromFavouritesMenu.setVisible(true);
