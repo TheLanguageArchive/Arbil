@@ -14,7 +14,7 @@ AppSupportURL=http://www.lat-mpi.eu/tools/arbil
 AppUpdatesURL=http://www.lat-mpi.eu/tools/arbil
 DefaultDirName={pf}\Arbil
 DefaultGroupName=Language archiving tools (LAT) 
-OutputDir=C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32
+OutputDir=C:\users\petwit\Desktop\@BuildDirectory@\distribution-win32
 OutputBaseFilename=arbil-installer-@ArbilVersionNumber@
 Compression=lzma
 SolidCompression=yes
@@ -48,11 +48,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\arbil-@ArbilVersionNumber@.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\@InstalledIcon@.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\ImageMagick\*"; DestDir: "{app}\ImageMagick\"; Flags: ignoreversion
+Source: "C:\users\petwit\Desktop\@BuildDirectory@\arbil-@ArbilVersionNumber@.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\users\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\@InstalledIcon@.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\users\petwit\Desktop\@BuildDirectory@\distribution-win32\temp\ImageMagick\*"; DestDir: "{app}\ImageMagick\"; Flags: ignoreversion
 ; todo: include the imagemagick sub directories
-Source: "C:\windows\profiles\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\users\petwit\Desktop\@BuildDirectory@\lib\*"; DestDir: "{app}\lib\"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
