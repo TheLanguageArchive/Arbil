@@ -6,6 +6,7 @@ import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -131,12 +132,16 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
                 System.out.println("remote search term unchanged, returning last server response");
                 return searchResults;
             } else {
+                ArrayList<URI> foundNodes = new ArrayList<URI>();
                 lastSearchString = searchField.getText();
-                performSearch(lastSearchString);
-
-
-
-                searchResults = new URI[]{imdiTreeObject[0].getURI()};
+                for (String resultString : performSearch(lastSearchString)) {
+                    try {
+                        foundNodes.add(new URI(resultString));
+                    } catch (URISyntaxException exception) {
+                        GuiHelper.linorgBugCatcher.logError(exception);
+                    }
+                }
+                searchResults = foundNodes.toArray(new URI[]{});
                 resultCountLabel.setText(searchResults.length + " found on server ");
 
 //    // todo: add remote search: use console output of the applet search at http://corpus1.mpi.nl/ds/imdi_browser/
