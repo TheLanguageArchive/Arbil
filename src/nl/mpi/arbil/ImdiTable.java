@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.FieldEditors.ArbilTableCellEditor;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.AWTEvent;
 import java.awt.Color;
@@ -308,7 +309,7 @@ public class ImdiTable extends JTable {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
         Object cellField = getModel().getValueAt(row, modelcolumn);
 //        System.out.println("getCellEditor: " + cellField.toString());
-        return new ImdiChildCellEditor();
+        return new ArbilTableCellEditor();
     }
 
     @Override
@@ -336,9 +337,14 @@ public class ImdiTable extends JTable {
 
     @Override
     public int getRowHeight() {
-        FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
-        int requiredHeight = fontMetrics.getHeight();
-        return requiredHeight;
+        try {
+            FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
+            int requiredHeight = fontMetrics.getHeight();
+            return requiredHeight;
+        } catch (Exception exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
+        }
+        return super.getRowHeight();
     }
     int lastColumnCount = -1;
     int lastRowCount = -1;
@@ -528,7 +534,7 @@ public class ImdiTable extends JTable {
                 for (int currentCol : selectedCols) {
                     Object currentCellValue = this.getValueAt(currentRow, currentCol);
                     if (currentCellValue instanceof ImdiField || currentCellValue instanceof ImdiField[]) {
-                        new ImdiChildCellEditor().startLongfieldEditor(this, currentCellValue, false, currentRow, currentCol);
+                        new ArbilTableCellEditor().startLongfieldEditor(this, currentCellValue, false, currentRow, currentCol);
                     }
                 }
             }
