@@ -385,6 +385,7 @@
         <TemplateComponent FileName="METATRANSCRIPT.Corpus.Description.xml" DisplayName="Description" />
         <!--<TemplateComponent FileName="METATRANSCRIPT.Corpus.xml" DisplayName="Corpus" />-->
         <TemplateComponent FileName="METATRANSCRIPT.Session.Description.xml" DisplayName="Description" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.References.Description.xml" DisplayName="References.Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml" DisplayName="Actor Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml" DisplayName="Actor Key" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml" DisplayName="Actor Language" />
