@@ -2,11 +2,13 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Component;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import nl.mpi.arbil.data.ImdiLoader;
 
 /**
  * Document   : ImdiNodeSearchPanel
@@ -18,8 +20,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
     ImdiNodeSearchPanel thisPanel = this;
     JInternalFrame parentFrame;
     ImdiTableModel resultsTableModel;
-    private Vector<ImdiTreeObject> selectedNodes;
-    private Vector<ImdiTreeObject> searchNodes;
+    private ImdiTreeObject[] selectedNodes;
     private javax.swing.JButton addButton;
     public javax.swing.JPanel searchTermsPanel;
     private javax.swing.JPanel inputNodePanel;
@@ -30,11 +31,12 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
     private boolean stopSearch = false;
     private boolean threadRunning = false;
     int totalNodesToSearch = -1;
+    private RemoteServerSearchTerm remoteServerSearchTerm = null;
 
     public ImdiNodeSearchPanel(JInternalFrame parentFrameLocal, ImdiTableModel resultsTableModelLocal, ImdiTreeObject[] localSelectedNodes) {
         parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
-        selectedNodes = new Vector(Arrays.asList(localSelectedNodes));
+        selectedNodes = localSelectedNodes;
         searchTermsPanel = new javax.swing.JPanel();
         inputNodePanel = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -46,13 +48,25 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
         inputNodePanel.setLayout(new java.awt.GridLayout());
         add(inputNodePanel);
-        for (Enumeration<ImdiTreeObject> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
-            ImdiTreeObject currentNode = selectedNodesEnum.nextElement();
+        for (ImdiTreeObject currentNode : selectedNodes) {
             JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
             inputNodePanel.add(currentLabel);
         }
 
         searchTermsPanel.setLayout(new javax.swing.BoxLayout(searchTermsPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        // check if this search includes remote nodes
+        boolean remoteSearch = false;
+        for (ImdiTreeObject imdiTreeObject : localSelectedNodes) {
+            if (!imdiTreeObject.isLocal()) {
+                remoteSearch = true;
+                break;
+            }
+        }
+        if (remoteSearch) {
+            remoteServerSearchTerm = new RemoteServerSearchTerm(this);
+            this.add(remoteServerSearchTerm);
+        }
+
         searchTermsPanel.add(new ImdiNodeSearchTerm(this));
         add(searchTermsPanel);
 
@@ -108,6 +122,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
 
         add(jPanel2);
         hideFirstBooleanOption();
+        parentFrameLocal.pack();
     }
 
     private void hideFirstBooleanOption() {
@@ -130,8 +145,6 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
         stopSearch = false;
         searchButton.setEnabled(false);
         stopButton.setEnabled(true);
-        // copy the selectedNodes to a new vector and add found child nodes to it
-        searchNodes = new Vector(selectedNodes);
         resultsTableModel.removeAllImdiRows();
         performSearch();
     }
@@ -157,24 +170,47 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                         ((ImdiNodeSearchTerm) currentTermComp).populateSearchTerm();
                     }
                     int totalSearched = 0;
-                    while (searchNodes.size() > 0 && !stopSearch) {
+                    Vector<ImdiTreeObject> localSearchNodes = new Vector<ImdiTreeObject>();
+                    Vector<ImdiTreeObject> remoteSearchNodes = new Vector<ImdiTreeObject>();
+                    for (ImdiTreeObject imdiTreeObject : selectedNodes) {
+                        if (imdiTreeObject.isLocal()) {
+                            localSearchNodes.add(imdiTreeObject);
+                        } else {
+                            remoteSearchNodes.add(imdiTreeObject);
+                        }
+                    }
+                    if (remoteServerSearchTerm != null) {
+                        searchProgressBar.setIndeterminate(true);
+                        searchProgressBar.setString("connecting to server");
+                        for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ImdiTreeObject[]{}))) {
+                            System.out.println("remote node found: " + serverFoundUrl);
+                            localSearchNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, serverFoundUrl));
+                        }
+                        searchProgressBar.setString("");
+                        searchProgressBar.setIndeterminate(false);
+                    }
+                    while (localSearchNodes.size() > 0 && !stopSearch) {
                         System.out.println("parentFrame: " + parentFrame.isVisible());
-                        Object currentElement = searchNodes.remove(0);
+                        Object currentElement = localSearchNodes.remove(0);
                         if (currentElement instanceof ImdiTreeObject) {
                             ImdiTreeObject currentImdiNode = (ImdiTreeObject) currentElement;
-                            if (currentImdiNode.isLoading()) {
+                            if (currentImdiNode.isLoading()) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
                                 System.out.println("searching: " + currentImdiNode.getUrlString());
                                 System.out.println("still loading so putting back into the list: " + currentImdiNode);
                                 if (!currentImdiNode.fileNotFound) {
-                                    searchNodes.add(currentImdiNode);
+                                    localSearchNodes.add(currentImdiNode);
                                 }
                             } else {
                                 // perform the search
                                 System.out.println("searching: " + currentImdiNode);
-                                for (ImdiTreeObject currentChildNode : currentImdiNode.getChildArray()) {
-                                    System.out.println("adding to search list: " + currentChildNode);
-                                    currentChildNode.registerContainer(this); // this causes the node to be loaded
-                                    searchNodes.add(currentChildNode);
+                                // add the child nodes
+                                if (currentImdiNode.isLocal() || !currentImdiNode.isCorpus()) {
+                                    // don't search remote corpus
+                                    for (ImdiTreeObject currentChildNode : currentImdiNode.getChildArray()) {
+                                        System.out.println("adding to search list: " + currentChildNode);
+                                        currentChildNode.registerContainer(this); // this causes the node to be loaded
+                                        localSearchNodes.add(currentChildNode);
+                                    }
                                 }
                                 boolean nodePassedFilter = true;
                                 for (Component currentTermComponent : searchTermsPanel.getComponents()) {
@@ -216,11 +252,12 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 } else {
                                     currentImdiNode.removeContainer(this);
                                 }
-                                if (totalNodesToSearch < totalSearched + searchNodes.size()) {
-                                    totalNodesToSearch = totalSearched + searchNodes.size();
+                                if (totalNodesToSearch < totalSearched + localSearchNodes.size()) {
+                                    totalNodesToSearch = totalSearched + localSearchNodes.size();
                                 }
                                 searchProgressBar.setMaximum(totalNodesToSearch);
                                 searchProgressBar.setValue(totalSearched);
+                                // todo: indicate how many metadata files searched rather than sub nodes
                                 searchProgressBar.setString("searched: " + totalSearched + " found: " + foundNodes.size());
                             }
                         }
