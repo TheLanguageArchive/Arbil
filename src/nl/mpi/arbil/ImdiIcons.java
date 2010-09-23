@@ -158,7 +158,7 @@ public class ImdiIcons {
         if (imdiObject.isLocal()) {
             if (imdiObject.isMetaDataNode()) {
                 if (imdiObject.matchesRemote == 0) {
-                    if (!imdiObject.hasArchiveHandle) {
+                    if (imdiObject.archiveHandle == null) {
                         iconsVector.add(localicon);
                     } else {
                         iconsVector.add(localWithArchiveHandle);
