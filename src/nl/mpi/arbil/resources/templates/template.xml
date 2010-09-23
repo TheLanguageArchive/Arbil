@@ -22,13 +22,18 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Size" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Format" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile\(x\).Type" />
-        <RequiredField FieldPath=".*\.Date"/>
+<!--        <RequiredField FieldPath=".*\.Date"/>-->
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Date"/>
+        <RequiredField FieldPath=".METATRANSCRIPT.Catalogue.Date"/>
         <RequiredField FieldPath=".*\.BirthDate"/>
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).Dominant" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).SourceLanguage" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).TargetLanguage" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor\(x\).Anonymized" />
-        <RequiredField FieldPath=".*\(x\).Quality" />
+<!--        <RequiredField FieldPath=".*\(x\).Quality" />-->
         <RequiredField FieldPath=".*\(x\).TimePosition.Start" />
         <RequiredField FieldPath=".*\(x\).TimePosition.End" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" />
@@ -62,6 +67,16 @@
         <!--<RequiredField FieldPath="*\(x\).Anonymized" Constraint="True|False|Unknown|Unspecified" />-->
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.Start" Constraint="[0-9]*" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Source\(x\).CounterPosition.End" Constraint="[0-9]*" />
+<!--        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Link" Constraint="[^\d]+://.*" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Orthography" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Morphology" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.MorphoSyntax" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Syntax" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Phonology" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Semantics" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Etymology" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Usage" Constraint="true|false" />
+        <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Frequency" Constraint="true|false" />-->
     </FieldConstraints>
     <FieldTriggers>
         <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
@@ -76,6 +91,37 @@
     </FieldTriggers>
     <ChildNodePaths>
         <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
+<!--<ChildNodePath ChildPath=".METATRANSCRIPT.Session.ExternalResourceReference" SubNodeName="ExternalResourceReference" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Project" SubNodeName="Session.MDGroup.Project" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Session.MDGroup.Content.Languages.Language" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language" SubNodeName="Session.MDGroup.Actors.Actor.Languages.Language" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact" SubNodeName="Session.MDGroup.Actors.Actor.Contact" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" SubNodeName="Session.MDGroup.Actors.Actor" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.MediaFile" SubNodeName="MediaFile" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.WrittenResource" SubNodeName="WrittenResource" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry" SubNodeName="LexicalEntry" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconResource" SubNodeName="LexiconResource" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.childNodes" SubNodeName="childNodes" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo" SubNodeName="LexicalInfo" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.LexiconComponent" SubNodeName="LexiconComponent" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition" SubNodeName="CounterPosition" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source.TimePosition" SubNodeName="TimePosition" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Source" SubNodeName="Source" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.Resources.Anonyms" SubNodeName="Anonyms" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session.References" SubNodeName="References" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Session" SubNodeName="Session" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus.MDGroup.Project" SubNodeName="Corpus.MDGroup.Project" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language" SubNodeName="Corpus.MDGroup.Content.Languages.Language" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language" SubNodeName="Corpus.MDGroup.Actors.Actor.Languages.Language" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact" SubNodeName="Corpus.MDGroup.Actors.Actor.Contact" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor" SubNodeName="Corpus.MDGroup.Actors.Actor" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus.MDGroup" SubNodeName="MDGroup" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Corpus" SubNodeName="Corpus" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language" SubNodeName="DocumentLanguages.Language" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" SubNodeName="SubjectLanguages.Language" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Location" SubNodeName="Location" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue.Project" SubNodeName="Catalogue.Project" />
+<ChildNodePath ChildPath=".METATRANSCRIPT.Catalogue" SubNodeName="Catalogue" />-->
         <ChildNodePath ChildPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" SubNodeName="Languages" />
         <ChildNodePath ChildPath=".Languages.Language" SubNodeName="Languages" />
 <!--  Project and content seem to cause issues that should be resolved before making them separate nodes     -->
@@ -100,6 +146,227 @@
     </RootTemplateComponents>
     <AvailableTemplateComponents>
         <comment>The template components that can be added via the add menu and the display name for each</comment>
+<!--        <TemplateComponent FileName=".METATRANSCRIPT.History" DisplayName="History" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.ExternalResourceReference.SubType" DisplayName="SubType" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.ExternalResourceReference" DisplayName="ExternalResourceReference" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Description" DisplayName="Session.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Location.Region" DisplayName="Session.MDGroup.Location.Region" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Location.Address" DisplayName="Session.MDGroup.Location.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Name" DisplayName="Session.MDGroup.Project.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" DisplayName="Session.MDGroup.Project.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" DisplayName="Session.MDGroup.Project.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Organisation" DisplayName="Session.MDGroup.Project.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Project.Description" DisplayName="Session.MDGroup.Project.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Project" DisplayName="Session.MDGroup.Project" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Keys.Key" DisplayName="Session.MDGroup.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" DisplayName="Session.MDGroup.Content.SubGenre" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Task" DisplayName="Session.MDGroup.Content.Task" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Modalities" DisplayName="Session.MDGroup.Content.Modalities" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Subject" DisplayName="Session.MDGroup.Content.Subject" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Interactivity" DisplayName="Session.MDGroup.Content.CommunicationContext.Interactivity" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.PlanningType" DisplayName="Session.MDGroup.Content.CommunicationContext.PlanningType" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Involvement" DisplayName="Session.MDGroup.Content.CommunicationContext.Involvement" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.SocialContext" DisplayName="Session.MDGroup.Content.CommunicationContext.SocialContext" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.EventStructure" DisplayName="Session.MDGroup.Content.CommunicationContext.EventStructure" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Channel" DisplayName="Session.MDGroup.Content.CommunicationContext.Channel" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Description" DisplayName="Session.MDGroup.Content.Languages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Name" DisplayName="Session.MDGroup.Content.Languages.Language.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.MotherTongue" DisplayName="Session.MDGroup.Content.Languages.Language.MotherTongue" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.PrimaryLanguage" DisplayName="Session.MDGroup.Content.Languages.Language.PrimaryLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Dominant" DisplayName="Session.MDGroup.Content.Languages.Language.Dominant" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.SourceLanguage" DisplayName="Session.MDGroup.Content.Languages.Language.SourceLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.TargetLanguage" DisplayName="Session.MDGroup.Content.Languages.Language.TargetLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Description" DisplayName="Session.MDGroup.Content.Languages.Language.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language" DisplayName="Session.MDGroup.Content.Languages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Keys.Key" DisplayName="Session.MDGroup.Content.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Content.Description" DisplayName="Session.MDGroup.Content.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Description" DisplayName="Session.MDGroup.Actors.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Name" DisplayName="Session.MDGroup.Actors.Actor.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Description" DisplayName="Session.MDGroup.Actors.Actor.Languages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Name" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.MotherTongue" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.MotherTongue" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Dominant" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.Dominant" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Description" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language" DisplayName="Session.MDGroup.Actors.Actor.Languages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Name" DisplayName="Session.MDGroup.Actors.Actor.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Address" DisplayName="Session.MDGroup.Actors.Actor.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Email" DisplayName="Session.MDGroup.Actors.Actor.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Organisation" DisplayName="Session.MDGroup.Actors.Actor.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact" DisplayName="Session.MDGroup.Actors.Actor.Contact" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Keys.Key" DisplayName="Session.MDGroup.Actors.Actor.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Description" DisplayName="Session.MDGroup.Actors.Actor.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.MDGroup.Actors.Actor" DisplayName="Session.MDGroup.Actors.Actor" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.TimePosition.End" DisplayName="MediaFile.TimePosition.End" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Name" DisplayName="MediaFile.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Address" DisplayName="MediaFile.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Email" DisplayName="MediaFile.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Organisation" DisplayName="MediaFile.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Description" DisplayName="MediaFile.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Description" DisplayName="MediaFile.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile.Keys.Key" DisplayName="MediaFile.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.MediaFile" DisplayName="MediaFile" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Level" DisplayName="Level" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Description" DisplayName="Validation.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Name" DisplayName="WrittenResource.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Address" DisplayName="WrittenResource.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Email" DisplayName="WrittenResource.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Organisation" DisplayName="WrittenResource.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Description" DisplayName="WrittenResource.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Description" DisplayName="WrittenResource.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource.Keys.Key" DisplayName="WrittenResource.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.WrittenResource" DisplayName="WrittenResource" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry" DisplayName="LexicalEntry" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Language" DisplayName="MetaLanguages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Description" DisplayName="LexiconResource.MetaLanguages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Name" DisplayName="LexiconResource.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Address" DisplayName="LexiconResource.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Email" DisplayName="LexiconResource.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Organisation" DisplayName="LexiconResource.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Description" DisplayName="LexiconResource.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Description" DisplayName="LexiconResource.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource.Keys.Key" DisplayName="LexiconResource.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconResource" DisplayName="LexiconResource" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.preferredParent" DisplayName="preferredParent" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.childNodes.childComponents" DisplayName="childComponents" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.childNodes.childCategories" DisplayName="childCategories" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.childNodes" DisplayName="childNodes" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Orthography" DisplayName="Orthography" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Morphology" DisplayName="Morphology" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.MorphoSyntax" DisplayName="MorphoSyntax" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Syntax" DisplayName="Syntax" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Phonology" DisplayName="Phonology" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Semantics" DisplayName="Semantics" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Etymology" DisplayName="Etymology" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Usage" DisplayName="Usage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Frequency" DisplayName="Frequency" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo" DisplayName="LexicalInfo" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.MetaLanguages.Description" DisplayName="LexiconComponent.MetaLanguages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Name" DisplayName="LexiconComponent.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Address" DisplayName="LexiconComponent.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Email" DisplayName="LexiconComponent.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Organisation" DisplayName="LexiconComponent.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Description" DisplayName="LexiconComponent.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Description" DisplayName="LexiconComponent.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent.Keys.Key" DisplayName="LexiconComponent.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.LexiconComponent" DisplayName="LexiconComponent" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.End" DisplayName="CounterPosition.End" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.CounterPosition" DisplayName="CounterPosition" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.TimePosition.End" DisplayName="Source.TimePosition.End" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.TimePosition" DisplayName="TimePosition" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Name" DisplayName="Source.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Address" DisplayName="Source.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Email" DisplayName="Source.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Organisation" DisplayName="Source.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Access.Description" DisplayName="Source.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Description" DisplayName="Source.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source.Keys.Key" DisplayName="Source.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Source" DisplayName="Source" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Name" DisplayName="Anonyms.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Address" DisplayName="Anonyms.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" DisplayName="Anonyms.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Organisation" DisplayName="Anonyms.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Description" DisplayName="Anonyms.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.Resources.Anonyms" DisplayName="Anonyms" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.References.Description" DisplayName="References.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session.References" DisplayName="References" />
+<TemplateComponent FileName=".METATRANSCRIPT.Session" DisplayName="Session" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.Description" DisplayName="Corpus.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Location.Region" DisplayName="Corpus.MDGroup.Location.Region" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Location.Address" DisplayName="Corpus.MDGroup.Location.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Name" DisplayName="Corpus.MDGroup.Project.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Address" DisplayName="Corpus.MDGroup.Project.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Email" DisplayName="Corpus.MDGroup.Project.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Organisation" DisplayName="Corpus.MDGroup.Project.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Project.Description" DisplayName="Corpus.MDGroup.Project.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Project" DisplayName="Corpus.MDGroup.Project" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Keys.Key" DisplayName="Corpus.MDGroup.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.SubGenre" DisplayName="Corpus.MDGroup.Content.SubGenre" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Task" DisplayName="Corpus.MDGroup.Content.Task" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Modalities" DisplayName="Corpus.MDGroup.Content.Modalities" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Subject" DisplayName="Corpus.MDGroup.Content.Subject" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.Interactivity" DisplayName="Corpus.MDGroup.Content.CommunicationContext.Interactivity" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.PlanningType" DisplayName="Corpus.MDGroup.Content.CommunicationContext.PlanningType" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.Involvement" DisplayName="Corpus.MDGroup.Content.CommunicationContext.Involvement" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.SocialContext" DisplayName="Corpus.MDGroup.Content.CommunicationContext.SocialContext" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.EventStructure" DisplayName="Corpus.MDGroup.Content.CommunicationContext.EventStructure" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.Channel" DisplayName="Corpus.MDGroup.Content.CommunicationContext.Channel" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Description" DisplayName="Corpus.MDGroup.Content.Languages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Name" DisplayName="Corpus.MDGroup.Content.Languages.Language.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.MotherTongue" DisplayName="Corpus.MDGroup.Content.Languages.Language.MotherTongue" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.PrimaryLanguage" DisplayName="Corpus.MDGroup.Content.Languages.Language.PrimaryLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Dominant" DisplayName="Corpus.MDGroup.Content.Languages.Language.Dominant" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.SourceLanguage" DisplayName="Corpus.MDGroup.Content.Languages.Language.SourceLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.TargetLanguage" DisplayName="Corpus.MDGroup.Content.Languages.Language.TargetLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Description" DisplayName="Corpus.MDGroup.Content.Languages.Language.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language" DisplayName="Corpus.MDGroup.Content.Languages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Keys.Key" DisplayName="Corpus.MDGroup.Content.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Content.Description" DisplayName="Corpus.MDGroup.Content.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Description" DisplayName="Corpus.MDGroup.Actors.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Name" DisplayName="Corpus.MDGroup.Actors.Actor.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Description" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Name" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.MotherTongue" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.MotherTongue" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Dominant" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.Dominant" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Description" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language" DisplayName="Corpus.MDGroup.Actors.Actor.Languages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Name" DisplayName="Corpus.MDGroup.Actors.Actor.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Address" DisplayName="Corpus.MDGroup.Actors.Actor.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Email" DisplayName="Corpus.MDGroup.Actors.Actor.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Organisation" DisplayName="Corpus.MDGroup.Actors.Actor.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact" DisplayName="Corpus.MDGroup.Actors.Actor.Contact" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Keys.Key" DisplayName="Corpus.MDGroup.Actors.Actor.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Description" DisplayName="Corpus.MDGroup.Actors.Actor.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor" DisplayName="Corpus.MDGroup.Actors.Actor" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.MDGroup" DisplayName="MDGroup" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus.CorpusLink" DisplayName="CorpusLink" />
+<TemplateComponent FileName=".METATRANSCRIPT.Corpus" DisplayName="Corpus" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Id" DisplayName="Id" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Description" DisplayName="Catalogue.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.DocumentLanguages.Description" DisplayName="DocumentLanguages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language" DisplayName="DocumentLanguages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.SubjectLanguages.Description" DisplayName="SubjectLanguages.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.Dominant" DisplayName="SubjectLanguages.Language.Dominant" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.SourceLanguage" DisplayName="SubjectLanguages.Language.SourceLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.TargetLanguage" DisplayName="SubjectLanguages.Language.TargetLanguage" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.Description" DisplayName="SubjectLanguages.Language.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language" DisplayName="SubjectLanguages.Language" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Location.Region" DisplayName="Catalogue.Location.Region" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Location.Address" DisplayName="Catalogue.Location.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Location" DisplayName="Location" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.ContentType" DisplayName="ContentType" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Format.Text" DisplayName="Format.Text" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Format.Audio" DisplayName="Format.Audio" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Format.Video" DisplayName="Format.Video" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Format.Image" DisplayName="Format.Image" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Quality.Text" DisplayName="Quality.Text" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Quality.Audio" DisplayName="Quality.Audio" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Quality.Video" DisplayName="Quality.Video" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Quality.Image" DisplayName="Quality.Image" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Project.Contact.Name" DisplayName="Catalogue.Project.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Project.Contact.Address" DisplayName="Catalogue.Project.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Project.Contact.Email" DisplayName="Catalogue.Project.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Project.Contact.Organisation" DisplayName="Catalogue.Project.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Project.Description" DisplayName="Catalogue.Project.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Project" DisplayName="Catalogue.Project" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Publisher" DisplayName="Publisher" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Author" DisplayName="Author" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Access.Contact.Name" DisplayName="Catalogue.Access.Contact.Name" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Access.Contact.Address" DisplayName="Catalogue.Access.Contact.Address" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Access.Contact.Email" DisplayName="Catalogue.Access.Contact.Email" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Access.Contact.Organisation" DisplayName="Catalogue.Access.Contact.Organisation" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Access.Description" DisplayName="Catalogue.Access.Description" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.ContactPerson" DisplayName="ContactPerson" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.ReferenceLink" DisplayName="ReferenceLink" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.MetadataLink" DisplayName="MetadataLink" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Publications" DisplayName="Publications" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue.Keys.Key" DisplayName="Catalogue.Keys.Key" />
+<TemplateComponent FileName=".METATRANSCRIPT.Catalogue" DisplayName="Catalogue" />-->
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Access.Description.xml" DisplayName="Access Description" />
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.Author.xml" DisplayName="Author" />
         <TemplateComponent FileName="METATRANSCRIPT.Catalogue.ContentType.xml" DisplayName="ContentType" />
@@ -161,6 +428,338 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5" />
+<!--        <FieldUsage FieldPath=".METATRANSCRIPT.History" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Type" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.SubType" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Format" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.ExternalResourceReference.Link" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Continent" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Country" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Region" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Location.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Title" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Genre" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Task" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Modalities" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Subject" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Interactivity" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.PlanningType" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Involvement" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.SocialContext" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.EventStructure" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.CommunicationContext.Channel" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.MotherTongue" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.PrimaryLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Dominant" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.SourceLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.TargetLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Role" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.FullName" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Code" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.FamilySocialRole" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.MotherTongue" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Dominant" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Languages.Language.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.EthnicGroup" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Age" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.BirthDate" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Sex" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Education" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Anonymized" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.ResourceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Type" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Format" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Size" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.RecordingConditions" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.TimePosition.Start" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.TimePosition.End" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.ResourceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.MediaResourceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Type" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.SubType" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Format" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Size" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Type" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Methodology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Level" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Validation.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Derivation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.CharacterEncoding" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.ContentEncoding" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.LanguageId" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Anonymized" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.ResourceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Type" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Format" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.CharacterEncoding" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Size" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.NoHeadEntries" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.NoSubEntries" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.HeadWordType" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Orthography" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Morphology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.MorphoSyntax" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Syntax" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Phonology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Semantics" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Etymology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Usage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.LexicalEntry.Frequency" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Language" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.MetaLanguages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconResource.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.ResourceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Type" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Format" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.CharacterEncoding" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Size" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.possibleParents" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.preferredParent" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.childNodes.childComponents" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Component.childNodes.childCategories" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Orthography" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Morphology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.MorphoSyntax" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Syntax" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Phonology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Semantics" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Etymology" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Usage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.LexicalInfo.Frequency" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.MetaLanguages.Language" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.MetaLanguages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Format" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Quality" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.Start" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.CounterPosition.End" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.TimePosition.Start" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.TimePosition.End" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Source.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.ResourceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.References.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Title" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Location.Continent" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Location.Country" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Location.Region" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Location.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Title" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Project.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Genre" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.SubGenre" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Task" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Modalities" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Subject" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.Interactivity" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.PlanningType" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.Involvement" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.SocialContext" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.EventStructure" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.CommunicationContext.Channel" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.MotherTongue" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.PrimaryLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Dominant" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.SourceLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.TargetLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Languages.Language.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Content.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Role" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.FullName" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Code" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.FamilySocialRole" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.MotherTongue" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.PrimaryLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Dominant" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.SourceLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.TargetLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Languages.Language.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.EthnicGroup" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Age" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.BirthDate" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Sex" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Education" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Anonymized" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Keys.Key" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.MDGroup.Actors.Actor.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Corpus.CorpusLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Title" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.DocumentLanguages.Language.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.Dominant" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.SourceLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.TargetLanguage" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Location.Continent" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Location.Country" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Location.Region" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Location.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.ContentType" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Format.Text" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Format.Audio" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Format.Video" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Format.Image" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Quality.Text" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Quality.Audio" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Quality.Video" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Quality.Image" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.SmallestAnnotationUnit" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Applications" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Title" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Id" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Project.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Author" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Size" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.DistributionForm" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Availability" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Date" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Owner" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Publisher" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Name" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Address" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Email" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Contact.Organisation" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Access.Description" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Pricing" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.ContactPerson" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.ReferenceLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.MetadataLink" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Publications" FieldDescription="" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Catalogue.Keys.Key" FieldDescription="" />-->
     </FieldUsageDescriptions>
     <PreferredTreeNodeNameFields>
        <comment>The fields that will be used to name the node in the tree if the field contains a value. The first found value will be used, so the order of this list determines their preference of use in the tree.</comment>
