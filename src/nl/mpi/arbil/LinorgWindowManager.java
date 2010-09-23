@@ -822,6 +822,7 @@ public class LinorgWindowManager {
         searchFrame.add(new ImdiNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
         imdiSplitPanel.setSplitDisplay();
         imdiSplitPanel.addFocusListener(searchFrame);
+        searchFrame.pack();
     }
 
     public ImdiTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
