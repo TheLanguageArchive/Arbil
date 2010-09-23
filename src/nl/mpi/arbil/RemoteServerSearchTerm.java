@@ -18,6 +18,8 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
     private javax.swing.JTextField searchField;
     public String searchString = "";
     private String valueFieldMessage = "<remote server search term (required)>";
+    URI[] searchResults = null;
+    String lastSearchString = null;
 
     public RemoteServerSearchTerm(ImdiNodeSearchPanel parentPanelLocal) {
         parentPanel = parentPanelLocal;
@@ -54,9 +56,25 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
 
     }
 
-    public URI[] performServerSearch(ImdiTreeObject imdiTreeObject){
+    public URI[] getServerSearchResults(ImdiTreeObject[] imdiTreeObject) {
+        if (searchField.getText().equals(valueFieldMessage) || searchField.getText().equals("")) {
+            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
+            return new URI[]{};
+        } else {
+            if (searchField.getText().equals(lastSearchString)) {
+                System.out.println("remote search term unchanged, returning last server response");
+                return searchResults;
+            } else {
+                lastSearchString = searchField.getText();
+                searchResults = new URI[]{imdiTreeObject[0].getURI()};
+
+
+
 //    // todo: add remote search: use console output of the applet search at http://corpus1.mpi.nl/ds/imdi_browser/
 //    // for example http://corpus1.mpi.nl/ds/imdi_search/servlet?action=getMatches&num=50&query=Sebastian&type=simple&nodeid=MPI77915%23&returnType=xml
-       return new URI[]{imdiTreeObject.getURI()}; // todo searver side search
+                // todo searver side search
+                return searchResults;
+            }
+        }
     }
 }
