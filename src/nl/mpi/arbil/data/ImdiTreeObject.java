@@ -83,7 +83,7 @@ public class ImdiTreeObject implements Comparable {
     @Deprecated
     public boolean lockedByLoadingThread = false;
 //    private boolean isFavourite;
-    public boolean hasArchiveHandle = false;
+    public String archiveHandle = null;
     public boolean hasDomIdAttribute = false; // used to requre a save (that will remove the dom ids) if a node has any residual dom id attributes
 //    public boolean autoLoadChildNodes = false;
     //public Vector<String[]> addQueue;
