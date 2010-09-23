@@ -575,7 +575,9 @@ public class MetadataReader {
                             // these attributes exist only in the metatranscript node
                             Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
                             if (archiveHandleAtt != null) {
-                                parentNode.hasArchiveHandle = true;
+                                parentNode.archiveHandle = archiveHandleAtt.getNodeValue();
+                            } else {
+                                parentNode.archiveHandle = null;
                             }
                             Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
                             if (templateOriginatorAtt != null) {
