@@ -478,5 +478,18 @@ public class LinorgVersion {
         <!-- push the applet html -->
         <scp file= "${BUILDDIR}/arbil-applet-lux17.php" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/index.php"/>
     </target>
+    <target name="maven-deploy" depends="getsvnversion"><!-- this could also depend on signarbil -->
+        <!-- while this could be done in a maven and task, this method appears more portable at this stage -->
+        <exec executable="mvn">
+            <arg line="install:install-file" />
+            <arg line="-Dfile=${OUTPUTDIR}/${ArbilJarName}" />
+            <arg line="-DgroupId=nl.mpi" />
+            <arg line="-DartifactId=arbil" />
+            <arg line="-Dversion=${arbil.current.major}.${arbil.current.minor}.${arbil.current.revision}" />
+            <arg line="-Dpackaging=jar" />
+            <arg line="-DpomFile=${SRCDIR}nl/mpi/arbil/install.pom" />
+            <!-- -DgeneratePom=true -->
+        </exec>
+    </target>
 </project>
  
