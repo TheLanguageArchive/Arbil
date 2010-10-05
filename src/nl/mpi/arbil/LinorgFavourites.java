@@ -14,7 +14,6 @@ import java.util.Vector;
  * @author Peter.Withers@mpi.nl
  */
 public class LinorgFavourites {
-    todo: look into ways to import favourites bulk or to share them on a server
 //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private LinorgFavourites singleInstance = null;
 
@@ -129,7 +128,7 @@ public class LinorgFavourites {
 //    public ImdiTreeObject[] listAllFavourites() {
 //        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
 //    }
-     todo: on windows add from favourites fails for sessions but works for actors
+
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
         System.out.println("listFavouritesFor: " + targetNodeUserObject);
         Vector<String[]> validFavourites = new Vector<String[]>();

@@ -641,7 +641,7 @@ public class ContextMenu {
         treePopupMenu.add(overrideTypeCheckerDecision);
 
         viewInBrrowserMenuItem.setText("Open in External Application");
-        todo: add custom applicaitons menu with dialogue to enter them: suffix, switches, applicaiton file
+        // todo: add custom applicaitons menu with dialogue to enter them: suffix, switches, applicaiton file
         viewInBrrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
