@@ -9,13 +9,13 @@ import java.awt.event.WindowEvent;
  * Created on 23 September 2008, 17:23
  * @author Peter.Withers@mpi.nl
  */
-public class LinorgFrame extends javax.swing.JFrame {
+public class ArbilMain extends javax.swing.JFrame {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
 //    static boolean updateViaJavaws = false;
 
-    public LinorgFrame() {
+    public ArbilMain() {
         this.addWindowListener(new WindowAdapter() {
 
             @Override
@@ -83,7 +83,7 @@ public class LinorgFrame extends javax.swing.JFrame {
 
             public void run() {
                 try {
-                    new LinorgFrame();
+                    new ArbilMain();
                 } catch (Exception ex) {
                     new LinorgBugCatcher().logError(ex);
                 }
