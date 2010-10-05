@@ -6,8 +6,9 @@ import javax.swing.JEditorPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiSchema;
+import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.MetadataBuilder;
 
 /**
  * Document   : LinorgHyperlinkListener
@@ -71,13 +72,13 @@ public class LinorgHyperlinkListener implements HyperlinkListener {
         ImdiTreeObject addedImdiObject;
         if (parentNode == null) {
             URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
-            targetFileURI = ImdiSchema.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
+            targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
             addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
             TreeHelper.getSingleInstance().addLocation(targetFileURI);
             TreeHelper.getSingleInstance().applyRootLocations();
         } else {
             parentNode.saveChangesToCache(true);
-            addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, parentNode.addChildNode(nodeType, targetXmlPath, resourceUri, mimeType));
+            addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, new MetadataBuilder().addChildNode(parentNode,nodeType, targetXmlPath, resourceUri, mimeType));
         }
         addedImdiObject.waitTillLoaded();
         ImdiTableModel imdiTableModel = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new ImdiTreeObject[]{addedImdiObject}, nodeTypeDisplayName);

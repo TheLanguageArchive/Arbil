@@ -8,5 +8,6 @@ public class LinorgVersion {
     public String lastCommitDate = "";
     public String compileDate = "";
     public String fullInfo = "";
+    public String currentVersionFile = "";
 }
         
