@@ -2,6 +2,7 @@ package nl.mpi.arbil;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -13,10 +14,24 @@ import org.xml.sax.SAXException;
  */
 public class ArbilEntityResolver implements EntityResolver {
 
+    private URI parentUri;
+
+    public ArbilEntityResolver(URI parentUriLocal) {
+        parentUri = parentUriLocal;
+    }
+
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
 //        System.out.println("publicId: " + publicId);
 //        System.out.println("systemId: " + systemId);
-        File cachedfile = LinorgSessionStorage.getSingleInstance().updateCache(systemId, 7);
+        String targetString;
+        // todo: test with http://www.loc.gov/ndnp/xml/alto-1-2.xsd issue: exception: no protocol: ./xlink.xsd need to resolve local references
+        if (parentUri != null) {
+            URI resolvedSystemIdURL = parentUri.resolve(systemId);
+            targetString = resolvedSystemIdURL.toString();
+        } else {
+            targetString = systemId;
+        }
+        File cachedfile = LinorgSessionStorage.getSingleInstance().updateCache(targetString, 7);
         if (!cachedfile.exists()) {
             // todo: pull the file out of the jar
             new LinorgBugCatcher().logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));

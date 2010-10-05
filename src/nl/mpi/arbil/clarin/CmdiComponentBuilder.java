@@ -662,7 +662,7 @@ public class CmdiComponentBuilder {
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setCharacterEncoding("UTF-8");
 //            CatalogDocument catalogDoc = CatalogDocument.Factory.newInstance(); 
-            xmlOptions.setEntityResolver(new ArbilEntityResolver());
+            xmlOptions.setEntityResolver(new ArbilEntityResolver(LinorgSessionStorage.getSingleInstance().getOriginatingUri(schemaFile.toURI()))); // this schema file is in the cache and must be resolved back to the origin in order to get unresolved imports within the schema file
             //xmlOptions.setCompileDownloadUrls();
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
             // there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nl.mpi</groupId>
+    <artifactId>arbil</artifactId>
+        <version>pretesting</version> <!-- this should probably be the current version number but this string value seems fine and is simpler to build -->
+    <description>POM was created from arbil.xml->maven-deploy</description>
+    <dependencies>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>corpusstructure</artifactId>
+            <version>1.6.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>imdiapi</artifactId>
+            <version>1.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+        </dependency>
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.0.2</version>
+    </dependency>
+    </dependencies>
+</project>

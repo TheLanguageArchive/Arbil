@@ -279,7 +279,7 @@ public class CmdiTemplate extends ArbilTemplate {
             //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setCharacterEncoding("UTF-8");
-            xmlOptions.setEntityResolver(new ArbilEntityResolver());
+            xmlOptions.setEntityResolver(new ArbilEntityResolver(xsdFile));
 //            xmlOptions.setCompileDownloadUrls();
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
 //            System.out.println("XmlObject.Factory:" + XmlObject.Factory.class.toString());
