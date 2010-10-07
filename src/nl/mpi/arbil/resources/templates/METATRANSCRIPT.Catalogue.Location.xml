@@ -1,5 +1,5 @@
 
-<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI" InsertBefore="ContentType">
+<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI">
     <Location>
         <Continent Link="http://www.mpi.nl/IMDI/Schema/Continents.xml" Type="OpenVocabulary"/>
         <Country Link="http://www.mpi.nl/IMDI/Schema/Countries.xml" Type="ClosedVocabulary"/>
