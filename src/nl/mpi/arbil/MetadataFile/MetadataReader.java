@@ -211,6 +211,10 @@ public class MetadataReader {
     public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
         System.out.println("targetXpath: " + targetXmlPath);
+        String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
+        System.out.println("insertBefore: " + insertBefore);
+        int maxOccurs = currentTemplate.getMaxOccursForTemplate(elementName);
+        System.out.println("maxOccurs: " + maxOccurs);
         URI addedPathURI = null;
 //        System.out.println("targetImdiDom: " + targetImdiDom.getTextContent());
         String targetXpath = targetXmlPath;
@@ -370,30 +374,7 @@ public class MetadataReader {
                 }
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
-
-                Node insertBeforeNode = null;
-                String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
-                if (insertBeforeCSL != null && insertBeforeCSL.length() > 0) {
-                    String[] insertBeforeArray = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore").split(",");
-                    // find the node to add the new section before
-                    int insertBeforeCounter = 0;
-                    while (insertBeforeNode == null & insertBeforeCounter < insertBeforeArray.length) {
-                        System.out.println("insertbefore: " + insertBeforeArray);
-                        insertBeforeNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath + "/:" + insertBeforeArray[insertBeforeCounter]);
-                        insertBeforeCounter++;
-                    }
-                }
-
-                // find the node to add the new section to
-                Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-                Node addedNode;
-                if (insertBeforeNode != null) {
-                    System.out.println("inserting before: " + insertBeforeNode.getNodeName());
-                    addedNode = targetNode.insertBefore(addableNode, insertBeforeNode);
-                } else {
-                    System.out.println("inserting");
-                    addedNode = targetNode.appendChild(addableNode);
-                }
+                Node addedNode = new CmdiComponentBuilder().insertBefore(targetImdiDom, addableNode, targetXpath, insertBefore);
                 String nodeFragment = new CmdiComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 //                            try {
                 System.out.println("nodeFragment: " + nodeFragment);
