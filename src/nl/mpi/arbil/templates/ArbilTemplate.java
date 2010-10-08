@@ -153,6 +153,41 @@ public class ArbilTemplate {
         return false;
     }
 
+    public int getMaxOccursForTemplate(String templatPath) {
+        // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+        String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)");
+        cmdiNodePath = cmdiNodePath.replaceAll("\\(x\\)$", "");
+        String imdiNodePath = cmdiNodePath.substring(1) + ".xml";
+        for (String[] pathString : templatesArray) {
+            if (pathString[0].equals((cmdiNodePath)) || pathString[0].equals(imdiNodePath)) {
+                Integer returnValue = Integer.parseInt(pathString[3]);
+                if (returnValue == null) {
+                    return -1;
+                } else {
+                    return returnValue;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public String getInsertBeforeOfTemplate(String templatPath) {
+        // modify the path to match the file name until the file name and assosiated array is updated to contain the xmpath filename and menu text
+        String cmdiNodePath = templatPath.replaceAll("\\(\\d*?\\)", "(x)");
+        cmdiNodePath = cmdiNodePath.replaceAll("\\(x\\)$", "");
+        String imdiNodePath = cmdiNodePath.substring(1) + ".xml";
+        for (String[] pathString : templatesArray) {
+            if (pathString[0].equals((cmdiNodePath)) || pathString[0].equals(imdiNodePath)) {
+                if (pathString[2] != null) {
+                    return pathString[2];
+                } else {
+                    return "";
+                }
+            }
+        }
+        return "";
+    }
+
     public boolean isImdiChildType(String childType) {
         boolean returnValue = false;
         if (childType != null) {
@@ -252,6 +287,7 @@ public class ArbilTemplate {
 //                            }
 //                        System.out.println("destinationXPath: " + destinationXPath);
 //            ====================================
+//                        System.out.println(currentTemplate[1] + " : ." + currentValue);
                         returnVector.add(new String[]{currentTemplate[1], "." + currentValue});// TODO: update the menu title to include location and exact file name from the template
                     }
                 }
@@ -397,7 +433,16 @@ public class ArbilTemplate {
                     if (name.equals("TemplateComponent")) {
                         String fileName = atts.getValue("FileName");
                         String displayName = atts.getValue("DisplayName");
-                        templateComponentList.add(new String[]{fileName, displayName});
+                        String insertBefore = atts.getValue("InsertBefore");
+                        String maxOccurs = atts.getValue("MaxOccurs");
+                        if (insertBefore == null) {
+                            insertBefore = "";
+//                            System.out.println(insertBefore + " : " + maxOccurs);
+                        }
+                        if (maxOccurs == null) {
+                            maxOccurs = "-1";
+                        }
+                        templateComponentList.add(new String[]{fileName, displayName, insertBefore, maxOccurs});
                     }
                     if (name.equals("RootTemplateComponent")) {
                         String fileName = atts.getValue("FileName");
