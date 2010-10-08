@@ -374,7 +374,8 @@ public class MetadataReader {
                 }
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
-                Node addedNode = new CmdiComponentBuilder().insertBefore(targetImdiDom, addableNode, targetXpath, insertBefore);
+                Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
+                Node addedNode = new CmdiComponentBuilder().insertNodeInOrder(destinationNode, addableNode, insertBefore);
                 String nodeFragment = new CmdiComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 //                            try {
                 System.out.println("nodeFragment: " + nodeFragment);
