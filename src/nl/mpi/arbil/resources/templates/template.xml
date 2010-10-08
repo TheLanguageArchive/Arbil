@@ -29,9 +29,9 @@
         <RequiredField FieldPath=".METATRANSCRIPT.Session.Resources.LexiconComponent.Date"/>
         <RequiredField FieldPath=".METATRANSCRIPT.Catalogue.Date"/>
         <RequiredField FieldPath=".*\.BirthDate"/>
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).Dominant" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).SourceLanguage" />
-        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language\(x\).TargetLanguage" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).Dominant" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).SourceLanguage" />
+        <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Content\(x\).Languages.Language\(x\).TargetLanguage" />
         <RequiredField FieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor\(x\).Anonymized" />
 <!--        <RequiredField FieldPath=".*\(x\).Quality" />-->
         <RequiredField FieldPath=".*\(x\).TimePosition.Start" />
@@ -53,7 +53,7 @@
     </AutoFields>
     <GenreSubgenres>
         <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
-        <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content.SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content.Genre" Description="description" />
+        <GenreSubgenre Subgenre=".METATRANSCRIPT.Session.MDGroup.Content(x).SubGenre" Genre=".METATRANSCRIPT.Session.MDGroup.Content(x).Genre" Description="description" />
     </GenreSubgenres>
     <FieldConstraints>
         <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
@@ -82,7 +82,7 @@
         <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
         <comment>The primary use fof these triggers are to set the corresponding language code when the language name field is changed is set</comment>
         <comment>The SourceFieldValue sets the source of the data to be inserted into the target field from the source fields controlled vocabulary. Possible values relate to the vocabulary xml format and include: "Content" "Value" "Code" "FollowUp".</comment>
-        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Id" SourceFieldValue = "Content" />
+        <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Name" TargetFieldPath=".METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Language.Id" SourceFieldValue = "Content" />
         <FieldTrigger SourceFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Name" TargetFieldPath=".METATRANSCRIPT.Catalogue.SubjectLanguages.Language(x).Id" SourceFieldValue = "Content" />
@@ -392,9 +392,9 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml" DisplayName="Actor Key" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml" DisplayName="Actor Language" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml" DisplayName="Actor" InsertBefore="" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Keys.Key.xml" DisplayName="Content Key" InsertBefore="" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language.xml" DisplayName="Content Language" InsertBefore="" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.Languages.Language(x).Description.xml" DisplayName="Content Language Description" InsertBefore="Language" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Keys.Key.xml" DisplayName="Content Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language.xml" DisplayName="Content Language" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Description.xml" DisplayName="Content Language Description" InsertBefore="Language" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms.xml" DisplayName="Anonyms" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms" />
