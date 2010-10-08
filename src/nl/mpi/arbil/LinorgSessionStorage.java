@@ -585,7 +585,7 @@ public class LinorgSessionStorage {
         try {
             saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
         } catch (MalformedURLException mul) {
-            GuiHelper.linorgBugCatcher.logError(mul);
+            GuiHelper.linorgBugCatcher.logError(pathString, mul);
         }
         return cachePath;
     }
