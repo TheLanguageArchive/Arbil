@@ -305,29 +305,34 @@ public class CmdiComponentBuilder {
         }
     }
 
-    public Node insertBefore(Node targetImdiDom, Node addableNode, String targetXpath, String insertBefore) throws TransformerException {
+    public Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore) throws TransformerException {
         // todo: read the template for max occurs values and use them here and for all inserts
         Node insertBeforeNode = null;
-//                String insertBeforeCSL = insertableSectionDoc.getDocumentElement().getAttribute("InsertBefore");
         if (insertBefore != null && insertBefore.length() > 0) {
             String[] insertBeforeArray = insertBefore.split(",");
             // find the node to add the new section before
-            int insertBeforeCounter = 0;
-            while (insertBeforeNode == null & insertBeforeCounter < insertBeforeArray.length) {
-                System.out.println("insertbefore: " + insertBeforeArray);
-                insertBeforeNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath + "/:" + insertBeforeArray[insertBeforeCounter]);
-                insertBeforeCounter++;
+            NodeList childNodes = destinationNode.getChildNodes();
+            outerloop:
+            for (int childCounter = 0; childCounter< childNodes.getLength(); childCounter++) {
+                String childsName = childNodes.item(childCounter).getLocalName();
+                for (String currentInsertBefore : insertBeforeArray){
+                   if (currentInsertBefore.equals(childsName)){
+                System.out.println("insertbefore: " + childsName);
+                       insertBeforeNode = childNodes.item(childCounter);
+                       break outerloop;
+
+                   }
+                }
             }
         }
         // find the node to add the new section to
-        Node targetNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
         Node addedNode;
         if (insertBeforeNode != null) {
             System.out.println("inserting before: " + insertBeforeNode.getNodeName());
-            addedNode = targetNode.insertBefore(addableNode, insertBeforeNode);
+            addedNode = destinationNode.insertBefore(addableNode, insertBeforeNode);
         } else {
             System.out.println("inserting");
-            addedNode = targetNode.appendChild(addableNode);
+            addedNode = destinationNode.appendChild(addableNode);
         }
         return addedNode;
     }
@@ -336,11 +341,11 @@ public class CmdiComponentBuilder {
         URI returnUri = null;
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
-//        String elementName = favouriteImdiTreeObject.getURI().getFragment();
-//        String insertBefore = destinationImdiTreeObject.nodeTemplate.getInsertBeforeOfTemplate(elementName);
-//        System.out.println("insertBefore: " + insertBefore);
-//        int maxOccurs = destinationImdiTreeObject.nodeTemplate.getMaxOccursForTemplate(elementName);
-//        System.out.println("maxOccurs: " + maxOccurs);
+        String elementName = favouriteImdiTreeObject.getURI().getFragment();
+        String insertBefore = destinationImdiTreeObject.nodeTemplate.getInsertBeforeOfTemplate(elementName);
+        System.out.println("insertBefore: " + insertBefore);
+        int maxOccurs = destinationImdiTreeObject.nodeTemplate.getMaxOccursForTemplate(elementName);
+        System.out.println("maxOccurs: " + maxOccurs);
         if (destinationImdiTreeObject.getNeedsSaveToDisk()) {
             destinationImdiTreeObject.saveChangesToCache(true);
         }
@@ -377,7 +382,8 @@ public class CmdiComponentBuilder {
                 }
                 for (Node singleFavouriteNode : favouriteNodes) {
                     if (singleFavouriteNode.getNodeType() != Node.TEXT_NODE) {
-                        destinationNode.appendChild(singleFavouriteNode);
+                        insertNodeInOrder(destinationNode, singleFavouriteNode, insertBefore);
+//                        destinationNode.appendChild(singleFavouriteNode);
                         System.out.println("inserting favouriteNode: " + singleFavouriteNode.getLocalName());
                     }
                 }
