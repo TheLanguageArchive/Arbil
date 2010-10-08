@@ -20,6 +20,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import nl.mpi.arbil.clarin.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.CmdiProfileReader;
@@ -208,7 +209,7 @@ public class MetadataReader {
         }
     }
 
-    public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) {
+    public URI insertFromTemplate(ArbilTemplate currentTemplate, URI targetMetadataUri, File resourceDestinationDirectory, String elementName, String targetXmlPath, Document targetImdiDom, URI resourceUrl, String mimeType) throws ArbilMetadataException {
         System.out.println("insertFromTemplate: " + elementName + " : " + resourceUrl);
         System.out.println("targetXpath: " + targetXmlPath);
         String insertBefore = currentTemplate.getInsertBeforeOfTemplate(elementName);
@@ -375,7 +376,7 @@ public class MetadataReader {
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
                 Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-                Node addedNode = new CmdiComponentBuilder().insertNodeInOrder(destinationNode, addableNode, insertBefore);
+                Node addedNode = new CmdiComponentBuilder().insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
                 String nodeFragment = new CmdiComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
 //                            try {
                 System.out.println("nodeFragment: " + nodeFragment);
