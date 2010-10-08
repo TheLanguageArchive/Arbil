@@ -302,10 +302,12 @@ public class CmdiComponentBuilder {
             insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject2);
         } catch (URISyntaxException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
+        } catch (ArbilMetadataException exception) {
+            GuiHelper.linorgBugCatcher.logError(exception);
         }
     }
 
-    public Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore) throws TransformerException {
+    public Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
         // todo: read the template for max occurs values and use them here and for all inserts
         Node insertBeforeNode = null;
         if (insertBefore != null && insertBefore.length() > 0) {
@@ -313,15 +315,29 @@ public class CmdiComponentBuilder {
             // find the node to add the new section before
             NodeList childNodes = destinationNode.getChildNodes();
             outerloop:
-            for (int childCounter = 0; childCounter< childNodes.getLength(); childCounter++) {
+            for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
                 String childsName = childNodes.item(childCounter).getLocalName();
-                for (String currentInsertBefore : insertBeforeArray){
-                   if (currentInsertBefore.equals(childsName)){
-                System.out.println("insertbefore: " + childsName);
-                       insertBeforeNode = childNodes.item(childCounter);
-                       break outerloop;
+                for (String currentInsertBefore : insertBeforeArray) {
+                    if (currentInsertBefore.equals(childsName)) {
+                        System.out.println("insertbefore: " + childsName);
+                        insertBeforeNode = childNodes.item(childCounter);
+                        break outerloop;
 
-                   }
+                    }
+                }
+            }
+        }
+        if (maxOccurs > 0) {
+            String addableName = addableNode.getLocalName();
+            NodeList childNodes = destinationNode.getChildNodes();
+            int duplicateNodeCounter = 0;
+            for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
+                String childsName = childNodes.item(childCounter).getLocalName();
+                if (addableName.equals(childsName)) {
+                    duplicateNodeCounter++;
+                    if (duplicateNodeCounter >= maxOccurs) {
+                        throw new ArbilMetadataException("The maximum nodes of this type have already been added.\n");
+                    }
                 }
             }
         }
@@ -337,7 +353,7 @@ public class CmdiComponentBuilder {
         return addedNode;
     }
 
-    public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) {
+    public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) throws ArbilMetadataException {
         URI returnUri = null;
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
@@ -382,7 +398,7 @@ public class CmdiComponentBuilder {
                 }
                 for (Node singleFavouriteNode : favouriteNodes) {
                     if (singleFavouriteNode.getNodeType() != Node.TEXT_NODE) {
-                        insertNodeInOrder(destinationNode, singleFavouriteNode, insertBefore);
+                        insertNodeInOrder(destinationNode, singleFavouriteNode, insertBefore, maxOccurs);
 //                        destinationNode.appendChild(singleFavouriteNode);
                         System.out.println("inserting favouriteNode: " + singleFavouriteNode.getLocalName());
                     }
