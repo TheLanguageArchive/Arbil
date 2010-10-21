@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
@@ -309,7 +310,11 @@ public class ImdiTree extends JTree {
 
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode) {
         // todo: consider returning a list of tree paths for the nodes that are opened and have no open children
-        System.out.println("currentNode: " + currentNode);
+        if (currentNode.getUserObject() instanceof JLabel) {
+            System.out.println("currentNode: " + ((JLabel) currentNode.getUserObject()).getText());
+        } else {
+            System.out.println("currentNode: " + currentNode);
+        }
         boolean isExpanded = true;
         ImdiTreeObject[] childImdiObjectArray = rootNodeChildren;
         if (currentNode instanceof DefaultMutableTreeNode) {
@@ -334,15 +339,105 @@ public class ImdiTree extends JTree {
                 ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
                 removedTreeObject.removeContainer(this);
             }
+            // this remove all children should resolve the issue of loading nodes being left after node deletion and a tree resort
+            currentNode.removeAllChildren();
+            ((DefaultTreeModel) treeModel).nodeStructureChanged(currentNode);
             // set allows children must not be called before the nodes are deregistered from their imdi tree nodes
             currentNode.setAllowsChildren(childImdiObjectArray.length > 0);
         } else {
+            /*
+            // add any additional nodes to the end
             for (int childIndex = currentNode.getChildCount(); childIndex < childImdiObjectArray.length; childIndex++) {
-                DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childImdiObjectArray[childIndex]);
-                currentNode.add(addableNode);
-                ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
-                childImdiObjectArray[childIndex].registerContainer(this);
+            DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childImdiObjectArray[childIndex]);
+            currentNode.add(addableNode);
+            ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
+            childImdiObjectArray[childIndex].registerContainer(this);
             }
+            // remove any extraneous nodes from the end
+            for (int childIndex = currentNode.getChildCount() - 1; childIndex >= childImdiObjectArray.length; childIndex--) {
+            DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
+            ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
+            currentNode.remove(childIndex);
+            ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{childIndex}, new DefaultMutableTreeNode[]{removedNode});
+            removedTreeObject.removeContainer(this);
+            }
+            // swap the data for each out of order node (because the tree model and the tree are near impossible to keep in sync and maybe this method might work when all other methods have failed)
+            for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
+            if (!((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).getUserObject().equals(childImdiObjectArray[childIndex])) {
+            ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
+            childImdiObjectArray[childIndex].registerContainer(this);
+            }
+            ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
+            }
+            for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
+            sortDescendentNodes(childTreeNodeEnum.nextElement());
+            }
+             */
+//            int originalChildNodeCount = currentNode.getChildCount();
+            ArrayList<Integer> changedIndexes = new ArrayList<Integer>();
+            // loop the existing nodes and add swap or remove as required
+            for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
+//                System.out.println("currentNode: " + currentNode.getChildAt(childIndex));
+                boolean addNodeRequired = true;
+                if (currentNode.getChildCount() > childIndex) {
+                    Object currentUserObject = ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).getUserObject();
+                    System.out.println("comparing: " + childImdiObjectArray[childIndex] + "\nwith     : " + currentUserObject);
+                    if (!childImdiObjectArray[childIndex].equals(currentUserObject)) {
+                        // this is an out of order node so make corrections:
+                        // loop the remaining nodes in the branch trying to find the required node
+                        for (int branchChildIndex = childIndex; branchChildIndex < currentNode.getChildCount(); branchChildIndex++) {
+                            DefaultMutableTreeNode comparisonTreeNode = (DefaultMutableTreeNode) currentNode.getChildAt(branchChildIndex);
+                            if (childImdiObjectArray[childIndex].equals((comparisonTreeNode).getUserObject())) {
+                                System.out.println("inserting: " + currentNode.getChildAt(branchChildIndex));
+                                currentNode.remove(comparisonTreeNode);
+//                                ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{branchChildIndex}, new DefaultMutableTreeNode[]{comparisonTreeNode});                
+                                currentNode.insert(comparisonTreeNode, childIndex);
+                                // update the tree at the end of this branch
+//                                changedIndexes.add(childIndex);
+//                                changedIndexes.add(branchChildIndex);
+//                                ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
+//                                ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{branchChildIndex});
+//                                ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
+//                                ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{branchChildIndex}, new DefaultMutableTreeNode[]{comparisonTreeNode});
+//                                ((DefaultTreeModel) treeModel).nodeChanged(comparisonTreeNode);
+                                addNodeRequired = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        // here we are updating the node incase the icon or text has changed (while this is excessive we are using a swing tree so lets just make its simple lest it becomes a monster)
+//                        ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
+                        addNodeRequired = false;
+                    }
+                    changedIndexes.add(childIndex);
+//                    ((DefaultTreeModel) treeModel).nodeChanged((DefaultMutableTreeNode) currentNode.getChildAt(childIndex));
+                    ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
+                }
+                if (addNodeRequired) {
+                    // if this is still out of order or there are not the right number of nodes then add a new node
+                    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childImdiObjectArray[childIndex]);
+                    currentNode.add(addableNode);
+//                    changedIndexes.add(childIndex);
+                    ((DefaultTreeModel) treeModel).nodesWereInserted(currentNode, new int[]{childIndex});
+                    childImdiObjectArray[childIndex].registerContainer(this);
+                }
+            }
+//            ArrayList<Integer> changedIndexesFiltered = new ArrayList<Integer>();
+//            int modelNodeChildCount = ((DefaultTreeModel) treeModel).getChildCount(currentNode);
+//                for (Integer currentInteger : changedIndexes) {
+//                // make sure there are no nulls and no indexes greater than the branch node count
+//                    if (currentInteger != null && currentInteger < modelNodeChildCount) {
+//                        changedIndexesFiltered.add(currentInteger);
+//                    }
+//                }
+//                // update the changed indexes in the tree model
+//                int[] changedIndArray = new int[changedIndexesFiltered.size()];
+//                for (int updateCounter = 0; updateCounter < changedIndexesFiltered.size(); updateCounter++) {
+//                    changedIndArray[updateCounter] = changedIndexesFiltered.get(updateCounter);
+//                }                
+//                ((DefaultTreeModel) treeModel).nodesChanged(currentNode, changedIndArray);
+
+            // remove any extraneous nodes from the end
             for (int childIndex = currentNode.getChildCount() - 1; childIndex >= childImdiObjectArray.length; childIndex--) {
                 DefaultMutableTreeNode removedNode = (DefaultMutableTreeNode) currentNode.getChildAt(childIndex);
                 ImdiTreeObject removedTreeObject = (ImdiTreeObject) removedNode.getUserObject();
@@ -350,16 +445,13 @@ public class ImdiTree extends JTree {
                 ((DefaultTreeModel) treeModel).nodesWereRemoved(currentNode, new int[]{childIndex}, new DefaultMutableTreeNode[]{removedNode});
                 removedTreeObject.removeContainer(this);
             }
-            for (int childIndex = 0; childIndex < childImdiObjectArray.length; childIndex++) {
-                if (!((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).getUserObject().equals(childImdiObjectArray[childIndex])) {
-                    ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
-                    childImdiObjectArray[childIndex].registerContainer(this);
-                }
-                ((DefaultTreeModel) treeModel).nodesChanged(currentNode, new int[]{childIndex});
-            }
+
+//            ((DefaultTreeModel) treeModel).nodeStructureChanged(currentNode);
+
             for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
                 sortDescendentNodes(childTreeNodeEnum.nextElement());
             }
+            // todo: keep the selected nodes and the open branches durring the search (a slowly loading tree ends up with the wrong branches open)
             // set allows children must! be done ofter any nodes are removed, otherwise the child count will return zero and the model will not get updated! (yay, swing sucks)
 //            currentNode.setAllowsChildren(allowsChildren);
         }
@@ -380,9 +472,11 @@ public class ImdiTree extends JTree {
                     public void run() {
                         try {
                             while (sortRequested) {
-                                sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
+                                sleep(10); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
                                 sortRequested = false;
+//                                TreePath[] selectedPaths = ImdiTree.this.getSelectionPaths();
                                 sortDescendentNodes((DefaultMutableTreeNode) ImdiTree.this.getModel().getRoot());
+//                                ImdiTree.this.setSelectionPaths(selectedPaths);
                             }
                         } catch (Exception exception) {
                             GuiHelper.linorgBugCatcher.logError(exception);
