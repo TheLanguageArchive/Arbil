@@ -7,7 +7,9 @@ import java.util.Hashtable;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JToolTip;
+import javax.swing.ToolTipManager;
 
 /**
  * Document   : JListToolTip
@@ -28,6 +30,7 @@ class JListToolTip extends JToolTip {
         add(jPanel, BorderLayout.CENTER);
         jPanel.setBackground(getBackground());
         jPanel.setBorder(getBorder());
+        ToolTipManager.sharedInstance().setDismissDelay(100000);
     }
 
     private String truncateString(String inputString) {
@@ -41,14 +44,19 @@ class JListToolTip extends JToolTip {
         JLabel jLabel = new JLabel(truncateString(tempObject.toString()));
         if (tempObject instanceof ImdiTreeObject) {
             jLabel.setIcon(((ImdiTreeObject) tempObject).getIcon());
-        }
+        }        
         jLabel.doLayout();
 //     TODO: fix the tool tip text box bounding size //   jPanel.invalidate();
-        jPanel.add(jLabel);
+        JPanel labelPanel = new JPanel(new BorderLayout());
+        labelPanel.setBackground(getBackground());
+        labelPanel.add(jLabel, BorderLayout.CENTER);
+        jPanel.add(labelPanel);
     }
 
     private void addDetailLabel(String labelString) {
-        JLabel jLabel = new JLabel(truncateString(labelString));
+        JTextArea jLabel = new JTextArea(labelString); //truncateString();
+        jLabel.setEditable(false);
+        jLabel.setBackground(getBackground());
         jLabel.doLayout();
         jPanel.add(jLabel);
     }
