@@ -503,7 +503,7 @@ public class CmdiTemplate extends ArbilTemplate {
             ImdiVocabularies.Vocabulary vocabulary = ImdiVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
             for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
-                System.out.println("Value List: " + anySimpleType.getStringValue());
+//                System.out.println("Value List: " + anySimpleType.getStringValue());
                 vocabulary.addEntry(anySimpleType.getStringValue(), null);
                 // todo: get the ann:label
 //
