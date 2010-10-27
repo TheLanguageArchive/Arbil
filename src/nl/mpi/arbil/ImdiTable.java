@@ -342,7 +342,8 @@ public class ImdiTable extends JTable {
             int requiredHeight = fontMetrics.getHeight();
             return requiredHeight;
         } catch (Exception exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+//            GuiHelper.linorgBugCatcher.logError(exception);
+            System.out.println("getRowHeight could not get the font metrics, using the default row height" );
         }
         return super.getRowHeight();
     }
