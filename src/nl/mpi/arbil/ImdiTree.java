@@ -341,7 +341,7 @@ public class ImdiTree extends JTree {
             }
             // this remove all children should resolve the issue of loading nodes being left after node deletion and a tree resort
             currentNode.removeAllChildren();
-            ((DefaultTreeModel) treeModel).nodeStructureChanged(currentNode);
+//            ((DefaultTreeModel) treeModel).nodeStructureChanged(currentNode);
             // set allows children must not be called before the nodes are deregistered from their imdi tree nodes
             currentNode.setAllowsChildren(childImdiObjectArray.length > 0);
         } else {
@@ -381,7 +381,7 @@ public class ImdiTree extends JTree {
 //                    this.collapseRow(this.getRowForPath(new TreePath((currentNode).getPath())));
                     ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).setUserObject(childImdiObjectArray[childIndex]);
                     childImdiObjectArray[childIndex].registerContainer(this);
-                    ((DefaultTreeModel) treeModel).nodeStructureChanged(currentNode.getChildAt(childIndex));
+//                    ((DefaultTreeModel) treeModel).nodeStructureChanged(currentNode.getChildAt(childIndex));
 //            ((DefaultMutableTreeNode) currentNode.getChildAt(childIndex)).isPresortIsExpanded
 //                    if (isPresortIsExpanded) {
 //                    this.setExpandedState(new TreePath((currentNode).getPath()), isPresortIsExpanded);
@@ -505,7 +505,7 @@ public class ImdiTree extends JTree {
                     public void run() {
                         try {
                             while (sortRequested) {
-                                sleep(10); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
+                                sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
                                 sortRequested = false;
 //                                TreePath[] selectedPaths = ImdiTree.this.getSelectionPaths();
 //                                TreePath[] expandedPaths = ImdiTree.this.getExpandedDescendants(null);
