@@ -573,6 +573,7 @@ public class MetadataReader {
                                     Node templateTypeAtt = attributesMap.getNamedItem("Type");
                                     if (templateTypeAtt != null) {
                                         String templateType = templateTypeAtt.getNodeValue();
+                                        // most of the time this will return the default template, but if the named template exixts it will be used
                                         parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
                                     }
                                 }
