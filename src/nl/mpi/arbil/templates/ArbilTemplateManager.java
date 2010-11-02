@@ -63,12 +63,12 @@ public class ArbilTemplateManager {
 //        }
         return currentTemplateFile;
     }
-	
+
     public File getDefaultComponentOfTemplate(String currentTemplate) {
-        File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "components"  + File.separatorChar + "default.xml");
+        File currentTemplateFile = new File(getTemplateDirectory().getAbsolutePath() + File.separatorChar + currentTemplate + File.separatorChar + "components" + File.separatorChar + "default.xml");
         return currentTemplateFile;
     }
-	
+
 //    public boolean defaultTemplateIsCurrentTemplate() {
 //        return defaultArbilTemplateName.equals(builtInTemplates2[0]);
 //    }
@@ -317,16 +317,18 @@ public class ArbilTemplateManager {
 
     public ArbilTemplate getTemplate(String templateName) {
         ArbilTemplate returnTemplate = new ArbilTemplate();
-        if (templateName == null) {
-            templateName = builtInTemplates2[0]; // if the template does not exist the default values will be loaded
+        if (templateName == null || templateName.length() < 1) {
+            return getDefaultTemplate(); // if the template string is not provided the default template is used
         }
         if (!templatesHashTable.containsKey(templateName)) {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Template Not Found: " + templateName, "Arbil Template Manager");
-            returnTemplate.readTemplate(getTemplateFile(templateName), templateName);
-            templatesHashTable.put(templateName, returnTemplate);
-        } else {
-            returnTemplate = templatesHashTable.get(templateName);
+            if (returnTemplate.readTemplate(getTemplateFile(templateName), templateName)) {
+                templatesHashTable.put(templateName, returnTemplate);
+                return returnTemplate;
+            } else {
+                return getDefaultTemplate();
+            }
         }
-        return returnTemplate;
+        return getDefaultTemplate();
     }
 }
