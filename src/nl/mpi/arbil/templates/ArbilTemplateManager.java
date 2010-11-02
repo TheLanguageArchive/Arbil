@@ -328,7 +328,8 @@ public class ArbilTemplateManager {
             } else {
                 return getDefaultTemplate();
             }
+        } else {
+            return templatesHashTable.get(templateName);
         }
-        return getDefaultTemplate();
     }
 }
