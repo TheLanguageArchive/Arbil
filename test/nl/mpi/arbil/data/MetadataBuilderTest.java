@@ -40,13 +40,18 @@ public class MetadataBuilderTest {
     public void tearDown() {
     }
 
+    private void checkAgainstSchema(ImdiTreeObject testImdiObject) {
+        XsdChecker xsdChecker = new XsdChecker();
+        String checkerResult;
+        checkerResult = xsdChecker.simpleCheck(testImdiObject.getFile(), testImdiObject.getURI());
+        assertNull("schema error: " + checkerResult, checkerResult);
+    }
+
     @Test
     public void testAddChildNode() {
         MetadataBuilder metadataBuilder = new MetadataBuilder();
         CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
-        for (String currentTestTemplate : new String[]{"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd"}) {
-
-
+        for (String currentTestTemplate : new String[]{"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd", ".METATRANSCRIPT.Session : this is currently handled by metadatareader and should be consolidated"}) {
             URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
             //            try {
             //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
@@ -59,6 +64,7 @@ public class MetadataBuilderTest {
             //            }
             ImdiTreeObject gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
             gedcomImdiObject.waitTillLoaded();
+            checkAgainstSchema(gedcomImdiObject);
             ArrayList<String> allTemplates = gedcomImdiObject.nodeTemplate.listAllTemplates();
             ArrayList<ImdiTreeObject> currentLevel = new ArrayList<ImdiTreeObject>();
             currentLevel.add(gedcomImdiObject);
@@ -77,8 +83,7 @@ public class MetadataBuilderTest {
                         } catch (ArbilMetadataException exception) {
                             fail(exception.getMessage());
                         }
-
-
+                        checkAgainstSchema(gedcomImdiObject);
                         //        System.out.println("getNodeTypeFromMimeType");
                         //        String[][] testCases = {
                         //            {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
@@ -94,10 +99,6 @@ public class MetadataBuilderTest {
                 gedcomImdiObject.waitTillLoaded();
                 gedcomImdiObject.reloadNode();
                 gedcomImdiObject.waitTillLoaded();
-                XsdChecker xsdChecker = new XsdChecker();
-                String checkerResult;
-                checkerResult = xsdChecker.simpleCheck(gedcomImdiObject.getFile(), gedcomImdiObject.getURI());
-                assertNull("schema error: " + checkerResult, checkerResult);
                 ArrayList<ImdiTreeObject> nextLevel = new ArrayList<ImdiTreeObject>();
                 for (ImdiTreeObject currentLevelNode : currentLevel) {
                     for (ImdiTreeObject nextLevelNode : currentLevelNode.getChildArray()) {
