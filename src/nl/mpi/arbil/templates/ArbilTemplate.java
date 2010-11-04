@@ -363,6 +363,14 @@ public class ArbilTemplate {
         return childTypes.elements();
     }
 
+    public ArrayList<String> listAllTemplates() {
+        ArrayList<String> returnArrayList = new ArrayList<String>();
+        for (String[] currentTemplate : templatesArray) {
+            returnArrayList.add(currentTemplate[1]);
+        }
+        return returnArrayList;
+    }
+
     public String getHelpStringForField(String fieldName) {
         fieldName = fieldName.replaceAll("\\([0-9]+\\)\\.", ".");
         for (String[] currentUsageArray : fieldUsageArray) {
