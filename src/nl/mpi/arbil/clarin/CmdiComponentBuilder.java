@@ -329,6 +329,9 @@ public class CmdiComponentBuilder {
         }
         if (maxOccurs > 0) {
             String addableName = addableNode.getLocalName();
+            if (addableName == null) {
+                addableName = addableNode.getNodeName();
+            }
             NodeList childNodes = destinationNode.getChildNodes();
             int duplicateNodeCounter = 0;
             for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
@@ -470,8 +473,8 @@ public class CmdiComponentBuilder {
 //                printoutDocument(targetDocument);
                     Node AddedNode = insertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
                     nodeFragment = convertNodeToNodePath(targetDocument, AddedNode, targetXmlPath);
-                } catch (Exception exception) {
-                    GuiHelper.linorgBugCatcher.logError(exception);
+                } catch (ArbilMetadataException exception) {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                     return null;
                 }
                 // bump the history
@@ -573,18 +576,19 @@ public class CmdiComponentBuilder {
         return null;
     }
 
-    private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws Exception {
+    private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
         System.out.println("insertSectionToXpath");
         System.out.println("xsdPath: " + xsdPath);
         System.out.println("targetXpath: " + targetXpath);
         SchemaProperty foundProperty = null;
+        String insertBefore = "";
         String strippedXpath = null;
         if (targetXpath == null) {
             documentNode = documentNode.getParentNode();
         } else {
             try {
+                // test profile book is a good sample to test for errors; if you add Authors description from the root of the node it will cause a schema error but if you add from the author it is valid
                 documentNode = selectSingleNode(targetDocument, targetXpath);
-                // todo: make sure the node is insterted before then next addable type, eg actors, description
             } catch (TransformerException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -601,13 +605,24 @@ public class CmdiComponentBuilder {
                 foundProperty = null;
                 for (SchemaProperty schemaProperty : schemaType.getProperties()) {
                     String currentName = schemaProperty.getName().getLocalPart();
-                    if (currentPathComponent.equals(currentName)) {
-                        foundProperty = schemaProperty;
-                        break;
+                    //System.out.println("currentName: " + currentName);
+                    if (foundProperty == null) {
+                        if (currentPathComponent.equals(currentName)) {
+                            foundProperty = schemaProperty;
+                        }
+                    } else {
+                        if (!schemaProperty.isAttribute()) {
+                            if (insertBefore.length() < 1) {
+                                insertBefore = currentName;
+                            } else {
+                                insertBefore = insertBefore + "," + currentName;
+                            }
+                            //System.out.println("insertBefore: " + insertBefore);
+                        }
                     }
                 }
                 if (foundProperty == null) {
-                    throw new Exception("failed to find the path in the schema: " + currentPathComponent);
+                    throw new ArbilMetadataException("failed to find the path in the schema: " + currentPathComponent);
                 } else {
                     schemaType = foundProperty.getType();
                     System.out.println("foundProperty: " + foundProperty.getName().getLocalPart());
@@ -646,7 +661,25 @@ public class CmdiComponentBuilder {
 //        currentElement.setTextContent(xsdPath);
 //        documentNode.appendChild(currentElement);
         System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
-        return constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
+        Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
+
+        System.out.println("insertBefore: " + insertBefore);
+        int maxOccurs;
+        if (foundProperty.getMaxOccurs() != null) {
+            maxOccurs = foundProperty.getMaxOccurs().intValue();
+        } else {
+            maxOccurs = -1;
+        }
+        System.out.println("maxOccurs: " + maxOccurs);
+        if (insertBefore.length() > 0) {
+            try {
+                documentNode.removeChild(addedNode);
+                insertNodeInOrder(documentNode, addedNode, insertBefore, maxOccurs);
+            } catch (TransformerException exception) {
+                throw new ArbilMetadataException(exception.getMessage());
+            }
+        }
+        return addedNode;
     }
 
     public String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
