@@ -123,7 +123,7 @@ public class GuiHelper {
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
         if (userObject instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) (userObject)).getNeedsSaveToDisk()) {
+            if (((ImdiTreeObject) (userObject)).getNeedsSaveToDisk(false)) {
                 if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                     ((ImdiTreeObject) (userObject)).saveChangesToCache(true);
                 } else {
