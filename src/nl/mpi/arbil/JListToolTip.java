@@ -120,7 +120,7 @@ class JListToolTip extends JToolTip {
         if (tempObject.hasHistory()) {
             addTabbedLabel("History of changes are available");
         }
-        if (tempObject.getNeedsSaveToDisk()) {
+        if (tempObject.getNeedsSaveToDisk(true)) {
             addTabbedLabel("Unsaved changes");
         }
         if (tempObject.isFavorite()) {
