@@ -2,6 +2,7 @@ package nl.mpi.arbil.MetadataFile;
 
 import java.io.File;
 import java.net.URI;
+import nl.mpi.arbil.clarin.ArbilMetadataException;
 
 /**
  *  Document   : MetadataUtils
@@ -16,7 +17,7 @@ public interface MetadataUtils {
 
     public boolean moveMetadataFile(URI sourceURI, File destinationFile, boolean updateLinks);
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks);
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException;
 
     public URI[] getCorpusLinks(URI nodeURI);
 }
