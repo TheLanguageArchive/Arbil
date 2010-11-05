@@ -53,7 +53,7 @@ public class LinorgFavourites {
         if (setAsTempate) {
             boolean selectionNeedsSave = false;
             for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
-                if (currentImdiObject.getNeedsSaveToDisk()) {
+                if (currentImdiObject.getNeedsSaveToDisk(false)) {
                     selectionNeedsSave = true;
                 }
             }
