@@ -1470,7 +1470,7 @@ public class ContextMenu {
             }
         }
         if (leadSelectedTreeNode != null) {
-            saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk());// save sould always be available if the node has been edited
+            saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
             if (leadSelectedTreeNode.isFavorite()) {
                 addToFavouritesMenuItem.setVisible(true);
                 addToFavouritesMenuItem.setEnabled(true);
