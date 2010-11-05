@@ -192,7 +192,7 @@ public class CmdiComponentBuilder {
     }
 
     public boolean removeChildNodes(ImdiTreeObject imdiTreeObject, String nodePaths[]) {
-        if (imdiTreeObject.getNeedsSaveToDisk()) {
+        if (imdiTreeObject.getNeedsSaveToDisk(false)) {
             imdiTreeObject.saveChangesToCache(true);
         }
         synchronized (imdiTreeObject.getParentDomLockObject()) {
@@ -365,7 +365,7 @@ public class CmdiComponentBuilder {
         System.out.println("insertBefore: " + insertBefore);
         int maxOccurs = destinationImdiTreeObject.nodeTemplate.getMaxOccursForTemplate(elementName);
         System.out.println("maxOccurs: " + maxOccurs);
-        if (destinationImdiTreeObject.getNeedsSaveToDisk()) {
+        if (destinationImdiTreeObject.getNeedsSaveToDisk(false)) {
             destinationImdiTreeObject.saveChangesToCache(true);
         }
         try {
@@ -435,7 +435,7 @@ public class CmdiComponentBuilder {
     }
 
     public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
-        if (imdiTreeObject.getNeedsSaveToDisk()) {
+        if (imdiTreeObject.getNeedsSaveToDisk(false)) {
             imdiTreeObject.saveChangesToCache(true);
         }
         synchronized (imdiTreeObject.getParentDomLockObject()) {
