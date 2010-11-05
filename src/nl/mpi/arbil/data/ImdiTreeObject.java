@@ -258,12 +258,16 @@ public class ImdiTreeObject implements Comparable {
     }
     // end static methods for testing imdi file and object types
 
-    public boolean getNeedsSaveToDisk() {
+    public boolean getNeedsSaveToDisk(boolean onlyOfSubNode) {
         // when the dom parent node is saved all the sub nodes are also saved so we need to clear this flag
         if (needsSaveToDisk && !this.getParentDomNode().needsSaveToDisk) {
             needsSaveToDisk = false;
         }
-        return needsSaveToDisk;
+        if (onlyOfSubNode) {
+            return needsSaveToDisk;
+        } else {
+            return this.getParentDomNode().needsSaveToDisk;
+        }
     }
 
     public boolean hasChangedFields() {
