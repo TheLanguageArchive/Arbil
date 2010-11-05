@@ -25,7 +25,7 @@ public class ImdiTreeRenderer implements TreeCellRenderer {
             if (/*!sel && */imdiTreeObject.hasSchemaError) {
                 returnComponent.setForeground(Color.RED);
             }
-            if (/*!sel && */imdiTreeObject.getNeedsSaveToDisk()) {
+            if (/*!sel && */imdiTreeObject.getNeedsSaveToDisk(true)) {
                 returnComponent.setForeground(Color.BLUE);
             }
 //            setToolTipText(imdiTreeObject.toString());
