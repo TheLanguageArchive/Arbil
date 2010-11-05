@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -36,6 +37,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.MetadataFile.MetadataUtils;
+import nl.mpi.arbil.clarin.ArbilMetadataException;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
@@ -818,7 +820,7 @@ public class ImportExportDialog {
 //                                        boolean removeIdAttributes = exportDestinationDirectory != null;
 
                                             ImdiTreeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentRetrievableFile.destinationFile.toURI());
-                                            if (destinationNode.getNeedsSaveToDisk()) {
+                                            if (destinationNode.getNeedsSaveToDisk(false)) {
                                                 destinationNode.saveChangesToCache(true);
                                             }
                                             if (destinationNode.hasHistory()) {
@@ -861,11 +863,17 @@ public class ImportExportDialog {
 //                                        appendToTaskOutput("done");
                                         }
                                     }
-                                } catch (Exception ex) {
+                                } catch (ArbilMetadataException ex) {
                                     GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
                                     totalErrors++;
                                     metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-                                    appendToTaskOutput("unable to process the file: " + currentRetrievableFile.sourceURI);
+                                    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
+//                                    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
+                                } catch (MalformedURLException ex) {
+                                    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+                                    totalErrors++;
+                                    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+                                    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
                                     System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
                                 }
                                 totalLoaded++;
