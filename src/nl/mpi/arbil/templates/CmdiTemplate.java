@@ -1,9 +1,7 @@
 package nl.mpi.arbil.templates;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -74,7 +72,7 @@ public class CmdiTemplate extends ArbilTemplate {
             // create a temp file of the read template data so that it can be compared to a hand made version
             File debugTempFile = File.createTempFile("templatetext", ".tmp");
             debugTempFile.deleteOnExit();
-            BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
+//            BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
 
             ArrayListGroup arrayListGroup = new ArrayListGroup();
             URI xsdUri = new URI(nameSpaceString);
@@ -108,30 +106,30 @@ public class CmdiTemplate extends ArbilTemplate {
 //            }
             for (String[] currentArray : templatesArray) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-                debugTemplateFileWriter.write("<TemplateComponent FileName=\"" + currentArray[0] + "\" DisplayName=\"" + currentArray[1] + "\" />\r\n");
+//                debugTemplateFileWriter.write("<TemplateComponent FileName=\"" + currentArray[0] + "\" DisplayName=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String[] currentArray : childNodePaths) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-                debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
+//                debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String[] currentArray : resourceNodePaths) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-                debugTemplateFileWriter.write("<ResourceNodePath RefPath=\"" + currentArray[0] + "\" RefNodeName=\"" + currentArray[1] + "\" />\r\n");
+//                debugTemplateFileWriter.write("<ResourceNodePath RefPath=\"" + currentArray[0] + "\" RefNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String[] currentArray : fieldConstraints) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-                debugTemplateFileWriter.write("<FieldConstraint FieldPath=\"" + currentArray[0] + "\" Constraint=\"" + currentArray[1] + "\" />\r\n");
+//                debugTemplateFileWriter.write("<FieldConstraint FieldPath=\"" + currentArray[0] + "\" Constraint=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String currentArray : preferredNameFields) {
                 System.out.println("loadTemplate: " + currentArray);
                 // node that this is not a FieldsShortName but a full field path but the code now supports both while the xml file implies only short
-                debugTemplateFileWriter.write("<TreeNodeNameField FieldsShortName==\"" + currentArray + "\" />\r\n");
+//                debugTemplateFileWriter.write("<TreeNodeNameField FieldsShortName==\"" + currentArray + "\" />\r\n");
             }
             for (String[] currentArray : fieldUsageArray) {
                 System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-                debugTemplateFileWriter.write("<FieldUsage FieldPath=\"" + currentArray[0] + "\" FieldDescription=\"" + currentArray[1] + "\" />\r\n");
+//                debugTemplateFileWriter.write("<FieldUsage FieldPath=\"" + currentArray[0] + "\" FieldDescription=\"" + currentArray[1] + "\" />\r\n");
             }
-            debugTemplateFileWriter.close();
+//            debugTemplateFileWriter.close();
             // lanunch the hand made template and the generated template for viewing
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nameSpaceString, debugTempFile.toURL());
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
@@ -341,15 +339,19 @@ public class CmdiTemplate extends ArbilTemplate {
 //            }
 //                  currentNodeMenuName = localName;
 //            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
+                int maxOccurs;
                 boolean canHaveMultiple = true;
                 if (schemaProperty.getMaxOccurs() == null) {
                     // absence of the max occurs also means multiple
+                     maxOccurs = -1;
                     canHaveMultiple = true;
                     // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
                 } else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
+                     maxOccurs = -1;
                     canHaveMultiple = true;
                 } else {
-                    // todo: take into account max occurs in the add menu
+                    // store the max occurs for use in the add menu etc
+                    maxOccurs = schemaProperty.getMaxOccurs().intValue();
                     canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
                 }
                 if (!canHaveMultiple) {
@@ -400,7 +402,9 @@ public class CmdiTemplate extends ArbilTemplate {
 //                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
 //                }
                 if (canHaveMultiple) {
-                    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName});
+                    todo: calculate the insertBefore string
+                    String insertBefore = "";
+                    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(maxOccurs)});
                 }
                 boolean hasResourceAttribute = false;
                 for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
