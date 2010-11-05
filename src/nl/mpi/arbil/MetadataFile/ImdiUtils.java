@@ -12,6 +12,7 @@ import mpi.imdi.api.WSNodeType;
 import mpi.util.OurURL;
 import nl.mpi.arbil.GuiHelper;
 import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.clarin.ArbilMetadataException;
 import org.w3c.dom.Document;
 
 /**
@@ -68,7 +69,7 @@ public class ImdiUtils implements MetadataUtils {
 //        }
 //        return true;
 //    }
-
+    
     public boolean addCorpusLink(URI nodeURI, URI linkURI[]) {
         try {
             Document nodDom;
@@ -98,7 +99,7 @@ public class ImdiUtils implements MetadataUtils {
         return true;
     }
 
-    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
+    public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException {
         try {
             mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
             mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURI().toURL());
@@ -136,7 +137,11 @@ public class ImdiUtils implements MetadataUtils {
                             api.removeIMDILink(nodDom, currentLink);
                             IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
                             // preserve the archive handle so that LAMUS knows where it came from
-                            replacementLink.setURID(archiveHandle);
+                            if (replacementLink != null) {
+                                replacementLink.setURID(archiveHandle);
+                            } else {
+                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
+                            }
                             api.changeIMDILink(nodDom, destinationUrl, replacementLink);
                         }
                     }
