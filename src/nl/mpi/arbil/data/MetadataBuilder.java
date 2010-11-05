@@ -32,7 +32,7 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeTypeDisplayNameLocal, final ImdiTreeObject addableNode) {
-        if (destinationNode.getNeedsSaveToDisk()) {
+        if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
         new Thread("requestAddNode") {
@@ -132,7 +132,7 @@ public class MetadataBuilder {
     }
 
     public void requestAddNode(final ImdiTreeObject destinationNode, final String nodeType, final String nodeTypeDisplayName) {
-        if (destinationNode.getNeedsSaveToDisk()) {
+        if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
         new Thread("requestAddNode") {
@@ -240,13 +240,13 @@ public class MetadataBuilder {
     public URI addChildNode(ImdiTreeObject destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
         System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
         System.out.println("targetXmlPath:: " + targetXmlPath);
-        if (destinationNode.getNeedsSaveToDisk()) {
+        if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
         URI addedNodePath = null;
         destinationNode.updateLoadingState(1);
         synchronized (destinationNode.getParentDomLockObject()) {
-            if (destinationNode.getNeedsSaveToDisk()) {
+            if (destinationNode.getNeedsSaveToDisk(false)) {
                 destinationNode.saveChangesToCache(false);
             }
             if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
