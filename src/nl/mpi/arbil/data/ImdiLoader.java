@@ -42,6 +42,13 @@ public class ImdiLoader {
     }
 
     synchronized public void startLoaderThreads() {
+//        Thread[] allRemoteThreads = new Thread[]{};
+//        remoteLoaderThreadGroup.enumerate(allRemoteThreads);
+//        for (Thread currenThread : allRemoteThreads) {
+//            System.out.println(currenThread.getState());
+////            System.out.println(currenThread.interrupted());
+//            System.out.println(currenThread.isAlive());
+//        }
         // start the remote imdi loader threads
         while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) {
             String threadName = "ImdiLoader-remote-" + threadStartCounter++;
@@ -97,7 +104,7 @@ public class ImdiLoader {
                         ImdiTreeObject currentImdiObject = getNodeFromQueue(imdiLocalNodesToInit);
                         while (currentImdiObject != null) {
                             System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
-                            if (currentImdiObject.getNeedsSaveToDisk()) {
+                            if (currentImdiObject.getNeedsSaveToDisk(false)) {
                                 currentImdiObject.saveChangesToCache(false);
                             }
                             currentImdiObject.loadImdiDom();
