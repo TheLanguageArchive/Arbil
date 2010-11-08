@@ -1,6 +1,5 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.TreeHelper;
 import java.util.Hashtable;
 import nl.mpi.arbil.ImdiField;
 import nl.mpi.arbil.XsdChecker;
@@ -70,13 +69,21 @@ public class MetadataBuilderTest {
             {"SocialContext", "Family", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).SocialContext"},
             {"EventStructure", "Not a natural format", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).EventStructure"},
             {"Channel", "wizard-of-oz", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).Channel"},
-            {"Age","197",".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Age"},
+            {"Age", "197", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Age"},
             {"BirthYear", "1821", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).BirthYear"},
-            {"Sex", "Male",".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Sex"},
+            {"Sex", "Male", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Sex"},
             {"Anonymized", "true", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Anonymized"},
-            {"CreationYear","1364",".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).CreationYear"},
-            {"Derivation","Translation",".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Derivation"},
-            {"AnnotationStyle","stand-off",".CMD.Components.TextProfile(1).TEXT.WrittenResources(1).WrittenResource(1).AnnotationStyle"}
+            {"CreationYear", "1364", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).CreationYear"},
+            {"Derivation", "Translation", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Derivation"},
+            {"AnnotationStyle", "stand-off", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).AnnotationStyle"},
+            {"AnnotationStyle", "mixed", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).AnnotationStyle"},
+            {"Anonymized", "true", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Anonymized"},
+            {"AnnotationFormat", "text/x-shoebox-lexicon", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).AnnotationFormat(x).AnnotationFormat"},
+            {"Number", "546", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).TotalSize(x).Number"},
+            {"ISO639.iso-639-3-code", "amc", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Language(x).ISO639.iso-639-3-code"},
+            {"Dominant", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).Dominant"},
+            {"SourceLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).SourceLanguage"},
+            {"TargetLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).TargetLanguage"}
         };
         // loop over the templates and profiles that are to be tested
         for (String currentTestTemplate : new String[]{MetadataBuilderTest.class.getResource("/nl/mpi/arbil/data/clarin.eu_cr1_p_1271859438162.xsd").toExternalForm(), "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd", ".METATRANSCRIPT.Session : this is currently handled by metadatareader and should be consolidated"}) {
