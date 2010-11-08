@@ -609,6 +609,7 @@ public class CmdiComponentBuilder {
                     if (foundProperty == null) {
                         if (currentPathComponent.equals(currentName)) {
                             foundProperty = schemaProperty;
+                            insertBefore = "";
                         }
                     } else {
                         if (!schemaProperty.isAttribute()) {
@@ -617,7 +618,7 @@ public class CmdiComponentBuilder {
                             } else {
                                 insertBefore = insertBefore + "," + currentName;
                             }
-                            //System.out.println("insertBefore: " + insertBefore);
+                            System.out.println("insertBefore: " + insertBefore);
                         }
                     }
                 }
@@ -671,7 +672,7 @@ public class CmdiComponentBuilder {
             maxOccurs = -1;
         }
         System.out.println("maxOccurs: " + maxOccurs);
-        if (insertBefore.length() > 0) {
+        if (insertBefore.length() > 0 || maxOccurs != -1) {
             try {
                 documentNode.removeChild(addedNode);
                 insertNodeInOrder(documentNode, addedNode, insertBefore, maxOccurs);
