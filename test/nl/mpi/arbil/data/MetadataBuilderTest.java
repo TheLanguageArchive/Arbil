@@ -75,6 +75,7 @@ public class MetadataBuilderTest {
             {"Anonymized", "true", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Anonymized"},
             {"CreationYear", "1364", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).CreationYear"},
             {"Derivation", "Translation", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Derivation"},
+            {"DerivationMode", "Automatic/Manual", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).DerivationMode"},
             {"AnnotationStyle", "stand-off", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).AnnotationStyle"},
             {"AnnotationStyle", "mixed", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).AnnotationStyle"},
             {"Anonymized", "true", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Anonymized"},
@@ -186,10 +187,16 @@ public class MetadataBuilderTest {
                 currentLevel.clear();
                 currentLevel = nextLevel;
             }
+            boolean allTemplatesUsed = true;
             for (String remainingTemplate : allTemplates) {
-                System.out.println("unused template: " + remainingTemplate);
+                if (remainingTemplate.startsWith(".CMD.Header") || remainingTemplate.startsWith(".CMD.Resources")) {
+                    System.out.println("ignoring template: " + remainingTemplate);
+                } else {
+                    allTemplatesUsed = false;
+                    System.out.println("unused template: " + remainingTemplate);
+                }
             }
-            assertTrue("Not all templates have been used", allTemplates.isEmpty());
+            assertTrue("Not all templates have been used", allTemplatesUsed);
             String expResult = "";//currentTest[1];
             String result = "";//instance.getNodeTypeFromMimeType(mimeType);
             assertEquals(expResult, result);
