@@ -55,7 +55,18 @@ public class MetadataBuilderTest {
         MetadataBuilder metadataBuilder = new MetadataBuilder();
         CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
 
-        String[][] autoFields = new String[][]{{"Language.ISO639.iso-639-3-code", "zts"}, {"Language.ISO639.iso-639-3-code", "ymt"}, {"AnnotationType", "Phonetics"}};
+        String[][] autoFields = new String[][]{
+            {"Language.ISO639.iso-639-3-code", "zts", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).Language.ISO639.iso-639-3-code"},
+            {"Language.ISO639.iso-639-3-code", "ymt", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).Language.ISO639.iso-639-3-code"},
+            {"AnnotationType", "Phonetics", ".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).AnnotationType(x).AnnotationType"},
+            {"Modality", "Facial-expressions", ".CMD.Components.TextProfile(x).TEXT.Content(x).Modality(x).Modality"},
+            {"Code", "PK", ".CMD.Components.TextProfile(x).TEXT.OriginLocation(x).Location.Country(x).Code"},
+            {"Code", "EU", ".CMD.Components.TextProfile(x).TEXT.OriginLocation(x).Location.Continent(x).Code"},
+            {"Genre", "Discourse", ".CMD.Components.TextProfile(x).TEXT.Content(x).Genre"},
+            {"SubGenre", "Interview", ".CMD.Components.TextProfile(x).TEXT.Content(x).SubGenre"},
+            {"Involvement", "non-elicited", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).Involvement"},
+            {"PlanningType", "spontaneous", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).PlanningType"}
+        };
         // loop over the templates and profiles that are to be tested
         for (String currentTestTemplate : new String[]{"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd", ".METATRANSCRIPT.Session : this is currently handled by metadatareader and should be consolidated"}) {
             URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
@@ -88,7 +99,7 @@ public class MetadataBuilderTest {
                         System.out.println(currentComponent[0] + " : " + currentComponent[1]);// + " : "+ currentField[2]);
                         try {
                             URI linkUri = metadataBuilder.addChildNode(currentLevelNode, currentComponent[1], null, null, null);
-                            ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, linkUri);
+                            //ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, linkUri);
                             // keep track of which addables have been used
                             allTemplates.remove(currentComponent[1]);
                         } catch (ArbilMetadataException exception) {
@@ -108,6 +119,7 @@ public class MetadataBuilderTest {
                 }
 //                gedcomImdiObject.waitTillLoaded();
                 gedcomImdiObject.loadImdiDom();
+                gedcomImdiObject.waitTillLoaded();
                 //gedcomImdiObject.reloadNode();
                 //gedcomImdiObject.waitTillLoaded();
                 //                gedcomImdiObject.saveChangesToCache(false);
@@ -116,7 +128,7 @@ public class MetadataBuilderTest {
                 // loop over all the children and make sure any required values are set
                 //gedcomImdiObject.loadImdiDom();
                 //                          gedcomImdiObject.waitTillLoaded();
-                for (ImdiTreeObject childNode : gedcomImdiObject.getAllChildren()){
+                for (ImdiTreeObject childNode : gedcomImdiObject.getAllChildren()) {
                     if (childNode != null) {
                         Hashtable<String, ImdiField[]> currentFields = childNode.getFields();
                         if (currentFields != null) {
@@ -130,7 +142,11 @@ public class MetadataBuilderTest {
                                 //                                }
                                 ImdiField[] currentField = currentFields.get(currentFieldData[0]);
                                 if (currentField != null && currentField.length > 0) {
-                                    currentField[0].setFieldValue(currentFieldData[1], false, true);
+                                    System.out.println("getGenericFullXmlPath: " + currentField[0].getGenericFullXmlPath());
+                                    System.out.println("currentFieldData[2]: " + currentFieldData[2]);
+                                    if (currentField[0].getGenericFullXmlPath().equals(currentFieldData[2])) {
+                                        currentField[0].setFieldValue(currentFieldData[1], false, true);
+                                    }
                                 }
                             }
                         }
