@@ -236,7 +236,7 @@ public class CmdiTemplate extends ArbilTemplate {
             String[][] childTypesArray = childTypes.toArray(new String[][]{});
             childTypes.removeAllElements();
             for (String[] currentChildType : childTypesArray) {
-                // filter out sub nodes that cannot be added at the current level becuase they require an intermediate node to be added, ie "actors language" requires an "actor"
+                // filter out sub nodes that cannot be added at the current level because they require an intermediate node to be added, ie "actors language" requires an "actor"
                 boolean keepChildType = true;
 //                System.out.println("currentChildType: " + currentChildType[1]);
                 for (String[] subChildType : childTypesArray) {
@@ -407,7 +407,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
 //                }
                 if (canHaveMultiple) {
-//                    todo: calculate the insertBefore string
+                    todo: calculate the insertBefore string
                     String insertBefore = "";
                     arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(maxOccurs)});
                 }
