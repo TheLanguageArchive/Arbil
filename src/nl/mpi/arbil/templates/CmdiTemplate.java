@@ -210,6 +210,7 @@ public class CmdiTemplate extends ArbilTemplate {
         if (targetNodeUserObject instanceof ImdiTreeObject) {
             for (String[] childPathString : templatesArray) {
 //                System.out.println("Testing: " + childPathString[1] + childPathString[0]);
+//                System.out.println(childPathString[0] + " : " + targetNodeXpath);
                 boolean allowEntry = false;
                 if (targetNodeXpath == null) {
 //                    System.out.println("allowing due to null path: " + childPathString[0]);
@@ -235,13 +236,17 @@ public class CmdiTemplate extends ArbilTemplate {
             String[][] childTypesArray = childTypes.toArray(new String[][]{});
             childTypes.removeAllElements();
             for (String[] currentChildType : childTypesArray) {
+                // filter out sub nodes that cannot be added at the current level becuase they require an intermediate node to be added, ie "actors language" requires an "actor"
                 boolean keepChildType = true;
 //                System.out.println("currentChildType: " + currentChildType[1]);
                 for (String[] subChildType : childTypesArray) {
 //                    System.out.println("subChildType: " + subChildType[1]);
                     if (currentChildType[1].startsWith(subChildType[1])) {
-                        if (currentChildType[1].length() != subChildType[1].length()) {
+                        String remainderString = currentChildType[1].substring(subChildType[1].length());
+                        //if (currentChildType[1].length() != subChildType[1].length()) {
+                        if (remainderString.contains(".")) {
                             keepChildType = false;
+//                            System.out.println("remainder of path: " + remainderString);
 //                            System.out.println("removing: " + currentChildType[1]);
 //                            System.out.println("based on: " + subChildType[1]);
                         }
@@ -343,11 +348,11 @@ public class CmdiTemplate extends ArbilTemplate {
                 boolean canHaveMultiple = true;
                 if (schemaProperty.getMaxOccurs() == null) {
                     // absence of the max occurs also means multiple
-                     maxOccurs = -1;
+                    maxOccurs = -1;
                     canHaveMultiple = true;
                     // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
                 } else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
-                     maxOccurs = -1;
+                    maxOccurs = -1;
                     canHaveMultiple = true;
                 } else {
                     // store the max occurs for use in the add menu etc
@@ -402,7 +407,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
 //                }
                 if (canHaveMultiple) {
-                    todo: calculate the insertBefore string
+//                    todo: calculate the insertBefore string
                     String insertBefore = "";
                     arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(maxOccurs)});
                 }
