@@ -639,7 +639,7 @@ public class MetadataReader {
                                 }
                             }
                             siblingSpacer = "(" + siblingCount + ")";
-                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
+//                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
                         }
                         fullSubNodePath = fullSubNodePath + siblingSpacer;
                         ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
