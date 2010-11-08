@@ -366,7 +366,7 @@ public class ArbilTemplate {
     public ArrayList<String> listAllTemplates() {
         ArrayList<String> returnArrayList = new ArrayList<String>();
         for (String[] currentTemplate : templatesArray) {
-            returnArrayList.add(currentTemplate[1]);
+            returnArrayList.add(currentTemplate[0]);
         }
         return returnArrayList;
     }
