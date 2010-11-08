@@ -65,10 +65,21 @@ public class MetadataBuilderTest {
             {"Genre", "Discourse", ".CMD.Components.TextProfile(x).TEXT.Content(x).Genre"},
             {"SubGenre", "Interview", ".CMD.Components.TextProfile(x).TEXT.Content(x).SubGenre"},
             {"Involvement", "non-elicited", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).Involvement"},
-            {"PlanningType", "spontaneous", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).PlanningType"}
+            {"PlanningType", "spontaneous", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).PlanningType"},
+            {"Interactivity", "semi-interactive", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).Interactivity"},
+            {"SocialContext", "Family", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).SocialContext"},
+            {"EventStructure", "Not a natural format", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).EventStructure"},
+            {"Channel", "wizard-of-oz", ".CMD.Components.TextProfile(x).TEXT.Content(x).CommunicationContext(x).Channel"},
+            {"Age","197",".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Age"},
+            {"BirthYear", "1821", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).BirthYear"},
+            {"Sex", "Male",".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Sex"},
+            {"Anonymized", "true", ".CMD.Components.TextProfile(x).TEXT.Authors(x).Author(x).Anonymized"},
+            {"CreationYear","1364",".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).CreationYear"},
+            {"Derivation","Translation",".CMD.Components.TextProfile(x).TEXT.WrittenResources(x).WrittenResource(x).Derivation"},
+            {"AnnotationStyle","stand-off",".CMD.Components.TextProfile(1).TEXT.WrittenResources(1).WrittenResource(1).AnnotationStyle"}
         };
         // loop over the templates and profiles that are to be tested
-        for (String currentTestTemplate : new String[]{"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd", ".METATRANSCRIPT.Session : this is currently handled by metadatareader and should be consolidated"}) {
+        for (String currentTestTemplate : new String[]{MetadataBuilderTest.class.getResource("/nl/mpi/arbil/data/clarin.eu_cr1_p_1271859438162.xsd").toExternalForm(), "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd", ".METATRANSCRIPT.Session : this is currently handled by metadatareader and should be consolidated"}) {
             URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
             //            try {
             //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
@@ -140,12 +151,14 @@ public class MetadataBuilderTest {
                                 //                                        currentField[0].setFieldValue(currentFieldData[1], false, true);
                                 //                                    }
                                 //                                }
-                                ImdiField[] currentField = currentFields.get(currentFieldData[0]);
-                                if (currentField != null && currentField.length > 0) {
-                                    System.out.println("getGenericFullXmlPath: " + currentField[0].getGenericFullXmlPath());
-                                    System.out.println("currentFieldData[2]: " + currentFieldData[2]);
-                                    if (currentField[0].getGenericFullXmlPath().equals(currentFieldData[2])) {
-                                        currentField[0].setFieldValue(currentFieldData[1], false, true);
+                                ImdiField[] currentFieldArray = currentFields.get(currentFieldData[0]);
+                                if (currentFieldArray != null && currentFieldArray.length > 0) {
+                                    for (ImdiField currentField : currentFieldArray) {
+                                        System.out.println("getGenericFullXmlPath: " + currentField.getGenericFullXmlPath());
+                                        System.out.println("currentFieldData[2]: " + currentFieldData[2]);
+                                        if (currentField.getGenericFullXmlPath().equals(currentFieldData[2])) {
+                                            currentField.setFieldValue(currentFieldData[1], false, true);
+                                        }
                                     }
                                 }
                             }
