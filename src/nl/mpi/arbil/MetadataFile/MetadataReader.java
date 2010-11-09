@@ -617,7 +617,7 @@ public class MetadataReader {
                         ImdiTreeObject metaNodeImdiTreeObject = null;
                         if (maxOccurs > 1 || maxOccurs == -1 || !(parentNode.getParentDomNode().nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
                             metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
-//                            metaNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
+                            metaNodeImdiTreeObject.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
                             if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
                                 parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ImdiTreeObject>());
                             }
@@ -752,7 +752,9 @@ public class MetadataReader {
                         try {
                             URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
                             childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
-                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath));
+                            ImdiTreeObject linkedNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath);
+                            linkedNode.setNodeText(fieldToAdd.getKeyName());
+                            parentChildTree.get(parentNode).add(linkedNode);
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
                             System.out.println("Exception CorpusLink: " + ex.getMessage());
