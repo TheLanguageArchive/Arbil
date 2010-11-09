@@ -8,15 +8,15 @@
     <target name="setproperties">
         <property name="arbil.current.major" value="2"/>
         <property name="arbil.current.minor" value="2"/>
-        <property name="arbil.filenameidentifier" value="-pretesting"/>
-        <property name="arbil.application-title" value="Arbil (pretesting)"/>
+        <property name="arbil.filenameidentifier" value="-testing"/>
+        <property name="arbil.application-title" value="Arbil (testing)"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/"/>
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
         <property name="TypeCheckVersion" value="typecheck-1.5.16185.jar"/>
-        <property name="pathToMpiTrunk" value="${SRCDIR}../../../trunk/"/> <!-- pathToMpiTrunk is being used until a better method becomes available (such as when the required files are in a maven like repository) -->
+        <property name="pathToMpiTrunk" value="${SRCDIR}../../../../trunk/"/> <!-- pathToMpiTrunk is being used until a better method becomes available (such as when the required files are in a maven like repository) -->
         <!-- todo: add all the dependancies here like the type checker -->
     </target>
 <!-- start package creation -->
@@ -105,6 +105,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </macrodef>
         <updateSingleFile fileName="arbil.jnlp"/>
         <updateSingleFile fileName="arbil-applet.html"/>
+	<!-- <updateSingleFile fileName="arbil-applet-lux17.html"/>-->
         <updateSingleFile fileName="arbil-applet-lux17.php"/>
         <updateSingleFile fileName="arbil-win-installer.iss"/>
         <updateSingleFile fileName="Info.plist"/>
