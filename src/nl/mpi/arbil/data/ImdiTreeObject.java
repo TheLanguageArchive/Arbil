@@ -968,7 +968,6 @@ public class ImdiTreeObject implements Comparable {
     }
 
     public boolean addCorpusLink(ImdiTreeObject targetImdiNode) {
-        todo: this is the only place left that an error could occur causing this issue ---- so check that it cannot return true after a fail ----Basically, all you have to do is download our Corpus (Hoocak) into your local corpus. Then take any number of sessions (best from one of the nodes "narrative texts", because they contain the most sessions), select them and then try to drag and drop them into a different node (e.g. ludophile texts). Usually, one (or no) session is moved, the rest (whether it's magic or not) disappear to I don't know where:-(
         boolean linkAlreadyExists = false;
         if (targetImdiNode.isCatalogue()) {
             if (this.hasCatalogue()) {
