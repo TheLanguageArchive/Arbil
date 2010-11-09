@@ -407,7 +407,6 @@ public class CmdiTemplate extends ArbilTemplate {
 //                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
 //                }
                 if (canHaveMultiple) {
-                    todo: calculate the insertBefore string
                     String insertBefore = "";
                     arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(maxOccurs)});
                 }
