@@ -776,6 +776,8 @@
         <TreeNodeNameField FieldsShortName="Region" />
         <TreeNodeNameField FieldsShortName="Country" />
         <TreeNodeNameField FieldsShortName="Continent" />
+        <TreeNodeNameField FieldsShortName="Genre" />
+        <TreeNodeNameField FieldsShortName="SubGenre" />
     </PreferredTreeNodeNameFields>
 
 </template>
