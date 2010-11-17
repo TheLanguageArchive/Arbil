@@ -217,11 +217,11 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                 <include name="imdi-viewer.css"/>
                 <include name="imdi-viewer.xsl"/>
             </fileset>
-            <fileset dir="${pathToMpiTrunk}webapps/addit/web">
+            <!--<fileset dir="${pathToMpiTrunk}webapps/addit/web">
                 <include name="additTooltip.js"/>
                 <include name="additPopup.js"/>
                 <include name="additTooltip.css"/>
-            </fileset>
+            </fileset>-->
         </copy>
     </target>
     <target name="copyJarFilesToLib" depends="setproperties">
