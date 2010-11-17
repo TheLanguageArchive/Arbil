@@ -109,6 +109,11 @@ public class ArbilTemplate {
                 return false;
             }
         }
+        for (String[] pathString : templatesArray) { // some profiles do not have sub nodes hence this needs to be checked also
+            if (pathString[0].startsWith(nodePath) && !pathString[0].equals(nodePath)) {
+                return false;
+            }
+        }
         return true;
     }
 
