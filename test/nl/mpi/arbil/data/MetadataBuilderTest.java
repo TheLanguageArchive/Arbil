@@ -50,7 +50,26 @@ public class MetadataBuilderTest {
     }
 
     @Test
-    public void testAddChildNode() {
+    public void testAddChildNodeJar() {
+        testAddChildNode(MetadataBuilderTest.class.getResource("/nl/mpi/arbil/data/clarin.eu_cr1_p_1271859438162.xsd").toExternalForm());
+    }
+
+    @Test
+    public void testAddChildNodeServer() {
+        testAddChildNode("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd");
+    }
+
+    @Test
+    public void testAddChildNodeNoSubNodesInProfile() {
+        testAddChildNode("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1288172614026/xsd");
+    }
+
+    @Test
+    public void testAddChildNodeImdiSession() {
+        testAddChildNode(".METATRANSCRIPT.Session : this will fail as imdi add is currently handled by metadatareader and should be consolidated");
+    }
+
+    private void testAddChildNode(String currentTestTemplate) {
         MetadataBuilder metadataBuilder = new MetadataBuilder();
         CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
 
@@ -86,120 +105,126 @@ public class MetadataBuilderTest {
             {"SourceLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).SourceLanguage"},
             {"TargetLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).TargetLanguage"}
         };
-        // loop over the templates and profiles that are to be tested
-        for (String currentTestTemplate : new String[]{MetadataBuilderTest.class.getResource("/nl/mpi/arbil/data/clarin.eu_cr1_p_1271859438162.xsd").toExternalForm(), "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438162/xsd", ".METATRANSCRIPT.Session : this is currently handled by metadatareader and should be consolidated"}) {
-            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
-            //            try {
-            //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
-            //                        gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
-            //                        gedcomImdiObject.waitTillLoaded();
-            targetFileURI = componentBuilder.createComponentFile(targetFileURI, LinorgSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7).toURI(), false);
-            //            } catch (URISyntaxException ex) {
-            //                GuiHelper.linorgBugCatcher.logError(ex);
-            //                return;
-            //            }
-            ImdiTreeObject gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(targetFileURI);
-            //TreeHelper.getSingleInstance().saveLocations(new ImdiTreeObject[]{gedcomImdiObject}, null);
-            gedcomImdiObject.loadImdiDom();
-            checkAgainstSchema(gedcomImdiObject);
-            //            gedcomImdiObject.waitTillLoaded();
-            ArrayList<String> allTemplates = gedcomImdiObject.nodeTemplate.listAllTemplates();
-            ArrayList<ImdiTreeObject> currentLevel = new ArrayList<ImdiTreeObject>();
-            currentLevel.add(gedcomImdiObject);
-            //            ImdiLoader.getSingleInstance().schemaCheckLocalFiles = true;
-            while (currentLevel.size() > 0) {
-                for (ImdiTreeObject currentLevelNode : currentLevel) {
-                    //ImdiTreeObject currentLevelNode = currentLevel.remove(0);
-                    //currentLevel.remove(currentLevelNode);
-                    System.out.println(currentLevelNode.getUrlString());
-                    // loop over all nodes and add one of every type that would be shown in the add menu for each node and sub node
-                    for (Enumeration menuItemName = currentLevelNode.getParentDomNode().nodeTemplate.listTypesFor(currentLevelNode); menuItemName.hasMoreElements();) {
-                        String[] currentComponent = (String[]) menuItemName.nextElement();
-                        System.out.println(currentComponent[0] + " : " + currentComponent[1]);// + " : "+ currentField[2]);
-                        try {
-                            URI linkUri = metadataBuilder.addChildNode(currentLevelNode, currentComponent[1], null, null, null);
-                            //ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, linkUri);
-                            // keep track of which addables have been used
-                            allTemplates.remove(currentComponent[1]);
-                        } catch (ArbilMetadataException exception) {
-                            fail(exception.getMessage());
-                        }
-                        //        System.out.println("getNodeTypeFromMimeType");
-                        //        String[][] testCases = {
-                        //            {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-                        //            {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"},
-                        //            {"Manual/WrittenResource", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-                        //            {"Manual/MediaFile", ".METATRANSCRIPT.Session.Resources.MediaFile"}
-                        //        };
-                        //        for (String[] currentTest : testCases) {
-                        //            String mimeType = currentTest[0];
-                        //            MetadataReader instance = MetadataReader.getSingleInstance();
+        URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
+        //            try {
+        //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
+        //                        gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
+        //                        gedcomImdiObject.waitTillLoaded();
+        targetFileURI = componentBuilder.createComponentFile(targetFileURI, LinorgSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7).toURI(), false);
+        //            } catch (URISyntaxException ex) {
+        //                GuiHelper.linorgBugCatcher.logError(ex);
+        //                return;
+        //            }
+        ImdiTreeObject gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(targetFileURI);
+        //TreeHelper.getSingleInstance().saveLocations(new ImdiTreeObject[]{gedcomImdiObject}, null);
+        gedcomImdiObject.loadImdiDom();
+        checkAgainstSchema(gedcomImdiObject);
+        //            gedcomImdiObject.waitTillLoaded();
+        ArrayList<String> allTemplates = gedcomImdiObject.nodeTemplate.listAllTemplates();
+        ArrayList<ImdiTreeObject> currentLevel = new ArrayList<ImdiTreeObject>();
+        //            ImdiLoader.getSingleInstance().schemaCheckLocalFiles = true;
+//        for (int addNodeCount = 0; addNodeCount < 3; addNodeCount++) {
+        currentLevel.add(gedcomImdiObject);
+//            ArrayList<ImdiTreeObject> completedNodes = new ArrayList<ImdiTreeObject>();
+        while (currentLevel.size() > 0) {
+            for (ImdiTreeObject currentLevelNode : currentLevel) {
+                //ImdiTreeObject currentLevelNode = currentLevel.remove(0);
+                //currentLevel.remove(currentLevelNode);
+                System.out.println(currentLevelNode.getUrlString());
+                // loop over all nodes and add one of every type that would be shown in the add menu for each node and sub node
+                for (Enumeration menuItemName = currentLevelNode.getParentDomNode().nodeTemplate.listTypesFor(currentLevelNode); menuItemName.hasMoreElements();) {
+                    String[] currentComponent = (String[]) menuItemName.nextElement();
+                    System.out.println(currentComponent[0] + " : " + currentComponent[1]);// + " : "+ currentField[2]);
+                    try {
+                        URI linkUri = metadataBuilder.addChildNode(currentLevelNode, currentComponent[1], null, null, null);
+                        //ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, linkUri);
+                        // keep track of which addables have been used
+                        allTemplates.remove(currentComponent[1]);
+                    } catch (ArbilMetadataException exception) {
+                        fail(exception.getMessage());
                     }
+                    //        System.out.println("getNodeTypeFromMimeType");
+                    //        String[][] testCases = {
+                    //            {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+                    //            {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"},
+                    //            {"Manual/WrittenResource", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+                    //            {"Manual/MediaFile", ".METATRANSCRIPT.Session.Resources.MediaFile"}
+                    //        };
+                    //        for (String[] currentTest : testCases) {
+                    //            String mimeType = currentTest[0];
+                    //            MetadataReader instance = MetadataReader.getSingleInstance();
                 }
+//                    completedNodes.add(currentLevelNode);
+            }
 //                gedcomImdiObject.waitTillLoaded();
-                gedcomImdiObject.loadImdiDom();
-                gedcomImdiObject.waitTillLoaded();
-                //gedcomImdiObject.reloadNode();
-                //gedcomImdiObject.waitTillLoaded();
-                //                gedcomImdiObject.saveChangesToCache(false);
-                //                gedcomImdiObject.waitTillLoaded();
-                //                gedcomImdiObject.loadImdiDom();
-                // loop over all the children and make sure any required values are set
-                //gedcomImdiObject.loadImdiDom();
-                //                          gedcomImdiObject.waitTillLoaded();
-                for (ImdiTreeObject childNode : gedcomImdiObject.getAllChildren()) {
-                    if (childNode != null) {
-                        Hashtable<String, ImdiField[]> currentFields = childNode.getFields();
-                        if (currentFields != null) {
-                            // populate any fields in the list provided
-                            for (String[] currentFieldData : autoFields) {
-                                //                                for (ImdiField[] currentField : addedImdiObject.getFields().values()) {
-                                //                                    if (currentField != null && currentField.length > 0) {
-                                //                                        System.out.println(currentField[0].getTranslateFieldName());
-                                //                                        currentField[0].setFieldValue(currentFieldData[1], false, true);
-                                //                                    }
-                                //                                }
-                                ImdiField[] currentFieldArray = currentFields.get(currentFieldData[0]);
-                                if (currentFieldArray != null && currentFieldArray.length > 0) {
-                                    for (ImdiField currentField : currentFieldArray) {
-                                        System.out.println("getGenericFullXmlPath: " + currentField.getGenericFullXmlPath());
-                                        System.out.println("currentFieldData[2]: " + currentFieldData[2]);
-                                        if (currentField.getGenericFullXmlPath().equals(currentFieldData[2])) {
-                                            currentField.setFieldValue(currentFieldData[1], false, true);
-                                        }
+            gedcomImdiObject.loadImdiDom();
+            gedcomImdiObject.waitTillLoaded();
+            //gedcomImdiObject.reloadNode();
+            //gedcomImdiObject.waitTillLoaded();
+            //                gedcomImdiObject.saveChangesToCache(false);
+            //                gedcomImdiObject.waitTillLoaded();
+            //                gedcomImdiObject.loadImdiDom();
+            // loop over all the children and make sure any required values are set
+            //gedcomImdiObject.loadImdiDom();
+            //                          gedcomImdiObject.waitTillLoaded();
+            for (ImdiTreeObject childNode : gedcomImdiObject.getAllChildren()) {
+                if (childNode != null) {
+                    Hashtable<String, ImdiField[]> currentFields = childNode.getFields();
+                    if (currentFields != null) {
+                        // populate any fields in the list provided
+                        for (String[] currentFieldData : autoFields) {
+                            //                                for (ImdiField[] currentField : addedImdiObject.getFields().values()) {
+                            //                                    if (currentField != null && currentField.length > 0) {
+                            //                                        System.out.println(currentField[0].getTranslateFieldName());
+                            //                                        currentField[0].setFieldValue(currentFieldData[1], false, true);
+                            //                                    }
+                            //                                }
+                            ImdiField[] currentFieldArray = currentFields.get(currentFieldData[0]);
+                            if (currentFieldArray != null && currentFieldArray.length > 0) {
+                                for (ImdiField currentField : currentFieldArray) {
+                                    System.out.println("getGenericFullXmlPath: " + currentField.getGenericFullXmlPath());
+                                    System.out.println("currentFieldData[2]: " + currentFieldData[2]);
+                                    if (currentField.getGenericFullXmlPath().equals(currentFieldData[2])) {
+                                        currentField.setFieldValue(currentFieldData[1], false, true);
                                     }
                                 }
                             }
                         }
                     }
                 }
-                gedcomImdiObject.saveChangesToCache(false);
-                gedcomImdiObject.loadImdiDom();
-                checkAgainstSchema(gedcomImdiObject);
-                //                gedcomImdiObject.waitTillLoaded();
-                //
-                ArrayList<ImdiTreeObject> nextLevel = new ArrayList<ImdiTreeObject>();
-                for (ImdiTreeObject currentLevelNode : currentLevel) {
-                    for (ImdiTreeObject nextLevelNode : currentLevelNode.getChildArray()) {
-                        nextLevel.add(nextLevelNode);
-                    }
-                }
-                currentLevel.clear();
-                currentLevel = nextLevel;
             }
-            boolean allTemplatesUsed = true;
-            for (String remainingTemplate : allTemplates) {
-                if (remainingTemplate.startsWith(".CMD.Header") || remainingTemplate.startsWith(".CMD.Resources")) {
-                    System.out.println("ignoring template: " + remainingTemplate);
-                } else {
-                    allTemplatesUsed = false;
-                    System.out.println("unused template: " + remainingTemplate);
+            gedcomImdiObject.saveChangesToCache(false);
+            gedcomImdiObject.loadImdiDom();
+            checkAgainstSchema(gedcomImdiObject);
+            //                gedcomImdiObject.waitTillLoaded();
+            //
+            ArrayList<ImdiTreeObject> nextLevel = new ArrayList<ImdiTreeObject>();
+            for (ImdiTreeObject currentLevelNode : currentLevel) {
+                for (ImdiTreeObject nextLevelNode : currentLevelNode.getChildArray()) {
+                    nextLevel.add(nextLevelNode);
                 }
             }
-            assertTrue("Not all templates have been used", allTemplatesUsed);
-            String expResult = "";//currentTest[1];
-            String result = "";//instance.getNodeTypeFromMimeType(mimeType);
-            assertEquals(expResult, result);
+//                currentLevel.clear();
+//                for (ImdiTreeObject nextLevelNode : gedcomImdiObject.getAllChildren()) {
+//                    if (!completedNodes.contains(nextLevelNode)) {
+//                        currentLevel.add(nextLevelNode);
+//                    }
+//
+//                }
         }
+        boolean allTemplatesUsed = true;
+        for (String remainingTemplate : allTemplates) {
+            if (remainingTemplate.startsWith(".CMD.Header") || remainingTemplate.startsWith(".CMD.Resources")) {
+                System.out.println("ignoring template: " + remainingTemplate);
+            } else {
+                allTemplatesUsed = false;
+                System.out.println("unused template: " + remainingTemplate);
+            }
+        }
+        assertTrue("Not all templates have been used", allTemplatesUsed);
+        String expResult = "";//currentTest[1];
+        String result = "";//instance.getNodeTypeFromMimeType(mimeType);
+        assertEquals(expResult, result);
+//        }
     }
 }
