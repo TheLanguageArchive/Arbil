@@ -160,15 +160,19 @@ public class ImdiVocabularies {
                 org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
                 xmlReader.setFeature("http://xml.org/sax/features/validation", false);
                 xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
+				///////////////////////////////////////////////////////////////////////
+				// non utf-8 version
 //                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
 //                xmlReader.parse(cachedFile.getCanonicalPath());
-
-                // here we could test if the file is utf-8 and log an error if it is not
+                /////////////////////////////////////////////////////////////////////// 
+				// utf-8 version     
+                // todo: here we could test if the file is utf-8 and log an error if it is not
                 InputStream inputStream = new FileInputStream(cachedFile);
                 Reader reader = new InputStreamReader(inputStream, "UTF-8");
                 InputSource inputSource = new InputSource(reader);
                 inputSource.setEncoding("UTF-8");
                 saxParser.parse(inputSource, new SaxVocabularyHandler(vocabulary));
+				///////////////////////////////////////////////////////////////////////
             } catch (Exception ex) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
             }
