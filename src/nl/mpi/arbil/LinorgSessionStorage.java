@@ -24,8 +24,11 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JLabel;
@@ -238,6 +241,15 @@ public class LinorgSessionStorage {
             System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
             System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
         };
+        HashSet<String> uniqueArray = new HashSet<String>();
+        uniqueArray.addAll(Arrays.asList(locationOptions));
+        for (Iterator<String> iterator = uniqueArray.iterator(); iterator.hasNext();) {
+            String element = iterator.next();
+            if (element.startsWith("null")) {
+                iterator.remove();
+            }
+        }
+        locationOptions = uniqueArray.toArray(new String[]{});
         for (String currentLocationOption : locationOptions) {
             System.out.println("LocationOption: " + currentLocationOption);
         }
@@ -683,7 +695,7 @@ public class LinorgSessionStorage {
      * @return boolean true only if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the download failed
      */
     public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
-          boolean downloadSucceeded = false;
+        boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
 //        System.out.println("saveRemoteResource: " + targetUrlString);
