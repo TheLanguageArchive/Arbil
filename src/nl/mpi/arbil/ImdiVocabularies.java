@@ -1,9 +1,14 @@
 package nl.mpi.arbil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
+import org.xml.sax.InputSource;
 
 /**
  * Document   : ImdiVocabularies
@@ -154,8 +159,19 @@ public class ImdiVocabularies {
                 org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
                 xmlReader.setFeature("http://xml.org/sax/features/validation", false);
                 xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
-                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
-                xmlReader.parse(cachedFile.getCanonicalPath());
+				///////////////////////////////////////////////////////////////////////
+				// non utf-8 version
+//                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
+//                xmlReader.parse(cachedFile.getCanonicalPath());
+                /////////////////////////////////////////////////////////////////////// 
+				// utf-8 version     
+                // todo: here we could test if the file is utf-8 and log an error if it is not
+                InputStream inputStream = new FileInputStream(cachedFile);
+                Reader reader = new InputStreamReader(inputStream, "UTF-8");
+                InputSource inputSource = new InputSource(reader);
+                inputSource.setEncoding("UTF-8");
+                saxParser.parse(inputSource, new SaxVocabularyHandler(vocabulary));
+				///////////////////////////////////////////////////////////////////////
             } catch (Exception ex) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
             }
@@ -201,8 +217,12 @@ public class ImdiVocabularies {
                 String vocabName = atts.getValue("Value");
                 String vocabCode = atts.getValue("Code");
                 String followUpVocab = atts.getValue("FollowUp");
-                currentVocabItem = new VocabularyItem(vocabName, vocabCode, followUpVocab);
-                collectedVocab.vocabularyItems.add(currentVocabItem);
+                if (vocabName != null) {
+                    currentVocabItem = new VocabularyItem(vocabName, vocabCode, followUpVocab);
+                    collectedVocab.vocabularyItems.add(currentVocabItem);
+                } else {
+                    GuiHelper.linorgBugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.vocabularyUrl));
+                }
             }
         }
     }
