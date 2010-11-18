@@ -16,8 +16,8 @@ public class DocumentationLanguages {
     public VocabularyItem[] getallLanguages() {
         if (languageVocabularyUrl == null) {
             languageVocabularyUrl = LinorgSessionStorage.getSingleInstance().loadString("languageVocabularyUrl");
-            if (languageVocabularyUrl == null) {
-                languageVocabularyUrl = "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml";
+            if (languageVocabularyUrl == null || languageVocabularyUrl.equals("http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml")) {
+                languageVocabularyUrl = "http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml";
                 LinorgSessionStorage.getSingleInstance().saveString("LanguageVocabularyUrl", languageVocabularyUrl);
             }
         }
