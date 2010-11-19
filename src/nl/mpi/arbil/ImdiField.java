@@ -215,7 +215,7 @@ public class ImdiField {
     public void setFieldAttribute(String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
         // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
         // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
-         languageId = languageIdLocal;
+        languageId = languageIdLocal;
         originalLanguageId = languageId;
         keyName = keyNameLocal;
         originalKeyName = keyName;
@@ -246,11 +246,12 @@ public class ImdiField {
             }
         } else {
             // vocabularies specified in the xml override vocabularies defined in the schema
-            if (parentImdi.nodeTemplate != null) {
+            if (parentImdi.getParentDomNode().nodeTemplate != null) {
                 // get the schema vocabularies
-//                System.out.println("parentImdi.nodeTemplate: " + parentImdi.nodeTemplate.loadedTemplateName);
-//                System.out.println("this.getGenericFullXmlPath(): " + this.getGenericFullXmlPath());
-                fieldVocabulary = parentImdi.nodeTemplate.getFieldVocabulary(this.getGenericFullXmlPath());
+                String strippedXmlPath = this.getGenericFullXmlPath().replaceAll("\\(x\\)", "");
+//                System.out.println("parentImdi.getParentDomNode().nodeTemplate: " + parentImdi.getParentDomNode().nodeTemplate.loadedTemplateName);
+//                System.out.println("strippedXmlPath: " + strippedXmlPath);
+                fieldVocabulary = parentImdi.getParentDomNode().nodeTemplate.getFieldVocabulary(strippedXmlPath);
             }
         }
     }
