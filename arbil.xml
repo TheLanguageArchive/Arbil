@@ -118,9 +118,10 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <copy todir="${OUTPUTDIR}/distribution-win32/temp/">
             <fileset dir="${SRCDIR}nl/mpi/arbil/resources/icons/" includes="*.ico"/>
         </copy>
-        <!--unzip then delete the imagemagick jar-->
-        <unzip src="${OUTPUTDIR}/lib/ImageMagick-6.5.9-Win32.jar" dest="${OUTPUTDIR}/distribution-win32/temp/ImageMagick"/>
-        <delete file="${OUTPUTDIR}/lib/ImageMagick-6.5.9-Win32.jar"/>
+        <!--get unzip then delete the imagemagick jar-->
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/lib/ImageMagick-6.5.9-Win32.jar" dest="${OUTPUTDIR}/ImageMagick-6.5.9-Win32.jar"/>
+        <unzip src="${OUTPUTDIR}/ImageMagick-6.5.9-Win32.jar" dest="${OUTPUTDIR}/distribution-win32/temp/ImageMagick"/>
+        <delete file="${OUTPUTDIR}/ImageMagick-6.5.9-Win32.jar"/>
         <delete dir="${OUTPUTDIR}/distribution-win32/temp/ImageMagick/META-INF"/>
         <exec dir="${BUILDDIR}" executable="wine" ><!--os="Windows NT"-->
             <arg line='"C:\Program Files\Inno Setup 5\iscc.exe" arbil-win-installer.iss'/>
@@ -241,7 +242,6 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <getLibFile fileName="${TypeCheckVersion}"/>
         <getLibFile fileName="xalan-2.6.0.jar"/>
         <getLibFile fileName="xercesImpl-2.9.0.jar"/>
-        <getLibFile fileName="ImageMagick-6.5.9-Win32.jar"/>
         <getLibFile fileName="bcprov-jdk15-143.jar"/>
         <getLibFile fileName="slcshttps_jdk15_v0.2.jar"/>
         <getLibFile fileName="xbean.jar"/>
