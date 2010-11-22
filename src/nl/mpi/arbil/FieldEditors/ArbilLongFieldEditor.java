@@ -44,7 +44,8 @@ public class ArbilLongFieldEditor extends JPanel {
         setLayout(new BorderLayout());
     }
 
-    public void showEditor(ImdiField[] cellValueLocal, String currentEditorText) {
+    public void showEditor(ImdiField[] cellValueLocal, String currentEditorText, int selectedFieldLocal) {
+        selectedField = selectedFieldLocal;
         imdiFields = cellValueLocal;
         String parentNodeName = "unknown";
         parentImdiTreeObject = imdiFields[0].parentImdi;
