@@ -86,19 +86,20 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
             for (ImdiTreeObject imdiTreeObject : imdiTreeObjectArray) {
                 if (imdiTreeObject.archiveHandle != null) {
                     fullQueryString += "&archiveHandle=" + imdiTreeObject.archiveHandle;
-                }else{
-                   LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot search \"" + imdiTreeObject + "\" because it does not have an archive handle", "Remote Search");
+                } else {
+                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot search \"" + imdiTreeObject + "\" because it does not have an archive handle", "Remote Search");
                 }
             }
             // to search a branch we need the node id and to get that we need to have the handle and that might not exist, also to do any of that we would need to use an xmlrpc and include the lamusapi jar file to all versions of the application, so we will just search the entire archive since that takes about the same time to return the results
             //fullQueryString += "&nodeid=" + nodeidString; //MPI77915%23
             // &nodeid=MPI556280%23&nodeid=MPI84114%23&nodeid=MPI77915%23
             fullQueryString += "&returnType=xml";
-            try {
-                LinorgWindowManager.getSingleInstance().openUrlWindowOnce("Search Result", new URL(fullQueryString));
-            } catch (MalformedURLException exception) {
-                GuiHelper.linorgBugCatcher.logError(exception);
-            }
+//            try {
+//                LinorgWindowManager.getSingleInstance().openUrlWindowOnce("Search Result", new URL(fullQueryString));
+//            } catch (MalformedURLException exception) {
+//                GuiHelper.linorgBugCatcher.logError(exception);
+//            }
+            System.out.println("QueryString: " + fullQueryString);
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setValidating(false);
             documentBuilderFactory.setNamespaceAware(true);
