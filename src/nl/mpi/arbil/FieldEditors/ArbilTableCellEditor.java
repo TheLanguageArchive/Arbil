@@ -224,7 +224,11 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 //        startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
         fireEditingStopped();
         if (cellValue instanceof ImdiField[]) {
-            new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ImdiField) cellValue[selectedField]).getFieldValue()));
+            int currentFieldIndex = selectedField;
+            if (currentFieldIndex < 0) {
+                currentFieldIndex = 0;
+            }
+            new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ImdiField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
         }
 
     }
@@ -272,7 +276,11 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                             if (isStartLongFieldKey(evt)) {
                                 // if this is a long start long field event the we don't want that key appended so it is not passed on here
                                 if (cellValue instanceof ImdiField[]) {
-                                    new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ImdiField) cellValue[selectedField]).getFieldValue()));
+                                    int currentFieldIndex = selectedField;
+                                    if (currentFieldIndex < 0) {
+                                        currentFieldIndex = 0;
+                                    }
+                                    new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ImdiField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
                                 }
                             }
                         }
@@ -302,7 +310,11 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
             } else {
                 fireEditingStopped();
                 if (cellValue instanceof ImdiField[]) {
-                    new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(lastKeyInt, lastKeyChar, ((ImdiField) cellValue[selectedField]).getFieldValue()));
+                    int currentFieldIndex = selectedField;
+                    if (currentFieldIndex < 0) {
+                        currentFieldIndex = 0;
+                    }
+                    new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(lastKeyInt, lastKeyChar, ((ImdiField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
                 }
 //                ArbilTableCellEditor.this.stopCellEditing();
             }
