@@ -70,8 +70,8 @@ public class CmdiTemplate extends ArbilTemplate {
             }
 
             // create a temp file of the read template data so that it can be compared to a hand made version
-            File debugTempFile = File.createTempFile("templatetext", ".tmp");
-            debugTempFile.deleteOnExit();
+//            File debugTempFile = File.createTempFile("templatetext", ".tmp");
+//            debugTempFile.deleteOnExit();
 //            BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
 
             ArrayListGroup arrayListGroup = new ArrayListGroup();
@@ -105,28 +105,28 @@ public class CmdiTemplate extends ArbilTemplate {
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No field descriptions have been provided in the profile, as a result no information about each fields intended use can be provided to users of this profile", "Clarin Profile Error");
 //            }
             for (String[] currentArray : templatesArray) {
-                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                //System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
 //                debugTemplateFileWriter.write("<TemplateComponent FileName=\"" + currentArray[0] + "\" DisplayName=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String[] currentArray : childNodePaths) {
-                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                //System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
 //                debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String[] currentArray : resourceNodePaths) {
-                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                //System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
 //                debugTemplateFileWriter.write("<ResourceNodePath RefPath=\"" + currentArray[0] + "\" RefNodeName=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String[] currentArray : fieldConstraints) {
-                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                //System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
 //                debugTemplateFileWriter.write("<FieldConstraint FieldPath=\"" + currentArray[0] + "\" Constraint=\"" + currentArray[1] + "\" />\r\n");
             }
             for (String currentArray : preferredNameFields) {
-                System.out.println("loadTemplate: " + currentArray);
+                //System.out.println("loadTemplate: " + currentArray);
                 // node that this is not a FieldsShortName but a full field path but the code now supports both while the xml file implies only short
 //                debugTemplateFileWriter.write("<TreeNodeNameField FieldsShortName==\"" + currentArray + "\" />\r\n");
             }
             for (String[] currentArray : fieldUsageArray) {
-                System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
+                //System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
 //                debugTemplateFileWriter.write("<FieldUsage FieldPath=\"" + currentArray[0] + "\" FieldDescription=\"" + currentArray[1] + "\" />\r\n");
             }
 //            debugTemplateFileWriter.close();
@@ -136,9 +136,10 @@ public class CmdiTemplate extends ArbilTemplate {
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
             GuiHelper.linorgBugCatcher.logError(urise);
-        } catch (IOException urise) {
-            GuiHelper.linorgBugCatcher.logError(urise);
         }
+//        catch (IOException urise) {
+//            GuiHelper.linorgBugCatcher.logError(urise);
+//        }
         // this should be adequate for cmdi templates
         //templatesArray = childNodePaths;
         // TODO: complete these
@@ -430,24 +431,25 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
 //    SchemaParticle topParticle = schemaType.getContentModel();
-    private void searchForAnnotations(SchemaParticle schemaParticle, String nodePath, ArrayListGroup arrayListGroup) {
+    private void searchForAnnotations(SchemaParticle schemaParticle, String nodePathBase, ArrayListGroup arrayListGroup) {
 //        System.out.println("searchForAnnotations" + nodePath);
         if (schemaParticle != null) {
             switch (schemaParticle.getParticleType()) {
                 case SchemaParticle.SEQUENCE:
                     for (SchemaParticle schemaParticleChild : schemaParticle.getParticleChildren()) {
+                        String nodePath;
                         if (schemaParticleChild.getName() != null) {
-                            nodePath = nodePath + "." + schemaParticleChild.getName().getLocalPart();
+                            nodePath = nodePathBase + "." + schemaParticleChild.getName().getLocalPart();
                         } else {
+                            nodePath = nodePathBase + ".unnamed";
                             GuiHelper.linorgBugCatcher.logError(new Exception("unnamed node at: " + nodePath));
-                            nodePath = nodePath + ".unnamed";
                         }
                         searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup);
                     }
                     break;
                 case SchemaParticle.ELEMENT:
                     SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaParticle;
-                    saveAnnotationData(schemaLocalElement, nodePath, arrayListGroup);
+                    saveAnnotationData(schemaLocalElement, nodePathBase, arrayListGroup);
                     break;
             }
         }
