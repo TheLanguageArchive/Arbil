@@ -60,7 +60,7 @@
         <FieldConstraint FieldPath=".*\.Date" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.BirthDate" Constraint="([0-9][0-9][0-9][0-9])((-[0-1][0-9])(-[0-3][0-9])?)?|Unknown|Unspecified"/>
         <FieldConstraint FieldPath=".*\.Email" Constraint=".+@.+"/>
-        <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]" />
+        <FieldConstraint FieldPath=".*\(x\).Quality" Constraint="[1-5]|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.Start" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".*\(x\).TimePosition.End" Constraint="[0-9][0-9]:[0-9][0-9]:[0-9][0-9]:?[0-9]*|Unknown|Unspecified" />
         <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.WrittenResource\(x\).Validation.Level" Constraint="[0-9]*|Unknown|Unspecified" />
@@ -434,7 +434,7 @@
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Address" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Contact.Email" FieldDescription="Contact information for this project" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.MDGroup.Project.Description" FieldDescription="Description for this project" />
-        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5" />
+        <FieldUsage FieldPath=".METATRANSCRIPT.Session.Resources.MediaFile.Quality" FieldDescription="A value between 1 - 5 where 1 is the lowest quality and 5 is the highest quality" />
 <!--        <FieldUsage FieldPath=".METATRANSCRIPT.History" FieldDescription="" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Name" FieldDescription="" />
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="" />
