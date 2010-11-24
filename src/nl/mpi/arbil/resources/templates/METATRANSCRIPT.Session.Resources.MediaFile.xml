@@ -5,7 +5,7 @@
         <Type Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" Type="ClosedVocabulary" ></Type>
         <Format Link="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" Type="OpenVocabulary"></Format>
         <Size/>
-        <Quality>Unspecified</Quality>
+        <Quality Link="http://www.mpi.nl/IMDI/Schema/Quality.xml" Type="ClosedVocabulary">Unspecified</Quality>
         <RecordingConditions/>
         <TimePosition>
             <Start>Unspecified</Start>
