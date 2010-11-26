@@ -77,7 +77,7 @@ public class ImdiUtils implements MetadataUtils {
             Document nodDom;
             OurURL inUrlLocal = new OurURL(nodeURI.toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
-            checkImdiApiResult(linkURI, nodeURI);
+            checkImdiApiResult(nodDom, nodeURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
@@ -118,7 +118,7 @@ public class ImdiUtils implements MetadataUtils {
                 return false;
             } else {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
-                checkImdiApiResult(links,sourceURI);
+                checkImdiApiResult(links, sourceURI);
                 if (links != null && updateLinks) {
                     for (mpi.imdi.api.IMDILink currentLink : links) {
                         URI linkUriToUpdate = null;
@@ -139,22 +139,27 @@ public class ImdiUtils implements MetadataUtils {
                             // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
                             // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
                             // todo: cont... this must instead take oldurl newurl and the new imdi file location
-                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                        /*    boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                            if (!changeLinkResult) {
+                                checkImdiApiResult(null, sourceURI);
+                                return false;
+                            }*/
+                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+                            String archiveHandle = currentLink.getURID();
+                            api.removeIMDILink(nodDom, currentLink);
+                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
+                            // preserve the archive handle so that LAMUS knows where it came from
+                            if (replacementLink != null) {
+                                replacementLink.setURID(archiveHandle);
+                            } else {
+                                checkImdiApiResult(null, sourceURI);
+//                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
+                            }
+                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, replacementLink);
                             if (!changeLinkResult) {
                                 checkImdiApiResult(null, sourceURI);
                                 return false;
                             }
-                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
-//                            String archiveHandle = currentLink.getURID();
-//                            api.removeIMDILink(nodDom, currentLink);
-//                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
-                            // preserve the archive handle so that LAMUS knows where it came from
-//                            if (replacementLink != null) {
-//                                replacementLink.setURID(archiveHandle);
-//                            } else {
-//                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
-//                            }
-//                            api.changeIMDILink(nodDom, destinationUrl, replacementLink);
                         }
                     }
                 }
@@ -183,14 +188,14 @@ public class ImdiUtils implements MetadataUtils {
             }
             IMDILink[] allImdiLinks;
             allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
-            checkImdiApiResult(allImdiLinks,nodeURI);
+            checkImdiApiResult(allImdiLinks, nodeURI);
             if (allImdiLinks != null) {
                 for (IMDILink currentLink : allImdiLinks) {
                     for (URI currentUri : linkURI) {
                         try {
                             if (currentUri.equals(currentLink.getRawURL().toURL().toURI())) {
-                                if (!api.removeIMDILink(nodDom, currentLink)){
-                                    checkImdiApiResult(null,nodeURI);
+                                if (!api.removeIMDILink(nodDom, currentLink)) {
+                                    checkImdiApiResult(null, nodeURI);
                                     return false;
                                 }
                             }
@@ -200,7 +205,7 @@ public class ImdiUtils implements MetadataUtils {
                     }
                 }
                 boolean removeIdAttributes = true;
-               return api.writeDOM(nodDom, new File(nodeURI), removeIdAttributes);
+                return api.writeDOM(nodDom, new File(nodeURI), removeIdAttributes);
             }
         } catch (MalformedURLException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
@@ -213,10 +218,10 @@ public class ImdiUtils implements MetadataUtils {
         try {
             OurURL destinationUrl = new OurURL(nodeURI.toString());
             Document nodDom = api.loadIMDIDocument(destinationUrl, false);
-            checkImdiApiResult(nodDom,nodeURI);
+            checkImdiApiResult(nodDom, nodeURI);
             IMDILink[] allImdiLinks;
             allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
-            checkImdiApiResult(allImdiLinks,nodeURI);
+            checkImdiApiResult(allImdiLinks, nodeURI);
             if (allImdiLinks != null) {
                 URI[] returnUriArray = new URI[allImdiLinks.length];
                 for (int linkCount = 0; linkCount
