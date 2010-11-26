@@ -11,6 +11,7 @@ import mpi.imdi.api.IMDILink;
 import mpi.imdi.api.WSNodeType;
 import mpi.util.OurURL;
 import nl.mpi.arbil.GuiHelper;
+import nl.mpi.arbil.LinorgBugCatcher;
 import nl.mpi.arbil.LinorgWindowManager;
 import nl.mpi.arbil.clarin.ArbilMetadataException;
 import org.w3c.dom.Document;
@@ -28,6 +29,7 @@ public class ImdiUtils implements MetadataUtils {
         try {
             mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+            checkImdiApiResult(nodDom, sourceURI);
             return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Catalogue");
         } catch (MalformedURLException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
@@ -41,6 +43,7 @@ public class ImdiUtils implements MetadataUtils {
         try {
             mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+            checkImdiApiResult(nodDom, sourceURI);
             return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Session");
         } catch (MalformedURLException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
@@ -69,12 +72,12 @@ public class ImdiUtils implements MetadataUtils {
 //        }
 //        return true;
 //    }
-    
     public boolean addCorpusLink(URI nodeURI, URI linkURI[]) {
         try {
             Document nodDom;
             OurURL inUrlLocal = new OurURL(nodeURI.toURL());
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
+            checkImdiApiResult(linkURI, nodeURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
@@ -88,10 +91,13 @@ public class ImdiUtils implements MetadataUtils {
                     if (isSession(currentLinkUri)) {
                         nodeType = WSNodeType.SESSION;
                     }
-                    api.createIMDILink(nodDom, inUrlLocal, currentLinkUri.toString(), "", nodeType, "");
+                    IMDILink createdLink = api.createIMDILink(nodDom, inUrlLocal, currentLinkUri.toString(), "", nodeType, "");
+                    checkImdiApiResult(createdLink, nodeURI);
+                    if (createdLink == null) {
+                        return false;
+                    }
                 }
-                api.writeDOM(nodDom, new File(nodeURI), true);
-                return true;
+                return api.writeDOM(nodDom, new File(nodeURI), true);
             }
         } catch (MalformedURLException ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -105,12 +111,14 @@ public class ImdiUtils implements MetadataUtils {
             mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURI().toURL());
 
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
+            checkImdiApiResult(nodDom, sourceURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
                 return false;
             } else {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
+                checkImdiApiResult(links,sourceURI);
                 if (links != null && updateLinks) {
                     for (mpi.imdi.api.IMDILink currentLink : links) {
                         URI linkUriToUpdate = null;
@@ -131,24 +139,27 @@ public class ImdiUtils implements MetadataUtils {
                             // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
                             // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
                             // todo: cont... this must instead take oldurl newurl and the new imdi file location
-//                            api.changeIMDILink(nodDom, destinationUrl, currentLink);
-                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
-                            String archiveHandle = currentLink.getURID();
-                            api.removeIMDILink(nodDom, currentLink);
-                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
-                            // preserve the archive handle so that LAMUS knows where it came from
-                            if (replacementLink != null) {
-                                replacementLink.setURID(archiveHandle);
-                            } else {
-                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
+                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                            if (!changeLinkResult) {
+                                checkImdiApiResult(null, sourceURI);
+                                return false;
                             }
-                            api.changeIMDILink(nodDom, destinationUrl, replacementLink);
+                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+//                            String archiveHandle = currentLink.getURID();
+//                            api.removeIMDILink(nodDom, currentLink);
+//                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
+                            // preserve the archive handle so that LAMUS knows where it came from
+//                            if (replacementLink != null) {
+//                                replacementLink.setURID(archiveHandle);
+//                            } else {
+//                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
+//                            }
+//                            api.changeIMDILink(nodDom, destinationUrl, replacementLink);
                         }
                     }
                 }
                 boolean removeIdAttributes = true;
-                api.writeDOM(nodDom, destinationFile, removeIdAttributes);
-                return true;
+                return api.writeDOM(nodDom, destinationFile, removeIdAttributes);
             }
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(e);
@@ -164,6 +175,7 @@ public class ImdiUtils implements MetadataUtils {
         try {
             OurURL destinationUrl = new OurURL(nodeURI.toString());
             Document nodDom = api.loadIMDIDocument(destinationUrl, false);
+            checkImdiApiResult(nodDom, nodeURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
@@ -171,12 +183,16 @@ public class ImdiUtils implements MetadataUtils {
             }
             IMDILink[] allImdiLinks;
             allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
+            checkImdiApiResult(allImdiLinks,nodeURI);
             if (allImdiLinks != null) {
                 for (IMDILink currentLink : allImdiLinks) {
                     for (URI currentUri : linkURI) {
                         try {
                             if (currentUri.equals(currentLink.getRawURL().toURL().toURI())) {
-                                api.removeIMDILink(nodDom, currentLink);
+                                if (!api.removeIMDILink(nodDom, currentLink)){
+                                    checkImdiApiResult(null,nodeURI);
+                                    return false;
+                                }
                             }
                         } catch (URISyntaxException exception) {
                             GuiHelper.linorgBugCatcher.logError(exception);
@@ -184,10 +200,8 @@ public class ImdiUtils implements MetadataUtils {
                     }
                 }
                 boolean removeIdAttributes = true;
-                api.writeDOM(nodDom, new File(nodeURI), removeIdAttributes);
-                return true;
+               return api.writeDOM(nodDom, new File(nodeURI), removeIdAttributes);
             }
-
         } catch (MalformedURLException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
@@ -199,8 +213,10 @@ public class ImdiUtils implements MetadataUtils {
         try {
             OurURL destinationUrl = new OurURL(nodeURI.toString());
             Document nodDom = api.loadIMDIDocument(destinationUrl, false);
+            checkImdiApiResult(nodDom,nodeURI);
             IMDILink[] allImdiLinks;
             allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
+            checkImdiApiResult(allImdiLinks,nodeURI);
             if (allImdiLinks != null) {
                 URI[] returnUriArray = new URI[allImdiLinks.length];
                 for (int linkCount = 0; linkCount
@@ -220,5 +236,12 @@ public class ImdiUtils implements MetadataUtils {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
         }
         return null;
+    }
+
+    private void checkImdiApiResult(Object resultUnknown, URI imdiURI) {
+        if (resultUnknown == null) {
+            new LinorgBugCatcher().logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
+            GuiHelper.linorgBugCatcher.logError("The following is the last known error from the API: ", new Exception(api.getMessage()));
+        }
     }
 }
