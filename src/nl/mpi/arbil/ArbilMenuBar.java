@@ -18,6 +18,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
@@ -419,16 +420,6 @@ public class ArbilMenuBar extends JMenuBar {
         });
         optionsMenu.add(editPreferredLanguagesMenuItem);
 
-        editFieldViewsMenuItem.setText("Field Views");
-        editFieldViewsMenuItem.setEnabled(false);
-//        editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-//
-//            public void actionPerformed(java.awt.event.ActionEvent evt) {
-//                editFieldViewsMenuItemActionPerformed(evt);
-//            }
-//        });
-        optionsMenu.add(editFieldViewsMenuItem);
-
         updateAllLoadedVocabulariesMenuItem.setText("Re-download Current Vocabularies");
         updateAllLoadedVocabulariesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -466,7 +457,7 @@ public class ArbilMenuBar extends JMenuBar {
 
         copyNewResourcesCheckBoxMenuItem.setSelected(MetadataReader.getSingleInstance().copyNewResourcesToCache);
         copyNewResourcesCheckBoxMenuItem.setText("Copy new resources into cache");
-        copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session copy the file into the local cache.");
+        copyNewResourcesCheckBoxMenuItem.setToolTipText("When adding a new resource to a session this options will copy the file into the local cache rather than linking to its current location. This option can make a considerable difference to disk use if you are handling large files.");
         copyNewResourcesCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -484,13 +475,14 @@ public class ArbilMenuBar extends JMenuBar {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
                 LinorgSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
             }
         });
         optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
 
         schemaCheckLocalFiles.setText("Always check local metadata files for XML conformance");
         schemaCheckLocalFiles.setSelected(ImdiLoader.getSingleInstance().schemaCheckLocalFiles);
-        schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded.");
+        schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded. If the metadata file does not validate against the schema it will be highlighted red in the tree.");
         schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -513,6 +505,7 @@ public class ArbilMenuBar extends JMenuBar {
                 }
             }
         });
+        trackTableSelectionCheckBoxMenuItem.setEnabled(false);
         optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
         useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName);
@@ -534,7 +527,9 @@ public class ArbilMenuBar extends JMenuBar {
 
         this.add(optionsMenu);
 
-        viewMenu.setText("Column Views");
+        optionsMenu.add(new JSeparator());
+
+        viewMenu.setText("Column View for new tables");
         viewMenu.addMenuListener(new MenuListener() {
 
             public void menuCanceled(MenuEvent evt) {
@@ -547,7 +542,17 @@ public class ArbilMenuBar extends JMenuBar {
                 viewMenuMenuSelected(evt);
             }
         });
-        this.add(viewMenu);
+        optionsMenu.add(viewMenu);
+
+        editFieldViewsMenuItem.setText("Edit Column Views");
+        editFieldViewsMenuItem.setEnabled(false);
+//        editFieldViewsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                editFieldViewsMenuItemActionPerformed(evt);
+//            }
+//        });
+        optionsMenu.add(editFieldViewsMenuItem);
 
         windowMenu.setText("Window");
         this.add(windowMenu);
