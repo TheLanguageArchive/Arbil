@@ -185,9 +185,9 @@ public class MetadataReader {
     public String getNodeTypeFromMimeType(String mimeType) {
         System.out.println("getNodeTypeFromMimeType: " + mimeType);
         for (String[] formatType : new String[][]{
-            {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
-            {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
-        }) {
+                    {"http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml", ".METATRANSCRIPT.Session.Resources.WrittenResource", "Manual/WrittenResource"},
+                    {"http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml", ".METATRANSCRIPT.Session.Resources.MediaFile", "Manual/MediaFile"}
+                }) {
             if (formatType[2].equals(mimeType)) {
                 System.out.println("UsingOverrideNodeType: " + formatType[1]);
                 return formatType[1];
@@ -625,14 +625,15 @@ public class MetadataReader {
                             // add brackets to conform with the imdi api notation
                             siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
                         } else {
+                            // todo: this might need to be revisited
                             // this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
                             int siblingCount = 1;
-                            for (ImdiTreeObject siblingNode : parentChildTree.get(parentNode)){
+                            for (ImdiTreeObject siblingNode : parentChildTree.get(parentNode)) {
                                 String siblingPath = siblingNode.getURI().getFragment();
-                                if (siblingPath!=null){
+                                if (siblingPath != null) {
                                     siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
-                                    siblingPath = siblingPath.replaceAll("\\(\\d\\)", "");
-                                    if (localName.equals(siblingPath)){
+                                    siblingPath = siblingPath.replaceAll("\\(\\d+\\)", "");
+                                    if (localName.equals(siblingPath)) {
                                         siblingCount++;
                                     }
 //                                    System.out.println(localName + " : " + siblingCount + " : " + siblingPath + " : " + siblingNode.getURI().getFragment());
@@ -643,7 +644,7 @@ public class MetadataReader {
                         }
                         fullSubNodePath = fullSubNodePath + siblingSpacer;
                         ImdiTreeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
-                        if (metaNodeImdiTreeObject!= null) {
+                        if (metaNodeImdiTreeObject != null) {
                             parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
                         } else {
 //                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
