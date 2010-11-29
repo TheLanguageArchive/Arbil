@@ -139,27 +139,37 @@ public class ImdiUtils implements MetadataUtils {
                             // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
                             // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
                             // todo: cont... this must instead take oldurl newurl and the new imdi file location
-                        /*    boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
-                            if (!changeLinkResult) {
-                                checkImdiApiResult(null, sourceURI);
-                                return false;
-                            }*/
+//                            boolean changeLinkResult = api.changeIMDILink(nodDom, new mpi.util.OurURL(linkUriToUpdate.toURL()), currentLink);
+//                            if (!changeLinkResult) {
+//                                checkImdiApiResult(null, sourceURI);
+//                                return false;
+//                            }
                             // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
-                            String archiveHandle = currentLink.getURID();
-                            api.removeIMDILink(nodDom, currentLink);
-                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
-                            // preserve the archive handle so that LAMUS knows where it came from
-                            if (replacementLink != null) {
-                                replacementLink.setURID(archiveHandle);
-                            } else {
-                                checkImdiApiResult(null, sourceURI);
-//                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
-                            }
-                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, replacementLink);
+                            currentLink.setURL(new mpi.util.OurURL(linkUriToUpdate.toURL()));
+                            //System.out.println("currentLink.getURL: " + currentLink.getURL());
+                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
                             if (!changeLinkResult) {
                                 checkImdiApiResult(null, sourceURI);
                                 return false;
                             }
+
+//                            String archiveHandle = currentLink.getURID();
+//                            api.removeIMDILink(nodDom, currentLink);
+//                            IMDILink replacementLink = api.createIMDILink(nodDom, destinationUrl, linkUriToUpdate.toString(), currentLink.getLinkName(), currentLink.getNodeType(), currentLink.getSpec());
+//                            // preserve the archive handle so that LAMUS knows where it came from
+//                            if (replacementLink != null) {
+//                                replacementLink.setURID(archiveHandle);
+//                            } else {
+//                                checkImdiApiResult(null, sourceURI);
+////                                throw new ArbilMetadataException("IMDI API returned null, no further information is available");
+//                            }
+//                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, replacementLink);
+//                            if (!changeLinkResult) {
+//                                checkImdiApiResult(null, sourceURI);
+//                                return false;
+//                            }
+                        } else {
+                            return false;
                         }
                     }
                 }
