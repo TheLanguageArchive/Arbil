@@ -196,7 +196,7 @@ public class CmdiComponentBuilder {
             imdiTreeObject.saveChangesToCache(true);
         }
         synchronized (imdiTreeObject.getParentDomLockObject()) {
-            System.out.println("removeChildNodes: " + imdiTreeObject);
+            System.out.println("remove from parent nodes: " + imdiTreeObject);
             File cmdiNodeFile = imdiTreeObject.getFile();
             try {
                 Document targetDocument = getDocument(imdiTreeObject.getURI());
@@ -206,13 +206,18 @@ public class CmdiComponentBuilder {
                     System.out.println("removeChildNodes: " + currentNodePath);
                     // todo: search for and remove any reource links referenced by this node or its sub nodes
                     Node documentNode = selectSingleNode(targetDocument, currentNodePath);
+                    //System.out.println("documentNode: " + documentNode);
+                    System.out.println("documentNodeName: " + documentNode.getNodeName());
                     selectedNodes.add(documentNode);
 
                 }
                 // delete all the nodes now that the xpath is no longer relevant
+                System.out.println(selectedNodes.size());
                 for (Node currentNode : selectedNodes) {
-//                    todo: there may be an issue here when deleting a languages node with two languages within it
-                    currentNode.getParentNode().removeChild(currentNode);
+                    Node parentNode = currentNode.getParentNode();
+                    if (parentNode!= null) {
+                        parentNode.removeChild(currentNode);
+                    }
                 }
                 // bump the history
                 imdiTreeObject.bumpHistory();
@@ -767,7 +772,7 @@ public class CmdiComponentBuilder {
 
     private void readSchema(Document workingDocument, URI xsdFile, boolean addDummyData) {
         File schemaFile;
-        if (xsdFile.getScheme().toLowerCase().equals("file")) {
+        if (xsdFile.getScheme() == null || xsdFile.getScheme().length() == 0 || xsdFile.getScheme().toLowerCase().equals("file")) {
             // do not cache local xsd files
             schemaFile = new File(xsdFile);
         } else {
