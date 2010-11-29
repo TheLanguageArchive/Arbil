@@ -401,6 +401,7 @@ public class ContextMenu {
                 }
             }
         });
+        jumpToNodeInTreeMenuItem.setEnabled(false);
         treePopupMenu.add(jumpToNodeInTreeMenuItem);
         treePopupMenu.add(new JSeparator());
         //////////
