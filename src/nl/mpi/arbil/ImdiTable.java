@@ -159,7 +159,7 @@ public class ImdiTable extends JTable {
                     });
                     popupMenu.add(editViewMenuItem);
 
-                    JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Show Only Current Columns");
+                    JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
                     showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
@@ -177,7 +177,7 @@ public class ImdiTable extends JTable {
                     //popupMenu.add(saveViewMenuItem);
 
                     // create the views sub menu
-                    JMenu fieldViewsMenuItem = new JMenu("Apply Saved Column View");
+                    JMenu fieldViewsMenuItem = new JMenu("Column View for this Table");
                     ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
                     //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
                     for (Enumeration savedViewsEnum = ImdiFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
