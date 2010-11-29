@@ -1003,11 +1003,11 @@ public class ImdiTreeObject implements Comparable {
             bumpHistory();
             copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
             synchronized (getParentDomLockObject()) {
-                metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
+                return metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
             }
             //loadChildNodes(); // this must not be done here
             //            clearIcon(); // this must be cleared so that the leaf / branch flag gets set
-            return true;
+//            return true;
         }
     }
 
@@ -1356,12 +1356,14 @@ public class ImdiTreeObject implements Comparable {
         //            nodeText = commonFieldPathString;
         //        }
         boolean foundPreferredNameField = false;
+        boolean preferredNameFieldExists = false;
         getLabelString:
         for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
             //System.out.println("currentField: " + currentPreferredName);
             for (ImdiField[] currentFieldArray : fieldHashtable.values()) {
                 //                System.out.println(currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "") + " : " + currentPreferredName);
                 if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+                    preferredNameFieldExists = true;
                     for (ImdiField currentField : currentFieldArray) {
                         if (currentField != null) {
                             if (currentField.toString().trim().length() > 0) {
@@ -1387,13 +1389,12 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-
-        if (!foundPreferredNameField && isCmdiMetaDataNode() /*&& fieldHashtable.size() > 0 && domParentImdi == this*/) {
+        if (!foundPreferredNameField && this.isCmdiMetaDataNode()/* && isCmdiMetaDataNode() *//*&& fieldHashtable.size() > 0 && domParentImdi == this*/) {
             String unamedText;
             String nodeFragmentName = this.getURI().getFragment();
             if (nodeFragmentName != null) {
                 nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
-                nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d\\)", "");
+                nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
                 unamedText = nodeFragmentName;
             } else if (this.nodeTemplate != null) {
                 //            if (this.getNodeTemplate().preferredNameFields.length == 0) {
@@ -1403,7 +1404,11 @@ public class ImdiTreeObject implements Comparable {
             } else {
                 unamedText = "";
             }
-            nodeText = "unnamed (" + unamedText + ")";
+            if (preferredNameFieldExists) {
+                nodeText = "unnamed (" + unamedText + ")";
+            }  else {
+                nodeText = unamedText;
+            }
         }
         //        if (!foundPreferredNameField && isCmdiMetaDataNode() && domParentImdi == this && fieldHashtable.size() > 0) {
         //            // only if no name has been found and only for cmdi nodes and only when this is the dom parent node
