@@ -625,13 +625,14 @@ public class MetadataReader {
                             // add brackets to conform with the imdi api notation
                             siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
                         } else {
+                            // todo: this might need to be revisited
                             // this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
                             int siblingCount = 1;
                             for (ImdiTreeObject siblingNode : parentChildTree.get(parentNode)) {
                                 String siblingPath = siblingNode.getURI().getFragment();
                                 if (siblingPath != null) {
                                     siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
-                                    siblingPath = siblingPath.replaceAll("\\(\\d\\)", "");
+                                    siblingPath = siblingPath.replaceAll("\\(\\d+\\)", "");
                                     if (localName.equals(siblingPath)) {
                                         siblingCount++;
                                     }
