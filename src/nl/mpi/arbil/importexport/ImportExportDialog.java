@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Insets;
@@ -208,13 +209,20 @@ public class ImportExportDialog {
             renameFileToNodeName.setVisible(showFlag && exportDestinationDirectory != null);
             renameFileToLamusFriendlyName.setVisible(showFlag && exportDestinationDirectory != null);
             overwriteCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
-            //shibbolethCheckBox.setVisible(showFlag && exportDestinationDirectory == null);
-            shibbolethPanel.setVisible(showFlag/* && shibbolethCheckBox.isSelected()*/);
+            shibbolethCheckBox.setVisible(showFlag && copyFilesCheckBox.isSelected());
+            shibbolethPanel.setVisible(showFlag && copyFilesCheckBox.isSelected());
             outputNodePanel.setVisible(false);
             inputNodePanel.setVisible(false);
 //            searchDialog.pack();
             outputNodePanel.setVisible(true);
             inputNodePanel.setVisible(true);
+            System.out.println(searchDialog.getSize());
+            if (showFlag) {
+                searchDialog.setMinimumSize(new Dimension(467, 669));
+            } else {
+                searchDialog.setMinimumSize(new Dimension(316, 126));
+                searchDialog.setSize(new Dimension(316, 126));
+            }
         }
     }
 
@@ -275,7 +283,7 @@ public class ImportExportDialog {
         outputNodeLabelPanel.add(outputNodePanel, BorderLayout.CENTER);
         inOutNodePanel.add(outputNodeLabelPanel);
 
-        detailsCheckBox = new JCheckBox("Show Details", false);
+        detailsCheckBox = new JCheckBox("Show Details and Options", false);
         detailsCheckBox.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -295,7 +303,7 @@ public class ImportExportDialog {
         searchPanel.add(inOutNodePanel, BorderLayout.NORTH);
 
         detailsPanel = new JPanel();
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.PAGE_AXIS));
+        detailsPanel.setLayout(new BorderLayout());
 
         copyFilesCheckBox = new JCheckBox("Copy Resource Files (if available)", false);
         renameFileToNodeName = new JCheckBox("Rename Metadata Files (to match local corpus tree names)", true);
@@ -335,14 +343,28 @@ public class ImportExportDialog {
 //        copyFilesCheckBoxPanel.add(copyFilesCheckBox);
 //        copyFilesCheckBoxPanel.add(new JPanel());
 //        detailsPanel.add(copyFilesCheckBoxPanel, BorderLayout.NORTH);
-        detailsPanel.add(renameFileToNodeName, BorderLayout.NORTH);
-        detailsPanel.add(renameFileToLamusFriendlyName, BorderLayout.NORTH);
-        detailsPanel.add(overwriteCheckBox, BorderLayout.NORTH);
-        detailsPanel.add(copyFilesCheckBox, BorderLayout.NORTH);
-        detailsPanel.add(shibbolethCheckBox, BorderLayout.NORTH);
-        detailsPanel.add(shibbolethPanel, BorderLayout.NORTH);
 
-//        detailsPanel.add(new JPanel());
+        JPanel detailsTopPanel = new JPanel();
+        detailsTopPanel.setLayout(new BoxLayout(detailsTopPanel, BoxLayout.PAGE_AXIS));
+        JPanel detailsTopCheckBoxPanel = new JPanel();
+        detailsTopCheckBoxPanel.setLayout(new BoxLayout(detailsTopCheckBoxPanel, BoxLayout.PAGE_AXIS));
+
+        detailsTopCheckBoxPanel.add(renameFileToNodeName);
+        detailsTopCheckBoxPanel.add(renameFileToLamusFriendlyName);
+        detailsTopCheckBoxPanel.add(overwriteCheckBox);
+        detailsTopCheckBoxPanel.add(copyFilesCheckBox);
+        detailsTopCheckBoxPanel.add(shibbolethCheckBox);
+
+        JPanel paddingPanel = new JPanel();
+        paddingPanel.setLayout(new BoxLayout(paddingPanel, BoxLayout.LINE_AXIS));
+        JPanel leftPadding = new JPanel();
+        leftPadding.setMaximumSize(new Dimension(500, 100));
+        paddingPanel.add(leftPadding);
+        paddingPanel.add(detailsTopCheckBoxPanel);
+        paddingPanel.add(new JPanel());
+        detailsTopPanel.add(paddingPanel);
+        detailsTopPanel.add(shibbolethPanel);
+        detailsPanel.add(detailsTopPanel, BorderLayout.NORTH);
 
         detailsTabPane = new JTabbedPane();
 
