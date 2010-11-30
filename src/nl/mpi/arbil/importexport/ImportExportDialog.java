@@ -223,6 +223,7 @@ public class ImportExportDialog {
                 searchDialog.setMinimumSize(new Dimension(316, 126));
                 searchDialog.setSize(new Dimension(316, 126));
             }
+            searchDialog.setResizable(showFlag);
         }
     }
 
