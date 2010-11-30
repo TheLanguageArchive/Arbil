@@ -170,7 +170,7 @@ public class ArbilMenuBar extends JMenuBar {
         });
         fileMenu.add(showChangedNodesMenuItem);
 
-        importMenuItem.setText("Import");
+        importMenuItem.setText("Import...");
         importMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -317,7 +317,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        });
 //        optionsMenu.add(editLocationsMenuItem);
 
-        templatesMenu.setText("Templates & Profiles");
+        templatesMenu.setText("Templates & Profiles...");
         templatesMenu.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -370,7 +370,7 @@ public class ArbilMenuBar extends JMenuBar {
                 cacheDirectoryMenuItem.setText(LinorgSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
                 cacheDirectoryMenuItem.setEnabled(false);
                 JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
-                changeCacheDirectoryMenuItem.setText("<Move Local Corpus Storage Directory>");
+                changeCacheDirectoryMenuItem.setText("Move Local Corpus Storage Directory...");
                 changeCacheDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -410,7 +410,7 @@ public class ArbilMenuBar extends JMenuBar {
 //        optionsMenu.add(localStorageDirectoriesMenu);
         optionsMenu.add(setCacheDirectoryMenu);
 
-        editPreferredLanguagesMenuItem.setText("Edit Language List");
+        editPreferredLanguagesMenuItem.setText("Edit Language List...");
         editPreferredLanguagesMenuItem.setEnabled(true);
         editPreferredLanguagesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -436,7 +436,7 @@ public class ArbilMenuBar extends JMenuBar {
         showSelectionPreviewCheckBoxMenuItem.setSelected(LinorgSessionStorage.getSingleInstance().loadBoolean("showSelectionPreview", true));
         previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
         showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
-        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
+//        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
         showSelectionPreviewCheckBoxMenuItem.setText("Show Selection Preview");
         showSelectionPreviewCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
