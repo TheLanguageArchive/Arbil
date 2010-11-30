@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.swing.ProgressMonitor;
 import org.xml.sax.InputSource;
 
 /**
@@ -17,7 +18,7 @@ import org.xml.sax.InputSource;
  */
 public class ImdiVocabularies {
 
-    Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
+    private Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
     // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
     // every time IMDIVocab in the API is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else
     // mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
@@ -56,16 +57,34 @@ public class ImdiVocabularies {
     }
 
     public void redownloadCurrentlyLoadedVocabularies() {
-        int succeededCount = 0;
-        for (String currentUrl : vocabulariesTable.keySet()) {
-            if (LinorgSessionStorage.getSingleInstance().replaceCacheCopy(currentUrl)) {
-                succeededCount++;
+        new Thread() {
+
+            @Override
+            public void run() {
+                int succeededCount = 0;
+                int failedCount = 0;
+                ProgressMonitor progressMonitor = new ProgressMonitor(LinorgWindowManager.getSingleInstance().desktopPane, "Downloading currently loaded vocabularies", "", 0, vocabulariesTable.size());
+                for (String currentUrl : vocabulariesTable.keySet()) {
+                    if (LinorgSessionStorage.getSingleInstance().replaceCacheCopy(currentUrl)) {
+                        succeededCount++;
+                    } else {
+                        failedCount++;
+                    }
+                    if (progressMonitor.isCanceled()) {
+                        progressMonitor.close();
+                        break;
+                    }
+                    progressMonitor.setNote("downloaded: " + succeededCount + " failed: " + failedCount);
+                    progressMonitor.setProgress(succeededCount);
+                }
+                progressMonitor.close();
+                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect.", "Re-download Current Vocabularies");
             }
-        }
-        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect.", "Re-download Current Vocabularies");
+        }.start();
     }
 
     public Vocabulary getVocabulary(ImdiField originatingImdiField, String vocabularyLocation) {
+        // todo the MPI-Languages vocabularies should use the DocumentationLanguages().getLanguageListSubset(); class that provides a sub set list of languages
         if (originatingImdiField != null) {
             if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
                 return null;
@@ -160,21 +179,22 @@ public class ImdiVocabularies {
                 org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
                 xmlReader.setFeature("http://xml.org/sax/features/validation", false);
                 xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
-				///////////////////////////////////////////////////////////////////////
-				// non utf-8 version
+                ///////////////////////////////////////////////////////////////////////
+                // non utf-8 version
 //                xmlReader.setContentHandler(new SaxVocabularyHandler(vocabulary));
 //                xmlReader.parse(cachedFile.getCanonicalPath());
                 /////////////////////////////////////////////////////////////////////// 
-				// utf-8 version     
+                // utf-8 version
                 // todo: here we could test if the file is utf-8 and log an error if it is not
                 InputStream inputStream = new FileInputStream(cachedFile);
                 Reader reader = new InputStreamReader(inputStream, "UTF-8");
                 InputSource inputSource = new InputSource(reader);
                 inputSource.setEncoding("UTF-8");
                 saxParser.parse(inputSource, new SaxVocabularyHandler(vocabulary));
-				///////////////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////////////
             } catch (Exception ex) {
                 LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
+                new LinorgBugCatcher().logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
             }
         }
     }
