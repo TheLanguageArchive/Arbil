@@ -51,12 +51,12 @@ public class ImportExportDialog {
     private JPanel searchPanel;
     private JPanel inputNodePanel;
     private JPanel outputNodePanel;
-    private JCheckBox copyFilesCheckBox;
-    private JCheckBox renameFileToNodeName;
-    private JCheckBox renameFileToLamusFriendlyName;
-    private JCheckBox detailsCheckBox;
-    private JCheckBox overwriteCheckBox;
-    private JCheckBox shibbolethCheckBox;
+    protected JCheckBox copyFilesCheckBox;
+    protected JCheckBox renameFileToNodeName;
+    protected JCheckBox renameFileToLamusFriendlyName;
+    protected JCheckBox detailsCheckBox;
+    protected JCheckBox overwriteCheckBox;
+    protected JCheckBox shibbolethCheckBox;
     private JPanel shibbolethPanel;
 //    private JProgressBar resourceProgressBar;
     private JLabel resourceProgressLabel;
@@ -88,9 +88,9 @@ public class ImportExportDialog {
     // variables used by the copy thread
     // variables used by all threads
     private boolean stopSearch = false;
-    private Vector selectedNodes;
+    protected Vector<ImdiTreeObject> selectedNodes;
     ImdiTreeObject destinationNode = null;
-    File exportDestinationDirectory = null;
+    protected File exportDestinationDirectory = null;
     DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
     ShibbolethNegotiator shibbolethNegotiator = null;
     Vector<URI> validationErrors = new Vector<URI>();
@@ -380,6 +380,7 @@ public class ImportExportDialog {
         progressXmlErrorsLabel.setForeground(Color.red);
         resourceCopyErrorsLabel.setForeground(Color.red);
 
+        bottomPanel.add(new SaveCurrentSettingsPanel(this, null));
         bottomPanel.add(progressFoundLabel);
         bottomPanel.add(progressProcessedLabel);
         bottomPanel.add(progressAlreadyInCacheLabel);
@@ -622,7 +623,9 @@ public class ImportExportDialog {
 
                         private String makeFileNameLamusFriendly(String fileNameString) {
                             // as requested by Eric: x = x.replaceAll("[^A-Za-z0-9._-]", "_"); // keep only "nice" chars
-                            return fileNameString.replaceAll("[^A-Za-z0-9-]", "_"); // this will only be passed the file name without suffix so "." should not be allowed, also there is no point replacing "_" with "_".
+                            String friendlyFileName = fileNameString.replaceAll("[^A-Za-z0-9-]", "_"); // this will only be passed the file name without suffix so "." should not be allowed, also there is no point replacing "_" with "_".
+                            friendlyFileName = friendlyFileName.replaceAll("__+", "_");
+                            return friendlyFileName;
                         }
 
                         public void calculateUriFileName() {
