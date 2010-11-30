@@ -170,7 +170,7 @@ public class ArbilMenuBar extends JMenuBar {
         });
         fileMenu.add(showChangedNodesMenuItem);
 
-        importMenuItem.setText("Import..."); // todo continue this paradgm
+        importMenuItem.setText("Import...");
         importMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
