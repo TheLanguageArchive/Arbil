@@ -218,7 +218,7 @@ public class ImportExportDialog {
             inputNodePanel.setVisible(true);
             System.out.println(searchDialog.getSize());
             if (showFlag) {
-                searchDialog.setMinimumSize(new Dimension(467, 669));
+                searchDialog.setMinimumSize(new Dimension(467, 500));
             } else {
                 searchDialog.setMinimumSize(new Dimension(316, 126));
                 searchDialog.setSize(new Dimension(316, 126));
