@@ -802,7 +802,7 @@ public class ImportExportDialog {
                                                             resourceProgressLabel.setText(" ");
                                                         }
                                                         //resourceCopyOutput.append(downloadFileLocation + "\n");
-                                                        if (downloadFileLocation.exists()) {
+                                                        if (downloadFileLocation != null && downloadFileLocation.exists()) {
                                                             appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
                                                             //resourceCopyOutput.append("Copied " + downloadFileLocation.length() + "b\n");
                                                             uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
