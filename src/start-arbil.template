@@ -4,4 +4,4 @@ exec java \
 	-classpath "$BASEDIR/arbil-@ArbilVersionNumber@.jar:$BASEDIR/lib" \
 	-Xdock:name="@ApplicationTitle@" \
         -Xdock:icon="$BASEDIR/../Resources/arbil@FilenameIdentifier@.icns" \
-	nl.mpi.arbil.LinorgFrame
+	nl.mpi.arbil.ArbilMain
