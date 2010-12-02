@@ -995,11 +995,11 @@ public class ImportExportDialog {
                         // prevent restart
                         selectedNodes.removeAllElements();
                         //TODO: prevent restart and probably make sure that done files are not redone if stopped
-                        if (exportDestinationDirectory != null) {
-                            File[] destinationFile = new File[2];
-                            removeEmptyDirectoryPaths(exportDestinationDirectory, destinationFile);
-                            destinationFile[0].renameTo(destinationFile[1]);
-                        }
+//                        if (exportDestinationDirectory != null) {
+//                            File[] destinationFile = new File[2];
+//                            removeEmptyDirectoryPaths(exportDestinationDirectory, destinationFile);
+//                            destinationFile[0].renameTo(destinationFile[1]);
+//                        }
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
