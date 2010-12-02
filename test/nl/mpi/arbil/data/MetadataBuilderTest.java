@@ -68,7 +68,6 @@ public class MetadataBuilderTest {
     public void testAddChildNodeImdiSession() {
         testAddChildNode(".METATRANSCRIPT.Session : this will fail as imdi add is currently handled by metadatareader and should be consolidated");
     }
-
     private void testAddChildNode(String currentTestTemplate) {
         MetadataBuilder metadataBuilder = new MetadataBuilder();
         CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
@@ -204,7 +203,8 @@ public class MetadataBuilderTest {
                     nextLevel.add(nextLevelNode);
                 }
             }
-//                currentLevel.clear();
+            currentLevel.clear();
+            currentLevel = nextLevel;
 //                for (ImdiTreeObject nextLevelNode : gedcomImdiObject.getAllChildren()) {
 //                    if (!completedNodes.contains(nextLevelNode)) {
 //                        currentLevel.add(nextLevelNode);
