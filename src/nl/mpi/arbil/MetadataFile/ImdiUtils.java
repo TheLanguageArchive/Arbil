@@ -235,10 +235,11 @@ public class ImdiUtils implements MetadataUtils {
             checkImdiApiResult(allImdiLinks, nodeURI);
             if (allImdiLinks != null) {
                 URI[] returnUriArray = new URI[allImdiLinks.length];
-                for (int linkCount = 0; linkCount
-                        < allImdiLinks.length; linkCount++) {
+                for (int linkCount = 0; linkCount < allImdiLinks.length; linkCount++) {
                     try {
+                        checkImdiApiResult(allImdiLinks[linkCount], nodeURI);
                         returnUriArray[linkCount] = allImdiLinks[linkCount].getRawURL().toURL().toURI();
+                        checkImdiApiResult(returnUriArray[linkCount], nodeURI);
                     } catch (URISyntaxException exception) {
                         GuiHelper.linorgBugCatcher.logError(exception);
                         LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
