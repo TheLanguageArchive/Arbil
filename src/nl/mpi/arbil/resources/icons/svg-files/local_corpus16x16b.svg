@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg1350"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   sodipodi:docbase="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons"
+   sodipodi:docname="local_corpus16x16b.svg"
+   inkscape:export-filename="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons/local_corpus16x16b.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs1352" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.197802"
+     inkscape:cx="8"
+     inkscape:cy="8"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="806"
+     inkscape:window-height="591"
+     inkscape:window-x="342"
+     inkscape:window-y="102" />
+  <metadata
+     id="metadata1355">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <rect
+       style="fill:#389367;fill-opacity:0.76785715;fill-rule:evenodd;stroke:#000000;stroke-width:0.90157801px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:0.625"
+       id="rect1359"
+       width="12"
+       height="7.7401142"
+       x="0.5"
+       y="7.8551903"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       inkscape:export-filename="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons/local_corpus16x16b.png" />
+    <image
+       xlink:href="corpusnode_color.png"
+       sodipodi:absref="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons/corpusnode_color.png"
+       width="16"
+       height="16"
+       id="image1340"
+       x="2"
+       y="-2" />
+    <rect
+       y="10.449162"
+       x="8.3897095"
+       height="7.0926132"
+       width="12"
+       id="rect1361"
+       style="fill:#389367;fill-opacity:0.76785713;fill-rule:evenodd;stroke:#000000;stroke-width:0.86304373px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:0.625"
+       transform="matrix(1,0,-0.449767,0.893146,0,0)"
+       inkscape:export-filename="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons/local_corpus16x16a.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>

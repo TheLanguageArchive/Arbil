@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16px"
+   height="16px"
+   id="svg1418"
+   sodipodi:version="0.32"
+   inkscape:version="0.43"
+   inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/blank.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   sodipodi:docbase="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/svg-files"
+   sodipodi:docname="local-remote.svg">
+  <defs
+     id="defs1420" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="22.197802"
+     inkscape:cx="8"
+     inkscape:cy="19.797705"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:window-width="872"
+     inkscape:window-height="591"
+     inkscape:window-x="6"
+     inkscape:window-y="48" />
+  <metadata
+     id="metadata1423">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <g
+       id="g6713"
+       transform="translate(-0.754136,17.25214)">
+      <path
+         transform="matrix(1.317986,0,0,1.458519,0.160106,-1.157919)"
+         d="M 11.127228 6.2918315 A 5.1806931 4.6626239 0 1 1  0.76584148,6.2918315 A 5.1806931 4.6626239 0 1 1  11.127228 6.2918315 z"
+         sodipodi:ry="4.6626239"
+         sodipodi:rx="5.1806931"
+         sodipodi:cy="6.2918315"
+         sodipodi:cx="5.9465346"
+         id="path3178"
+         style="fill:#000000;fill-opacity:0;stroke:#ae0004;stroke-width:1.33936965;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         sodipodi:type="arc" />
+      <path
+         id="path6711"
+         d="M 1,8 L 15,8"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ae0004;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <g
+       id="g6723">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/remote.png"
+         y="0"
+         x="-8"
+         height="16"
+         width="7"
+         id="rect6721"
+         style="fill:#000000;fill-opacity:0;stroke:none;stroke-width:1.70000005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         inkscape:export-filename="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons/local_corpus16x16b.png"
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         y="10.231661"
+         x="-7.7776914"
+         height="5.4515982"
+         width="4.4994783"
+         id="rect1359"
+         style="fill:#389367;fill-opacity:0.76785715;fill-rule:evenodd;stroke:#000000;stroke-width:0.463321px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:0.625" />
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/data1/repos/LocalCopy/Linorg-SingleFrameApplication/src/mpi/linorg/resources/icons/local_corpus16x16a.png"
+         transform="matrix(1,0,-0.355439,0.9347,0,0)"
+         style="fill:#389367;fill-opacity:0.76785715;fill-rule:evenodd;stroke:#000000;stroke-width:0.41873223px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:0.625"
+         id="rect1361"
+         width="5.1757407"
+         height="3.8709927"
+         x="-1.7522386"
+         y="13.014664" />
+    </g>
+    <g
+       id="g6728"
+       transform="translate(17,0)">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/data1/repos/DesktopApplication1/WithoutApplictionFramework/src/mpi/linorg/resources/icons/remote.png"
+         y="0"
+         x="0"
+         height="16"
+         width="7"
+         id="rect1430"
+         style="fill:#000000;fill-opacity:0;stroke:none;stroke-width:1.70000005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <rect
+         y="0.10820568"
+         x="2.1066012"
+         height="5.785193"
+         width="3.7840438"
+         id="rect2236"
+         style="fill:#9e872c;fill-opacity:0.72619042;stroke:#000000;stroke-width:0.2132027;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.625" />
+      <path
+         id="path2238"
+         d="M 4.9910881,4.5016044 L 3.9910871,4.5016044"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#c90000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <path
+       id="path7628"
+       d="M 1.8747525,14.15297 L 14.162871,1.8544553"
+       style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#ae0004;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       sodipodi:nodetypes="cc" />
+  </g>
+</svg>
