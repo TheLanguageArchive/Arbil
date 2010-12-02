@@ -24,4 +24,5 @@ External_Editors/Copy paste to and from spread sheets.html
 2. Quick Introduction.html
 Lamus/Uploading to the corpus server.html
 3. Work Flow.html
+4. Application Test.html
 Wizard.html
