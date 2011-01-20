@@ -151,7 +151,8 @@ public class ImdiUtils implements MetadataUtils {
                             boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
                             if (!changeLinkResult) {
                                 checkImdiApiResult(null, sourceURI);
-                                return false;
+                                // changeIMDILink appears to always return false, at very least for corpus nodes!
+                                //return false;
                             }
 
 //                            String archiveHandle = currentLink.getURID();
