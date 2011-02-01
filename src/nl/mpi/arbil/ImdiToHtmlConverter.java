@@ -63,8 +63,8 @@ public class ImdiToHtmlConverter {
 
     private void copyDependancies(File destinationDirectory, boolean deleteOnExit) {
         // copy any dependent files from the jar
-        String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "additTooltip.js", "additPopup.js", "imdi-viewer.css", "additTooltip.css"};
-
+        String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "imdi-viewer.css"};
+//"additTooltip.js", "additPopup.js", , "additTooltip.css"
         for (String dependantFileString : dependentFiles) {
             File tempDependantFile = new File(destinationDirectory, dependantFileString);
             if (deleteOnExit) {
@@ -74,6 +74,9 @@ public class ImdiToHtmlConverter {
                 FileOutputStream outFile = new FileOutputStream(tempDependantFile);
                 //InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
                 InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
+                if (inputStream == null) {
+                    GuiHelper.linorgBugCatcher.logError(new Exception("Missing file in jar: " + dependantFileString));
+                }
                 int bufferLength = 1024 * 4;
                 byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
                 int bytesread = 0;
