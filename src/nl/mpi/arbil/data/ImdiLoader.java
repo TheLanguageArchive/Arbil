@@ -41,18 +41,31 @@ public class ImdiLoader {
         localLoaderThreadGroup = new ThreadGroup("LocalLoaderThreads");
     }
 
+    
     synchronized public void startLoaderThreads() {
-//        Thread[] allRemoteThreads = new Thread[]{};
-//        remoteLoaderThreadGroup.enumerate(allRemoteThreads);
-//        for (Thread currenThread : allRemoteThreads) {
-//            System.out.println(currenThread.getState());
-////            System.out.println(currenThread.interrupted());
-//            System.out.println(currenThread.isAlive());
-//        }
+        // TG: Lots of code duplication going on (2011/2/2)
+
         // start the remote imdi loader threads
-        while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) {
+        while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) { //TG: Why 6? (2011/2/2)
             String threadName = "ImdiLoader-remote-" + threadStartCounter++;
-            new Thread(remoteLoaderThreadGroup, threadName) {
+            createRemoteLoadThread(threadName).start();
+        }
+        // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
+        // start the local imdi threads
+        while (continueThread && localLoaderThreadGroup.activeCount() < 6) { //TG: Why 6? (2011/2/2)
+            String threadName = "ImdiLoader-local-" + threadStartCounter++;
+            createLocalLoaderThread(threadName).start();
+        }
+    }
+
+    /***
+     * Creates a thread that gets a node from the remote queue and loads it
+     * @param Name of the thread to create
+     * @return New thread in the remoteLoaderThreadGroup with the given thread name
+     */
+    synchronized private Thread createRemoteLoadThread(String threadName)
+    {
+        return new Thread(remoteLoaderThreadGroup, threadName) {
 
                 @Override
                 public void run() {
@@ -83,13 +96,17 @@ public class ImdiLoader {
                         }
                     }
                 }
-            }.start();
-        }
-        // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
-        // start the local imdi threads
-        while (continueThread && localLoaderThreadGroup.activeCount() < 6) {
-            String threadName = "ImdiLoader-local-" + threadStartCounter++;
-            new Thread(localLoaderThreadGroup, threadName) {
+            };
+    }
+    
+    /***
+     * Creates a thread that gets a node from the local queue and loads it 
+     * @param Name of the thread to create
+     * @return New thread in the localLoaderThreadGroup with the given thread name
+     */
+    synchronized private Thread createLocalLoaderThread(String threadName)
+    {
+        return new Thread(localLoaderThreadGroup, threadName) {
 
                 @Override
                 public void run() {
@@ -133,10 +150,9 @@ public class ImdiLoader {
 //                        }
                     }
                 }
-            }.start();
-        }
+            };
     }
-
+    
     synchronized private void addNodeToQueue(ImdiTreeObject nodeToAdd) {
         startLoaderThreads();
         if (ImdiTreeObject.isStringLocal(nodeToAdd.getUrlString())) {
