@@ -585,61 +585,6 @@ public class ImportExportDialog {
 //        return (new int[]{childrenToLoad, loadedChildren});
 //    }
 
-    private int copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
-        int resourceCopyErrors = 0;
-        for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
-            System.out.println("Link: " + linksUriArray[linkCount].toString());
-            String currentLink = linksUriArray[linkCount].toString();
-            URI gettableLinkUri = linksUriArray[linkCount].normalize();
-            if (!seenFiles.containsKey(gettableLinkUri)) {
-                seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
-            }
-            RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
-            if (ImdiTreeObject.isPathMetadata(currentLink)) {
-                getList.add(gettableLinkUri);
-                if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-                    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
-                } else {
-                    retrievableLink.calculateUriFileName();
-                }
-                uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
-            } else {
-                if (!copyFilesCheckBox.isSelected()) {
-                    uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
-                } else {
-                    File downloadFileLocation;
-                    if (exportDestinationDirectory == null) {
-                        downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag, resourceProgressLabel);
-                    } else {
-                        if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-                            retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
-                        } else {
-                            retrievableLink.calculateUriFileName();
-                        }
-                        if (!retrievableLink.destinationFile.getParentFile().exists()) {
-                            retrievableLink.destinationFile.getParentFile().mkdirs();
-                        }
-                        downloadFileLocation = retrievableLink.destinationFile;
-                        resourceProgressLabel.setText(" ");
-                        LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag, resourceProgressLabel);
-                        resourceProgressLabel.setText(" ");
-                    }
-                    if (downloadFileLocation != null && downloadFileLocation.exists()) {
-                        appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
-                        uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
-                    } else {
-                        resourceCopyOutput.append("Download failed: " + currentLink + " \n");
-                        fileCopyErrors.add(currentRetrievableFile.sourceURI);
-                        uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
-                        resourceCopyErrors++;
-                    }
-                    resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
-                }
-            }
-        }
-        return resourceCopyErrors;
-    }
-
     /////////////////////////////////////////
     // end functions called by the threads //
     /////////////////////////////////////////
@@ -799,7 +744,7 @@ public class ImportExportDialog {
                         ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
                         URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
                         if (linksUriArray != null) {
-                            resourceCopyErrors += copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
+                            copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
                         }
                         boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && overwriteCheckBox.isSelected();
                         if (currentRetrievableFile.destinationFile.exists()) {
@@ -863,6 +808,59 @@ public class ImportExportDialog {
                 progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
                 if (testFreeSpace) {
                     testFreeSpace();
+                }
+            }
+
+            private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
+                for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
+                    System.out.println("Link: " + linksUriArray[linkCount].toString());
+                    String currentLink = linksUriArray[linkCount].toString();
+                    URI gettableLinkUri = linksUriArray[linkCount].normalize();
+                    if (!seenFiles.containsKey(gettableLinkUri)) {
+                        seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
+                    }
+                    RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
+                    if (ImdiTreeObject.isPathMetadata(currentLink)) {
+                        getList.add(gettableLinkUri);
+                        if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
+                            retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+                        } else {
+                            retrievableLink.calculateUriFileName();
+                        }
+                        uncopiedLinks.add(new URI[]{linksUriArray[linkCount], retrievableLink.destinationFile.toURI()});
+                    } else {
+                        if (!copyFilesCheckBox.isSelected()) {
+                            uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
+                        } else {
+                            File downloadFileLocation;
+                            if (exportDestinationDirectory == null) {
+                                downloadFileLocation = LinorgSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, downloadAbortFlag, resourceProgressLabel);
+                            } else {
+                                if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
+                                    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+                                } else {
+                                    retrievableLink.calculateUriFileName();
+                                }
+                                if (!retrievableLink.destinationFile.getParentFile().exists()) {
+                                    retrievableLink.destinationFile.getParentFile().mkdirs();
+                                }
+                                downloadFileLocation = retrievableLink.destinationFile;
+                                resourceProgressLabel.setText(" ");
+                                LinorgSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, downloadAbortFlag, resourceProgressLabel);
+                                resourceProgressLabel.setText(" ");
+                            }
+                            if (downloadFileLocation != null && downloadFileLocation.exists()) {
+                                appendToTaskOutput("Downloaded resource: " + downloadFileLocation.getAbsolutePath());
+                                uncopiedLinks.add(new URI[]{linksUriArray[linkCount], downloadFileLocation.toURI()});
+                            } else {
+                                resourceCopyOutput.append("Download failed: " + currentLink + " \n");
+                                fileCopyErrors.add(currentRetrievableFile.sourceURI);
+                                uncopiedLinks.add(new URI[]{linksUriArray[linkCount], linksUriArray[linkCount]});
+                                resourceCopyErrors++;
+                            }
+                            resourceCopyOutput.setCaretPosition(resourceCopyOutput.getText().length() - 1);
+                        }
+                    }
                 }
             }
 
