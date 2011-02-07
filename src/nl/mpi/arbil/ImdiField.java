@@ -18,8 +18,8 @@ public class ImdiField {
     private int fieldOrder = -1;
     private ImdiVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
-    public boolean vocabularyIsOpen;
-    public boolean vocabularyIsList;
+    private boolean vocabularyIsOpen;
+    private boolean vocabularyIsList;
     private String keyName = null;
     private String originalKeyName = null;
     private String languageId = null;
@@ -65,7 +65,7 @@ public class ImdiField {
 
     private boolean fieldValueValidatesToVocabulary() {
 //      if this has a closed vocabulary then check that the current value matches one of the values in the vocabulary
-        if (hasVocabulary() && !vocabularyIsOpen) {
+        if (hasVocabulary() && !isVocabularyOpen()) {
             return null != getVocabulary().findVocabularyItem(fieldValue);
         } else {
             return true;
@@ -340,5 +340,19 @@ public class ImdiField {
 //        System.out.println("xmlPath: " + xmlPath);
 //        System.out.println("translatedPath: " + translatedPath);
         return translatedPath;
+    }
+
+    /**
+     * @return the vocabularyIsOpen
+     */
+    public boolean isVocabularyOpen() {
+        return vocabularyIsOpen;
+    }
+
+    /**
+     * @return the vocabularyIsList
+     */
+    public boolean isVocabularyList() {
+        return vocabularyIsList;
     }
 }

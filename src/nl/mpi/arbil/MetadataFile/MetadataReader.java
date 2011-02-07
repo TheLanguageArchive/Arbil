@@ -94,30 +94,19 @@ public class MetadataReader {
         return xpath;
     }
 
-    //    public boolean nodesChildrenCanHaveSiblings(String xmlPath) {
-    //        System.out.println("xmlPath: " + xmlPath);
-    //        return (xmlPath.equals(".METATRANSCRIPT.Session.MDGroup.Actors"));
-    //    }
-    //
-    //    public String[] convertXmlPathToUiPath(String xmlPath) {
-    //        // TODO write this method
-    //        // why put in the (x) when it is not representative of the data???
-    //        return new String[]{"actors", "actor(1)", "name"};
-    //    }
-    public URI addFromTemplate(File destinationFile, String templateType) {
-        System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
-        URI addedPathUri = null;
-        URL templateUrl;
+    private URL constructTemplateUrl(String templateType) {
+        URL templateUrl = null;
         if (CmdiProfileReader.pathIsProfile(templateType)) {
             try {
-                templateUrl = new URL(templateType);
+                return new URL(templateType);
             } catch (MalformedURLException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
-                return null;
+                templateUrl = null;
             }
         } else {
             templateUrl = MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + templateType.substring(1) + ".xml");
         }
+
         if (templateUrl == null) {
             try {
                 templateUrl = ArbilTemplateManager.getSingleInstance().getDefaultComponentOfTemplate(templateType).toURI().toURL();
@@ -126,9 +115,20 @@ public class MetadataReader {
                 return null;
             }
         }
-        //        GuiHelper.linorgWindowManager.openUrlWindow(templateType, templateUrl);
-        //        System.out.println("templateFile: " + templateFile);
-        addedPathUri = copyToDisk(templateUrl, destinationFile);
+
+        return templateUrl;
+    }
+
+    public URI addFromTemplate(File destinationFile, String templateType) {
+        System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
+
+        URL templateUrl = constructTemplateUrl(templateType);
+        if (templateUrl == null) {
+            return null;
+        }
+        
+        URI addedPathUri = copyToDisk(templateUrl, destinationFile);
+        
         try {
             CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
             Document addedDocument = componentBuilder.getDocument(addedPathUri);

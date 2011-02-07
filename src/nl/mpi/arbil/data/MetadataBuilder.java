@@ -77,10 +77,17 @@ public class MetadataBuilder {
             destinationNode.saveChangesToCache(true);
         }
         // Start new thread to add the node to its destination
-        creatAddAddableNodeThread(destinationNode, addableNode, nodeTypeDisplayNameLocal).start();
+        creatAddAddableNodeThread(destinationNode, nodeTypeDisplayNameLocal, addableNode).start();
     }
 
-    private Thread creatAddAddableNodeThread(final ImdiTreeObject destinationNode, final ImdiTreeObject addableNode, final String nodeTypeDisplayNameLocal) {
+    /**
+     * Creates a thread to be triggered by requestAddNode for addableNode
+     * @param destinationNode Node to add new node to
+     * @param nodeType Name of node type
+     * @param addableNode Node to base new node on
+     * @return New thread that adds the addable node
+     */
+    private Thread creatAddAddableNodeThread(final ImdiTreeObject destinationNode, final String nodeTypeDisplayNameLocal, final ImdiTreeObject addableNode) {
         return new Thread("requestAddNode") {
 
             @Override
@@ -212,7 +219,7 @@ public class MetadataBuilder {
                 CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
                 addedNodePath = componentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
             } else {
-                if (destinationNode.getNodeTemplate().isImdiChildType(nodeType) || (resourceUri != null && destinationNode.isSession())) {
+                if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
                     System.out.println("adding to current node");
                     try {
                         Document nodDom = nodDom = new CmdiComponentBuilder().getDocument(destinationNode.getURI());

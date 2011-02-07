@@ -193,7 +193,7 @@ public class ArbilTemplate {
         return "";
     }
 
-    public boolean isImdiChildType(String childType) {
+    public boolean isArbilChildNode(String childType) {
         boolean returnValue = false;
         if (childType != null) {
             if (CmdiProfileReader.pathIsProfile(childType)) {
