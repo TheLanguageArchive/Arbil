@@ -25,12 +25,18 @@ import nl.mpi.arbil.ImdiVocabularies;
  * @author Twan.Goosen@mpi.nl
  */
 public class ControlledVocabularyComboBox extends JComboBox implements KeyListener, ActionListener {
-
-    ImdiField targetField;
+    /**
+     * The field the combo box targets
+     */
+    private ImdiField targetField;
+    /**
+     * Character that separates items in a list-type field
+     */
     private final static char SEPARATOR = ',';
+    /**
+     * Member that keeps the current string value of the field
+     */
     private String currentValue;
-    // Flag indicating whether autocompletion is in process
-    private boolean typingAhead = false;
 
     public ControlledVocabularyComboBox(ImdiField targetField) {
         this.targetField = targetField;
@@ -115,12 +121,23 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
     }
 
     public void keyReleased(KeyEvent e) {
+        // With rapid input, key events may lag behind the value in the editor
+        // which has undesirable results. Hence, limit the response rate.
+        e.consume();
+        long now = System.currentTimeMillis();
+        if (now - lastKeyReleasedCall < KEY_EVENT_RESPONSE_RATE_LIMIT) {
+            //dropping event
+            return;
+        }
+        lastKeyReleasedCall = now;
+
         if (!typingAhead) {
             if (!e.isActionKey()
+                    && e.getKeyChar() != KeyEvent.CHAR_UNDEFINED
                     && e.getKeyCode() != KeyEvent.VK_BACK_SPACE
                     && e.getKeyCode() != KeyEvent.VK_DELETE) {
                 // Handle character: update auto complete match
-                handleCharacter(e);
+                typeAhead();
             }
         }
 
@@ -130,34 +147,27 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
     public void keyTyped(KeyEvent e) {
     }
 
-    private void handleCharacter(KeyEvent e) {
-        typeAhead();
-    }
-
     // TYPE-AHEAD AND AUTO-COMPLETE METHODS
-    private void typeAhead() {
-        int matchIndex = getMatchingItem(getEditorValue());
-        if (matchIndex >= 0) {
-            String match = (String) getItemAt(matchIndex);
-            typeAhead(match);
-            System.out.println("Match: " + match);
-        }
-    }
-
     /**
-     * Types ahead current item. Remaining part of the target string is
-     * selected
-     * @param value Type-ahead target string
+     * Types ahead current item. If a match is found, remaining part of the
+     * target string is selected.
      */
-    private synchronized void typeAhead(String value) {
+    private synchronized void typeAhead() {
         typingAhead = true;
         String currentEditorValue = getEditorValue();
+        int matchIndex = getMatchingItem(currentEditorValue);
+        if (matchIndex >= 0) {
+            String match = (String) getItemAt(matchIndex);
 
-        JTextComponent textComponent = getEditorComponent();
-        int position = textComponent.getCaretPosition();
-        setEditorValue(value);
-        textComponent.setSelectionStart(position);
-        textComponent.setSelectionEnd(position + value.length() - currentEditorValue.length());
+            // Insert match into editor
+            JTextComponent textComponent = getEditorComponent();
+            int position = textComponent.getCaretPosition();
+            setEditorValue(match);
+            // Select remaining part of match
+            textComponent.setCaretPosition(position);
+            textComponent.setSelectionStart(position);
+            textComponent.setSelectionEnd(position + match.length() - currentEditorValue.length());
+        }
         typingAhead = false;
     }
 
@@ -194,8 +204,6 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
             for (int i = 0; i < getItemCount(); i++) {
                 if (getItemAt(i) instanceof String) {
                     if (((String) getItemAt(i)).regionMatches(true, 0, text, 0, text.length())) {
-//                    if (((String) getItemAt(i)).toLowerCase()
-//                            .startsWith(text.toLowerCase())) {
                         previousMatch = i;
                         return i;
                     }
@@ -280,10 +288,9 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
                 do {
                     start = value.indexOf(separator, Math.min(start, lastIndex)) + 1;
                     current++;
-                }
-                while (current < currentIndex);
+                } while (current < currentIndex);
             }
-            
+
             // Find first bound after start position
             int end = value.indexOf(separator, Math.min(start, lastIndex));
             if (end <= 0) {
@@ -312,4 +319,20 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
     private JTextComponent getEditorComponent() {
         return ((JTextComponent) this.getEditor().getEditorComponent());
     }
+
+    /**
+     * Flag indicating whether autocompletion is in process
+     */
+    private boolean typingAhead = false;
+
+    /**
+     * Private members for limiting the key release rate
+     */
+    private long lastKeyReleasedCall = 0;
+
+    /**
+     * Response rate limit in milliseconds
+     */
+    private final static long KEY_EVENT_RESPONSE_RATE_LIMIT = 150;
+
 }
