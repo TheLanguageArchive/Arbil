@@ -441,7 +441,7 @@ public class ImdiTreeObject implements Comparable {
                     }
                     try {
                         //System.out.println("tempUrlString: " + tempUrlString);
-                        nodDom = new ArbilComponentBuilder().getDocument(this.getURI());
+                        nodDom = ArbilComponentBuilder.getDocument(this.getURI());
                         // only read the fields into imdi tree objects if it is not going to be saved to the cache
                         //            if (!useCache) {
                         if (nodDom == null) {

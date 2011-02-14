@@ -220,13 +220,13 @@ public class MetadataBuilder {
                 if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
                     System.out.println("adding to current node");
                     try {
-                        Document nodDom = nodDom = new ArbilComponentBuilder().getDocument(destinationNode.getURI());
+                        Document nodDom = nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
                         if (nodDom == null) {
                             ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
                         } else {
                             addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
                             destinationNode.bumpHistory();
-                            new ArbilComponentBuilder().savePrettyFormatting(nodDom, destinationNode.getFile());
+                            ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
                         }
                     } catch (ParserConfigurationException ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);

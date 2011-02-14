@@ -22,11 +22,11 @@ public class CmdiUtils implements MetadataUtils {
     }
 
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
-        ArbilComponentBuilder cmdiComponentBuilder = new ArbilComponentBuilder();
         try {
-            Document document = cmdiComponentBuilder.getDocument(sourceURI);
+        //ArbilComponentBuilder cmdiComponentBuilder = new ArbilComponentBuilder();
+            Document document = ArbilComponentBuilder.getDocument(sourceURI);
             // todo: update links
-            cmdiComponentBuilder.savePrettyFormatting(document, destinationFile);
+            ArbilComponentBuilder.savePrettyFormatting(document, destinationFile);
             return true;
         } catch (IOException e) {
             GuiHelper.linorgBugCatcher.logError(e);

@@ -135,8 +135,7 @@ public class MetadataReader {
         URI addedPathUri = copyToDisk(templateUrl, destinationFile);
         
         try {
-            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-            Document addedDocument = componentBuilder.getDocument(addedPathUri);
+            Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
             //            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUri.toURL()), false);
             if (addedDocument == null) {
                 //                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
@@ -157,7 +156,7 @@ public class MetadataReader {
                 metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
                 //metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
                 metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
-                componentBuilder.savePrettyFormatting(addedDocument, new File(addedPathUri));
+                ArbilComponentBuilder.savePrettyFormatting(addedDocument, new File(addedPathUri));
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -312,8 +311,7 @@ public class MetadataReader {
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
                 GuiHelper.linorgBugCatcher.logError(new Exception("No template found for: " + elementName.substring(1)));
             }
-            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-            Document insertableSectionDoc = componentBuilder.getDocument(templateUrl.toURI());
+            Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
 
             if (insertableSectionDoc == null) {
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading template", "Insert from Template");
@@ -382,8 +380,8 @@ public class MetadataReader {
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
                 Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-                Node addedNode = new ArbilComponentBuilder().insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
-                String nodeFragment = new ArbilComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
+                Node addedNode = ArbilComponentBuilder.insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
+                String nodeFragment = ArbilComponentBuilder.convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
                 //                            try {
                 System.out.println("nodeFragment: " + nodeFragment);
                 // return the child node url and path in the xml

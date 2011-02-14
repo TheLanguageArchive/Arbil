@@ -1,5 +1,8 @@
 package nl.mpi.arbil.clarin.profiles;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import java.io.File;
 import java.io.IOException;

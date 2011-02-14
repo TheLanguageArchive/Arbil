@@ -28,8 +28,6 @@ import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.LinorgSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiTreeObject;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -51,7 +49,7 @@ import org.xml.sax.SAXException;
  */
 public class ArbilComponentBuilder {
 
-    public Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
+    public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setValidating(false);
         documentBuilderFactory.setNamespaceAware(true);
@@ -73,7 +71,7 @@ public class ArbilComponentBuilder {
 //        Document document = documentBuilder.newDocument();
 //        return document;
 //    }
-    public void savePrettyFormatting(Document document, File outputFile) {
+    public static void savePrettyFormatting(Document document, File outputFile) {
         try {
             if (outputFile.getPath().endsWith(".imdi")) {
                 removeDomIds(document);  // remove any dom id attributes left over by the imdi api
@@ -214,7 +212,7 @@ public class ArbilComponentBuilder {
                 System.out.println(selectedNodes.size());
                 for (Node currentNode : selectedNodes) {
                     Node parentNode = currentNode.getParentNode();
-                    if (parentNode!= null) {
+                    if (parentNode != null) {
                         parentNode.removeChild(currentNode);
                     }
                 }
@@ -311,7 +309,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
+    public static Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
         // todo: read the template for max occurs values and use them here and for all inserts
         Node insertBeforeNode = null;
         if (insertBefore != null && insertBefore.length() > 0) {
@@ -531,7 +529,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    private void removeDomIds(Document targetDocument) {
+    private static void removeDomIds(Document targetDocument) {
         String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
         try {
             NodeList domIdNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
@@ -687,7 +685,7 @@ public class ArbilComponentBuilder {
         return addedNode;
     }
 
-    public String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
+    public static String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
         System.out.println("Calculating the added fragment");
         // count siblings to get the correct child index for the fragment
         int siblingCouter = 1;
@@ -922,10 +920,9 @@ public class ArbilComponentBuilder {
             GuiHelper.linorgBugCatcher.logError(e);
         }
     }
-
-    public static void main(String args[]) {
-        //new CmdiComponentBuilder().testWalk();
-        //new CmdiComponentBuilder().testRemoveArchiveHandles();
-        new ArbilComponentBuilder().testInsertFavouriteComponent();
-    }
+//    public static void main(String args[]) {
+//        //new CmdiComponentBuilder().testWalk();
+//        //new CmdiComponentBuilder().testRemoveArchiveHandles();
+//        new ArbilComponentBuilder().testInsertFavouriteComponent();
+//    }
 }
