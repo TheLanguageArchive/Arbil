@@ -333,10 +333,10 @@ public class ImdiTableModel extends AbstractTableModel {
             }
             System.out.println("clipBoardString: " + clipBoardString);
             // to do this there must be either two rows or two columns otherwise we should abort
-            String[] clipBoardLines = clipBoardString.split("\"\\n\"");
+            String[] clipBoardLines = clipBoardString.split("\"(\r?\n|\r)\"");
             if (clipBoardLines.length == 1) {
                 // re try in case the csv text is not quoted
-                clipBoardLines = clipBoardString.split("\n");
+                clipBoardLines = clipBoardString.split("\r?\n|\r");
             }
             if (clipBoardLines.length == 1) {
                 String messageString = selectedCells.length + " fields will be overwritten with the single value on the clipboard.\nContinue?";
