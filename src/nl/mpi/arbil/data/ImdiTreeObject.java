@@ -11,7 +11,6 @@ import nl.mpi.arbil.FieldEditors.ArbilTableCellEditor;
 import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplate;
-import nl.mpi.arbil.*;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -41,6 +40,7 @@ import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.FieldEditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.ImdiIcons;
 import nl.mpi.arbil.MetadataFile.CmdiUtils;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.MetadataFile.ImdiUtils;
@@ -1288,8 +1288,8 @@ public class ImdiTreeObject implements Comparable {
      * Compares this node to another based on its type and string value.
      * @return The string comparison result.
      */
+   
     public int compareTo(Object o) throws ClassCastException {
-        ImdiTreeNodeSorter imdiTreeNodeSorter = new ImdiTreeNodeSorter();
         return imdiTreeNodeSorter.compare(this, o);
     }
 
@@ -1986,4 +1986,6 @@ public class ImdiTreeObject implements Comparable {
         }
         return icon;
     }
+
+    private static ImdiTreeNodeSorter imdiTreeNodeSorter = new ImdiTreeNodeSorter();
 }
