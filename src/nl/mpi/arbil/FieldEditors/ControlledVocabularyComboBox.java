@@ -7,8 +7,8 @@ import java.awt.event.KeyListener;
 import java.util.StringTokenizer;
 import javax.swing.JComboBox;
 import javax.swing.text.JTextComponent;
-import nl.mpi.arbil.ImdiField;
-import nl.mpi.arbil.ImdiVocabularies;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ImdiVocabularies;
 
 /**
  * Editable combo box that has the items of a controlled vocabulary in it. The
@@ -28,7 +28,7 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
     /**
      * The field the combo box targets
      */
-    private ImdiField targetField;
+    private ArbilField targetField;
     /**
      * Character that separates items in a list-type field
      */
@@ -38,7 +38,7 @@ public class ControlledVocabularyComboBox extends JComboBox implements KeyListen
      */
     private String currentValue;
 
-    public ControlledVocabularyComboBox(ImdiField targetField) {
+    public ControlledVocabularyComboBox(ArbilField targetField) {
         this.targetField = targetField;
         //currentValue = targetField.getFieldValue();
 

@@ -1,5 +1,10 @@
 package nl.mpi.arbil.MetadataFile;
 
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.data.ImdiVocabularies;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.*;
@@ -20,13 +25,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import nl.mpi.arbil.clarin.ArbilMetadataException;
-import nl.mpi.arbil.clarin.CmdiComponentBuilder;
+import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ImdiLoader;
 import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.templates.CmdiTemplate;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -130,12 +135,12 @@ public class MetadataReader {
         URI addedPathUri = copyToDisk(templateUrl, destinationFile);
         
         try {
-            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
             Document addedDocument = componentBuilder.getDocument(addedPathUri);
             //            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUri.toURL()), false);
             if (addedDocument == null) {
                 //                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error inserting create date", "Add from Template");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error inserting create date", "Add from Template");
             } else {
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
                 NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
@@ -197,7 +202,7 @@ public class MetadataReader {
                 return formatType[1];
             }
         }
-        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"", "Add Resource");
+        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"", "Add Resource");
         return null;
     }
 
@@ -304,14 +309,14 @@ public class MetadataReader {
             System.out.println("targetXpath: " + targetXpath);
             System.out.println("templateUrl: " + templateUrl);
             if (templateUrl == null) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
                 GuiHelper.linorgBugCatcher.logError(new Exception("No template found for: " + elementName.substring(1)));
             }
-            CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
             Document insertableSectionDoc = componentBuilder.getDocument(templateUrl.toURI());
 
             if (insertableSectionDoc == null) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading template", "Insert from Template");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading template", "Insert from Template");
             } else {
                 // insert values into the section that about to be added
                 if (resourceUrl != null) {
@@ -377,8 +382,8 @@ public class MetadataReader {
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
                 Node destinationNode = org.apache.xpath.XPathAPI.selectSingleNode(targetImdiDom, targetXpath);
-                Node addedNode = new CmdiComponentBuilder().insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
-                String nodeFragment = new CmdiComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
+                Node addedNode = new ArbilComponentBuilder().insertNodeInOrder(destinationNode, addableNode, insertBefore, maxOccurs);
+                String nodeFragment = new ArbilComponentBuilder().convertNodeToNodePath(targetImdiDom, addedNode, targetRef);
                 //                            try {
                 System.out.println("nodeFragment: " + nodeFragment);
                 // return the child node url and path in the xml
@@ -472,7 +477,7 @@ public class MetadataReader {
 
     private void showDomIdFoundMessage() {
         if (!ImdiLoader.getSingleInstance().nodesNeedSave()) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
         }
     }
 
@@ -550,7 +555,7 @@ public class MetadataReader {
                              */
                         } catch (Exception exception) {
                             GuiHelper.linorgBugCatcher.logError(exception);
-                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
+                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                         }
                     }
                     if (attributesMap != null) {
@@ -693,7 +698,7 @@ public class MetadataReader {
                 }
                 if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { // is a leaf not a branch
                     //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-                    ImdiField fieldToAdd = new ImdiField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
+                    ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
 
                     // TODO: about to write this function
                     //GuiHelper.imdiSchema.convertXmlPathToUiPath();

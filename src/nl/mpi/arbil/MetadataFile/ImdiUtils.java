@@ -10,10 +10,10 @@ import mpi.imdi.api.IMDIDom;
 import mpi.imdi.api.IMDILink;
 import mpi.imdi.api.WSNodeType;
 import mpi.util.OurURL;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.LinorgBugCatcher;
-import nl.mpi.arbil.LinorgWindowManager;
-import nl.mpi.arbil.clarin.ArbilMetadataException;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.util.LinorgBugCatcher;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ArbilMetadataException;
 import org.w3c.dom.Document;
 
 /**
@@ -80,7 +80,7 @@ public class ImdiUtils implements MetadataUtils {
             checkImdiApiResult(nodDom, nodeURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
                 return false;
             } else {
                 int nodeType = WSNodeType.CORPUS;
@@ -114,7 +114,7 @@ public class ImdiUtils implements MetadataUtils {
             checkImdiApiResult(nodDom, sourceURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
                 return false;
             } else {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
@@ -195,7 +195,7 @@ public class ImdiUtils implements MetadataUtils {
             checkImdiApiResult(nodDom, nodeURI);
             if (nodDom == null) {
                 GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
                 return false;
             }
             IMDILink[] allImdiLinks;
@@ -221,7 +221,7 @@ public class ImdiUtils implements MetadataUtils {
             }
         } catch (MalformedURLException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
         }
         return false;
     }
@@ -243,7 +243,7 @@ public class ImdiUtils implements MetadataUtils {
                         checkImdiApiResult(returnUriArray[linkCount], nodeURI);
                     } catch (URISyntaxException exception) {
                         GuiHelper.linorgBugCatcher.logError(exception);
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
+                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
                     }
                 }
                 return returnUriArray;
@@ -251,7 +251,7 @@ public class ImdiUtils implements MetadataUtils {
 
         } catch (MalformedURLException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
         }
         return null;
     }

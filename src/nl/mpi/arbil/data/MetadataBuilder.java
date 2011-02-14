@@ -7,15 +7,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javax.naming.OperationNotSupportedException;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.ImdiTableModel;
-import nl.mpi.arbil.LinorgFavourites;
-import nl.mpi.arbil.LinorgSessionStorage;
-import nl.mpi.arbil.LinorgWindowManager;
-import nl.mpi.arbil.TreeHelper;
-import nl.mpi.arbil.clarin.ArbilMetadataException;
-import nl.mpi.arbil.clarin.CmdiComponentBuilder;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.ui.ImdiTableModel;
+import nl.mpi.arbil.userstorage.LinorgFavourites;
+import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -58,7 +56,7 @@ public class MetadataBuilder {
 
                         // CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
                     } catch (ArbilMetadataException exception) {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                     }
                 }
                 destinationNode.updateLoadingState(-1);
@@ -103,9 +101,9 @@ public class MetadataBuilder {
                     }
                     destinationNode.updateLoadingState(-1);
                 } catch (ArbilMetadataException exception) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                 } catch (UnsupportedOperationException exception) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                 }
             }
 
@@ -119,7 +117,7 @@ public class MetadataBuilder {
                 }
                 for (ImdiTreeObject currentImdiNode : sourceImdiNodeArray) {
                     if (destinationNode.isCmdiMetaDataNode()) {
-                        new CmdiComponentBuilder().insertResourceProxy(destinationNode, addableNode);
+                        new ArbilComponentBuilder().insertResourceProxy(destinationNode, addableNode);
                         destinationNode.getParentDomNode().loadImdiDom();
                     } else {
                         String nodeType;
@@ -138,7 +136,7 @@ public class MetadataBuilder {
                         if (nodeType != null) {
                             String targetXmlPath = destinationNode.getURI().getFragment();
                             if (nodeType == null) {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+                                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
                             } else {
                                 System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
                                 processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
@@ -155,18 +153,18 @@ public class MetadataBuilder {
                     addedNodeUri = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
                     ImdiTreeObject.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
                     ImdiTreeObject addedNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(addedNodeUri);
-                    new CmdiComponentBuilder().removeArchiveHandles(addedNode);
+                    new ArbilComponentBuilder().removeArchiveHandles(addedNode);
                     destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
                     addedNode.loadImdiDom();
                     addedNode.scrollToRequested = true;
                 } else {
-                    CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                     addedNodeUri = componentBuilder.insertFavouriteComponent(destinationNode, addableNode);
-                    new CmdiComponentBuilder().removeArchiveHandles(destinationNode);
+                    new ArbilComponentBuilder().removeArchiveHandles(destinationNode);
                 }
                 destinationNode.getParentDomNode().loadImdiDom();
                 String newTableTitleString = "new " + addableNode + " in " + destinationNode;
-                LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+                ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
             }
         };
     }
@@ -195,7 +193,7 @@ public class MetadataBuilder {
             addedImdiObject.getParentDomNode().clearIcon();
             addedImdiObject.getParentDomNode().clearChildIcons();
         }
-        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+        ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
     }
 
     /**
@@ -216,19 +214,19 @@ public class MetadataBuilder {
             }
             if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
                 // Add clarin sub nodes
-                CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                 addedNodePath = componentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
             } else {
                 if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
                     System.out.println("adding to current node");
                     try {
-                        Document nodDom = nodDom = new CmdiComponentBuilder().getDocument(destinationNode.getURI());
+                        Document nodDom = nodDom = new ArbilComponentBuilder().getDocument(destinationNode.getURI());
                         if (nodDom == null) {
-                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
+                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
                         } else {
                             addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
                             destinationNode.bumpHistory();
-                            new CmdiComponentBuilder().savePrettyFormatting(nodDom, destinationNode.getFile());
+                            new ArbilComponentBuilder().savePrettyFormatting(nodDom, destinationNode.getFile());
                         }
                     } catch (ParserConfigurationException ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
@@ -242,7 +240,7 @@ public class MetadataBuilder {
                     System.out.println("adding new node");
                     URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), nodeType);
                     if (CmdiProfileReader.pathIsProfile(nodeType)) {
-                        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+                        ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                         try {
                             addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType), false);
                             // TODO: some sort of warning like: "Could not add node of type: " + nodeType; would be useful here or downstream

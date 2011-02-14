@@ -1,5 +1,12 @@
 package nl.mpi.arbil.importexport;
 
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.ImdiTableModel;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.data.LinorgJournal;
+import nl.mpi.arbil.util.DownloadAbortFlag;
+import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.BorderLayout;
@@ -38,8 +45,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.MetadataFile.MetadataUtils;
-import nl.mpi.arbil.clarin.ArbilMetadataException;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.ui.XsdChecker;
 
 /**
  * Document   : ImportExportDialog
@@ -129,7 +137,7 @@ public class ImportExportDialog {
     }
 
     public void importImdiBranch() {
-        File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Import", false, true, true);
+        File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Import", false, true, true);
         if (selectedFiles != null) {
             Vector importNodeVector = new Vector();
             for (File currentFile : selectedFiles) {
@@ -144,7 +152,7 @@ public class ImportExportDialog {
         // make sure the chosen directory is empty
         // export the tree, maybe adjusting resource links so that resource files do not need to be copied
         searchDialog.setTitle("Export Branch");
-        File destinationDirectory = LinorgWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue(searchDialog.getTitle());
+        File destinationDirectory = ArbilWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue(searchDialog.getTitle());
         if (destinationDirectory != null) {
             exportFromCache(new Vector(Arrays.asList(localCorpusSelectedNodes)), destinationDirectory);
         }
@@ -154,7 +162,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -179,7 +187,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
         if (!selectedNodesContainImdi()) {
-            JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -229,8 +237,8 @@ public class ImportExportDialog {
 
     // the targetComponent is used to place the import dialog
     public ImportExportDialog(Component targetComponent) throws Exception {
-        LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
-        searchDialog = new JDialog(JOptionPane.getFrameForComponent(LinorgWindowManager.getSingleInstance().linorgFrame), true);
+        ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
+        searchDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
         searchDialog.addWindowStateListener(new WindowAdapter() {
 
             @Override
@@ -455,13 +463,13 @@ public class ImportExportDialog {
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (metaDataCopyErrors.size() > 0) {
-                        LinorgWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new URI[]{}), progressFailedLabelText);
+                        ArbilWindowManager.getSingleInstance().openFloatingTableOnce(metaDataCopyErrors.toArray(new URI[]{}), progressFailedLabelText);
                     }
                     if (validationErrors.size() > 0) {
-                        LinorgWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
+                        ArbilWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
                     }
                     if (fileCopyErrors.size() > 0) {
-                        ImdiTableModel resourceFileErrorsTable = LinorgWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
+                        ImdiTableModel resourceFileErrorsTable = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
                         //resourceFileErrorsTable.getFieldView().
                         resourceFileErrorsTable.addChildTypeToDisplay("MediaFiles");
                         resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
@@ -644,7 +652,7 @@ public class ImportExportDialog {
                 setUItoStoppedState();
                 System.out.println("finalMessageString: " + finalMessageString);
                 Object[] options = {"Close", "Details"};
-                int detailsOption = JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+                int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame, finalMessageString, searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
                 if (detailsOption == 0) {
                     searchDialog.setVisible(false);
                 } else {
@@ -870,7 +878,7 @@ public class ImportExportDialog {
                     diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
                     if (freeGbWarningPoint > freeGBytes) {
                         progressBar.setIndeterminate(false);
-                        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             freeGbWarningPoint = freeGBytes - 1;
                         } else {
                             stopSearch = true;

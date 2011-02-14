@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;

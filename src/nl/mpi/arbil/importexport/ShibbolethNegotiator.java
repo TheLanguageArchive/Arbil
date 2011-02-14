@@ -10,8 +10,8 @@ import java.security.cert.CertificateNotYetValidException;
 import java.util.Calendar;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.nikhef.slcshttps.CAHttps;
 import nl.nikhef.slcshttps.SURFCAHttps;
 import nl.nikhef.slcshttps.PKCS12Https;
@@ -60,7 +60,7 @@ public class ShibbolethNegotiator implements ActionListener {
             return new HttxURLConnection(currentConnection);
         } catch (IOException ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth Connection failed with: " + ex.getMessage(), "Shibboleth Connection");
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth Connection failed with: " + ex.getMessage(), "Shibboleth Connection");
             return currentConnection;
         }
     }
@@ -79,7 +79,7 @@ public class ShibbolethNegotiator implements ActionListener {
                 myCA = SURFCAInitDialog.getDialog(myCA);
             } catch (Exception caExcep) {
                 GuiHelper.linorgBugCatcher.logError(caExcep);
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'CA Init' failed with: " + caExcep.getMessage(), "Shibboleth Connection");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'CA Init' failed with: " + caExcep.getMessage(), "Shibboleth Connection");
             }
         }
         // PKCS12 import initialization
@@ -94,7 +94,7 @@ public class ShibbolethNegotiator implements ActionListener {
                 }
             } catch (Exception caExcep) {
                 GuiHelper.linorgBugCatcher.logError(caExcep);
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'pkcs12 Import' failed with: " + caExcep.getMessage(), "Shibboleth Connection");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'pkcs12 Import' failed with: " + caExcep.getMessage(), "Shibboleth Connection");
             }
         }
         // Certificate Information
@@ -103,7 +103,7 @@ public class ShibbolethNegotiator implements ActionListener {
                 CATool.showCATool(myCA);
             } catch (Exception certExcep) {
                 GuiHelper.linorgBugCatcher.logError(certExcep);
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'CA Info' failed with: " + certExcep.getMessage(), "Shibboleth Connection");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The Shibboleth 'CA Info' failed with: " + certExcep.getMessage(), "Shibboleth Connection");
             }
         }
         if (infoCaMenuItem != null) {

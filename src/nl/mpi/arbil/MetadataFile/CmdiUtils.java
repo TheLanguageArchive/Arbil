@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.clarin.CmdiComponentBuilder;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -22,7 +22,7 @@ public class CmdiUtils implements MetadataUtils {
     }
 
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
-        CmdiComponentBuilder cmdiComponentBuilder = new CmdiComponentBuilder();
+        ArbilComponentBuilder cmdiComponentBuilder = new ArbilComponentBuilder();
         try {
             Document document = cmdiComponentBuilder.getDocument(sourceURI);
             // todo: update links

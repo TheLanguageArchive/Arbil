@@ -1,5 +1,12 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.ImdiTree;
+import nl.mpi.arbil.ui.ImdiTableModel;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.LinorgBugCatcher;
 import nl.mpi.arbil.FieldEditors.ArbilTableCellEditor;
 import nl.mpi.arbil.MetadataFile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -35,9 +42,7 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.FieldEditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.MetadataFile.CmdiUtils;
-import nl.mpi.arbil.clarin.CmdiComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
-import nl.mpi.arbil.clarin.FieldUpdateRequest;
 import nl.mpi.arbil.MetadataFile.ImdiUtils;
 import nl.mpi.arbil.MetadataFile.MetadataUtils;
 
@@ -53,7 +58,7 @@ public class ImdiTreeObject implements Comparable {
     //    static ImdiIcons imdiIcons = new ImdiIcons();
     //    private static Vector listDiscardedOfAttributes = new Vector(); // a list of all unused imdi attributes, only used for testing
     private boolean debugOn = false;
-    private Hashtable<String, ImdiField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
+    private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     private ImdiTreeObject[] childArray = new ImdiTreeObject[0];
     public boolean imdiDataLoaded;
     public int resourceFileServerResponse = -1; // -1 = not set otherwise this will be the http response code
@@ -69,7 +74,7 @@ public class ImdiTreeObject implements Comparable {
     private String nodeText, lastNodeText = "loading imdi...";
     //    private boolean nodeTextChanged = false;
     private URI nodeUri;
-    public ImdiField resourceUrlField;
+    public ArbilField resourceUrlField;
     public CmdiComponentLinkReader cmdiComponentLinkReader = null;
     public boolean isDirectory;
     private ImageIcon icon;
@@ -272,8 +277,8 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean hasChangedFields() {
         boolean fieldsHaveChanges = false;
-        for (ImdiField[] currentFieldArray : this.fieldHashtable.values()) {
-            for (ImdiField currentField : currentFieldArray) {
+        for (ArbilField[] currentFieldArray : this.fieldHashtable.values()) {
+            for (ArbilField currentField : currentFieldArray) {
                 if (currentField.fieldNeedsSaveToDisk()) {
                     fieldsHaveChanges = true;
                 }
@@ -282,7 +287,7 @@ public class ImdiTreeObject implements Comparable {
         return fieldsHaveChanges;
     }
 
-    public void setImdiNeedsSaveToDisk(ImdiField originatingField, boolean updateUI) {
+    public void setImdiNeedsSaveToDisk(ArbilField originatingField, boolean updateUI) {
         if (resourceUrlField != null && resourceUrlField.equals(originatingField)) {
             hashString = null;
             mpiMimeType = null;
@@ -318,7 +323,7 @@ public class ImdiTreeObject implements Comparable {
 
     public String getAnyMimeType() {
         if (mpiMimeType == null && hasResource()) { // use the format from the imdi file if the type checker failed eg if the file is on the server
-            ImdiField[] formatField = fieldHashtable.get("Format");
+            ArbilField[] formatField = fieldHashtable.get("Format");
             if (formatField != null && formatField.length > 0) {
                 return formatField[0].getFieldValue();
             }
@@ -331,7 +336,7 @@ public class ImdiTreeObject implements Comparable {
         typeCheckerMessage = typeCheckerMessageArray[1];
         if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
             // add the mime type for loose files
-            ImdiField mimeTypeField = new ImdiField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0);
+            ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0);
             //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
             addField(mimeTypeField);
         }
@@ -355,7 +360,7 @@ public class ImdiTreeObject implements Comparable {
         //                currentTemplate = ArbilTemplateManager.getSingleInstance().getCurrentTemplate();
         //            }
         //        }
-        fieldHashtable = new Hashtable<String, ImdiField[]>();
+        fieldHashtable = new Hashtable<String, ArbilField[]>();
         imdiDataLoaded = false;
         hashString = null;
         //mpiMimeType = null;
@@ -432,11 +437,11 @@ public class ImdiTreeObject implements Comparable {
                     if (this.isLocal() && !this.getFile().exists() && new File(this.getFile().getAbsolutePath() + ".0").exists()) {
                         // if the file is missing then try to find a valid history file
                         copyLastHistoryToCurrent();
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
                     }
                     try {
                         //System.out.println("tempUrlString: " + tempUrlString);
-                        nodDom = new CmdiComponentBuilder().getDocument(this.getURI());
+                        nodDom = new ArbilComponentBuilder().getDocument(this.getURI());
                         // only read the fields into imdi tree objects if it is not going to be saved to the cache
                         //            if (!useCache) {
                         if (nodDom == null) {
@@ -543,7 +548,7 @@ public class ImdiTreeObject implements Comparable {
                         childLinksTemp.add(currentImdi);
                     }
                 } catch (Exception ex) {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + nodeUri.toString(), "Load Directory");
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + nodeUri.toString(), "Load Directory");
                     new LinorgBugCatcher().logError(ex);
                 }
             }
@@ -792,9 +797,9 @@ public class ImdiTreeObject implements Comparable {
     //    }
     public boolean containsFieldValue(String fieldName, String searchValue) {
         boolean findResult = false;
-        ImdiField[] currentFieldArray = this.fieldHashtable.get(fieldName);
+        ArbilField[] currentFieldArray = this.fieldHashtable.get(fieldName);
         if (currentFieldArray != null) {
-            for (ImdiField currentField : currentFieldArray) {
+            for (ArbilField currentField : currentFieldArray) {
                 System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
                 if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
                     return true;
@@ -807,8 +812,8 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean containsFieldValue(String searchValue) {
         boolean findResult = false;
-        for (ImdiField[] currentFieldArray : (Collection<ImdiField[]>) this.fieldHashtable.values()) {
-            for (ImdiField currentField : currentFieldArray) {
+        for (ArbilField[] currentFieldArray : (Collection<ArbilField[]>) this.fieldHashtable.values()) {
+            for (ArbilField currentField : currentFieldArray) {
                 System.out.println("containsFieldValue: " + currentField.getFieldValue() + ":" + searchValue);
                 if (currentField.getFieldValue().toLowerCase().contains(searchValue.toLowerCase())) {
                     return true;
@@ -875,9 +880,13 @@ public class ImdiTreeObject implements Comparable {
     //        }
     ////        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
     //    }
-    private void getAllFields(Vector<ImdiField[]> allFields) {
-        // returns all fields relevant to the parent node
-        // that includes all indinodechild fields but not from any other imdi file
+
+    /**
+     * Vector gets populated with all fields relevant to the parent node
+     * that includes all indinodechild fields but not from any other imdi file
+     * @param allFields Vector to populate
+     */
+    private void getAllFields(Vector<ArbilField[]> allFields) {
         System.out.println("getAllFields: " + this.toString());
         allFields.addAll(fieldHashtable.values());
         for (ImdiTreeObject currentChild : childArray) {
@@ -979,7 +988,7 @@ public class ImdiTreeObject implements Comparable {
         for (String[] currentLinkPair : childLinks) {
             String currentChildPath = currentLinkPair[0];
             if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
                 return false;
             }
             if (currentChildPath.equals(targetImdiNode.getUrlString())) {
@@ -987,11 +996,11 @@ public class ImdiTreeObject implements Comparable {
             }
         }
         if (targetImdiNode.getUrlString().equals(this.getUrlString())) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot link or move a node into itself", null);
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot link or move a node into itself", null);
             return false;
         }
         if (linkAlreadyExists) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and will not be added again", null);
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and will not be added again", null);
             return false;
         } else {
             // if link is not already there
@@ -1029,19 +1038,19 @@ public class ImdiTreeObject implements Comparable {
                                     // this must use merge like favoirite to prevent instances end endless loops in corpus branches
                                     new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
                                 } else {
-                                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist", null);
+                                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist", null);
                                 }
                             } else {
-                                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
+                                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
                             }
                         } else {
-                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache", null);
+                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache", null);
                         }
                     } else {
-                        LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Pasted string is not and IMDI file", null);
                     }
                 } else {
-                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
                 }
             }
         } catch (Exception ex) {
@@ -1067,13 +1076,13 @@ public class ImdiTreeObject implements Comparable {
             return;
         }
         ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
-        Vector<ImdiField[]> allFields = new Vector<ImdiField[]>();
+        Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
         getAllFields(allFields);
-        for (Enumeration<ImdiField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+        for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
             {
-                ImdiField[] currentFieldArray = fieldsEnum.nextElement();
+                ArbilField[] currentFieldArray = fieldsEnum.nextElement();
                 for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
-                    ImdiField currentField = currentFieldArray[fieldCounter];
+                    ArbilField currentField = currentFieldArray[fieldCounter];
                     if (currentField.fieldNeedsSaveToDisk()) {
                         FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
                         currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
@@ -1086,10 +1095,10 @@ public class ImdiTreeObject implements Comparable {
                 }
             }
         }
-        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+        ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
         boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
-        if (result != true) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+        if (!result) {
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
         } else {
             this.needsSaveToDisk = false;
             //            // update the icon to indicate the change
@@ -1142,14 +1151,14 @@ public class ImdiTreeObject implements Comparable {
     //        }
     //        return cacheLocation;
     //    }
-    public void addField(ImdiField fieldToAdd) {
+    public void addField(ArbilField fieldToAdd) {
         //        System.addField:out.println("addField: " + this.getUrlString() + " : " + fieldToAdd.xmlPath + " : " + fieldToAdd.getFieldValue());
-        ImdiField[] currentFieldsArray = fieldHashtable.get(fieldToAdd.getTranslateFieldName());
+        ArbilField[] currentFieldsArray = fieldHashtable.get(fieldToAdd.getTranslateFieldName());
         if (currentFieldsArray == null) {
-            currentFieldsArray = new ImdiField[]{fieldToAdd};
+            currentFieldsArray = new ArbilField[]{fieldToAdd};
         } else {
             //            System.out.println("appendingField: " + fieldToAdd);
-            ImdiField[] appendedFieldsArray = new ImdiField[currentFieldsArray.length + 1];
+            ArbilField[] appendedFieldsArray = new ArbilField[currentFieldsArray.length + 1];
             System.arraycopy(currentFieldsArray, 0, appendedFieldsArray, 0, currentFieldsArray.length);
             appendedFieldsArray[appendedFieldsArray.length - 1] = fieldToAdd;
             currentFieldsArray = appendedFieldsArray;
@@ -1244,7 +1253,7 @@ public class ImdiTreeObject implements Comparable {
      * To get all fields relevant the imdi file use "getAllFields()" which includes imdi child fields.
      * @return A hashtable of the fields
      */
-    public Hashtable<String, ImdiField[]> getFields() {
+    public Hashtable<String, ArbilField[]> getFields() {
         // store the Hastable for next call
         // if hashtable is null then load from imdi
         return fieldHashtable;
@@ -1360,11 +1369,11 @@ public class ImdiTreeObject implements Comparable {
         getLabelString:
         for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
             //System.out.println("currentField: " + currentPreferredName);
-            for (ImdiField[] currentFieldArray : fieldHashtable.values()) {
+            for (ArbilField[] currentFieldArray : fieldHashtable.values()) {
                 //                System.out.println(currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "") + " : " + currentPreferredName);
                 if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
                     preferredNameFieldExists = true;
-                    for (ImdiField currentField : currentFieldArray) {
+                    for (ArbilField currentField : currentFieldArray) {
                         if (currentField != null) {
                             if (currentField.toString().trim().length() > 0) {
                                 nodeText = currentField.toString();
@@ -1375,9 +1384,9 @@ public class ImdiTreeObject implements Comparable {
                     }
                 }
             }
-            ImdiField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
+            ArbilField[] currentFieldArray = fieldHashtable.get(currentPreferredName);
             if (currentFieldArray != null) {
-                for (ImdiField currentField : currentFieldArray) {
+                for (ArbilField currentField : currentFieldArray) {
                     if (currentField != null) {
                         if (currentField.toString().trim().length() > 0) {
                             nodeText = currentField.toString();
@@ -1554,7 +1563,7 @@ public class ImdiTreeObject implements Comparable {
                 this.getFile().delete();
                 new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile());
             } else {
-                LinorgWindowManager.getSingleInstance().offerUserToSaveChanges();
+                ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
                 if (!new File(this.getFile().getAbsolutePath() + ".x").exists()) {
                     this.getFile().renameTo(new File(this.getFile().getAbsolutePath() + ".x"));
                 } else {
@@ -1626,7 +1635,7 @@ public class ImdiTreeObject implements Comparable {
             }
             outFile.close();
         } catch (IOException iOException) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
             GuiHelper.linorgBugCatcher.logError(iOException);
         }
     }
@@ -1750,7 +1759,7 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isSession() {
         // test if this node is a session
-        ImdiField[] nameFields = fieldHashtable.get("Name");
+        ArbilField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session" + MetadataReader.imdiPathSeparator + "Name");
         }
@@ -1767,7 +1776,7 @@ public class ImdiTreeObject implements Comparable {
 
     public boolean isCatalogue() {
         // test if this node is a catalogue
-        ImdiField[] nameFields = fieldHashtable.get("Name");
+        ArbilField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Catalogue" + MetadataReader.imdiPathSeparator + "Name");
         }
@@ -1779,7 +1788,7 @@ public class ImdiTreeObject implements Comparable {
             return false;
         }
         // test if this node is a corpus
-        ImdiField[] nameFields = fieldHashtable.get("Name");
+        ArbilField[] nameFields = fieldHashtable.get("Name");
         if (nameFields != null) {
             return nameFields[0].xmlPath.equals(MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus" + MetadataReader.imdiPathSeparator + "Name");
         }

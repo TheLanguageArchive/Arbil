@@ -1,5 +1,9 @@
 package nl.mpi.arbil.templates;
 
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.util.DownloadAbortFlag;
+import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.*;
 import java.io.File;
 import java.util.ArrayList;
@@ -7,8 +11,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
 import javax.swing.ImageIcon;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
-import nl.mpi.arbil.clarin.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.MetadataFile.MetadataReader;
 
 /**

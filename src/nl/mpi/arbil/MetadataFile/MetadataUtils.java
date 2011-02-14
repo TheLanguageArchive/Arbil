@@ -2,7 +2,7 @@ package nl.mpi.arbil.MetadataFile;
 
 import java.io.File;
 import java.net.URI;
-import nl.mpi.arbil.clarin.ArbilMetadataException;
+import nl.mpi.arbil.ArbilMetadataException;
 
 /**
  *  Document   : MetadataUtils

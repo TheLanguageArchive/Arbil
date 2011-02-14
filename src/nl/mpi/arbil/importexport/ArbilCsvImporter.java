@@ -6,9 +6,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.ImdiField;
-import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.*;
 
 /**
@@ -25,7 +25,7 @@ public class ArbilCsvImporter {
     }
 
     public void doImport() {
-        File[] selectedFiles = LinorgWindowManager.getSingleInstance().showFileSelectBox("Import CSV", false, true, false);
+        File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Import CSV", false, true, false);
         if (selectedFiles != null && selectedFiles.length > 0) {
 //                return "CSV File (comma or tab separated values)";
 //                return selectedFile.getName().toLowerCase().endsWith(".csv");
@@ -86,12 +86,12 @@ public class ArbilCsvImporter {
                         String nodeType = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
                         ImdiTreeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, new MetadataBuilder().addChildNode(destinationCorpusNode,nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
-                        Hashtable<String, ImdiField[]> addedNodesFields = addedImdiObject.getFields();
+                        Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);
                         cleanQuotes(currentLineArray, fileType);
                         for (int columnCounter = 0; columnCounter < csvHeaders.length && columnCounter < currentLineArray.length; columnCounter++) {
                             System.out.println(csvHeaders[columnCounter] + " : " + currentLineArray[columnCounter]);
-                            ImdiField[] currentFieldArray = addedNodesFields.get(csvHeaders[columnCounter]);
+                            ArbilField[] currentFieldArray = addedNodesFields.get(csvHeaders[columnCounter]);
                             if (currentFieldArray != null) {
                                 // TODO: check that the field does not already have a value and act accordingly (add new description?) if it does
                                 currentFieldArray[0].setFieldValue(currentLineArray[columnCounter], false, true);

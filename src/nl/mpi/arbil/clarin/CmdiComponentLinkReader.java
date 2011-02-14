@@ -3,7 +3,7 @@ package nl.mpi.arbil.clarin;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import nl.mpi.arbil.GuiHelper;
+import nl.mpi.arbil.ui.GuiHelper;
 import org.apache.commons.digester.Digester;
 
 /**

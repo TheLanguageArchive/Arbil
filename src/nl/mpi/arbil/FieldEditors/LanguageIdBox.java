@@ -6,10 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import javax.swing.JComboBox;
-import nl.mpi.arbil.DocumentationLanguages;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.ImdiField;
-import nl.mpi.arbil.ImdiVocabularies;
+import nl.mpi.arbil.ui.DocumentationLanguages;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ImdiVocabularies;
 
 /**
  *  Document   : LanguageIdBox
@@ -21,7 +21,7 @@ public class LanguageIdBox extends JComboBox {
     public static int languageSelectWidth = 100;
     static String defaultLanguageDropDownValue = "<select>";
 
-    public LanguageIdBox(final ImdiField cellField, Rectangle parentCellRect) {
+    public LanguageIdBox(final ArbilField cellField, Rectangle parentCellRect) {
         String fieldLanguageId = cellField.getLanguageId();
 //        if (fieldLanguageId != null) {
         System.out.println("Has LanguageId");

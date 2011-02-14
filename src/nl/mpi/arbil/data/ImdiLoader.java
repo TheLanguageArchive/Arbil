@@ -1,5 +1,8 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.ui.XsdChecker;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.userstorage.LinorgSessionStorage;
 import java.net.URI;
 import nl.mpi.arbil.*;
 import java.util.Hashtable;

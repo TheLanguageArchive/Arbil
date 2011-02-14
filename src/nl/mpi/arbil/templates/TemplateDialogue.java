@@ -12,9 +12,9 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.LinorgWindowManager;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 
 /*
  * TemplateDialogue.java
@@ -107,7 +107,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         addButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+                String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
                 ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
                 populateLists();
             }
@@ -119,7 +119,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         browseButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                for (File selectedFile : LinorgWindowManager.getSingleInstance().showFileSelectBox("Select Profile", false, true, false)) {
+                for (File selectedFile : ArbilWindowManager.getSingleInstance().showFileSelectBox("Select Profile", false, true, false)) {
                     ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
                 }
                 populateLists();
@@ -175,17 +175,17 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
         try {
-            String newDirectoryName = JOptionPane.showInputDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", LinorgWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+            String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", ArbilWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
             // if the user cancels the directory string will be a empty string.
             if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
             }
             File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
             if (freshTemplateFile != null) {
                 GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
                 GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
             } else {
-                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
             }
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
             //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
@@ -286,7 +286,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
     }
 
     protected static void showDialogue(String titleStirng) {
-        JDialog dialog = new JDialog(LinorgWindowManager.getSingleInstance().linorgFrame, titleStirng, true);
+        JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().linorgFrame, titleStirng, true);
         TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
         dialog.setContentPane(templateDialogue);
         templateDialogue.populateLists();

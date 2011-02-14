@@ -1,6 +1,6 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.*;
+import nl.mpi.arbil.data.ImdiVocabularies;
 import nl.mpi.arbil.data.ImdiTreeObject;
 import nl.mpi.arbil.MetadataFile.MetadataReader;
 import java.io.File;
@@ -11,7 +11,9 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import nl.mpi.arbil.clarin.CmdiProfileReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 import org.xml.sax.SAXException;
 
 /**
@@ -22,7 +24,7 @@ import org.xml.sax.SAXException;
 public class ArbilTemplate {
 
     public File templateFile;
-    Hashtable<String, ImdiVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
+    protected Hashtable<String, ImdiVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
     public String loadedTemplateName;
     public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
@@ -78,9 +80,9 @@ public class ArbilTemplate {
     <FieldConstraint FieldPath=".METATRANSCRIPT.Session.Resources.Anonyms.Access.Contact.Email", Constraint="([.]+)@([.]+)">
     </FieldConstraints>        
      */
-    String[][] childNodePaths;
-    String[][] fieldUsageArray;
-    String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
+    protected String[][] childNodePaths;
+    protected String[][] fieldUsageArray;
+    protected String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
 
     public boolean pathCanHaveResource(String nodePath) {
         // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
@@ -142,8 +144,8 @@ public class ArbilTemplate {
         </ChildNodePaths>
          */
     }
-    String[][] templatesArray; // TODO: separate the filename from the xpath by adding the nodepath as a separate value so that there can be multiple of the same type
-    String[][] rootTemplatesArray;
+    protected String[][] templatesArray; // TODO: separate the filename from the xpath by adding the nodepath as a separate value so that there can be multiple of the same type
+    protected String[][] rootTemplatesArray;
     public String[][] autoFieldsArray;
 
     public boolean pathIsDeleteableField(String nodePath) {
@@ -506,7 +508,7 @@ public class ArbilTemplate {
             }
             return true;
         } catch (Exception ex) {
-            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("The required template could not be read.", "Load Template");
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The required template could not be read.", "Load Template");
             GuiHelper.linorgBugCatcher.logError("A template could not be read.", ex);
             return false;
         }

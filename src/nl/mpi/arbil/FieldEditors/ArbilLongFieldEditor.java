@@ -14,9 +14,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import nl.mpi.arbil.ImdiField;
-import nl.mpi.arbil.ImdiTable;
-import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.ui.ImdiTable;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ImdiTreeObject;
 
 /**
@@ -28,7 +28,7 @@ public class ArbilLongFieldEditor extends JPanel {
 
     ImdiTable parentTable = null;
     ImdiTreeObject parentImdiTreeObject;
-    ImdiField[] imdiFields;
+    ArbilField[] imdiFields;
     String fieldName = "unknown";
     JTabbedPane tabPane;
     int selectedField = -1;
@@ -44,7 +44,7 @@ public class ArbilLongFieldEditor extends JPanel {
         setLayout(new BorderLayout());
     }
 
-    public void showEditor(ImdiField[] cellValueLocal, String currentEditorText, int selectedFieldLocal) {
+    public void showEditor(ArbilField[] cellValueLocal, String currentEditorText, int selectedFieldLocal) {
         selectedField = selectedFieldLocal;
         imdiFields = cellValueLocal;
         String parentNodeName = "unknown";
@@ -61,7 +61,7 @@ public class ArbilLongFieldEditor extends JPanel {
         this.add(tabPane, BorderLayout.CENTER);
         // todo: add next and previous buttons for the current file
         // todo: add all unused attributes as editable text
-        editorFrame = LinorgWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, this);
+        editorFrame = ArbilWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, this);
         editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
             @Override
@@ -124,7 +124,7 @@ public class ArbilLongFieldEditor extends JPanel {
             tabPanel.setLayout(new BorderLayout());
             tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
             fieldLanguageBoxs[cellFieldIndex] = null;
-            if (imdiFields[cellFieldIndex] instanceof ImdiField) {
+            if (imdiFields[cellFieldIndex] instanceof ArbilField) {
                 if (imdiFields[cellFieldIndex].getLanguageId() != null) {
                     fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(imdiFields[cellFieldIndex], null);
                     JPanel languagePanel = new JPanel(new BorderLayout());
@@ -209,7 +209,7 @@ public class ArbilLongFieldEditor extends JPanel {
     public void storeChanges() {
         if (imdiFields != null) {
             for (int cellFieldCounter = 0; cellFieldCounter < imdiFields.length; cellFieldCounter++) {
-                ImdiField cellField = (ImdiField) imdiFields[cellFieldCounter];
+                ArbilField cellField = (ArbilField) imdiFields[cellFieldCounter];
                 if (cellField.parentImdi.getParentDomNode().isEditable()) {
                     cellField.setFieldValue(fieldEditors[cellFieldCounter].getText(), true, false);
                     if (keyEditorFields[cellFieldCounter] != null) {

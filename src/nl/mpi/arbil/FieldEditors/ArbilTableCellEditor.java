@@ -21,11 +21,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.GuiHelper;
-import nl.mpi.arbil.ImdiField;
-import nl.mpi.arbil.ImdiTable;
-import nl.mpi.arbil.ImdiTableCellRenderer;
-import nl.mpi.arbil.LinorgWindowManager;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.ui.ImdiTable;
+import nl.mpi.arbil.ui.ImdiTableCellRenderer;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 
 /**
  * Document   : ArbilTableCellEditor
@@ -100,16 +100,16 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
     private boolean requiresLongFieldEditor() {
         boolean requiresLongFieldEditor = false;
-        if (cellValue instanceof ImdiField[]) {
+        if (cellValue instanceof ArbilField[]) {
             FontMetrics fontMetrics = button.getGraphics().getFontMetrics();
             double availableWidth = parentCellRect.getWidth() + 20; // let a few chars over be ok for the short editor
-            ImdiField[] iterableFields;
+            ArbilField[] iterableFields;
             if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
-                iterableFields = (ImdiField[]) cellValue;
+                iterableFields = (ArbilField[]) cellValue;
             } else {
-                iterableFields = new ImdiField[]{((ImdiField[]) cellValue)[selectedField]};
+                iterableFields = new ArbilField[]{((ArbilField[]) cellValue)[selectedField]};
             }
-            for (ImdiField currentField : iterableFields) {
+            for (ArbilField currentField : iterableFields) {
 //                if (!currentField.hasVocabulary()) { // the vocabulary type field should not get here
                 String fieldValue = currentField.getFieldValue();
                 // calculate length and look for line breaks
@@ -136,8 +136,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
     private boolean isCellEditable() {
         boolean returnValue = false;
-        if (cellValue instanceof ImdiField[]) {
-            ImdiTreeObject parentObject = ((ImdiField[]) cellValue)[0].parentImdi;
+        if (cellValue instanceof ArbilField[]) {
+            ImdiTreeObject parentObject = ((ArbilField[]) cellValue)[0].parentImdi;
             // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
             returnValue = !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
         }
@@ -216,19 +216,19 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     }
 
     private boolean cellHasControlledVocabulary() {
-        return ((ImdiField) cellValue[0]).hasVocabulary();
+        return ((ArbilField) cellValue[0]).hasVocabulary();
     }
 
     public void startLongfieldEditor(JTable table, Object value, boolean isSelected, int row, int column) {
         getTableCellEditorComponent(table, value, isSelected, row, column);
 //        startEditorMode(true, KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
         fireEditingStopped();
-        if (cellValue instanceof ImdiField[]) {
+        if (cellValue instanceof ArbilField[]) {
             int currentFieldIndex = selectedField;
             if (currentFieldIndex < 0) {
                 currentFieldIndex = 0;
             }
-            new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ImdiField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
+            new ArbilLongFieldEditor(parentTable).showEditor((ArbilField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ArbilField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
         }
 
     }
@@ -236,12 +236,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
 //        System.out.println("startEditorMode: " + selectedField + " lastKeyInt: " + lastKeyInt + " lastKeyChar: " + lastKeyChar);
         removeAllFocusListners();
-        if (cellValue instanceof ImdiField[]) {
+        if (cellValue instanceof ArbilField[]) {
             if (cellHasControlledVocabulary()) {
                 if (isCellEditable()) {
                     // if the cell has a vocabulary then prevent the long field editor
                     System.out.println("Has Vocabulary");
-                    ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ImdiField) cellValue[selectedField]);
+                    ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ArbilField) cellValue[selectedField]);
                     editorPanel.remove(button);
                     editorPanel.add(cvComboBox);
                     editorPanel.doLayout();
@@ -275,12 +275,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         public void keyTyped(KeyEvent evt) {
                             if (isStartLongFieldKey(evt)) {
                                 // if this is a long start long field event the we don't want that key appended so it is not passed on here
-                                if (cellValue instanceof ImdiField[]) {
+                                if (cellValue instanceof ArbilField[]) {
                                     int currentFieldIndex = selectedField;
                                     if (currentFieldIndex < 0) {
                                         currentFieldIndex = 0;
                                     }
-                                    new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ImdiField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
+                                    new ArbilLongFieldEditor(parentTable).showEditor((ArbilField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ArbilField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
                                 }
                             }
                         }
@@ -295,10 +295,10 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                     editorPanel.add(editorTextField);
 
                     addFocusListener(editorTextField);
-                    if (cellValue[selectedField] instanceof ImdiField) {
-                        if (((ImdiField) cellValue[selectedField]).getLanguageId() != null) {
+                    if (cellValue[selectedField] instanceof ArbilField) {
+                        if (((ArbilField) cellValue[selectedField]).getLanguageId() != null) {
                             // this is an ImdiField that has a fieldLanguageId
-                            JComboBox fieldLanguageBox = new LanguageIdBox((ImdiField) cellValue[selectedField], parentCellRect);
+                            JComboBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
                             editorPanel.add(fieldLanguageBox);
                             addFocusListener(fieldLanguageBox);
                         }
@@ -309,17 +309,17 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 }
             } else {
                 fireEditingStopped();
-                if (cellValue instanceof ImdiField[]) {
+                if (cellValue instanceof ArbilField[]) {
                     int currentFieldIndex = selectedField;
                     if (currentFieldIndex < 0) {
                         currentFieldIndex = 0;
                     }
-                    new ArbilLongFieldEditor(parentTable).showEditor((ImdiField[]) cellValue, getEditorText(lastKeyInt, lastKeyChar, ((ImdiField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
+                    new ArbilLongFieldEditor(parentTable).showEditor((ArbilField[]) cellValue, getEditorText(lastKeyInt, lastKeyChar, ((ArbilField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
                 }
 //                ArbilTableCellEditor.this.stopCellEditing();
             }
         } else if (cellValue instanceof ImdiTreeObject[]) {
-            LinorgWindowManager.getSingleInstance().openFloatingTableOnce((ImdiTreeObject[]) cellValue, fieldName + " in " + registeredOwner);
+            ArbilWindowManager.getSingleInstance().openFloatingTableOnce((ImdiTreeObject[]) cellValue, fieldName + " in " + registeredOwner);
         } else {
             try {
                 throw new Exception("Edit cell type not supported");
@@ -334,9 +334,9 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         if (selectedField != -1) {
             if (editorComponent != null) {
                 if (editorComponent instanceof ControlledVocabularyComboBox) {
-                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((ControlledVocabularyComboBox) editorComponent).getCurrentValue(), true, false);
+                    ((ArbilField[]) cellValue)[selectedField].setFieldValue(((ControlledVocabularyComboBox) editorComponent).getCurrentValue(), true, false);
                 } else if (editorComponent instanceof ArbilFieldEditor) {
-                    ((ImdiField[]) cellValue)[selectedField].setFieldValue(((ArbilFieldEditor) editorComponent).getText(), true, false);
+                    ((ArbilField[]) cellValue)[selectedField].setFieldValue(((ArbilFieldEditor) editorComponent).getText(), true, false);
                 }
             }
             return cellValue[selectedField];
@@ -347,10 +347,10 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
     private void convertCellValue(Object value) {
         if (value != null) {
-            if (value instanceof ImdiField) {
+            if (value instanceof ArbilField) {
                 // TODO: get the whole array from the parent and select the correct tab for editing
-                fieldName = ((ImdiField) value).getTranslateFieldName();
-                cellValue = ((ImdiField) value).parentImdi.getFields().get(fieldName);
+                fieldName = ((ArbilField) value).getTranslateFieldName();
+                cellValue = ((ArbilField) value).parentImdi.getFields().get(fieldName);
                 // TODO: find the chosen fields index in the array and store
                 for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
                     System.out.println("selectedField: " + cellValue[cellFieldCounter] + " : " + value);
@@ -361,12 +361,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 }
             } else {
                 cellValue = (Object[]) value;
-                if (cellValue[0] instanceof ImdiField) {
-                    fieldName = ((ImdiField[]) cellValue)[0].getTranslateFieldName();
+                if (cellValue[0] instanceof ArbilField) {
+                    fieldName = ((ArbilField[]) cellValue)[0].getTranslateFieldName();
                 }
             }
-            if (cellValue[0] instanceof ImdiField) {
-                registeredOwner = ((ImdiField) cellValue[0]).parentImdi;
+            if (cellValue[0] instanceof ArbilField) {
+                registeredOwner = ((ArbilField) cellValue[0]).parentImdi;
             }
         } else {
             GuiHelper.linorgBugCatcher.logError(new Exception("value is null in convertCellValue"));
