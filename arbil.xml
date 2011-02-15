@@ -157,8 +157,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         </tar>
     </target>
     <target name="getCurrentJnlp" depends="setproperties" description="download the current jnlp and applet html from the web server (this is only only used so that the copy in svn is kept up to date)">
-        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp" dest="${SRCDIR}nl/mpi/arbil/arbil${arbil.filenameidentifier}.jnlp"/>
-        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-applet${arbil.filenameidentifier}.html" dest="${SRCDIR}nl/mpi/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp" dest="${SRCDIR}nl/mpi/arbil/ui/applet/arbil${arbil.filenameidentifier}.jnlp"/>
+        <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/ui/applet/arbil-applet${arbil.filenameidentifier}.html" dest="${SRCDIR}nl/mpi/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
     </target>
     <target name="getFallbackFiles-x" depends="setproperties"/>
     <target name="getFallbackFiles" depends="setproperties" description="download the latest schema and controlled vocabularies from the web server">

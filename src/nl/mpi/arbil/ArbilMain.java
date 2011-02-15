@@ -1,4 +1,4 @@
-package nl.mpi.arbil.ui;
+package nl.mpi.arbil;
 
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ArbilVersionChecker;
@@ -6,7 +6,15 @@ import nl.mpi.arbil.util.ArbilBugCatcher;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilVersion;
+import nl.mpi.arbil.ArbilVersion;
+import nl.mpi.arbil.ui.ArbilTreePanels;
+import nl.mpi.arbil.ui.ArbilTreePanels;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.ui.PreviewSplitPanel;
 
 /*
  * LinorgView.java
