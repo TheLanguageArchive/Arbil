@@ -220,21 +220,11 @@ public class ArbilDragDrop {
 
         @Override
         public int getSourceActions(JComponent c) {
-            System.out.println("getSourceActions");
-            if ((c instanceof JTree)) {
-                JTree jTree = (JTree) c;
-                // allow drag providing that the root node is not the only node selected
-                if (jTree.getSelectionCount() > 1 || (jTree.getSelectionCount() == 1 && jTree.getSelectionPath().getPathCount() > 1)) {
-                    // must have a selection and not be the root node which is never an imdi node
-                    // no selection will only occur on some java runtimes but must be handled here
-                    return TransferHandler.COPY;
-                }
-            } else if (c instanceof JTable) {
+            if ((c instanceof JTree) || (c instanceof JTable) || (c instanceof JList)) {
                 return TransferHandler.COPY;
-            } else if (c instanceof JList) {
-                return TransferHandler.COPY;
+            } else {
+                return TransferHandler.NONE;
             }
-            return TransferHandler.NONE;
         }
 
         @Override
@@ -322,6 +312,12 @@ public class ArbilDragDrop {
 //         if (comp != null)  { System.out.println("createTransferable: " + comp.toString()); }
             if (comp instanceof ArbilTree) {
                 ArbilTree draggedTree = (ArbilTree) comp;
+
+                // Prevent root node from being dragged
+                if (!(draggedTree.getSelectionCount() > 1 || (draggedTree.getSelectionCount() == 1 && draggedTree.getSelectionPath().getPathCount() > 1))) {
+                    return null;
+                }
+
                 //System.out.println("selectedCount: " + draggedTree.getSelectionCount());
                 draggedImdiObjects = new ArbilNodeObject[draggedTree.getSelectionCount()];
                 draggedTreeNodes = new DefaultMutableTreeNode[draggedTree.getSelectionCount()];
@@ -363,56 +359,58 @@ public class ArbilDragDrop {
             System.out.println("classifyTransferableContents");
             // classify the draggable bundle to help matching drop targets
             for (ArbilNodeObject currentDraggedObject : draggedImdiObjects) {
-                if (currentDraggedObject.isLocal()) {
-                    selectionContainsLocal = true;
-                    System.out.println("selectionContainsLocal");
-                    if (currentDraggedObject.isDirectory()) {
-                        selectionContainsLocalDirectory = true;
-                        System.out.println("selectionContainsLocalDirectory");
-                    } else {
-                        if (!currentDraggedObject.isMetaDataNode()) {
-                            selectionContainsLocalFile = true;
-                            System.out.println("selectionContainsLocalFile");
-                            if (currentDraggedObject.isArchivableFile()) {
-                                selectionContainsArchivableLocalFile = true;
-                                System.out.println("selectionContainsArchivableLocalFile");
-                            }
+                if (currentDraggedObject != null) {
+                    if (currentDraggedObject.isLocal()) {
+                        selectionContainsLocal = true;
+                        System.out.println("selectionContainsLocal");
+                        if (currentDraggedObject.isDirectory()) {
+                            selectionContainsLocalDirectory = true;
+                            System.out.println("selectionContainsLocalDirectory");
+                        } else {
+                            if (!currentDraggedObject.isMetaDataNode()) {
+                                selectionContainsLocalFile = true;
+                                System.out.println("selectionContainsLocalFile");
+                                if (currentDraggedObject.isArchivableFile()) {
+                                    selectionContainsArchivableLocalFile = true;
+                                    System.out.println("selectionContainsArchivableLocalFile");
+                                }
 
+                            }
                         }
+                    } else {
+                        selectionContainsRemote = true;
+                        System.out.println("selectionContainsRemote");
                     }
-                } else {
-                    selectionContainsRemote = true;
-                    System.out.println("selectionContainsRemote");
-                }
-                if (currentDraggedObject.isMetaDataNode()) {
-                    if (currentDraggedObject.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
-                        selectionContainsImdiInCache = true;
-                        System.out.println("selectionContainsImdiInCache");
-                    }
-                    if (currentDraggedObject.isImdiChild()) {
-                        selectionContainsImdiChild = true;
-                        System.out.println("selectionContainsImdiChild");
-                        // only an imdichild will contain a resource
-                        if (currentDraggedObject.hasResource()) {
-                            selectionContainsImdiResource = true;
-                            System.out.println("selectionContainsImdiResource");
+                    if (currentDraggedObject.isMetaDataNode()) {
+                        if (currentDraggedObject.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
+                            selectionContainsImdiInCache = true;
+                            System.out.println("selectionContainsImdiInCache");
                         }
-                    } else if (currentDraggedObject.isSession()) {
-                        selectionContainsImdiSession = true;
-                        System.out.println("selectionContainsImdiSession");
-                    } else if (currentDraggedObject.isCmdiMetaDataNode()) {
-                        selectionContainsCmdiMetadata = true;
-                        System.out.println("selectionContainsCmdiMetadata");
-                    } else if (currentDraggedObject.isCatalogue()) {
-                        selectionContainsImdiCatalogue = true;
-                        System.out.println("selectionContainsImdiCatalogue");
-                    } else if (currentDraggedObject.isCorpus()) {
-                        selectionContainsImdiCorpus = true;
-                        System.out.println("selectionContainsImdiCorpus");
-                    }
-                    if (currentDraggedObject.isFavorite()) {
-                        selectionContainsFavourite = true;
-                        System.out.println("selectionContainsFavourite");
+                        if (currentDraggedObject.isImdiChild()) {
+                            selectionContainsImdiChild = true;
+                            System.out.println("selectionContainsImdiChild");
+                            // only an imdichild will contain a resource
+                            if (currentDraggedObject.hasResource()) {
+                                selectionContainsImdiResource = true;
+                                System.out.println("selectionContainsImdiResource");
+                            }
+                        } else if (currentDraggedObject.isSession()) {
+                            selectionContainsImdiSession = true;
+                            System.out.println("selectionContainsImdiSession");
+                        } else if (currentDraggedObject.isCmdiMetaDataNode()) {
+                            selectionContainsCmdiMetadata = true;
+                            System.out.println("selectionContainsCmdiMetadata");
+                        } else if (currentDraggedObject.isCatalogue()) {
+                            selectionContainsImdiCatalogue = true;
+                            System.out.println("selectionContainsImdiCatalogue");
+                        } else if (currentDraggedObject.isCorpus()) {
+                            selectionContainsImdiCorpus = true;
+                            System.out.println("selectionContainsImdiCorpus");
+                        }
+                        if (currentDraggedObject.isFavorite()) {
+                            selectionContainsFavourite = true;
+                            System.out.println("selectionContainsFavourite");
+                        }
                     }
                 }
             }
