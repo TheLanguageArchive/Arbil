@@ -25,10 +25,10 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         leftLocalSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         leftLocalSplitPane.setName("ArbilTreePanelsInner"); // NOI18N
 
-        remoteCorpusTree = new ImdiTree();
-        localDirectoryTree = new ImdiTree();
-        localCorpusTree = new ImdiTree();
-        favouritesTree = new ImdiTree();
+        remoteCorpusTree = new ArbilTree();
+        localDirectoryTree = new ArbilTree();
+        localCorpusTree = new ArbilTree();
+        favouritesTree = new ArbilTree();
 
         remoteCorpusTree.setModel(TreeHelper.getSingleInstance().remoteCorpusTreeModel);
         remoteCorpusScrollPane.setViewportView(remoteCorpusTree);
@@ -61,8 +61,8 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         leftLocalSplitPane.setDividerLocation(0.5);
     }
 
-    public ImdiTree[] getTreeArray() {
-        return new ImdiTree[]{localCorpusTree, localDirectoryTree, remoteCorpusTree, favouritesTree};
+    public ArbilTree[] getTreeArray() {
+        return new ArbilTree[]{localCorpusTree, localDirectoryTree, remoteCorpusTree, favouritesTree};
     }
     
     private javax.swing.JScrollPane localDirectoryScrollPane;
@@ -70,8 +70,8 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
     private javax.swing.JScrollPane localCorpusScrollPane;
     private javax.swing.JScrollPane favouritesScrollPane;
     private javax.swing.JSplitPane leftLocalSplitPane;
-    public ImdiTree localCorpusTree;
-    public ImdiTree localDirectoryTree;
-    public ImdiTree remoteCorpusTree;
-    public ImdiTree favouritesTree;
+    public ArbilTree localCorpusTree;
+    public ArbilTree localDirectoryTree;
+    public ArbilTree remoteCorpusTree;
+    public ArbilTree favouritesTree;
 }

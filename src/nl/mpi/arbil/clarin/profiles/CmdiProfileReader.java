@@ -3,7 +3,7 @@ package nl.mpi.arbil.clarin.profiles;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JProgressBar;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import org.apache.commons.digester.Digester;
 
 /**
@@ -74,7 +74,7 @@ public class CmdiProfileReader {
         } else {
             updateDays = 100;
         }
-        LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, updateDays);
+        ArbilSessionStorage.getSingleInstance().updateCache(profilesUrlString, updateDays);
         loadProfiles();
         progressBar.setIndeterminate(false);
         progressBar.setMinimum(0);
@@ -84,7 +84,7 @@ public class CmdiProfileReader {
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
             progressBar.setString(currentCmdiProfile.name);
             System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
-            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), updateDays);
+            ArbilSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), updateDays);
             progressBar.setValue(progressBar.getValue() + 1);
         }
         progressBar.setString("");
@@ -92,7 +92,7 @@ public class CmdiProfileReader {
     }
 
     public void loadProfiles() {
-        File profileXmlFile = LinorgSessionStorage.getSingleInstance().updateCache(profilesUrlString, 10);
+        File profileXmlFile = ArbilSessionStorage.getSingleInstance().updateCache(profilesUrlString, 10);
         try {
             Digester digester = new Digester();
             // This method pushes this (SampleDigester) class to the Digesters

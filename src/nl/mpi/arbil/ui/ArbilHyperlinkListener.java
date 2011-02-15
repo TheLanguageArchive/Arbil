@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.ArbilField;
 import java.awt.Component;
@@ -14,8 +15,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import nl.mpi.arbil.data.MetadataBuilder;
 
 /**
@@ -47,7 +48,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 //            System.out.println(evt.getSource());
             if (evt.getDescription().startsWith("arbilscript:")) {
                 try {
-                    ImdiTreeObject currentImdiObject = null;
+                    ArbilNodeObject currentImdiObject = null;
                     String arbilscriptString = evt.getDescription().substring("arbilscript:".length());
                     System.out.println("acting on arbilscript: " + arbilscriptString);
                     String[] commandsArray = arbilscriptString.split("&");
@@ -99,7 +100,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
         }
     }
 
-    private void setField(ImdiTreeObject currentImdiObject, String fieldPath, String FieldValue) {
+    private void setField(ArbilNodeObject currentImdiObject, String fieldPath, String FieldValue) {
         for (ArbilField[] currentField : currentImdiObject.getFields().values()) {
             if (currentField[0].getFullXmlPath().endsWith(fieldPath)) {
                 currentField[0].setFieldValue(FieldValue, true, true);
@@ -108,12 +109,12 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
     }
 
     // note that this must not be used on nodes currently being edited because it bypasses the imdi loader process
-    private ImdiTreeObject addNode(ImdiTreeObject parentNode, String nodeType, String nodeTypeDisplayName, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
+    private ArbilNodeObject addNode(ArbilNodeObject parentNode, String nodeType, String nodeTypeDisplayName, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
         System.out.println("wizard add node: " + nodeType);
         System.out.println("adding into: " + parentNode);
-        ImdiTreeObject addedImdiObject;
+        ArbilNodeObject addedImdiObject;
         if (parentNode == null) {
-            URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
+            URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewImdiFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
             targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
             addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
             TreeHelper.getSingleInstance().addLocation(targetFileURI);
@@ -123,7 +124,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
             addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
         }
         addedImdiObject.waitTillLoaded();
-        ImdiTableModel imdiTableModel = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ImdiTreeObject[]{addedImdiObject}, nodeTypeDisplayName);
+        ImdiTableModel imdiTableModel = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ArbilNodeObject[]{addedImdiObject}, nodeTypeDisplayName);
         return addedImdiObject;
     }
 }

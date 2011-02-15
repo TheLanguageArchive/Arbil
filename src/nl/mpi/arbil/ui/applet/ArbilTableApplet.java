@@ -2,9 +2,9 @@ package nl.mpi.arbil.ui.applet;
 
 import java.net.URI;
 import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ImdiTable;
-import nl.mpi.arbil.ui.ImdiTableModel;
-import nl.mpi.arbil.util.LinorgBugCatcher;
+import nl.mpi.arbil.ui.ArbilTable;
+import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.data.ImdiLoader;
 
@@ -29,7 +29,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
                 }
             });
         } catch (Exception ex) {
-            new LinorgBugCatcher().logError(ex);
+            new ArbilBugCatcher().logError(ex);
         }
     }
 
@@ -71,7 +71,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
 
     private void initComponents() {
         imdiTableModel = new ImdiTableModel();
-        ImdiTable imdiTable = new ImdiTable(imdiTableModel, tableTitle);
+        ArbilTable imdiTable = new ArbilTable(imdiTableModel, tableTitle);
         ArbilSplitPanel imdiSplitPanel = new ArbilSplitPanel(imdiTable);
         imdiTableModel.hideContextMenuAndStatusBar = true;
         imdiSplitPanel.setSplitDisplay();

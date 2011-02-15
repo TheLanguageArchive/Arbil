@@ -1,7 +1,7 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 
 /**
  * Document   : ImdiField
@@ -10,13 +10,13 @@ import nl.mpi.arbil.MetadataFile.MetadataReader;
  */
 public class ArbilField {
 
-    public ImdiTreeObject parentImdi;
+    public ArbilNodeObject parentImdi;
     public String xmlPath;
     private String translatedPath = null;
     private String fieldValue = "";
     public String originalFieldValue = fieldValue;
     private int fieldOrder = -1;
-    private ImdiVocabularies.Vocabulary fieldVocabulary = null;
+    private ArbilVocabularies.Vocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     private boolean vocabularyIsOpen;
     private boolean vocabularyIsList;
@@ -28,7 +28,7 @@ public class ArbilField {
     private int canValidateField = -1;
     private int siblingCount;
 
-    public ArbilField(int fieldOrderLocal, ImdiTreeObject localParentImdi, String tempPath, String tempValue, int tempSiblingCount) {
+    public ArbilField(int fieldOrderLocal, ArbilNodeObject localParentImdi, String tempPath, String tempValue, int tempSiblingCount) {
         fieldOrder = fieldOrderLocal;
         parentImdi = localParentImdi;
         fieldValue = tempValue;
@@ -138,9 +138,9 @@ public class ArbilField {
         fieldValueToBe = fieldValueToBe.trim();
         if (!this.fieldValue.equals(fieldValueToBe)) {
             if (!excludeFromUndoHistory) {
-                LinorgJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe, LinorgJournal.UndoType.Value);
+                ArbilJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe, ArbilJournal.UndoType.Value);
             }
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), this.fieldValue, fieldValueToBe, "edit");
+            ArbilJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), this.fieldValue, fieldValueToBe, "edit");
             this.fieldValue = fieldValueToBe;
             new FieldChangeTriggers().actOnChange(this);
             // this now scans all fields in the imdiparent and its child nodes to set the "needs save to disk" flag in the imdi nodes
@@ -171,9 +171,9 @@ public class ArbilField {
         }
         if (valueChanged) {// if the value has changed then record it in the undo list and the journal
             if (!excludeFromUndoHistory) {
-                LinorgJournal.getSingleInstance().recordFieldChange(this, this.getLanguageId(), languageIdLocal, LinorgJournal.UndoType.LanguageId);
+                ArbilJournal.getSingleInstance().recordFieldChange(this, this.getLanguageId(), languageIdLocal, ArbilJournal.UndoType.LanguageId);
             }
-            LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath() + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
+            ArbilJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath() + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
             //addFieldAttribute("LanguageId", languageIdLocal);
             languageId = languageIdLocal;
 //            fieldLanguageId = languageId;
@@ -182,7 +182,7 @@ public class ArbilField {
 
     }
 
-    public ImdiVocabularies.Vocabulary getVocabulary() {
+    public ArbilVocabularies.Vocabulary getVocabulary() {
         return fieldVocabulary;
     }
 
@@ -242,7 +242,7 @@ public class ArbilField {
         }
         if (hasVocabularyType) {
             if (cvUrlString != null && cvUrlString.length() > 0) {
-                fieldVocabulary = ImdiVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
+                fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
             }
         } else {
             // vocabularies specified in the xml override vocabularies defined in the schema
@@ -283,10 +283,10 @@ public class ArbilField {
             if (!lastValue.equals(keyNameLocal)) { // only if the value is different
 //                if (fieldAttributes.contains("Name")) { // only if there is already a key name
                 if (!excludeFromUndoHistory) {
-                    LinorgJournal.getSingleInstance().recordFieldChange(this, this.getKeyName(), keyNameLocal, LinorgJournal.UndoType.KeyName);
+                    ArbilJournal.getSingleInstance().recordFieldChange(this, this.getKeyName(), keyNameLocal, ArbilJournal.UndoType.KeyName);
                 }
                 // TODO: resolve how to log key name changes
-                LinorgJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), lastValue, keyNameLocal, "editkeyname");
+                ArbilJournal.getSingleInstance().saveJournalEntry(this.parentImdi.getUrlString(), getFullXmlPath(), lastValue, keyNameLocal, "editkeyname");
                 keyName = keyNameLocal;
                 translatedPath = null;
                 getTranslateFieldName();
@@ -329,7 +329,7 @@ public class ArbilField {
             if (fieldName.startsWith(".")) {
                 fieldName = fieldName.substring(1);
             }
-            if (LinorgSessionStorage.getSingleInstance().useLanguageIdInColumnName) {
+            if (ArbilSessionStorage.getSingleInstance().useLanguageIdInColumnName) {
                 // add the language id to the column name if available
                 if (getLanguageId() != null && getLanguageId().length() > 0) {
                     fieldName = fieldName + " [" + getLanguageId() + "]";

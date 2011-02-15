@@ -1,5 +1,6 @@
 package nl.mpi.arbil.MetadataFile;
 
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +8,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import mpi.util.OurURL;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import org.junit.After;

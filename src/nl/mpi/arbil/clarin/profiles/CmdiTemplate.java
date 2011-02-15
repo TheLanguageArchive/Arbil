@@ -15,11 +15,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.data.ImdiVocabularies;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaLocalElement;
@@ -57,7 +57,7 @@ public class CmdiTemplate extends ArbilTemplate {
         // testing only
 //        new TestAnnotationsReader().Test();
         //super.readTemplate(new File(""), "template_cmdi");
-        vocabularyHashTable = new Hashtable<String, ImdiVocabularies.Vocabulary>();
+        vocabularyHashTable = new Hashtable<String, ArbilVocabularies.Vocabulary>();
         nameSpaceString = nameSpaceStringLocal;
         // construct the template from the XSD
         try {
@@ -196,7 +196,7 @@ public class CmdiTemplate extends ArbilTemplate {
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
         // get the xpath of the target node
-        String targetNodeXpath = ((ImdiTreeObject) targetNodeUserObject).getURI().getFragment();
+        String targetNodeXpath = ((ArbilNodeObject) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         boolean isComponentPath = false;
         if (targetNodeXpath != null) {
@@ -208,7 +208,7 @@ public class CmdiTemplate extends ArbilTemplate {
         }
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         Vector<String[]> childTypes = new Vector<String[]>();
-        if (targetNodeUserObject instanceof ImdiTreeObject) {
+        if (targetNodeUserObject instanceof ArbilNodeObject) {
             for (String[] childPathString : templatesArray) {
 //                System.out.println("Testing: " + childPathString[1] + childPathString[0]);
 //                System.out.println(childPathString[0] + " : " + targetNodeXpath);
@@ -275,7 +275,7 @@ public class CmdiTemplate extends ArbilTemplate {
         if (xsdFile.getScheme().equals("file")) {
             schemaFile = new File(xsdFile);
         } else {
-            schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 100);
+            schemaFile = ArbilSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 100);
         }
         templateFile = schemaFile; // store the template file for later use such as adding child nodes
         try {
@@ -510,7 +510,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //            System.out.println("Controlled Vocabulary: " + schemaType.toString());
 //            System.out.println("Controlled Vocabulary: " + schemaType.getName());
 
-            ImdiVocabularies.Vocabulary vocabulary = ImdiVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
+            ArbilVocabularies.Vocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
             for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
 //                System.out.println("Value List: " + anySimpleType.getStringValue());

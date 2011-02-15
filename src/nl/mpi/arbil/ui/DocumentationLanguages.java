@@ -1,10 +1,10 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import nl.mpi.arbil.data.ImdiVocabularies.VocabularyItem;
-import nl.mpi.arbil.data.ImdiVocabularies;
+import nl.mpi.arbil.data.ArbilVocabularies.VocabularyItem;
+import nl.mpi.arbil.data.ArbilVocabularies;
 
 
 /**
@@ -18,19 +18,19 @@ public class DocumentationLanguages {
 
     public VocabularyItem[] getallLanguages() {
         if (languageVocabularyUrl == null) {
-            languageVocabularyUrl = LinorgSessionStorage.getSingleInstance().loadString("languageVocabularyUrl");
+            languageVocabularyUrl = ArbilSessionStorage.getSingleInstance().loadString("languageVocabularyUrl");
             if (languageVocabularyUrl == null || languageVocabularyUrl.equals("http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml")) {
                 languageVocabularyUrl = "http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml";
-                LinorgSessionStorage.getSingleInstance().saveString("LanguageVocabularyUrl", languageVocabularyUrl);
+                ArbilSessionStorage.getSingleInstance().saveString("LanguageVocabularyUrl", languageVocabularyUrl);
             }
         }
-        return ImdiVocabularies.getSingleInstance().getVocabulary(null, languageVocabularyUrl).getVocabularyItems();
+        return ArbilVocabularies.getSingleInstance().getVocabulary(null, languageVocabularyUrl).getVocabularyItems();
     }
 
     public ArrayList<String> getSelectedLanguagesArrayList() {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
         try {
-            selectedLanguages.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
+            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedLanguages file, will create one now.", e);
             addDefaultTemplates();
@@ -38,7 +38,7 @@ public class DocumentationLanguages {
         return selectedLanguages;
     }
 
-    public ImdiVocabularies.VocabularyItem[] getLanguageListSubset() {
+    public ArbilVocabularies.VocabularyItem[] getLanguageListSubset() {
         ArrayList<VocabularyItem> languageListSubset = new ArrayList<VocabularyItem>();
         ArrayList<String> selectedLanguages = getSelectedLanguagesArrayList();
         for (VocabularyItem currentVocabItem : getallLanguages()) {
@@ -58,20 +58,20 @@ public class DocumentationLanguages {
     public void addselectedLanguages(String templateString) {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
         try {
-            selectedLanguages.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
+            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedLanguages file, will create one now.", e);
         }
         selectedLanguages.add(templateString);
-        LinorgSessionStorage.getSingleInstance().saveStringArray("selectedLanguages", selectedLanguages.toArray(new String[]{}));
+        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedLanguages", selectedLanguages.toArray(new String[]{}));
     }
 
     public void removeselectedLanguages(String templateString) {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
-        selectedLanguages.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
+        selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
         while (selectedLanguages.contains(templateString)) {
             selectedLanguages.remove(templateString);
         }
-        LinorgSessionStorage.getSingleInstance().saveStringArray("selectedLanguages", selectedLanguages.toArray(new String[]{}));
+        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedLanguages", selectedLanguages.toArray(new String[]{}));
     }
 }

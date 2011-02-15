@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import nl.mpi.arbil.data.ImdiVocabularies.VocabularyItem;
+import nl.mpi.arbil.data.ArbilVocabularies.VocabularyItem;
 import nl.mpi.arbil.templates.TemplateDialogue;
 
 /**

@@ -25,7 +25,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ArbilMetadataException;
 import org.apache.xmlbeans.SchemaProperty;
@@ -111,7 +111,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public URI insertResourceProxy(ImdiTreeObject imdiTreeObject, ImdiTreeObject resourceNode) {
+    public URI insertResourceProxy(ArbilNodeObject imdiTreeObject, ArbilNodeObject resourceNode) {
         // there is no need to save the node at this point because metadatabuilder has already done so
         synchronized (imdiTreeObject.getParentDomLockObject()) {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
@@ -188,7 +188,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public boolean removeChildNodes(ImdiTreeObject imdiTreeObject, String nodePaths[]) {
+    public boolean removeChildNodes(ArbilNodeObject imdiTreeObject, String nodePaths[]) {
         if (imdiTreeObject.getNeedsSaveToDisk(false)) {
             imdiTreeObject.saveChangesToCache(true);
         }
@@ -237,7 +237,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public boolean setFieldValues(ImdiTreeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
+    public boolean setFieldValues(ArbilNodeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
         synchronized (imdiTreeObject.getParentDomLockObject()) {
             //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
             System.out.println("setFieldValues: " + imdiTreeObject);
@@ -273,12 +273,12 @@ public class ArbilComponentBuilder {
                 savePrettyFormatting(targetDocument, cmdiNodeFile);
                 for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
                     // log to jornal file
-                    LinorgJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath, currentFieldUpdate.fieldOldValue, currentFieldUpdate.fieldNewValue, "save");
+                    ArbilJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath, currentFieldUpdate.fieldOldValue, currentFieldUpdate.fieldNewValue, "save");
                     if (currentFieldUpdate.fieldLanguageId != null) {
-                        LinorgJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":LanguageId", currentFieldUpdate.fieldLanguageId, "", "save");
+                        ArbilJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":LanguageId", currentFieldUpdate.fieldLanguageId, "", "save");
                     }
                     if (currentFieldUpdate.keyNameValue != null) {
-                        LinorgJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":Name", currentFieldUpdate.keyNameValue, "", "save");
+                        ArbilJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":Name", currentFieldUpdate.keyNameValue, "", "save");
                     }
                 }
                 return true;
@@ -297,9 +297,9 @@ public class ArbilComponentBuilder {
 
     public void testInsertFavouriteComponent() {
         try {
-            ImdiTreeObject favouriteImdiTreeObject1 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
-            ImdiTreeObject favouriteImdiTreeObject2 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
-            ImdiTreeObject destinationImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
+            ArbilNodeObject favouriteImdiTreeObject1 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
+            ArbilNodeObject favouriteImdiTreeObject2 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
+            ArbilNodeObject destinationImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
             insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject1);
             insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject2);
         } catch (URISyntaxException exception) {
@@ -358,7 +358,7 @@ public class ArbilComponentBuilder {
         return addedNode;
     }
 
-    public URI insertFavouriteComponent(ImdiTreeObject destinationImdiTreeObject, ImdiTreeObject favouriteImdiTreeObject) throws ArbilMetadataException {
+    public URI insertFavouriteComponent(ArbilNodeObject destinationImdiTreeObject, ArbilNodeObject favouriteImdiTreeObject) throws ArbilMetadataException {
         URI returnUri = null;
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
@@ -436,7 +436,7 @@ public class ArbilComponentBuilder {
         return returnUri;
     }
 
-    public URI insertChildComponent(ImdiTreeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
+    public URI insertChildComponent(ArbilNodeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
         if (imdiTreeObject.getNeedsSaveToDisk(false)) {
             imdiTreeObject.saveChangesToCache(true);
         }
@@ -517,7 +517,7 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public void removeArchiveHandles(ImdiTreeObject imdiTreeObject) {
+    public void removeArchiveHandles(ArbilNodeObject imdiTreeObject) {
         synchronized (imdiTreeObject.getParentDomLockObject()) {
             try {
                 Document workingDocument = getDocument(imdiTreeObject.getURI());
@@ -752,7 +752,7 @@ public class ArbilComponentBuilder {
             XmlOptions xmlOptions = new XmlOptions();
             xmlOptions.setCharacterEncoding("UTF-8");
 //            CatalogDocument catalogDoc = CatalogDocument.Factory.newInstance(); 
-            xmlOptions.setEntityResolver(new ArbilEntityResolver(LinorgSessionStorage.getSingleInstance().getOriginatingUri(schemaFile.toURI()))); // this schema file is in the cache and must be resolved back to the origin in order to get unresolved imports within the schema file
+            xmlOptions.setEntityResolver(new ArbilEntityResolver(ArbilSessionStorage.getSingleInstance().getOriginatingUri(schemaFile.toURI()))); // this schema file is in the cache and must be resolved back to the origin in order to get unresolved imports within the schema file
             //xmlOptions.setCompileDownloadUrls();
             SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
             // there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
@@ -773,7 +773,7 @@ public class ArbilComponentBuilder {
             // do not cache local xsd files
             schemaFile = new File(xsdFile);
         } else {
-            schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
+            schemaFile = ArbilSessionStorage.getSingleInstance().updateCache(xsdFile.toString(), 5);
         }
         SchemaType schemaType = getFirstSchemaType(schemaFile);
         constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null, addDummyData);

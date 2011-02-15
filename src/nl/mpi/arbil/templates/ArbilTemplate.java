@@ -1,8 +1,8 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.data.ImdiVocabularies;
-import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
+import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 public class ArbilTemplate {
 
     public File templateFile;
-    protected Hashtable<String, ImdiVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
+    protected Hashtable<String, ArbilVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
     public String loadedTemplateName;
     public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
@@ -333,14 +333,14 @@ public class ArbilTemplate {
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
-        if (targetNodeUserObject instanceof ImdiTreeObject) {
-            String xpath = MetadataReader.getNodePath((ImdiTreeObject) targetNodeUserObject);
+        if (targetNodeUserObject instanceof ArbilNodeObject) {
+            String xpath = MetadataReader.getNodePath((ArbilNodeObject) targetNodeUserObject);
             childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
-            if (((ImdiTreeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
+            if (((ArbilNodeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
                 for (String[] currentTemplate : rootTemplatesArray) {
                     boolean suppressEntry = false;
                     if (currentTemplate[1].equals("Catalogue")) {
-                        if (((ImdiTreeObject) targetNodeUserObject).hasCatalogue()) {
+                        if (((ArbilNodeObject) targetNodeUserObject).hasCatalogue()) {
                             // make sure the catalogue can only be added once
                             suppressEntry = true;
                         }
@@ -388,7 +388,7 @@ public class ArbilTemplate {
         return "No usage description found in this template for: " + fieldName;
     }
 
-    public ImdiVocabularies.Vocabulary getFieldVocabulary(String nodePath) {
+    public ArbilVocabularies.Vocabulary getFieldVocabulary(String nodePath) {
         if (vocabularyHashTable != null) {
             return vocabularyHashTable.get(nodePath);
         }

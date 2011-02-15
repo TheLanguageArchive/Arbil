@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -24,7 +24,7 @@ import javax.swing.ListCellRenderer;
  * Created on : Wed Dec 03 15:44:20
  * @author Peter.Withers@mpi.nl
  */
-class ImageBoxRenderer extends JLabel implements ListCellRenderer {
+public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     int outputWidth = 200;
     int outputHeight = 130;
@@ -50,7 +50,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     // returns a boolean value indicating if the node has or can have a thumbnail
     // if it can but does not yet then a thumbnail will be made
-    public boolean canDisplay(ImdiTreeObject testableObject) {
+    public boolean canDisplay(ArbilNodeObject testableObject) {
         if (testableObject.thumbnailFile != null) {
             return true;
         }
@@ -96,8 +96,8 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             setForeground(list.getForeground());
         }
         //Set the icon and text.
-        if (value instanceof ImdiTreeObject) {
-            ImdiTreeObject imdiObject = (ImdiTreeObject) value;
+        if (value instanceof ArbilNodeObject) {
+            ArbilNodeObject imdiObject = (ArbilNodeObject) value;
             setFont(list.getFont());
             setText(imdiObject.toString());
             if (imdiObject.thumbnailFile != null) {
@@ -142,7 +142,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private File getTargetFile(ImdiTreeObject targetImdiObject) {
+    private File getTargetFile(ArbilNodeObject targetImdiObject) {
         if (targetImdiObject.hasResource()) {
             return new File(targetImdiObject.getFullResourceURI());
         } else if (targetImdiObject.isArchivableFile()) {
@@ -152,7 +152,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private void createVideoThumbnail(ImdiTreeObject targetImdiObject) {
+    private void createVideoThumbnail(ArbilNodeObject targetImdiObject) {
         if (ffmpegPath == null) {
             // todo: replaces this with a parameter or a properties file
             for (String currentPath : searchPathArray) {
@@ -194,7 +194,7 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private void createImageThumbnail(ImdiTreeObject targetImdiObject) {
+    private void createImageThumbnail(ArbilNodeObject targetImdiObject) {
 //        if (!loadedMfcDlls) {
 //            loadedMfcDlls = true;
 //            try {
@@ -247,12 +247,12 @@ class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private void createThumbnail(ImdiTreeObject targetImdiObject) {
+    private void createThumbnail(ArbilNodeObject targetImdiObject) {
         try {
             BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = resizedImg.createGraphics();
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            if (((ImdiTreeObject) targetImdiObject).mpiMimeType.contains("image")) {
+            if (((ArbilNodeObject) targetImdiObject).mpiMimeType.contains("image")) {
                 ImageIcon nodeImage = new ImageIcon(getTargetFile(targetImdiObject).toURL());
                 if (nodeImage != null) {
                     g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);

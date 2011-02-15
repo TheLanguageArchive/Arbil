@@ -1,11 +1,12 @@
 package nl.mpi.arbil;
 
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import nl.mpi.arbil.importexport.ShibbolethNegotiator;
+import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,7 +52,7 @@ public class LinorgSessionStorageTest {
                 "http://www.mpi.nl/IMDI/Schema/Some%20Continents.imdi"
             }
         };
-        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
         for (String[] currentTest : testInputArray) {
             try {
                 URI locationInCacheURI = new URI(currentTest[0]);
@@ -70,7 +71,7 @@ public class LinorgSessionStorageTest {
     @Test
     public void testPathIsInsideCache() {
         System.out.println("pathIsInsideCache");
-        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
         File oldStorageDirectory = instance.storageDirectory;
         instance.storageDirectory = new File("/Users/testUser/.arbil/");
         File[] testInputArrayTrue = {
@@ -98,7 +99,7 @@ public class LinorgSessionStorageTest {
     @Test
     public void testGetExportPath() {
         System.out.println("getExportPath");
-        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
         String[][] testInputArray = {
             {"file:/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml",
                 "/home/user/exportdirectory/http/www.mpi.nl/IMDI/Schema/Continents.xml"},
@@ -174,7 +175,7 @@ public class LinorgSessionStorageTest {
             }
 
         };
-        LinorgSessionStorage instance = LinorgSessionStorage.getSingleInstance();
+        ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
 //        instance.storageDirectory = "/Users/testUser/";
         for (String[] currentTest : testInputArray) {
             instance.changeCacheDirectory(new File(currentTest[2]), false);

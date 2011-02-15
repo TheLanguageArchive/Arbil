@@ -1,10 +1,10 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.userstorage.LinorgFavourites;
-import nl.mpi.arbil.util.LinorgBugCatcher;
-import nl.mpi.arbil.importexport.ImdiToHtmlConverter;
-import nl.mpi.arbil.data.ImdiTreeObject;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
+import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.templates.ArbilFavourites;
+import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.data.importexport.ImdiToHtmlConverter;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.datatransfer.Clipboard;
@@ -12,13 +12,10 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.Transferable;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -34,11 +31,11 @@ import javax.swing.table.AbstractTableModel;
 public class GuiHelper {
 
 //    static ArbilDragDrop arbilDragDrop = new ArbilDragDrop();
-    public static LinorgBugCatcher linorgBugCatcher = new LinorgBugCatcher();
+    public static ArbilBugCatcher linorgBugCatcher = new ArbilBugCatcher();
 //    private JPanel selectedFilesPanel;
     //static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
-    static ClipboardOwner clipboardOwner = new ClipboardOwner() {
+    private static ClipboardOwner clipboardOwner = new ClipboardOwner() {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
@@ -55,12 +52,19 @@ public class GuiHelper {
         return singleInstance;
     }
 
+    /**
+     * @return the clipboardOwner
+     */
+    public static ClipboardOwner getClipboardOwner() {
+        return clipboardOwner;
+    }
+
     private GuiHelper() {
-        LinorgFavourites.getSingleInstance(); // cause the favourites imdi nodes to be loaded        
+        ArbilFavourites.getSingleInstance(); // cause the favourites imdi nodes to be loaded
     }
 
     public void saveState(boolean saveWindows) {
-        ImdiFieldViews.getSingleInstance().saveViewsToFile();
+        ArbilFieldViews.getSingleInstance().saveViewsToFile();
         // linorgFavourites.saveSelectedFavourites(); // no need to do here because the list is saved when favourites are changed
         // TreeHelper.getSingleInstance().saveLocations(null, null); no need to do this here but it must be done when ever a change is made
         if (saveWindows) {
@@ -72,19 +76,19 @@ public class GuiHelper {
         viewMenu.removeAll();
         ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
         //String[] viewLabels = guiHelper.imdiFieldViews.getSavedFieldViewLables();
-        for (Enumeration menuItemName = ImdiFieldViews.getSingleInstance().getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
+        for (Enumeration menuItemName = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); menuItemName.hasMoreElements();) {
             String currentMenuName = menuItemName.nextElement().toString();
             javax.swing.JRadioButtonMenuItem viewLabelRadioButtonMenuItem;
             viewLabelRadioButtonMenuItem = new javax.swing.JRadioButtonMenuItem();
             viewMenuButtonGroup.add(viewLabelRadioButtonMenuItem);
-            viewLabelRadioButtonMenuItem.setSelected(ImdiFieldViews.getSingleInstance().getCurrentGlobalViewName().equals(currentMenuName));
+            viewLabelRadioButtonMenuItem.setSelected(ArbilFieldViews.getSingleInstance().getCurrentGlobalViewName().equals(currentMenuName));
             viewLabelRadioButtonMenuItem.setText(currentMenuName);
             viewLabelRadioButtonMenuItem.setName(currentMenuName);
             viewLabelRadioButtonMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     try {
-                        ImdiFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
+                        ArbilFieldViews.getSingleInstance().setCurrentGlobalViewName(((Component) evt.getSource()).getName());
                     } catch (Exception ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
                     }
@@ -125,20 +129,20 @@ public class GuiHelper {
 //// end date filter code
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
-        if (userObject instanceof ImdiTreeObject) {
-            if (((ImdiTreeObject) (userObject)).getNeedsSaveToDisk(false)) {
+        if (userObject instanceof ArbilNodeObject) {
+            if (((ArbilNodeObject) (userObject)).getNeedsSaveToDisk(false)) {
                 if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                    ((ImdiTreeObject) (userObject)).saveChangesToCache(true);
+                    ((ArbilNodeObject) (userObject)).saveChangesToCache(true);
                 } else {
                     return;
                 }
             }
-            URI nodeUri = ((ImdiTreeObject) (userObject)).getURI();
+            URI nodeUri = ((ArbilNodeObject) (userObject)).getURI();
             System.out.println("openImdiXmlWindow: " + nodeUri);
-            String nodeName = ((ImdiTreeObject) (userObject)).toString();
+            String nodeName = ((ArbilNodeObject) (userObject)).toString();
             if (formatXml) {
                 try {
-                    File tempHtmlFile = new ImdiToHtmlConverter().convertToHtml((ImdiTreeObject) userObject);
+                    File tempHtmlFile = new ImdiToHtmlConverter().convertToHtml((ArbilNodeObject) userObject);
                     if (!launchInBrowser) {
                         ArbilWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
                     } else {
@@ -205,10 +209,10 @@ public class GuiHelper {
                 result = true;
             } catch (MalformedURLException muE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", muE);
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to open the file: " + muE.getMessage(), "Open In External Application");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to find the file: " + muE.getMessage(), "Open In External Application");
             } catch (IOException ioE) {
                 GuiHelper.linorgBugCatcher.logError("awtDesktopFound", ioE);
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to find the file: " + ioE.getMessage(), "Open In External Application");
+                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Failed to open the file: " + ioE.getMessage(), "Open In External Application");
             }
         } else {
             String osNameString = null;
@@ -216,7 +220,7 @@ public class GuiHelper {
                 osNameString = System.getProperty("os.name").toLowerCase();
 //                String openCommand = "";
                 String fileString;
-                if (ImdiTreeObject.isStringLocal(targetUri.getScheme())) {
+                if (ArbilNodeObject.isStringLocal(targetUri.getScheme())) {
                     fileString = new File(targetUri).getAbsolutePath();
                 } else {
                     fileString = targetUri.toString();

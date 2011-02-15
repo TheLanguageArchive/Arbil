@@ -1,14 +1,12 @@
 package nl.mpi.arbil.data;
 
 import java.util.Hashtable;
-import nl.mpi.arbil.ImdiField;
-import nl.mpi.arbil.XsdChecker;
+import nl.mpi.arbil.ui.XsdChecker;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import nl.mpi.arbil.LinorgSessionStorage;
-import nl.mpi.arbil.clarin.CmdiComponentBuilder;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.net.URI;
-import nl.mpi.arbil.clarin.ArbilMetadataException;
+import nl.mpi.arbil.ArbilMetadataException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,7 +40,7 @@ public class MetadataBuilderTest {
     public void tearDown() {
     }
 
-    private void checkAgainstSchema(ImdiTreeObject testImdiObject) {
+    private void checkAgainstSchema(ArbilNodeObject testImdiObject) {
         XsdChecker xsdChecker = new XsdChecker();
         String checkerResult;
         checkerResult = xsdChecker.simpleCheck(testImdiObject.getFile(), testImdiObject.getURI());
@@ -70,7 +68,7 @@ public class MetadataBuilderTest {
     }
     private void testAddChildNode(String currentTestTemplate) {
         MetadataBuilder metadataBuilder = new MetadataBuilder();
-        CmdiComponentBuilder componentBuilder = new CmdiComponentBuilder();
+        ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 
         String[][] autoFields = new String[][]{
             {"Language.ISO639.iso-639-3-code", "zts", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).Language.ISO639.iso-639-3-code"},
@@ -104,29 +102,29 @@ public class MetadataBuilderTest {
             {"SourceLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).SourceLanguage"},
             {"TargetLanguage", "true", ".CMD.Components.TextProfile(x).TEXT.SubjectLanguages(x).SubjectLanguage(x).TargetLanguage"}
         };
-        URI targetFileURI = LinorgSessionStorage.getSingleInstance().getNewImdiFileName(LinorgSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
+        URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewImdiFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), currentTestTemplate);
         //            try {
         //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
         //                        gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
         //                        gedcomImdiObject.waitTillLoaded();
-        targetFileURI = componentBuilder.createComponentFile(targetFileURI, LinorgSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7).toURI(), false);
+        targetFileURI = componentBuilder.createComponentFile(targetFileURI, ArbilSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7).toURI(), false);
         //            } catch (URISyntaxException ex) {
         //                GuiHelper.linorgBugCatcher.logError(ex);
         //                return;
         //            }
-        ImdiTreeObject gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(targetFileURI);
+        ArbilNodeObject gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(targetFileURI);
         //TreeHelper.getSingleInstance().saveLocations(new ImdiTreeObject[]{gedcomImdiObject}, null);
         gedcomImdiObject.loadImdiDom();
         checkAgainstSchema(gedcomImdiObject);
         //            gedcomImdiObject.waitTillLoaded();
         ArrayList<String> allTemplates = gedcomImdiObject.nodeTemplate.listAllTemplates();
-        ArrayList<ImdiTreeObject> currentLevel = new ArrayList<ImdiTreeObject>();
+        ArrayList<ArbilNodeObject> currentLevel = new ArrayList<ArbilNodeObject>();
         //            ImdiLoader.getSingleInstance().schemaCheckLocalFiles = true;
 //        for (int addNodeCount = 0; addNodeCount < 3; addNodeCount++) {
         currentLevel.add(gedcomImdiObject);
 //            ArrayList<ImdiTreeObject> completedNodes = new ArrayList<ImdiTreeObject>();
         while (currentLevel.size() > 0) {
-            for (ImdiTreeObject currentLevelNode : currentLevel) {
+            for (ArbilNodeObject currentLevelNode : currentLevel) {
                 //ImdiTreeObject currentLevelNode = currentLevel.remove(0);
                 //currentLevel.remove(currentLevelNode);
                 System.out.println(currentLevelNode.getUrlString());
@@ -166,9 +164,9 @@ public class MetadataBuilderTest {
             // loop over all the children and make sure any required values are set
             //gedcomImdiObject.loadImdiDom();
             //                          gedcomImdiObject.waitTillLoaded();
-            for (ImdiTreeObject childNode : gedcomImdiObject.getAllChildren()) {
+            for (ArbilNodeObject childNode : gedcomImdiObject.getAllChildren()) {
                 if (childNode != null) {
-                    Hashtable<String, ImdiField[]> currentFields = childNode.getFields();
+                    Hashtable<String, ArbilField[]> currentFields = childNode.getFields();
                     if (currentFields != null) {
                         // populate any fields in the list provided
                         for (String[] currentFieldData : autoFields) {
@@ -178,9 +176,9 @@ public class MetadataBuilderTest {
                             //                                        currentField[0].setFieldValue(currentFieldData[1], false, true);
                             //                                    }
                             //                                }
-                            ImdiField[] currentFieldArray = currentFields.get(currentFieldData[0]);
+                            ArbilField[] currentFieldArray = currentFields.get(currentFieldData[0]);
                             if (currentFieldArray != null && currentFieldArray.length > 0) {
-                                for (ImdiField currentField : currentFieldArray) {
+                                for (ArbilField currentField : currentFieldArray) {
                                     System.out.println("getGenericFullXmlPath: " + currentField.getGenericFullXmlPath());
                                     System.out.println("currentFieldData[2]: " + currentFieldData[2]);
                                     if (currentField.getGenericFullXmlPath().equals(currentFieldData[2])) {
@@ -197,9 +195,9 @@ public class MetadataBuilderTest {
             checkAgainstSchema(gedcomImdiObject);
             //                gedcomImdiObject.waitTillLoaded();
             //
-            ArrayList<ImdiTreeObject> nextLevel = new ArrayList<ImdiTreeObject>();
-            for (ImdiTreeObject currentLevelNode : currentLevel) {
-                for (ImdiTreeObject nextLevelNode : currentLevelNode.getChildArray()) {
+            ArrayList<ArbilNodeObject> nextLevel = new ArrayList<ArbilNodeObject>();
+            for (ArbilNodeObject currentLevelNode : currentLevel) {
+                for (ArbilNodeObject nextLevelNode : currentLevelNode.getChildArray()) {
                     nextLevel.add(nextLevelNode);
                 }
             }

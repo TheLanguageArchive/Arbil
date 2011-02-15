@@ -4,7 +4,6 @@ import nl.mpi.arbil.MetadataFile.MetadataReaderTest;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import nl.mpi.arbil.ImdiField;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -65,7 +64,7 @@ public class ImdiTreeObjectTest {
         };
         for (String testString[] : testStringArray) {
             URI expResult = URI.create(testString[1]);
-            URI result = ImdiTreeObject.conformStringToUrl(testString[0]);
+            URI result = ArbilNodeObject.conformStringToUrl(testString[0]);
             assertEquals(expResult, result);
         }
     }
@@ -93,14 +92,14 @@ public class ImdiTreeObjectTest {
         }
         for (URI[] testCaseUri : testFileUris) {
             System.out.println("testCaseUri[1]: " + testCaseUri[1]);
-            ImdiTreeObject instance = ImdiLoader.getSingleInstance().getImdiObject(null, testCaseUri[0]);
-            ImdiTreeObject instanceChild = ImdiLoader.getSingleInstance().getImdiObject(null, testCaseUri[1]);
+            ArbilNodeObject instance = ImdiLoader.getSingleInstance().getImdiObject(null, testCaseUri[0]);
+            ArbilNodeObject instanceChild = ImdiLoader.getSingleInstance().getImdiObject(null, testCaseUri[1]);
             instance.waitTillLoaded();
             assertFalse(instance.isLoading());
             // start modifying values
-            ImdiField[] firstRootField = instance.getFields().elements().nextElement();
-            ImdiField[] firstChildField = instanceChild.getFields().elements().nextElement();
-            for (ImdiField[] currentTestField : new ImdiField[][]{firstRootField, firstChildField}) {
+            ArbilField[] firstRootField = instance.getFields().elements().nextElement();
+            ArbilField[] firstChildField = instanceChild.getFields().elements().nextElement();
+            for (ArbilField[] currentTestField : new ArbilField[][]{firstRootField, firstChildField}) {
                 // check that it does not need to be saved yet
                 assertFalse(instance.getUrlString(), instance.getNeedsSaveToDisk());
                 assertFalse(instanceChild.getUrlString(), instanceChild.getNeedsSaveToDisk());
@@ -141,8 +140,8 @@ public class ImdiTreeObjectTest {
             }
         };
         for (String testString[] : testStringArray) {
-            ImdiTreeObject instance = new ImdiTreeObject(ImdiTreeObject.conformStringToUrl(testString[0]));
-            instance.resourceUrlField = new ImdiField(-1, instance, "test-sub-xml-path", testString[1], -1);
+            ArbilNodeObject instance = new ArbilNodeObject(ArbilNodeObject.conformStringToUrl(testString[0]));
+            instance.resourceUrlField = new ArbilField(-1, instance, "test-sub-xml-path", testString[1], -1);
             // the UNC (////) path need to be retained
             URI expResult = URI.create(testString[2]);
             URI result = instance.getFullResourceURI();
@@ -170,7 +169,7 @@ public class ImdiTreeObjectTest {
             }
         };
         for (String testString[] : testStringArray) {
-            ImdiTreeObject instance = new ImdiTreeObject(ImdiTreeObject.conformStringToUrl(testString[0]));
+            ArbilNodeObject instance = new ArbilNodeObject(ArbilNodeObject.conformStringToUrl(testString[0]));
             File expResult = new File(testString[1]);
             File result = instance.getFile();
             assertEquals(expResult, result);

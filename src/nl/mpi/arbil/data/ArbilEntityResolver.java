@@ -3,8 +3,8 @@ package nl.mpi.arbil.data;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import nl.mpi.arbil.util.LinorgBugCatcher;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -33,10 +33,10 @@ public class ArbilEntityResolver implements EntityResolver {
         } else {
             targetString = systemId;
         }
-        File cachedfile = LinorgSessionStorage.getSingleInstance().updateCache(targetString, 7);
+        File cachedfile = ArbilSessionStorage.getSingleInstance().updateCache(targetString, 7);
         if (!cachedfile.exists()) {
             // todo: pull the file out of the jar
-            new LinorgBugCatcher().logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));
+            new ArbilBugCatcher().logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));
         }
         String cachedfileString = cachedfile.toURI().toString();
 //        System.out.println("cachedfileString: " + cachedfileString);

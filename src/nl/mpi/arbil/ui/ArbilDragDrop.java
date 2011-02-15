@@ -1,10 +1,11 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
-import nl.mpi.arbil.userstorage.LinorgFavourites;
+import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.data.TreeHelper;
-import nl.mpi.arbil.importexport.ImportExportDialog;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.importexport.ImportExportDialog;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -24,7 +25,7 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
 
 /**
@@ -44,7 +45,7 @@ public class ArbilDragDrop {
     }
 
     private ArbilDragDrop() {
-        imdiObjectFlavour = new DataFlavor(ImdiTreeObject.class, "ImdiTreeObject");
+        imdiObjectFlavour = new DataFlavor(ArbilNodeObject.class, "ImdiTreeObject");
         imdiObjectSelection = new ImdiObjectSelection();
     }
     // There are numerous limitations of drag and drop in 1.5 and to overcome the resulting issues we need to share the same transferable object on both the drag source and the drop target
@@ -96,7 +97,7 @@ public class ArbilDragDrop {
 
         long dragStartMilliSeconds;
         DataFlavor flavors[] = {imdiObjectFlavour};
-        ImdiTreeObject[] draggedImdiObjects;
+        ArbilNodeObject[] draggedImdiObjects;
         DefaultMutableTreeNode[] draggedTreeNodes;
         public boolean selectionContainsArchivableLocalFile = false;
         public boolean selectionContainsLocalFile = false;
@@ -117,15 +118,15 @@ public class ArbilDragDrop {
         public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
             if (evt.getSource() == currentDropTarget) {
                 System.out.println("Drag target selection change: " + evt.getSource().toString());
-                if (evt.getSource() instanceof ImdiTree) {
-                    dropAllowed = canDropToTarget((ImdiTree) evt.getSource());
+                if (evt.getSource() instanceof ArbilTree) {
+                    dropAllowed = canDropToTarget((ArbilTree) evt.getSource());
 //                    DropTarget dropTarget = dropTree.getDropTarget();                    
                 }
             }
         }
 
-        private boolean canDropToTarget(ImdiTree dropTree) {
-            ImdiTreeObject currentLeadSelection = dropTree.getLeadSelectionNode();
+        private boolean canDropToTarget(ArbilTree dropTree) {
+            ArbilNodeObject currentLeadSelection = dropTree.getLeadSelectionNode();
             if (currentLeadSelection == null) {
                 // this check is for the root node of the trees
                 if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
@@ -203,14 +204,14 @@ public class ArbilDragDrop {
         public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
             System.out.println("exportToClipboard: " + comp);
             createTransferable(null); // clear the transfer objects
-            if (comp instanceof ImdiTree) {
-                ImdiTree sourceTree = (ImdiTree) comp;
-                ImdiTreeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
+            if (comp instanceof ArbilTree) {
+                ArbilTree sourceTree = (ArbilTree) comp;
+                ArbilNodeObject[] selectedImdiNodes = sourceTree.getSelectedNodes();
                 if (selectedImdiNodes != null) {
                     sourceTree.copyNodeUrlToClipboard(selectedImdiNodes);
                 }
-            } else if (comp instanceof ImdiTable) {
-                ImdiTable sourceTable = (ImdiTable) comp;
+            } else if (comp instanceof ArbilTable) {
+                ArbilTable sourceTable = (ArbilTable) comp;
                 sourceTable.copySelectedTableRowsToClipBoard();
             } else {
                 super.exportToClipboard(comp, clip, action);
@@ -257,7 +258,7 @@ public class ArbilDragDrop {
                             || selectionContainsImdiChild) {
                         System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
-                        dropAllowed = canDropToTarget((ImdiTree) comp);
+                        dropAllowed = canDropToTarget((ArbilTree) comp);
                         return true;
                     }
                 }
@@ -276,7 +277,7 @@ public class ArbilDragDrop {
                             || selectionContainsImdiChild) {
                         System.out.println("dragged contents are acceptable");
                         currentDropTarget = comp; // store the source component for the tree node sensitive drop
-                        dropAllowed = canDropToTarget((ImdiTree) comp);
+                        dropAllowed = canDropToTarget((ArbilTree) comp);
                         return true;
                     }
                 }
@@ -319,17 +320,17 @@ public class ArbilDragDrop {
             selectionContainsRemote = false;
             selectionContainsFavourite = false;
 //         if (comp != null)  { System.out.println("createTransferable: " + comp.toString()); }
-            if (comp instanceof ImdiTree) {
-                ImdiTree draggedTree = (ImdiTree) comp;
+            if (comp instanceof ArbilTree) {
+                ArbilTree draggedTree = (ArbilTree) comp;
                 //System.out.println("selectedCount: " + draggedTree.getSelectionCount());
-                draggedImdiObjects = new ImdiTreeObject[draggedTree.getSelectionCount()];
+                draggedImdiObjects = new ArbilNodeObject[draggedTree.getSelectionCount()];
                 draggedTreeNodes = new DefaultMutableTreeNode[draggedTree.getSelectionCount()];
                 for (int selectedCount = 0; selectedCount < draggedTree.getSelectionCount(); selectedCount++) {
                     DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) draggedTree.getSelectionPaths()[selectedCount].getLastPathComponent();
                     //System.out.println("parentNode: " + parentNode.toString());
-                    if (parentNode.getUserObject() instanceof ImdiTreeObject) {
+                    if (parentNode.getUserObject() instanceof ArbilNodeObject) {
                         //System.out.println("DraggedImdi: " + parentNode.getUserObject().toString());
-                        draggedImdiObjects[selectedCount] = (ImdiTreeObject) (parentNode.getUserObject());
+                        draggedImdiObjects[selectedCount] = (ArbilNodeObject) (parentNode.getUserObject());
                         draggedTreeNodes[selectedCount] = parentNode;
                     } else {
                         draggedImdiObjects[selectedCount] = null;
@@ -338,18 +339,18 @@ public class ArbilDragDrop {
                 }
                 classifyTransferableContents();
                 return this;
-            } else if (comp instanceof ImdiTable) {
+            } else if (comp instanceof ArbilTable) {
 
-                draggedImdiObjects = ((ImdiTable) comp).getSelectedRowsFromTable();
+                draggedImdiObjects = ((ArbilTable) comp).getSelectedRowsFromTable();
                 classifyTransferableContents();
                 return this;
             } else if (comp instanceof JList) {
                 Object[] selectedValues = ((JList) comp).getSelectedValues();
                 //System.out.println("selectedValues: " + selectedValues);
-                draggedImdiObjects = new ImdiTreeObject[selectedValues.length];
+                draggedImdiObjects = new ArbilNodeObject[selectedValues.length];
                 for (int selectedNodeCounter = 0; selectedNodeCounter < selectedValues.length; selectedNodeCounter++) {
-                    if (selectedValues[selectedNodeCounter] instanceof ImdiTreeObject) {
-                        draggedImdiObjects[selectedNodeCounter] = (ImdiTreeObject) selectedValues[selectedNodeCounter];
+                    if (selectedValues[selectedNodeCounter] instanceof ArbilNodeObject) {
+                        draggedImdiObjects[selectedNodeCounter] = (ArbilNodeObject) selectedValues[selectedNodeCounter];
                     }
                 }
                 classifyTransferableContents();
@@ -361,7 +362,7 @@ public class ArbilDragDrop {
         private void classifyTransferableContents() {
             System.out.println("classifyTransferableContents");
             // classify the draggable bundle to help matching drop targets
-            for (ImdiTreeObject currentDraggedObject : draggedImdiObjects) {
+            for (ArbilNodeObject currentDraggedObject : draggedImdiObjects) {
                 if (currentDraggedObject.isLocal()) {
                     selectionContainsLocal = true;
                     System.out.println("selectionContainsLocal");
@@ -384,7 +385,7 @@ public class ArbilDragDrop {
                     System.out.println("selectionContainsRemote");
                 }
                 if (currentDraggedObject.isMetaDataNode()) {
-                    if (currentDraggedObject.isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
+                    if (currentDraggedObject.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
                         selectionContainsImdiInCache = true;
                         System.out.println("selectionContainsImdiInCache");
                     }
@@ -427,37 +428,37 @@ public class ArbilDragDrop {
             }
             try {
                 System.out.println("importData: " + comp.toString());
-                if (comp instanceof ImdiTable && draggedImdiObjects == null) {
-                    ((ImdiTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
+                if (comp instanceof ArbilTable && draggedImdiObjects == null) {
+                    ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
                 } else {
                     //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
                     if (draggedImdiObjects != null) {
-                        if (comp instanceof JTree && canDropToTarget((ImdiTree) comp)) {
+                        if (comp instanceof JTree && canDropToTarget((ArbilTree) comp)) {
                             System.out.println("comp: " + comp.getName());
                             for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                 System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
                             }
                             if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
-                                boolean resultValue = LinorgFavourites.getSingleInstance().toggleFavouritesList(draggedImdiObjects, true);
+                                boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedImdiObjects, true);
                                 createTransferable(null); // clear the transfer objects
                                 return resultValue;
                             } else {
-                                ImdiTree dropTree = (ImdiTree) comp;
+                                ArbilTree dropTree = (ArbilTree) comp;
                                 DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
 //                                TreeHelper.getSingleInstance().addToSortQueue(targetNode);
                                 Object dropTargetUserObject = targetNode.getUserObject();
-                                Vector<ImdiTreeObject> importNodeList = new Vector<ImdiTreeObject>();
-                                Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>> imdiNodesDeleteList = new Hashtable<ImdiTreeObject, Vector<ImdiTreeObject>>();
+                                Vector<ArbilNodeObject> importNodeList = new Vector<ArbilNodeObject>();
+                                Hashtable<ArbilNodeObject, Vector<ArbilNodeObject>> imdiNodesDeleteList = new Hashtable<ArbilNodeObject, Vector<ArbilNodeObject>>();
                                 System.out.println("to: " + dropTargetUserObject.toString());
 //                     TODO: add drag to local corpus tree
 //                     TODO: consider adding a are you sure you want to move that node into this node ...
 //                     TODO: must prevent parent nodes being dragged into lower branches of itself
-                                if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                if (dropTargetUserObject instanceof ArbilNodeObject) {
                                     //TODO: this should also allow drop to the root node
 //                        if (((ImdiTreeObject) dropTargetUserObject).isImdiChild()) {
 //                            dropTargetUserObject = ((ImdiTreeObject) dropTargetUserObject).getParentDomNode();
 //                        }
-                                    if (((ImdiTreeObject) dropTargetUserObject).getParentDomNode().isCmdiMetaDataNode() || ((ImdiTreeObject) dropTargetUserObject).getParentDomNode().isSession()/* || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()*/) {
+                                    if (((ArbilNodeObject) dropTargetUserObject).getParentDomNode().isCmdiMetaDataNode() || ((ArbilNodeObject) dropTargetUserObject).getParentDomNode().isSession()/* || ((ImdiTreeObject) dropTargetUserObject).isImdiChild()*/) {
                                         //TODO: for now we do not allow drag on to imdi child nodes
                                         if (selectionContainsArchivableLocalFile == true
                                                 && selectionContainsLocalFile == true
@@ -471,7 +472,7 @@ public class ArbilDragDrop {
                                             System.out.println("ok to add local file");
                                             for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                                 System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                                new MetadataBuilder().requestAddNode((ImdiTreeObject) dropTargetUserObject, "Resource", draggedImdiObjects[draggedCounter]);
+                                                new MetadataBuilder().requestAddNode((ArbilNodeObject) dropTargetUserObject, "Resource", draggedImdiObjects[draggedCounter]);
                                             }
                                             createTransferable(null); // clear the transfer objects
                                             return true; // we have achieved the drag so return true
@@ -492,7 +493,7 @@ public class ArbilDragDrop {
                                     System.out.println("ok to move local IMDI");
                                     for (int draggedCounter = 0; draggedCounter < draggedImdiObjects.length; draggedCounter++) {
                                         System.out.println("dragged: " + draggedImdiObjects[draggedCounter].toString());
-                                        if (!((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isImdiChild() || MetadataReader.getSingleInstance().nodeCanExistInNode((ImdiTreeObject) dropTargetUserObject, (ImdiTreeObject) draggedImdiObjects[draggedCounter])) {
+                                        if (!((ArbilNodeObject) draggedImdiObjects[draggedCounter]).isImdiChild() || MetadataReader.getSingleInstance().nodeCanExistInNode((ArbilNodeObject) dropTargetUserObject, (ArbilNodeObject) draggedImdiObjects[draggedCounter])) {
                                             //((ImdiTreeObject) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
                                             // check that the node has not been dragged into itself
@@ -510,14 +511,14 @@ public class ArbilDragDrop {
                                             //System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
 
                                             if (!draggedIntoSelf) {
-                                                if (((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isFavorite()) {
+                                                if (((ArbilNodeObject) draggedImdiObjects[draggedCounter]).isFavorite()) {
                                                     //  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
-                                                    new MetadataBuilder().requestAddNode((ImdiTreeObject) dropTargetUserObject, ((ImdiTreeObject) draggedImdiObjects[draggedCounter]).toString(), ((ImdiTreeObject) draggedImdiObjects[draggedCounter]));
-                                                } else if (!(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).isLocal() && LinorgSessionStorage.getSingleInstance().pathIsInsideCache(((ImdiTreeObject) draggedImdiObjects[draggedCounter]).getFile()))) {
-                                                    importNodeList.add((ImdiTreeObject) draggedImdiObjects[draggedCounter]);
+                                                    new MetadataBuilder().requestAddNode((ArbilNodeObject) dropTargetUserObject, ((ArbilNodeObject) draggedImdiObjects[draggedCounter]).toString(), ((ArbilNodeObject) draggedImdiObjects[draggedCounter]));
+                                                } else if (!(((ArbilNodeObject) draggedImdiObjects[draggedCounter]).isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(((ArbilNodeObject) draggedImdiObjects[draggedCounter]).getFile()))) {
+                                                    importNodeList.add((ArbilNodeObject) draggedImdiObjects[draggedCounter]);
                                                 } else {
                                                     String targetNodeName;
-                                                    if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                                    if (dropTargetUserObject instanceof ArbilNodeObject) {
                                                         targetNodeName = targetNode.getUserObject().toString();
                                                     } else {
                                                         targetNodeName = ((JLabel) targetNode.getUserObject()).getText();
@@ -534,8 +535,8 @@ public class ArbilDragDrop {
                                                             "Cancel");
                                                     if (detailsOption == 0) {
                                                         boolean addNodeResult = true;
-                                                        if (dropTargetUserObject instanceof ImdiTreeObject) {
-                                                            addNodeResult = ((ImdiTreeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter]);
+                                                        if (dropTargetUserObject instanceof ArbilNodeObject) {
+                                                            addNodeResult = ((ArbilNodeObject) dropTargetUserObject).addCorpusLink(draggedImdiObjects[draggedCounter]);
                                                         } else {
                                                             addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedImdiObjects[draggedCounter].getURI());
                                                         }
@@ -546,7 +547,7 @@ public class ArbilDragDrop {
                                                                     TreeHelper.getSingleInstance().removeLocation(draggedImdiObjects[draggedCounter]);
                                                                     TreeHelper.getSingleInstance().applyRootLocations();
                                                                 } else {
-                                                                    ImdiTreeObject parentImdi = (ImdiTreeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+                                                                    ArbilNodeObject parentImdi = (ArbilNodeObject) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
                                                                     System.out.println("removeing from parent: " + parentImdi);
                                                                     // add the parent and the child node to the deletelist
                                                                     if (!imdiNodesDeleteList.containsKey(parentImdi)) {
@@ -566,23 +567,23 @@ public class ArbilDragDrop {
 //                                  TODO: finish this import code
                                         try {
                                             ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
-                                            if (dropTargetUserObject instanceof ImdiTreeObject) {
-                                                importExportDialog.setDestinationNode(((ImdiTreeObject) dropTargetUserObject));
+                                            if (dropTargetUserObject instanceof ArbilNodeObject) {
+                                                importExportDialog.setDestinationNode(((ArbilNodeObject) dropTargetUserObject));
                                             }
                                             importExportDialog.copyToCache(importNodeList);
                                         } catch (Exception e) {
                                             System.out.println(e.getMessage());
                                         }
                                     }
-                                    for (ImdiTreeObject currentParent : imdiNodesDeleteList.keySet()) {
+                                    for (ArbilNodeObject currentParent : imdiNodesDeleteList.keySet()) {
                                         System.out.println("deleting by corpus link");
-                                        ImdiTreeObject[] imdiNodeArray = ((Vector<ImdiTreeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ImdiTreeObject[]{});
+                                        ArbilNodeObject[] imdiNodeArray = ((Vector<ArbilNodeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ArbilNodeObject[]{});
                                         currentParent.deleteCorpusLink(imdiNodeArray);
                                     }
-                                    if (dropTargetUserObject instanceof ImdiTreeObject) {
+                                    if (dropTargetUserObject instanceof ArbilNodeObject) {
                                         // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
 //                                        ((ImdiTreeObject) dropTargetUserObject).saveChangesToCache(false);
-                                        ((ImdiTreeObject) dropTargetUserObject).reloadNode();
+                                        ((ArbilNodeObject) dropTargetUserObject).reloadNode();
                                     } else {
                                         TreeHelper.getSingleInstance().applyRootLocations();
                                     }

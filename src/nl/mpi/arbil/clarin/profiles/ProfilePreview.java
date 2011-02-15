@@ -11,10 +11,10 @@ import java.net.URISyntaxException;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import nl.mpi.arbil.ui.ImdiTree;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.ui.ArbilTree;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 
 /**
  *  Document   : ProfilePreview
@@ -27,11 +27,11 @@ public class ProfilePreview {
         String returnString = "";
         //ArbilTemplateManager.getSingleInstance().getCmdiTemplate(returnString);
         try {
-            File tempFile = File.createTempFile("ArbilPreview", ".cmdi", LinorgSessionStorage.getSingleInstance().storageDirectory);
+            File tempFile = File.createTempFile("ArbilPreview", ".cmdi", ArbilSessionStorage.getSingleInstance().storageDirectory);
             tempFile.deleteOnExit();
             ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
             URI addedNodePath = componentBuilder.createComponentFile(tempFile.toURI(), new URI(uriString), true);
-            ImdiTreeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, addedNodePath);
+            ArbilNodeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, addedNodePath);
 //            ImdiTreeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"));
             demoNode.waitTillLoaded();
             //add(new LinkTree("tree", myTreeModel)); 
@@ -39,8 +39,8 @@ public class ProfilePreview {
             DefaultMutableTreeNode rootTreeNode = new DefaultMutableTreeNode();
             //rootTreeNode.add(demoTreeNode);
             DefaultTreeModel demoTreeModel = new DefaultTreeModel(rootTreeNode, true);
-            ImdiTree demoTree = new ImdiTree();
-            demoTree.rootNodeChildren = new ImdiTreeObject[]{demoNode};
+            ArbilTree demoTree = new ArbilTree();
+            demoTree.rootNodeChildren = new ArbilNodeObject[]{demoNode};
             demoTree.setModel(demoTreeModel);
             demoTree.requestResort();
             JDialog demoDialogue = new JDialog();

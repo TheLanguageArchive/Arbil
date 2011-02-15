@@ -14,7 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
 public class RemoteServerSearchTerm extends javax.swing.JPanel {
 
     javax.swing.JPanel thisPanel = this;
-    ImdiNodeSearchPanel parentPanel;
+    ArbilNodeSearchPanel parentPanel;
     private JTextField searchField;
     private JLabel resultCountLabel;
     public String searchString = "";
@@ -37,7 +37,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
     URI[] searchResults = null;
     String lastSearchString = null;
 
-    public RemoteServerSearchTerm(ImdiNodeSearchPanel parentPanelLocal) {
+    public RemoteServerSearchTerm(ArbilNodeSearchPanel parentPanelLocal) {
         parentPanel = parentPanelLocal;
         searchField = new javax.swing.JTextField(valueFieldMessage);
         searchField.setForeground(Color.lightGray);
@@ -73,7 +73,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
         this.add(resultCountLabel);
     }
 
-    private String[] performSearch(String searchString, ImdiTreeObject[] imdiTreeObjectArray) {
+    private String[] performSearch(String searchString, ArbilNodeObject[] imdiTreeObjectArray) {
         ArrayList<String> returnArray = new ArrayList<String>();
         int maxResultNumber = 1000;
         try {
@@ -81,7 +81,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
             fullQueryString += "&num=" + maxResultNumber;
             fullQueryString += "&query=" + URLEncoder.encode(searchString, "UTF-8");
             fullQueryString += "&type=simple";
-            for (ImdiTreeObject imdiTreeObject : imdiTreeObjectArray) {
+            for (ArbilNodeObject imdiTreeObject : imdiTreeObjectArray) {
                 if (imdiTreeObject.archiveHandle != null) {
                     fullQueryString += "&archiveHandle=" + imdiTreeObject.archiveHandle;
                 } else {
@@ -131,7 +131,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
         return returnArray.toArray(new String[]{});
     }
 
-    public URI[] getServerSearchResults(ImdiTreeObject[] imdiTreeObjectArray) {
+    public URI[] getServerSearchResults(ArbilNodeObject[] imdiTreeObjectArray) {
         if (searchField.getText().equals(valueFieldMessage) || searchField.getText().equals("")) {
             ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
             return new URI[]{};

@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui.applet;
 
 import javax.swing.JApplet;
-import nl.mpi.arbil.ui.ArbilMenuBar;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.MimeHashQueue;

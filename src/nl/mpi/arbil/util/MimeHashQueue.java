@@ -1,7 +1,7 @@
 package nl.mpi.arbil.util;
 
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,10 +17,14 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ImdiLoader;
 
 /**
+ * typecheck
+ * md5 sum
+ * stores the last mtime
+ *
  * Document   : MimeHashQueue
  * Created on : 
  * @author Peter.Withers@mpi.nl
@@ -33,7 +37,7 @@ public class MimeHashQueue {
     private Hashtable<String, Vector<String>> md5SumToDuplicates;
     private Hashtable<String, String> pathToMd5Sums;
     // not stored across sessions
-    private Vector<ImdiTreeObject> imdiObjectQueue;
+    private Vector<ArbilNodeObject> imdiObjectQueue;
 //    private Hashtable<String, ImdiTreeObject> currentlyLoadedImdiObjects;
     private boolean continueThread = false;
     private static mpi.bcarchive.typecheck.FileType fileType; //  used to check the file type
@@ -58,7 +62,7 @@ public class MimeHashQueue {
     public MimeHashQueue() {
         System.out.println("MimeHashQueue init");
         imdiObjectQueue = new Vector();
-        checkResourcePermissions = LinorgSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true);
+        checkResourcePermissions = ArbilSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true);
         continueThread = true;
         new Thread("MimeHashQueue") {
 
@@ -79,7 +83,7 @@ public class MimeHashQueue {
 //                        System.err.println("run MimeHashQueue: " + ie.getMessage());
                     }
                     while (imdiObjectQueue.size() > 0) {
-                        ImdiTreeObject currentImdiObject = imdiObjectQueue.remove(0);
+                        ArbilNodeObject currentImdiObject = imdiObjectQueue.remove(0);
                         //System.out.println("MimeHashQueue checking: " + currentImdiObject.getUrlString());
                         if (!currentImdiObject.isMetaDataNode()) {
                             System.out.println("checking exif");
@@ -152,10 +156,10 @@ public class MimeHashQueue {
     private void loadMd5sumIndex() {
         System.out.println("MimeHashQueue loadMd5sumIndex");
         try {
-            knownMimeTypes = (Hashtable<String, String[]>) LinorgSessionStorage.getSingleInstance().loadObject("knownMimeTypesV2");
-            pathToMd5Sums = (Hashtable<String, String>) LinorgSessionStorage.getSingleInstance().loadObject("pathToMd5Sums");
-            md5SumToDuplicates = (Hashtable<String, Vector<String>>) LinorgSessionStorage.getSingleInstance().loadObject("md5SumToDuplicates");
-            processedFilesMTimes = (Hashtable/*<String, Long>*/) LinorgSessionStorage.getSingleInstance().loadObject("processedFilesMTimesV2");
+            knownMimeTypes = (Hashtable<String, String[]>) ArbilSessionStorage.getSingleInstance().loadObject("knownMimeTypesV2");
+            pathToMd5Sums = (Hashtable<String, String>) ArbilSessionStorage.getSingleInstance().loadObject("pathToMd5Sums");
+            md5SumToDuplicates = (Hashtable<String, Vector<String>>) ArbilSessionStorage.getSingleInstance().loadObject("md5SumToDuplicates");
+            processedFilesMTimes = (Hashtable/*<String, Long>*/) ArbilSessionStorage.getSingleInstance().loadObject("processedFilesMTimesV2");
             System.out.println("loaded md5 and mime from disk");
         } catch (Exception ex) {
             knownMimeTypes = new Hashtable<String, String[]>();
@@ -169,10 +173,10 @@ public class MimeHashQueue {
     private void saveMd5sumIndex() {
         System.out.println("MimeHashQueue saveMd5sumIndex");
         try {
-            LinorgSessionStorage.getSingleInstance().saveObject(knownMimeTypes, "knownMimeTypesV2");
-            LinorgSessionStorage.getSingleInstance().saveObject(pathToMd5Sums, "pathToMd5Sums");
-            LinorgSessionStorage.getSingleInstance().saveObject(processedFilesMTimes, "processedFilesMTimesV2");
-            LinorgSessionStorage.getSingleInstance().saveObject(md5SumToDuplicates, "md5SumToDuplicates");
+            ArbilSessionStorage.getSingleInstance().saveObject(knownMimeTypes, "knownMimeTypesV2");
+            ArbilSessionStorage.getSingleInstance().saveObject(pathToMd5Sums, "pathToMd5Sums");
+            ArbilSessionStorage.getSingleInstance().saveObject(processedFilesMTimes, "processedFilesMTimesV2");
+            ArbilSessionStorage.getSingleInstance().saveObject(md5SumToDuplicates, "md5SumToDuplicates");
             System.out.println("saveMd5sumIndex");
         } catch (IOException ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -184,7 +188,7 @@ public class MimeHashQueue {
         return (targetFile.length() / 1024) + "KB";
     }
 
-    private void updateAutoFields(ImdiTreeObject currentImdiObject, File resourceFile) {
+    private void updateAutoFields(ArbilNodeObject currentImdiObject, File resourceFile) {
         Set<String> currentNodeFieldNames = currentImdiObject.getFields().keySet();
         // loop over the auto fields from the template
         for (String[] autoFields : currentImdiObject.getNodeTemplate().autoFieldsArray) {
@@ -241,18 +245,18 @@ public class MimeHashQueue {
         if (currentMd5Sum != null) {
             // loop the paths for the md5sum
             Vector<String> duplicatesPaths = md5SumToDuplicates.get(currentMd5Sum);
-            Vector<ImdiTreeObject> relevantImdiObjects = new Vector();
+            Vector<ArbilNodeObject> relevantImdiObjects = new Vector();
             for (Enumeration<String> duplicatesPathEnum = duplicatesPaths.elements(); duplicatesPathEnum.hasMoreElements();) {
                 String currentDupPath = duplicatesPathEnum.nextElement();
                 try {
                     File currentFile = new File(new URI(currentDupPath));
                     if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
                         // get the currently loaded imdiobjects for the paths
-                        ImdiTreeObject currentImdiObject = ImdiLoader.getSingleInstance().getImdiObjectOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
+                        ArbilNodeObject currentImdiObject = ImdiLoader.getSingleInstance().getImdiObjectOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
                         if (currentImdiObject != null) {
                             relevantImdiObjects.add(currentImdiObject);
                         }
-                        if (LinorgSessionStorage.getSingleInstance().pathIsInsideCache(currentFile)) {
+                        if (ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentFile)) {
                             matchesInCache++;
                         } else {
                             matchesLocalFileSystem++;
@@ -262,8 +266,8 @@ public class MimeHashQueue {
                 } catch (Exception e) {
                 }
             }
-            for (Enumeration<ImdiTreeObject> relevantImdiEnum = relevantImdiObjects.elements(); relevantImdiEnum.hasMoreElements();) {
-                ImdiTreeObject currentImdiObject = relevantImdiEnum.nextElement();
+            for (Enumeration<ArbilNodeObject> relevantImdiEnum = relevantImdiObjects.elements(); relevantImdiEnum.hasMoreElements();) {
+                ArbilNodeObject currentImdiObject = relevantImdiEnum.nextElement();
                 // update the values
                 currentImdiObject.matchesInCache = matchesInCache;
                 currentImdiObject.matchesLocalFileSystem = matchesLocalFileSystem;
@@ -273,7 +277,7 @@ public class MimeHashQueue {
         }
     }
 
-    private void addFileAndExifFields(ImdiTreeObject targetLooseFile) {
+    private void addFileAndExifFields(ArbilNodeObject targetLooseFile) {
         if (!targetLooseFile.isMetaDataNode()) {
             File fileObject = targetLooseFile.getFile();
             if (fileObject != null && fileObject.exists()) {
@@ -396,11 +400,11 @@ public class MimeHashQueue {
                     while (otherNodesEnum.hasMoreElements()) {
                         Object currentElement = otherNodesEnum.nextElement();
                         Object currentNode = processedFilesMTimes.get(currentElement.toString());
-                        if (currentNode instanceof ImdiTreeObject) {
+                        if (currentNode instanceof ArbilNodeObject) {
                             //debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
                             // clear the icon of the other copies so that they will be updated to indicate the commonality
                             System.out.println("Clearing icon for other node: " + currentNode.toString());
-                            ((ImdiTreeObject) currentNode).clearIcon();
+                            ((ArbilNodeObject) currentNode).clearIcon();
                         }
                     }
                     ((Vector) matchingNodes).add(fileUri.toString());
@@ -417,7 +421,7 @@ public class MimeHashQueue {
         return hashString;
     }
 
-    private void checkServerPermissions(ImdiTreeObject imdiObject) {
+    private void checkServerPermissions(ArbilNodeObject imdiObject) {
         if (checkResourcePermissions) {
             try {
 //            System.out.println("imdiObject: " + imdiObject);
@@ -438,7 +442,7 @@ public class MimeHashQueue {
         }
     }
 
-    private URI getNodeURI(ImdiTreeObject imdiObject) {
+    private URI getNodeURI(ArbilNodeObject imdiObject) {
         if (imdiObject.hasResource()) {
             return imdiObject.getFullResourceURI();
         } else {
@@ -446,7 +450,7 @@ public class MimeHashQueue {
         }
     }
 
-    public void addToQueue(ImdiTreeObject imdiObject) {
+    public void addToQueue(ArbilNodeObject imdiObject) {
         System.out.println("MimeHashQueue addToQueue: " + imdiObject.getUrlString());
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
         if (((imdiObject.isLocal() && !imdiObject.isMetaDataNode() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {

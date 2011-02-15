@@ -1,9 +1,9 @@
 package nl.mpi.arbil.ui.applet;
 
 import javax.swing.SwingUtilities;
-import nl.mpi.arbil.ui.ArbilMenuBar;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
-import nl.mpi.arbil.util.LinorgBugCatcher;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 
@@ -37,7 +37,7 @@ public class ArbilApplet extends javax.swing.JApplet {
                 }
             });
         } catch (Exception ex) {
-            new LinorgBugCatcher().logError(ex);
+            new ArbilBugCatcher().logError(ex);
         }
     }
 

@@ -5,8 +5,8 @@ package nl.mpi.arbil.ui;
  * Created on : Mon Dec 01 14:07:40 CET 2008
  * @author Peter.Withers@mpi.nl
  */
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -121,7 +121,7 @@ public class XsdChecker extends JSplitPane {
         int daysTillExpire = 15;
         File schemaFile = null;
         if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("http:/")) {
-            schemaFile = LinorgSessionStorage.getSingleInstance().updateCache(nameSpaceURI, daysTillExpire);
+            schemaFile = ArbilSessionStorage.getSingleInstance().updateCache(nameSpaceURI, daysTillExpire);
         }
         if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("file:/")) {
             try {
@@ -134,7 +134,7 @@ public class XsdChecker extends JSplitPane {
         URL schemaURL = null;
         // if this is a cmdi file then we should just fail here
         // otherwise try to get the imdi schema
-        if (!ImdiTreeObject.isPathImdi(imdiFile.toString())) {
+        if (!ArbilNodeObject.isPathImdi(imdiFile.toString())) {
             try {
                 schemaURL = schemaFile.toURL();
             } catch (Exception e) {
@@ -143,7 +143,7 @@ public class XsdChecker extends JSplitPane {
         } else {
             if (schemaFile == null || !schemaFile.exists()) {
                 // try getting the imdi schema if the name space has failed
-                schemaFile = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
+                schemaFile = ArbilSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
             }
             if (schemaFile.exists()) {
                 try {
@@ -251,7 +251,7 @@ public class XsdChecker extends JSplitPane {
         }
     }
 
-    public void checkXML(ImdiTreeObject imdiObject) {
+    public void checkXML(ArbilNodeObject imdiObject) {
         encounteredAdditionalErrors = false;
         try {
             doc.insertString(doc.getLength(), "Checking the IMDI file conformance to the XSD\nThere are three types or messages: ", styleNormal);

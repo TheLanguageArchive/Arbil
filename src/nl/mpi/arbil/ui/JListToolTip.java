@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ImdiTreeObject;
+import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Hashtable;
@@ -43,8 +43,8 @@ class JListToolTip extends JToolTip {
 
     private void addIconLabel(Object tempObject) {
         JLabel jLabel = new JLabel(truncateString(tempObject.toString()));
-        if (tempObject instanceof ImdiTreeObject) {
-            jLabel.setIcon(((ImdiTreeObject) tempObject).getIcon());
+        if (tempObject instanceof ArbilNodeObject) {
+            jLabel.setIcon(((ArbilNodeObject) tempObject).getIcon());
         }        
         jLabel.doLayout();
 //     TODO: fix the tool tip text box bounding size //   jPanel.invalidate();
@@ -75,7 +75,7 @@ class JListToolTip extends JToolTip {
         }
     }
 
-    private void addLabelsForImdiObject(ImdiTreeObject tempObject) {
+    private void addLabelsForImdiObject(ArbilNodeObject tempObject) {
         if (tempObject.isMetaDataNode()) {
             Hashtable<String, ArbilField[]> tempFields = tempObject.getFields();
             addDetailLabel("Name: ", tempFields.get("Name"));
@@ -143,9 +143,9 @@ class JListToolTip extends JToolTip {
                 if (((Object[]) targetObject)[0] != null && ((Object[]) targetObject)[0] instanceof ArbilField) {
                     addDetailLabel(((ArbilField) ((Object[]) targetObject)[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ArbilField) ((Object[]) targetObject)[0]).getFullXmlPath()));
                 }
-            } else if (targetObject instanceof ImdiTreeObject) {
+            } else if (targetObject instanceof ArbilNodeObject) {
                 addIconLabel(targetObject);
-                addLabelsForImdiObject((ImdiTreeObject) targetObject);
+                addLabelsForImdiObject((ArbilNodeObject) targetObject);
             } else {
                 addDetailLabel(targetObject.toString());
                 if (targetObject instanceof ArbilField) {

@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.data.ImdiTableModel;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.JLabel;
@@ -15,7 +16,7 @@ import javax.swing.table.TableCellEditor;
  */
 public class PreviewSplitPanel extends javax.swing.JSplitPane {
 
-    static public ImdiTable previewTable = null;
+    static public ArbilTable previewTable = null;
     static public boolean previewTableShown = false;
     private JScrollPane rightScrollPane;
     private JLabel previewHiddenColumnLabel;
@@ -28,7 +29,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
         this.setName("rightSplitPane");
 
         previewHiddenColumnLabel = new javax.swing.JLabel(" ");
-        previewTable = new ImdiTable(new ImdiTableModel(), "Preview");
+        previewTable = new ArbilTable(new ImdiTableModel(), "Preview");
         ((ImdiTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
         rightScrollPane = new JScrollPane(previewTable);
         previewPanel = new JPanel(new java.awt.BorderLayout());

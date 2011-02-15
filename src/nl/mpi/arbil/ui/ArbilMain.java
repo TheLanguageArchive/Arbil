@@ -1,11 +1,12 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.util.LinorgVersionChecker;
-import nl.mpi.arbil.util.LinorgBugCatcher;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
+import nl.mpi.arbil.util.ArbilVersionChecker;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import nl.mpi.arbil.ImdiIcons;
-import nl.mpi.arbil.LinorgVersion;
+import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.ArbilVersion;
 
 /*
  * LinorgView.java
@@ -40,14 +41,14 @@ public class ArbilMain extends javax.swing.JFrame {
         mainSplitPane.setDividerLocation(0.25);
 
         ArbilWindowManager.getSingleInstance().loadGuiState(this);
-        setTitle(new LinorgVersion().applicationTitle + " " + new LinorgVersion().compileDate);
-        setIconImage(ImdiIcons.getSingleInstance().linorgIcon.getImage());
+        setTitle(new ArbilVersion().applicationTitle + " " + new ArbilVersion().compileDate);
+        setIconImage(ArbilIcons.getSingleInstance().linorgIcon.getImage());
         // load the templates and populate the templates menu
         setVisible(true);
         ArbilWindowManager.getSingleInstance().openIntroductionPage();
 
         if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
-            new LinorgVersionChecker().checkForUpdate();
+            new ArbilVersionChecker().checkForUpdate();
         }
     }
 
@@ -79,7 +80,7 @@ public class ArbilMain extends javax.swing.JFrame {
                 try {
                     new ArbilMain();
                 } catch (Exception ex) {
-                    new LinorgBugCatcher().logError(ex);
+                    new ArbilBugCatcher().logError(ex);
                 }
             }
         });

@@ -2,7 +2,7 @@ package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.userstorage.LinorgSessionStorage;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.*;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.Hashtable;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
-import nl.mpi.arbil.MetadataFile.MetadataReader;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 
 /**
  * ArbilTemplateManager.java
@@ -44,18 +44,18 @@ public class ArbilTemplateManager {
         } else {
             File selectedTemplateFile = getTemplateFile(selectedTemplate);
             selectedTemplateFile.getParentFile().mkdir();
-            LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag(), null);
+            ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag(), null);
             File componentsDirectory = new File(selectedTemplateFile.getParentFile(), "components");
             componentsDirectory.mkdir(); // create the components directory
-            LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, new DownloadAbortFlag(), null);
+            ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, new DownloadAbortFlag(), null);
             File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
             examplesDirectory.mkdir(); // create the example components directory
             // copy example components from the jar file            
             for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
-                LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag(), null);
+                ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag(), null);
             }
             // copy example "format.xsl" from the jar file which is used in the imdi to html conversion
-            LinorgSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, new DownloadAbortFlag(), null);
+            ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl"), new File(selectedTemplateFile.getParentFile(), "example-format.xsl"), null, true, new DownloadAbortFlag(), null);
             return selectedTemplateFile;
         }
     }
@@ -88,33 +88,33 @@ public class ArbilTemplateManager {
 //        }
 //    }
     public File getTemplateDirectory() {
-        return new File(LinorgSessionStorage.getSingleInstance().storageDirectory, "templates");
+        return new File(ArbilSessionStorage.getSingleInstance().storageDirectory, "templates");
     }
 
     public void addSelectedTemplates(String templateString) {
         ArrayList<String> selectedTamplates = new ArrayList<String>();
         try {
-            selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+            selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
         }
         selectedTamplates.add(templateString);
-        LinorgSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
+        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
     }
 
     public void removeSelectedTemplates(String templateString) {
         ArrayList<String> selectedTamplates = new ArrayList<String>();
-        selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+        selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
         while (selectedTamplates.contains(templateString)) {
             selectedTamplates.remove(templateString);
         }
-        LinorgSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
+        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
     }
 
     public ArrayList<String> getSelectedTemplateArrayList() {
         ArrayList<String> selectedTamplates = new ArrayList<String>();
         try {
-            selectedTamplates.addAll(Arrays.asList(LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+            selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
             addDefaultTemplates();
@@ -137,11 +137,11 @@ public class ArbilTemplateManager {
     }
 
     public MenuItemData[] getSelectedTemplates() {
-        ImdiIcons imdiIcons = ImdiIcons.getSingleInstance();
-        String[] locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+        ArbilIcons imdiIcons = ArbilIcons.getSingleInstance();
+        String[] locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         if (locationsArray == null || locationsArray.length == 0) {
             addDefaultTemplates();
-            locationsArray = LinorgSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+            locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         }
         MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
         for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
