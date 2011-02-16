@@ -37,9 +37,9 @@ public class FieldChangeTriggers {
                     if (currentTrigger[2].equals("Content")) {
                         valueForTargetField = vocabItem.descriptionString;
                     } else if (currentTrigger[2].equals("Value")) {
-                        valueForTargetField = vocabItem.languageName;
+                        valueForTargetField = vocabItem.itemDisplayName;
                     } else if (currentTrigger[2].equals("Code")) {
-                        valueForTargetField = vocabItem.languageCode;
+                        valueForTargetField = vocabItem.itemCode;
                     } else if (currentTrigger[2].equals("FollowUp")) {
                         valueForTargetField = vocabItem.followUpVocabulary;
                     }

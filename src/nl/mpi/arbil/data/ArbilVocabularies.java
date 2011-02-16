@@ -1,7 +1,6 @@
 package nl.mpi.arbil.data;
 
 import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.data.ArbilField;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -269,7 +268,7 @@ public class ArbilVocabularies {
         public void addEntry(String entryString, String entryCode) {
             boolean itemExistsInVocab = false;
             for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
-                if (currentVocabularyItem.languageName.equals(entryString)) {
+                if (currentVocabularyItem.itemDisplayName.equals(entryString)) {
                     itemExistsInVocab = true;
                 }
             }
@@ -280,7 +279,7 @@ public class ArbilVocabularies {
 
         public VocabularyItem findVocabularyItem(String searchString) {
             for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
-                if (currentVocabularyItem.languageName.equals(searchString)) {
+                if (currentVocabularyItem.itemDisplayName.equals(searchString)) {
                     return currentVocabularyItem;
                 }
             }
@@ -300,21 +299,20 @@ public class ArbilVocabularies {
     }
 
     public class VocabularyItem implements Comparable {
-
-        public String languageName;
-        public String languageCode;
+        public String itemDisplayName;
+        public String itemCode;
         public String followUpVocabulary;
         public String descriptionString;
 
         public VocabularyItem(String languageNameLocal, String languageCodeLocal, String followUpVocabularyLocal) {
-            languageName = languageNameLocal;
-            languageCode = languageCodeLocal;
+            itemDisplayName = languageNameLocal;
+            itemCode = languageCodeLocal;
             followUpVocabulary = followUpVocabularyLocal;
         }
 
         @Override
         public String toString() {
-            return languageName;
+            return itemDisplayName;
         }
 
         public int compareTo(Object otherObject) {

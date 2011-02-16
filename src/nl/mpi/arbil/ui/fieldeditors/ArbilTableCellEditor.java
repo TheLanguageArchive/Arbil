@@ -243,6 +243,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                     // if the cell has a vocabulary then prevent the long field editor
                     System.out.println("Has Vocabulary");
                     ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ArbilField) cellValue[selectedField]);
+                    
                     editorPanel.remove(button);
                     editorPanel.add(cvComboBox);
                     editorPanel.doLayout();
@@ -261,6 +262,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         }
                     });
                     editorComponent = cvComboBox;
+                    
+                    String currentCellString = cellValue[selectedField].toString();
+                    String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
+                    ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, (ArbilField) cellValue[selectedField], cvComboBox);
+                    cvComboBox.setEditor(cvcbEditor);
+                    
                     addFocusListener(cvComboBox);
                     addFocusListener(cvComboBox.getEditor().getEditorComponent());
                     cvComboBox.getEditor().getEditorComponent().requestFocusInWindow();

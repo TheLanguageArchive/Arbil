@@ -31,7 +31,7 @@ public class LanguageIdBox extends JComboBox {
         Arrays.sort(languageItemArray);
         for (ArbilVocabularies.VocabularyItem currentItem : languageItemArray) {
             this.addItem(currentItem);
-            if (fieldLanguageId.equals(currentItem.languageCode)) {
+            if (fieldLanguageId.equals(currentItem.itemCode)) {
                 selectedItem = currentItem;
             }
         }
@@ -48,7 +48,7 @@ public class LanguageIdBox extends JComboBox {
                 try {
 //                        ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
                     if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularies.VocabularyItem) {
-                        cellField.setLanguageId(((ArbilVocabularies.VocabularyItem) LanguageIdBox.this.getSelectedItem()).languageCode, true, false);
+                        cellField.setLanguageId(((ArbilVocabularies.VocabularyItem) LanguageIdBox.this.getSelectedItem()).itemCode, true, false);
                     }
                     LanguageIdBox.this.removeItem(defaultLanguageDropDownValue);
                 } catch (Exception ex) {

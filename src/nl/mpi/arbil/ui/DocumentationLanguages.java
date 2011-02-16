@@ -42,7 +42,7 @@ public class DocumentationLanguages {
         ArrayList<VocabularyItem> languageListSubset = new ArrayList<VocabularyItem>();
         ArrayList<String> selectedLanguages = getSelectedLanguagesArrayList();
         for (VocabularyItem currentVocabItem : getallLanguages()) {
-            if (selectedLanguages.contains(currentVocabItem.languageName)) {
+            if (selectedLanguages.contains(currentVocabItem.itemDisplayName)) {
                 languageListSubset.add(currentVocabItem);
             }
         }
@@ -51,7 +51,7 @@ public class DocumentationLanguages {
 
     private void addDefaultTemplates() {
         for (VocabularyItem currentTemplate : getallLanguages()) {
-            addselectedLanguages(currentTemplate.languageName);
+            addselectedLanguages(currentTemplate.itemDisplayName);
         }
     }
 

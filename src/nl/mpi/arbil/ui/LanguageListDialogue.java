@@ -49,11 +49,11 @@ public class LanguageListDialogue extends TemplateDialogue {
         for (VocabularyItem currentTemplate : new DocumentationLanguages().getallLanguages()) {
             JCheckBox languageCheckBox;
             languageCheckBox = new JCheckBox();
-            languageCheckBox.setText(currentTemplate.languageName);
-            languageCheckBox.setName(currentTemplate.languageName);
-            languageCheckBox.setActionCommand(currentTemplate.languageName);
-            languageCheckBox.setSelected(selectedLanguages.contains(currentTemplate.languageName));
-            languageCheckBox.setToolTipText(currentTemplate.languageName);
+            languageCheckBox.setText(currentTemplate.itemDisplayName);
+            languageCheckBox.setName(currentTemplate.itemDisplayName);
+            languageCheckBox.setActionCommand(currentTemplate.itemDisplayName);
+            languageCheckBox.setSelected(selectedLanguages.contains(currentTemplate.itemDisplayName));
+            languageCheckBox.setToolTipText(currentTemplate.itemDisplayName);
             languageCheckBox.addActionListener(this);
             checkBoxArray.add(languageCheckBox);
         }
