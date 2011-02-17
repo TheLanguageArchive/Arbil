@@ -4,6 +4,7 @@ import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import nl.mpi.arbil.data.ImdiTableModel;
 import nl.mpi.arbil.data.TreeHelper;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -184,7 +185,7 @@ public class ArbilTree extends JTree {
 //    }
         if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
             //new ContextMenu().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
-            new TreeContextMenu(this).show(evt.getX(),evt.getY());
+            new TreeContextMenu(this).show(evt.getX(), evt.getY());
         }
     }
 
@@ -216,13 +217,18 @@ public class ArbilTree extends JTree {
 
     @Override
     public int getRowHeight() {
-        try {
-            FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
-            int requiredHeight = fontMetrics.getHeight();
-            return requiredHeight;
-        } catch (Exception exception) {
-            return super.getRowHeight();
+        Graphics g = this.getGraphics();
+        if (g != null) {
+            try {
+                FontMetrics fontMetrics = g.getFontMetrics();
+                int requiredHeight = fontMetrics.getHeight();
+                return requiredHeight;
+            } catch (Exception exeption) {
+            } finally {
+                g.dispose();
+            }
         }
+        return super.getRowHeight();
     }
 
     @Override

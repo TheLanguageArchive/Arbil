@@ -4,6 +4,7 @@ import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -22,6 +23,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.fieldeditors.ArbilFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
@@ -104,34 +106,39 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private boolean requiresLongFieldEditor() {
         boolean requiresLongFieldEditor = false;
         if (cellValue instanceof ArbilField[]) {
-            FontMetrics fontMetrics = button.getGraphics().getFontMetrics();
-            double availableWidth = parentCellRect.getWidth() + 20; // let a few chars over be ok for the short editor
-            ArbilField[] iterableFields;
-            if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
-                iterableFields = (ArbilField[]) cellValue;
-            } else {
-                iterableFields = new ArbilField[]{((ArbilField[]) cellValue)[selectedField]};
-            }
-            for (ArbilField currentField : iterableFields) {
-//                if (!currentField.hasVocabulary()) { // the vocabulary type field should not get here
-                String fieldValue = currentField.getFieldValue();
-                // calculate length and look for line breaks
-                if (fieldValue.contains("\n")) {
-                    requiresLongFieldEditor = true;
-                    break;
+            Graphics g = button.getGraphics();
+            try {
+                FontMetrics fontMetrics = g.getFontMetrics();
+                double availableWidth = parentCellRect.getWidth() + 20; // let a few chars over be ok for the short editor
+                ArbilField[] iterableFields;
+                if (selectedField == -1) { // when a single filed is edited only check that field otherwise check all fields
+                    iterableFields = (ArbilField[]) cellValue;
                 } else {
-                    int requiredWidth = fontMetrics.stringWidth(fieldValue);
-                    System.out.println("requiredWidth: " + requiredWidth + " availableWidth: " + availableWidth);
-                    String fieldLanguageId = currentField.getLanguageId();
-                    if (fieldLanguageId != null) {
-                        requiredWidth += LanguageIdBox.languageSelectWidth;
-                    }
-                    if (requiredWidth > availableWidth) {
+                    iterableFields = new ArbilField[]{((ArbilField[]) cellValue)[selectedField]};
+                }
+                for (ArbilField currentField : iterableFields) {
+//                if (!currentField.hasVocabulary()) { // the vocabulary type field should not get here
+                    String fieldValue = currentField.getFieldValue();
+                    // calculate length and look for line breaks
+                    if (fieldValue.contains("\n")) {
                         requiresLongFieldEditor = true;
                         break;
+                    } else {
+                        int requiredWidth = fontMetrics.stringWidth(fieldValue);
+                        System.out.println("requiredWidth: " + requiredWidth + " availableWidth: " + availableWidth);
+                        String fieldLanguageId = currentField.getLanguageId();
+                        if (fieldLanguageId != null) {
+                            requiredWidth += LanguageIdBox.languageSelectWidth;
+                        }
+                        if (requiredWidth > availableWidth) {
+                            requiresLongFieldEditor = true;
+                            break;
+                        }
                     }
-                }
 //                }
+                }
+            } finally {
+                g.dispose();
             }
         }
         return requiresLongFieldEditor;
@@ -248,14 +255,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
                     // Remove 'button', which is the non-editor mode component for the cell
                     editorPanel.remove(button);
-
-                    // Prepare to add icon for CV type (e.g. open list)
-                    editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.LINE_AXIS));
-                    Icon icon  = ArbilTableCellRenderer.getIconForVocabulary((ArbilField) cellValue[selectedField]);
-                    if(icon != null) {
-                        editorPanel.add(new JLabel(icon));
-                    }
-                    // Add combobox itself
+                    // Add combobox
                     editorPanel.add(cvComboBox);
                     editorPanel.doLayout();
                     cvComboBox.setPopupVisible(true);
@@ -273,7 +273,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         }
                     });
                     editorComponent = cvComboBox;
-                    
+
                     String currentCellString = cellValue[selectedField].toString();
                     String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
 
@@ -424,6 +424,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 button.requestFocusInWindow();
             }
         });
+
+        if (cellValue instanceof ArbilField[]) {
+            if (cellHasControlledVocabulary()) {
+                return new ControlledVocabularyCellPanel(editorPanel, (ArbilField) cellValue[selectedField]);
+            }
+        }
         return editorPanel;
     }
 }

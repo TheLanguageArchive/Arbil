@@ -8,6 +8,7 @@ import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -283,7 +284,7 @@ public class ArbilTable extends JTable {
             if (tableCellEditor != null) {
                 tableCellEditor.stopCellEditing();
             }
-            new TableContextMenu(this).show(evt.getX(),evt.getY());
+            new TableContextMenu(this).show(evt.getX(), evt.getY());
             //new OldContextMenu().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
         }
     }
@@ -346,7 +347,7 @@ public class ArbilTable extends JTable {
             return requiredHeight;
         } catch (Exception exception) {
 //            GuiHelper.linorgBugCatcher.logError(exception);
-            System.out.println("getRowHeight could not get the font metrics, using the default row height" );
+            System.out.println("getRowHeight could not get the font metrics, using the default row height");
         }
         return super.getRowHeight();
     }
@@ -366,33 +367,37 @@ public class ArbilTable extends JTable {
         if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
             if (resizeColumns) {
                 setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
                 ArbilTableCellRenderer imdiCellRenderer = new ArbilTableCellRenderer();
                 int totalColumnWidth = 0;
                 int columnCount = this.getColumnModel().getColumnCount();
-                for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
-                    int currentWidth = minWidth;
-                    for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
-                        imdiCellRenderer.setValue(imdiTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
-                        String currentCellString = imdiCellRenderer.getText();
-                        int requiredWidth = fontMetrics.stringWidth(currentCellString);
-                        if (currentWidth < requiredWidth) {
-                            currentWidth = requiredWidth;
+                Graphics g = getGraphics();
+                try {
+                    FontMetrics fontMetrics = g.getFontMetrics();
+                    for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+                        int currentWidth = minWidth;
+                        for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
+                            imdiCellRenderer.setValue(imdiTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
+                            int requiredWidth = imdiCellRenderer.getRequiredWidth(fontMetrics);
+                            if (currentWidth < requiredWidth) {
+                                currentWidth = requiredWidth;
+                            }
                         }
-                    }
-                    if (currentWidth > maxColumnWidth) {
-                        currentWidth = maxColumnWidth;
-                    }
-                    this.getColumnModel().getColumn(columnCounter).setPreferredWidth(currentWidth);
-                    totalColumnWidth += currentWidth;
-                    lastColumnPreferedWidth = currentWidth;
+                        if (currentWidth > maxColumnWidth) {
+                            currentWidth = maxColumnWidth;
+                        }
+                        this.getColumnModel().getColumn(columnCounter).setPreferredWidth(currentWidth);
+                        totalColumnWidth += currentWidth;
+                        lastColumnPreferedWidth = currentWidth;
 //                    this.getColumnModel().getColumn(columnCounter).setWidth(currentWidth);
-                }
-                totalPreferedWidth = totalColumnWidth;
-                if (parentWidth > totalColumnWidth) {
-                    setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-                } else {
-                    setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                    }
+                    totalPreferedWidth = totalColumnWidth;
+                    if (parentWidth > totalColumnWidth) {
+                        setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+                    } else {
+                        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                    }
+                } finally {
+                    g.dispose();
                 }
             } else if (this.getParent() != null) {
                 int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();

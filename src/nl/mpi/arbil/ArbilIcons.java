@@ -9,6 +9,7 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
+import nl.mpi.arbil.data.ArbilField;
 
 /**
  * Document   : ImdiIcons
@@ -85,7 +86,6 @@ public class ArbilIcons {
     public ImageIcon lockedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/lock.png"));
     public ImageIcon unLockedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/unlock.png"));
 //    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/template.png"));
-
     public ImageIcon vocabularyOpenIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_open.png"));
     public ImageIcon vocabularyOpenListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_open_list.png"));
     public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
@@ -143,17 +143,46 @@ public class ArbilIcons {
 
         BufferedImage bufferedImage = new BufferedImage(widthTotal, heightMax, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = (Graphics2D) bufferedImage.getGraphics().create();
-        for (Object currentIcon : iconArray) {
-            int yPos = (heightMax - ((Icon) currentIcon).getIconHeight()) / 2;
-            if (currentIcon != missingRedIcon) { // the missing icon always overlays the previous icon
-                ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition, yPos);
-                currentIconXPosition += ((Icon) currentIcon).getIconWidth();
-            } else {
-                ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition - missingRedIcon.getIconWidth(), yPos);
+        try {
+            for (Object currentIcon : iconArray) {
+                int yPos = (heightMax - ((Icon) currentIcon).getIconHeight()) / 2;
+                if (currentIcon != missingRedIcon) { // the missing icon always overlays the previous icon
+                    ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition, yPos);
+                    currentIconXPosition += ((Icon) currentIcon).getIconWidth();
+                } else {
+                    ((Icon) currentIcon).paintIcon(null, g2d, currentIconXPosition - missingRedIcon.getIconWidth(), yPos);
+                }
             }
+        } finally {
+            g2d.dispose();
         }
-        g2d.dispose();
         return new ImageIcon(bufferedImage);
+    }
+
+    public Icon getIconForVocabulary(ArbilField cellObject) {
+        if (cellObject.hasVocabulary()) {
+            if (((ArbilField) cellObject).isVocabularyOpen()) {
+                // Open vocabulary
+                if (((ArbilField) cellObject).isVocabularyList()) {
+                    // Open list
+                    return vocabularyOpenListIcon;
+                } else {
+                    // Open single
+                    return vocabularyOpenIcon;
+                }
+            } else {
+                // Closed vocabulary
+                if (((ArbilField) cellObject).isVocabularyList()) {
+                    // Closed list
+                    return vocabularyClosedListIcon;
+                } else {
+                    // Closed single
+                    return vocabularyClosedIcon;
+                }
+            }
+        } else {
+            return null;
+        }
     }
 
     public ImageIcon getIconForImdi(ArbilNodeObject imdiObject) {
@@ -275,4 +304,3 @@ public class ArbilIcons {
         return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
     }
 }
-

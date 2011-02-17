@@ -6,11 +6,14 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Hashtable;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JToolTip;
+import javax.swing.SwingConstants;
 import javax.swing.ToolTipManager;
+import nl.mpi.arbil.ArbilIcons;
 
 /**
  * Document   : JListToolTip
@@ -45,7 +48,10 @@ class JListToolTip extends JToolTip {
         JLabel jLabel = new JLabel(truncateString(tempObject.toString()));
         if (tempObject instanceof ArbilNodeObject) {
             jLabel.setIcon(((ArbilNodeObject) tempObject).getIcon());
-        }        
+        }
+//        else if (tempObject instanceof ArbilField) {
+//            jLabel.setIcon(ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) tempObject));
+//        }
         jLabel.doLayout();
 //     TODO: fix the tool tip text box bounding size //   jPanel.invalidate();
         JPanel labelPanel = new JPanel(new BorderLayout());
@@ -55,8 +61,17 @@ class JListToolTip extends JToolTip {
     }
 
     private void addDetailLabel(String labelString) {
-        JTextArea jLabel = new JTextArea(labelString); //truncateString();
-        jLabel.setEditable(false);
+        addDetailLabelIcon(labelString, null);
+    }
+
+    private void addDetailLabelIcon(String labelString, Icon icon) {
+        JLabel jLabel;
+        if (icon == null) {
+            jLabel = new JLabel(labelString); //truncateString();
+        } else {
+            jLabel = new JLabel(labelString, icon, SwingConstants.TRAILING);
+        }
+        //jLabel.setEditable(false);
         jLabel.setBackground(getBackground());
         jLabel.doLayout();
         jPanel.add(jLabel);
@@ -72,6 +87,17 @@ class JListToolTip extends JToolTip {
                 String labelString = tempField.toString();
                 addTabbedLabel(prefixString + labelString);
             }
+        }
+    }
+
+    private void addVocabularyType(ArbilField tempObject) {
+        if (tempObject.hasVocabulary()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(tempObject.isVocabularyOpen()?"Open vocabulary":"Closed vocabulary");
+            if(tempObject.isVocabularyList()){
+                sb.append(" list");
+            }
+            addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) tempObject));
         }
     }
 
@@ -146,11 +172,12 @@ class JListToolTip extends JToolTip {
             } else if (targetObject instanceof ArbilNodeObject) {
                 addIconLabel(targetObject);
                 addLabelsForImdiObject((ArbilNodeObject) targetObject);
+            } else if (targetObject instanceof ArbilField) {
+                addDetailLabel(targetObject.toString());
+                addDetailLabel(((ArbilField) targetObject).parentImdi.getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
+                addVocabularyType((ArbilField) targetObject);
             } else {
                 addDetailLabel(targetObject.toString());
-                if (targetObject instanceof ArbilField) {
-                    addDetailLabel(((ArbilField) targetObject).parentImdi.getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
-                }
                 //JTextField
 //                JTextArea jTextArea = new JTextArea();
 //                jTextArea.setText(targetObject.toString());

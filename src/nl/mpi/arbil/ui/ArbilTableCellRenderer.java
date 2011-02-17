@@ -8,6 +8,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.util.Arrays;
 import java.util.Comparator;
 import javax.swing.Icon;
@@ -24,11 +25,22 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
     Object cellObject;
     boolean isCellSelected = false;
 
+    public int getRequiredWidth(FontMetrics fontMetrics) {
+        String currentCellString = getText();
+        return fontMetrics.stringWidth(currentCellString)
+                + ControlledVocabularyCellPanel.getAddedWidth(cellObject);
+    }
+
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         // TODO: this might be a better place to set the backgound and text colours
         isCellSelected = isSelected;
-        return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        if (cellObject instanceof ArbilField && ((ArbilField) cellObject).hasVocabulary()) {
+            return new ControlledVocabularyCellPanel(component, (ArbilField) cellObject);
+        } else {
+            return component;
+        }
     }
 
     public ArbilTableCellRenderer() {
@@ -67,36 +79,10 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
             return (ArbilIcons.getSingleInstance().getIconForImdi((ArbilNodeObject[]) cellObject));
         } else if (cellObject instanceof ArbilField[]) {
             return null;
-        } else if (cellObject instanceof ArbilField) {
-            return getIconForVocabulary((ArbilField) cellObject);
+//        } else if (cellObject instanceof ArbilField) {
+//            return ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) cellObject);
         } else {
             return (null);
-        }
-    }
-
-    public static Icon getIconForVocabulary(ArbilField cellObject) {
-        if (cellObject.hasVocabulary()) {
-            if (((ArbilField) cellObject).isVocabularyOpen()) {
-                // Open vocabulary
-                if (((ArbilField) cellObject).isVocabularyList()) {
-                    // Open list
-                    return ArbilIcons.getSingleInstance().vocabularyOpenListIcon;
-                } else {
-                    // Open single
-                    return ArbilIcons.getSingleInstance().vocabularyOpenIcon;
-                }
-            } else {
-                // Closed vocabulary
-                if (((ArbilField) cellObject).isVocabularyList()) {
-                    // Closed list
-                    return ArbilIcons.getSingleInstance().vocabularyClosedListIcon;
-                } else {
-                    // Closed single
-                    return ArbilIcons.getSingleInstance().vocabularyClosedIcon;
-                }
-            }
-        } else {
-            return null;
         }
     }
 
