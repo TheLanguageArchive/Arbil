@@ -5,6 +5,8 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -12,6 +14,7 @@ import java.awt.event.KeyListener;
 import java.util.StringTokenizer;
 import javax.swing.ComboBoxEditor;
 import javax.swing.JComboBox;
+import javax.swing.Timer;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularies.Vocabulary;
 
@@ -21,7 +24,7 @@ import nl.mpi.arbil.data.ArbilVocabularies.Vocabulary;
  * single valued vocabularies and lists.
  *
  * @see ControlledVocabularyComboBox
- * @author Twan Goosen
+ * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor implements ComboBoxEditor, KeyListener, FocusListener {
 
@@ -40,6 +43,8 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
 
         addKeyListener(this);
         addFocusListener(this);
+
+        initTypeaheadTimer();
     }
 
     /**
@@ -96,9 +101,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
 
     // FOCUS LISTENERS
     public void focusGained(FocusEvent e) {
-        if (!typingAhead) {
-            typeAhead();
-        }
+        startTypeaheadTimer();
     }
 
     public void focusLost(FocusEvent e) {
@@ -108,9 +111,14 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER
                 || (targetField.isVocabularyList() && e.getKeyChar() == SEPARATOR)) {
-            // ENTER pressed or SEPARATOR in list field
+            // ENTER pressed or SEPARATOR in list field.
+            // Autocomplete current item
             synchronized (this) {
                 typingAhead = true;
+
+                if (typeaheadTimer.isRunning()) {
+                    typeaheadTimer.stop();
+                }
 
                 if (autoComplete()) {
                     // Completed current item, do not perform any more actions
@@ -119,7 +127,8 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
                 }
                 typingAhead = false;
             }
-        } else if(e.isActionKey()) {
+        } else if (e.isActionKey()) {
+            // Navigate combo items
             if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                 moveSelectedIndex(+1);
                 e.consume();
@@ -133,46 +142,22 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
                 moveSelectedIndex(-5);
                 e.consume();
             }
-        }
-    }
-
-    private void moveSelectedIndex(int delta) {
-        int target = comboBox.getSelectedIndex() + delta;
-        // Don't move up to the first item, as it contains the previous value of the field
-        target = Math.max(target, 0);
-        // Don't try to mobe below final item
-        target = Math.min(target, comboBox.getItemCount() - 1);
-
-        // Target should be in list and not equal to current target
-        if (target >= 0 && target != comboBox.getSelectedIndex()) {
-            // Target should not be multi-valued
-            if (comboBox.getItemAt(target).toString().indexOf(SEPARATOR) >= 0) {
-                target = Math.min(target + 1, comboBox.getItemCount() - 1);
+        } else {
+            if (!typingAhead
+                    && !e.isActionKey()
+                    && e.getKeyChar() != KeyEvent.CHAR_UNDEFINED
+                    && e.getKeyCode() != KeyEvent.VK_BACK_SPACE
+                    && e.getKeyCode() != KeyEvent.VK_DELETE) {
+                // Text is being typed. Start (or restart) timer, so that typeahead
+                // is executed after last keystroke within delay
+                startTypeaheadTimer();
             }
-            comboBox.setSelectedIndex(target);
         }
     }
 
     public void keyReleased(KeyEvent e) {
-        // With rapid input, key events may lag behind the value in the editor
-        // which has undesirable results. Hence, limit the response rate.
-        e.consume();
-        long now = System.currentTimeMillis();
-        if (now - lastKeyReleasedCall < KEY_EVENT_RESPONSE_RATE_LIMIT) {
-            //dropping event
-            return;
-        }
-        lastKeyReleasedCall = now;
+        //e.consume();
 
-        if (!typingAhead) {
-            if (!e.isActionKey()
-                    && e.getKeyChar() != KeyEvent.CHAR_UNDEFINED
-                    && e.getKeyCode() != KeyEvent.VK_BACK_SPACE
-                    && e.getKeyCode() != KeyEvent.VK_DELETE) {
-                // Handle character: update auto complete match
-                typeAhead();
-            }
-        }
 
         System.out.println("keyReleased: " + e.getKeyChar());
     }
@@ -355,10 +340,49 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         }
         return index;
     }
+
+    private void moveSelectedIndex(int delta) {
+        int target = comboBox.getSelectedIndex() + delta;
+        // Don't move up to the first item, as it contains the previous value of the field
+        target = Math.max(target, 0);
+        // Don't try to mobe below final item
+        target = Math.min(target, comboBox.getItemCount() - 1);
+
+        // Target should be in list and not equal to current target
+        if (target >= 0 && target != comboBox.getSelectedIndex()) {
+            // Target should not be multi-valued
+            if (comboBox.getItemAt(target).toString().indexOf(SEPARATOR) >= 0) {
+                target = Math.min(target + 1, comboBox.getItemCount() - 1);
+            }
+            comboBox.setSelectedIndex(target);
+        }
+    }
+
+    private void startTypeaheadTimer() {
+        if (typeaheadTimer.isRunning()) {
+            typeaheadTimer.restart();
+        } else {
+            typeaheadTimer.start();
+        }
+    }
+
+    private void initTypeaheadTimer() {
+        typeaheadTimer = new Timer(TYPEAHEAD_DELAY, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (!typingAhead) {
+                    typeaheadTimer.stop();
+                    typeAhead();
+                }
+            }
+        });
+        typeaheadTimer.setRepeats(false);
+    }
     // Private members
     private JComboBox comboBox;
     private Vocabulary vocabulary;
     private ArbilField targetField;
+    private Timer typeaheadTimer;
     /**
      * Character that separates items in a list-type field
      */
@@ -368,11 +392,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
      */
     private boolean typingAhead = false;
     /**
-     * Private members for limiting the key release rate
-     */
-    private long lastKeyReleasedCall = 0;
-    /**
      * Response rate limit in milliseconds
      */
-    private final static long KEY_EVENT_RESPONSE_RATE_LIMIT = 100;
+    private final static int TYPEAHEAD_DELAY = 200;
 }
