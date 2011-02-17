@@ -579,16 +579,18 @@ public class MetadataReader {
                                     }
                                 }
                             }
-                            // get the imdi catalogue if it exists
-                            Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
-                            if (catalogueLinkAtt != null) {
-                                String catalogueLink = catalogueLinkAtt.getNodeValue();
-                                if (catalogueLink.length() > 0) {
-                                    URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
-                                    childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
-                                    parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
-                                }
-                            }
+                        }
+                    }
+                }
+                if (childNode.getLocalName().equals("Corpus")) {
+                    // get the imdi catalogue if it exists
+                    Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
+                    if (catalogueLinkAtt != null) {
+                        String catalogueLink = catalogueLinkAtt.getNodeValue();
+                        if (catalogueLink.length() > 0) {
+                            URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
+                            childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
+                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
                         }
                     }
                 }
