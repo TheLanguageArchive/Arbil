@@ -5,6 +5,8 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.Component;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.StringTokenizer;
@@ -21,7 +23,7 @@ import nl.mpi.arbil.data.ArbilVocabularies.Vocabulary;
  * @see ControlledVocabularyComboBox
  * @author Twan Goosen
  */
-public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor implements ComboBoxEditor, KeyListener {
+public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor implements ComboBoxEditor, KeyListener, FocusListener {
 
     public ControlledVocabularyComboBoxEditor(String initialValue, ArbilField arbilField, JComboBox comboBox) {
         super(initialValue);
@@ -37,6 +39,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         this.vocabulary = arbilField.getVocabulary();
 
         addKeyListener(this);
+        addFocusListener(this);
     }
 
     /**
@@ -91,6 +94,16 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         return getCurrentValueString();
     }
 
+    // FOCUS LISTENERS
+    public void focusGained(FocusEvent e) {
+        if (!typingAhead) {
+            typeAhead();
+        }
+    }
+
+    public void focusLost(FocusEvent e) {
+    }
+
     // EDITOR KEY LISTENERS
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER
@@ -99,14 +112,44 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
             synchronized (this) {
                 typingAhead = true;
 
-                if (autoComplete() && targetField.isVocabularyList()) {
+                if (autoComplete()) {
                     // Completed current item, do not perform any more actions
                     // on this key event
                     e.consume();
                 }
                 typingAhead = false;
-
             }
+        } else if(e.isActionKey()) {
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                moveSelectedIndex(+1);
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                moveSelectedIndex(-1);
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+                moveSelectedIndex(+5);
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
+                moveSelectedIndex(-5);
+                e.consume();
+            }
+        }
+    }
+
+    private void moveSelectedIndex(int delta) {
+        int target = comboBox.getSelectedIndex() + delta;
+        // Don't move up to the first item, as it contains the previous value of the field
+        target = Math.max(target, 0);
+        // Don't try to mobe below final item
+        target = Math.min(target, comboBox.getItemCount() - 1);
+
+        // Target should be in list and not equal to current target
+        if (target >= 0 && target != comboBox.getSelectedIndex()) {
+            // Target should not be multi-valued
+            if (comboBox.getItemAt(target).toString().indexOf(SEPARATOR) >= 0) {
+                target = Math.min(target + 1, comboBox.getItemCount() - 1);
+            }
+            comboBox.setSelectedIndex(target);
         }
     }
 
@@ -257,6 +300,8 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
                 text.substring(0, startEnd[0]) // everything before
                 .concat(value) // insert value
                 .concat(text.substring(startEnd[1]))); // everything after
+        setCaretPosition(startEnd[0] + value.length());
+
     }
 
     /**
@@ -310,12 +355,10 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         }
         return index;
     }
-
     // Private members
     private JComboBox comboBox;
     private Vocabulary vocabulary;
     private ArbilField targetField;
-
     /**
      * Character that separates items in a list-type field
      */
