@@ -85,6 +85,12 @@ public class ArbilIcons {
     public ImageIcon lockedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/lock.png"));
     public ImageIcon unLockedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/unlock.png"));
 //    private ImageIcon templateIcon = new ImageIcon(ImdiIcons.class.getResource("/nl/mpi/arbil/resources/icons/template.png"));
+
+    public ImageIcon vocabularyOpenIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_open.png"));
+    public ImageIcon vocabularyOpenListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_open_list.png"));
+    public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
+    public ImageIcon vocabularyClosedListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed_list.png"));
+//
     static private ArbilIcons singleInstance = null;
 
     static synchronized public ArbilIcons getSingleInstance() {

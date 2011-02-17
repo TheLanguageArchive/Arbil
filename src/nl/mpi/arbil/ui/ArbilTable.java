@@ -3,7 +3,6 @@ package nl.mpi.arbil.ui;
 import nl.mpi.arbil.ui.menu.TableContextMenu;
 import nl.mpi.arbil.data.ImdiTableModel;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.ui.fieldeditors.ArbilTableCellEditor;
 import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.AWTEvent;
 import java.awt.Color;

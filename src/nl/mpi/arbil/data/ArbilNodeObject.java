@@ -6,7 +6,7 @@ import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.ui.fieldeditors.ArbilTableCellEditor;
+import nl.mpi.arbil.ui.ArbilTableCellEditor;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplate;

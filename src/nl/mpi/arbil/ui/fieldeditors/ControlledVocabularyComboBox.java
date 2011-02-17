@@ -20,7 +20,10 @@ import nl.mpi.arbil.data.ArbilVocabularies;
  */
 public class ControlledVocabularyComboBox extends JComboBox {
 
+    private ArbilField targetField;
+
     public ControlledVocabularyComboBox(ArbilField targetField) {
+        targetField = targetField;
         ArbilVocabularies.Vocabulary fieldsVocabulary = targetField.getVocabulary();
         if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(targetField.getFieldValue())) {
             this.addItem(targetField.getFieldValue());
@@ -46,5 +49,12 @@ public class ControlledVocabularyComboBox extends JComboBox {
         } else{
             return getSelectedItem().toString();
         }
+    }
+
+    /**
+     * @return the targetField
+     */
+    public ArbilField getTargetField() {
+        return targetField;
     }
 }

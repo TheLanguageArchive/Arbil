@@ -1,4 +1,4 @@
-package nl.mpi.arbil.ui.fieldeditors;
+package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.BorderLayout;
@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,11 +22,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.ui.ArbilTableCellRenderer;
-import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.fieldeditors.ArbilFieldEditor;
+import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
+import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
+import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
 
 /**
  * Document   : ArbilTableCellEditor
@@ -243,8 +245,17 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                     // if the cell has a vocabulary then prevent the long field editor
                     System.out.println("Has Vocabulary");
                     ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ArbilField) cellValue[selectedField]);
-                    
+
+                    // Remove 'button', which is the non-editor mode component for the cell
                     editorPanel.remove(button);
+
+                    // Prepare to add icon for CV type (e.g. open list)
+                    editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.LINE_AXIS));
+                    Icon icon  = ArbilTableCellRenderer.getIconForVocabulary((ArbilField) cellValue[selectedField]);
+                    if(icon != null) {
+                        editorPanel.add(new JLabel(icon));
+                    }
+                    // Add combobox itself
                     editorPanel.add(cvComboBox);
                     editorPanel.doLayout();
                     cvComboBox.setPopupVisible(true);
@@ -265,9 +276,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                     
                     String currentCellString = cellValue[selectedField].toString();
                     String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
+
+                    // Set the editor for the combobox, so that it supports typeahead
                     ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, (ArbilField) cellValue[selectedField], cvComboBox);
                     cvComboBox.setEditor(cvcbEditor);
-                    
+
+                    // Make focus work (stop edit mode on lost focus)
                     addFocusListener(cvComboBox);
                     addFocusListener(cvComboBox.getEditor().getEditorComponent());
                     cvComboBox.getEditor().getEditorComponent().requestFocusInWindow();
@@ -394,6 +408,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         convertCellValue(value);
 //        columnName = table.getColumnName(column);
 //        rowImdi = table.getValueAt(row, 0);
+
+        // Create and add 'button', which is the non-editor mode component for the cell
         button.setText(cellRenderer.getText());
         button.setForeground(cellRenderer.getForeground());
         button.setIcon(cellRenderer.getIcon());

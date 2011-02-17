@@ -67,8 +67,36 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
             return (ArbilIcons.getSingleInstance().getIconForImdi((ArbilNodeObject[]) cellObject));
         } else if (cellObject instanceof ArbilField[]) {
             return null;
+        } else if (cellObject instanceof ArbilField) {
+            return getIconForVocabulary((ArbilField) cellObject);
         } else {
             return (null);
+        }
+    }
+
+    public static Icon getIconForVocabulary(ArbilField cellObject) {
+        if (cellObject.hasVocabulary()) {
+            if (((ArbilField) cellObject).isVocabularyOpen()) {
+                // Open vocabulary
+                if (((ArbilField) cellObject).isVocabularyList()) {
+                    // Open list
+                    return ArbilIcons.getSingleInstance().vocabularyOpenListIcon;
+                } else {
+                    // Open single
+                    return ArbilIcons.getSingleInstance().vocabularyOpenIcon;
+                }
+            } else {
+                // Closed vocabulary
+                if (((ArbilField) cellObject).isVocabularyList()) {
+                    // Closed list
+                    return ArbilIcons.getSingleInstance().vocabularyClosedListIcon;
+                } else {
+                    // Closed single
+                    return ArbilIcons.getSingleInstance().vocabularyClosedIcon;
+                }
+            }
+        } else {
+            return null;
         }
     }
 
