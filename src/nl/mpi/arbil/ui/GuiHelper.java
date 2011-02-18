@@ -1,10 +1,10 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.data.importexport.ImdiToHtmlConverter;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.datatransfer.Clipboard;
@@ -129,20 +129,20 @@ public class GuiHelper {
 //// end date filter code
 
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
-        if (userObject instanceof ArbilNodeObject) {
-            if (((ArbilNodeObject) (userObject)).getNeedsSaveToDisk(false)) {
+        if (userObject instanceof ArbilDataNode) {
+            if (((ArbilDataNode) (userObject)).getNeedsSaveToDisk(false)) {
                 if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                    ((ArbilNodeObject) (userObject)).saveChangesToCache(true);
+                    ((ArbilDataNode) (userObject)).saveChangesToCache(true);
                 } else {
                     return;
                 }
             }
-            URI nodeUri = ((ArbilNodeObject) (userObject)).getURI();
+            URI nodeUri = ((ArbilDataNode) (userObject)).getURI();
             System.out.println("openImdiXmlWindow: " + nodeUri);
-            String nodeName = ((ArbilNodeObject) (userObject)).toString();
+            String nodeName = ((ArbilDataNode) (userObject)).toString();
             if (formatXml) {
                 try {
-                    File tempHtmlFile = new ImdiToHtmlConverter().convertToHtml((ArbilNodeObject) userObject);
+                    File tempHtmlFile = new ArbilToHtmlConverter().convertToHtml((ArbilDataNode) userObject);
                     if (!launchInBrowser) {
                         ArbilWindowManager.getSingleInstance().openUrlWindowOnce(nodeName + " formatted", tempHtmlFile.toURL());
                     } else {
@@ -167,9 +167,9 @@ public class GuiHelper {
     // TODO: this could be merged witht the add row function
 
     public AbstractTableModel getImdiTableModel(Hashtable rowNodes) {
-        ImdiTableModel searchTableModel = new ImdiTableModel();
+        ArbilTableModel searchTableModel = new ArbilTableModel();
         searchTableModel.setShowIcons(true);
-        searchTableModel.addImdiObjects(rowNodes.elements());
+        searchTableModel.addArbilDataNodes(rowNodes.elements());
         //Enumeration rowNodeEnum = rowNodes.elements();
         //while (rowNodeEnum.hasMoreElements()) {
         //searchTableModel.addImdiObject((ImdiHelper.ImdiTreeObject) rowNodeEnum.nextElement());
@@ -178,7 +178,7 @@ public class GuiHelper {
     }
 
     public AbstractTableModel getImdiTableModel() {
-        ImdiTableModel tempModel = new ImdiTableModel();
+        ArbilTableModel tempModel = new ArbilTableModel();
         tempModel.setShowIcons(true);
         return tempModel;
     }
@@ -220,7 +220,7 @@ public class GuiHelper {
                 osNameString = System.getProperty("os.name").toLowerCase();
 //                String openCommand = "";
                 String fileString;
-                if (ArbilNodeObject.isStringLocal(targetUri.getScheme())) {
+                if (ArbilDataNode.isStringLocal(targetUri.getScheme())) {
                     fileString = new File(targetUri).getAbsolutePath();
                 } else {
                     fileString = targetUri.toString();

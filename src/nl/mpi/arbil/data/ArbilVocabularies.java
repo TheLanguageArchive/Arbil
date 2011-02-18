@@ -17,7 +17,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import org.xml.sax.InputSource;
 
 /**
- * Document   : ImdiVocabularies
+ * Document   : ArbilVocabularies
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
@@ -88,40 +88,40 @@ public class ArbilVocabularies {
         }.start();
     }
 
-    public Vocabulary getVocabulary(ArbilField originatingImdiField, String vocabularyLocation) {
+    public Vocabulary getVocabulary(ArbilField originatingArbilField, String vocabularyLocation) {
         // todo the MPI-Languages vocabularies should use the DocumentationLanguages().getLanguageListSubset(); class that provides a sub set list of languages
-        if (originatingImdiField != null) {
+        if (originatingArbilField != null) {
             if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
                 return null;
             }
-            String fieldPath = originatingImdiField.getGenericFullXmlPath();
+            String fieldPath = originatingArbilField.getGenericFullXmlPath();
             // testing code for checking the language fields have the required triggers
             if (vocabularyLocation.endsWith("MPI-Languages.xml")) {
                 boolean foundTrigger = false;
 //            System.out.println("vocabularyLocation: " + vocabularyLocation);
 //            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
-                for (String[] currentTrigger : originatingImdiField.parentImdi.getNodeTemplate().fieldTriggersArray) {
+                for (String[] currentTrigger : originatingArbilField.parentDataNode.getNodeTemplate().fieldTriggersArray) {
                     if (fieldPath.equals(currentTrigger[0])) {
                         foundTrigger = true;
                     }
                 }
                 if (!foundTrigger) {
                     if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
-                        GuiHelper.linorgBugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingImdiField.parentImdi.getUrlString()));
+                        GuiHelper.linorgBugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.parentDataNode.getUrlString()));
                     }
                 }
             }
             ///////////////////////////////
             // look for genre / sub genre redirects in the template
             String vocabularyRedirectField = null;
-            for (String[] currentRedirect : originatingImdiField.parentImdi.getNodeTemplate().genreSubgenreArray) {
+            for (String[] currentRedirect : originatingArbilField.parentDataNode.getNodeTemplate().genreSubgenreArray) {
                 if (fieldPath.equals(currentRedirect[0])) {
                     vocabularyRedirectField = currentRedirect[1];
                 }
             }
             if (vocabularyRedirectField != null) {
                 // todo: check that genre /subgenre are being linked correctly
-                ArbilField[] tempField = originatingImdiField.getSiblingField(vocabularyRedirectField);
+                ArbilField[] tempField = originatingArbilField.getSiblingField(vocabularyRedirectField);
                 if (tempField != null) {
                     String redirectFieldString = tempField[0].toString();
                     // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers

@@ -5,7 +5,7 @@
 package nl.mpi.arbil.ui.menu;
 
 import javax.swing.JList;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 
 /**
  *
@@ -18,11 +18,11 @@ public class ImagePreviewContextMenu extends ArbilContextMenu {
         setInvoker(imagePreview);
 
         Object[] selectedObjects = imagePreview.getSelectedValues();
-        selectedTreeNodes = new ArbilNodeObject[selectedObjects.length];
+        selectedTreeNodes = new ArbilDataNode[selectedObjects.length];
         for (int objectCounter = 0; objectCounter < selectedObjects.length; objectCounter++) {
-            selectedTreeNodes[objectCounter] = (ArbilNodeObject) selectedObjects[objectCounter];
+            selectedTreeNodes[objectCounter] = (ArbilDataNode) selectedObjects[objectCounter];
         }
-        leadSelectedTreeNode = (ArbilNodeObject) imagePreview.getSelectedValue();
+        leadSelectedTreeNode = (ArbilDataNode) imagePreview.getSelectedValue();
     }
 
     @Override

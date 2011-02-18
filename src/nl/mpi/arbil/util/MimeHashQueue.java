@@ -1,7 +1,7 @@
 package nl.mpi.arbil.util;
 
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.Vector;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 
 /**
  * typecheck
@@ -37,7 +37,7 @@ public class MimeHashQueue {
     private Hashtable<String, Vector<String>> md5SumToDuplicates;
     private Hashtable<String, String> pathToMd5Sums;
     // not stored across sessions
-    private Vector<ArbilNodeObject> imdiObjectQueue;
+    private Vector<ArbilDataNode> dataNodeQueue;
 //    private Hashtable<String, ImdiTreeObject> currentlyLoadedImdiObjects;
     private boolean continueThread = false;
     private static mpi.bcarchive.typecheck.FileType fileType; //  used to check the file type
@@ -61,7 +61,7 @@ public class MimeHashQueue {
 
     public MimeHashQueue() {
         System.out.println("MimeHashQueue init");
-        imdiObjectQueue = new Vector();
+        dataNodeQueue = new Vector();
         checkResourcePermissions = ArbilSessionStorage.getSingleInstance().loadBoolean("checkResourcePermissions", true);
         continueThread = true;
         new Thread("MimeHashQueue") {
@@ -82,19 +82,19 @@ public class MimeHashQueue {
                         GuiHelper.linorgBugCatcher.logError(ie);
 //                        System.err.println("run MimeHashQueue: " + ie.getMessage());
                     }
-                    while (imdiObjectQueue.size() > 0) {
-                        ArbilNodeObject currentImdiObject = imdiObjectQueue.remove(0);
+                    while (dataNodeQueue.size() > 0) {
+                        ArbilDataNode currentDataNode = dataNodeQueue.remove(0);
                         //System.out.println("MimeHashQueue checking: " + currentImdiObject.getUrlString());
-                        if (!currentImdiObject.isMetaDataNode()) {
+                        if (!currentDataNode.isMetaDataNode()) {
                             System.out.println("checking exif");
-                            addFileAndExifFields(currentImdiObject);
+                            addFileAndExifFields(currentDataNode);
                         }
-                        if (currentImdiObject.hasResource() && !currentImdiObject.hasLocalResource()) {
+                        if (currentDataNode.hasResource() && !currentDataNode.hasLocalResource()) {
                             System.out.println("checking server permissions " + serverPermissionsChecked++);
-                            checkServerPermissions(currentImdiObject);
+                            checkServerPermissions(currentDataNode);
                         } else {
                             System.out.println("checking mime type etc");
-                            URI currentPathURI = getNodeURI(currentImdiObject);
+                            URI currentPathURI = getNodeURI(currentDataNode);
                             if (currentPathURI != null && currentPathURI.toString().length() > 0) {
 //                                try {
                                 // check if this file has been process before and then check its mtime
@@ -109,16 +109,16 @@ public class MimeHashQueue {
                                     String[] lastCheckedMimeArray = knownMimeTypes.get(currentPathURI.toString());
                                     if (previousMTime != currentMTime || lastCheckedMimeArray == null) {
 //                                    System.out.println("run MimeHashQueue processing: " + currentPathString);
-                                        currentImdiObject.setMimeType(getMimeType(currentPathURI));
-                                        currentImdiObject.hashString = getHash(currentPathURI, currentImdiObject.getURI());
+                                        currentDataNode.setMimeType(getMimeType(currentPathURI));
+                                        currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getURI());
                                         processedFilesMTimes.put(currentPathURI.toString(), currentMTime); // avoid issues of the file being modified between here and the last mtime check
                                         changedSinceLastSave = true;
                                     } else {
-                                        currentImdiObject.hashString = pathToMd5Sums.get(currentPathURI.toString());
-                                        currentImdiObject.setMimeType(lastCheckedMimeArray);
+                                        currentDataNode.hashString = pathToMd5Sums.get(currentPathURI.toString());
+                                        currentDataNode.setMimeType(lastCheckedMimeArray);
                                     }
-                                    updateAutoFields(currentImdiObject, currentFile);
-                                    updateImdiIconsToMatchingFileNodes(currentPathURI); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
+                                    updateAutoFields(currentDataNode, currentFile);
+                                    updateIconsToMatchingFileNodes(currentPathURI); //for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
                                 }
 //                                } catch (MalformedURLException e) {
 //                                    //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
@@ -127,7 +127,7 @@ public class MimeHashQueue {
                             }
                         }
 //                        currentImdiObject.updateLoadingState(-1); // Loading state change dissabled due to performance issues when offline
-                        currentImdiObject.clearIcon();
+                        currentDataNode.clearIcon();
                     }
                     //TODO: take one file from the list and check it is still there and that it has the same mtime and maybe check the md5sum
                     //TODO: when deleting resouce or removing a session or corpus branch containing a session check for links 
@@ -188,21 +188,21 @@ public class MimeHashQueue {
         return (targetFile.length() / 1024) + "KB";
     }
 
-    private void updateAutoFields(ArbilNodeObject currentImdiObject, File resourceFile) {
-        Set<String> currentNodeFieldNames = currentImdiObject.getFields().keySet();
+    private void updateAutoFields(ArbilDataNode currentDataNode, File resourceFile) {
+        Set<String> currentNodeFieldNames = currentDataNode.getFields().keySet();
         // loop over the auto fields from the template
-        for (String[] autoFields : currentImdiObject.getNodeTemplate().autoFieldsArray) {
+        for (String[] autoFields : currentDataNode.getNodeTemplate().autoFieldsArray) {
             String fieldPath = autoFields[0];
             String fileAttribute = autoFields[1];
             String autoValue = null;
             if (fileAttribute.equals("Size")) {
-                if (!currentImdiObject.resourceFileNotFound()) {
+                if (!currentDataNode.resourceFileNotFound()) {
                     autoValue = getFileSizeString(resourceFile);
                 }
             } else if (fileAttribute.equals("MpiMimeType")) {
-                autoValue = currentImdiObject.mpiMimeType;
+                autoValue = currentDataNode.mpiMimeType;
             } else if (fileAttribute.equals("FileType")) {
-                autoValue = mpi.bcarchive.typecheck.FileType.resultToMimeType(currentImdiObject.typeCheckerMessage);
+                autoValue = mpi.bcarchive.typecheck.FileType.resultToMimeType(currentDataNode.typeCheckerMessage);
                 // todo: consider checking that the mime type matches the node type such as written resource or media file, such that a server sending html (with 200 response) rather than a media file would be discovered, although that could only be detected for media files not written resources
                 if (autoValue != null) {
                     int indexOfChar = autoValue.indexOf("/");
@@ -219,7 +219,7 @@ public class MimeHashQueue {
                 for (String currentKeyString : currentNodeFieldNames) {
                     // look for the field name at the end of the auto field path
                     if (fieldPath.endsWith(currentKeyString)) {
-                        ArbilField[] currentFieldArray = currentImdiObject.getFields().get(currentKeyString);
+                        ArbilField[] currentFieldArray = currentDataNode.getFields().get(currentKeyString);
                         if (currentFieldArray != null) {
                             // verify that the full field path is the same as the auto field path
                             if (currentFieldArray[0].getGenericFullXmlPath().equals(fieldPath)) {
@@ -236,7 +236,7 @@ public class MimeHashQueue {
         }
     }
 
-    private void updateImdiIconsToMatchingFileNodes(URI currentPathURI) {//for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
+    private void updateIconsToMatchingFileNodes(URI currentPathURI) {//for each node relating to the found sum run getMimeHashResult() or quivalent to update the nodes for the found md5
         int matchesInCache = 0;
         int matchesLocalFileSystem = 0;
         int matchesRemote = 0;
@@ -245,16 +245,16 @@ public class MimeHashQueue {
         if (currentMd5Sum != null) {
             // loop the paths for the md5sum
             Vector<String> duplicatesPaths = md5SumToDuplicates.get(currentMd5Sum);
-            Vector<ArbilNodeObject> relevantImdiObjects = new Vector();
+            Vector<ArbilDataNode> relevantDataNodes = new Vector();
             for (Enumeration<String> duplicatesPathEnum = duplicatesPaths.elements(); duplicatesPathEnum.hasMoreElements();) {
                 String currentDupPath = duplicatesPathEnum.nextElement();
                 try {
                     File currentFile = new File(new URI(currentDupPath));
                     if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
                         // get the currently loaded imdiobjects for the paths
-                        ArbilNodeObject currentImdiObject = ImdiLoader.getSingleInstance().getImdiObjectOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
-                        if (currentImdiObject != null) {
-                            relevantImdiObjects.add(currentImdiObject);
+                        ArbilDataNode currentDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
+                        if (currentDataNode != null) {
+                            relevantDataNodes.add(currentDataNode);
                         }
                         if (ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentFile)) {
                             matchesInCache++;
@@ -266,18 +266,18 @@ public class MimeHashQueue {
                 } catch (Exception e) {
                 }
             }
-            for (Enumeration<ArbilNodeObject> relevantImdiEnum = relevantImdiObjects.elements(); relevantImdiEnum.hasMoreElements();) {
-                ArbilNodeObject currentImdiObject = relevantImdiEnum.nextElement();
+            for (Enumeration<ArbilDataNode> relevantNodeEnum = relevantDataNodes.elements(); relevantNodeEnum.hasMoreElements();) {
+                ArbilDataNode currentDataNode = relevantNodeEnum.nextElement();
                 // update the values
-                currentImdiObject.matchesInCache = matchesInCache;
-                currentImdiObject.matchesLocalFileSystem = matchesLocalFileSystem;
-                currentImdiObject.matchesRemote = matchesRemote;
-                currentImdiObject.clearIcon();
+                currentDataNode.matchesInCache = matchesInCache;
+                currentDataNode.matchesLocalFileSystem = matchesLocalFileSystem;
+                currentDataNode.matchesRemote = matchesRemote;
+                currentDataNode.clearIcon();
             }
         }
     }
 
-    private void addFileAndExifFields(ArbilNodeObject targetLooseFile) {
+    private void addFileAndExifFields(ArbilDataNode targetLooseFile) {
         if (!targetLooseFile.isMetaDataNode()) {
             File fileObject = targetLooseFile.getFile();
             if (fileObject != null && fileObject.exists()) {
@@ -400,11 +400,11 @@ public class MimeHashQueue {
                     while (otherNodesEnum.hasMoreElements()) {
                         Object currentElement = otherNodesEnum.nextElement();
                         Object currentNode = processedFilesMTimes.get(currentElement.toString());
-                        if (currentNode instanceof ArbilNodeObject) {
+                        if (currentNode instanceof ArbilDataNode) {
                             //debugOut("updating icon for: " + ((ImdiTreeObject) currentNode).getUrl());
                             // clear the icon of the other copies so that they will be updated to indicate the commonality
                             System.out.println("Clearing icon for other node: " + currentNode.toString());
-                            ((ArbilNodeObject) currentNode).clearIcon();
+                            ((ArbilDataNode) currentNode).clearIcon();
                         }
                     }
                     ((Vector) matchingNodes).add(fileUri.toString());
@@ -421,19 +421,19 @@ public class MimeHashQueue {
         return hashString;
     }
 
-    private void checkServerPermissions(ArbilNodeObject imdiObject) {
+    private void checkServerPermissions(ArbilDataNode dataNode) {
         if (checkResourcePermissions) {
             try {
 //            System.out.println("imdiObject: " + imdiObject);
-                HttpURLConnection resourceConnection = (HttpURLConnection) imdiObject.getFullResourceURI().toURL().openConnection();
+                HttpURLConnection resourceConnection = (HttpURLConnection) dataNode.getFullResourceURI().toURL().openConnection();
                 resourceConnection.setRequestMethod("HEAD");
                 resourceConnection.setRequestProperty("Connection", "Close");
 //            System.out.println("conn: " + resourceConnection.getURL());
-                imdiObject.resourceFileServerResponse = resourceConnection.getResponseCode();
-                if (imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || imdiObject.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
-                    imdiObject.fileNotFound = true;
+                dataNode.resourceFileServerResponse = resourceConnection.getResponseCode();
+                if (dataNode.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || dataNode.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
+                    dataNode.fileNotFound = true;
                 } else {
-                    imdiObject.fileNotFound = false;
+                    dataNode.fileNotFound = false;
                 }
 //            System.out.println("ResponseCode: " + resourceConnection.getResponseCode());
             } catch (Exception e) {
@@ -442,26 +442,26 @@ public class MimeHashQueue {
         }
     }
 
-    private URI getNodeURI(ArbilNodeObject imdiObject) {
-        if (imdiObject.hasResource()) {
-            return imdiObject.getFullResourceURI();
+    private URI getNodeURI(ArbilDataNode dataNode) {
+        if (dataNode.hasResource()) {
+            return dataNode.getFullResourceURI();
         } else {
-            return imdiObject.getURI();
+            return dataNode.getURI();
         }
     }
 
-    public void addToQueue(ArbilNodeObject imdiObject) {
-        System.out.println("MimeHashQueue addToQueue: " + imdiObject.getUrlString());
+    public void addToQueue(ArbilDataNode dataNode) {
+        System.out.println("MimeHashQueue addToQueue: " + dataNode.getUrlString());
         // TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
-        if (((imdiObject.isLocal() && !imdiObject.isMetaDataNode() && !imdiObject.isDirectory()) || (imdiObject.isImdiChild() && imdiObject.hasResource()))) {
+        if (((dataNode.isLocal() && !dataNode.isMetaDataNode() && !dataNode.isDirectory()) || (dataNode.isChildNode() && dataNode.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            System.out.println("addToQueue session: " + imdiObject.isSession());
 //            System.out.println("addToQueue directory: " + imdiObject.isDirectory());
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
 //            if (new File(new URL(getFilePath(imdiObject)).getFile().exists()) {// here also check that the destination file exists
-            if (!imdiObjectQueue.contains(imdiObject)) {
+            if (!dataNodeQueue.contains(dataNode)) {
 //                imdiObject.updateLoadingState(+1); // Loading state change dissabled due to performance issues when offline
-                imdiObjectQueue.add(imdiObject);
+                dataNodeQueue.add(dataNode);
             }
         }
     }

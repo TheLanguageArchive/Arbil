@@ -14,7 +14,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -73,7 +73,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
         this.add(resultCountLabel);
     }
 
-    private String[] performSearch(String searchString, ArbilNodeObject[] imdiTreeObjectArray) {
+    private String[] performSearch(String searchString, ArbilDataNode[] arbilDataNodeArray) {
         ArrayList<String> returnArray = new ArrayList<String>();
         int maxResultNumber = 1000;
         try {
@@ -81,11 +81,11 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
             fullQueryString += "&num=" + maxResultNumber;
             fullQueryString += "&query=" + URLEncoder.encode(searchString, "UTF-8");
             fullQueryString += "&type=simple";
-            for (ArbilNodeObject imdiTreeObject : imdiTreeObjectArray) {
-                if (imdiTreeObject.archiveHandle != null) {
-                    fullQueryString += "&archiveHandle=" + imdiTreeObject.archiveHandle;
+            for (ArbilDataNode arbilDataNode : arbilDataNodeArray) {
+                if (arbilDataNode.archiveHandle != null) {
+                    fullQueryString += "&archiveHandle=" + arbilDataNode.archiveHandle;
                 } else {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot search \"" + imdiTreeObject + "\" because it does not have an archive handle", "Remote Search");
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot search \"" + arbilDataNode + "\" because it does not have an archive handle", "Remote Search");
                 }
             }
             // to search a branch we need the node id and to get that we need to have the handle and that might not exist, also to do any of that we would need to use an xmlrpc and include the lamusapi jar file to all versions of the application, so we will just search the entire archive since that takes about the same time to return the results
@@ -131,7 +131,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
         return returnArray.toArray(new String[]{});
     }
 
-    public URI[] getServerSearchResults(ArbilNodeObject[] imdiTreeObjectArray) {
+    public URI[] getServerSearchResults(ArbilDataNode[] arbilDataNodeArray) {
         if (searchField.getText().equals(valueFieldMessage) || searchField.getText().equals("")) {
             ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
             return new URI[]{};
@@ -142,7 +142,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
             } else {
                 ArrayList<URI> foundNodes = new ArrayList<URI>();
                 lastSearchString = searchField.getText();
-                for (String resultString : performSearch(lastSearchString, imdiTreeObjectArray)) {
+                for (String resultString : performSearch(lastSearchString, arbilDataNodeArray)) {
                     try {
                         foundNodes.add(new URI(resultString));
                     } catch (URISyntaxException exception) {

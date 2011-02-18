@@ -6,7 +6,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
- * Document   : LinorgFieldView
+ * Document   : ArbilFieldView
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */

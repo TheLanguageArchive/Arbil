@@ -3,10 +3,10 @@ package nl.mpi.arbil.ui.applet;
 import java.net.URI;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 
 /*
  * ArbilTableApplet.java
@@ -37,7 +37,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
         if (nodeURLsString != null) {
             for (String currentUrlString : nodeURLsString.split(",")) {
                 try {
-                    imdiTableModel.addSingleImdiObject(ImdiLoader.getSingleInstance().getImdiObject(rootPane, new URI(currentUrlString)));
+                    arbilTableModel.addSingleArbilDataNode(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(rootPane, new URI(currentUrlString)));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -48,7 +48,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     private void addShowOnlyColumnsToTable(String showColumnsString) {
         if (showColumnsString != null) {
             for (String currentshowColumns : showColumnsString.split(",")) {
-                imdiTableModel.getFieldView().addShowOnlyColumn(currentshowColumns);
+                arbilTableModel.getFieldView().addShowOnlyColumn(currentshowColumns);
             }
         }
     }
@@ -56,7 +56,7 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     private void addChildNodesToTable(String childNodesString) {
         if (childNodesString != null) {
             for (String currentChildNode : childNodesString.split(",")) {
-                imdiTableModel.addChildTypeToDisplay(currentChildNode);
+                arbilTableModel.addChildTypeToDisplay(currentChildNode);
             }
         }
     }
@@ -64,19 +64,19 @@ public class ArbilTableApplet extends javax.swing.JApplet {
     private void addHighlightToTable(String highlightableTextString) {
         if (highlightableTextString != null) {
             for (String highlightText : highlightableTextString.split(",")) {
-                imdiTableModel.highlightMatchingText(highlightText);
+                arbilTableModel.highlightMatchingText(highlightText);
             }
         }
     }
 
     private void initComponents() {
-        imdiTableModel = new ImdiTableModel();
-        ArbilTable imdiTable = new ArbilTable(imdiTableModel, tableTitle);
-        ArbilSplitPanel imdiSplitPanel = new ArbilSplitPanel(imdiTable);
-        imdiTableModel.hideContextMenuAndStatusBar = true;
-        imdiSplitPanel.setSplitDisplay();
-        getContentPane().add(imdiSplitPanel, java.awt.BorderLayout.CENTER);
+        arbilTableModel = new ArbilTableModel();
+        ArbilTable arbilTable = new ArbilTable(arbilTableModel, tableTitle);
+        ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
+        arbilTableModel.hideContextMenuAndStatusBar = true;
+        arbilSplitPanel.setSplitDisplay();
+        getContentPane().add(arbilSplitPanel, java.awt.BorderLayout.CENTER);
     }
     private String tableTitle = "Arbil Table Demo";
-    private ImdiTableModel imdiTableModel;
+    private ArbilTableModel arbilTableModel;
 }

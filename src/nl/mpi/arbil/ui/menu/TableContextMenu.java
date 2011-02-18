@@ -8,7 +8,7 @@ import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -27,7 +27,7 @@ public class TableContextMenu extends ArbilContextMenu {
         setInvoker(table);
 
         selectedTreeNodes = table.getSelectedRowsFromTable();
-        leadSelectedTreeNode = table.getImdiNodeForSelection();
+        leadSelectedTreeNode = table.getDataNodeForSelection();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class TableContextMenu extends ArbilContextMenu {
         if (table.getSelectedRow() != -1) {
             copySelectedRowsMenuItem.setVisible(true);
             pasteIntoSelectedRowsMenuItem.setVisible(true);
-            if (table.imdiTableModel.isHorizontalView()) {
+            if (table.arbilTableModel.isHorizontalView()) {
                 viewSelectedRowsMenuItem.setVisible(true);
                 matchingRowsMenuItem.setVisible(true);
                 removeSelectedRowsMenuItem.setVisible(true);
@@ -49,7 +49,7 @@ public class TableContextMenu extends ArbilContextMenu {
             boolean canDeleteSelectedFields = true;
             ArbilField[] currentSelection = table.getSelectedFields();
             for (ArbilField currentField : currentSelection) {
-                if (!currentField.parentImdi.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                if (!currentField.parentDataNode.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
                     canDeleteSelectedFields = false;
                     break;
                 }
@@ -74,11 +74,11 @@ public class TableContextMenu extends ArbilContextMenu {
         if (table.getSelectedRow() != -1 && table.getSelectedColumn() != -1) {
             // add a divider for the cell functions
             //cellMenuDivider.setVisible(true);
-            if (table.imdiTableModel.isHorizontalView() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+            if (table.arbilTableModel.isHorizontalView() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
                 copyCellToColumnMenuItem.setVisible(true);
                 hideSelectedColumnsMenuItem.setVisible(true);
             }
-            if (!table.imdiTableModel.isHorizontalView() || table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+            if (!table.arbilTableModel.isHorizontalView() || table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
                 // show the cell only menu items
                 openInLongFieldEditorMenuItem.setVisible(true); // this should not show for the node icon cell
                 matchingCellsMenuItem.setVisible(true);
@@ -169,20 +169,20 @@ public class TableContextMenu extends ArbilContextMenu {
                     if (selectedFields != null) {
 //                                  to delete these fields they must be separated into imdi tree objects and request delete for each one
 //                                  todo: the delete field action should also be available in the long field editor
-                        Hashtable<ArbilNodeObject, ArrayList> selectedFieldHashtable = new Hashtable<ArbilNodeObject, ArrayList>();
+                        Hashtable<ArbilDataNode, ArrayList> selectedFieldHashtable = new Hashtable<ArbilDataNode, ArrayList>();
                         for (ArbilField currentField : selectedFields) {
-                            ArrayList currentList = selectedFieldHashtable.get(currentField.parentImdi);
+                            ArrayList currentList = selectedFieldHashtable.get(currentField.parentDataNode);
                             if (currentList == null) {
                                 currentList = new ArrayList();
-                                selectedFieldHashtable.put(currentField.parentImdi, currentList);
+                                selectedFieldHashtable.put(currentField.parentDataNode, currentList);
                             }
                             currentList.add(currentField.getFullXmlPath());
                         }
-                        for (ArbilNodeObject currentImdiObject : selectedFieldHashtable.keySet()) {
+                        for (ArbilDataNode currentDataNode : selectedFieldHashtable.keySet()) {
                             ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-                            boolean result = componentBuilder.removeChildNodes(currentImdiObject, (String[]) selectedFieldHashtable.get(currentImdiObject).toArray(new String[]{}));
+                            boolean result = componentBuilder.removeChildNodes(currentDataNode, (String[]) selectedFieldHashtable.get(currentDataNode).toArray(new String[]{}));
                             if (result) {
-                                currentImdiObject.reloadNode();
+                                currentDataNode.reloadNode();
                             } else {
                                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting fields, check the log file via the help menu for more information.", "Delete Field");
                             }
@@ -221,10 +221,10 @@ public class TableContextMenu extends ArbilContextMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     // TODO: change this to copy to selected rows
-                    if (!(table.imdiTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
+                    if (!(table.arbilTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
                         ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
-                    } else if (0 == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + table.imdiTableModel.getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.imdiTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                        table.imdiTableModel.copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
+                    } else if (0 == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + table.arbilTableModel.getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.arbilTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        table.arbilTableModel.copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -238,7 +238,7 @@ public class TableContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    table.imdiTableModel.highlightMatchingCells(table.getSelectedRow(), table.getSelectedColumn());
+                    table.arbilTableModel.highlightMatchingCells(table.getSelectedRow(), table.getSelectedColumn());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -251,7 +251,7 @@ public class TableContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    table.imdiTableModel.clearCellColours();
+                    table.arbilTableModel.clearCellColours();
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }

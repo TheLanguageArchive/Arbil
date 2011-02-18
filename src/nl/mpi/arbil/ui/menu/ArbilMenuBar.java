@@ -30,9 +30,9 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilVersion;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.templates.TemplateDialogue;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilTable;
@@ -112,8 +112,8 @@ public class ArbilMenuBar extends JMenuBar {
             }
 
             public void menuSelected(MenuEvent evt) {
-                saveFileMenuItem.setEnabled(ImdiLoader.getSingleInstance().nodesNeedSave());
-                showChangedNodesMenuItem.setEnabled(ImdiLoader.getSingleInstance().nodesNeedSave());
+                saveFileMenuItem.setEnabled(ArbilDataNodeLoader.getSingleInstance().nodesNeedSave());
+                showChangedNodesMenuItem.setEnabled(ArbilDataNodeLoader.getSingleInstance().nodesNeedSave());
             }
         });
         saveFileMenuItem.setText("Save Changes");
@@ -123,7 +123,7 @@ public class ArbilMenuBar extends JMenuBar {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     ArbilWindowManager.getSingleInstance().stopEditingInCurrentWindow();
-                    ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
+                    ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -136,18 +136,18 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    ArrayList<ArbilNodeObject> individualChangedNodes = new ArrayList<ArbilNodeObject>();
-                    for (ArbilNodeObject currentTestable : ImdiLoader.getSingleInstance().getNodesNeedSave()) {
+                    ArrayList<ArbilDataNode> individualChangedNodes = new ArrayList<ArbilDataNode>();
+                    for (ArbilDataNode currentTestable : ArbilDataNodeLoader.getSingleInstance().getNodesNeedSave()) {
                         if (currentTestable.hasChangedFields()) {
                             individualChangedNodes.add(currentTestable);
                         }
-                        for (ArbilNodeObject currentChildSaveable : currentTestable.getAllChildren()) {
+                        for (ArbilDataNode currentChildSaveable : currentTestable.getAllChildren()) {
                             if (currentChildSaveable.hasChangedFields()) {
                                 individualChangedNodes.add(currentChildSaveable);
                             }
                         }
                     }
-                    ArbilWindowManager.getSingleInstance().openFloatingTable(individualChangedNodes.toArray(new ArbilNodeObject[]{}), "Modified Nodes");
+                    ArbilWindowManager.getSingleInstance().openFloatingTable(individualChangedNodes.toArray(new ArbilDataNode[]{}), "Modified Nodes");
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -464,12 +464,12 @@ public class ArbilMenuBar extends JMenuBar {
         optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
 
         schemaCheckLocalFiles.setText("Always check local metadata files for XML conformance");
-        schemaCheckLocalFiles.setSelected(ImdiLoader.getSingleInstance().schemaCheckLocalFiles);
+        schemaCheckLocalFiles.setSelected(ArbilDataNodeLoader.getSingleInstance().schemaCheckLocalFiles);
         schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded. If the metadata file does not validate against the schema it will be highlighted red in the tree.");
         schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                ImdiLoader.getSingleInstance().schemaCheckLocalFiles = schemaCheckLocalFiles.isSelected();
+                ArbilDataNodeLoader.getSingleInstance().schemaCheckLocalFiles = schemaCheckLocalFiles.isSelected();
                 ArbilSessionStorage.getSingleInstance().saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
             }
         });
@@ -500,7 +500,7 @@ public class ArbilMenuBar extends JMenuBar {
                     ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
                     ArbilSessionStorage.getSingleInstance().useLanguageIdInColumnName = useLanguageIdInColumnNameCheckBoxMenuItem.getState();
                     ArbilSessionStorage.getSingleInstance().saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
-                    ImdiLoader.getSingleInstance().requestReloadAllNodes();
+                    ArbilDataNodeLoader.getSingleInstance().requestReloadAllNodes();
                 } catch (Exception ex) {
                     useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().useLanguageIdInColumnName);
                 }
@@ -677,7 +677,7 @@ public class ArbilMenuBar extends JMenuBar {
                     }
                     if (((KeyEvent) event).getKeyCode() == KeyEvent.VK_S) {
                         ArbilWindowManager.getSingleInstance().stopEditingInCurrentWindow();
-                        ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
+                        ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
                     }
                     if (((KeyEvent) event).getKeyCode() == java.awt.event.KeyEvent.VK_Z) {
                         if (((KeyEvent) event).isShiftDown()) {
@@ -724,7 +724,7 @@ public class ArbilMenuBar extends JMenuBar {
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         try {
             ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
-            importExportDialog.importImdiBranch();
+            importExportDialog.importArbilBranch();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -772,13 +772,13 @@ public class ArbilMenuBar extends JMenuBar {
 //        // TODO: add other cache directory and update changeStorageDirectory to cope with the additional variables
 //    }
     private boolean saveApplicationState() {
-        if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
+        if (ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
             // TODO: why is LinorgWindowManager.getSingleInstance().offerUserToSaveChanges(); not used?
             switch (JOptionPane.showConfirmDialog(this, "Save changes before exiting?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 case JOptionPane.NO_OPTION:
                     break;
                 case JOptionPane.YES_OPTION:
-                    ImdiLoader.getSingleInstance().saveNodesNeedingSave(false);
+                    ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(false);
                     break;
                 default:
                     return false;

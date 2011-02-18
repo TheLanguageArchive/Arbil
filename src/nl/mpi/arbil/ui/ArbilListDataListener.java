@@ -4,7 +4,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 /**
- * Document   : 
+ * Document   : ArbilListDataListener
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
@@ -12,27 +12,27 @@ import javax.swing.event.ListDataListener;
 // Updates the split panel when there are resources or loose files in the list to display
 public class ArbilListDataListener implements ListDataListener {
 
-    private ArbilSplitPanel imdiSplitPanel;
+    private ArbilSplitPanel arbilSplitPanel;
 
-    public ArbilListDataListener(ArbilSplitPanel localImdiSplitPanel) {
-        imdiSplitPanel = localImdiSplitPanel;
+    public ArbilListDataListener(ArbilSplitPanel localArbilSplitPanel) {
+        arbilSplitPanel = localArbilSplitPanel;
     }
 
     public void contentsChanged(ListDataEvent e) {
-        if (imdiSplitPanel != null) {
-            imdiSplitPanel.setSplitDisplay();
+        if (arbilSplitPanel != null) {
+            arbilSplitPanel.setSplitDisplay();
         }
     }
 
     public void intervalAdded(ListDataEvent e) {
-        if (imdiSplitPanel != null) {
-            imdiSplitPanel.setSplitDisplay();
+        if (arbilSplitPanel != null) {
+            arbilSplitPanel.setSplitDisplay();
         }
     }
 
     public void intervalRemoved(ListDataEvent e) {
-        if (imdiSplitPanel != null) {
-            imdiSplitPanel.setSplitDisplay();
+        if (arbilSplitPanel != null) {
+            arbilSplitPanel.setSplitDisplay();
         }
     }
 }

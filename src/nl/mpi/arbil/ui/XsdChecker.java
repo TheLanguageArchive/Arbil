@@ -6,7 +6,7 @@ package nl.mpi.arbil.ui;
  * @author Peter.Withers@mpi.nl
  */
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -134,7 +134,7 @@ public class XsdChecker extends JSplitPane {
         URL schemaURL = null;
         // if this is a cmdi file then we should just fail here
         // otherwise try to get the imdi schema
-        if (!ArbilNodeObject.isPathImdi(imdiFile.toString())) {
+        if (!ArbilDataNode.isPathImdi(imdiFile.toString())) {
             try {
                 schemaURL = schemaFile.toURL();
             } catch (Exception e) {
@@ -251,7 +251,7 @@ public class XsdChecker extends JSplitPane {
         }
     }
 
-    public void checkXML(ArbilNodeObject imdiObject) {
+    public void checkXML(ArbilDataNode imdiObject) {
         encounteredAdditionalErrors = false;
         try {
             doc.insertString(doc.getLength(), "Checking the IMDI file conformance to the XSD\nThere are three types or messages: ", styleNormal);

@@ -21,7 +21,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 /**
- * Document   : LinorgHelp.java
+ * Document   : ArbilHelp.java
  * Created on : March 9, 2009, 1:38 PM
  * @author Peter.Withers@mpi.nl
  */

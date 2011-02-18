@@ -19,7 +19,7 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaLocalElement;
@@ -196,7 +196,7 @@ public class CmdiTemplate extends ArbilTemplate {
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
         // get the xpath of the target node
-        String targetNodeXpath = ((ArbilNodeObject) targetNodeUserObject).getURI().getFragment();
+        String targetNodeXpath = ((ArbilDataNode) targetNodeUserObject).getURI().getFragment();
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         boolean isComponentPath = false;
         if (targetNodeXpath != null) {
@@ -208,7 +208,7 @@ public class CmdiTemplate extends ArbilTemplate {
         }
         System.out.println("targetNodeXpath: " + targetNodeXpath);
         Vector<String[]> childTypes = new Vector<String[]>();
-        if (targetNodeUserObject instanceof ArbilNodeObject) {
+        if (targetNodeUserObject instanceof ArbilDataNode) {
             for (String[] childPathString : templatesArray) {
 //                System.out.println("Testing: " + childPathString[1] + childPathString[0]);
 //                System.out.println(childPathString[0] + " : " + targetNodeXpath);

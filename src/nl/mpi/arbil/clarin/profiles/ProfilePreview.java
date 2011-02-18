@@ -13,8 +13,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilDataNode;
 
 /**
  *  Document   : ProfilePreview
@@ -31,7 +31,7 @@ public class ProfilePreview {
             tempFile.deleteOnExit();
             ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
             URI addedNodePath = componentBuilder.createComponentFile(tempFile.toURI(), new URI(uriString), true);
-            ArbilNodeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, addedNodePath);
+            ArbilDataNode demoNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, addedNodePath);
 //            ImdiTreeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"));
             demoNode.waitTillLoaded();
             //add(new LinkTree("tree", myTreeModel)); 
@@ -40,7 +40,7 @@ public class ProfilePreview {
             //rootTreeNode.add(demoTreeNode);
             DefaultTreeModel demoTreeModel = new DefaultTreeModel(rootTreeNode, true);
             ArbilTree demoTree = new ArbilTree();
-            demoTree.rootNodeChildren = new ArbilNodeObject[]{demoNode};
+            demoTree.rootNodeChildren = new ArbilDataNode[]{demoNode};
             demoTree.setModel(demoTreeModel);
             demoTree.requestResort();
             JDialog demoDialogue = new JDialog();

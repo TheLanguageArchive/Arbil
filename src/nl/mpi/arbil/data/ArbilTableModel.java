@@ -1,13 +1,12 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilNodeObject;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -30,18 +29,18 @@ import nl.mpi.arbil.ui.ArbilListDataListener;
 import nl.mpi.arbil.ui.ArbilTableCellRenderer;
 
 /**
- * Document   : ImdiTableModel
+ * Document   : ArbilTableModel
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ImdiTableModel extends AbstractTableModel {
+public class ArbilTableModel extends AbstractTableModel {
 
     // variables used by the thread
     boolean reloadRequested = false;
     boolean treeNodeSortQueueRunning = false;
     // end variables used by the thread
     private boolean showIcons = false;
-    private Hashtable<String, ArbilNodeObject> imdiObjectHash = new Hashtable<String, ArbilNodeObject>();
+    private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private HashMap<String, ArbilField> filteredColumnNames = new HashMap<String, ArbilField>();
     Vector childColumnNames = new Vector();
     ArbilFieldView tableFieldView;
@@ -58,7 +57,7 @@ public class ImdiTableModel extends AbstractTableModel {
     private Object[][] data = new Object[0][0];
     Color cellColour[][] = new Color[0][0];
 
-    public ImdiTableModel() {
+    public ArbilTableModel() {
         tableFieldView = ArbilFieldViews.getSingleInstance().getCurrentGlobalView().clone();
     }
 
@@ -66,8 +65,8 @@ public class ImdiTableModel extends AbstractTableModel {
         hiddenColumnsLabel = hiddenColumnsLabelLocal;
     }
 
-    public DefaultListModel getListModel(ArbilSplitPanel imdiSplitPanel) {
-        ArbilListDataListener listDataListener = new ArbilListDataListener(imdiSplitPanel);
+    public DefaultListModel getListModel(ArbilSplitPanel arbilSplitPanel) {
+        ArbilListDataListener listDataListener = new ArbilListDataListener(arbilSplitPanel);
         listModel.addListDataListener(listDataListener);
         return listModel;
     }
@@ -82,82 +81,93 @@ public class ImdiTableModel extends AbstractTableModel {
         requestReloadTableData();
     }
 
-    public ArbilNodeObject[] getSelectedImdiNodes(int[] selectedRows) {
-        ArbilNodeObject[] selectedNodesArray = new ArbilNodeObject[selectedRows.length];
+    public ArbilDataNode[] getSelectedDataNodes(int[] selectedRows) {
+        ArbilDataNode[] selectedNodesArray = new ArbilDataNode[selectedRows.length];
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
-            selectedNodesArray[selectedRowCounter] = getImdiNodeFromRow(selectedRows[selectedRowCounter]);
+            selectedNodesArray[selectedRowCounter] = getDataNodeFromRow(selectedRows[selectedRowCounter]);
         }
         return selectedNodesArray;
     }
 
-    public boolean containsImdiNode(ArbilNodeObject findable) {
+    public boolean containsArbilDataNode(ArbilDataNode findable) {
         if (findable == null) {
             return false;
         }
-        return imdiObjectHash.contains(findable);
+        return dataNodeHash.contains(findable);
     }
 
-    public int getImdiNodeCount() {
-        return imdiObjectHash.size();
+    public int getArbilDataNodeCount() {
+        return dataNodeHash.size();
     }
 
-    public Enumeration getImdiNodes() {
-        return imdiObjectHash.elements();
+    public Enumeration getArbilDataNodes() {
+        return dataNodeHash.elements();
     }
 
-    public String[] getImdiNodesURLs() {
-        return imdiObjectHash.keySet().toArray(new String[]{});
+    public String[] getArbilDataNodesURLs() {
+        return dataNodeHash.keySet().toArray(new String[]{});
     }
 
     public void setShowIcons(boolean localShowIcons) {
         showIcons = localShowIcons;
     }
 
-    public void addImdiObjects(ArbilNodeObject[] nodesToAdd) {
+    public void addArbilDataNodes(ArbilDataNode[] nodesToAdd) {
         for (int draggedCounter = 0; draggedCounter < nodesToAdd.length; draggedCounter++) {
-            addImdiObject(nodesToAdd[draggedCounter]);
+            addArbilDataNode(nodesToAdd[draggedCounter]);
         }
         requestReloadTableData();
     }
 
-    public void addImdiObjects(Enumeration nodesToAdd) {
+    /**
+     *
+     * @param nodesToAdd Enumeration of ArbilDataNodes of URIs
+     */
+    public void addArbilDataNodes(Enumeration nodesToAdd) {
         while (nodesToAdd.hasMoreElements()) {
             Object currentObject = nodesToAdd.nextElement();
-            //System.out.println("addImdiObjects: " + currentObject.toString());
-            addImdiObject((ArbilNodeObject) currentObject);
+            if (currentObject instanceof ArbilDataNode) {
+                addArbilDataNode((ArbilDataNode) currentObject);
+            } else if (currentObject instanceof URI) {
+                addArbilDataNode((URI) currentObject);
+            }
         }
         requestReloadTableData();
     }
 
-    public void addSingleImdiObject(ArbilNodeObject imdiTreeObject) {
-        addImdiObject(imdiTreeObject);
+    public void addSingleArbilDataNode(ArbilDataNode arbilDataNode) {
+        addArbilDataNode(arbilDataNode);
         requestReloadTableData();
     }
 
-    private void addImdiObject(ArbilNodeObject imdiTreeObject) {
-        if (imdiTreeObject != null) {
-            // on start up the previous windows are loaded and the imdi nodes will not be loaded hence they will have no fields, so we have to check for that here
-            if (imdiTreeObject.isDirectory() || (!imdiTreeObject.getParentDomNode().isLoading() && imdiTreeObject.isEmptyMetaNode())) {
+    public void addArbilDataNode(URI nodeURI) {
+        addArbilDataNode(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, nodeURI));
+    }
+
+    private void addArbilDataNode(ArbilDataNode arbilDataNode) {
+        if (arbilDataNode != null) {
+            // on start up the previous windows are loaded and the nodes will not be loaded hence they will have no fields, so we have to check for that here
+            if (arbilDataNode.isDirectory() || (!arbilDataNode.getParentDomNode().isLoading() && arbilDataNode.isEmptyMetaNode())) {
                 // add child nodes if there are no fields ie actors node will add all the actors
                 // add child nodes if it is a directory
                 // this is non recursive and does not reload the table
-                for (ArbilNodeObject currentChild : imdiTreeObject.getChildArray()) {
-                    imdiObjectHash.put(currentChild.getUrlString(), currentChild);
+                for (ArbilDataNode currentChild : arbilDataNode.getChildArray()) {
+                    dataNodeHash.put(currentChild.getUrlString(), currentChild);
                     currentChild.registerContainer(this);
                 }
             } else {
-                imdiObjectHash.put(imdiTreeObject.getUrlString(), imdiTreeObject);
-                imdiTreeObject.registerContainer(this);
+                dataNodeHash.put(arbilDataNode.getUrlString(), arbilDataNode);
+                arbilDataNode.registerContainer(this);
             }
         }
     }
 
-    private ArbilNodeObject[] updateAllImdiObjects() {
-        ArbilNodeObject[] returnImdiArray = imdiObjectHash.values().toArray(new ArbilNodeObject[]{});
+    private ArbilDataNode[] updateAllDataNodes() {
+        ArbilDataNode[] returnArray = dataNodeHash.values().toArray(new ArbilDataNode[]{});
         filteredColumnNames.clear();
         int hiddenColumnCount = 0;
-        for (ArbilNodeObject currentRowImdi : returnImdiArray) {
-            for (ArbilField[] currentFieldArray : currentRowImdi.getFields().values().toArray(new ArbilField[][]{})) {
+        for (ArbilDataNode currentRowNode : returnArray) {
+            for (ArbilField[] currentFieldArray : currentRowNode.getFields().values().toArray(new ArbilField[][]{})) {
                 for (ArbilField currentField : currentFieldArray) {
                     String currentColumnName = currentField.getTranslateFieldName();
                     if (tableFieldView.viewShowsColumn(currentColumnName)) {
@@ -183,30 +193,30 @@ public class ImdiTableModel extends AbstractTableModel {
             hiddenColumnsLabel.setVisible(!hideContextMenuAndStatusBar && hiddenColumnCount > 0);
             hiddenColumnsLabel.setText(hiddenColumnCount + " columns hidden (edit \"Column View\" in the table header to show)");
         }
-        return returnImdiArray;
+        return returnArray;
     }
 
     private void updateImageDisplayPanel() {
         listModel.removeAllElements();
         ImageBoxRenderer tempImageBoxRenderer = new ImageBoxRenderer();
         for (int rowCounter = 0; rowCounter < data.length; rowCounter++) {
-            ArbilNodeObject currentRowImdiObject = getImdiNodeFromRow(rowCounter);
-            if (currentRowImdiObject != null) {
-                if (tempImageBoxRenderer.canDisplay(currentRowImdiObject)) {
-                    if (!listModel.contains(currentRowImdiObject)) {
-                        listModel.addElement(currentRowImdiObject);
+            ArbilDataNode currentRowDataNode = getDataNodeFromRow(rowCounter);
+            if (currentRowDataNode != null) {
+                if (tempImageBoxRenderer.canDisplay(currentRowDataNode)) {
+                    if (!listModel.contains(currentRowDataNode)) {
+                        listModel.addElement(currentRowDataNode);
                     }
                 }
             }
         }
     }
 
-    public void removeAllImdiRows() {
+    public void removeAllArbilDataNodeRows() {
         listModel.removeAllElements();
-        for (Enumeration removableNodes = imdiObjectHash.elements(); removableNodes.hasMoreElements();) {
-            ((ArbilNodeObject) removableNodes.nextElement()).removeContainer(this);
+        for (Enumeration removableNodes = dataNodeHash.elements(); removableNodes.hasMoreElements();) {
+            ((ArbilDataNode) removableNodes.nextElement()).removeContainer(this);
         }
-        imdiObjectHash.clear();
+        dataNodeHash.clear();
         filteredColumnNames.clear();
         columnNames = new String[0];
         data = new Object[0][0];
@@ -216,28 +226,28 @@ public class ImdiTableModel extends AbstractTableModel {
         requestReloadTableData();
     }
 
-    private ArbilNodeObject getImdiNodeFromRow(int rowNumber) {
+    private ArbilDataNode getDataNodeFromRow(int rowNumber) {
         // TODO: find error removing rows // look again here...
         // if that the first column is the imdi node (ergo string and icon) use that to remove the row
-        if (data[rowNumber][0] instanceof ArbilNodeObject) {
-            return (ArbilNodeObject) data[rowNumber][0];
+        if (data[rowNumber][0] instanceof ArbilDataNode) {
+            return (ArbilDataNode) data[rowNumber][0];
         } else if (data[rowNumber][0] instanceof ArbilField[]) {
-            return ((ArbilField[]) data[rowNumber][columnNames.length - 1])[0].parentImdi;
+            return ((ArbilField[]) data[rowNumber][columnNames.length - 1])[0].parentDataNode;
         } else {
             // in the case that the icon and sting are not displayed then try to get the imdifield in order to get the imdinode
             // TODO: this will fail if the imdiobject for the row does not have a field to display for the first column because there will be no imdi nor field in the first coloumn
-            return ((ArbilField) data[rowNumber][columnNames.length - 1]).parentImdi;
+            return ((ArbilField) data[rowNumber][columnNames.length - 1]).parentDataNode;
             //throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 
-    public void removeImdiRows(int[] selectedRows) {
-        ArbilNodeObject[] nodesToRemove = new ArbilNodeObject[selectedRows.length];
+    public void removeArbilDataNodeRows(int[] selectedRows) {
+        ArbilDataNode[] nodesToRemove = new ArbilDataNode[selectedRows.length];
         for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
             System.out.println("removing: " + selectedRowCounter);
-            nodesToRemove[selectedRowCounter] = getImdiNodeFromRow(selectedRows[selectedRowCounter]);
+            nodesToRemove[selectedRowCounter] = getDataNodeFromRow(selectedRows[selectedRowCounter]);
         }
-        removeImdiObjects(nodesToRemove);
+        removeArbilDataNodes(nodesToRemove);
     }
 
     // utility to join an array to a comma separated string
@@ -258,7 +268,7 @@ public class ImdiTableModel extends AbstractTableModel {
             // TODO: the clas path specified here needs to be dynamically generated
             String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" CODE=\"nl.mpi.arbil.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + arbilVersion.currentMajor + "-" + arbilVersion.currentMinor + "-" + arbilVersion.currentRevision + ".jar,lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/typecheck-1.5.16185.jar,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar\"";
             embedTagString = embedTagString + " WIDTH=" + tableWidth + " HEIGHT=" + tableHeight + " >\n";
-            embedTagString = embedTagString + "  <PARAM NAME=\"ImdiFileList\" VALUE=\"" + joinArray(this.getImdiNodesURLs()) + "\">\n";
+            embedTagString = embedTagString + "  <PARAM NAME=\"ImdiFileList\" VALUE=\"" + joinArray(this.getArbilDataNodesURLs()) + "\">\n";
             embedTagString = embedTagString + "  <PARAM NAME=\"ShowOnlyColumns\" VALUE=\"" + joinArray(this.columnNames) + "\">\n";
             embedTagString = embedTagString + "  <PARAM NAME=\"ChildNodeColumns\" VALUE=\"" + joinArray(this.childColumnNames.toArray()) + "\">\n";
             embedTagString = embedTagString + "  <PARAM NAME=\"HighlightText\" VALUE=\"" + joinArray(this.highlightCells.toArray()) + "\">\n";
@@ -271,7 +281,7 @@ public class ImdiTableModel extends AbstractTableModel {
         }
     }
 
-    public void copyImdiFields(ArbilField[] selectedCells) {
+    public void copyArbilFields(ArbilField[] selectedCells) {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
         copiedString = copiedString + "\"" + singleNodeViewHeadings[0] + "\"" + csvSeparator;
@@ -293,7 +303,7 @@ public class ImdiTableModel extends AbstractTableModel {
         clipboard.setContents(stringSelection, GuiHelper.getClipboardOwner());
     }
 
-    public void copyImdiRows(int[] selectedRows) {
+    public void copyArbilRows(int[] selectedRows) {
         String csvSeparator = "\t"; // excel seems to work with tab but not comma 
         String copiedString = "";
         int firstColumn = 0;
@@ -327,7 +337,7 @@ public class ImdiTableModel extends AbstractTableModel {
         clipboard.setContents(stringSelection, GuiHelper.getClipboardOwner());
     }
 
-    public String pasteIntoImdiFields(ArbilField[] selectedCells) {
+    public String pasteIntoArbilFields(ArbilField[] selectedCells) {
         boolean pastedFieldOverwritten = false;
         int pastedCount = 0;
         String resultMessage = null;
@@ -437,13 +447,13 @@ public class ImdiTableModel extends AbstractTableModel {
         return resultMessage;
     }
 
-    public void removeImdiObjects(ArbilNodeObject[] nodesToRemove) {
-        for (ArbilNodeObject imdiTreeObject : nodesToRemove) {
-            if (imdiTreeObject != null) {
-                System.out.println("removing: " + imdiTreeObject.toString());
-                listModel.removeElement(imdiTreeObject);
-                imdiObjectHash.remove(imdiTreeObject.getUrlString());
-                imdiTreeObject.removeContainer(this);
+    public void removeArbilDataNodes(ArbilDataNode[] nodesToRemove) {
+        for (ArbilDataNode arbilDataNode : nodesToRemove) {
+            if (arbilDataNode != null) {
+                System.out.println("removing: " + arbilDataNode.toString());
+                listModel.removeElement(arbilDataNode);
+                dataNodeHash.remove(arbilDataNode.getUrlString());
+                arbilDataNode.removeContainer(this);
             }
         }
         // refresh the table data
@@ -602,11 +612,11 @@ public class ImdiTableModel extends AbstractTableModel {
         String[] columnNamesTemp = new String[0];
         Object[][] dataTemp = new Object[0][0];
 
-        ArbilNodeObject[] tableRowsImdiArray = updateAllImdiObjects();
+        ArbilDataNode[] tableRowsArbilArray = updateAllDataNodes();
 
         // set the view to either horizontal or vertical and set the default sort
         boolean lastHorizontalView = horizontalView;
-        horizontalView = tableRowsImdiArray.length > 1;
+        horizontalView = tableRowsArbilArray.length > 1;
         if (!horizontalView) { // set the table for a single image if that is all that is shown
             //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
             // TODO: this does not account for when a resource is shown
@@ -679,10 +689,10 @@ public class ImdiTableModel extends AbstractTableModel {
 
             // end create the column names array and prepend the icon and append the imdinode
 
-            dataTemp = allocateCellData(tableRowsImdiArray.length, columnNamesTemp.length);
+            dataTemp = allocateCellData(tableRowsArbilArray.length, columnNamesTemp.length);
 
             int rowCounter = 0;
-            for (ArbilNodeObject currentNode : tableRowsImdiArray) {
+            for (ArbilDataNode currentNode : tableRowsArbilArray) {
 //                System.out.println("currentNode: " + currentNode.toString());
                 Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
                 if (showIcons) {
@@ -724,11 +734,11 @@ public class ImdiTableModel extends AbstractTableModel {
         } else {
             // display the single node view
             columnNamesTemp = singleNodeViewHeadings;
-            if (tableRowsImdiArray.length == 0) {
+            if (tableRowsArbilArray.length == 0) {
                 dataTemp = allocateCellData(0, columnNamesTemp.length);
             } else {
-                if (tableRowsImdiArray[0] != null) {
-                    Hashtable<String, ArbilField[]> fieldsHash = tableRowsImdiArray[0].getFields();
+                if (tableRowsArbilArray[0] != null) {
+                    Hashtable<String, ArbilField[]> fieldsHash = tableRowsArbilArray[0].getFields();
                     // calculate the real number of rows
                     Vector<ArbilField> allRowFields = new Vector();
                     for (Enumeration<ArbilField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
@@ -902,10 +912,10 @@ public class ImdiTableModel extends AbstractTableModel {
 
     public Object[] getChildNames() {
         Vector childNames = new Vector();
-        Enumeration imdiRowsEnum = imdiObjectHash.elements();
-        while (imdiRowsEnum.hasMoreElements()) {
+        Enumeration arbilRowsEnum = dataNodeHash.elements();
+        while (arbilRowsEnum.hasMoreElements()) {
 //            Enumeration childEnum = .getChildEnum();
-            for (ArbilNodeObject currentChild : ((ArbilNodeObject) imdiRowsEnum.nextElement()).getChildArray()) {
+            for (ArbilDataNode currentChild : ((ArbilDataNode) arbilRowsEnum.nextElement()).getChildArray()) {
                 // TODO: maybe check the children for children before adding them to this list
                 String currentChildName = currentChild.toString();
                 if (!childNames.contains(currentChildName)) {

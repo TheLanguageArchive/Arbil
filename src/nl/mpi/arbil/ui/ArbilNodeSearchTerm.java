@@ -5,7 +5,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
 /**
- * Document   : ImdiNodeSearchTerm
+ * Document   : ArbilNodeSearchTerm
  * Created on : Feb 17, 2009, 3:11:54 PM
  * @author Peter.Withers@mpi.nl
  */

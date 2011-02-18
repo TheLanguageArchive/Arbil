@@ -89,8 +89,8 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
         }
 
         if (actionEvent.getSource().equals(replaceButton)) {
-            for (ArbilField currentField : splitPanel.imdiTable.getSelectedFields()) {
-                if (currentField.parentImdi.isEditable() && currentField.getFieldValue().contains(searchString)) {
+            for (ArbilField currentField : splitPanel.arbilTable.getSelectedFields()) {
+                if (currentField.parentDataNode.isEditable() && currentField.getFieldValue().contains(searchString)) {
                     String currentFieldString = currentField.getFieldValue();
                     if (currentFieldString.contains(searchString)) {
                         currentFieldString = currentFieldString.replace(searchString, replaceString);
@@ -104,8 +104,8 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
 
         boolean replaceAll = (actionEvent.getSource().equals(replaceButton) && replaceAllCheckBox.isSelected());
 
-        int startColumn = splitPanel.imdiTable.getSelectedColumn();
-        int startRow = splitPanel.imdiTable.getSelectedRow();
+        int startColumn = splitPanel.arbilTable.getSelectedColumn();
+        int startRow = splitPanel.arbilTable.getSelectedRow();
         boolean firstTime = true;
         if (startColumn < 0) {
             firstTime = false;
@@ -115,20 +115,20 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
             firstTime = false;
             startRow = 0;
         }
-        for (int currentRow = startRow; currentRow < splitPanel.imdiTable.getRowCount(); currentRow++) {
-            for (int currentColumn = startColumn; currentColumn < splitPanel.imdiTable.getColumnCount(); currentColumn++) {
+        for (int currentRow = startRow; currentRow < splitPanel.arbilTable.getRowCount(); currentRow++) {
+            for (int currentColumn = startColumn; currentColumn < splitPanel.arbilTable.getColumnCount(); currentColumn++) {
                 if (firstTime) {
                     firstTime = false;
                 } else {
-                    Object currentCellValue = splitPanel.imdiTable.getValueAt(currentRow, currentColumn);
+                    Object currentCellValue = splitPanel.arbilTable.getValueAt(currentRow, currentColumn);
                     if (currentCellValue instanceof ArbilField) {
                         currentCellValue = new ArbilField[]{(ArbilField) currentCellValue};
                     }
                     if (currentCellValue instanceof ArbilField[]) {
                         for (ArbilField currentField : (ArbilField[]) currentCellValue) {
                             if (currentField.getFieldValue().contains(searchString)) {
-                                splitPanel.imdiTable.setCellSelectionEnabled(true);
-                                splitPanel.imdiTable.changeSelection(currentRow, currentColumn, false, false);
+                                splitPanel.arbilTable.setCellSelectionEnabled(true);
+                                splitPanel.arbilTable.changeSelection(currentRow, currentColumn, false, false);
 //                                if (!replaceAll) {
                                 return;
 //                                }

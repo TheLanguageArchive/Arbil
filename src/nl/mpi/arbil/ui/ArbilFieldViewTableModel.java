@@ -1,20 +1,20 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import java.util.Enumeration;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Document   : ImdiFieldViewTableModel
+ * Document   : ArbilFieldViewTableModel
  * This table model is used to edit the field view for a given imdi table model
  * Split from ImdiFieldViews on : Dec 16, 2008, 10:27:30 AM
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFieldViewTableModel extends DefaultTableModel {
 
-    private ImdiTableModel imdiTableModel;
+    private ArbilTableModel imdiTableModel;
 
-    public ArbilFieldViewTableModel(ImdiTableModel localImdiTableModel) {
+    public ArbilFieldViewTableModel(ArbilTableModel localImdiTableModel) {
         imdiTableModel = localImdiTableModel;
         //System.out.println("setting to: " + viewLabel);
         // "Column Description",  is not relevant here because this is a list of column names not imdi fields

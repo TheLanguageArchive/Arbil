@@ -5,7 +5,7 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
@@ -73,10 +73,10 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Icon getIcon() {
-        if (cellObject instanceof ArbilNodeObject) {
-            return (((ArbilNodeObject) cellObject).getIcon());
-        } else if (cellObject instanceof ArbilNodeObject[]) {
-            return (ArbilIcons.getSingleInstance().getIconForImdi((ArbilNodeObject[]) cellObject));
+        if (cellObject instanceof ArbilDataNode) {
+            return (((ArbilDataNode) cellObject).getIcon());
+        } else if (cellObject instanceof ArbilDataNode[]) {
+            return (ArbilIcons.getSingleInstance().getIconForNode((ArbilDataNode[]) cellObject));
         } else if (cellObject instanceof ArbilField[]) {
             return null;
 //        } else if (cellObject instanceof ArbilField) {
@@ -88,11 +88,11 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 
     @Override
     public String getText() {
-        if (cellObject instanceof ArbilNodeObject) {
-            return (((ArbilNodeObject) cellObject).toString());
-        } else if (cellObject instanceof ArbilNodeObject[]) {
+        if (cellObject instanceof ArbilDataNode) {
+            return (((ArbilDataNode) cellObject).toString());
+        } else if (cellObject instanceof ArbilDataNode[]) {
             String cellText = "";
-            Arrays.sort((ArbilNodeObject[]) cellObject, new Comparator() {
+            Arrays.sort((ArbilDataNode[]) cellObject, new Comparator() {
 
                 public int compare(Object o1, Object o2) {
                     String value1 = o1.toString();
@@ -101,8 +101,8 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
                 }
             });
             boolean hasAddedValues = false;
-            for (ArbilNodeObject currentImdiTreeObject : (ArbilNodeObject[]) cellObject) {
-                cellText = cellText + "[" + currentImdiTreeObject.toString() + "],";
+            for (ArbilDataNode currentArbilDataNode : (ArbilDataNode[]) cellObject) {
+                cellText = cellText + "[" + currentArbilDataNode.toString() + "],";
                 hasAddedValues = true;
             }
             if (hasAddedValues) {

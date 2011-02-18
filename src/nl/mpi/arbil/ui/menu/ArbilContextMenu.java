@@ -11,8 +11,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import nl.mpi.arbil.data.ArbilNodeObject;
-import nl.mpi.arbil.data.importexport.ImdiToHtmlConverter;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 
@@ -77,7 +77,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                     String[] optionStrings = {"WrittenResource", "MediaFile", "Cancel"};
                     int userSelection = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame.getContentPane(), messageString, titleString, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, optionStrings, optionStrings[2]);
                     if (optionStrings[userSelection].equals("WrittenResource") || optionStrings[userSelection].equals("MediaFile")) {
-                        for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                        for (ArbilDataNode currentNode : selectedTreeNodes) {
                             if (currentNode.mpiMimeType == null) {
                                 currentNode.mpiMimeType = "Manual/" + optionStrings[userSelection];
                                 currentNode.typeCheckerMessage = "Manually overridden (might not be compatible with the archive)";
@@ -112,7 +112,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                    for (ArbilDataNode currentNode : selectedTreeNodes) {
                         GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, false, false);
                     }
                 } catch (Exception ex) {
@@ -128,7 +128,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                    for (ArbilDataNode currentNode : selectedTreeNodes) {
                         GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, false);
                     }
                 } catch (Exception ex) {
@@ -143,7 +143,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                    for (ArbilDataNode currentNode : selectedTreeNodes) {
                         GuiHelper.getSingleInstance().openImdiXmlWindow(currentNode, true, true);
                     }
                 } catch (Exception ex) {
@@ -158,7 +158,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    new ImdiToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
+                    new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -176,7 +176,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             if (leadSelectedTreeNode.hasResource()) {
                 browseForResourceFileMenuItem.setVisible(true);
             }
-            if (!leadSelectedTreeNode.isImdiChild() && leadSelectedTreeNode.isMetaDataNode()) {
+            if (!leadSelectedTreeNode.isChildNode() && leadSelectedTreeNode.isMetaDataNode()) {
                 viewXmlMenuItem.setVisible(true);
                 viewXmlMenuItemFormatted.setVisible(true);
                 openXmlMenuItemFormatted.setVisible(true);
@@ -209,8 +209,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         }
     }
 
-    private void openFileInExternalApplication(ArbilNodeObject[] selectedNodes) {
-        for (ArbilNodeObject currentNode : selectedNodes) {
+    private void openFileInExternalApplication(ArbilDataNode[] selectedNodes) {
+        for (ArbilDataNode currentNode : selectedNodes) {
             URI targetUri = null;
             if (currentNode.hasResource()) {
                 targetUri = currentNode.getFullResourceURI();
@@ -231,8 +231,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         browseForResourceFileMenuItem.setVisible(false);
     }
 
-    protected ArbilNodeObject[] selectedTreeNodes = null;
-    protected ArbilNodeObject leadSelectedTreeNode = null;
+    protected ArbilDataNode[] selectedTreeNodes = null;
+    protected ArbilDataNode leadSelectedTreeNode = null;
     
     private JMenuItem browseForResourceFileMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItem = new JMenuItem();

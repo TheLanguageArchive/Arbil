@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.JLabel;
@@ -29,8 +29,8 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
         this.setName("rightSplitPane");
 
         previewHiddenColumnLabel = new javax.swing.JLabel(" ");
-        previewTable = new ArbilTable(new ImdiTableModel(), "Preview");
-        ((ImdiTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
+        previewTable = new ArbilTable(new ArbilTableModel(), "Preview");
+        ((ArbilTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
         rightScrollPane = new JScrollPane(previewTable);
         previewPanel = new JPanel(new java.awt.BorderLayout());
         previewPanel.add(rightScrollPane, BorderLayout.CENTER);
@@ -52,7 +52,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
                 currentCellEditor.stopCellEditing();
             }
             // clear the grid to keep things tidy
-            ((ImdiTableModel) previewTable.getModel()).removeAllImdiRows();
+            ((ArbilTableModel) previewTable.getModel()).removeAllArbilDataNodeRows();
         } else {
             // put the jdesktoppane and the preview grid back into the right split pane
             this.remove(ArbilWindowManager.getSingleInstance().desktopPane);
@@ -64,7 +64,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
             if (currentCellEditor != null) {
                 currentCellEditor.stopCellEditing();
             }
-            ((ImdiTableModel) previewTable.getModel()).removeAllImdiRows();
+            ((ArbilTableModel) previewTable.getModel()).removeAllArbilDataNodeRows();
             selectedComponent = this;
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }

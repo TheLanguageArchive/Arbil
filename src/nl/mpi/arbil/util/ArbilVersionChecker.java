@@ -11,7 +11,7 @@ import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 
 /**
- * Document   : LinorgVersionChecker
+ * Document   : ArbilVersionChecker
  * Created on : Mar 11, 2009, 10:13:10 AM
  * @author Peter.Withers@mpi.nl
  */

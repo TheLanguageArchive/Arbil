@@ -1,9 +1,9 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ui.menu.TableContextMenu;
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
@@ -34,22 +34,22 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 
 /**
- * Document   : ImdiTable
+ * Document   : ArbilTable
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTable extends JTable {
 
-    public ImdiTableModel imdiTableModel;
+    public ArbilTableModel arbilTableModel;
     JListToolTip listToolTip = new JListToolTip();
 
-    public ArbilTable(ImdiTableModel localImdiTableModel, String frameTitle) {
-        imdiTableModel = localImdiTableModel;
-        imdiTableModel.setShowIcons(true);
+    public ArbilTable(ArbilTableModel localArbilTableModel, String frameTitle) {
+        arbilTableModel = localArbilTableModel;
+        arbilTableModel.setShowIcons(true);
 //        if (rowNodesArray != null) {
 //            imdiTableModel.addImdiObjects(rowNodesArray);
 //        }
-        this.setModel(imdiTableModel);
+        this.setModel(arbilTableModel);
         this.setName(frameTitle);
         this.setCellSelectionEnabled(true);
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -76,13 +76,13 @@ public class ArbilTable extends JTable {
                 System.out.println("table header click");
                 //targetTable = ((JTableHeader) evt.getComponent()).getTable();
                 if (evt.getButton() == MouseEvent.BUTTON1) {
-                    imdiTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
+                    arbilTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
                 }
                 checkTableHeaderPopup(evt);
             }
 
             private void checkTableHeaderPopup(java.awt.event.MouseEvent evt) {
-                if (!imdiTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
+                if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
                     //targetTable = ((JTableHeader) evt.getComponent()).getTable();
                     int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
                     System.out.println("columnIndex: " + targetColumn);
@@ -91,14 +91,14 @@ public class ArbilTable extends JTable {
                     // TODO: also add show only selected columns
                     // TODO: also add hide selected columns
                     if (targetColumn != 0) { // prevent hide column menu showing when the session column is selected because it cannot be hidden
-                        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + imdiTableModel.getColumnName(targetColumn) + "\"");
+                        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
                         hideColumnMenuItem.setActionCommand("" + targetColumn);
                         hideColumnMenuItem.addActionListener(new ActionListener() {
 
                             public void actionPerformed(ActionEvent e) {
                                 try {
                                     //System.out.println("hideColumnMenuItem: " + targetTable.toString());
-                                    imdiTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
+                                    arbilTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
                                 } catch (Exception ex) {
                                     GuiHelper.linorgBugCatcher.logError(ex);
                                 }
@@ -106,7 +106,7 @@ public class ArbilTable extends JTable {
                         });
                         popupMenu.add(hideColumnMenuItem);
                     }
-                    if (imdiTableModel.isHorizontalView()) {
+                    if (arbilTableModel.isHorizontalView()) {
                         JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
                         showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
                         showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -131,7 +131,7 @@ public class ArbilTable extends JTable {
                                 String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
                                 // if the user did not cancel
                                 if (fieldViewName != null) {
-                                    if (!ArbilFieldViews.getSingleInstance().addImdiFieldView(fieldViewName, imdiTableModel.getFieldView())) {
+                                    if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
                                         ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
                                     }
                                 }
@@ -147,7 +147,7 @@ public class ArbilTable extends JTable {
 
                         public void actionPerformed(ActionEvent e) {
                             try {
-                                ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(imdiTableModel);
+                                ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(arbilTableModel);
                                 JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
                                 editViewsDialog.setTitle("Editing Current Column View");
 
@@ -168,7 +168,7 @@ public class ArbilTable extends JTable {
                         public void actionPerformed(ActionEvent e) {
                             try {
                                 //System.out.println("saveViewNenuItem: " + targetTable.toString());
-                                imdiTableModel.showOnlyCurrentColumns();
+                                arbilTableModel.showOnlyCurrentColumns();
                             } catch (Exception ex) {
                                 GuiHelper.linorgBugCatcher.logError(ex);
                             }
@@ -195,7 +195,7 @@ public class ArbilTable extends JTable {
 
                             public void actionPerformed(ActionEvent evt) {
                                 try {
-                                    imdiTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
+                                    arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
                                 } catch (Exception ex) {
                                     GuiHelper.linorgBugCatcher.logError(ex);
                                 }
@@ -218,7 +218,7 @@ public class ArbilTable extends JTable {
                                     sizedComponent = currentComponent;
                                 }
                             }
-                            imdiTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
+                            arbilTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
                         }
                     });
                     popupMenu.add(copyEmbedTagMenuItem);
@@ -250,7 +250,7 @@ public class ArbilTable extends JTable {
 
     public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {
         System.out.println("checkPopup");
-        if (!imdiTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+        if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
             // set the clicked cell selected
             java.awt.Point p = evt.getPoint();
             int clickedRow = rowAtPoint(p);
@@ -303,7 +303,7 @@ public class ArbilTable extends JTable {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        Object cellValue = imdiTableModel.getValueAt(row, convertColumnIndexToModel(column));
+        Object cellValue = arbilTableModel.getValueAt(row, convertColumnIndexToModel(column));
         // only and always allow imdi fields or array objects because the editabilty of them is determinied in the field editor
         return (cellValue instanceof Object[] || cellValue instanceof ArbilField);
     }
@@ -319,17 +319,17 @@ public class ArbilTable extends JTable {
     @Override
     public ArbilTableCellRenderer getCellRenderer(int row, int viewcolumn) {
         int modelcolumn = convertColumnIndexToModel(viewcolumn);
-        ArbilTableCellRenderer imdiCellRenderer = new ArbilTableCellRenderer();
-        imdiCellRenderer.setBackground(imdiTableModel.getCellColour(row, modelcolumn));
-        return imdiCellRenderer;
+        ArbilTableCellRenderer arbilCellRenderer = new ArbilTableCellRenderer();
+        arbilCellRenderer.setBackground(arbilTableModel.getCellColour(row, modelcolumn));
+        return arbilCellRenderer;
     }
 
     public void showRowChildData() {
-        Object[] possibilities = ((ImdiTableModel) this.getModel()).getChildNames();
+        Object[] possibilities = ((ArbilTableModel) this.getModel()).getChildNames();
         String selectionResult = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 //      TODO: JOptionPane.show it would be good to have a miltiple select here
         if ((selectionResult != null) && (selectionResult.length() > 0)) {
-            ((ImdiTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
+            ((ArbilTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
         }
     }
 
@@ -367,7 +367,7 @@ public class ArbilTable extends JTable {
         if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
             if (resizeColumns) {
                 setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                ArbilTableCellRenderer imdiCellRenderer = new ArbilTableCellRenderer();
+                ArbilTableCellRenderer arbilCellRenderer = new ArbilTableCellRenderer();
                 int totalColumnWidth = 0;
                 int columnCount = this.getColumnModel().getColumnCount();
                 Graphics g = getGraphics();
@@ -376,8 +376,8 @@ public class ArbilTable extends JTable {
                     for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
                         int currentWidth = minWidth;
                         for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
-                            imdiCellRenderer.setValue(imdiTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
-                            int requiredWidth = imdiCellRenderer.getRequiredWidth(fontMetrics);
+                            arbilCellRenderer.setValue(arbilTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
+                            int requiredWidth = arbilCellRenderer.getRequiredWidth(fontMetrics);
                             if (currentWidth < requiredWidth) {
                                 currentWidth = requiredWidth;
                             }
@@ -437,10 +437,10 @@ public class ArbilTable extends JTable {
 
     @Override
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
-        if (imdiTableModel.isHorizontalView()) {
-            boolean rowSelection = (imdiTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilNodeObject);
+        if (arbilTableModel.isHorizontalView()) {
+            boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilDataNode);
 //        System.out.println("rowSelection: " + rowSelection + ":" + clickedRow + ":" + clickedColumn);
-            if (!imdiTableModel.isHorizontalView()) {
+            if (!arbilTableModel.isHorizontalView()) {
                 this.setRowSelectionAllowed(true);
                 this.setColumnSelectionAllowed(false);
             } else {
@@ -516,11 +516,11 @@ public class ArbilTable extends JTable {
                 System.out.println("cell select mode");
                 ArbilField[] selectedFields = getSelectedFields();
                 if (selectedFields != null) {
-                    imdiTableModel.copyImdiFields(selectedFields);
+                    arbilTableModel.copyArbilFields(selectedFields);
                 }
             } else {
                 System.out.println("row select mode");
-                imdiTableModel.copyImdiRows(selectedRows);
+                arbilTableModel.copyArbilRows(selectedRows);
             }
         } else {
             ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Nothing selected to copy", "Table Copy");
@@ -586,7 +586,7 @@ public class ArbilTable extends JTable {
     public void pasteIntoSelectedTableRowsFromClipBoard() {
         ArbilField[] selectedFields = getSelectedFields();
         if (selectedFields != null) {
-            String pasteResult = imdiTableModel.pasteIntoImdiFields(selectedFields);
+            String pasteResult = arbilTableModel.pasteIntoArbilFields(selectedFields);
             if (pasteResult != null) {
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(pasteResult, "Paste into Table");
             }
@@ -597,27 +597,27 @@ public class ArbilTable extends JTable {
 
     public void viewSelectedTableRows() {
         int[] selectedRows = this.getSelectedRows();
-        ArbilWindowManager.getSingleInstance().openFloatingTableOnce(imdiTableModel.getSelectedImdiNodes(selectedRows), null);
+        ArbilWindowManager.getSingleInstance().openFloatingTableOnce(arbilTableModel.getSelectedDataNodes(selectedRows), null);
     }
 
-    public ArbilNodeObject getImdiNodeForSelection() {
-        Object cellValue = imdiTableModel.getValueAt(getSelectedRow(), getSelectedColumn());
-        ArbilNodeObject cellImdiNode = null;
+    public ArbilDataNode getDataNodeForSelection() {
+        Object cellValue = arbilTableModel.getValueAt(getSelectedRow(), getSelectedColumn());
+        ArbilDataNode cellDataNode = null;
         if (cellValue instanceof ArbilField) {
-            cellImdiNode = ((ArbilField) cellValue).parentImdi;
+            cellDataNode = ((ArbilField) cellValue).parentDataNode;
         } else if (cellValue instanceof ArbilField[]) {
-            cellImdiNode = ((ArbilField[]) cellValue)[0].parentImdi;
-        } else if (cellValue instanceof ArbilNodeObject) {
-            cellImdiNode = (ArbilNodeObject) cellValue;
-        } else if (cellValue instanceof ArbilNodeObject[]) {
-            cellImdiNode = ((ArbilNodeObject[]) cellValue)[0];
+            cellDataNode = ((ArbilField[]) cellValue)[0].parentDataNode;
+        } else if (cellValue instanceof ArbilDataNode) {
+            cellDataNode = (ArbilDataNode) cellValue;
+        } else if (cellValue instanceof ArbilDataNode[]) {
+            cellDataNode = ((ArbilDataNode[]) cellValue)[0];
         }
-        return cellImdiNode;
+        return cellDataNode;
     }
 
-    public ArbilNodeObject[] getSelectedRowsFromTable() {
+    public ArbilDataNode[] getSelectedRowsFromTable() {
         int[] selectedRows = this.getSelectedRows();
-        return imdiTableModel.getSelectedImdiNodes(selectedRows);
+        return arbilTableModel.getSelectedDataNodes(selectedRows);
     }
 
     public void hideSelectedColumnsFromTable() {
@@ -630,23 +630,22 @@ public class ArbilTable extends JTable {
         // it might be better to remove by column name instead
         Arrays.sort(selectedModelColumns, Collections.reverseOrder());
         for (int selectedModelCol : selectedModelColumns) {
-            imdiTableModel.hideColumn(selectedModelCol);
+            arbilTableModel.hideColumn(selectedModelCol);
         }
     }
 
     public void removeSelectedRowsFromTable() {
         int[] selectedRows = this.getSelectedRows();
-        imdiTableModel.removeImdiRows(selectedRows);
+        arbilTableModel.removeArbilDataNodeRows(selectedRows);
     }
 
     public void highlightMatchingRows() {
         int selectedRow = this.getSelectedRow();
-        //ImdiHelper.ImdiTableModel tempImdiTableModel = (ImdiHelper.ImdiTableModel) (targetTable.getModel());
         if (selectedRow == -1) {
             ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No rows have been selected", "Highlight Matching Rows");
             return;
         }
-        Vector foundRows = imdiTableModel.getMatchingRows(selectedRow);
+        Vector foundRows = arbilTableModel.getMatchingRows(selectedRow);
         this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.getSelectionModel().clearSelection();
         ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Found " + foundRows.size() + " matching rows", "Highlight Matching Rows");

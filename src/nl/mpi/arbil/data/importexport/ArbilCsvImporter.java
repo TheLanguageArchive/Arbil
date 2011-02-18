@@ -18,9 +18,9 @@ import nl.mpi.arbil.data.*;
  */
 public class ArbilCsvImporter {
 
-    ArbilNodeObject destinationCorpusNode;
+    ArbilDataNode destinationCorpusNode;
 
-    public ArbilCsvImporter(ArbilNodeObject destinationCorpusNodeLocal) {
+    public ArbilCsvImporter(ArbilDataNode destinationCorpusNodeLocal) {
         destinationCorpusNode = destinationCorpusNodeLocal;
     }
 
@@ -84,7 +84,7 @@ public class ArbilCsvImporter {
                     }
                     if (!skipLine) {
                         String nodeType = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
-                        ArbilNodeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, new MetadataBuilder().addChildNode(destinationCorpusNode,nodeType, null, null, null));
+                        ArbilDataNode addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode,nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
                         Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);

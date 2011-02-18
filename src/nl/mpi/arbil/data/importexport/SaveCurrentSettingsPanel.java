@@ -6,7 +6,7 @@ import java.awt.event.FocusListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 
 /**
  * Document   : SaveCurrentSettingsPanel
@@ -72,8 +72,8 @@ public class SaveCurrentSettingsPanel extends JPanel {
                 System.out.println(importExportDialog.overwriteCheckBox.isSelected());
 
                 System.out.println(importExportDialog.exportDestinationDirectory.toString());
-                for (ArbilNodeObject imdiTreeObject : importExportDialog.selectedNodes) {
-                    System.out.println(imdiTreeObject.getUrlString());
+                for (ArbilDataNode arbilDataNode : importExportDialog.selectedNodes) {
+                    System.out.println(arbilDataNode.getUrlString());
                 }
             }
         });

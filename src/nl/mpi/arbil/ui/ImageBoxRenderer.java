@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -50,7 +50,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 
     // returns a boolean value indicating if the node has or can have a thumbnail
     // if it can but does not yet then a thumbnail will be made
-    public boolean canDisplay(ArbilNodeObject testableObject) {
+    public boolean canDisplay(ArbilDataNode testableObject) {
         if (testableObject.thumbnailFile != null) {
             return true;
         }
@@ -96,13 +96,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             setForeground(list.getForeground());
         }
         //Set the icon and text.
-        if (value instanceof ArbilNodeObject) {
-            ArbilNodeObject imdiObject = (ArbilNodeObject) value;
+        if (value instanceof ArbilDataNode) {
+            ArbilDataNode arbilObject = (ArbilDataNode) value;
             setFont(list.getFont());
-            setText(imdiObject.toString());
-            if (imdiObject.thumbnailFile != null) {
+            setText(arbilObject.toString());
+            if (arbilObject.thumbnailFile != null) {
                 try {
-                    setIcon(new ImageIcon(imdiObject.thumbnailFile.toURL()));
+                    setIcon(new ImageIcon(arbilObject.thumbnailFile.toURL()));
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
@@ -142,17 +142,17 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private File getTargetFile(ArbilNodeObject targetImdiObject) {
-        if (targetImdiObject.hasResource()) {
-            return new File(targetImdiObject.getFullResourceURI());
-        } else if (targetImdiObject.isArchivableFile()) {
-            return targetImdiObject.getFile();
+    private File getTargetFile(ArbilDataNode targetDataNode) {
+        if (targetDataNode.hasResource()) {
+            return new File(targetDataNode.getFullResourceURI());
+        } else if (targetDataNode.isArchivableFile()) {
+            return targetDataNode.getFile();
         } else {
             return null;
         }
     }
 
-    private void createVideoThumbnail(ArbilNodeObject targetImdiObject) {
+    private void createVideoThumbnail(ArbilDataNode targetDataNode) {
         if (ffmpegPath == null) {
             // todo: replaces this with a parameter or a properties file
             for (String currentPath : searchPathArray) {
@@ -171,7 +171,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 iconFile.deleteOnExit();
-                File targetFile = getTargetFile(targetImdiObject);
+                File targetFile = getTargetFile(targetDataNode);
                 String[] execString = new String[]{ffmpegPath, "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
@@ -183,7 +183,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 }
                 iconFile.deleteOnExit();
                 if (iconFile.exists()) {
-                    targetImdiObject.thumbnailFile = iconFile;
+                    targetDataNode.thumbnailFile = iconFile;
                 }
 //        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
@@ -194,7 +194,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private void createImageThumbnail(ArbilNodeObject targetImdiObject) {
+    private void createImageThumbnail(ArbilDataNode targetDataNode) {
 //        if (!loadedMfcDlls) {
 //            loadedMfcDlls = true;
 //            try {
@@ -222,7 +222,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 iconFile.deleteOnExit();
-                File targetFile = getTargetFile(targetImdiObject);
+                File targetFile = getTargetFile(targetDataNode);
                 if (targetFile.exists()) {
                     String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
                     System.out.println(execString);
@@ -235,7 +235,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                     }
                     iconFile.deleteOnExit();
                     if (iconFile.exists()) {
-                        targetImdiObject.thumbnailFile = iconFile;
+                        targetDataNode.thumbnailFile = iconFile;
                     }
                 }
 //        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
@@ -247,25 +247,25 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         }
     }
 
-    private void createThumbnail(ArbilNodeObject targetImdiObject) {
+    private void createThumbnail(ArbilDataNode targetDataNode) {
         try {
             BufferedImage resizedImg = new BufferedImage(outputWidth, outputHeight, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = resizedImg.createGraphics();
             g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            if (((ArbilNodeObject) targetImdiObject).mpiMimeType.contains("image")) {
-                ImageIcon nodeImage = new ImageIcon(getTargetFile(targetImdiObject).toURL());
+            if (((ArbilDataNode) targetDataNode).mpiMimeType.contains("image")) {
+                ImageIcon nodeImage = new ImageIcon(getTargetFile(targetDataNode).toURL());
                 if (nodeImage != null) {
                     g2.drawImage(nodeImage.getImage(), 0, 0, outputWidth, outputHeight, null);
                 }
-            } else if (targetImdiObject.mpiMimeType.contains("text")) {
-                drawFileText(g2, getTargetFile(targetImdiObject).toURL());
+            } else if (targetDataNode.mpiMimeType.contains("text")) {
+                drawFileText(g2, getTargetFile(targetDataNode).toURL());
             }
             g2.dispose();
             File iconFile = File.createTempFile("arbil", ".jpg");
             iconFile.deleteOnExit();
             ImageIO.write(resizedImg, "JPEG", iconFile);
             if (iconFile.exists()) {
-                targetImdiObject.thumbnailFile = iconFile;
+                targetDataNode.thumbnailFile = iconFile;
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);

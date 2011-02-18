@@ -6,7 +6,7 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 
 /*
  * ArbilApplet2.java
@@ -73,7 +73,7 @@ public class ArbilApplet2 extends JApplet {
             javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
 
                 public void run() {
-                    ImdiLoader.getSingleInstance().startLoaderThreads();
+                    ArbilDataNodeLoader.getSingleInstance().startLoaderThreads();
                 }
             });
         } catch (Exception e) {

@@ -29,8 +29,8 @@ import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -62,9 +62,9 @@ public class MetadataReader {
     public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
 
     // todo: this should probably be moved into the arbiltemplate class
-    public boolean nodeCanExistInNode(ArbilNodeObject targetImdiObject, ArbilNodeObject childImdiObject) {
-        String targetImdiPath = getNodePath((ArbilNodeObject) targetImdiObject);
-        String childPath = getNodePath((ArbilNodeObject) childImdiObject);
+    public boolean nodeCanExistInNode(ArbilDataNode targetDataNode, ArbilDataNode childDataNode) {
+        String targetImdiPath = getNodePath((ArbilDataNode) targetDataNode);
+        String childPath = getNodePath((ArbilDataNode) childDataNode);
         targetImdiPath = targetImdiPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
         childPath = childPath.replaceAll("\\(\\d*?\\)", "\\(x\\)");
         //        System.out.println("nodeCanExistInNode: " + targetImdiPath + " : " + childPath);
@@ -75,17 +75,17 @@ public class MetadataReader {
         return hasCorrectSubNodeCount && !childPath.equals(targetImdiPath) && childPath.startsWith(targetImdiPath);
     }
 
-    public static String getNodePath(ArbilNodeObject targetImdiObject) {
+    public static String getNodePath(ArbilDataNode targetDataNode) {
         //TODO: this should probably be moved into the imditreeobject
         String xpath;
-        if (targetImdiObject.isSession()) {
+        if (targetDataNode.isSession()) {
             xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session";
-        } else if (targetImdiObject.isCatalogue()) {
+        } else if (targetDataNode.isCatalogue()) {
             xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue";
         } else {
             xpath = imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus";
         }
-        Object[] nodePathArray = ((ArbilNodeObject) targetImdiObject).getUrlString().split("#");
+        Object[] nodePathArray = ((ArbilDataNode) targetDataNode).getUrlString().split("#");
         //        System.out.println("nodePath0: " + nodePathArray[0]);
         if (nodePathArray.length > 1) {
             String nodePath = nodePathArray[1].toString();
@@ -467,20 +467,20 @@ public class MetadataReader {
         //        }
         //                    System.out.println("linkPathCorrected: " + linkPath);
         if (linkURI != null) {
-            linkURI = ArbilNodeObject.normaliseURI(linkURI);
+            linkURI = ArbilDataNode.normaliseURI(linkURI);
         }
         //        System.out.println("linkURI: " + linkURI.toString());
         return linkURI;
     }
 
     private void showDomIdFoundMessage() {
-        if (!ImdiLoader.getSingleInstance().nodesNeedSave()) {
+        if (!ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
             ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
         }
     }
 
-    public int iterateChildNodes(ArbilNodeObject parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
-            Hashtable<ArbilNodeObject, HashSet<ArbilNodeObject>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
+    public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
+            Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
             , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
         //        System.out.println("iterateChildNodes: " + nodePath);
         //loop all nodes
@@ -489,7 +489,7 @@ public class MetadataReader {
         // the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
 
         if (!parentChildTree.containsKey(parentNode)) {
-            parentChildTree.put(parentNode, new HashSet<ArbilNodeObject>());
+            parentChildTree.put(parentNode, new HashSet<ArbilDataNode>());
         }
         //        int nodeCounter = 0;
         // add the fields and nodes
@@ -512,7 +512,7 @@ public class MetadataReader {
                                 // only if this is an imdi file we will require the node to be saved which will remove the dom id attributes
                                 parentNode.hasDomIdAttribute = true;
                                 showDomIdFoundMessage();
-                                parentNode.setImdiNeedsSaveToDisk(null, false);
+                                parentNode.setDataNodeNeedsSaveToDisk(null, false);
                             }
                         }
                     }// end get the xml node id
@@ -593,7 +593,7 @@ public class MetadataReader {
                         if (catalogueLink.length() > 0) {
                             URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
                             childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
-                            parentChildTree.get(parentNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink));
+                            parentChildTree.get(parentNode).add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink));
                         }
                     }
                 }
@@ -601,7 +601,7 @@ public class MetadataReader {
                 String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
                 //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
-                ArbilNodeObject destinationNode;
+                ArbilDataNode destinationNode;
                 String parentNodePath = parentNode.getURI().getFragment();
                 if (parentNodePath == null) {
                     // pathIsChildNode needs to have the entire path of the node not just the local part
@@ -619,21 +619,21 @@ public class MetadataReader {
                         if (!parentNode.getUrlString().contains("#")) {
                             pathUrlXpathSeparator = "#";
                         }
-                        ArbilNodeObject metaNodeImdiTreeObject = null;
+                        ArbilDataNode metaNode = null;
                         if (maxOccurs > 1 || maxOccurs == -1 || !(parentNode.getParentDomNode().nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
-                            metaNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
-                            metaNodeImdiTreeObject.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
-                            if (!parentChildTree.containsKey(metaNodeImdiTreeObject)) {
-                                parentChildTree.put(metaNodeImdiTreeObject, new HashSet<ArbilNodeObject>());
+                            metaNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
+                            metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
+                            if (!parentChildTree.containsKey(metaNode)) {
+                                parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
                             }
-                            parentChildTree.get(parentNode).add(metaNodeImdiTreeObject);
+                            parentChildTree.get(parentNode).add(metaNode);
                             // add brackets to conform with the imdi api notation
-                            siblingSpacer = "(" + (parentChildTree.get(metaNodeImdiTreeObject).size() + 1) + ")";
+                            siblingSpacer = "(" + (parentChildTree.get(metaNode).size() + 1) + ")";
                         } else {
                             // todo: this might need to be revisited
                             // this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
                             int siblingCount = 1;
-                            for (ArbilNodeObject siblingNode : parentChildTree.get(parentNode)) {
+                            for (ArbilDataNode siblingNode : parentChildTree.get(parentNode)) {
                                 String siblingPath = siblingNode.getURI().getFragment();
                                 if (siblingPath != null) {
                                     siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
@@ -648,19 +648,19 @@ public class MetadataReader {
 //                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
                         }
                         fullSubNodePath = fullSubNodePath + siblingSpacer;
-                        ArbilNodeObject subNodeImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
-                        if (metaNodeImdiTreeObject != null) {
-                            parentChildTree.get(metaNodeImdiTreeObject).add(subNodeImdiTreeObject);
+                        ArbilDataNode subNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
+                        if (metaNode != null) {
+                            parentChildTree.get(metaNode).add(subNode);
                         } else {
 //                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
-                            parentChildTree.get(parentNode).add(subNodeImdiTreeObject);
+                            parentChildTree.get(parentNode).add(subNode);
                         }
                         //                parentNode.attachChildNode(metaNodeImdiTreeObject);
                         //                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
-                        if (!parentChildTree.containsKey(subNodeImdiTreeObject)) {
-                            parentChildTree.put(subNodeImdiTreeObject, new HashSet<ArbilNodeObject>());
+                        if (!parentChildTree.containsKey(subNode)) {
+                            parentChildTree.put(subNode, new HashSet<ArbilDataNode>());
                         }
-                        destinationNode = subNodeImdiTreeObject;
+                        destinationNode = subNode;
                     } catch (URISyntaxException ex) {
                         destinationNode = parentNode;
                         GuiHelper.linorgBugCatcher.logError(ex);
@@ -724,9 +724,9 @@ public class MetadataReader {
                                 // TODO: this field sould be put in the link node not the parent node
                                 URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
                                 childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
-                                ArbilNodeObject descriptionLinkNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(correcteLink);
+                                ArbilDataNode descriptionLinkNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink);
                                 descriptionLinkNode.isInfoLink = true;
-                                descriptionLinkNode.imdiDataLoaded = true;
+                                descriptionLinkNode.dataLoaded = true;
                                 parentChildTree.get(parentNode).add(descriptionLinkNode);
                                 descriptionLinkNode.addField(fieldToAdd);
                             }
@@ -741,7 +741,7 @@ public class MetadataReader {
                                 if (clarinLink != null) {
                                     clarinLink = parentNode.getURI().resolve(clarinLink);
                                     childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-                                    parentChildTree.get(destinationNode).add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(clarinLink));
+                                    parentChildTree.get(destinationNode).add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(clarinLink));
                                 }
                             }
                         }
@@ -758,7 +758,7 @@ public class MetadataReader {
                         try {
                             URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
                             childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
-                            ArbilNodeObject linkedNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(linkPath);
+                            ArbilDataNode linkedNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(linkPath);
                             linkedNode.setNodeText(fieldToAdd.getKeyName());
                             parentChildTree.get(parentNode).add(linkedNode);
                         } catch (Exception ex) {

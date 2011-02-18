@@ -137,7 +137,7 @@ public class ArbilTemplateManager {
     }
 
     public MenuItemData[] getSelectedTemplates() {
-        ArbilIcons imdiIcons = ArbilIcons.getSingleInstance();
+        ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
         String[] locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
         if (locationsArray == null || locationsArray.length == 0) {
             addDefaultTemplates();
@@ -154,11 +154,11 @@ public class ArbilTemplateManager {
                         returnArray[insertableCounter].menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
                         returnArray[insertableCounter].menuToolTip = currentTemplateName[1];
                         if (returnArray[insertableCounter].menuText.contains("Corpus")) {
-                            returnArray[insertableCounter].menuIcon = imdiIcons.corpusnodeColorIcon;
+                            returnArray[insertableCounter].menuIcon = arbilIcons.corpusnodeColorIcon;
                         } else if (returnArray[insertableCounter].menuText.contains("Catalogue")) {
-                            returnArray[insertableCounter].menuIcon = imdiIcons.catalogueColorIcon;
+                            returnArray[insertableCounter].menuIcon = arbilIcons.catalogueColorIcon;
                         } else {
-                            returnArray[insertableCounter].menuIcon = imdiIcons.sessionColorIcon;
+                            returnArray[insertableCounter].menuIcon = arbilIcons.sessionColorIcon;
                         }
                     }
                 }
@@ -167,14 +167,14 @@ public class ArbilTemplateManager {
                 returnArray[insertableCounter].menuText = currentString.substring(currentString.lastIndexOf("/") + 1);
                 returnArray[insertableCounter].menuAction = currentString;
                 returnArray[insertableCounter].menuToolTip = currentString;
-                returnArray[insertableCounter].menuIcon = imdiIcons.clarinIcon;
+                returnArray[insertableCounter].menuIcon = arbilIcons.clarinIcon;
             } else if (locationsArray[insertableCounter].startsWith("template:")) {
                 // todo:
                 String currentString = locationsArray[insertableCounter].substring("template:".length());
                 returnArray[insertableCounter].menuText = currentString + " (not available)";
                 returnArray[insertableCounter].menuAction = currentString;
                 returnArray[insertableCounter].menuToolTip = currentString;
-                returnArray[insertableCounter].menuIcon = imdiIcons.sessionColorIcon;
+                returnArray[insertableCounter].menuIcon = arbilIcons.sessionColorIcon;
             } else if (locationsArray[insertableCounter].startsWith("clarin:")) {
                 String currentString = locationsArray[insertableCounter].substring("clarin:".length());
                 CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
@@ -187,7 +187,7 @@ public class ArbilTemplateManager {
                     returnArray[insertableCounter].menuAction = cmdiProfile.getXsdHref();
                     returnArray[insertableCounter].menuToolTip = cmdiProfile.description;
                 }
-                returnArray[insertableCounter].menuIcon = imdiIcons.clarinIcon;
+                returnArray[insertableCounter].menuIcon = arbilIcons.clarinIcon;
             }
         }
         Arrays.sort(returnArray, new Comparator() {

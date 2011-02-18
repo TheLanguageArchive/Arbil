@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Document   : CmdiComponentBuilder
+ * Document   : ArbilComponentBuilder
  * Created on : Mar 18, 2010, 1:40:35 PM
  * @author Peter.Withers@mpi.nl
  */
@@ -74,7 +74,7 @@ public class ArbilComponentBuilder {
     public static void savePrettyFormatting(Document document, File outputFile) {
         try {
             if (outputFile.getPath().endsWith(".imdi")) {
-                removeDomIds(document);  // remove any dom id attributes left over by the imdi api
+                removeImdiDomIds(document);  // remove any dom id attributes left over by the imdi api
             }
             // set up input and output
             DOMSource dOMSource = new DOMSource(document);
@@ -111,19 +111,19 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public URI insertResourceProxy(ArbilNodeObject imdiTreeObject, ArbilNodeObject resourceNode) {
+    public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
         // there is no need to save the node at this point because metadatabuilder has already done so
-        synchronized (imdiTreeObject.getParentDomLockObject()) {
+        synchronized (arbilDataNode.getParentDomLockObject()) {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
 //            <ResourceProxy id="a_text">
 //                <ResourceType>Resource</ResourceType>
 //                <ResourceRef>bla.txt</ResourceRef>
 //            </ResourceProxy>
-            String targetXmlPath = imdiTreeObject.getURI().getFragment();
+            String targetXmlPath = arbilDataNode.getURI().getFragment();
             if (targetXmlPath == null) {
                 // todo: consider making sure that the dom parent node always has a path
-                targetXmlPath = ".CMD.Components." + imdiTreeObject.getParentDomNode().nodeTemplate.loadedTemplateName;
+                targetXmlPath = ".CMD.Components." + arbilDataNode.getParentDomNode().nodeTemplate.loadedTemplateName;
             }
             System.out.println("insertResourceProxy: " + targetXmlPath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
@@ -133,9 +133,9 @@ public class ArbilComponentBuilder {
             String resourceProxyId = UUID.randomUUID().toString();
             try {
                 // load the schema
-                SchemaType schemaType = getFirstSchemaType(imdiTreeObject.getNodeTemplate().templateFile);
+                SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
                 // load the dom
-                Document targetDocument = getDocument(imdiTreeObject.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getURI());
                 // insert the new section
                 try {
                     try {
@@ -171,9 +171,9 @@ public class ArbilComponentBuilder {
                     return null;
                 }
                 // bump the history
-                imdiTreeObject.bumpHistory();
+                arbilDataNode.bumpHistory();
                 // save the dom
-                savePrettyFormatting(targetDocument, imdiTreeObject.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+                savePrettyFormatting(targetDocument, arbilDataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
             } catch (IOException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -184,19 +184,19 @@ public class ArbilComponentBuilder {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
             }
-            return imdiTreeObject.getURI();
+            return arbilDataNode.getURI();
         }
     }
 
-    public boolean removeChildNodes(ArbilNodeObject imdiTreeObject, String nodePaths[]) {
-        if (imdiTreeObject.getNeedsSaveToDisk(false)) {
-            imdiTreeObject.saveChangesToCache(true);
+    public boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]) {
+        if (arbilDataNode.getNeedsSaveToDisk(false)) {
+            arbilDataNode.saveChangesToCache(true);
         }
-        synchronized (imdiTreeObject.getParentDomLockObject()) {
-            System.out.println("remove from parent nodes: " + imdiTreeObject);
-            File cmdiNodeFile = imdiTreeObject.getFile();
+        synchronized (arbilDataNode.getParentDomLockObject()) {
+            System.out.println("remove from parent nodes: " + arbilDataNode);
+            File cmdiNodeFile = arbilDataNode.getFile();
             try {
-                Document targetDocument = getDocument(imdiTreeObject.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getURI());
                 // collect up all the nodes to be deleted without changing the xpath
                 ArrayList<Node> selectedNodes = new ArrayList<Node>();
                 for (String currentNodePath : nodePaths) {
@@ -217,7 +217,7 @@ public class ArbilComponentBuilder {
                     }
                 }
                 // bump the history
-                imdiTreeObject.bumpHistory();
+                arbilDataNode.bumpHistory();
                 // save the dom
                 savePrettyFormatting(targetDocument, cmdiNodeFile);
                 for (String currentNodePath : nodePaths) {
@@ -237,13 +237,13 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public boolean setFieldValues(ArbilNodeObject imdiTreeObject, FieldUpdateRequest[] fieldUpdates) {
-        synchronized (imdiTreeObject.getParentDomLockObject()) {
+    public boolean setFieldValues(ArbilDataNode arbilDataNode, FieldUpdateRequest[] fieldUpdates) {
+        synchronized (arbilDataNode.getParentDomLockObject()) {
             //new ImdiUtils().addDomIds(imdiTreeObject.getURI()); // testing only
-            System.out.println("setFieldValues: " + imdiTreeObject);
-            File cmdiNodeFile = imdiTreeObject.getFile();
+            System.out.println("setFieldValues: " + arbilDataNode);
+            File cmdiNodeFile = arbilDataNode.getFile();
             try {
-                Document targetDocument = getDocument(imdiTreeObject.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getURI());
                 for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
                     System.out.println("currentFieldUpdate: " + currentFieldUpdate.fieldPath);
                     // todo: search for and remove any reource links referenced by this node or its sub nodes
@@ -268,17 +268,17 @@ public class ArbilComponentBuilder {
                     }
                 }
                 // bump the history
-                imdiTreeObject.bumpHistory();
+                arbilDataNode.bumpHistory();
                 // save the dom
                 savePrettyFormatting(targetDocument, cmdiNodeFile);
                 for (FieldUpdateRequest currentFieldUpdate : fieldUpdates) {
                     // log to jornal file
-                    ArbilJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath, currentFieldUpdate.fieldOldValue, currentFieldUpdate.fieldNewValue, "save");
+                    ArbilJournal.getSingleInstance().saveJournalEntry(arbilDataNode.getUrlString(), currentFieldUpdate.fieldPath, currentFieldUpdate.fieldOldValue, currentFieldUpdate.fieldNewValue, "save");
                     if (currentFieldUpdate.fieldLanguageId != null) {
-                        ArbilJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":LanguageId", currentFieldUpdate.fieldLanguageId, "", "save");
+                        ArbilJournal.getSingleInstance().saveJournalEntry(arbilDataNode.getUrlString(), currentFieldUpdate.fieldPath + ":LanguageId", currentFieldUpdate.fieldLanguageId, "", "save");
                     }
                     if (currentFieldUpdate.keyNameValue != null) {
-                        ArbilJournal.getSingleInstance().saveJournalEntry(imdiTreeObject.getUrlString(), currentFieldUpdate.fieldPath + ":Name", currentFieldUpdate.keyNameValue, "", "save");
+                        ArbilJournal.getSingleInstance().saveJournalEntry(arbilDataNode.getUrlString(), currentFieldUpdate.fieldPath + ":Name", currentFieldUpdate.keyNameValue, "", "save");
                     }
                 }
                 return true;
@@ -297,11 +297,11 @@ public class ArbilComponentBuilder {
 
     public void testInsertFavouriteComponent() {
         try {
-            ArbilNodeObject favouriteImdiTreeObject1 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
-            ArbilNodeObject favouriteImdiTreeObject2 = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
-            ArbilNodeObject destinationImdiTreeObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
-            insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject1);
-            insertFavouriteComponent(destinationImdiTreeObject, favouriteImdiTreeObject2);
+            ArbilDataNode favouriteArbilDataNode1 = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
+            ArbilDataNode favouriteArbilDataNode2 = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
+            ArbilDataNode destinationArbilDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
+            insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode1);
+            insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode2);
         } catch (URISyntaxException exception) {
             GuiHelper.linorgBugCatcher.logError(exception);
         } catch (ArbilMetadataException exception) {
@@ -358,26 +358,26 @@ public class ArbilComponentBuilder {
         return addedNode;
     }
 
-    public URI insertFavouriteComponent(ArbilNodeObject destinationImdiTreeObject, ArbilNodeObject favouriteImdiTreeObject) throws ArbilMetadataException {
+    public URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException {
         URI returnUri = null;
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
-        String elementName = favouriteImdiTreeObject.getURI().getFragment();
-        String insertBefore = destinationImdiTreeObject.nodeTemplate.getInsertBeforeOfTemplate(elementName);
+        String elementName = favouriteArbilDataNode.getURI().getFragment();
+        String insertBefore = destinationArbilDataNode.nodeTemplate.getInsertBeforeOfTemplate(elementName);
         System.out.println("insertBefore: " + insertBefore);
-        int maxOccurs = destinationImdiTreeObject.nodeTemplate.getMaxOccursForTemplate(elementName);
+        int maxOccurs = destinationArbilDataNode.nodeTemplate.getMaxOccursForTemplate(elementName);
         System.out.println("maxOccurs: " + maxOccurs);
-        if (destinationImdiTreeObject.getNeedsSaveToDisk(false)) {
-            destinationImdiTreeObject.saveChangesToCache(true);
+        if (destinationArbilDataNode.getNeedsSaveToDisk(false)) {
+            destinationArbilDataNode.saveChangesToCache(true);
         }
         try {
             Document favouriteDocument;
-            synchronized (favouriteImdiTreeObject.getParentDomLockObject()) {
-                favouriteDocument = getDocument(favouriteImdiTreeObject.getURI());
+            synchronized (favouriteArbilDataNode.getParentDomLockObject()) {
+                favouriteDocument = getDocument(favouriteArbilDataNode.getURI());
             }
-            synchronized (destinationImdiTreeObject.getParentDomLockObject()) {
-                Document destinationDocument = getDocument(destinationImdiTreeObject.getURI());
-                String favouriteXpath = favouriteImdiTreeObject.getURI().getFragment();
+            synchronized (destinationArbilDataNode.getParentDomLockObject()) {
+                Document destinationDocument = getDocument(destinationArbilDataNode.getURI());
+                String favouriteXpath = favouriteArbilDataNode.getURI().getFragment();
                 String favouriteXpathTrimmed = favouriteXpath.replaceFirst("\\.[^(^.]+$", "");
                 boolean onlySubNodes = !favouriteXpathTrimmed.equals(favouriteXpath);
                 System.out.println("favouriteXpath: " + favouriteXpathTrimmed);
@@ -408,7 +408,7 @@ public class ArbilComponentBuilder {
                         System.out.println("inserting favouriteNode: " + singleFavouriteNode.getLocalName());
                     }
                 }
-                savePrettyFormatting(destinationDocument, destinationImdiTreeObject.getFile());
+                savePrettyFormatting(destinationDocument, destinationArbilDataNode.getFile());
                 try {
                     String nodeFragment;
                     if (favouriteNodes.length != 1) {
@@ -419,7 +419,7 @@ public class ArbilComponentBuilder {
                     System.out.println("nodeFragment: " + nodeFragment);
                     // return the child node url and path in the xml
                     // first strip off any fragment then add the full node fragment
-                    returnUri = new URI(destinationImdiTreeObject.getURI().toString().split("#")[0] + "#" + nodeFragment);
+                    returnUri = new URI(destinationArbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
                 } catch (URISyntaxException exception) {
                     GuiHelper.linorgBugCatcher.logError(exception);
                 }
@@ -436,11 +436,11 @@ public class ArbilComponentBuilder {
         return returnUri;
     }
 
-    public URI insertChildComponent(ArbilNodeObject imdiTreeObject, String targetXmlPath, String cmdiComponentId) {
-        if (imdiTreeObject.getNeedsSaveToDisk(false)) {
-            imdiTreeObject.saveChangesToCache(true);
+    public URI insertChildComponent(ArbilDataNode arbilDataNode, String targetXmlPath, String cmdiComponentId) {
+        if (arbilDataNode.getNeedsSaveToDisk(false)) {
+            arbilDataNode.saveChangesToCache(true);
         }
-        synchronized (imdiTreeObject.getParentDomLockObject()) {
+        synchronized (arbilDataNode.getParentDomLockObject()) {
             System.out.println("insertChildComponent: " + cmdiComponentId);
             System.out.println("targetXmlPath: " + targetXmlPath);
             // check for issues with the path
@@ -467,9 +467,9 @@ public class ArbilComponentBuilder {
             String nodeFragment = "";
             try {
                 // load the schema
-                SchemaType schemaType = getFirstSchemaType(imdiTreeObject.getNodeTemplate().templateFile);
+                SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
                 // load the dom
-                Document targetDocument = getDocument(imdiTreeObject.getURI());
+                Document targetDocument = getDocument(arbilDataNode.getURI());
                 // insert the new section
                 try {
 //                printoutDocument(targetDocument);
@@ -480,9 +480,9 @@ public class ArbilComponentBuilder {
                     return null;
                 }
                 // bump the history
-                imdiTreeObject.bumpHistory();
+                arbilDataNode.bumpHistory();
                 // save the dom
-                savePrettyFormatting(targetDocument, imdiTreeObject.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+                savePrettyFormatting(targetDocument, arbilDataNode.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
             } catch (IOException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -499,7 +499,7 @@ public class ArbilComponentBuilder {
                 System.out.println("nodeFragment: " + nodeFragment);
                 // return the child node url and path in the xml
                 // first strip off any fragment then add the full node fragment
-                return new URI(imdiTreeObject.getURI().toString().split("#")[0] + "#" + nodeFragment);
+                return new URI(arbilDataNode.getURI().toString().split("#")[0] + "#" + nodeFragment);
             } catch (URISyntaxException exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
                 return null;
@@ -517,19 +517,19 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public void removeArchiveHandles(ArbilNodeObject imdiTreeObject) {
-        synchronized (imdiTreeObject.getParentDomLockObject()) {
+    public void removeArchiveHandles(ArbilDataNode arbilDataNode) {
+        synchronized (arbilDataNode.getParentDomLockObject()) {
             try {
-                Document workingDocument = getDocument(imdiTreeObject.getURI());
+                Document workingDocument = getDocument(arbilDataNode.getURI());
                 removeArchiveHandles(workingDocument);
-                savePrettyFormatting(workingDocument, imdiTreeObject.getFile());
+                savePrettyFormatting(workingDocument, arbilDataNode.getFile());
             } catch (Exception exception) {
                 GuiHelper.linorgBugCatcher.logError(exception);
             }
         }
     }
 
-    private static void removeDomIds(Document targetDocument) {
+    private static void removeImdiDomIds(Document targetDocument) {
         String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
         try {
             NodeList domIdNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);

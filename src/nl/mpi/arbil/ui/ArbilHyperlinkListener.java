@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.ArbilField;
@@ -14,13 +14,13 @@ import javax.swing.JTextField;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataBuilder;
 
 /**
- * Document   : LinorgHyperlinkListener
+ * Document   : ArbilHyperlinkListener
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
@@ -48,7 +48,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
 //            System.out.println(evt.getSource());
             if (evt.getDescription().startsWith("arbilscript:")) {
                 try {
-                    ArbilNodeObject currentImdiObject = null;
+                    ArbilDataNode currentImdiObject = null;
                     String arbilscriptString = evt.getDescription().substring("arbilscript:".length());
                     System.out.println("acting on arbilscript: " + arbilscriptString);
                     String[] commandsArray = arbilscriptString.split("&");
@@ -100,7 +100,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
         }
     }
 
-    private void setField(ArbilNodeObject currentImdiObject, String fieldPath, String FieldValue) {
+    private void setField(ArbilDataNode currentImdiObject, String fieldPath, String FieldValue) {
         for (ArbilField[] currentField : currentImdiObject.getFields().values()) {
             if (currentField[0].getFullXmlPath().endsWith(fieldPath)) {
                 currentField[0].setFieldValue(FieldValue, true, true);
@@ -109,22 +109,22 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
     }
 
     // note that this must not be used on nodes currently being edited because it bypasses the imdi loader process
-    private ArbilNodeObject addNode(ArbilNodeObject parentNode, String nodeType, String nodeTypeDisplayName, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
+    private ArbilDataNode addNode(ArbilDataNode parentNode, String nodeType, String nodeTypeDisplayName, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
         System.out.println("wizard add node: " + nodeType);
         System.out.println("adding into: " + parentNode);
-        ArbilNodeObject addedImdiObject;
+        ArbilDataNode addedImdiObject;
         if (parentNode == null) {
-            URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewImdiFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
+            URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
             targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
-            addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
+            addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, targetFileURI);
             TreeHelper.getSingleInstance().addLocation(targetFileURI);
             TreeHelper.getSingleInstance().applyRootLocations();
         } else {
             parentNode.saveChangesToCache(true);
-            addedImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
+            addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
         }
         addedImdiObject.waitTillLoaded();
-        ImdiTableModel imdiTableModel = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ArbilNodeObject[]{addedImdiObject}, nodeTypeDisplayName);
+        ArbilTableModel imdiTableModel = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);
         return addedImdiObject;
     }
 }

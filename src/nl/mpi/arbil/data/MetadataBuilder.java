@@ -29,8 +29,8 @@ public class MetadataBuilder {
      * @param nodeTypeDisplayName Name to display as node type
      */
     public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
-        ArbilNodeObject imdiTreeObject = new ArbilNodeObject(ArbilSessionStorage.getSingleInstance().getNewImdiFileName(ArbilSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
-        requestAddNode(imdiTreeObject, nodeType, nodeTypeDisplayName);
+        ArbilDataNode arbilDataNode = new ArbilDataNode(ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
+        requestAddNode(arbilDataNode, nodeType, nodeTypeDisplayName);
     }
 
     /**
@@ -39,7 +39,7 @@ public class MetadataBuilder {
      * @param nodeType Name of node type
      * @param nodeTypeDisplayName Name to display as node type
      */
-    public void requestAddNode(final ArbilNodeObject destinationNode, final String nodeType, final String nodeTypeDisplayName) {
+    public void requestAddNode(final ArbilDataNode destinationNode, final String nodeType, final String nodeTypeDisplayName) {
         if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
@@ -69,7 +69,7 @@ public class MetadataBuilder {
      * @param nodeType Name of node type
      * @param addableNode Node to base new node on
      */
-    public void requestAddNode(final ArbilNodeObject destinationNode, final String nodeTypeDisplayNameLocal, final ArbilNodeObject addableNode) {
+    public void requestAddNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) {
         if (destinationNode.getNeedsSaveToDisk(false)) {
             destinationNode.saveChangesToCache(true);
         }
@@ -84,7 +84,7 @@ public class MetadataBuilder {
      * @param addableNode Node to base new node on
      * @return New thread that adds the addable node
      */
-    private Thread creatAddAddableNodeThread(final ArbilNodeObject destinationNode, final String nodeTypeDisplayNameLocal, final ArbilNodeObject addableNode) {
+    private Thread creatAddAddableNodeThread(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) {
         return new Thread("requestAddNode") {
 
             @Override
@@ -108,29 +108,29 @@ public class MetadataBuilder {
 
             private void addNonMetaDataNode() throws ArbilMetadataException {
                 String nodeTypeDisplayName = nodeTypeDisplayNameLocal;
-                ArbilNodeObject[] sourceImdiNodeArray;
+                ArbilDataNode[] sourceArbilNodeArray;
                 if (addableNode.isEmptyMetaNode()) {
-                    sourceImdiNodeArray = addableNode.getChildArray();
+                    sourceArbilNodeArray = addableNode.getChildArray();
                 } else {
-                    sourceImdiNodeArray = new ArbilNodeObject[]{addableNode};
+                    sourceArbilNodeArray = new ArbilDataNode[]{addableNode};
                 }
-                for (ArbilNodeObject currentImdiNode : sourceImdiNodeArray) {
+                for (ArbilDataNode currentArbilNode : sourceArbilNodeArray) {
                     if (destinationNode.isCmdiMetaDataNode()) {
                         new ArbilComponentBuilder().insertResourceProxy(destinationNode, addableNode);
-                        destinationNode.getParentDomNode().loadImdiDom();
+                        destinationNode.getParentDomNode().loadArbilDom();
                     } else {
                         String nodeType;
                         String favouriteUrlString = null;
                         URI resourceUrl = null;
                         String mimeType = null;
-                        if (currentImdiNode.isArchivableFile() && !currentImdiNode.isMetaDataNode()) {
-                            nodeType = MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentImdiNode.mpiMimeType);
-                            resourceUrl = currentImdiNode.getURI();
-                            mimeType = currentImdiNode.mpiMimeType;
+                        if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
+                            nodeType = MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+                            resourceUrl = currentArbilNode.getURI();
+                            mimeType = currentArbilNode.mpiMimeType;
                             nodeTypeDisplayName = "Resource";
                         } else {
-                            nodeType = ArbilFavourites.getSingleInstance().getNodeType(currentImdiNode, destinationNode);
-                            favouriteUrlString = currentImdiNode.getUrlString();
+                            nodeType = ArbilFavourites.getSingleInstance().getNodeType(currentArbilNode, destinationNode);
+                            favouriteUrlString = currentArbilNode.getUrlString();
                         }
                         if (nodeType != null) {
                             String targetXmlPath = destinationNode.getURI().getFragment();
@@ -139,7 +139,7 @@ public class MetadataBuilder {
                             } else {
                                 System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
                                 processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
-                                destinationNode.getParentDomNode().loadImdiDom();
+                                destinationNode.getParentDomNode().loadArbilDom();
                             }
                         }
                     }
@@ -149,48 +149,48 @@ public class MetadataBuilder {
             private void addMetaDataNode() throws ArbilMetadataException {
                 URI addedNodeUri;
                 if (addableNode.getURI().getFragment() == null) {
-                    addedNodeUri = ArbilSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
-                    ArbilNodeObject.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
-                    ArbilNodeObject addedNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(addedNodeUri);
+                    addedNodeUri = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
+                    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
+                    ArbilDataNode addedNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
                     new ArbilComponentBuilder().removeArchiveHandles(addedNode);
                     destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
-                    addedNode.loadImdiDom();
+                    addedNode.loadArbilDom();
                     addedNode.scrollToRequested = true;
                 } else {
                     ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                     addedNodeUri = componentBuilder.insertFavouriteComponent(destinationNode, addableNode);
                     new ArbilComponentBuilder().removeArchiveHandles(destinationNode);
                 }
-                destinationNode.getParentDomNode().loadImdiDom();
+                destinationNode.getParentDomNode().loadArbilDom();
                 String newTableTitleString = "new " + addableNode + " in " + destinationNode;
                 ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
             }
         };
     }
 
-    private void processAddNodes(ArbilNodeObject currentImdiObject, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
+    private void processAddNodes(ArbilDataNode currentArbilNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
 
         // make title for imdi table
         String newTableTitleString = "new " + nodeTypeDisplayName;
-        if (currentImdiObject.isMetaDataNode() && currentImdiObject.getFile().exists()) {
-            newTableTitleString = newTableTitleString + " in " + currentImdiObject.toString();
+        if (currentArbilNode.isMetaDataNode() && currentArbilNode.getFile().exists()) {
+            newTableTitleString = newTableTitleString + " in " + currentArbilNode.toString();
         }
 
         System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
-        URI addedNodeUri = addChildNode(currentImdiObject, nodeType, targetXmlPath, resourceUri, mimeType);
-        ArbilNodeObject addedImdiObject = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(addedNodeUri);
-        if (addedImdiObject != null) {
+        URI addedNodeUri = addChildNode(currentArbilNode, nodeType, targetXmlPath, resourceUri, mimeType);
+        ArbilDataNode addedArbilNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
+        if (addedArbilNode != null) {
             if (favouriteUrlString != null) {
             }
-            if (currentImdiObject.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
-                currentImdiObject.getParentDomNode().loadImdiDom();
+            if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
+                currentArbilNode.getParentDomNode().loadArbilDom();
             }
-            if (currentImdiObject.getParentDomNode() != addedImdiObject.getParentDomNode()) {
-                addedImdiObject.getParentDomNode().loadImdiDom();
+            if (currentArbilNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
+                addedArbilNode.getParentDomNode().loadArbilDom();
             }
-            addedImdiObject.scrollToRequested = true;
-            addedImdiObject.getParentDomNode().clearIcon();
-            addedImdiObject.getParentDomNode().clearChildIcons();
+            addedArbilNode.scrollToRequested = true;
+            addedArbilNode.getParentDomNode().clearIcon();
+            addedArbilNode.getParentDomNode().clearChildIcons();
         }
         ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
     }
@@ -199,7 +199,7 @@ public class MetadataBuilder {
      * Add a new node based on a template and optionally attach a resource
      * @return String path to the added node
      */
-    public URI addChildNode(ArbilNodeObject destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
+    public URI addChildNode(ArbilDataNode destinationNode, String nodeType, String targetXmlPath, URI resourceUri, String mimeType) throws ArbilMetadataException {
         System.out.println("addChildNode:: " + nodeType + " : " + resourceUri);
         System.out.println("targetXmlPath:: " + targetXmlPath);
         if (destinationNode.getNeedsSaveToDisk(false)) {
@@ -237,7 +237,7 @@ public class MetadataBuilder {
 //            needsSaveToDisk = true;
                 } else {
                     System.out.println("adding new node");
-                    URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewImdiFileName(destinationNode.getSubDirectory(), nodeType);
+                    URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
                     if (CmdiProfileReader.pathIsProfile(nodeType)) {
                         ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                         try {
@@ -255,7 +255,7 @@ public class MetadataBuilder {
                     }
                     if (destinationNode.getFile().exists()) {
                         destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
-                        destinationNode.getParentDomNode().loadImdiDom();
+                        destinationNode.getParentDomNode().loadArbilDom();
                     } else {
                         TreeHelper.getSingleInstance().addLocation(addedNodePath);
                         TreeHelper.getSingleInstance().applyRootLocations();

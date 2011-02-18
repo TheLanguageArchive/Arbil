@@ -14,7 +14,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 //import org.apache.log4j.Logger;
 
 /**
- * Document   : LinorgBugCatcher
+ * Document   : ArbilBugCatcher
  * Created on : Dec 17, 2008, 10:35:56 AM
  * @author Peter.Withers@mpi.nl
  */

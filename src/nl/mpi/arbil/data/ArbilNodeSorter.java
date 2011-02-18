@@ -4,7 +4,7 @@ import java.util.Comparator;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * ImdiTreeNodeSorter.java
+ * ArbilTreeNodeSorter.java
  * Created on Aug 11, 2009, 11:08:48 AM
  * @author Peter.Withers@mpi.nl
  */
@@ -16,45 +16,45 @@ public class ArbilNodeSorter implements Comparator {
         if (object1 instanceof DefaultMutableTreeNode && object2 instanceof DefaultMutableTreeNode) {
             userObject1 = ((DefaultMutableTreeNode) object1).getUserObject();
             userObject2 = ((DefaultMutableTreeNode) object2).getUserObject();
-        } else if (object1 instanceof ArbilNodeObject && object2 instanceof ArbilNodeObject) {
-            userObject1 = ((ArbilNodeObject) object1);
-            userObject2 = ((ArbilNodeObject) object2);
+        } else if (object1 instanceof ArbilDataNode && object2 instanceof ArbilDataNode) {
+            userObject1 = ((ArbilDataNode) object1);
+            userObject2 = ((ArbilDataNode) object2);
         } else {
             throw new IllegalArgumentException("not a DefaultMutableTreeNode object");
         }
-        if (userObject1 instanceof ArbilNodeObject && userObject2 instanceof ArbilNodeObject) {
-            int typeIdex1 = getTypeIndex((ArbilNodeObject) userObject1);
-            int typeIdex2 = getTypeIndex((ArbilNodeObject) userObject2);
+        if (userObject1 instanceof ArbilDataNode && userObject2 instanceof ArbilDataNode) {
+            int typeIndex1 = getTypeIndex((ArbilDataNode) userObject1);
+            int typeIndex2 = getTypeIndex((ArbilDataNode) userObject2);
             // sort by catalogue then corpus then session etc. then by the text order
-            if (typeIdex1 == typeIdex2) {
-                int resultInt = userObject1.toString().compareToIgnoreCase(((ArbilNodeObject) userObject2).toString());
+            if (typeIndex1 == typeIndex2) {
+                int resultInt = userObject1.toString().compareToIgnoreCase(((ArbilDataNode) userObject2).toString());
                 if (resultInt == 0) { // make sure that to objects dont get mistaken to be the same just because the string lebels are the same
-                    resultInt = ((ArbilNodeObject) userObject1).getUrlString().compareToIgnoreCase(((ArbilNodeObject) userObject2).getUrlString());
+                    resultInt = ((ArbilDataNode) userObject1).getUrlString().compareToIgnoreCase(((ArbilDataNode) userObject2).getUrlString());
                 }
                 return resultInt;
             } else {
-                return typeIdex1 - typeIdex2;
+                return typeIndex1 - typeIndex2;
             }
         } else {
             //return userObject1.toString().compareToIgnoreCase(object2.toString());
-            throw new IllegalArgumentException("not a ImdiTreeObject object: " + object1.toString() + " : " + object2.toString());
+            throw new IllegalArgumentException("not a ArbilDataNode object: " + object1.toString() + " : " + object2.toString());
         }
     }
 
-    private int getTypeIndex(ArbilNodeObject targetImdiObject) {
-        if (targetImdiObject.isInfoLink) {
+    private int getTypeIndex(ArbilDataNode targetDataNode) {
+        if (targetDataNode.isInfoLink) {
             return 1;
         }
-        if (targetImdiObject.imdiDataLoaded) { // caution: this sort can cause the tree to collapse when nodes reload because the nodes will be removed if not in order
-            if (targetImdiObject.isCorpus()) {
+        if (targetDataNode.dataLoaded) { // caution: this sort can cause the tree to collapse when nodes reload because the nodes will be removed if not in order
+            if (targetDataNode.isCorpus()) {
                 return 2;
-            } else if (targetImdiObject.isCatalogue()) {
+            } else if (targetDataNode.isCatalogue()) {
                 return 3;
-            } else if (targetImdiObject.isSession()) {
+            } else if (targetDataNode.isSession()) {
                 return 4;
-            } else if (targetImdiObject.isImdiChild()) {
+            } else if (targetDataNode.isChildNode()) {
                 return 5;
-            } else if (targetImdiObject.isDirectory()) {
+            } else if (targetDataNode.isDirectory()) {
                 return 6;
             } else {
                 return 7;

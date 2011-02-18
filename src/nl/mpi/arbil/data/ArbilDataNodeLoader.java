@@ -8,35 +8,35 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Document   : ImdiLoader
+ * Document   : ArbilDataNodeLoader formerly known as ImdiLoader
  * Created on : Dec 30, 2008, 3:04:39 PM
  * @author Peter.Withers@mpi.nl 
  */
-public class ImdiLoader {
+public class ArbilDataNodeLoader {
 
     private boolean continueThread = true;
     public boolean schemaCheckLocalFiles = false;
-    private Vector<ArbilNodeObject> imdiRemoteNodesToInit = new Vector<ArbilNodeObject>();
-    private Vector<ArbilNodeObject> imdiLocalNodesToInit = new Vector<ArbilNodeObject>();
-    private Hashtable<String, ArbilNodeObject> imdiHashTable = new Hashtable<String, ArbilNodeObject>();
-    private Vector<ArbilNodeObject> nodesNeedingSave = new Vector<ArbilNodeObject>();
-    int imdiFilesLoaded = 0;
-    int remoteImdiFilesLoaded = 0;
+    private Vector<ArbilDataNode> arbilRemoteNodesToInit = new Vector<ArbilDataNode>();
+    private Vector<ArbilDataNode> arbilLocalNodesToInit = new Vector<ArbilDataNode>();
+    private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
+    private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
+    int arbilFilesLoaded = 0;
+    int remoteArbilFilesLoaded = 0;
     int threadStartCounter = 0;
     ThreadGroup remoteLoaderThreadGroup;
     ThreadGroup localLoaderThreadGroup;
-    static private ImdiLoader singleInstance = null;
+    static private ArbilDataNodeLoader singleInstance = null;
 
-    static synchronized public ImdiLoader getSingleInstance() {
+    static synchronized public ArbilDataNodeLoader getSingleInstance() {
 //        System.out.println("ImdiLoader getSingleInstance");
         if (singleInstance == null) {
-            singleInstance = new ImdiLoader();
+            singleInstance = new ArbilDataNodeLoader();
         }
         return singleInstance;
     }
 
-    private ImdiLoader() {
-        System.out.println("ImdiLoader init");
+    private ArbilDataNodeLoader() {
+        System.out.println("ArbilDataNodeLoader init");
         schemaCheckLocalFiles = ArbilSessionStorage.getSingleInstance().loadBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles);
         continueThread = true;
         remoteLoaderThreadGroup = new ThreadGroup("RemoteLoaderThreads");
@@ -49,13 +49,13 @@ public class ImdiLoader {
 
         // start the remote imdi loader threads
         while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) { //TG: Why 6? (2011/2/2)
-            String threadName = "ImdiLoader-remote-" + threadStartCounter++;
+            String threadName = "ArbilDataNodeLoader-remote-" + threadStartCounter++;
             createRemoteLoadThread(threadName).start();
         }
         // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
         // start the local imdi threads
         while (continueThread && localLoaderThreadGroup.activeCount() < 6) { //TG: Why 6? (2011/2/2)
-            String threadName = "ImdiLoader-local-" + threadStartCounter++;
+            String threadName = "ArbilDataNodeLoader-local-" + threadStartCounter++;
             createLocalLoaderThread(threadName).start();
         }
     }
@@ -78,23 +78,23 @@ public class ImdiLoader {
                         } catch (InterruptedException ie) {
                             GuiHelper.linorgBugCatcher.logError(ie);
                         }
-                        ArbilNodeObject currentImdiObject = getNodeFromQueue(imdiRemoteNodesToInit);
-                        while (currentImdiObject != null) {
+                        ArbilDataNode currentArbilDataNode = getNodeFromQueue(arbilRemoteNodesToInit);
+                        while (currentArbilDataNode != null) {
                             // this has been separated in to two separate threads to prevent long delays when there is no server connection
                             // each node is loaded one at a time and must time out before the next is started
                             // the local corpus nodes are the fastest so they are now loaded in a separate thread
                             // alternatively a thread pool may be an option
-                            if (currentImdiObject != null) {
-                                System.out.println("run RemoteImdiLoader processing: " + currentImdiObject.getUrlString());
-                                currentImdiObject.loadImdiDom();
-                                currentImdiObject.updateLoadingState(-1);
-                                currentImdiObject.clearIcon();
-                                currentImdiObject.clearChildIcons();
-                                remoteImdiFilesLoaded++;
-                                currentImdiObject.notifyLoaded();
+                            if (currentArbilDataNode != null) {
+                                System.out.println("run RemoteArbilLoader processing: " + currentArbilDataNode.getUrlString());
+                                currentArbilDataNode.loadArbilDom();
+                                currentArbilDataNode.updateLoadingState(-1);
+                                currentArbilDataNode.clearIcon();
+                                currentArbilDataNode.clearChildIcons();
+                                remoteArbilFilesLoaded++;
+                                currentArbilDataNode.notifyLoaded();
                             }
-                            currentImdiObject.lockedByLoadingThread = false;
-                            currentImdiObject = getNodeFromQueue(imdiRemoteNodesToInit);
+                            currentArbilDataNode.lockedByLoadingThread = false;
+                            currentArbilDataNode = getNodeFromQueue(arbilRemoteNodesToInit);
                         }
                     }
                 }
@@ -120,31 +120,31 @@ public class ImdiLoader {
                         } catch (InterruptedException ie) {
                             GuiHelper.linorgBugCatcher.logError(ie);
                         }
-                        ArbilNodeObject currentImdiObject = getNodeFromQueue(imdiLocalNodesToInit);
-                        while (currentImdiObject != null) {
-                            System.out.println("run LocalImdiLoader processing: " + currentImdiObject.getUrlString());
-                            if (currentImdiObject.getNeedsSaveToDisk(false)) {
-                                currentImdiObject.saveChangesToCache(false);
+                        ArbilDataNode currentArbilDataNode = getNodeFromQueue(arbilLocalNodesToInit);
+                        while (currentArbilDataNode != null) {
+                            System.out.println("run LocalArbilLoader processing: " + currentArbilDataNode.getUrlString());
+                            if (currentArbilDataNode.getNeedsSaveToDisk(false)) {
+                                currentArbilDataNode.saveChangesToCache(false);
                             }
-                            currentImdiObject.loadImdiDom();
+                            currentArbilDataNode.loadArbilDom();
                             if (schemaCheckLocalFiles) {
-                                if (currentImdiObject.isMetaDataNode()) {
+                                if (currentArbilDataNode.isMetaDataNode()) {
                                     XsdChecker xsdChecker = new XsdChecker();
                                     String checkerResult;
-                                    checkerResult = xsdChecker.simpleCheck(currentImdiObject.getFile(), currentImdiObject.getURI());
-                                    currentImdiObject.hasSchemaError = (checkerResult != null);
+                                    checkerResult = xsdChecker.simpleCheck(currentArbilDataNode.getFile(), currentArbilDataNode.getURI());
+                                    currentArbilDataNode.hasSchemaError = (checkerResult != null);
                                 }
                             } else {
-                                currentImdiObject.hasSchemaError = false;
+                                currentArbilDataNode.hasSchemaError = false;
                             }
-                            currentImdiObject.updateLoadingState(-1);
-                            currentImdiObject.clearIcon();
-                            currentImdiObject.clearChildIcons();
-                            imdiFilesLoaded++;
-                            System.out.println("remoteImdiFilesLoaded: " + remoteImdiFilesLoaded + " imdiFilesLoaded: " + imdiFilesLoaded);
-                            currentImdiObject.lockedByLoadingThread = false;
-                            currentImdiObject.notifyLoaded();
-                            currentImdiObject = getNodeFromQueue(imdiLocalNodesToInit);
+                            currentArbilDataNode.updateLoadingState(-1);
+                            currentArbilDataNode.clearIcon();
+                            currentArbilDataNode.clearChildIcons();
+                            arbilFilesLoaded++;
+                            System.out.println("remoteArbilFilesLoaded: " + remoteArbilFilesLoaded + " arbilFilesLoaded: " + arbilFilesLoaded);
+                            currentArbilDataNode.lockedByLoadingThread = false;
+                            currentArbilDataNode.notifyLoaded();
+                            currentArbilDataNode = getNodeFromQueue(arbilLocalNodesToInit);
                         }
 //                        } catch (Exception ie) {
 //                            // anything that throws in this loop will prevent any further loading of local imdi files
@@ -155,29 +155,29 @@ public class ImdiLoader {
             };
     }
     
-    synchronized private void addNodeToQueue(ArbilNodeObject nodeToAdd) {
+    synchronized private void addNodeToQueue(ArbilDataNode nodeToAdd) {
         startLoaderThreads();
-        if (ArbilNodeObject.isStringLocal(nodeToAdd.getUrlString())) {
-            if (!imdiLocalNodesToInit.contains(nodeToAdd)) {
-                imdiLocalNodesToInit.addElement(nodeToAdd);
+        if (ArbilDataNode.isStringLocal(nodeToAdd.getUrlString())) {
+            if (!arbilLocalNodesToInit.contains(nodeToAdd)) {
+                arbilLocalNodesToInit.addElement(nodeToAdd);
             }
         } else {
-            if (!imdiRemoteNodesToInit.contains(nodeToAdd)) {
-                imdiRemoteNodesToInit.addElement(nodeToAdd);
+            if (!arbilRemoteNodesToInit.contains(nodeToAdd)) {
+                arbilRemoteNodesToInit.addElement(nodeToAdd);
             }
         }
     }
 
-    synchronized private ArbilNodeObject getNodeFromQueue(Vector<ArbilNodeObject> imdiNodesQueue) {
+    synchronized private ArbilDataNode getNodeFromQueue(Vector<ArbilDataNode> dataNodesQueue) {
         // TODO: put this size test and remove into a syncronised function
-        if (imdiNodesQueue.size() > 0) {
-            ArbilNodeObject tempImdiObject = imdiNodesQueue.remove(0);
-            if (tempImdiObject.lockedByLoadingThread) {
-                imdiNodesQueue.add(tempImdiObject);
+        if (dataNodesQueue.size() > 0) {
+            ArbilDataNode tempDataNode = dataNodesQueue.remove(0);
+            if (tempDataNode.lockedByLoadingThread) {
+                dataNodesQueue.add(tempDataNode);
                 return null;
             } else {
-                tempImdiObject.lockedByLoadingThread = true;
-                return tempImdiObject;
+                tempDataNode.lockedByLoadingThread = true;
+                return tempDataNode;
             }
         } else {
             return null;
@@ -188,23 +188,23 @@ public class ImdiLoader {
 //        localUrlString = ImdiTreeObject.conformStringToUrl(localUrlString).toString();
 //        return imdiHashTable.get(localUrlString);
 //    }
-    public ArbilNodeObject getImdiObjectWithoutLoading(URI localUri) {
-        ArbilNodeObject currentImdiObject = null;
+    public ArbilDataNode getArbilDataNodeWithoutLoading(URI localUri) {
+        ArbilDataNode currentDataNode = null;
         if (localUri != null) {
-            localUri = ArbilNodeObject.normaliseURI(localUri);
+            localUri = ArbilDataNode.normaliseURI(localUri);
             // correct any variations in the url string
 //            localUri = ImdiTreeObject.conformStringToUrl(localUri).toString();
-            currentImdiObject = imdiHashTable.get(localUri.toString());
-            if (currentImdiObject == null) {
+            currentDataNode = arbilHashTable.get(localUri.toString());
+            if (currentDataNode == null) {
 //                System.out.println("ImdiObject not in list so requesting: " + localNodeText + " : " + localUrlString);
-                currentImdiObject = new ArbilNodeObject(localUri);
-                imdiHashTable.put(localUri.toString(), currentImdiObject);
+                currentDataNode = new ArbilDataNode(localUri);
+                arbilHashTable.put(localUri.toString(), currentDataNode);
             }
         }
-        return currentImdiObject;
+        return currentDataNode;
     }
 
-    public ArbilNodeObject getImdiObject(Object registeringObject, URI localUri) {// throws Exception {
+    public ArbilDataNode getArbilDataNode(Object registeringObject, URI localUri) {// throws Exception {
 //        if (localNodeText == null && localUrlString.contains("WrittenResource")) {
 //            System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
 //        }
@@ -215,67 +215,67 @@ public class ImdiLoader {
 //            System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
 //       end todo }
 //        System.out.println("getImdiObject: " + localNodeText + " : " + localUrlString);
-        ArbilNodeObject currentImdiObject = null;
+        ArbilDataNode currentDataNode = null;
         if (localUri != null && localUri.toString().length() > 0) {
-            currentImdiObject = getImdiObjectWithoutLoading(localUri);
+            currentDataNode = getArbilDataNodeWithoutLoading(localUri);
 //            System.out.println(currentImdiObject.isImdiChild() + ", " + currentImdiObject.getParentDomNode().imdiDataLoaded + ", " + currentImdiObject.isLoading());
-            if (!currentImdiObject.getParentDomNode().imdiDataLoaded && !currentImdiObject.isLoading()) {
+            if (!currentDataNode.getParentDomNode().dataLoaded && !currentDataNode.isLoading()) {
 //                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
-                if (ArbilNodeObject.isStringImdiChild(currentImdiObject.getUrlString())) {
+                if (ArbilDataNode.isStringChildNode(currentDataNode.getUrlString())) {
 //                    System.out.println("cause the parent node to be loaded");
                     // cause the parent node to be loaded
-                    currentImdiObject.getParentDomNode();
-                } else if (ArbilNodeObject.isPathMetadata(currentImdiObject.getUrlString()) || ArbilNodeObject.isPathHistoryFile(currentImdiObject.getUrlString())) {
-                    currentImdiObject.updateLoadingState(+1);
-                    addNodeToQueue(currentImdiObject);
-                    System.out.println("+imdiHashTable.size: " + imdiHashTable.size());
-                } else if (!ArbilNodeObject.isPathMetadata(currentImdiObject.getUrlString())) {
+                    currentDataNode.getParentDomNode();
+                } else if (ArbilDataNode.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
+                    currentDataNode.updateLoadingState(+1);
+                    addNodeToQueue(currentDataNode);
+//                    System.out.println("+imdiHashTable.size: " + arbilHashTable.size());
+                } else if (!ArbilDataNode.isPathMetadata(currentDataNode.getUrlString())) {
 //                    currentImdiObject.clearIcon(); // do not do this
                 }
             }
-            currentImdiObject.registerContainer(registeringObject);
+            currentDataNode.registerContainer(registeringObject);
         }
 //        System.out.println("currentImdiObject: " + currentImdiObject);
-        return currentImdiObject;
+        return currentDataNode;
     }
 
-    public void releaseImdiObject(URI localUri) {
+    public void releaseArbilDataNode(URI localUri) {
 //        imdiHashTable.remove(imdiUrlString); // TODO: implement this so that imdi files are not held in memory for ever
-        localUri = ArbilNodeObject.normaliseURI(localUri);
-        System.out.println("-imdiHashTable.size: " + imdiHashTable.size());
+        localUri = ArbilDataNode.normaliseURI(localUri);
+        System.out.println("-imdiHashTable.size: " + arbilHashTable.size());
     }
 
     // return the node only if it has already been loaded otherwise return null
-    public ArbilNodeObject getImdiObjectOnlyIfLoaded(URI imdiUri) {
+    public ArbilDataNode getArbilDataNodeOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        imdiUri = ArbilNodeObject.normaliseURI(imdiUri);
-        return imdiHashTable.get(imdiUri.toString());
+        arbilUri = ArbilDataNode.normaliseURI(arbilUri);
+        return arbilHashTable.get(arbilUri.toString());
     }
 
     // reload the node only if it has already been loaded otherwise ignore
-    public void requestReloadOnlyIfLoaded(URI imdiUri) {
+    public void requestReloadOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();
-        imdiUri = ArbilNodeObject.normaliseURI(imdiUri);
-        ArbilNodeObject currentImdiObject = imdiHashTable.get(imdiUri.toString());
-        if (currentImdiObject != null) {
-            requestReload(currentImdiObject);
+        arbilUri = ArbilDataNode.normaliseURI(arbilUri);
+        ArbilDataNode currentDataNode = arbilHashTable.get(arbilUri.toString());
+        if (currentDataNode != null) {
+            requestReload(currentDataNode);
         }
     }
 
     // reload the node or if it is an imdichild node then reload its parent
-    public void requestReload(ArbilNodeObject currentImdiObject) {
-        if (currentImdiObject.isImdiChild()) {
-            currentImdiObject = currentImdiObject.getParentDomNode();
+    public void requestReload(ArbilDataNode currentDataNode) {
+        if (currentDataNode.isChildNode()) {
+            currentDataNode = currentDataNode.getParentDomNode();
         }
-        removeNodesNeedingSave(currentImdiObject);
+        removeNodesNeedingSave(currentDataNode);
 //        if (ImdiTreeObject.isStringImdi(currentImdiObject.getUrlString()) || ImdiTreeObject.isStringImdiHistoryFile(currentImdiObject.getUrlString())) {
-        addNodeToQueue(currentImdiObject);
+        addNodeToQueue(currentDataNode);
 //        }
     }
 
     public void requestReloadAllNodes() {
-        for (ArbilNodeObject currentImdiObject : imdiHashTable.values()) {
-            requestReload(currentImdiObject);
+        for (ArbilDataNode currentDataNode : arbilHashTable.values()) {
+            requestReload(currentDataNode);
         }
     }
 
@@ -286,7 +286,7 @@ public class ImdiLoader {
         super.finalize();
     }
 
-    public void addNodeNeedingSave(ArbilNodeObject nodeToSave) {
+    public void addNodeNeedingSave(ArbilDataNode nodeToSave) {
         nodeToSave = nodeToSave.getParentDomNode();
         if (!nodesNeedingSave.contains(nodeToSave)) {
             System.out.println("addNodeNeedingSave: " + nodeToSave);
@@ -294,13 +294,13 @@ public class ImdiLoader {
         }
     }
 
-    public void removeNodesNeedingSave(ArbilNodeObject savedNode) {
+    public void removeNodesNeedingSave(ArbilDataNode savedNode) {
         System.out.println("removeNodesNeedingSave: " + savedNode);
         nodesNeedingSave.remove(savedNode);
     }
 
-    public ArbilNodeObject[] getNodesNeedSave() {
-        return nodesNeedingSave.toArray(new ArbilNodeObject[]{});
+    public ArbilDataNode[] getNodesNeedSave() {
+        return nodesNeedingSave.toArray(new ArbilDataNode[]{});
     }
 
     public boolean nodesNeedSave() {
@@ -311,7 +311,7 @@ public class ImdiLoader {
         // this is syncronised to avoid issues from the key repeat on linux which fails to destinguish between key up events and key repeat events
         while (nodesNeedingSave.size() > 0) {
             // remove the node from the save list not in the save function because otherwise if the save fails the application will lock up
-            ArbilNodeObject currentNode = nodesNeedingSave.remove(0);
+            ArbilDataNode currentNode = nodesNeedingSave.remove(0);
             if (currentNode != null) {
                 currentNode.saveChangesToCache(updateIcons); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
                 if (updateIcons) {

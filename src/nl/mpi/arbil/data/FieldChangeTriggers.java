@@ -10,16 +10,16 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 public class FieldChangeTriggers {
     // the following strings need to be read from a template file or a vocaulary etc
 
-    public void actOnChange(ArbilField changedImdiField) {
-        String fieldPath = changedImdiField.getGenericFullXmlPath();
+    public void actOnChange(ArbilField changedArbilField) {
+        String fieldPath = changedArbilField.getGenericFullXmlPath();
         System.out.println("fieldPath: " + fieldPath);
-        for (String[] currentTrigger : changedImdiField.parentImdi.getNodeTemplate().fieldTriggersArray) {
+        for (String[] currentTrigger : changedArbilField.parentDataNode.getNodeTemplate().fieldTriggersArray) {
             if (fieldPath.equals(currentTrigger[0])) {
                 // we now have the path for two fields:
                 // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Id
                 // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(2).Languages.Language(3).Name
                 // and we need to put the (\d) back into the (x)
-                String originalFieldPath = changedImdiField.getFullXmlPath();
+                String originalFieldPath = changedArbilField.getFullXmlPath();
                 int lastBracketPos = originalFieldPath.lastIndexOf(")");
                 int lastTriggerBracket = currentTrigger[1].lastIndexOf(")");
                 if (lastTriggerBracket < 0) {
@@ -30,8 +30,8 @@ public class FieldChangeTriggers {
                 String targetFieldPath = originalFieldPath.substring(0, lastBracketPos) + currentTrigger[1].substring(lastTriggerBracket);
                 System.out.println("originalFieldPath: " + originalFieldPath);
                 System.out.println("targetFieldPath: " + targetFieldPath);
-                ArbilField[] targetField = changedImdiField.getSiblingField(targetFieldPath);
-                ArbilVocabularies.VocabularyItem vocabItem = changedImdiField.getVocabulary().findVocabularyItem(changedImdiField.getFieldValue());
+                ArbilField[] targetField = changedArbilField.getSiblingField(targetFieldPath);
+                ArbilVocabularies.VocabularyItem vocabItem = changedArbilField.getVocabulary().findVocabularyItem(changedArbilField.getFieldValue());
                 if (vocabItem != null) {
                     String valueForTargetField = null;
                     if (currentTrigger[2].equals("Content")) {

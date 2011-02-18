@@ -1,9 +1,9 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
@@ -24,14 +24,14 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ui.menu.ImagePreviewContextMenu;
 
 /**
- * Document   : LinorgSplitPanel
+ * Document   : ArbilSplitPanel
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSplitPanel extends JPanel {
 
     private JList imagePreview;
-    public ArbilTable imdiTable;
+    public ArbilTable arbilTable;
     private JScrollPane tableScrollPane;
     private JScrollPane listScroller;
     private JSplitPane splitPane;
@@ -41,18 +41,18 @@ public class ArbilSplitPanel extends JPanel {
     private JPanel tableOuterPanel;
     boolean selectionChangeInProcess = false; // this is to stop looping selection changes
 
-    public ArbilSplitPanel(ArbilTable localImdiTable) {
+    public ArbilSplitPanel(ArbilTable localArbilTable) {
 //            setBackground(new Color(0xFF00FF));
         this.setLayout(new BorderLayout());
 
-        imdiTable = localImdiTable;
+        arbilTable = localArbilTable;
         splitPane = new JSplitPane();
         hiddenColumnsLabel = new JLabel();
-        tableScrollPane = new JScrollPane(imdiTable);
+        tableScrollPane = new JScrollPane(arbilTable);
         tableScrollPane.addComponentListener(new ComponentListener() {
 
             public void componentResized(ComponentEvent e) {
-                imdiTable.setColumnWidths();
+                arbilTable.setColumnWidths();
             }
 
             public void componentMoved(ComponentEvent e) {
@@ -67,8 +67,8 @@ public class ArbilSplitPanel extends JPanel {
         tableOuterPanel = new JPanel(new BorderLayout());
         tableOuterPanel.add(tableScrollPane, BorderLayout.CENTER);
         tableOuterPanel.add(hiddenColumnsLabel, BorderLayout.SOUTH);
-        ((ImdiTableModel) localImdiTable.getModel()).setHiddenColumnsLabel(hiddenColumnsLabel);
-        imagePreview = new JList(((ImdiTableModel) localImdiTable.getModel()).getListModel(this));
+        ((ArbilTableModel) localArbilTable.getModel()).setHiddenColumnsLabel(hiddenColumnsLabel);
+        imagePreview = new JList(((ArbilTableModel) localArbilTable.getModel()).getListModel(this));
         imagePreview.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         imagePreview.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         imagePreview.setVisibleRowCount(-1);
@@ -106,15 +106,15 @@ public class ArbilSplitPanel extends JPanel {
                     selectionChangeInProcess = true;
                     if (e.getSource() instanceof JList) {
 //                        System.out.println("JList");
-                        imdiTable.clearSelection();
+                        arbilTable.clearSelection();
                         int minSelectedRow = -1;
                         int maxSelectedRow = -1;
                         for (Object selectedRow : ((JList) e.getSource()).getSelectedValues()) {
-                            imdiTable.setColumnSelectionAllowed(false);
-                            imdiTable.setRowSelectionAllowed(true);
-                            for (int rowCount = 0; rowCount < imdiTable.getRowCount(); rowCount++) {
-                                if (imdiTable.getValueAt(rowCount, 0).equals(selectedRow)) {
-                                    imdiTable.addRowSelectionInterval(rowCount, rowCount);
+                            arbilTable.setColumnSelectionAllowed(false);
+                            arbilTable.setRowSelectionAllowed(true);
+                            for (int rowCount = 0; rowCount < arbilTable.getRowCount(); rowCount++) {
+                                if (arbilTable.getValueAt(rowCount, 0).equals(selectedRow)) {
+                                    arbilTable.addRowSelectionInterval(rowCount, rowCount);
                                     if (maxSelectedRow == -1 || maxSelectedRow < rowCount) {
                                         maxSelectedRow = rowCount;
                                     }
@@ -125,18 +125,18 @@ public class ArbilSplitPanel extends JPanel {
                             }
 //                            System.out.println("selectedRow:" + selectedRow);
                             if (maxSelectedRow != -1) {
-                                imdiTable.scrollRectToVisible(imdiTable.getCellRect(minSelectedRow, 0, true));
+                                arbilTable.scrollRectToVisible(arbilTable.getCellRect(minSelectedRow, 0, true));
                             }
                         }
                         if (ArbilSessionStorage.getSingleInstance().trackTableSelection) {
-                            TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ArbilNodeObject) ((JList) e.getSource()).getSelectedValue());
+                            TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ArbilDataNode) ((JList) e.getSource()).getSelectedValue());
                         }
                     }
                     selectionChangeInProcess = false;
                 }
             }
         });
-        imdiTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        arbilTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting() && !selectionChangeInProcess) { // while this is not thread safe this should only be called by the swing thread via the gui or as a consequence of the enclosed selection changes
@@ -144,7 +144,7 @@ public class ArbilSplitPanel extends JPanel {
                     imagePreview.clearSelection();
                     int minSelectedRow = -1;
                     int maxSelectedRow = -1;
-                    for (Object selectedRow : imdiTable.getSelectedRowsFromTable()) {
+                    for (Object selectedRow : arbilTable.getSelectedRowsFromTable()) {
 //                        System.out.println("selectedRow:" + selectedRow);
                         for (int rowCount = 0; rowCount < imagePreview.getModel().getSize(); rowCount++) {
 //                            System.out.println("JList:" + fileList.getModel().getElementAt(rowCount));
@@ -164,7 +164,7 @@ public class ArbilSplitPanel extends JPanel {
                         imagePreview.scrollRectToVisible(imagePreview.getCellBounds(minSelectedRow, maxSelectedRow));
                     }
                     if (ArbilSessionStorage.getSingleInstance().trackTableSelection) {
-                        TreeHelper.getSingleInstance().jumpToSelectionInTree(true, imdiTable.getImdiNodeForSelection());
+                        TreeHelper.getSingleInstance().jumpToSelectionInTree(true, arbilTable.getDataNodeForSelection());
                     }
                     selectionChangeInProcess = false;
                 }
@@ -202,7 +202,7 @@ public class ArbilSplitPanel extends JPanel {
             this.doLayout();
             splitPane.setDividerLocation(0.5);
         }
-        ArbilDragDrop.getSingleInstance().addDrag(imdiTable);
+        ArbilDragDrop.getSingleInstance().addDrag(arbilTable);
         ArbilDragDrop.getSingleInstance().addTransferHandler(this);
         this.doLayout();
     }
@@ -218,7 +218,7 @@ public class ArbilSplitPanel extends JPanel {
 
             @Override
             public void internalFrameDeactivated(InternalFrameEvent e) {
-                TableCellEditor tableCellEditor = imdiTable.getCellEditor();
+                TableCellEditor tableCellEditor = arbilTable.getCellEditor();
                 if (tableCellEditor != null) {
                     tableCellEditor.stopCellEditing();
                 }

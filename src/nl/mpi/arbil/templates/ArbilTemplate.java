@@ -1,7 +1,7 @@
 package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URL;
@@ -333,14 +333,14 @@ public class ArbilTemplate {
         // temp method for testing until replaced
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
         Vector childTypes = new Vector();
-        if (targetNodeUserObject instanceof ArbilNodeObject) {
-            String xpath = MetadataReader.getNodePath((ArbilNodeObject) targetNodeUserObject);
+        if (targetNodeUserObject instanceof ArbilDataNode) {
+            String xpath = MetadataReader.getNodePath((ArbilDataNode) targetNodeUserObject);
             childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
-            if (((ArbilNodeObject) targetNodeUserObject).isCorpus()) { // add any corpus node entries
+            if (((ArbilDataNode) targetNodeUserObject).isCorpus()) { // add any corpus node entries
                 for (String[] currentTemplate : rootTemplatesArray) {
                     boolean suppressEntry = false;
                     if (currentTemplate[1].equals("Catalogue")) {
-                        if (((ArbilNodeObject) targetNodeUserObject).hasCatalogue()) {
+                        if (((ArbilDataNode) targetNodeUserObject).hasCatalogue()) {
                             // make sure the catalogue can only be added once
                             suppressEntry = true;
                         }

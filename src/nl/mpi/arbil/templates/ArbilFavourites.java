@@ -1,7 +1,7 @@
 package nl.mpi.arbil.templates;
 
 import nl.mpi.arbil.data.TreeHelper;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URI;
@@ -13,7 +13,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 
 /**
- * Document   : LinorgFavourites
+ * Document   : ArbilFavourites
  * Created on : Mar 3, 2009, 11:19:14 AM
  * @author Peter.Withers@mpi.nl
  */
@@ -52,11 +52,11 @@ public class ArbilFavourites {
         }
     }
 
-    public boolean toggleFavouritesList(ArbilNodeObject[] imdiObjectArray, boolean setAsTempate) {
+    public boolean toggleFavouritesList(ArbilDataNode[] imdiObjectArray, boolean setAsTempate) {
         System.out.println("toggleFavouriteList: " + setAsTempate);
         if (setAsTempate) {
             boolean selectionNeedsSave = false;
-            for (ArbilNodeObject currentImdiObject : imdiObjectArray) {
+            for (ArbilDataNode currentImdiObject : imdiObjectArray) {
                 if (currentImdiObject.getNeedsSaveToDisk(false)) {
                     selectionNeedsSave = true;
                 }
@@ -66,7 +66,7 @@ public class ArbilFavourites {
                 return false;
             }
         }
-        for (ArbilNodeObject currentImdiObject : imdiObjectArray) {
+        for (ArbilDataNode currentImdiObject : imdiObjectArray) {
             if (currentImdiObject.isEmptyMetaNode()) {
                 // note: the way that favourites are shown in a table will not show meta nodes but their child nodes instead
                 setAsTempate = false;
@@ -87,7 +87,7 @@ public class ArbilFavourites {
             URI baseUri = new URI(imdiUri.toString().split("#")[0]);
             String fileSuffix = imdiUri.getPath().substring(imdiUri.getPath().lastIndexOf("."));
             File destinationFile = File.createTempFile("fav-", fileSuffix, ArbilSessionStorage.getSingleInstance().getFavouritesDir());
-            ArbilNodeObject.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, null, true);
+            ArbilDataNode.getMetadataUtils(baseUri.toString()).copyMetadataFile(baseUri, destinationFile, null, true);
 
             URI copiedFileURI = destinationFile.toURI();
             // creating a uri with separate parameters could cause the url to be reencoded
@@ -136,18 +136,18 @@ public class ArbilFavourites {
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
         System.out.println("listFavouritesFor: " + targetNodeUserObject);
         Vector<String[]> validFavourites = new Vector<String[]>();
-        if (targetNodeUserObject instanceof ArbilNodeObject) {
-            ArbilNodeObject targetImdiObject = (ArbilNodeObject) targetNodeUserObject;
+        if (targetNodeUserObject instanceof ArbilDataNode) {
+            ArbilDataNode targetImdiObject = (ArbilDataNode) targetNodeUserObject;
             boolean targetIsCorpus = targetImdiObject.isCorpus();
             boolean targetIsSession = targetImdiObject.isSession();
-            boolean targetIsImdiChild = targetImdiObject.isImdiChild();
-            for (ArbilNodeObject currentFavouritesObject : TreeHelper.getSingleInstance().favouriteNodes) {
+            boolean targetIsImdiChild = targetImdiObject.isChildNode();
+            for (ArbilDataNode currentFavouritesObject : TreeHelper.getSingleInstance().favouriteNodes) {
                 boolean addThisFavourites = false;
-                if (targetIsCorpus && !currentFavouritesObject.isImdiChild()) {
+                if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
                     addThisFavourites = true;
-                } else if (targetIsSession && currentFavouritesObject.isImdiChild()) {
+                } else if (targetIsSession && currentFavouritesObject.isChildNode()) {
                     addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
-                } else if (targetIsImdiChild && currentFavouritesObject.isImdiChild()) {
+                } else if (targetIsImdiChild && currentFavouritesObject.isChildNode()) {
                     addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
                 }
                 if (addThisFavourites) {
@@ -163,7 +163,7 @@ public class ArbilFavourites {
         return validFavourites.elements();
     }
 
-    public String getNodeType(ArbilNodeObject favouriteImdiObject, ArbilNodeObject targetImdiObject) {
+    public String getNodeType(ArbilDataNode favouriteImdiObject, ArbilDataNode targetImdiObject) {
         // takes the source path and destination path and creates a complete combined path
         // in:
         // .METATRANSCRIPT.Session.MDGroup.Actors.Actor(12).Languages.Language(5)
@@ -182,7 +182,7 @@ public class ArbilFavourites {
             returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
         } else if (favouriteImdiObject.isCorpus()) {
             returnValue = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Corpus";
-        } else if (favouriteImdiObject.isImdiChild()) {
+        } else if (favouriteImdiObject.isChildNode()) {
             if (targetXmlPath == null) {
                 returnValue = favouriteXmlPath.replaceAll("\\(\\d*?\\)$", "");
             } else {

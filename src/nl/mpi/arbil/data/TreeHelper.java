@@ -37,10 +37,10 @@ public class TreeHelper {
     private DefaultMutableTreeNode localDirectoryRootNode;
     private DefaultMutableTreeNode favouritesRootNode;
     public ArbilTreePanels arbilTreePanel;
-    public ArbilNodeObject[] remoteCorpusNodes = new ArbilNodeObject[]{};
-    public ArbilNodeObject[] localCorpusNodes = new ArbilNodeObject[]{};
-    public ArbilNodeObject[] localFileNodes = new ArbilNodeObject[]{};
-    public ArbilNodeObject[] favouriteNodes = new ArbilNodeObject[]{};
+    public ArbilDataNode[] remoteCorpusNodes = new ArbilDataNode[]{};
+    public ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
+    public ArbilDataNode[] localFileNodes = new ArbilDataNode[]{};
+    public ArbilDataNode[] favouriteNodes = new ArbilDataNode[]{};
     static private TreeHelper singleInstance = null;
     Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
@@ -122,7 +122,7 @@ public class TreeHelper {
     }
 
     public int addDefaultCorpusLocations() {
-        HashSet<ArbilNodeObject> remoteCorpusNodesSet = new HashSet<ArbilNodeObject>();
+        HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
         remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
         for (String currentUrlString : new String[]{
                     "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
@@ -138,30 +138,30 @@ public class TreeHelper {
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"
                 }) {
             try {
-                remoteCorpusNodesSet.add(ImdiLoader.getSingleInstance().getImdiObject(null, new URI(currentUrlString)));
+                remoteCorpusNodesSet.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(currentUrlString)));
             } catch (URISyntaxException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
-        remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ArbilNodeObject[]{});
+        remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ArbilDataNode[]{});
         return remoteCorpusNodesSet.size();
     }
 
-    public void saveLocations(ArbilNodeObject[] nodesToAdd, ArbilNodeObject[] nodesToRemove) {
+    public void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove) {
         try {
             HashSet<String> locationsSet = new HashSet<String>();
-            for (ArbilNodeObject[] currentTreeArray : new ArbilNodeObject[][]{remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes}) {
-                for (ArbilNodeObject currentLocation : currentTreeArray) {
+            for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes}) {
+                for (ArbilDataNode currentLocation : currentTreeArray) {
                     locationsSet.add(currentLocation.getUrlString());
                 }
             }
             if (nodesToAdd != null) {
-                for (ArbilNodeObject currentAddable : nodesToAdd) {
+                for (ArbilDataNode currentAddable : nodesToAdd) {
                     locationsSet.add(currentAddable.getUrlString());
                 }
             }
             if (nodesToRemove != null) {
-                for (ArbilNodeObject currentRemoveable : nodesToRemove) {
+                for (ArbilDataNode currentRemoveable : nodesToRemove) {
                     locationsSet.remove(currentRemoveable.getUrlString());
                 }
             }
@@ -185,20 +185,20 @@ public class TreeHelper {
             if (locationsArray == null) {
                 addDefaultCorpusLocations();
             } else {
-                Vector<ArbilNodeObject> remoteCorpusNodesVector = new Vector<ArbilNodeObject>();
-                Vector<ArbilNodeObject> localCorpusNodesVector = new Vector<ArbilNodeObject>();
-                Vector<ArbilNodeObject> localFileNodesVector = new Vector<ArbilNodeObject>();
-                Vector<ArbilNodeObject> favouriteNodesVector = new Vector<ArbilNodeObject>();
+                Vector<ArbilDataNode> remoteCorpusNodesVector = new Vector<ArbilDataNode>();
+                Vector<ArbilDataNode> localCorpusNodesVector = new Vector<ArbilDataNode>();
+                Vector<ArbilDataNode> localFileNodesVector = new Vector<ArbilDataNode>();
+                Vector<ArbilDataNode> favouriteNodesVector = new Vector<ArbilDataNode>();
 
                 // this also removes all locations and replaces them with normalised paths
                 for (String currentLocationString : locationsArray) {
-                    URI currentLocation = ArbilNodeObject.conformStringToUrl(currentLocationString);
-                    ArbilNodeObject currentTreeObject = ImdiLoader.getSingleInstance().getImdiObject(null, currentLocation);
+                    URI currentLocation = ArbilDataNode.conformStringToUrl(currentLocationString);
+                    ArbilDataNode currentTreeObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentLocation);
                     if (currentTreeObject.isLocal()) {
                         if (currentTreeObject.isFavorite()) {
                             favouriteNodesVector.add(currentTreeObject);
                         } else if (ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
-                            if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isImdiChild()) {
+                            if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isChildNode()) {
                                 localCorpusNodesVector.add(currentTreeObject);
                             }
                         } else {
@@ -208,10 +208,10 @@ public class TreeHelper {
                         remoteCorpusNodesVector.add(currentTreeObject);
                     }
                 }
-                remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ArbilNodeObject[]{});
-                localCorpusNodes = localCorpusNodesVector.toArray(new ArbilNodeObject[]{});
-                localFileNodes = localFileNodesVector.toArray(new ArbilNodeObject[]{});
-                favouriteNodes = favouriteNodesVector.toArray(new ArbilNodeObject[]{});
+                remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ArbilDataNode[]{});
+                localCorpusNodes = localCorpusNodesVector.toArray(new ArbilDataNode[]{});
+                localFileNodes = localFileNodesVector.toArray(new ArbilDataNode[]{});
+                favouriteNodes = favouriteNodesVector.toArray(new ArbilDataNode[]{});
             }
         } catch (Exception ex) {
 //            System.out.println("load locationsList failed: " + ex.getMessage());
@@ -252,18 +252,18 @@ public class TreeHelper {
     public boolean addLocation(URI addedLocation) {
         System.out.println("addLocation: " + addedLocation.toString());
         // make sure the added location url matches that of the imdi node format
-        ArbilNodeObject addedLocationObject = ImdiLoader.getSingleInstance().getImdiObject(null, addedLocation);
+        ArbilDataNode addedLocationObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, addedLocation);
         if (addedLocationObject != null) {
-            saveLocations(new ArbilNodeObject[]{addedLocationObject}, null);
+            saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
             loadLocationsList();
             return true;
         }
         return false;
     }
 
-    public void removeLocation(ArbilNodeObject removeObject) {
+    public void removeLocation(ArbilDataNode removeObject) {
         if (removeObject != null) {
-            saveLocations(null, new ArbilNodeObject[]{removeObject});
+            saveLocations(null, new ArbilDataNode[]{removeObject});
             removeObject.removeFromAllContainers();
             loadLocationsList();
         }
@@ -271,7 +271,7 @@ public class TreeHelper {
 
     public void removeLocation(URI removeLocation) {
         System.out.println("removeLocation: " + removeLocation);
-        removeLocation(ImdiLoader.getSingleInstance().getImdiObject(null, removeLocation));
+        removeLocation(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, removeLocation));
     }
 
     private void reloadNodesInTree(DefaultMutableTreeNode parentTreeNode) {
@@ -279,9 +279,9 @@ public class TreeHelper {
         for (Enumeration<DefaultMutableTreeNode> childNodesEnum = parentTreeNode.children(); childNodesEnum.hasMoreElements();) {
             reloadNodesInTree(childNodesEnum.nextElement());
         }
-        if (parentTreeNode.getUserObject() instanceof ArbilNodeObject) {
-            if (((ArbilNodeObject) parentTreeNode.getUserObject()).imdiDataLoaded) {
-                ((ArbilNodeObject) parentTreeNode.getUserObject()).reloadNode();
+        if (parentTreeNode.getUserObject() instanceof ArbilDataNode) {
+            if (((ArbilDataNode) parentTreeNode.getUserObject()).dataLoaded) {
+                ((ArbilDataNode) parentTreeNode.getUserObject()).reloadNode();
             }
         }
     }
@@ -319,9 +319,9 @@ public class TreeHelper {
                 if (currentNodePath != null) {
                     selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                     Object userObject = selectedTreeNode.getUserObject();
-                    if (userObject instanceof ArbilNodeObject) {
-                        if (((ArbilNodeObject) userObject).isEmptyMetaNode()) {
-                            toDeleteCount = toDeleteCount + ((ArbilNodeObject) userObject).getChildCount();
+                    if (userObject instanceof ArbilDataNode) {
+                        if (((ArbilDataNode) userObject).isEmptyMetaNode()) {
+                            toDeleteCount = toDeleteCount + ((ArbilDataNode) userObject).getChildCount();
                         } else {
                             toDeleteCount++;
                         }
@@ -329,9 +329,9 @@ public class TreeHelper {
                 }
             }
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                Vector<ArbilNodeObject> imdiNodesToRemove = new Vector<ArbilNodeObject>();
-                Hashtable<ArbilNodeObject, Vector<ArbilNodeObject>> imdiNodesDeleteList = new Hashtable<ArbilNodeObject, Vector<ArbilNodeObject>>();
-                Hashtable<ArbilNodeObject, Vector<String>> imdiChildNodeDeleteList = new Hashtable<ArbilNodeObject, Vector<String>>();
+                Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
+                Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
+                Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();
                 for (TreePath currentNodePath : currentNodePaths) {
                     if (currentNodePath != null) {
                         selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -339,33 +339,33 @@ public class TreeHelper {
                         System.out.println("trying to delete: " + userObject);
                         if (currentNodePath.getPath().length == 2) {
                             System.out.println("removing by location");
-                            removeLocation((ArbilNodeObject) selectedTreeNode.getUserObject());
+                            removeLocation((ArbilDataNode) selectedTreeNode.getUserObject());
                             applyRootLocations();
                         } else {
                             System.out.println("deleting from parent");
                             parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
                             if (parentTreeNode != null) {
                                 System.out.println("found parent to remove from");
-                                ArbilNodeObject parentImdiNode = (ArbilNodeObject) parentTreeNode.getUserObject();
-                                ArbilNodeObject childImdiNode = (ArbilNodeObject) selectedTreeNode.getUserObject();
-                                if (childImdiNode.isImdiChild()) {
+                                ArbilDataNode parentDataNode = (ArbilDataNode) parentTreeNode.getUserObject();
+                                ArbilDataNode childDataNode = (ArbilDataNode) selectedTreeNode.getUserObject();
+                                if (childDataNode.isChildNode()) {
                                     // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
-                                    if (!imdiChildNodeDeleteList.containsKey(childImdiNode.getParentDomNode())) {
-                                        imdiChildNodeDeleteList.put(childImdiNode.getParentDomNode(), new Vector());
+                                    if (!childNodeDeleteList.containsKey(childDataNode.getParentDomNode())) {
+                                        childNodeDeleteList.put(childDataNode.getParentDomNode(), new Vector());
                                     }
-                                    if (childImdiNode.isEmptyMetaNode()) {
-                                        for (ArbilNodeObject metaChildNode : childImdiNode.getChildArray()) {
-                                            imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
+                                    if (childDataNode.isEmptyMetaNode()) {
+                                        for (ArbilDataNode metaChildNode : childDataNode.getChildArray()) {
+                                            childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
                                         }
                                     }
-                                    imdiChildNodeDeleteList.get(childImdiNode.getParentDomNode()).add(childImdiNode.getURI().getFragment());
-                                    childImdiNode.removeFromAllContainers();
+                                    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
+                                    childDataNode.removeFromAllContainers();
                                 } else {
                                     // add the parent and the child node to the deletelist
-                                    if (!imdiNodesDeleteList.containsKey(parentImdiNode)) {
-                                        imdiNodesDeleteList.put(parentImdiNode, new Vector());
+                                    if (!dataNodesDeleteList.containsKey(parentDataNode)) {
+                                        dataNodesDeleteList.put(parentDataNode, new Vector());
                                     }
-                                    imdiNodesDeleteList.get(parentImdiNode).add(childImdiNode);
+                                    dataNodesDeleteList.get(parentDataNode).add(childDataNode);
                                 }
 // remove the deleted node from the favourites list if it is an imdichild node
 //                            if (userObject instanceof ImdiTreeObject) {
@@ -378,16 +378,16 @@ public class TreeHelper {
 // todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
 //                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
                         // make a list of all child nodes so that they can be removed from any tables etc
-                        imdiNodesToRemove.add((ArbilNodeObject) userObject);
-                        ((ArbilNodeObject) userObject).getAllChildren(imdiNodesToRemove);
+                        dataNodesToRemove.add((ArbilDataNode) userObject);
+                        ((ArbilDataNode) userObject).getAllChildren(dataNodesToRemove);
                     }
                 }
-                for (ArbilNodeObject currentParent : imdiChildNodeDeleteList.keySet()) {
+                for (ArbilDataNode currentParent : childNodeDeleteList.keySet()) {
                     System.out.println("deleting by child xml id link");
                     // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
                     //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
                     ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-                    boolean result = componentBuilder.removeChildNodes(currentParent, (imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+                    boolean result = componentBuilder.removeChildNodes(currentParent, (childNodeDeleteList.get(currentParent)).toArray(new String[]{}));
                     if (result) {
                         currentParent.reloadNode();
                     } else {
@@ -395,9 +395,9 @@ public class TreeHelper {
                     }
                     //GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
                 }
-                for (ArbilNodeObject currentParent : imdiNodesDeleteList.keySet()) {
+                for (ArbilDataNode currentParent : dataNodesDeleteList.keySet()) {
                     System.out.println("deleting by corpus link");
-                    currentParent.deleteCorpusLink(((Vector<ArbilNodeObject>) imdiNodesDeleteList.get(currentParent)).toArray(new ArbilNodeObject[]{}));
+                    currentParent.deleteCorpusLink(((Vector<ArbilDataNode>) dataNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{}));
                 }
 //                // todo: this could probably be removed
 //                for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
@@ -417,11 +417,11 @@ public class TreeHelper {
         }
     }
 
-    public void jumpToSelectionInTree(boolean silent, ArbilNodeObject cellImdiNode) {
-        System.out.println("jumpToSelectionInTree: " + cellImdiNode);
-        if (cellImdiNode != null) {
-            cellImdiNode.scrollToRequested = true;
-            cellImdiNode.clearIcon();
+    public void jumpToSelectionInTree(boolean silent, ArbilDataNode cellDataNode) {
+        System.out.println("jumpToSelectionInTree: " + cellDataNode);
+        if (cellDataNode != null) {
+            cellDataNode.scrollToRequested = true;
+            cellDataNode.clearIcon();
         } else {
             if (!silent) {
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The selected cell has no value or is not associated with a node in the tree", "Jump to in Tree");

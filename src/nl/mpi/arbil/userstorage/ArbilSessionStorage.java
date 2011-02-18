@@ -5,7 +5,7 @@ import nl.mpi.arbil.data.TreeHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,7 +42,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 
 /**
- * Document   : LinorgSessionStorage
+ * Document   : ArbilSessionStorage
  * use to save and load objects from disk and to manage items in the local cache
  * Created on : 
  * @author Peter.Withers@mpi.nl
@@ -198,8 +198,8 @@ public class ArbilSessionStorage {
         } else {
             try {
                 Vector<String> locationsList = new Vector<String>();
-                for (ArbilNodeObject[] currentTreeArray : new ArbilNodeObject[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
-                    for (ArbilNodeObject currentLocation : currentTreeArray) {
+                for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
+                    for (ArbilDataNode currentLocation : currentTreeArray) {
                         String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
                         System.out.println("currentLocationString: " + currentLocationString);
                         System.out.println("prefferedDirectoryUriString: " + toDirectoryUriString);
@@ -641,7 +641,7 @@ public class ArbilSessionStorage {
         return returnFile;
     }
 
-    public URI getNewImdiFileName(File parentDirectory, String nodeType) {
+    public URI getNewArbilFileName(File parentDirectory, String nodeType) {
         String suffixString;
         if (nodeType.endsWith(".cmdi") || CmdiProfileReader.pathIsProfile(nodeType)) {
             suffixString = ".cmdi";
@@ -773,7 +773,7 @@ public class ArbilSessionStorage {
                         tempFile.renameTo(destinationFile);
                         downloadSucceeded = true;
                     }
-                    System.out.println("Downloaded: " + totalRead / 1048576 + " Mb");
+                    System.out.println("Downloaded: " + totalRead / (1024*1024) + " Mb");
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);

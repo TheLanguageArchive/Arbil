@@ -8,29 +8,29 @@ import java.net.URL;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 
 /**
- *  Document   : ImdiToHtmlConverter
+ *  Document   : ArbilToHtmlConverter
  *  Created on : Apr 15, 2010, 1:33:02 PM
  *  Author     : Peter Withers
  */
-public class ImdiToHtmlConverter {
+public class ArbilToHtmlConverter {
 
-    public void exportImdiToHtml(ArbilNodeObject[] inputImdiArray) {
+    public void exportImdiToHtml(ArbilDataNode[] inputNodeArray) {
         File destinationDirectory = ArbilWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue("Export HTML");
         if (destinationDirectory != null) {
             copyDependancies(destinationDirectory, false);
-            for (ArbilNodeObject currentImdi : inputImdiArray) {
-                File destinationFile = new File(destinationDirectory, currentImdi.toString() + ".html");
+            for (ArbilDataNode currentNode : inputNodeArray) {
+                File destinationFile = new File(destinationDirectory, currentNode.toString() + ".html");
                 int fileCounter = 1;
                 while (destinationFile.exists()) {
-                    destinationFile = new File(destinationDirectory, currentImdi.toString() + "(" + fileCounter + ").html");
+                    destinationFile = new File(destinationDirectory, currentNode.toString() + "(" + fileCounter + ").html");
                 }
                 try {
-                    transformImdiToHtml(currentImdi, destinationFile);
+                    transformNodeToHtml(currentNode, destinationFile);
                 } catch (Exception exception) {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot convert IMDI", "HTML Export");
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot convert data", "HTML Export");
                     GuiHelper.linorgBugCatcher.logError(exception);
                 }
             }
@@ -38,29 +38,29 @@ public class ImdiToHtmlConverter {
         GuiHelper.getSingleInstance().openFileInExternalApplication(destinationDirectory.toURI());
     }
 
-    public File convertToHtml(ArbilNodeObject inputImdi) throws IOException, TransformerException {
+    public File convertToHtml(ArbilDataNode inputNode) throws IOException, TransformerException {
         File tempHtmlFile;
         tempHtmlFile = File.createTempFile("tmp", ".html");
         tempHtmlFile.deleteOnExit();
         copyDependancies(tempHtmlFile.getParentFile(), true);
-        transformImdiToHtml(inputImdi, tempHtmlFile);
+        transformNodeToHtml(inputNode, tempHtmlFile);
         return tempHtmlFile;
     }
 
-    private void transformImdiToHtml(ArbilNodeObject inputImdi, File destinationFile) throws IOException, TransformerException {
+    private void transformNodeToHtml(ArbilDataNode inputNode, File destinationFile) throws IOException, TransformerException {
         // 1. Instantiate a TransformerFactory.
         javax.xml.transform.TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
         // 2. Use the TransformerFactory to process the stylesheet Source and generate a Transformer.
         URL xslUrl = this.getClass().getResource("/nl/mpi/arbil/resources/xsl/imdi-viewer.xsl");
         // look in the current template for a custom xsl
         File xslFile = null;
-        xslFile = new File(inputImdi.getNodeTemplate().getTemplateDirectory(), "format.xsl");
+        xslFile = new File(inputNode.getNodeTemplate().getTemplateDirectory(), "format.xsl");
         if (xslFile != null && xslFile.exists()) {
             xslUrl = xslFile.toURL();
         }
         javax.xml.transform.Transformer transformer = tFactory.newTransformer(new javax.xml.transform.stream.StreamSource(xslUrl.toString()));
         // 3. Use the Transformer to transform an XML Source and send the output to a Result object.
-        transformer.transform(new javax.xml.transform.stream.StreamSource(inputImdi.getURI().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
+        transformer.transform(new javax.xml.transform.stream.StreamSource(inputNode.getURI().toString()), new javax.xml.transform.stream.StreamResult(new java.io.FileOutputStream(destinationFile.getCanonicalPath())));
     }
 
     private void copyDependancies(File destinationDirectory, boolean deleteOnExit) {

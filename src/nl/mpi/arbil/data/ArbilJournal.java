@@ -8,7 +8,7 @@ import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 
 /**
- * Document   : LinorgJournal
+ * Document   : ArbilJournal
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */

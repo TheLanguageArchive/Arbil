@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilTableModel;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
 import java.net.URI;
 import java.util.Arrays;
@@ -9,10 +9,10 @@ import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 
 /**
- * Document   : ImdiNodeSearchPanel
+ * Document   : ArbilNodeSearchPanel
  * Created on : Feb 17, 2009, 4:42:59 PM
  * @author Peter.Withers@mpi.nl 
  */
@@ -20,8 +20,8 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
 
     ArbilNodeSearchPanel thisPanel = this;
     JInternalFrame parentFrame;
-    ImdiTableModel resultsTableModel;
-    private ArbilNodeObject[] selectedNodes;
+    ArbilTableModel resultsTableModel;
+    private ArbilDataNode[] selectedNodes;
     private javax.swing.JButton addButton;
     public javax.swing.JPanel searchTermsPanel;
     private javax.swing.JPanel inputNodePanel;
@@ -34,7 +34,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
     int totalNodesToSearch = -1;
     private RemoteServerSearchTerm remoteServerSearchTerm = null;
 
-    public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ImdiTableModel resultsTableModelLocal, ArbilNodeObject[] localSelectedNodes) {
+    public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilDataNode[] localSelectedNodes) {
         parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
         selectedNodes = localSelectedNodes;
@@ -49,7 +49,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
         inputNodePanel.setLayout(new java.awt.GridLayout());
         add(inputNodePanel);
-        for (ArbilNodeObject currentNode : selectedNodes) {
+        for (ArbilDataNode currentNode : selectedNodes) {
             JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
             inputNodePanel.add(currentLabel);
         }
@@ -57,8 +57,8 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
         searchTermsPanel.setLayout(new javax.swing.BoxLayout(searchTermsPanel, javax.swing.BoxLayout.PAGE_AXIS));
         // check if this search includes remote nodes
         boolean remoteSearch = false;
-        for (ArbilNodeObject imdiTreeObject : localSelectedNodes) {
-            if (!imdiTreeObject.isLocal()) {
+        for (ArbilDataNode arbilDataNode : localSelectedNodes) {
+            if (!arbilDataNode.isLocal()) {
                 remoteSearch = true;
                 break;
             }
@@ -146,7 +146,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
         stopSearch = false;
         searchButton.setEnabled(false);
         stopButton.setEnabled(true);
-        resultsTableModel.removeAllImdiRows();
+        resultsTableModel.removeAllArbilDataNodeRows();
         performSearch();
     }
 
@@ -157,7 +157,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
             public void run() {
                 setPriority(Thread.NORM_PRIORITY - 1);
                 threadRunning = true;
-                Vector<ArbilNodeObject> foundNodes = new Vector();
+                Vector<ArbilDataNode> foundNodes = new Vector();
                 try {
 //                    if (totalNodesToSearch == -1) {
 //                        searchProgressBar.setIndeterminate(true);
@@ -171,21 +171,21 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
                         ((ArbilNodeSearchTerm) currentTermComp).populateSearchTerm();
                     }
                     int totalSearched = 0;
-                    Vector<ArbilNodeObject> localSearchNodes = new Vector<ArbilNodeObject>();
-                    Vector<ArbilNodeObject> remoteSearchNodes = new Vector<ArbilNodeObject>();
-                    for (ArbilNodeObject imdiTreeObject : selectedNodes) {
-                        if (imdiTreeObject.isLocal()) {
-                            localSearchNodes.add(imdiTreeObject);
+                    Vector<ArbilDataNode> localSearchNodes = new Vector<ArbilDataNode>();
+                    Vector<ArbilDataNode> remoteSearchNodes = new Vector<ArbilDataNode>();
+                    for (ArbilDataNode arbilDataNode : selectedNodes) {
+                        if (arbilDataNode.isLocal()) {
+                            localSearchNodes.add(arbilDataNode);
                         } else {
-                            remoteSearchNodes.add(imdiTreeObject);
+                            remoteSearchNodes.add(arbilDataNode);
                         }
                     }
                     if (remoteServerSearchTerm != null) {
                         searchProgressBar.setIndeterminate(true);
                         searchProgressBar.setString("connecting to server");
-                        for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ArbilNodeObject[]{}))) {
+                        for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ArbilDataNode[]{}))) {
                             System.out.println("remote node found: " + serverFoundUrl);
-                            localSearchNodes.add(ImdiLoader.getSingleInstance().getImdiObject(null, serverFoundUrl));
+                            localSearchNodes.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, serverFoundUrl));
                         }
                         searchProgressBar.setString("");
                         searchProgressBar.setIndeterminate(false);
@@ -193,21 +193,21 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
                     while (localSearchNodes.size() > 0 && !stopSearch) {
                         System.out.println("parentFrame: " + parentFrame.isVisible());
                         Object currentElement = localSearchNodes.remove(0);
-                        if (currentElement instanceof ArbilNodeObject) {
-                            ArbilNodeObject currentImdiNode = (ArbilNodeObject) currentElement;
-                            if (currentImdiNode.isLoading()) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
-                                System.out.println("searching: " + currentImdiNode.getUrlString());
-                                System.out.println("still loading so putting back into the list: " + currentImdiNode);
-                                if (!currentImdiNode.fileNotFound) {
-                                    localSearchNodes.add(currentImdiNode);
+                        if (currentElement instanceof ArbilDataNode) {
+                            ArbilDataNode currentDataNode = (ArbilDataNode) currentElement;
+                            if (currentDataNode.isLoading()) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
+                                System.out.println("searching: " + currentDataNode.getUrlString());
+                                System.out.println("still loading so putting back into the list: " + currentDataNode);
+                                if (!currentDataNode.fileNotFound) {
+                                    localSearchNodes.add(currentDataNode);
                                 }
                             } else {
                                 // perform the search
-                                System.out.println("searching: " + currentImdiNode);
+                                System.out.println("searching: " + currentDataNode);
                                 // add the child nodes
-                                if (currentImdiNode.isLocal() || !currentImdiNode.isCorpus()) {
+                                if (currentDataNode.isLocal() || !currentDataNode.isCorpus()) {
                                     // don't search remote corpus
-                                    for (ArbilNodeObject currentChildNode : currentImdiNode.getChildArray()) {
+                                    for (ArbilDataNode currentChildNode : currentDataNode.getChildArray()) {
                                         System.out.println("adding to search list: " + currentChildNode);
                                         currentChildNode.registerContainer(this); // this causes the node to be loaded
                                         localSearchNodes.add(currentChildNode);
@@ -219,18 +219,18 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
                                     boolean termPassedFilter = true;
                                     // filter by the node type if entered
                                     if (currentTermPanel.nodeType.equals("Corpus")) {
-                                        termPassedFilter = currentImdiNode.isCorpus();
+                                        termPassedFilter = currentDataNode.isCorpus();
                                     } else if (currentTermPanel.nodeType.equals("Session")) {
-                                        termPassedFilter = currentImdiNode.isSession();
+                                        termPassedFilter = currentDataNode.isSession();
                                     } else if (currentTermPanel.nodeType.equals("Catalogue")) {
-                                        termPassedFilter = currentImdiNode.isCatalogue();
+                                        termPassedFilter = currentDataNode.isCatalogue();
                                     } else if (!currentTermPanel.nodeType.equals("All")) {
-                                        termPassedFilter = currentImdiNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
+                                        termPassedFilter = currentDataNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
                                     }
                                     if (currentTermPanel.searchFieldName.length() > 0) {// filter by the feild name and search string if entered
-                                        termPassedFilter = termPassedFilter && (currentImdiNode.containsFieldValue(currentTermPanel.searchFieldName, currentTermPanel.searchString));
+                                        termPassedFilter = termPassedFilter && (currentDataNode.containsFieldValue(currentTermPanel.searchFieldName, currentTermPanel.searchString));
                                     } else if (currentTermPanel.searchString.length() > 0) { // filter by the search string if entered
-                                        termPassedFilter = termPassedFilter && (currentImdiNode.containsFieldValue(currentTermPanel.searchString));
+                                        termPassedFilter = termPassedFilter && (currentDataNode.containsFieldValue(currentTermPanel.searchString));
                                     }
                                     // invert based on the == / != selection
                                     termPassedFilter = currentTermPanel.notEqual != termPassedFilter;
@@ -248,10 +248,10 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
                                 totalSearched++;
                                 // if the node has no fields it should still be added since it will only pass a search if for instance the search is for actors and in that case it should be shown even if blank
                                 if (nodePassedFilter) {
-                                    foundNodes.add(currentImdiNode);
-                                    resultsTableModel.addSingleImdiObject(currentImdiNode);
+                                    foundNodes.add(currentDataNode);
+                                    resultsTableModel.addSingleArbilDataNode(currentDataNode);
                                 } else {
-                                    currentImdiNode.removeContainer(this);
+                                    currentDataNode.removeContainer(this);
                                 }
                                 if (totalNodesToSearch < totalSearched + localSearchNodes.size()) {
                                     totalNodesToSearch = totalSearched + localSearchNodes.size();
@@ -284,7 +284,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel {
                 stopButton.setEnabled(false);
                 threadRunning = false;
                 // add the results to the table
-                resultsTableModel.addImdiObjects(foundNodes.elements());
+                resultsTableModel.addArbilDataNodes(foundNodes.elements());
                 foundNodes.removeAllElements();
             }
         }.start();

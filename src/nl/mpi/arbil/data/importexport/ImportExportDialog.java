@@ -1,14 +1,14 @@
 package nl.mpi.arbil.data.importexport;
 
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.*;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -46,7 +46,7 @@ import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.ui.XsdChecker;
 
 /**
@@ -97,8 +97,8 @@ public class ImportExportDialog {
     // variables used by the copy thread
     // variables used by all threads
     private boolean stopSearch = false;
-    protected Vector<ArbilNodeObject> selectedNodes;
-    ArbilNodeObject destinationNode = null;
+    protected Vector<ArbilDataNode> selectedNodes;
+    ArbilDataNode destinationNode = null;
     protected File exportDestinationDirectory = null;
     DownloadAbortFlag downloadAbortFlag = new DownloadAbortFlag();
     ShibbolethNegotiator shibbolethNegotiator = null;
@@ -106,7 +106,7 @@ public class ImportExportDialog {
     Vector<URI> metaDataCopyErrors = new Vector<URI>();
     Vector<URI> fileCopyErrors = new Vector<URI>();
 
-    private void setNodesPanel(ArbilNodeObject selectedNode, JPanel nodePanel) {
+    private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
         JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
     }
@@ -115,8 +115,8 @@ public class ImportExportDialog {
 //            setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
 //        nodePanel.setLayout(new java.awt.GridLayout());
 //        add(nodePanel);
-        for (Enumeration<ArbilNodeObject> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
-            ArbilNodeObject currentNode = selectedNodesEnum.nextElement();
+        for (Enumeration<ArbilDataNode> selectedNodesEnum = selectedNodes.elements(); selectedNodesEnum.hasMoreElements();) {
+            ArbilDataNode currentNode = selectedNodesEnum.nextElement();
             JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
             nodePanel.add(currentLabel);
         }
@@ -136,19 +136,19 @@ public class ImportExportDialog {
         nodePanel.add(currentLabel);
     }
 
-    public void importImdiBranch() {
+    public void importArbilBranch() {
         File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Import", false, true, true);
         if (selectedFiles != null) {
             Vector importNodeVector = new Vector();
             for (File currentFile : selectedFiles) {
-                ArbilNodeObject imdiToImport = ImdiLoader.getSingleInstance().getImdiObject(null, currentFile.toURI());
-                importNodeVector.add(imdiToImport);
+                ArbilDataNode nodeToImport = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentFile.toURI());
+                importNodeVector.add(nodeToImport);
             }
             copyToCache(importNodeVector);
         }
     }
 
-    public void selectExportDirectoryAndExport(ArbilNodeObject[] localCorpusSelectedNodes) {
+    public void selectExportDirectoryAndExport(ArbilDataNode[] localCorpusSelectedNodes) {
         // make sure the chosen directory is empty
         // export the tree, maybe adjusting resource links so that resource files do not need to be copied
         searchDialog.setTitle("Export Branch");
@@ -161,7 +161,7 @@ public class ImportExportDialog {
     private void exportFromCache(Vector localSelectedNodes, File destinationDirectory) {
         selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
-        if (!selectedNodesContainImdi()) {
+        if (!selectedNodesContainDataNode()) {
             JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
             return;
         }
@@ -173,12 +173,12 @@ public class ImportExportDialog {
         searchDialog.setVisible(true);
     }
 
-    public void copyToCache(ArbilNodeObject[] localSelectedNodes) {
+    public void copyToCache(ArbilDataNode[] localSelectedNodes) {
         copyToCache(new Vector(Arrays.asList(localSelectedNodes)));
     }
 
     // sets the destination branch for the imported nodes
-    public void setDestinationNode(ArbilNodeObject localDestinationNode) {
+    public void setDestinationNode(ArbilDataNode localDestinationNode) {
         destinationNode = localDestinationNode;
         setNodesPanel(destinationNode, outputNodePanel);
     }
@@ -186,7 +186,7 @@ public class ImportExportDialog {
     public void copyToCache(Vector localSelectedNodes) {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
-        if (!selectedNodesContainImdi()) {
+        if (!selectedNodesContainDataNode()) {
             JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
             return;
         }
@@ -197,10 +197,10 @@ public class ImportExportDialog {
         searchDialog.setVisible(true);
     }
 
-    private boolean selectedNodesContainImdi() {
+    private boolean selectedNodesContainDataNode() {
         Enumeration selectedNodesEnum = selectedNodes.elements();
         while (selectedNodesEnum.hasMoreElements()) {
-            if (selectedNodesEnum.nextElement() instanceof ArbilNodeObject) {
+            if (selectedNodesEnum.nextElement() instanceof ArbilDataNode) {
                 return true;
             }
         }
@@ -469,7 +469,7 @@ public class ImportExportDialog {
                         ArbilWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
                     }
                     if (fileCopyErrors.size() > 0) {
-                        ImdiTableModel resourceFileErrorsTable = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
+                        ArbilTableModel resourceFileErrorsTable = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
                         //resourceFileErrorsTable.getFieldView().
                         resourceFileErrorsTable.addChildTypeToDisplay("MediaFiles");
                         resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");
@@ -671,20 +671,20 @@ public class ImportExportDialog {
                 XsdChecker xsdChecker = new XsdChecker();
                 waitTillVisible();
                 progressBar.setIndeterminate(true);
-                ArrayList<ArbilNodeObject> finishedTopNodes = new ArrayList<ArbilNodeObject>();
+                ArrayList<ArbilDataNode> finishedTopNodes = new ArrayList<ArbilDataNode>();
                 Hashtable<URI, RetrievableFile> seenFiles = new Hashtable<URI, RetrievableFile>();
                 ArrayList<URI> getList = new ArrayList<URI>();
                 ArrayList<URI> doneList = new ArrayList<URI>();
                 while (selectedNodesEnum.hasMoreElements() && !stopSearch) {
                     Object currentElement = selectedNodesEnum.nextElement();
-                    if (currentElement instanceof ArbilNodeObject) {
+                    if (currentElement instanceof ArbilDataNode) {
                         copyElement(currentElement, getList, seenFiles, doneList, xsdChecker, finishedTopNodes);
                     }
                 }
                 finalMessageString = finalMessageString + "Processed " + totalLoaded + " Metadata Files.\n";
                 if (exportDestinationDirectory == null) {
                     if (!stopSearch) {
-                        for (ArbilNodeObject currentFinishedNode : finishedTopNodes) {
+                        for (ArbilDataNode currentFinishedNode : finishedTopNodes) {
                             if (destinationNode != null) {
                                 if (!destinationNode.getURI().equals(currentFinishedNode.getURI())) {
                                     destinationNode.addCorpusLink(currentFinishedNode);
@@ -717,19 +717,19 @@ public class ImportExportDialog {
                 }
             }
 
-            private void copyElement(Object currentElement, ArrayList<URI> getList, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, XsdChecker xsdChecker, ArrayList<ArbilNodeObject> finishedTopNodes) {
-                URI currentGettableUri = ((ArbilNodeObject) currentElement).getParentDomNode().getURI();
+            private void copyElement(Object currentElement, ArrayList<URI> getList, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, XsdChecker xsdChecker, ArrayList<ArbilDataNode> finishedTopNodes) {
+                URI currentGettableUri = ((ArbilDataNode) currentElement).getParentDomNode().getURI();
                 getList.add(currentGettableUri);
                 if (!seenFiles.containsKey(currentGettableUri)) {
-                    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilNodeObject) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
+                    seenFiles.put(currentGettableUri, new RetrievableFile(((ArbilDataNode) currentElement).getParentDomNode().getURI(), exportDestinationDirectory));
                 }
                 while (!stopSearch && getList.size() > 0) {
                     RetrievableFile currentRetrievableFile = seenFiles.get(getList.remove(0));
                     copyFile(currentRetrievableFile, seenFiles, doneList, getList, xsdChecker);
                 }
                 if (exportDestinationDirectory == null) {
-                    File newNodeLocation = ArbilSessionStorage.getSingleInstance().getSaveLocation(((ArbilNodeObject) currentElement).getParentDomNode().getUrlString());
-                    finishedTopNodes.add(ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(newNodeLocation.toURI()));
+                    File newNodeLocation = ArbilSessionStorage.getSingleInstance().getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
+                    finishedTopNodes.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
                 }
             }
 
@@ -748,7 +748,7 @@ public class ImportExportDialog {
                             }
                             journalActionString = "export";
                         }
-                        MetadataUtils currentMetdataUtil = ArbilNodeObject.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
+                        MetadataUtils currentMetdataUtil = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
                         ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
                         URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
                         if (linksUriArray != null) {
@@ -766,7 +766,7 @@ public class ImportExportDialog {
                                 appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
                             } else {
                             }
-                            ArbilNodeObject destinationNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(currentRetrievableFile.destinationFile.toURI());
+                            ArbilDataNode destinationNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
                             if (destinationNode.getNeedsSaveToDisk(false)) {
                                 destinationNode.saveChangesToCache(true);
                             }
@@ -790,7 +790,7 @@ public class ImportExportDialog {
                                 xsdErrors++;
                             }
                             if (replacingExitingFile) {
-                                ImdiLoader.getSingleInstance().requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
+                                ArbilDataNodeLoader.getSingleInstance().requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
                             }
                         }
                     }
@@ -828,7 +828,7 @@ public class ImportExportDialog {
                         seenFiles.put(gettableLinkUri, new RetrievableFile(gettableLinkUri, currentRetrievableFile.childDestinationDirectory));
                     }
                     RetrievableFile retrievableLink = seenFiles.get(gettableLinkUri);
-                    if (ArbilNodeObject.isPathMetadata(currentLink)) {
+                    if (ArbilDataNode.isPathMetadata(currentLink)) {
                         getList.add(gettableLinkUri);
                         if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
                             retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
@@ -920,7 +920,7 @@ public class ImportExportDialog {
 
         public void calculateTreeFileName(boolean lamusFriendly) {
             fileSuffix = sourceURI.toString().substring(sourceURI.toString().lastIndexOf("."));
-            ArbilNodeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, sourceURI);
+            ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, sourceURI);
             currentNode.waitTillLoaded();
             String fileNameString;
             if (currentNode.isMetaDataNode()) {

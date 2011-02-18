@@ -9,7 +9,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -23,13 +23,13 @@ public class BinaryMetadataReader {
 // functions to extract the exif data from images
 // this will probably need to be moved to a more appropriate class
 
-    public ArbilField[] getExifMetadata(ArbilNodeObject resourceImdi, int currentFieldId) {
+    public ArbilField[] getExifMetadata(ArbilDataNode resourceNode, int currentFieldId) {
         Vector<ArbilField> exifTagFields = new Vector();
-        System.out.println("tempGetExif: " + resourceImdi.getFile());
+        System.out.println("tempGetExif: " + resourceNode.getFile());
         try {
-            URI uri = resourceImdi.getURI();
-            if (resourceImdi.getFile().getName().contains(".")) {
-                String fileSuffix = resourceImdi.getFile().getName().substring(resourceImdi.getFile().getName().lastIndexOf(".") + 1);
+            URI uri = resourceNode.getURI();
+            if (resourceNode.getFile().getName().contains(".")) {
+                String fileSuffix = resourceNode.getFile().getName().substring(resourceNode.getFile().getName().lastIndexOf(".") + 1);
                 System.out.println("tempGetExifSuffix: " + fileSuffix);
                 Iterator readers = ImageIO.getImageReadersBySuffix(fileSuffix);
                 if (readers.hasNext()) {
@@ -41,7 +41,7 @@ public class BinaryMetadataReader {
                         for (int i = 0; i < names.length; ++i) {
                             System.out.println();
                             System.out.println("METADATA FOR FORMAT: " + names[i]);
-                            decendExifTree(resourceImdi, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields, currentFieldId);
+                            decendExifTree(resourceNode, metadata.getAsTree(names[i]), null/*"." + names[i]*/, exifTagFields, currentFieldId);
                         }
                     }
                 }
@@ -54,7 +54,7 @@ public class BinaryMetadataReader {
         return exifTagFields.toArray(new ArbilField[]{});
     }
 
-    public void decendExifTree(ArbilNodeObject resourceImdi, Node node, String prefixString, Vector<ArbilField> exifTagFields, int currentFieldId) {
+    public void decendExifTree(ArbilDataNode resourceNode, Node node, String prefixString, Vector<ArbilField> exifTagFields, int currentFieldId) {
         if (prefixString == null) {
             prefixString = "EXIF"; // skip the first node name
         } else {
@@ -65,13 +65,13 @@ public class BinaryMetadataReader {
             for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                 String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                 String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                exifTagFields.add(new ArbilField(currentFieldId++, resourceImdi, prefixString + MetadataReader.imdiPathSeparator + attributeName, attributeValue, 0));
+                exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, prefixString + MetadataReader.imdiPathSeparator + attributeName, attributeValue, 0));
             }
         }
         if (node.hasChildNodes()) {
             NodeList children = node.getChildNodes();
             for (int i = 0, ub = children.getLength(); i < ub; ++i) {
-                decendExifTree(resourceImdi, children.item(i), prefixString, exifTagFields, currentFieldId);
+                decendExifTree(resourceNode, children.item(i), prefixString, exifTagFields, currentFieldId);
             }
         }
     }

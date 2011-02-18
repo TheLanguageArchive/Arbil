@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import java.awt.event.MouseEvent;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
@@ -10,14 +10,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 /**
- * Document   : ImdiFieldViewTable
- * Used to edit the field view of an imdi table
+ * Document   : ArbilFieldViewTable
+ * Used to edit the field view of an arbil table
  * Created on : Jan 5, 2009, 12:40:37 PM
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFieldViewTable extends JTable {
 
-    public ArbilFieldViewTable(ImdiTableModel imdiTableModel) {
+    public ArbilFieldViewTable(ArbilTableModel imdiTableModel) {
         TableModel tableModel = new ArbilFieldViewTableModel(imdiTableModel);
         setModel(tableModel);
         this.addMouseListener(new java.awt.event.MouseAdapter() {

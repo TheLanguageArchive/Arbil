@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FontMetrics;
@@ -40,7 +40,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
     ArbilTable parentTable = null;
     Rectangle parentCellRect = null;
-    ArbilNodeObject registeredOwner = null;
+    ArbilDataNode registeredOwner = null;
     JPanel editorPanel;
     JLabel button;
     String fieldName;
@@ -147,7 +147,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private boolean isCellEditable() {
         boolean returnValue = false;
         if (cellValue instanceof ArbilField[]) {
-            ArbilNodeObject parentObject = ((ArbilField[]) cellValue)[0].parentImdi;
+            ArbilDataNode parentObject = ((ArbilField[]) cellValue)[0].parentDataNode;
             // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
             returnValue = !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
         }
@@ -340,8 +340,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 }
 //                ArbilTableCellEditor.this.stopCellEditing();
             }
-        } else if (cellValue instanceof ArbilNodeObject[]) {
-            ArbilWindowManager.getSingleInstance().openFloatingTableOnce((ArbilNodeObject[]) cellValue, fieldName + " in " + registeredOwner);
+        } else if (cellValue instanceof ArbilDataNode[]) {
+            ArbilWindowManager.getSingleInstance().openFloatingTableOnce((ArbilDataNode[]) cellValue, fieldName + " in " + registeredOwner);
         } else {
             try {
                 throw new Exception("Edit cell type not supported");
@@ -372,7 +372,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
             if (value instanceof ArbilField) {
                 // TODO: get the whole array from the parent and select the correct tab for editing
                 fieldName = ((ArbilField) value).getTranslateFieldName();
-                cellValue = ((ArbilField) value).parentImdi.getFields().get(fieldName);
+                cellValue = ((ArbilField) value).parentDataNode.getFields().get(fieldName);
                 // TODO: find the chosen fields index in the array and store
                 for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
                     System.out.println("selectedField: " + cellValue[cellFieldCounter] + " : " + value);
@@ -388,7 +388,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 }
             }
             if (cellValue[0] instanceof ArbilField) {
-                registeredOwner = ((ArbilField) cellValue[0]).parentImdi;
+                registeredOwner = ((ArbilField) cellValue[0]).parentDataNode;
             }
         } else {
             GuiHelper.linorgBugCatcher.logError(new Exception("value is null in convertCellValue"));

@@ -12,8 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilIcons;
-import nl.mpi.arbil.data.ImdiLoader;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
@@ -84,16 +84,16 @@ public class TreeContextMenu extends ArbilContextMenu {
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
 //            addMenu.setToolTipText("test balloon on dissabled menu item");
                 deleteMenuItem.setVisible(nodeLevel > 1);
-                boolean nodeIsImdiChild = false;
+                boolean nodeIsChild = false;
                 if (leadSelectedTreeNode != null) {
-                    nodeIsImdiChild = leadSelectedTreeNode.isImdiChild();
+                    nodeIsChild = leadSelectedTreeNode.isChildNode();
 
-                    validateMenuItem.setVisible(!nodeIsImdiChild);
+                    validateMenuItem.setVisible(!nodeIsChild);
                     historyMenu.setVisible(leadSelectedTreeNode.hasHistory());
-                    exportMenuItem.setVisible(!nodeIsImdiChild);
+                    exportMenuItem.setVisible(!nodeIsChild);
                     importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
                     importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
-                    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.archiveHandle != null && !leadSelectedTreeNode.isImdiChild());
+                    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.archiveHandle != null && !leadSelectedTreeNode.isChildNode());
 
                     // set up the favourites menu
                     addFromFavouritesMenu.setVisible(true);
@@ -131,7 +131,7 @@ public class TreeContextMenu extends ArbilContextMenu {
             addToFavouritesMenuItem.setVisible(false);
         }
 
-        copyImdiUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1); // show the copy menu providing some nodes are selected and the root node is not the only one selected
+        copyNodeUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1); // show the copy menu providing some nodes are selected and the root node is not the only one selected
 
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
@@ -161,8 +161,8 @@ public class TreeContextMenu extends ArbilContextMenu {
         });
         add(deleteMenuItem);
 
-        copyImdiUrlMenuItem.setText("Copy");
-        copyImdiUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        copyNodeUrlMenuItem.setText("Copy");
+        copyNodeUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
@@ -177,14 +177,14 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(copyImdiUrlMenuItem);
+        add(copyNodeUrlMenuItem);
 
         pasteMenuItem1.setText("Paste");
         pasteMenuItem1.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                    for (ArbilDataNode currentNode : selectedTreeNodes) {
                         currentNode.pasteIntoNode();
                     }
                 } catch (Exception ex) {
@@ -238,7 +238,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                    for (ArbilDataNode currentNode : selectedTreeNodes) {
                         // this reload will first clear the save is required flag then reload
                         currentNode.reloadNode();
                     }
@@ -367,7 +367,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject selectedNode : selectedTreeNodes) {
+                    for (ArbilDataNode selectedNode : selectedTreeNodes) {
                         TreeHelper.getSingleInstance().removeLocation(selectedNode);
                     }
                     TreeHelper.getSingleInstance().applyRootLocations();
@@ -424,7 +424,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject selectedNode : selectedTreeNodes) {
+                    for (ArbilDataNode selectedNode : selectedTreeNodes) {
                         TreeHelper.getSingleInstance().removeLocation(selectedNode);
                     }
                     TreeHelper.getSingleInstance().applyRootLocations();
@@ -440,10 +440,10 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject selectedNode : selectedTreeNodes) {
+                    for (ArbilDataNode selectedNode : selectedTreeNodes) {
                         System.out.println("userObject: " + selectedNode);
                         // reloading will first check if a save is required then save and reload
-                        ImdiLoader.getSingleInstance().requestReload((ArbilNodeObject) selectedNode.getParentDomNode());
+                        ArbilDataNodeLoader.getSingleInstance().requestReload((ArbilDataNode) selectedNode.getParentDomNode());
                     }
 
                 } catch (Exception ex) {
@@ -459,7 +459,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    for (ArbilNodeObject currentNode : selectedTreeNodes) {
+                    for (ArbilDataNode currentNode : selectedTreeNodes) {
 //                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
                     }
                 } catch (Exception ex) {
@@ -519,7 +519,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 try {
                     ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
                     importExportDialog.setDestinationNode(leadSelectedTreeNode);
-                    importExportDialog.importImdiBranch();
+                    importExportDialog.importArbilBranch();
 
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -561,7 +561,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         String addableLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the URL", "Add Location", JOptionPane.PLAIN_MESSAGE);
 
         if ((addableLocation != null) && (addableLocation.length() > 0)) {
-            TreeHelper.getSingleInstance().addLocationGui(ArbilNodeObject.conformStringToUrl(addableLocation));
+            TreeHelper.getSingleInstance().addLocationGui(ArbilDataNode.conformStringToUrl(addableLocation));
         }
     }
 
@@ -592,7 +592,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void validateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        for (ArbilNodeObject currentNode : selectedTreeNodes) {
+        for (ArbilDataNode currentNode : selectedTreeNodes) {
             // todo: offer to save node first
             XsdChecker xsdChecker = new XsdChecker();
             ArbilWindowManager.getSingleInstance().createWindow("XsdChecker", xsdChecker);
@@ -605,9 +605,9 @@ public class TreeContextMenu extends ArbilContextMenu {
         boolean menuItemsAdded = false;
         addMenu.removeAll();
         ArbilTemplate currentTemplate;
-        if (targetNodeUserObject instanceof ArbilNodeObject && !((ArbilNodeObject) targetNodeUserObject).isCorpus()) {
-            ArbilIcons imdiIcons = ArbilIcons.getSingleInstance();
-            currentTemplate = ((ArbilNodeObject) targetNodeUserObject).getNodeTemplate();
+        if (targetNodeUserObject instanceof ArbilDataNode && !((ArbilDataNode) targetNodeUserObject).isCorpus()) {
+            ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
+            currentTemplate = ((ArbilDataNode) targetNodeUserObject).getNodeTemplate();
             for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
                 String[] currentField = (String[]) menuItemName.nextElement();
 
@@ -618,9 +618,9 @@ public class TreeContextMenu extends ArbilContextMenu {
                 addMenuItem.setToolTipText(currentField[1]);
                 addMenuItem.setActionCommand(currentField[1]);
                 if (null != currentTemplate.pathIsChildNode(currentField[1])) {
-                    addMenuItem.setIcon(imdiIcons.dataIcon);
+                    addMenuItem.setIcon(arbilIcons.dataIcon);
                 } else {
-                    addMenuItem.setIcon(imdiIcons.fieldIcon);
+                    addMenuItem.setIcon(arbilIcons.fieldIcon);
                 }
                 addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -710,10 +710,10 @@ public class TreeContextMenu extends ArbilContextMenu {
 
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     try {
-                        String imdiFavouriteUrlString = evt.getActionCommand();
-                        ArbilNodeObject templateImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, ArbilNodeObject.conformStringToUrl(imdiFavouriteUrlString));
+                        String favouriteUrlString = evt.getActionCommand();
+                        ArbilDataNode templateDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, ArbilDataNode.conformStringToUrl(favouriteUrlString));
                         if (leadSelectedTreeNode != null) {
-                            new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateImdiObject);
+                            new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateDataNode);
                         }
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());
@@ -739,8 +739,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     private void viewSelectedNodes() {
         try {
-            ArrayList<ArbilNodeObject> filteredNodes = new ArrayList<ArbilNodeObject>();
-            for (ArbilNodeObject currentItem : ((ArbilTree) getInvoker()).getSelectedNodes()) {
+            ArrayList<ArbilDataNode> filteredNodes = new ArrayList<ArbilDataNode>();
+            for (ArbilDataNode currentItem : ((ArbilTree) getInvoker()).getSelectedNodes()) {
                 if (currentItem.isMetaDataNode() || currentItem.getFields().size() > 0) {
                     filteredNodes.add(currentItem);
                 } else {
@@ -752,7 +752,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
             if (filteredNodes.size() > 0) {
-                ArbilWindowManager.getSingleInstance().openFloatingTableOnce(filteredNodes.toArray(new ArbilNodeObject[]{}), null);
+                ArbilWindowManager.getSingleInstance().openFloatingTableOnce(filteredNodes.toArray(new ArbilDataNode[]{}), null);
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
@@ -761,15 +761,15 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     private void reImportBranch() {
         try {
-            URI remoteImdiFile = ArbilSessionStorage.getSingleInstance().getOriginatingUri(leadSelectedTreeNode.getURI());
-            if (remoteImdiFile != null) {
-                ArbilNodeObject originatingNode = ImdiLoader.getSingleInstance().getImdiObjectWithoutLoading(remoteImdiFile);
+            URI remoteDataFile = ArbilSessionStorage.getSingleInstance().getOriginatingUri(leadSelectedTreeNode.getURI());
+            if (remoteDataFile != null) {
+                ArbilDataNode originatingNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(remoteDataFile);
                 if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {
                     ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The origional file location cannot be found", "Re Import Branch");
                 } else if (originatingNode.isMetaDataNode()) {
                     ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree); // TODO: this may not always be to correct component and this code should be updated
                     importExportDialog.setDestinationNode(leadSelectedTreeNode); // TODO: do not re add the location in this case
-                    importExportDialog.copyToCache(new ArbilNodeObject[]{originatingNode});
+                    importExportDialog.copyToCache(new ArbilDataNode[]{originatingNode});
                 } else {
                     ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not determine the origional node type", "Re Import Branch");
                 }
@@ -791,7 +791,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         addRemoteCorpusMenuItem.setVisible(false);
         copyBranchMenuItem.setVisible(false);
         searchRemoteBranchMenuItem.setVisible(false);
-        copyImdiUrlMenuItem.setVisible(false);
+        copyNodeUrlMenuItem.setVisible(false);
         pasteMenuItem1.setVisible(false);
 
         searchSubnodesMenuItem.setVisible(false);
@@ -823,7 +823,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenuItem addToFavouritesMenuItem = new JMenuItem();
     private JMenuItem copyBranchMenuItem = new JMenuItem();
     private JMenuItem searchRemoteBranchMenuItem = new JMenuItem();
-    private JMenuItem copyImdiUrlMenuItem = new JMenuItem();
+    private JMenuItem copyNodeUrlMenuItem = new JMenuItem();
     private JMenuItem deleteMenuItem = new JMenuItem();
     private JMenuItem exportMenuItem = new JMenuItem();
     private JMenuItem importCsvMenuItem = new JMenuItem();

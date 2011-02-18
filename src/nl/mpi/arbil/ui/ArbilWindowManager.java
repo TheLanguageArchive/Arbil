@@ -1,10 +1,10 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.data.ImdiTableModel;
+import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -47,10 +47,10 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ArbilVersion;
-import nl.mpi.arbil.data.ImdiLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 
 /**
- * Document   : LinorgWindowManager
+ * Document   : ArbilWindowManager
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
@@ -138,11 +138,11 @@ public class ArbilWindowManager {
     }
 
     public void offerUserToSaveChanges() throws Exception {
-        if (ImdiLoader.getSingleInstance().nodesNeedSave()) {
+        if (ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
             if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
                     "There are unsaved changes.\nSave now?", "Save Changes",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                ImdiLoader.getSingleInstance().saveNodesNeedingSave(true);
+                ArbilDataNodeLoader.getSingleInstance().saveNodesNeedingSave(true);
             } else {
                 throw new Exception("user canceled save action");
             }
@@ -384,10 +384,10 @@ public class ArbilWindowManager {
                 System.out.println("currentWindowName: " + currentWindowName);
                 Vector imdiURLs = (Vector) windowListHashtable.get(currentWindowName);
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
-                ArbilNodeObject[] imdiObjectsArray = new ArbilNodeObject[imdiURLs.size()];
+                ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[imdiURLs.size()];
                 for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
                     try {
-                        imdiObjectsArray[arrayCounter] = (ImdiLoader.getSingleInstance().getImdiObject(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
+                        imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
                     } catch (URISyntaxException ex) {
                         GuiHelper.linorgBugCatcher.logError(ex);
                     }
@@ -483,14 +483,14 @@ public class ArbilWindowManager {
                         Object currentComponent = ((JInternalFrame) windowObject).getContentPane().getComponent(0);
                         if (currentComponent != null && currentComponent instanceof ArbilSplitPanel) {
                             // if this table has no nodes then don't save it
-                            if (0 < ((ArbilSplitPanel) currentComponent).imdiTable.getRowCount()) {
+                            if (0 < ((ArbilSplitPanel) currentComponent).arbilTable.getRowCount()) {
 //                System.out.println("windowObject: " + windowObject);
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane());
 //                System.out.println("getComponent: " + ((JInternalFrame) windowObject).getComponent(0));
 //                System.out.println("LinorgSplitPanel: " + ((LinorgSplitPanel)((JInternalFrame) windowObject).getContentPane()));
 //                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane().getComponent(0));                                           
                                 Vector currentNodesVector = new Vector();
-                                for (String currentUrlString : ((ImdiTableModel) ((ArbilSplitPanel) currentComponent).imdiTable.getModel()).getImdiNodesURLs()) {
+                                for (String currentUrlString : ((ArbilTableModel) ((ArbilSplitPanel) currentComponent).arbilTable.getModel()).getArbilDataNodesURLs()) {
                                     currentNodesVector.add(currentUrlString);
                                 }
                                 windowListHashtable.put(currentWindowName, currentNodesVector);
@@ -819,24 +819,24 @@ public class ArbilWindowManager {
         return htmlDisplay;
     }
 
-    public void openSearchTable(ArbilNodeObject[] selectedNodes, String frameTitle) {
-        ImdiTableModel resultsTableModel = new ImdiTableModel();
-        ArbilTable imdiTable = new ArbilTable(resultsTableModel, frameTitle);
-        ArbilSplitPanel imdiSplitPanel = new ArbilSplitPanel(imdiTable);
-        JInternalFrame searchFrame = this.createWindow(frameTitle, imdiSplitPanel);
+    public void openSearchTable(ArbilDataNode[] selectedNodes, String frameTitle) {
+        ArbilTableModel resultsTableModel = new ArbilTableModel();
+        ArbilTable arbilTable = new ArbilTable(resultsTableModel, frameTitle);
+        ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
+        JInternalFrame searchFrame = this.createWindow(frameTitle, arbilSplitPanel);
         searchFrame.add(new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
-        imdiSplitPanel.setSplitDisplay();
-        imdiSplitPanel.addFocusListener(searchFrame);
+        arbilSplitPanel.setSplitDisplay();
+        arbilSplitPanel.addFocusListener(searchFrame);
         searchFrame.pack();
     }
 
-    public ImdiTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
-        ArbilNodeObject[] tableNodes = new ArbilNodeObject[rowNodesArray.length];
+    public ArbilTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
+        ArbilDataNode[] tableNodes = new ArbilDataNode[rowNodesArray.length];
         ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
             try {
                 if (rowNodesArray[arrayCounter] != null) {
-                    ArbilNodeObject parentNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
+                    ArbilDataNode parentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(rowNodesArray[arrayCounter].toString().split("#")[0]));
 //                parentNode.waitTillLoaded();
                     String fieldPath = rowNodesArray[arrayCounter].getFragment();
                     String parentNodeFragment;
@@ -853,35 +853,35 @@ public class ArbilWindowManager {
                     } else {
                         targetNode = new URI(rowNodesArray[arrayCounter].toString().split("#")[0]);
                     }
-                    tableNodes[arrayCounter] = ImdiLoader.getSingleInstance().getImdiObject(null, targetNode);
+                    tableNodes[arrayCounter] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, targetNode);
                     fieldPathsToHighlight.add(fieldPath);
                 }
             } catch (URISyntaxException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
-        ImdiTableModel targetTableModel = openFloatingTableOnce(tableNodes, frameTitle);
+        ArbilTableModel targetTableModel = openFloatingTableOnce(tableNodes, frameTitle);
         targetTableModel.highlightMatchingFieldPaths(fieldPathsToHighlight.toArray(new String[]{}));
         return targetTableModel;
     }
 
-    public ImdiTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
-        HashSet<ArbilNodeObject> tableNodes = new HashSet();
+    public ArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
+        HashSet<ArbilDataNode> tableNodes = new HashSet();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
 //            try {
-            ArbilNodeObject currentNode = ImdiLoader.getSingleInstance().getImdiObject(null, rowNodesArray[arrayCounter]);
+            ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, rowNodesArray[arrayCounter]);
             tableNodes.add(currentNode);
-            for (ArbilNodeObject currentChildNode : currentNode.getAllChildren()) {
+            for (ArbilDataNode currentChildNode : currentNode.getAllChildren()) {
                 tableNodes.add(currentChildNode);
             }
 //            } catch (URISyntaxException ex) {
 //                GuiHelper.linorgBugCatcher.logError(ex);
 //            }
         }
-        return openFloatingTableOnce(tableNodes.toArray(new ArbilNodeObject[]{}), frameTitle);
+        return openFloatingTableOnce(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
     }
 
-    public ImdiTableModel openFloatingTableOnce(ArbilNodeObject[] rowNodesArray, String frameTitle) {
+    public ArbilTableModel openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
         if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
             try {
                 if (rowNodesArray[0].getUrlString().toLowerCase().endsWith(".html") || rowNodesArray[0].getUrlString().toLowerCase().endsWith(".txt")) {
@@ -899,13 +899,13 @@ public class ArbilWindowManager {
                 // loop through all the child components in the window (there will probably only be one)
                 if (childComponent instanceof ArbilSplitPanel) {
                     // only consider components with a LinorgSplitPanel
-                    ImdiTableModel currentTableModel = (ImdiTableModel) ((ArbilSplitPanel) childComponent).imdiTable.getModel();
-                    if (currentTableModel.getImdiNodeCount() == rowNodesArray.length) {
+                    ArbilTableModel currentTableModel = (ArbilTableModel) ((ArbilSplitPanel) childComponent).arbilTable.getModel();
+                    if (currentTableModel.getArbilDataNodeCount() == rowNodesArray.length) {
                         // first check that the number of nodes in the table matches
                         boolean tableMatches = true;
-                        for (ArbilNodeObject currentItem : rowNodesArray) {
+                        for (ArbilDataNode currentItem : rowNodesArray) {
                             // compare each node for a verbatim match
-                            if (!currentTableModel.containsImdiNode(currentItem)) {
+                            if (!currentTableModel.containsArbilDataNode(currentItem)) {
 //                              // ignore this window because the nodes do not match
                                 tableMatches = false;
                                 break;
@@ -929,7 +929,7 @@ public class ArbilWindowManager {
         return openFloatingTable(rowNodesArray, frameTitle);
     }
 
-    public ImdiTableModel openFloatingTable(ArbilNodeObject[] rowNodesArray, String frameTitle) {
+    public ArbilTableModel openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
                 frameTitle = rowNodesArray[0].toString();
@@ -937,13 +937,13 @@ public class ArbilWindowManager {
                 frameTitle = "Selection";
             }
         }
-        ImdiTableModel imdiTableModel = new ImdiTableModel();
-        ArbilTable imdiTable = new ArbilTable(imdiTableModel, frameTitle);
-        ArbilSplitPanel imdiSplitPanel = new ArbilSplitPanel(imdiTable);
-        imdiTableModel.addImdiObjects(rowNodesArray);
-        imdiSplitPanel.setSplitDisplay();
-        JInternalFrame tableFrame = this.createWindow(frameTitle, imdiSplitPanel);
-        imdiSplitPanel.addFocusListener(tableFrame);
-        return imdiTableModel;
+        ArbilTableModel arbilTableModel = new ArbilTableModel();
+        ArbilTable arbilTable = new ArbilTable(arbilTableModel, frameTitle);
+        ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
+        arbilTableModel.addArbilDataNodes(rowNodesArray);
+        arbilSplitPanel.setSplitDisplay();
+        JInternalFrame tableFrame = this.createWindow(frameTitle, arbilSplitPanel);
+        arbilSplitPanel.addFocusListener(tableFrame);
+        return arbilTableModel;
     }
 }

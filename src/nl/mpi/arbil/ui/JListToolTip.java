@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilNodeObject;
+import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Hashtable;
@@ -46,8 +46,8 @@ class JListToolTip extends JToolTip {
 
     private void addIconLabel(Object tempObject) {
         JLabel jLabel = new JLabel(truncateString(tempObject.toString()));
-        if (tempObject instanceof ArbilNodeObject) {
-            jLabel.setIcon(((ArbilNodeObject) tempObject).getIcon());
+        if (tempObject instanceof ArbilDataNode) {
+            jLabel.setIcon(((ArbilDataNode) tempObject).getIcon());
         }
 //        else if (tempObject instanceof ArbilField) {
 //            jLabel.setIcon(ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) tempObject));
@@ -101,7 +101,7 @@ class JListToolTip extends JToolTip {
         }
     }
 
-    private void addLabelsForImdiObject(ArbilNodeObject tempObject) {
+    private void addLabelsForDataNode(ArbilDataNode tempObject) {
         if (tempObject.isMetaDataNode()) {
             Hashtable<String, ArbilField[]> tempFields = tempObject.getFields();
             addDetailLabel("Name: ", tempFields.get("Name"));
@@ -167,14 +167,14 @@ class JListToolTip extends JToolTip {
                     addIconLabel(((Object[]) targetObject)[childCounter]);
                 }
                 if (((Object[]) targetObject)[0] != null && ((Object[]) targetObject)[0] instanceof ArbilField) {
-                    addDetailLabel(((ArbilField) ((Object[]) targetObject)[0]).parentImdi.getNodeTemplate().getHelpStringForField(((ArbilField) ((Object[]) targetObject)[0]).getFullXmlPath()));
+                    addDetailLabel(((ArbilField) ((Object[]) targetObject)[0]).parentDataNode.getNodeTemplate().getHelpStringForField(((ArbilField) ((Object[]) targetObject)[0]).getFullXmlPath()));
                 }
-            } else if (targetObject instanceof ArbilNodeObject) {
+            } else if (targetObject instanceof ArbilDataNode) {
                 addIconLabel(targetObject);
-                addLabelsForImdiObject((ArbilNodeObject) targetObject);
+                addLabelsForDataNode((ArbilDataNode) targetObject);
             } else if (targetObject instanceof ArbilField) {
                 addDetailLabel(targetObject.toString());
-                addDetailLabel(((ArbilField) targetObject).parentImdi.getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
+                addDetailLabel(((ArbilField) targetObject).parentDataNode.getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
                 addVocabularyType((ArbilField) targetObject);
             } else {
                 addDetailLabel(targetObject.toString());
