@@ -36,26 +36,26 @@ import nl.mpi.arbil.ui.ArbilTableCellRenderer;
 public class ArbilTableModel extends AbstractTableModel {
 
     // variables used by the thread
-    boolean reloadRequested = false;
-    boolean treeNodeSortQueueRunning = false;
+    private boolean reloadRequested = false;
+    private boolean treeNodeSortQueueRunning = false;
     // end variables used by the thread
     private boolean showIcons = false;
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private HashMap<String, ArbilField> filteredColumnNames = new HashMap<String, ArbilField>();
-    Vector childColumnNames = new Vector();
-    ArbilFieldView tableFieldView;
+    private Vector childColumnNames = new Vector();
+    private ArbilFieldView tableFieldView;
     private boolean horizontalView = false;
     private int sortColumn = -1;
     private JLabel hiddenColumnsLabel;
     public boolean hideContextMenuAndStatusBar;
     boolean sortReverse = false;
-    DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
-    Vector highlightCells = new Vector();
-    String[] highFieldPaths = new String[]{};
-    String[] singleNodeViewHeadings = new String[]{"Field Name", "Value"};
+    private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
+    private Vector highlightCells = new Vector();
+    private String[] highFieldPaths = new String[]{};
+    private String[] singleNodeViewHeadings = new String[]{"Field Name", "Value"};
     private String[] columnNames = new String[0];
     private Object[][] data = new Object[0][0];
-    Color cellColour[][] = new Color[0][0];
+    private Color cellColour[][] = new Color[0][0];
 
     public ArbilTableModel() {
         tableFieldView = ArbilFieldViews.getSingleInstance().getCurrentGlobalView().clone();

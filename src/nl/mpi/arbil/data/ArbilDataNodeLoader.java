@@ -20,11 +20,11 @@ public class ArbilDataNodeLoader {
     private Vector<ArbilDataNode> arbilLocalNodesToInit = new Vector<ArbilDataNode>();
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
-    int arbilFilesLoaded = 0;
-    int remoteArbilFilesLoaded = 0;
-    int threadStartCounter = 0;
-    ThreadGroup remoteLoaderThreadGroup;
-    ThreadGroup localLoaderThreadGroup;
+    private int arbilFilesLoaded = 0;
+    private int remoteArbilFilesLoaded = 0;
+    private int threadStartCounter = 0;
+    private ThreadGroup remoteLoaderThreadGroup;
+    private ThreadGroup localLoaderThreadGroup;
     static private ArbilDataNodeLoader singleInstance = null;
 
     static synchronized public ArbilDataNodeLoader getSingleInstance() {
@@ -43,118 +43,25 @@ public class ArbilDataNodeLoader {
         localLoaderThreadGroup = new ThreadGroup("LocalLoaderThreads");
     }
 
-    
     synchronized public void startLoaderThreads() {
-        // TG: Lots of code duplication going on (2011/2/2)
-
         // start the remote imdi loader threads
         while (continueThread && remoteLoaderThreadGroup.activeCount() < 6) { //TG: Why 6? (2011/2/2)
             String threadName = "ArbilDataNodeLoader-remote-" + threadStartCounter++;
-            createRemoteLoadThread(threadName).start();
+            //createRemoteLoadThread(threadName).start();
+            Thread thread = new Thread(remoteLoaderThreadGroup, new RemoteLoader(), threadName);
+            thread.setPriority(Thread.NORM_PRIORITY - 1);
+            thread.start();
         }
         // due to an apparent deadlock in the imdi api only one thread is used for local files. the deadlock appears to be in the look up host area
         // start the local imdi threads
         while (continueThread && localLoaderThreadGroup.activeCount() < 6) { //TG: Why 6? (2011/2/2)
             String threadName = "ArbilDataNodeLoader-local-" + threadStartCounter++;
-            createLocalLoaderThread(threadName).start();
+            Thread thread = new Thread(localLoaderThreadGroup, new LocalLoader(), threadName);
+            thread.setPriority(Thread.NORM_PRIORITY - 1);
+            thread.start();
         }
     }
 
-    /***
-     * Creates a thread that gets a node from the remote queue and loads it
-     * @param Name of the thread to create
-     * @return New thread in the remoteLoaderThreadGroup with the given thread name
-     */
-    synchronized private Thread createRemoteLoadThread(String threadName)
-    {
-        return new Thread(remoteLoaderThreadGroup, threadName) {
-
-                @Override
-                public void run() {
-                    setPriority(Thread.NORM_PRIORITY - 1);
-                    while (continueThread && !Thread.currentThread().isInterrupted()) {
-                        try {
-                            sleep(500);
-                        } catch (InterruptedException ie) {
-                            GuiHelper.linorgBugCatcher.logError(ie);
-                        }
-                        ArbilDataNode currentArbilDataNode = getNodeFromQueue(arbilRemoteNodesToInit);
-                        while (currentArbilDataNode != null) {
-                            // this has been separated in to two separate threads to prevent long delays when there is no server connection
-                            // each node is loaded one at a time and must time out before the next is started
-                            // the local corpus nodes are the fastest so they are now loaded in a separate thread
-                            // alternatively a thread pool may be an option
-                            if (currentArbilDataNode != null) {
-                                System.out.println("run RemoteArbilLoader processing: " + currentArbilDataNode.getUrlString());
-                                currentArbilDataNode.loadArbilDom();
-                                currentArbilDataNode.updateLoadingState(-1);
-                                currentArbilDataNode.clearIcon();
-                                currentArbilDataNode.clearChildIcons();
-                                remoteArbilFilesLoaded++;
-                                currentArbilDataNode.notifyLoaded();
-                            }
-                            currentArbilDataNode.lockedByLoadingThread = false;
-                            currentArbilDataNode = getNodeFromQueue(arbilRemoteNodesToInit);
-                        }
-                    }
-                }
-            };
-    }
-    
-    /***
-     * Creates a thread that gets a node from the local queue and loads it 
-     * @param Name of the thread to create
-     * @return New thread in the localLoaderThreadGroup with the given thread name
-     */
-    synchronized private Thread createLocalLoaderThread(String threadName)
-    {
-        return new Thread(localLoaderThreadGroup, threadName) {
-
-                @Override
-                public void run() {
-                    setPriority(Thread.NORM_PRIORITY - 1);
-                    while (continueThread && !Thread.currentThread().isInterrupted()) {
-//                        try {
-                        try {
-                            sleep(100);
-                        } catch (InterruptedException ie) {
-                            GuiHelper.linorgBugCatcher.logError(ie);
-                        }
-                        ArbilDataNode currentArbilDataNode = getNodeFromQueue(arbilLocalNodesToInit);
-                        while (currentArbilDataNode != null) {
-                            System.out.println("run LocalArbilLoader processing: " + currentArbilDataNode.getUrlString());
-                            if (currentArbilDataNode.getNeedsSaveToDisk(false)) {
-                                currentArbilDataNode.saveChangesToCache(false);
-                            }
-                            currentArbilDataNode.loadArbilDom();
-                            if (schemaCheckLocalFiles) {
-                                if (currentArbilDataNode.isMetaDataNode()) {
-                                    XsdChecker xsdChecker = new XsdChecker();
-                                    String checkerResult;
-                                    checkerResult = xsdChecker.simpleCheck(currentArbilDataNode.getFile(), currentArbilDataNode.getURI());
-                                    currentArbilDataNode.hasSchemaError = (checkerResult != null);
-                                }
-                            } else {
-                                currentArbilDataNode.hasSchemaError = false;
-                            }
-                            currentArbilDataNode.updateLoadingState(-1);
-                            currentArbilDataNode.clearIcon();
-                            currentArbilDataNode.clearChildIcons();
-                            arbilFilesLoaded++;
-                            System.out.println("remoteArbilFilesLoaded: " + remoteArbilFilesLoaded + " arbilFilesLoaded: " + arbilFilesLoaded);
-                            currentArbilDataNode.lockedByLoadingThread = false;
-                            currentArbilDataNode.notifyLoaded();
-                            currentArbilDataNode = getNodeFromQueue(arbilLocalNodesToInit);
-                        }
-//                        } catch (Exception ie) {
-//                            // anything that throws in this loop will prevent any further loading of local imdi files
-//                            GuiHelper.linorgBugCatcher.logError(ie);
-//                        }
-                    }
-                }
-            };
-    }
-    
     synchronized private void addNodeToQueue(ArbilDataNode nodeToAdd) {
         startLoaderThreads();
         if (ArbilDataNode.isStringLocal(nodeToAdd.getUrlString())) {
@@ -316,6 +223,84 @@ public class ArbilDataNodeLoader {
                 currentNode.saveChangesToCache(updateIcons); // saving removes the node from the nodesNeedingSave vector via removeNodesNeedingSave
                 if (updateIcons) {
                     requestReload(currentNode);
+                }
+            }
+        }
+    }
+
+    /***
+     * Runnable that gets a node from the remote queue and loads it
+     */
+    private class RemoteLoader implements Runnable {
+
+        @Override
+        @SuppressWarnings("SleepWhileHoldingLock")
+        public void run() {
+            while (continueThread && !Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ie) {
+                    GuiHelper.linorgBugCatcher.logError(ie);
+                }
+                ArbilDataNode currentArbilDataNode = getNodeFromQueue(arbilRemoteNodesToInit);
+                while (currentArbilDataNode != null) {
+                    // this has been separated in to two separate threads to prevent long delays when there is no server connection
+                    // each node is loaded one at a time and must time out before the next is started
+                    // the local corpus nodes are the fastest so they are now loaded in a separate thread
+                    // alternatively a thread pool may be an option
+                    System.out.println("run RemoteArbilLoader processing: " + currentArbilDataNode.getUrlString());
+                    currentArbilDataNode.loadArbilDom();
+                    currentArbilDataNode.updateLoadingState(-1);
+                    currentArbilDataNode.clearIcon();
+                    currentArbilDataNode.clearChildIcons();
+                    remoteArbilFilesLoaded++;
+                    currentArbilDataNode.notifyLoaded();
+                    currentArbilDataNode.lockedByLoadingThread = false;
+                    currentArbilDataNode = getNodeFromQueue(arbilRemoteNodesToInit);
+                }
+            }
+        }
+    }
+
+    /**
+     * Runnable that gets a node from the local queue and loads it
+     */
+    private class LocalLoader implements Runnable {
+
+        @Override
+        @SuppressWarnings("SleepWhileHoldingLock")
+        public void run() {
+            while (continueThread && !Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    GuiHelper.linorgBugCatcher.logError(ie);
+                }
+                ArbilDataNode currentArbilDataNode = getNodeFromQueue(arbilLocalNodesToInit);
+                while (currentArbilDataNode != null) {
+                    System.out.println("run LocalArbilLoader processing: " + currentArbilDataNode.getUrlString());
+                    if (currentArbilDataNode.getNeedsSaveToDisk(false)) {
+                        currentArbilDataNode.saveChangesToCache(false);
+                    }
+                    currentArbilDataNode.loadArbilDom();
+                    if (schemaCheckLocalFiles) {
+                        if (currentArbilDataNode.isMetaDataNode()) {
+                            XsdChecker xsdChecker = new XsdChecker();
+                            String checkerResult;
+                            checkerResult = xsdChecker.simpleCheck(currentArbilDataNode.getFile(), currentArbilDataNode.getURI());
+                            currentArbilDataNode.hasSchemaError = (checkerResult != null);
+                        }
+                    } else {
+                        currentArbilDataNode.hasSchemaError = false;
+                    }
+                    currentArbilDataNode.updateLoadingState(-1);
+                    currentArbilDataNode.clearIcon();
+                    currentArbilDataNode.clearChildIcons();
+                    arbilFilesLoaded++;
+                    System.out.println("remoteArbilFilesLoaded: " + remoteArbilFilesLoaded + " arbilFilesLoaded: " + arbilFilesLoaded);
+                    currentArbilDataNode.lockedByLoadingThread = false;
+                    currentArbilDataNode.notifyLoaded();
+                    currentArbilDataNode = getNodeFromQueue(arbilLocalNodesToInit);
                 }
             }
         }
