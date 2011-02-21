@@ -389,7 +389,7 @@ public class ArbilTree extends JTree {
             sortRequested = true;
             if (!sortThreadRunning) {
                 sortThreadRunning = true;
-                new Thread() {
+                new Thread("ArbilTree sort thread") {
 
                     @Override
                     public void run() {
