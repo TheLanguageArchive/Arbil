@@ -20,10 +20,7 @@ import nl.mpi.arbil.data.ArbilVocabularies;
  */
 public class ControlledVocabularyComboBox extends JComboBox {
 
-    private ArbilField targetField;
-
     public ControlledVocabularyComboBox(ArbilField targetField) {
-        targetField = targetField;
         ArbilVocabularies.Vocabulary fieldsVocabulary = targetField.getVocabulary();
         if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(targetField.getFieldValue())) {
             this.addItem(targetField.getFieldValue());
@@ -34,27 +31,18 @@ public class ControlledVocabularyComboBox extends JComboBox {
             }
         }
 
-        //this.setEditable(true);
-
-        //this.setSelectedItem(targetField.toString());
         this.setUI(new javax.swing.plaf.basic.BasicComboBoxUI());
     }
 
-
-    public String getCurrentValue()
-    {
-        if(getEditor() != null && getEditor() instanceof ControlledVocabularyComboBoxEditor)
-        {
-            return ((ControlledVocabularyComboBoxEditor)getEditor()).getCurrentValue();
-        } else{
+    public String getCurrentValue() {
+        if (getEditor() != null) {
+            if (getEditor() instanceof ControlledVocabularyComboBoxEditor) {
+                return ((ControlledVocabularyComboBoxEditor) getEditor()).getCurrentValue();
+            } else {
+                return getEditor().getItem().toString();
+            }
+        } else {
             return getSelectedItem().toString();
         }
-    }
-
-    /**
-     * @return the targetField
-     */
-    public ArbilField getTargetField() {
-        return targetField;
     }
 }
