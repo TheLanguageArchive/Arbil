@@ -450,13 +450,13 @@ public class ArbilMenuBar extends JMenuBar {
         });
         optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
-        checkResourcePermissionsCheckBoxMenuItem.setSelected(MimeHashQueue.getSingleInstance().checkResourcePermissions);
+        checkResourcePermissionsCheckBoxMenuItem.setSelected(MimeHashQueue.getSingleInstance().isCheckResourcePermissions());
         checkResourcePermissionsCheckBoxMenuItem.setText("Check permissions for remote resources");
         checkResourcePermissionsCheckBoxMenuItem.setToolTipText("This option checks the server permissions for remote resources and shows icons accordingly.");
         checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                MimeHashQueue.getSingleInstance().checkResourcePermissions = checkResourcePermissionsCheckBoxMenuItem.isSelected();
+                MimeHashQueue.getSingleInstance().setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
                 ArbilSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
             }

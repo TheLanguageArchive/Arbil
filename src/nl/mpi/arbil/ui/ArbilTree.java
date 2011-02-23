@@ -389,28 +389,30 @@ public class ArbilTree extends JTree {
             sortRequested = true;
             if (!sortThreadRunning) {
                 sortThreadRunning = true;
-                new Thread("ArbilTree sort thread") {
+                new Thread(new SortRunner(), "ArbilTree sort thread").start();
+            }
+        }
+    }
 
-                    @Override
-                    public void run() {
-                        try {
-                            while (sortRequested) {
-                                sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
-                                sortRequested = false;
+    private class SortRunner implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                while (sortRequested) {
+                    Thread.sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
+                    sortRequested = false;
 //                                TreePath[] selectedPaths = ImdiTree.this.getSelectionPaths();
 //                                TreePath[] expandedPaths = ImdiTree.this.getExpandedDescendants(null);
-                                sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
+                    sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
 //                                ImdiTree.this.setSelectionPaths(selectedPaths);
-                            }
-                        } catch (Exception exception) {
-                            GuiHelper.linorgBugCatcher.logError(exception);
-                        }
-                        synchronized (sortLockObject) {
-                            // syncronising this is excessive but harmless
-                            sortThreadRunning = false;
-                        }
-                    }
-                }.start();
+                }
+            } catch (Exception exception) {
+                GuiHelper.linorgBugCatcher.logError(exception);
+            }
+            synchronized (sortLockObject) {
+                // syncronising this is excessive but harmless
+                sortThreadRunning = false;
             }
         }
     }
