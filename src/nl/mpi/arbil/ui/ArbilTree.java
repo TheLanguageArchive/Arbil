@@ -1,7 +1,6 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
-import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.data.TreeHelper;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -16,7 +15,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;

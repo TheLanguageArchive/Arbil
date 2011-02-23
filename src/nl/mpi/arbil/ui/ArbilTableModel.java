@@ -1,4 +1,4 @@
-package nl.mpi.arbil.data;
+package nl.mpi.arbil.ui;
 
 import java.awt.Color;
 import java.awt.Toolkit;
@@ -19,6 +19,10 @@ import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.ArbilVersion;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilFieldView;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.ui.ArbilWindowManager;

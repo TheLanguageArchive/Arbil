@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilTableModel;
 import java.util.Enumeration;
 import javax.swing.table.DefaultTableModel;
 

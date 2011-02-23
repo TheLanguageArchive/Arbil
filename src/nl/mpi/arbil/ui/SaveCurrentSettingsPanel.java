@@ -1,5 +1,6 @@
-package nl.mpi.arbil.data.importexport;
+package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;

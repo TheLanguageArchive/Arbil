@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilTableModel;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.JLabel;

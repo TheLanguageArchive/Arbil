@@ -17,7 +17,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
-import nl.mpi.arbil.data.importexport.ImportExportDialog;
+import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplateManager.MenuItemData;

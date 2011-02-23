@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;

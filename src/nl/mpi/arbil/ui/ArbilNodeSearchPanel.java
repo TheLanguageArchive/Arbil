@@ -1,11 +1,8 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Vector;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;

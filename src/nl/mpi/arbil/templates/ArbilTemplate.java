@@ -545,4 +545,11 @@ public class ArbilTemplate {
         }
         return currentTemplateComponentDirectory;
     }
+
+    /**
+     * @return the rootTemplatesArray
+     */
+    public String[][] getRootTemplatesArray() {
+        return rootTemplatesArray;
+    }
 }

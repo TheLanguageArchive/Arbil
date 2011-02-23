@@ -3,7 +3,7 @@ package nl.mpi.arbil.ui.applet;
 import java.net.URI;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.ArbilTable;
-import nl.mpi.arbil.data.ArbilTableModel;
+import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.ui.ArbilSplitPanel;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;

@@ -1,7 +1,6 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ui.menu.TableContextMenu;
-import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;

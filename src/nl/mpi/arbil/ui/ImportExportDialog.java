@@ -1,7 +1,6 @@
-package nl.mpi.arbil.data.importexport;
+package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.util.DownloadAbortFlag;
@@ -47,6 +46,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.ui.XsdChecker;
 
 /**

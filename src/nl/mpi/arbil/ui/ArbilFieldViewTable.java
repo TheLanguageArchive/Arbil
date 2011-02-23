@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilTableModel;
 import java.awt.event.MouseEvent;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;

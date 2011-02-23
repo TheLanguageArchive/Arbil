@@ -2,7 +2,6 @@ package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;

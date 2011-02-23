@@ -1,4 +1,4 @@
-package nl.mpi.arbil.templates;
+package nl.mpi.arbil.ui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
 
 /*
  * TemplateDialogue.java
@@ -216,7 +217,7 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
         ArrayList<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
         ArrayList<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
         // add built in types
-        for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
+        for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
             JCheckBox templateCheckBox;
             templateCheckBox = new JCheckBox();
             templateCheckBox.setText(currentTemplateName[1] + " (internal)");
