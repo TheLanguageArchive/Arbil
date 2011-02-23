@@ -150,7 +150,9 @@ public class ArbilDataNodeLoader {
 //                    currentImdiObject.clearIcon(); // do not do this
                 }
             }
-            currentDataNode.registerContainer(registeringObject);
+            if (registeringObject != null && registeringObject instanceof ArbilDataNodeContainer) {
+                currentDataNode.registerContainer((ArbilDataNodeContainer)registeringObject);
+            }
         }
 //        System.out.println("currentImdiObject: " + currentImdiObject);
         return currentDataNode;

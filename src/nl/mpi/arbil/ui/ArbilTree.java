@@ -26,13 +26,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
+import nl.mpi.arbil.data.ArbilDataNodeContainer;
 
 /**
  * Document   : ArbilTree
  * Created on : Feb 16, 2009, 3:58:50 PM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilTree extends JTree {
+public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     JListToolTip listToolTip = new JListToolTip();
 
@@ -392,6 +393,22 @@ public class ArbilTree extends JTree {
                 new Thread(new SortRunner(), "ArbilTree sort thread").start();
             }
         }
+    }
+
+    /**
+     * Data node is to be removed from this tree
+     * @param dataNode Data node that should be removed
+     */
+    public void dataNodeRemoved(ArbilDataNode dataNode) {
+        requestResort();
+    }
+
+    /**
+     * Data node is clearing its icon
+     * @param dataNode Data node that is clearing its icon
+     */
+    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+        requestResort();
     }
 
     private class SortRunner implements Runnable {

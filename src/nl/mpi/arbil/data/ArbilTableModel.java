@@ -33,7 +33,7 @@ import nl.mpi.arbil.ui.ArbilTableCellRenderer;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilTableModel extends AbstractTableModel {
+public class ArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer {
 
     // variables used by the thread
     private boolean reloadRequested = false;
@@ -520,6 +520,22 @@ public class ArbilTableModel extends AbstractTableModel {
      */
     public boolean isHorizontalView() {
         return horizontalView;
+    }
+
+    /**
+     * Data node is to be removed from the table
+     * @param dataNode Data node that should be removed
+     */
+    public void dataNodeRemoved(ArbilDataNode dataNode) {
+        removeArbilDataNodes(new ArbilDataNode[]{dataNode});
+    }
+
+    /**
+     * Data node is clearing its icon
+     * @param dataNode Data node that is clearing its icon
+     */
+    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+        requestReloadTableData();
     }
 
 //    private class TableRowComparator implements Comparator<ImdiField[]> {

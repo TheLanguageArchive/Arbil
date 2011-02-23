@@ -1,21 +1,9 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.ArbilTree;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.util.MimeHashQueue;
-import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.ui.ArbilTableCellEditor;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.templates.ArbilTemplate;
-import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import org.w3c.dom.Document;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,12 +26,20 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
-import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
+import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.util.MimeHashQueue;
+import org.w3c.dom.Document;
 
 /**
  * Document   : ArbilDataNode formerly known as ImdiTreeObject
@@ -79,7 +75,7 @@ public class ArbilDataNode implements Comparable {
     public boolean hasSchemaError = false;
     // merge to one array of domid url ArbilDataNode
     private String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
-    private Vector/*<Component>*/ containersOfThisNode;
+    private Vector<ArbilDataNodeContainer> /*<Component>*/ containersOfThisNode;
     private int isLoadingCount = 0;
     final private Object loadingCountLock = new Object();
     @Deprecated
@@ -96,11 +92,10 @@ public class ArbilDataNode implements Comparable {
     //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
-    
     private static String NODE_LOADING_TEXT = "loading node...";
 
     protected ArbilDataNode(URI localUri) {
-        containersOfThisNode = new Vector<Component>();
+        containersOfThisNode = new Vector<ArbilDataNodeContainer>();
         //        addQueue = new Vector<String[]>();
         nodeUri = localUri;
         if (nodeUri != null) {
@@ -477,19 +472,8 @@ public class ArbilDataNode implements Comparable {
                                 for (ArbilDataNode currentOldChild : oldChildArray) {
                                     if (currentChildList.indexOf(currentOldChild) == -1) {
                                         // remove from any containers that its found in
-                                        for (Object currentContainer : currentOldChild.getRegisteredContainers()) {
-                                            if (currentContainer instanceof ArbilTableCellEditor) {
-                                                ((ArbilTableCellEditor) currentContainer).stopCellEditing();
-                                            }
-                                            if (currentContainer instanceof ArbilTableModel) {
-                                                ((ArbilTableModel) currentContainer).removeArbilDataNodes(new ArbilDataNode[]{currentOldChild});
-                                            }
-                                            if (currentContainer instanceof ArbilLongFieldEditor) {
-                                                ((ArbilLongFieldEditor) currentContainer).closeWindow();
-                                            }
-                                            if (currentContainer instanceof ArbilTree) {
-                                                ((ArbilTree) currentContainer).requestResort();
-                                            }
+                                        for (ArbilDataNodeContainer currentContainer : currentOldChild.getRegisteredContainers()) {
+                                            currentContainer.dataNodeRemoved(currentOldChild);
                                         }
                                     }
                                 }
@@ -684,7 +668,6 @@ public class ArbilDataNode implements Comparable {
         }
     }
 
-
     /**
      * create a subdirectory based on the file name of the node
      * if that fails then the current directory will be returned
@@ -788,7 +771,6 @@ public class ArbilDataNode implements Comparable {
     //        }
     ////        debugOut("listDiscardedOfAttributes: " + listDiscardedOfAttributes);
     //    }
-
     /**
      * Vector gets populated with all fields relevant to the parent node
      * that includes all indinodechild fields but not from any other imdi file
@@ -1196,7 +1178,6 @@ public class ArbilDataNode implements Comparable {
      * Compares this node to another based on its type and string value.
      * @return The string comparison result.
      */
-   
     public int compareTo(Object o) throws ClassCastException {
         return imdiTreeNodeSorter.compare(this, o);
     }
@@ -1323,7 +1304,7 @@ public class ArbilDataNode implements Comparable {
             }
             if (preferredNameFieldExists) {
                 nodeText = "unnamed (" + unamedText + ")";
-            }  else {
+            } else {
                 nodeText = unamedText;
             }
         }
@@ -1752,26 +1733,28 @@ public class ArbilDataNode implements Comparable {
         return parentPath;
     }
 
-    public void registerContainer(Object containerToAdd) {
-        //        System.out.println("registerContainer: " + containerToAdd + " : " + this);
+    /**
+     * Register (add) a container for this node
+     * @param containerToAdd Object that should be regarded as containing this node
+     */
+    public void registerContainer(ArbilDataNodeContainer containerToAdd) {
+        // Node is contained by some object so make sure it's fully loaded or at least loading
         if (!getParentDomNode().dataLoaded && !isLoading()) {
-            // this is the main place where the load request is made
-            // TODO: this is probably not the best way to do this and might be better in a manager class
             ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
         }
+        // Add to collection of containers for future messaging
         if (containerToAdd != null) {
-            // todo: handle null here more agressively
             if (!containersOfThisNode.contains(containerToAdd)) {
                 containersOfThisNode.add(containerToAdd);
             }
         }
     }
 
-    public Object[] getRegisteredContainers() {
+    public ArbilDataNodeContainer[] getRegisteredContainers() {
         if (containersOfThisNode != null && containersOfThisNode.size() > 0) {
-            return containersOfThisNode.toArray();
+            return containersOfThisNode.toArray(new ArbilDataNodeContainer[0]);
         } else {
-            return new Object[]{};
+            return new ArbilDataNodeContainer[]{};
         }
     }
 
@@ -1779,7 +1762,7 @@ public class ArbilDataNode implements Comparable {
      * Removes a UI containers from the list of containers interested in this node.
      * @param containerToRemove The container to be removed from the list.
      */
-    public void removeContainer(Object containerToRemove) {
+    public void removeContainer(ArbilDataNodeContainer containerToRemove) {
         // TODO: make sure that containers are removed when a node is removed from the tree, otherwise memory will not get freed
         //        System.out.println("de registerContainer: " + containerToRemove);
         containersOfThisNode.remove(containerToRemove);
@@ -1816,20 +1799,11 @@ public class ArbilDataNode implements Comparable {
         icon = ArbilIcons.getSingleInstance().getIconForNode(ArbilDataNode.this); // to avoid a race condition (where the loading icons remains after load) this is also set here rather than nulling the icon
         //                System.out.println("clearIcon invokeLater" + ImdiTreeObject.this.toString());
         //                System.out.println("containersOfThisNode: " + containersOfThisNode.size());
-        // here we need to cause an update in the tree and table gui so that the new icon can be loaded
-        for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+        // here we need to cause an update in the gui containers so that the new icon can be loaded
+        for (Enumeration<ArbilDataNodeContainer> containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
             try { // TODO: the need for this try catch indicates that there is a threading issue in the way that imdichild nodes are reloaded within an imdi parent node and this should be reorganised to be more systematic and hierarchical
-                Object currentContainer = containersIterator.nextElement();
-                //                    System.out.println("currentContainer: " + currentContainer.toString());
-                if (currentContainer instanceof ArbilTableModel) {
-                    ((ArbilTableModel) currentContainer).requestReloadTableData(); // this must be done because the fields have been replaced and nead to be reloaded in the tables
-                }
-                if (currentContainer instanceof ArbilLongFieldEditor) {
-                    ((ArbilLongFieldEditor) currentContainer).updateEditor();
-                }
-                if (currentContainer instanceof ArbilTree) {
-                    ((ArbilTree) currentContainer).requestResort();
-                }
+                ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
+                currentContainer.dataNodeIconCleared(this);
             } catch (java.util.NoSuchElementException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
@@ -1844,22 +1818,10 @@ public class ArbilDataNode implements Comparable {
         for (ArbilDataNode currentChildNode : this.getAllChildren()) {
             currentChildNode.removeFromAllContainers();
         }
-        for (Enumeration containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+        for (Enumeration<ArbilDataNodeContainer> containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
             try {
-                Object currentContainer = containersIterator.nextElement();
-                if (currentContainer instanceof ArbilTableModel) {
-                    ((ArbilTableModel) currentContainer).removeArbilDataNodes(new ArbilDataNode[]{this}); // this must be done because the fields have been replaced and nead to be reloaded in the tables
-                }
-                if (currentContainer instanceof ArbilTableCellEditor) {
-                    ((ArbilTableCellEditor) currentContainer).stopCellEditing();
-                }
-                if (currentContainer instanceof ArbilLongFieldEditor) {
-                    ((ArbilLongFieldEditor) currentContainer).closeWindow();
-                }
-                if (currentContainer instanceof ArbilTree) {
-                    ArbilTree currentTreeNode = (ArbilTree) currentContainer;
-                    currentTreeNode.requestResort();
-                }
+                ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
+                currentContainer.dataNodeRemoved(this);
             } catch (java.util.NoSuchElementException ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
@@ -1894,6 +1856,5 @@ public class ArbilDataNode implements Comparable {
         }
         return icon;
     }
-
     private static ArbilNodeSorter imdiTreeNodeSorter = new ArbilNodeSorter();
 }

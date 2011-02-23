@@ -18,13 +18,14 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeContainer;
 
 /**
  *  Document   : ArbilLongFieldEditor
  *  Created on : Sep 14, 2010, 1:53:15 PM
  *  Author     : Peter Withers
  */
-public class ArbilLongFieldEditor extends JPanel {
+public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContainer {
 
     ArbilTable parentTable = null;
     ArbilDataNode parentArbilDataNode;
@@ -67,7 +68,7 @@ public class ArbilLongFieldEditor extends JPanel {
             @Override
             public void internalFrameClosed(InternalFrameEvent e) {
                 // deregister component from imditreenode
-                parentArbilDataNode.removeContainer(this);
+                parentArbilDataNode.removeContainer(ArbilLongFieldEditor.this);
                 super.internalFrameClosed(e);
                 parentTable.requestFocusInWindow();
             }
@@ -218,5 +219,21 @@ public class ArbilLongFieldEditor extends JPanel {
                 }
             }
         }
+    }
+
+    /**
+     * Data node is to be removed
+     * @param dataNode Data node that should be removed
+     */
+    public void dataNodeRemoved(ArbilDataNode dataNode) {
+        closeWindow();
+    }
+
+    /**
+     * Data node is clearing its icon
+     * @param dataNode Data node that is clearing its icon
+     */
+    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+        updateEditor();
     }
 }
