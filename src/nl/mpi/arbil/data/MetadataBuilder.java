@@ -5,14 +5,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.naming.OperationNotSupportedException;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -22,6 +22,18 @@ import org.xml.sax.SAXException;
  *  Author     : Peter Withers
  */
 public class MetadataBuilder {
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     /**
      * Requests to add a new node of given type to root
@@ -55,7 +67,7 @@ public class MetadataBuilder {
 
                         // CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
                     } catch (ArbilMetadataException exception) {
-                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                        messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                     }
                 }
                 destinationNode.updateLoadingState(-1);
@@ -100,9 +112,9 @@ public class MetadataBuilder {
                     }
                     destinationNode.updateLoadingState(-1);
                 } catch (ArbilMetadataException exception) {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                 } catch (UnsupportedOperationException exception) {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
                 }
             }
 
@@ -135,7 +147,7 @@ public class MetadataBuilder {
                         if (nodeType != null) {
                             String targetXmlPath = destinationNode.getURI().getFragment();
                             if (nodeType == null) {
-                                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot add this type of node", null);
+                                messageDialogHandler.addMessageDialogToQueue("Cannot add this type of node", null);
                             } else {
                                 System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
                                 processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
@@ -221,18 +233,18 @@ public class MetadataBuilder {
                     try {
                         Document nodDom = nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
                         if (nodDom == null) {
-                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
+                            messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
                         } else {
                             addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
                             destinationNode.bumpHistory();
                             ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
                         }
                     } catch (ParserConfigurationException ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                     } catch (SAXException ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                     } catch (IOException ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                     }
 //            needsSaveToDisk = true;
                 } else {
@@ -247,7 +259,7 @@ public class MetadataBuilder {
 //                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");
 //                    }
                         } catch (URISyntaxException ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
+                            bugCatcher.logError(ex);
                             return null;
                         }
                     } else {

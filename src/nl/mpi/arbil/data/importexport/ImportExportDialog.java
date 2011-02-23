@@ -261,7 +261,7 @@ public class ImportExportDialog {
 //                    try {
 //                        Thread.sleep(100);
 //                    } catch (InterruptedException ignore) {
-//                        GuiHelper.linorgBugCatcher.logError(ignore);
+//                        linorgBugCatcher.logError(ignore);
 //                    }
 //                }
 //                GuiHelper.linorgWindowManager.linorgFrame.requestFocusInWindow();

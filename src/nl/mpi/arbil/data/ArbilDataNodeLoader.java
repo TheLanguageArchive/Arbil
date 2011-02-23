@@ -1,9 +1,6 @@
 package nl.mpi.arbil.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import nl.mpi.arbil.ui.XsdChecker;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.net.URI;
 import java.util.Hashtable;

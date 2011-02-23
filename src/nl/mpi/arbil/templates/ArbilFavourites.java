@@ -8,9 +8,9 @@ import java.net.URI;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilFavourites
@@ -18,7 +18,20 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFavourites {
-//    private Hashtable<String, ImdiTreeObject> userFavourites;
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+        bugCatcher = bugCatcherInstance;
+    }
+
+
+    //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private ArbilFavourites singleInstance = null;
 
     static synchronized public ArbilFavourites getSingleInstance() {
@@ -48,7 +61,7 @@ public class ArbilFavourites {
                 }
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
     }
 
@@ -62,7 +75,7 @@ public class ArbilFavourites {
                 }
             }
             if (selectionNeedsSave) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Changes must be saved before adding to the favourites.", "Add Favourites");
+                messageDialogHandler.addMessageDialogToQueue("Changes must be saved before adding to the favourites.", "Add Favourites");
                 return false;
             }
         }
@@ -109,7 +122,7 @@ public class ArbilFavourites {
             TreeHelper.getSingleInstance().addLocation(favouriteUri);
             TreeHelper.getSingleInstance().applyRootLocations();
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
     }
 
@@ -132,7 +145,6 @@ public class ArbilFavourites {
 //    public ImdiTreeObject[] listAllFavourites() {
 //        return userFavourites.values().toArray(new ImdiTreeObject[userFavourites.size()]);
 //    }
-
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
         System.out.println("listFavouritesFor: " + targetNodeUserObject);
         Vector<String[]> validFavourites = new Vector<String[]>();
@@ -210,7 +222,6 @@ public class ArbilFavourites {
         System.out.println("getNodeTypeReturnValue: " + returnValue);
         return returnValue;
     }
-
 //    public void mergeFromFavourite(ImdiTreeObject targetImdiObject, ImdiTreeObject favouriteImdiObject, boolean overwriteValues) {
 ////        System.out.println("mergeFromFavourite: " + addedNodeUrl + " : " + imdiTemplateUrl);
 //        Hashtable<String, ImdiField[]> targetFieldsHash = targetImdiObject.getFields();

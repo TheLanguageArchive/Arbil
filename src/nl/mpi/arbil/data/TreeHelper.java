@@ -15,11 +15,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.ui.ArbilTreePanels;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : TreeHelper
@@ -27,6 +28,18 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class TreeHelper {
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     public DefaultTreeModel localCorpusTreeModel;
     public DefaultTreeModel remoteCorpusTreeModel;
@@ -140,7 +153,7 @@ public class TreeHelper {
             try {
                 remoteCorpusNodesSet.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(currentUrlString)));
             } catch (URISyntaxException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
             }
         }
         remoteCorpusNodes = remoteCorpusNodesSet.toArray(new ArbilDataNode[]{});
@@ -173,7 +186,7 @@ public class TreeHelper {
             ArbilSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
             System.out.println("saved locationsList");
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
         }
     }
@@ -215,7 +228,7 @@ public class TreeHelper {
             }
         } catch (Exception ex) {
 //            System.out.println("load locationsList failed: " + ex.getMessage());
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
 //            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
 //            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
 //            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
@@ -243,7 +256,7 @@ public class TreeHelper {
     public void addLocationGui(URI addableLocation) {
         if (!addLocation(addableLocation)) {
             // alert the user when the node already exists and cannot be added again
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
+            messageDialogHandler.addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
         }
         applyRootLocations();
         //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
@@ -391,9 +404,9 @@ public class TreeHelper {
                     if (result) {
                         currentParent.reloadNode();
                     } else {
-                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
+                        messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
                     }
-                    //GuiHelper.linorgBugCatcher.logError(new Exception("deleteFromDomViaId"));
+                    //bugCatcher.logError(new Exception("deleteFromDomViaId"));
                 }
                 for (ArbilDataNode currentParent : dataNodesDeleteList.keySet()) {
                     System.out.println("deleting by corpus link");
@@ -424,7 +437,7 @@ public class TreeHelper {
             cellDataNode.clearIcon();
         } else {
             if (!silent) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The selected cell has no value or is not associated with a node in the tree", "Jump to in Tree");
+                messageDialogHandler.addMessageDialogToQueue("The selected cell has no value or is not associated with a node in the tree", "Jump to in Tree");
             }
         }
     }

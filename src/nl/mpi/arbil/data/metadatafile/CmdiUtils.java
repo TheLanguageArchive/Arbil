@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
+import nl.mpi.arbil.util.BugCatcher;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -16,6 +16,12 @@ import org.xml.sax.SAXException;
  *  Author     : Peter Withers
  */
 public class CmdiUtils implements MetadataUtils {
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     public boolean addCorpusLink(URI nodeURI, URI[] linkURI) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -29,11 +35,11 @@ public class CmdiUtils implements MetadataUtils {
             ArbilComponentBuilder.savePrettyFormatting(document, destinationFile);
             return true;
         } catch (IOException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
+            bugCatcher.logError(e);
         } catch (ParserConfigurationException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
+            bugCatcher.logError(e);
         } catch (SAXException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
+            bugCatcher.logError(e);
         }
         return false;
     }

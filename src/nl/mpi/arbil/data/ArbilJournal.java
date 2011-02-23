@@ -4,8 +4,8 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilJournal
@@ -13,6 +13,18 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilJournal {
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+        bugCatcher = bugCatcherInstance;
+    }
 
     public enum UndoType {
 
@@ -105,8 +117,8 @@ public class ArbilJournal {
                 break;
         }
         if (currentValue != null && !currentValue.equals(historyItem.oldValue)) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The field value is out of sync with the history item", "Undo/Redo");
-            GuiHelper.linorgBugCatcher.logError(new Exception("ChangeFromHistory old value does not match current value"));
+            messageDialogHandler.addMessageDialogToQueue("The field value is out of sync with the history item", "Undo/Redo");
+            bugCatcher.logError(new Exception("ChangeFromHistory old value does not match current value"));
         } else {
             switch (historyItem.undoType) {
                 case KeyName:
@@ -133,7 +145,7 @@ public class ArbilJournal {
             returnValue = true;
         } catch (Exception ex) {
             returnValue = false;
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
             System.err.println("failed to write to the journal: " + ex.getMessage());
         }
         return (returnValue);

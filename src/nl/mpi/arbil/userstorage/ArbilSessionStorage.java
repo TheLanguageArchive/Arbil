@@ -36,10 +36,11 @@ import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilSessionStorage
@@ -48,6 +49,19 @@ import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilSessionStorage {
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler)
+    {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     public File storageDirectory = null;
     private File localCacheDirectory = null;
@@ -99,7 +113,7 @@ public class ArbilSessionStorage {
         }
         if (storageDirectory == null) {
             //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.", null);
-            JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
+            messageDialogHandler.showMessageDialogBox("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error");
             System.exit(-1);
         } else {
             try {
@@ -108,12 +122,13 @@ public class ArbilSessionStorage {
                 testFile.deleteOnExit();
                 if (!testFile.exists()) {
                     // test the storage directory is writable and add a warning message box here if not
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
+                    messageDialogHandler.addMessageDialogToQueue("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
                 }
                 testFile.delete();
             } catch (IOException exception) {
                 System.out.println(exception);
-                JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
+                //JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
+                messageDialogHandler.showMessageDialogBox("Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error");
                 System.exit(-1);
             }
         }
@@ -177,7 +192,7 @@ public class ArbilSessionStorage {
             toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
             fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
-            GuiHelper.linorgBugCatcher.logError(uee);
+            bugCatcher.logError(uee);
         }
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
@@ -216,7 +231,7 @@ public class ArbilSessionStorage {
                 TreeHelper.getSingleInstance().applyRootLocations();
                 ArbilWindowManager.getSingleInstance().closeAllWindows();
             } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
             }
 //            TreeHelper.getSingleInstance().loadLocationsList();
@@ -345,7 +360,7 @@ public class ArbilSessionStorage {
                 System.out.println("returnUri: " + returnUri);
             }
         } catch (URISyntaxException urise) {
-            GuiHelper.linorgBugCatcher.logError(urise);
+            bugCatcher.logError(urise);
         }
         return returnUri;
     }
@@ -459,7 +474,7 @@ public class ArbilSessionStorage {
                 in.close();
                 return stringArrayList.toArray(new String[]{});
             } catch (IOException exception) {
-                GuiHelper.linorgBugCatcher.logError(exception);
+                bugCatcher.logError(exception);
             }
         }
         return null;
@@ -495,7 +510,7 @@ public class ArbilSessionStorage {
             destinationConfigFile.delete();
             tempConfigFile.renameTo(destinationConfigFile);
         } catch (Exception exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
         }
 //        try {
 //            Properties propertiesObject = new Properties();
@@ -506,7 +521,7 @@ public class ArbilSessionStorage {
 //            propertiesObject.store(propertiesOutputStream, null);
 //            propertiesOutputStream.close();
 //        } catch (IOException ioe) {
-//            GuiHelper.linorgBugCatcher.logError(ioe);
+//            bugCatcher.logError(ioe);
 //        }
     }
 
@@ -557,7 +572,7 @@ public class ArbilSessionStorage {
             configObject.store(propertiesOutputStream, null);
             propertiesOutputStream.close();
         } catch (IOException ioe) {
-            GuiHelper.linorgBugCatcher.logError(ioe);
+            bugCatcher.logError(ioe);
         }
     }
 
@@ -602,7 +617,7 @@ public class ArbilSessionStorage {
         try {
             saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
         } catch (MalformedURLException mul) {
-            GuiHelper.linorgBugCatcher.logError(pathString, mul);
+            bugCatcher.logError(pathString, mul);
         }
         return cachePath;
     }
@@ -613,7 +628,7 @@ public class ArbilSessionStorage {
         try {
             fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag(), null);
         } catch (MalformedURLException mul) {
-            GuiHelper.linorgBugCatcher.logError(mul);
+            bugCatcher.logError(mul);
         }
         return fileDownloadedBoolean;
     }
@@ -667,12 +682,12 @@ public class ArbilSessionStorage {
         try {
             pathString = URLDecoder.decode(pathString, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
-            GuiHelper.linorgBugCatcher.logError(uee);
+            bugCatcher.logError(uee);
         }
         pathString = pathString.replace("//", "/");
         for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", "ArbilWorkingFiles"}) {
             if (pathString.indexOf(searchString) > -1) {
-                GuiHelper.linorgBugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
+                bugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
                 pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
             }
         }
@@ -776,7 +791,7 @@ public class ArbilSessionStorage {
                     System.out.println("Downloaded: " + totalRead / (1024*1024) + " Mb");
                 }
             } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
 //                System.out.println(ex.getMessage());
             }
         }

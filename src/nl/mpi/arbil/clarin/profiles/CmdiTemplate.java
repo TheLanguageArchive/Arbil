@@ -14,13 +14,13 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.templates.ArbilTemplate;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaLocalElement;
 import org.apache.xmlbeans.SchemaParticle;
@@ -39,6 +39,19 @@ import org.apache.xmlbeans.XmlOptions;
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiTemplate extends ArbilTemplate {
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler)
+    {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     String nameSpaceString;
     String filterString[] = {".CMD.Resources.", ".CMD.Header."};
@@ -135,7 +148,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
 //            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
         } catch (URISyntaxException urise) {
-            GuiHelper.linorgBugCatcher.logError(urise);
+            bugCatcher.logError(urise);
         }
 //        catch (IOException urise) {
 //            GuiHelper.linorgBugCatcher.logError(urise);
@@ -295,11 +308,11 @@ public class CmdiTemplate extends ArbilTemplate {
 //                break; // there can only be a single root node and the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef) so we must stop before that error creates another
 //            }
         } catch (IOException e) {
-            GuiHelper.linorgBugCatcher.logError(templateFile.getName(), e);
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not open the required template file: " + templateFile.getName(), "Load Clarin Template");
+            bugCatcher.logError(templateFile.getName(), e);
+            messageDialogHandler.addMessageDialogToQueue("Could not open the required template file: " + templateFile.getName(), "Load Clarin Template");
         } catch (XmlException e) {
-            GuiHelper.linorgBugCatcher.logError(templateFile.getName(), e);
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not read the required template file: " + templateFile.getName(), "Load Clarin Template");
+            bugCatcher.logError(templateFile.getName(), e);
+            messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + templateFile.getName(), "Load Clarin Template");
         }
     }
 
@@ -442,7 +455,7 @@ public class CmdiTemplate extends ArbilTemplate {
                             nodePath = nodePathBase + "." + schemaParticleChild.getName().getLocalPart();
                         } else {
                             nodePath = nodePathBase + ".unnamed";
-                            GuiHelper.linorgBugCatcher.logError(new Exception("unnamed node at: " + nodePath));
+                            bugCatcher.logError(new Exception("unnamed node at: " + nodePath));
                         }
                         searchForAnnotations(schemaParticleChild, nodePath, arrayListGroup);
                     }

@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import javax.xml.transform.TransformerException;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  *  Document   : ArbilToHtmlConverter
@@ -17,8 +18,20 @@ import nl.mpi.arbil.data.ArbilDataNode;
  */
 public class ArbilToHtmlConverter {
 
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+
     public void exportImdiToHtml(ArbilDataNode[] inputNodeArray) {
-        File destinationDirectory = ArbilWindowManager.getSingleInstance().showEmptyExportDirectoryDialogue("Export HTML");
+        File destinationDirectory = messageDialogHandler.showEmptyExportDirectoryDialogue("Export HTML");
         if (destinationDirectory != null) {
             copyDependancies(destinationDirectory, false);
             for (ArbilDataNode currentNode : inputNodeArray) {
@@ -30,8 +43,8 @@ public class ArbilToHtmlConverter {
                 try {
                     transformNodeToHtml(currentNode, destinationFile);
                 } catch (Exception exception) {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot convert data", "HTML Export");
-                    GuiHelper.linorgBugCatcher.logError(exception);
+                    messageDialogHandler.addMessageDialogToQueue("Cannot convert data", "HTML Export");
+                    bugCatcher.logError(exception);
                 }
             }
         }
@@ -77,7 +90,7 @@ public class ArbilToHtmlConverter {
                 //InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
                 InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
                 if (inputStream == null) {
-                    GuiHelper.linorgBugCatcher.logError(new Exception("Missing file in jar: " + dependantFileString));
+                    bugCatcher.logError(new Exception("Missing file in jar: " + dependantFileString));
                 }
                 int bufferLength = 1024 * 4;
                 byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
@@ -91,8 +104,8 @@ public class ArbilToHtmlConverter {
                 }
                 outFile.close();
             } catch (IOException iOException) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy requisite file", "HTML Export");
-                GuiHelper.linorgBugCatcher.logError(iOException);
+                messageDialogHandler.addMessageDialogToQueue("Cannot copy requisite file", "HTML Export");
+                bugCatcher.logError(iOException);
             }
         }
     }

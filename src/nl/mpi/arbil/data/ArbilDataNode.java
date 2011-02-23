@@ -34,10 +34,9 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.util.ArbilBugCatcher;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import org.w3c.dom.Document;
 
@@ -94,6 +93,19 @@ public class ArbilDataNode implements Comparable {
     private final Object domLockObjectPrivate = new Object();
     private static String NODE_LOADING_TEXT = "loading node...";
 
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler)
+    {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+
     protected ArbilDataNode(URI localUri) {
         containersOfThisNode = new Vector<ArbilDataNodeContainer>();
         //        addQueue = new Vector<String[]>();
@@ -125,7 +137,7 @@ public class ArbilDataNode implements Comparable {
                 }
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         return encodedString;
     }
@@ -151,7 +163,7 @@ public class ArbilDataNode implements Comparable {
                 //                    try {
                 //                        returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
                 //                    } catch (URISyntaxException urise) {
-                //                        GuiHelper.linorgBugCatcher.logError(urise);
+                //                       .logError(urise);
                 //                    }
                 //                }
 
@@ -191,7 +203,7 @@ public class ArbilDataNode implements Comparable {
             //            }
             //            System.out.println("conformStringToUrl URI: " + new URI(returnUrl.toString()));
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         //        System.out.println("conformStringToUrl out: " + returnUrl.toString());
         return normaliseURI(returnUrl);
@@ -206,7 +218,7 @@ public class ArbilDataNode implements Comparable {
                 // note that this must use the single string parameter to prevent re url encoding
                 returnURI = new URI("file:////" + returnURI.toString().substring("file:/".length()));
             } catch (URISyntaxException urise) {
-                GuiHelper.linorgBugCatcher.logError(urise);
+                bugCatcher.logError(urise);
             }
         }
         return returnURI;
@@ -428,7 +440,7 @@ public class ArbilDataNode implements Comparable {
                     if (this.isLocal() && !this.getFile().exists() && new File(this.getFile().getAbsolutePath() + ".0").exists()) {
                         // if the file is missing then try to find a valid history file
                         copyLastHistoryToCurrent();
-                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+                        messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
                     }
                     try {
                         //System.out.println("tempUrlString: " + tempUrlString);
@@ -487,7 +499,7 @@ public class ArbilDataNode implements Comparable {
                         ////                cacheLocation = saveNodeToCache(nodDom);
                         //            }
                     } catch (Exception mue) {
-                        GuiHelper.linorgBugCatcher.logError(this.getUrlString(), mue);
+                        bugCatcher.logError(this.getUrlString(), mue);
                         //            System.out.println("Invalid input URL: " + mue);
                     }
                     //we are now done with the dom so free the memory
@@ -528,8 +540,8 @@ public class ArbilDataNode implements Comparable {
                         childLinksTemp.add(currentNode);
                     }
                 } catch (Exception ex) {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + nodeUri.toString(), "Load Directory");
-                    new ArbilBugCatcher().logError(ex);
+                    messageDialogHandler.addMessageDialogToQueue(dirLinkArray[linkCount] + " could not be loaded in\n" + nodeUri.toString(), "Load Directory");
+                    bugCatcher.logError(ex);
                 }
             }
             //childLinks = childLinksTemp.toArray(new String[][]{});
@@ -807,7 +819,7 @@ public class ArbilDataNode implements Comparable {
     //                api.writeDOM(nodDom, this.getFile(), false);
     //                reloadNode();
     //            } catch (Exception ex) {
-    //                GuiHelper.linorgBugCatcher.logError(ex);
+    //                bugCatcher.logError(ex);
     //            }
     //        }
     //    }
@@ -878,7 +890,7 @@ public class ArbilDataNode implements Comparable {
         for (String[] currentLinkPair : childLinks) {
             String currentChildPath = currentLinkPair[0];
             if (!targetImdiNode.waitTillLoaded()) { // we must wait here before we can tell if it is a catalogue or not
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
+                messageDialogHandler.addMessageDialogToQueue("Error adding node, could not wait for file to load", "Loading Error");
                 return false;
             }
             if (currentChildPath.equals(targetImdiNode.getUrlString())) {
@@ -886,11 +898,11 @@ public class ArbilDataNode implements Comparable {
             }
         }
         if (targetImdiNode.getUrlString().equals(this.getUrlString())) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot link or move a node into itself", null);
+            messageDialogHandler.addMessageDialogToQueue("Cannot link or move a node into itself", null);
             return false;
         }
         if (linkAlreadyExists) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and will not be added again", null);
+            messageDialogHandler.addMessageDialogToQueue(targetImdiNode + " already exists in " + this + " and will not be added again", null);
             return false;
         } else {
             // if link is not already there
@@ -928,23 +940,23 @@ public class ArbilDataNode implements Comparable {
                                     // this must use merge like favoirite to prevent instances end endless loops in corpus branches
                                     new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
                                 } else {
-                                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The target node's file does not exist", null);
+                                    messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
                                 }
                             } else {
-                                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
+                                messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
                             }
                         } else {
-                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The target file is not in the cache", null);
+                            messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
                         }
                     } else {
-                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+                        messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
                     }
                 } else {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
+                    messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
                 }
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
     }
 
@@ -988,7 +1000,7 @@ public class ArbilDataNode implements Comparable {
         ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
         boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
         if (!result) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+            messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
         } else {
             this.nodeNeedsSaveToDisk = false;
             //            // update the icon to indicate the change
@@ -1011,7 +1023,7 @@ public class ArbilDataNode implements Comparable {
     //                //System.out.println("saveBranchToLocal: " + this.getUrl());
     //                //System.out.println("saveBranchToLocal: " + this.nodDom.);
     //
-    //                String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(this.getUrlString());
+    //                String destinationPath = linorgSessionStorage.getSaveLocation(this.getUrlString());
     //
     ////                debugOut("destinationPath: " + destinationPath);
     //                File tempFile = new File(destinationPath);
@@ -1117,7 +1129,7 @@ public class ArbilDataNode implements Comparable {
     ////                        resourceUrlString = resourceFile.getCanonicalPath();
     //                resourceUrlString = fieldToAdd.fieldValue;
     ////                if (useCache) {
-    ////                    GuiHelper.linorgSessionStorage.updateCache(getFullResourceURI());
+    ////                    linorgSessionStorage.updateCache(getFullResourceURI());
     ////                }
     //                mimeHashQueue.addToQueue(this);
     //            }
@@ -1127,7 +1139,7 @@ public class ArbilDataNode implements Comparable {
     //            //String parentName = fieldLabel.substring(0, firstSeparator);
     //            debugOut("childsName: " + childsName);
     //            if (!childrenHashtable.containsKey(childsName)) {
-    //                ImdiTreeObject tempImdiTreeObject = GuiHelper.imdiLoader.getImdiObject(childsName, this.getUrlString() + "#" + fieldToAdd.xmlPath);
+    //                ImdiTreeObject tempImdiTreeObject = imdiLoader.getImdiObject(childsName, this.getUrlString() + "#" + fieldToAdd.xmlPath);
     //                if (addedImdiNodes != null) {
     //                    addedImdiNodes.add(tempImdiTreeObject);
     //                }
@@ -1198,10 +1210,10 @@ public class ArbilDataNode implements Comparable {
                     getParentDomNode().wait();
                     System.out.println("wait");
                     if (isLoading()) {
-                        GuiHelper.linorgBugCatcher.logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
+                        bugCatcher.logError(new Exception("waited till loaded but its still loading: " + this.getUrlString()));
                     }
                 } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+                    bugCatcher.logError(ex);
                     return false;
                 }
             }
@@ -1322,7 +1334,7 @@ public class ArbilDataNode implements Comparable {
                 try {
                     resourcePathString = URLDecoder.decode(resourcePathString, "UTF-8");
                 } catch (UnsupportedEncodingException encodingException) {
-                    GuiHelper.linorgBugCatcher.logError(encodingException);
+                    bugCatcher.logError(encodingException);
                 }
                 nodeText = resourcePathString;
             }
@@ -1452,7 +1464,7 @@ public class ArbilDataNode implements Comparable {
                 this.getFile().delete();
                 new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile());
             } else {
-                ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
+                messageDialogHandler.offerUserToSaveChanges();
                 if (!new File(this.getFile().getAbsolutePath() + ".x").exists()) {
                     this.getFile().renameTo(new File(this.getFile().getAbsolutePath() + ".x"));
                 } else {
@@ -1524,8 +1536,8 @@ public class ArbilDataNode implements Comparable {
             }
             outFile.close();
         } catch (IOException iOException) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
-            GuiHelper.linorgBugCatcher.logError(iOException);
+            messageDialogHandler.addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
+            bugCatcher.logError(iOException);
         }
     }
 
@@ -1562,13 +1574,13 @@ public class ArbilDataNode implements Comparable {
                     try {
                         resourceUri = new URI("file:////" + resourceUri.toString().substring("file:/".length()));
                     } catch (URISyntaxException urise) {
-                        GuiHelper.linorgBugCatcher.logError(urise);
+                        bugCatcher.logError(urise);
                     }
                 }
             }
             return resourceUri;
         } catch (Exception urise) {
-            GuiHelper.linorgBugCatcher.logError(urise);
+            bugCatcher.logError(urise);
             System.out.println("URISyntaxException: " + urise.getMessage());
             return null;
         }
@@ -1603,7 +1615,7 @@ public class ArbilDataNode implements Comparable {
                     domParentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
                     //                    System.out.println("nodeUri: " + nodeUri);
                 } catch (URISyntaxException ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+                    bugCatcher.logError(ex);
                 }
             } else {
                 domParentNode = this;
@@ -1710,7 +1722,7 @@ public class ArbilDataNode implements Comparable {
         try {
             return nodeUri; // new URI(nodeUri.toString()); // a copy of
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
             return null;
         }
     }
@@ -1722,7 +1734,7 @@ public class ArbilDataNode implements Comparable {
                 return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
             } catch (Exception urise) {
                 System.err.println("nodeUri: " + nodeUri);
-                GuiHelper.linorgBugCatcher.logError(urise);
+                bugCatcher.logError(urise);
             }
         }
         return null;
@@ -1805,7 +1817,7 @@ public class ArbilDataNode implements Comparable {
                 ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
                 currentContainer.dataNodeIconCleared(this);
             } catch (java.util.NoSuchElementException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
             }
         }
         //            }
@@ -1823,7 +1835,7 @@ public class ArbilDataNode implements Comparable {
                 ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
                 currentContainer.dataNodeRemoved(this);
             } catch (java.util.NoSuchElementException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
             }
         }
         //            }

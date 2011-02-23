@@ -1,6 +1,5 @@
 package nl.mpi.arbil.data;
-
-import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * FieldChangeTriggers.java
@@ -8,8 +7,14 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
  * @author Peter.Withers@mpi.nl
  */
 public class FieldChangeTriggers {
-    // the following strings need to be read from a template file or a vocaulary etc
 
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    // the following strings need to be read from a template file or a vocaulary etc
     public void actOnChange(ArbilField changedArbilField) {
         String fieldPath = changedArbilField.getGenericFullXmlPath();
         System.out.println("fieldPath: " + fieldPath);
@@ -23,7 +28,7 @@ public class FieldChangeTriggers {
                 int lastBracketPos = originalFieldPath.lastIndexOf(")");
                 int lastTriggerBracket = currentTrigger[1].lastIndexOf(")");
                 if (lastTriggerBracket < 0) {
-                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error in trigger from template (missing bracket): " + currentTrigger[1], "Field Trigger");
+                    messageDialogHandler.addMessageDialogToQueue("Error in trigger from template (missing bracket): " + currentTrigger[1], "Field Trigger");
                     break;
                 }
                 // care must me taken here to prevet issues with child nodes greater than 9 ie (12), (x) etc.

@@ -12,8 +12,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.SAXException;
 
 /**
@@ -22,6 +22,18 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplate {
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler)
+    {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     public File templateFile;
     protected Hashtable<String, ArbilVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
@@ -508,8 +520,8 @@ public class ArbilTemplate {
             }
             return true;
         } catch (Exception ex) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The required template could not be read.", "Load Template");
-            GuiHelper.linorgBugCatcher.logError("A template could not be read.", ex);
+            messageDialogHandler.addMessageDialogToQueue("The required template could not be read.", "Load Template");
+            bugCatcher.logError("A template could not be read.", ex);
             return false;
         }
     }

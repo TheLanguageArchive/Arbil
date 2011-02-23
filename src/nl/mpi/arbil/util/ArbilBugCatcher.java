@@ -18,7 +18,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
  * Created on : Dec 17, 2008, 10:35:56 AM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilBugCatcher {
+public class ArbilBugCatcher implements BugCatcher {
 
 //    static Logger log = Logger.getLogger(ImdiIcons.class.getName());
 //            log.debug("debug message.");

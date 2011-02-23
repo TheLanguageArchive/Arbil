@@ -6,10 +6,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import nl.mpi.arbil.ui.GuiHelper;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.data.*;
+import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilCsvImporter
@@ -18,14 +20,26 @@ import nl.mpi.arbil.data.*;
  */
 public class ArbilCsvImporter {
 
-    ArbilDataNode destinationCorpusNode;
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+    
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+
+    private ArbilDataNode destinationCorpusNode;
 
     public ArbilCsvImporter(ArbilDataNode destinationCorpusNodeLocal) {
         destinationCorpusNode = destinationCorpusNodeLocal;
     }
 
     public void doImport() {
-        File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Import CSV", false, true, false);
+        File[] selectedFiles = messageDialogHandler.showFileSelectBox("Import CSV", false, true, false);
         if (selectedFiles != null && selectedFiles.length > 0) {
 //                return "CSV File (comma or tab separated values)";
 //                return selectedFile.getName().toLowerCase().endsWith(".csv");
@@ -84,7 +98,7 @@ public class ArbilCsvImporter {
                     }
                     if (!skipLine) {
                         String nodeType = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
-                        ArbilDataNode addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode,nodeType, null, null, null));
+                        ArbilDataNode addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
                         Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);
@@ -101,7 +115,7 @@ public class ArbilCsvImporter {
                 }
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
     }
 }

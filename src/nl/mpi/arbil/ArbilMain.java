@@ -9,6 +9,7 @@ import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.ArbilVersion;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -38,6 +39,8 @@ public class ArbilMain extends javax.swing.JFrame {
             }
         });
 
+        ArbilInjector.injectHandlers();
+        
         initComponents();
         PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel();
         mainSplitPane.setRightComponent(previewSplitPanel);

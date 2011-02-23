@@ -1,6 +1,5 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -11,9 +10,10 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.InputSource;
 
 /**
@@ -22,6 +22,18 @@ import org.xml.sax.InputSource;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilVocabularies {
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     private Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
     // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
@@ -83,7 +95,7 @@ public class ArbilVocabularies {
                     progressMonitor.setProgress(succeededCount);
                 }
                 progressMonitor.close();
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect.", "Re-download Current Vocabularies");
+                messageDialogHandler.addMessageDialogToQueue("Downloaded " + succeededCount + " out of the " + vocabulariesTable.size() + " vocabularies currently in use.\nYou will need to restart the application for the new vocabularies to take effect.", "Re-download Current Vocabularies");
             }
         }.start();
     }
@@ -107,7 +119,7 @@ public class ArbilVocabularies {
                 }
                 if (!foundTrigger) {
                     if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
-                        GuiHelper.linorgBugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.parentDataNode.getUrlString()));
+                        bugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.parentDataNode.getUrlString()));
                     }
                 }
             }
@@ -198,8 +210,8 @@ public class ArbilVocabularies {
                 saxParser.parse(inputSource, new SaxVocabularyHandler(vocabulary));
                 ///////////////////////////////////////////////////////////////////////
             } catch (Exception ex) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
-                new ArbilBugCatcher().logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
+                messageDialogHandler.addMessageDialogToQueue("A controlled vocabulary could not be read.\n" + vocabRemoteUrl + "\nSome fields may not show all options.", "Load Controlled Vocabulary");
+                bugCatcher.logError("A controlled vocabulary could not be read: " + vocabRemoteUrl, ex);
             }
         }
     }
@@ -247,7 +259,7 @@ public class ArbilVocabularies {
                     currentVocabItem = new VocabularyItem(vocabName, vocabCode, followUpVocab);
                     collectedVocab.vocabularyItems.add(currentVocabItem);
                 } else {
-                    GuiHelper.linorgBugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.vocabularyUrl));
+                    bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.vocabularyUrl));
                 }
             }
         }
@@ -299,6 +311,7 @@ public class ArbilVocabularies {
     }
 
     public class VocabularyItem implements Comparable {
+
         public String itemDisplayName;
         public String itemCode;
         public String followUpVocabulary;

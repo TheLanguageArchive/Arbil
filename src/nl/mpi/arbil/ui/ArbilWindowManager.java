@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.data.ArbilTableModel;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -54,7 +55,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilWindowManager {
+public class ArbilWindowManager implements MessageDialogHandler {
 
     Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     Hashtable windowStatesHashtable;

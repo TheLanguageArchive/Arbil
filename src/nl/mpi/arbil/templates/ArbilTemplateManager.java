@@ -1,6 +1,5 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
@@ -14,6 +13,7 @@ import javax.swing.ImageIcon;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * ArbilTemplateManager.java
@@ -21,6 +21,12 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     //private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
@@ -96,7 +102,7 @@ public class ArbilTemplateManager {
         try {
             selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
         } catch (Exception e) {
-            GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
+            bugCatcher.logError("No selectedTemplates file, will create one now.", e);
         }
         selectedTamplates.add(templateString);
         ArbilSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
@@ -116,7 +122,7 @@ public class ArbilTemplateManager {
         try {
             selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
         } catch (Exception e) {
-            GuiHelper.linorgBugCatcher.logError("No selectedTemplates file, will create one now.", e);
+            bugCatcher.logError("No selectedTemplates file, will create one now.", e);
             addDefaultTemplates();
         }
         return selectedTamplates;
@@ -314,7 +320,7 @@ public class ArbilTemplateManager {
             }
             return cmdiTemplate;
         } else {
-            GuiHelper.linorgBugCatcher.logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
+            bugCatcher.logError(new Exception("Name space URL not provided, cannot load the CMDI template, please check the XML file and ensure that the name space is specified."));
             return null;
         }
     }

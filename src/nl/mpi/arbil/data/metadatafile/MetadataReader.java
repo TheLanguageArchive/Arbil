@@ -1,7 +1,5 @@
 package nl.mpi.arbil.data.metadatafile;
 
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilField;
@@ -32,6 +30,8 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -42,6 +42,12 @@ import org.xml.sax.SAXException;
  */
 public class MetadataReader {
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+
     static private MetadataReader singleInstance = null;
 
     static synchronized public MetadataReader getSingleInstance() {
@@ -49,6 +55,12 @@ public class MetadataReader {
             singleInstance = new MetadataReader();
         }
         return singleInstance;
+    }
+
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
     }
 
     private MetadataReader() {
@@ -105,7 +117,7 @@ public class MetadataReader {
             try {
                 return new URL(templateType);
             } catch (MalformedURLException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
                 templateUrl = null;
             }
         } else {
@@ -116,7 +128,7 @@ public class MetadataReader {
             try {
                 templateUrl = ArbilTemplateManager.getSingleInstance().getDefaultComponentOfTemplate(templateType).toURI().toURL();
             } catch (MalformedURLException exception) {
-                GuiHelper.linorgBugCatcher.logError(exception);
+                bugCatcher.logError(exception);
                 return null;
             }
         }
@@ -131,15 +143,15 @@ public class MetadataReader {
         if (templateUrl == null) {
             return null;
         }
-        
+
         URI addedPathUri = copyToDisk(templateUrl, destinationFile);
-        
+
         try {
             Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
             //            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUri.toURL()), false);
             if (addedDocument == null) {
-                //                GuiHelper.linorgBugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error inserting create date", "Add from Template");
+                //                bugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
+                messageDialogHandler.addMessageDialogToQueue("Error inserting create date", "Add from Template");
             } else {
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
                 NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
@@ -159,7 +171,7 @@ public class MetadataReader {
                 ArbilComponentBuilder.savePrettyFormatting(addedDocument, new File(addedPathUri));
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         return addedPathUri;
     }
@@ -181,7 +193,7 @@ public class MetadataReader {
             return targetFile.toURI();
         } catch (Exception ex) {
             System.out.println("copyToDisk: " + ex);
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         return null;
     }
@@ -201,7 +213,7 @@ public class MetadataReader {
                 return formatType[1];
             }
         }
-        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"", "Add Resource");
+        messageDialogHandler.addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"", "Add Resource");
         return null;
     }
 
@@ -308,13 +320,13 @@ public class MetadataReader {
             System.out.println("targetXpath: " + targetXpath);
             System.out.println("templateUrl: " + templateUrl);
             if (templateUrl == null) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
-                GuiHelper.linorgBugCatcher.logError(new Exception("No template found for: " + elementName.substring(1)));
+                messageDialogHandler.addMessageDialogToQueue("No template found for: " + elementName.substring(1), "Load Template");
+                bugCatcher.logError(new Exception("No template found for: " + elementName.substring(1)));
             }
             Document insertableSectionDoc = ArbilComponentBuilder.getDocument(templateUrl.toURI());
 
             if (insertableSectionDoc == null) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading template", "Insert from Template");
+                messageDialogHandler.addMessageDialogToQueue("Error reading template", "Insert from Template");
             } else {
                 // insert values into the section that about to be added
                 if (resourceUrl != null) {
@@ -351,7 +363,7 @@ public class MetadataReader {
                         }
                     } catch (Exception ex) {
                         //localFilePath = resourcePath; // link to the original file
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                     }
 
                     // find the correct node and set the resourcePath value
@@ -375,7 +387,7 @@ public class MetadataReader {
 
                 Node insertableNode = org.apache.xpath.XPathAPI.selectSingleNode(insertableSectionDoc, "/:InsertableSection/:*");
                 if (insertableNode == null) {
-                    GuiHelper.linorgBugCatcher.logError(new Exception("InsertableSection not found in the template"));
+                    bugCatcher.logError(new Exception("InsertableSection not found in the template"));
                 }
                 // import the new section to the target dom
                 Node addableNode = targetImdiDom.importNode(insertableNode, true);
@@ -388,7 +400,7 @@ public class MetadataReader {
                 // first strip off any fragment then add the full node fragment
                 return new URI(targetMetadataUri.toString().split("#")[0] + "#" + nodeFragment);
                 //            } catch (URISyntaxException exception) {
-                //                GuiHelper.linorgBugCatcher.logError(exception);
+                //                bugCatcher.logError(exception);
                 //                return null;
                 //            }
                 //                String pathForChildTesting = elementName.replaceAll("\\(\\d*?\\)", ""); // remove the child count brackets
@@ -417,24 +429,24 @@ public class MetadataReader {
             //            System.out.println("insertFromTemplate: " + ex.getMessage());
             //            System.out.println("exception with targetXpath: " + targetXpath);
             //            System.out.println("templateUrl: " + templateUrl);
-            //            GuiHelper.linorgBugCatcher.logError("exception with targetXpath: " + targetXpath + "\ntemplateFileString: " + templateFileString, ex);
-            GuiHelper.linorgBugCatcher.logError(ex);
+            //            bugCatcher.logError("exception with targetXpath: " + targetXpath + "\ntemplateFileString: " + templateFileString, ex);
+            bugCatcher.logError(ex);
         } catch (MalformedURLException ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         } catch (DOMException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
             return null;
         } catch (IOException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
             return null;
         } catch (ParserConfigurationException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
             return null;
         } catch (SAXException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
             return null;
         } catch (TransformerException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
             return null;
         }
         System.out.println("addedPathString: " + addedPathURI);
@@ -454,7 +466,7 @@ public class MetadataReader {
                 linkURI = parentPath.resolve(linkString);
             }
         } catch (URISyntaxException exception) {
-            GuiHelper.linorgBugCatcher.logError(parentPath.toString() + " : " + linkString, exception);
+            bugCatcher.logError(parentPath.toString() + " : " + linkString, exception);
         }
         //                    System.out.println("linkPath: " + linkPath);
         //                    linkPath = new URL(linkPath).getPath();
@@ -475,7 +487,7 @@ public class MetadataReader {
 
     private void showDomIdFoundMessage() {
         if (!ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
+            messageDialogHandler.addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
         }
     }
 
@@ -552,8 +564,8 @@ public class MetadataReader {
                             break;
                              */
                         } catch (Exception exception) {
-                            GuiHelper.linorgBugCatcher.logError(exception);
-                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
+                            bugCatcher.logError(exception);
+                            messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
                         }
                     }
                     if (attributesMap != null) {
@@ -599,7 +611,6 @@ public class MetadataReader {
                 }
                 String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
                 String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
-                //if (localName != null && GuiHelper.imdiSchema.nodesChildrenCanHaveSiblings(nodePath + "." + localName)) {
 
                 ArbilDataNode destinationNode;
                 String parentNodePath = parentNode.getURI().getFragment();
@@ -663,7 +674,7 @@ public class MetadataReader {
                         destinationNode = subNode;
                     } catch (URISyntaxException ex) {
                         destinationNode = parentNode;
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                     }
                     siblingNodePath = "";
                 } else {
@@ -762,7 +773,7 @@ public class MetadataReader {
                             linkedNode.setNodeText(fieldToAdd.getKeyName());
                             parentChildTree.get(parentNode).add(linkedNode);
                         } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
+                            bugCatcher.logError(ex);
                             System.out.println("Exception CorpusLink: " + ex.getMessage());
                         }
                     }

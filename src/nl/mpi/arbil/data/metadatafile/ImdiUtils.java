@@ -10,10 +10,9 @@ import mpi.imdi.api.IMDIDom;
 import mpi.imdi.api.IMDILink;
 import mpi.imdi.api.WSNodeType;
 import mpi.util.OurURL;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.Document;
 
 /**
@@ -23,6 +22,18 @@ import org.w3c.dom.Document;
  */
 public class ImdiUtils implements MetadataUtils {
 
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+    
     public static IMDIDom api = new IMDIDom();
 
     private boolean isCatalogue(URI sourceURI) {
@@ -32,9 +43,9 @@ public class ImdiUtils implements MetadataUtils {
             checkImdiApiResult(nodDom, sourceURI);
             return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Catalogue");
         } catch (MalformedURLException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
         } catch (TransformerException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
         }
         return false;
     }
@@ -46,9 +57,9 @@ public class ImdiUtils implements MetadataUtils {
             checkImdiApiResult(nodDom, sourceURI);
             return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Session");
         } catch (MalformedURLException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
         } catch (TransformerException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
+            bugCatcher.logError(exception);
         }
         return false;
     }
@@ -60,7 +71,7 @@ public class ImdiUtils implements MetadataUtils {
 //            OurURL inUrlLocal = new OurURL(nodeURI.toURL());
 //            nodDom = api.loadIMDIDocument(inUrlLocal, false);
 //            if (nodDom == null) {
-//                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
+//                bugCatcher.logError(new Exception(api.getMessage()));
 //                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
 //                return false;
 //            } else {
@@ -68,7 +79,7 @@ public class ImdiUtils implements MetadataUtils {
 //                return true;
 //            }
 //        } catch (MalformedURLException ex) {
-//            GuiHelper.linorgBugCatcher.logError(ex);
+//            bugCatcher.logError(ex);
 //        }
 //        return true;
 //    }
@@ -79,8 +90,8 @@ public class ImdiUtils implements MetadataUtils {
             nodDom = api.loadIMDIDocument(inUrlLocal, false);
             checkImdiApiResult(nodDom, nodeURI);
             if (nodDom == null) {
-                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
+                bugCatcher.logError(new Exception(api.getMessage()));
+                messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Add Link");
                 return false;
             } else {
                 int nodeType = WSNodeType.CORPUS;
@@ -100,7 +111,7 @@ public class ImdiUtils implements MetadataUtils {
                 return api.writeDOM(nodDom, new File(nodeURI), true);
             }
         } catch (MalformedURLException ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         return true;
     }
@@ -113,8 +124,8 @@ public class ImdiUtils implements MetadataUtils {
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             checkImdiApiResult(nodDom, sourceURI);
             if (nodDom == null) {
-                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
+                bugCatcher.logError(new Exception(api.getMessage()));
+                messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
                 return false;
             } else {
                 mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
@@ -130,7 +141,7 @@ public class ImdiUtils implements MetadataUtils {
                                         break;
                                     }
                                 } catch (URISyntaxException exception) {
-                                    GuiHelper.linorgBugCatcher.logError(exception);
+                                    bugCatcher.logError(exception);
                                 }
                             }
                         }
@@ -179,7 +190,7 @@ public class ImdiUtils implements MetadataUtils {
                 return api.writeDOM(nodDom, destinationFile, removeIdAttributes);
             }
         } catch (IOException e) {
-            GuiHelper.linorgBugCatcher.logError(e);
+            bugCatcher.logError(e);
             return false;
         }
     }
@@ -194,8 +205,8 @@ public class ImdiUtils implements MetadataUtils {
             Document nodDom = api.loadIMDIDocument(destinationUrl, false);
             checkImdiApiResult(nodDom, nodeURI);
             if (nodDom == null) {
-                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
+                bugCatcher.logError(new Exception(api.getMessage()));
+                messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Remove IMDI Links");
                 return false;
             }
             IMDILink[] allImdiLinks;
@@ -212,7 +223,7 @@ public class ImdiUtils implements MetadataUtils {
                                 }
                             }
                         } catch (URISyntaxException exception) {
-                            GuiHelper.linorgBugCatcher.logError(exception);
+                            bugCatcher.logError(exception);
                         }
                     }
                 }
@@ -220,8 +231,8 @@ public class ImdiUtils implements MetadataUtils {
                 return api.writeDOM(nodDom, new File(nodeURI), removeIdAttributes);
             }
         } catch (MalformedURLException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
+            bugCatcher.logError(exception);
+            messageDialogHandler.addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
         }
         return false;
     }
@@ -242,24 +253,24 @@ public class ImdiUtils implements MetadataUtils {
                         returnUriArray[linkCount] = allImdiLinks[linkCount].getRawURL().toURL().toURI();
                         checkImdiApiResult(returnUriArray[linkCount], nodeURI);
                     } catch (URISyntaxException exception) {
-                        GuiHelper.linorgBugCatcher.logError(exception);
-                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
+                        bugCatcher.logError(exception);
+                        messageDialogHandler.addMessageDialogToQueue("Error reading one of the links via the IMDI API", "Get Links");
                     }
                 }
                 return returnUriArray;
             }
 
         } catch (MalformedURLException exception) {
-            GuiHelper.linorgBugCatcher.logError(exception);
-            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
+            bugCatcher.logError(exception);
+            messageDialogHandler.addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
         }
         return null;
     }
 
     private void checkImdiApiResult(Object resultUnknown, URI imdiURI) {
         if (resultUnknown == null) {
-            new ArbilBugCatcher().logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
-            GuiHelper.linorgBugCatcher.logError("The following is the last known error from the API: ", new Exception(api.getMessage()));
+            bugCatcher.logError(new Exception("The IMDI API returned null for: " + imdiURI.toString()));
+            bugCatcher.logError("The following is the last known error from the API: ", new Exception(api.getMessage()));
         }
     }
 }
