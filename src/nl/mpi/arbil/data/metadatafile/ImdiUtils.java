@@ -27,13 +27,11 @@ public class ImdiUtils implements MetadataUtils {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-    
     public static IMDIDom api = new IMDIDom();
 
     private boolean isCatalogue(URI sourceURI) {
@@ -144,27 +142,26 @@ public class ImdiUtils implements MetadataUtils {
                                     bugCatcher.logError(exception);
                                 }
                             }
-                        }
-                        System.out.println("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
-                        if (linkUriToUpdate != null) {
-                            // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
-                            // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
-                            // todo: cont... this must instead take oldurl newurl and the new imdi file location
+                            System.out.println("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
+                            if (linkUriToUpdate != null) {
+                                // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
+                                // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
+                                // todo: cont... this must instead take oldurl newurl and the new imdi file location
 //                            boolean changeLinkResult = api.changeIMDILink(nodDom, new mpi.util.OurURL(linkUriToUpdate.toURL()), currentLink);
 //                            if (!changeLinkResult) {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
-                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
-                            // Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
-                            currentLink.setURL(new mpi.util.OurURL(linkUriToUpdate.toURL()));
-                            //System.out.println("currentLink.getURL: " + currentLink.getURL());
-                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
-                            if (!changeLinkResult) {
-                                checkImdiApiResult(null, sourceURI);
-                                // changeIMDILink appears to always return false, at very least for corpus nodes!
-                                //return false;
-                            }
+                                // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+                                // Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
+                                currentLink.setURL(new mpi.util.OurURL(linkUriToUpdate.toURL()));
+                                //System.out.println("currentLink.getURL: " + currentLink.getURL());
+                                boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                                if (!changeLinkResult) {
+                                    checkImdiApiResult(null, sourceURI);
+                                    // changeIMDILink appears to always return false, at very least for corpus nodes!
+                                    //return false;
+                                }
 
 //                            String archiveHandle = currentLink.getURID();
 //                            api.removeIMDILink(nodDom, currentLink);
@@ -181,8 +178,10 @@ public class ImdiUtils implements MetadataUtils {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
-                        } else {
-                            return false;
+                            } else {
+                                bugCatcher.logError(new Exception(api.getMessage()));
+                                return false;
+                            }
                         }
                     }
                 }
