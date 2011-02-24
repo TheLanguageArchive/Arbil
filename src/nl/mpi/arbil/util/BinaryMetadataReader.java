@@ -7,7 +7,6 @@ import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import org.w3c.dom.NamedNodeMap;
@@ -20,9 +19,15 @@ import org.w3c.dom.NodeList;
  *  Author     : Peter Withers
  */
 public class BinaryMetadataReader {
-// functions to extract the exif data from images
-// this will probably need to be moved to a more appropriate class
 
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+        bugCatcher = bugCatcherInstance;
+    }
+
+    // functions to extract the exif data from images
+// this will probably need to be moved to a more appropriate class
     public ArbilField[] getExifMetadata(ArbilDataNode resourceNode, int currentFieldId) {
         Vector<ArbilField> exifTagFields = new Vector();
         System.out.println("tempGetExif: " + resourceNode.getFile());
@@ -47,7 +52,7 @@ public class BinaryMetadataReader {
                 }
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
 //            System.out.println("Exception: " + ex.getMessage());
         }
         System.out.println("end tempGetExif");

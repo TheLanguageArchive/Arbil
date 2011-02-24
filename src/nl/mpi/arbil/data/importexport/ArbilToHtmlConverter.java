@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
@@ -30,7 +30,7 @@ public class ArbilToHtmlConverter {
         bugCatcher = bugCatcherInstance;
     }
 
-    public void exportImdiToHtml(ArbilDataNode[] inputNodeArray) {
+    public URI exportImdiToHtml(ArbilDataNode[] inputNodeArray) {
         File destinationDirectory = messageDialogHandler.showEmptyExportDirectoryDialogue("Export HTML");
         if (destinationDirectory != null) {
             copyDependancies(destinationDirectory, false);
@@ -48,7 +48,7 @@ public class ArbilToHtmlConverter {
                 }
             }
         }
-        GuiHelper.getSingleInstance().openFileInExternalApplication(destinationDirectory.toURI());
+        return destinationDirectory.toURI();
     }
 
     public File convertToHtml(ArbilDataNode inputNode) throws IOException, TransformerException {

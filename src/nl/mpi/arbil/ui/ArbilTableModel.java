@@ -3,6 +3,7 @@ package nl.mpi.arbil.ui;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -23,14 +24,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.ui.ArbilFieldView;
-import nl.mpi.arbil.ui.ArbilSplitPanel;
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ImageBoxRenderer;
-import nl.mpi.arbil.ui.ArbilFieldViews;
-import nl.mpi.arbil.ui.ArbilListDataListener;
-import nl.mpi.arbil.ui.ArbilTableCellRenderer;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
  * Document   : ArbilTableModel
@@ -38,6 +33,20 @@ import nl.mpi.arbil.ui.ArbilTableCellRenderer;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer {
+private static MessageDialogHandler messageDialogHandler;
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+
+    private static ClipboardOwner clipboardOwner;
+    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance){
+        clipboardOwner = clipboardOwnerInstance;
+    }
 
     // variables used by the thread
     private boolean reloadRequested = false;
@@ -279,9 +288,9 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             embedTagString = embedTagString + "</APPLET>";
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             StringSelection stringSelection = new StringSelection(embedTagString);
-            clipboard.setContents(stringSelection, GuiHelper.getClipboardOwner());
+            clipboard.setContents(stringSelection, clipboardOwner);
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
     }
 
@@ -304,7 +313,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
         System.out.println("copiedString: " + copiedString);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(copiedString);
-        clipboard.setContents(stringSelection, GuiHelper.getClipboardOwner());
+        clipboard.setContents(stringSelection, clipboardOwner);
     }
 
     public void copyArbilRows(int[] selectedRows) {
@@ -338,7 +347,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
         System.out.println("copiedString: " + copiedString);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         StringSelection stringSelection = new StringSelection(copiedString);
-        clipboard.setContents(stringSelection, GuiHelper.getClipboardOwner());
+        clipboard.setContents(stringSelection, clipboardOwner);
     }
 
     public String pasteIntoArbilFields(ArbilField[] selectedCells) {
@@ -362,7 +371,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             }
             if (clipBoardLines.length == 1) {
                 String messageString = selectedCells.length + " fields will be overwritten with the single value on the clipboard.\nContinue?";
-                if (ArbilWindowManager.getSingleInstance().showMessageDialogBox(messageString, "Paste")) {
+                if (messageDialogHandler.showMessageDialogBox(messageString, "Paste")) {
                     for (ArbilField targetField : selectedCells) {
                         targetField.setFieldValue(clipBoardString, true, false);
                         pastedCount++;
@@ -426,7 +435,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                         areYouSureMessageString = areYouSureMessageString + "There are " + deletingValuesCounter + " fields that will have their contents deleted by this paste action.\n\n";
                     }
                     if (areYouSureMessageString.length() > 0) {
-                        if (!ArbilWindowManager.getSingleInstance().showMessageDialogBox(areYouSureMessageString + "Continue?", "Paste")) {
+                        if (!messageDialogHandler.showMessageDialogBox(areYouSureMessageString + "Continue?", "Paste")) {
                             return null;
                         }
                     }
@@ -446,7 +455,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                 }
             }
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         return resultMessage;
     }
@@ -588,7 +597,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
 //                        return 0;
 //                    }
                 } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+                    bugCatcher.logError(ex);
                     return 1;
                 }
             }
@@ -617,7 +626,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                             reloadTableDataPrivate();
                         }
                     } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                     }
                     treeNodeSortQueueRunning = false;
                 }
@@ -675,7 +684,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                         }
                         return returnValue;
                     } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                        bugCatcher.logError(ex);
                         return 1;
                     }
                 }
@@ -795,7 +804,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             try {
                 fireTableStructureChanged();
             } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
             }
         } else {
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {

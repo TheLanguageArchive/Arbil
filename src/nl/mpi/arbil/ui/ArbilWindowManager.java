@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -38,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -54,7 +56,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilWindowManager implements MessageDialogHandler {
+public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     Hashtable windowStatesHashtable;
@@ -830,7 +832,19 @@ public class ArbilWindowManager implements MessageDialogHandler {
         searchFrame.pack();
     }
 
-    public ArbilTableModel openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
+    public void openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
+        openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
+    }
+
+    public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
+        openFloatingTableGetModel(rowNodesArray, frameTitle);
+    }
+
+    public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
+        openFloatingTableGetModel(rowNodesArray, frameTitle);
+    }
+
+    public ArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle) {
         ArbilDataNode[] tableNodes = new ArbilDataNode[rowNodesArray.length];
         ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
         for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
@@ -860,7 +874,7 @@ public class ArbilWindowManager implements MessageDialogHandler {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
         }
-        ArbilTableModel targetTableModel = openFloatingTableOnce(tableNodes, frameTitle);
+        ArbilTableModel targetTableModel = openFloatingTableOnceGetModel(tableNodes, frameTitle);
         targetTableModel.highlightMatchingFieldPaths(fieldPathsToHighlight.toArray(new String[]{}));
         return targetTableModel;
     }
@@ -878,10 +892,10 @@ public class ArbilWindowManager implements MessageDialogHandler {
 //                GuiHelper.linorgBugCatcher.logError(ex);
 //            }
         }
-        return openFloatingTableOnce(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
+        return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
     }
 
-    public ArbilTableModel openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    public ArbilTableModel openFloatingTableOnceGetModel(ArbilDataNode[] rowNodesArray, String frameTitle) {
         if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
             try {
                 if (rowNodesArray[0].getUrlString().toLowerCase().endsWith(".html") || rowNodesArray[0].getUrlString().toLowerCase().endsWith(".txt")) {
@@ -926,10 +940,10 @@ public class ArbilWindowManager implements MessageDialogHandler {
             }
         }
         // if through the above process a table containing all and only the nodes requested has not been found then create a new table
-        return openFloatingTable(rowNodesArray, frameTitle);
+        return openFloatingTableGetModel(rowNodesArray, frameTitle);
     }
 
-    public ArbilTableModel openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    private ArbilTableModel openFloatingTableGetModel(ArbilDataNode[] rowNodesArray, String frameTitle) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
                 frameTitle = rowNodesArray[0].toString();
@@ -947,11 +961,9 @@ public class ArbilWindowManager implements MessageDialogHandler {
         return arbilTableModel;
     }
 
-
     //JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
-                //"Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
-                //+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE))
-
+    //"Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
+    //+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE))
     /**
      *
      * @param message Message of the dialog
@@ -962,7 +974,15 @@ public class ArbilWindowManager implements MessageDialogHandler {
      *
      * @see javax.swing.JOptionPane
      */
-    public int showConfirmDialog(String message, String title, int optionType, int messageType){
+    public int showConfirmDialog(String message, String title, int optionType, int messageType) {
         return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
+    }
+
+    public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
+        return new ProgressMonitor(desktopPane, message, note, min, max);
+    }
+
+    public JFrame getMainFrame() {
+        return linorgFrame;
     }
 }

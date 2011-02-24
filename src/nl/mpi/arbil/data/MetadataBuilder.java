@@ -8,11 +8,11 @@ import java.net.URISyntaxException;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -33,6 +33,11 @@ public class MetadataBuilder {
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance){
         bugCatcher = bugCatcherInstance;
+    }
+
+    private static WindowManager windowManager;
+    public static void setWindowManager(WindowManager windowManagerInstance){
+        windowManager = windowManagerInstance;
     }
 
     /**
@@ -175,7 +180,7 @@ public class MetadataBuilder {
                 }
                 destinationNode.getParentDomNode().loadArbilDom();
                 String newTableTitleString = "new " + addableNode + " in " + destinationNode;
-                ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+                windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
             }
         };
     }
@@ -204,7 +209,7 @@ public class MetadataBuilder {
             addedArbilNode.getParentDomNode().clearIcon();
             addedArbilNode.getParentDomNode().clearChildIcons();
         }
-        ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+        windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
     }
 
     /**

@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 
@@ -46,6 +45,11 @@ public class MimeHashQueue {
     private Thread mimeHashQueueThread;
     private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType(); //  used to check the file type
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
+
+    private static BugCatcher bugCatcher;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     static synchronized public MimeHashQueue getSingleInstance() {
 //        System.out.println("MimeHashQueue getSingleInstance");
@@ -132,7 +136,7 @@ public class MimeHashQueue {
                 try {
                     processQueue();
                 } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
+                    bugCatcher.logError(ex);
                 }
                 //TODO: take one file from the list and check it is still there and that it has the same mtime and maybe check the md5sum
                 //TODO: when deleting resouce or removing a session or corpus branch containing a session check for links
@@ -156,7 +160,7 @@ public class MimeHashQueue {
                         }
                     }
                 } catch (InterruptedException ie) {
-                    GuiHelper.linorgBugCatcher.logError(ie);
+                    bugCatcher.logError(ie);
                 }
             }
         }
@@ -224,7 +228,7 @@ public class MimeHashQueue {
                     }
                 }
 //                                } catch (MalformedURLException e) {
-//                                    //GuiHelper.linorgBugCatcher.logError(currentPathString, e);
+//                                    //bugCatcher.logError(currentPathString, e);
 //                                    System.out.println("MalformedURLException: " + currentPathString + " : " + e);
 //                                }
             }
@@ -252,7 +256,7 @@ public class MimeHashQueue {
 //                    System.out.println(currentField.fieldValue);
                         }
                     } catch (Exception ex) {
-                        GuiHelper.linorgBugCatcher.logError(currentDataNode.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
+                        bugCatcher.logError(currentDataNode.getUrlString() + "\n" + fileObject.getAbsolutePath(), ex);
                     }
                 }
             }
@@ -305,7 +309,7 @@ public class MimeHashQueue {
                 ArbilSessionStorage.getSingleInstance().saveObject(md5SumToDuplicates, "md5SumToDuplicates");
                 System.out.println("saveMd5sumIndex");
             } catch (IOException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
 //            System.out.println("saveMap exception: " + ex.getMessage());
             }
         }
@@ -429,7 +433,7 @@ public class MimeHashQueue {
                     }
                     mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(typeCheckerMessage);
                 } catch (Exception ioe) {
-//                GuiHelper.linorgBugCatcher.logError(ioe);
+//                bugCatcher.logError(ioe);
                     System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
                 }
                 System.out.println(mpiMimeType);
@@ -477,8 +481,8 @@ public class MimeHashQueue {
 //                    debugOut("location: " + getUrl());
 //                    debugOut("digest: " + digest.toString());
             } catch (Exception ex) {
-//            GuiHelper.linorgBugCatcher.logMessage("getHash: " + targetFile);
-//            GuiHelper.linorgBugCatcher.logError("getHash: " + fileUrl, ex);
+//            bugCatcher.logMessage("getHash: " + targetFile);
+//            bugCatcher.logError("getHash: " + fileUrl, ex);
                 System.out.println("failed to created hash: " + ex.getMessage());
             }
             // store the url to node mapping. Note that; in the case of a resource line the session node is mapped against the resource url not the imdichildnode for the file

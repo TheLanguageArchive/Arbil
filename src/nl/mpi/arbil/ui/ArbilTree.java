@@ -8,6 +8,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseEvent;
 import java.io.UnsupportedEncodingException;
@@ -25,6 +26,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : ArbilTree
@@ -32,6 +35,21 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTree extends JTree implements ArbilDataNodeContainer {
+
+    private static BugCatcher bugCatcher;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+
+    private static WindowManager windowManager;
+    public static void setWindowManager(WindowManager windowManagerInstance){
+        windowManager = windowManagerInstance;
+    }
+
+    private static ClipboardOwner clipboardOwner;
+    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance){
+        clipboardOwner = clipboardOwnerInstance;
+    }
 
     JListToolTip listToolTip = new JListToolTip();
 
@@ -191,7 +209,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     private void treeKeyTyped(java.awt.event.KeyEvent evt) {
         System.out.println(evt.paramString());
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
-            ArbilWindowManager.getSingleInstance().openFloatingTableOnce(((ArbilTree) evt.getSource()).getSelectedNodes(), null);
+            windowManager.openFloatingTableOnce(((ArbilTree) evt.getSource()).getSelectedNodes(), null);
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
@@ -301,12 +319,12 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
                             copiedNodeUrls = copiedNodeUrls.concat(URLDecoder.decode(currentNode.getURI().toString(), "UTF-8"));
                         }
                     } catch (UnsupportedEncodingException murle) {
-                        GuiHelper.linorgBugCatcher.logError(murle);
+                        bugCatcher.logError(murle);
                     }
                 }
             }
             StringSelection stringSelection = new StringSelection(copiedNodeUrls);
-            clipboard.setContents(stringSelection, GuiHelper.getClipboardOwner());
+            clipboard.setContents(stringSelection, clipboardOwner);
             System.out.println("copied: \n" + copiedNodeUrls);
         }
     }
@@ -423,7 +441,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 //                                ImdiTree.this.setSelectionPaths(selectedPaths);
                 }
             } catch (Exception exception) {
-                GuiHelper.linorgBugCatcher.logError(exception);
+                bugCatcher.logError(exception);
             }
             synchronized (sortLockObject) {
                 // syncronising this is excessive but harmless

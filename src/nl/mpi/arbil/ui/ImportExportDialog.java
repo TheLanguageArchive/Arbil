@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -465,7 +466,7 @@ public class ImportExportDialog {
                         ArbilWindowManager.getSingleInstance().openAllChildNodesInFloatingTableOnce(validationErrors.toArray(new URI[]{}), progressXmlErrorsLabelText);
                     }
                     if (fileCopyErrors.size() > 0) {
-                        ArbilTableModel resourceFileErrorsTable = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
+                        ArbilTableModel resourceFileErrorsTable = ArbilWindowManager.getSingleInstance().openFloatingTableOnceGetModel(fileCopyErrors.toArray(new URI[]{}), resourceCopyErrorsLabelText);
                         //resourceFileErrorsTable.getFieldView().
                         resourceFileErrorsTable.addChildTypeToDisplay("MediaFiles");
                         resourceFileErrorsTable.addChildTypeToDisplay("WrittenResources");

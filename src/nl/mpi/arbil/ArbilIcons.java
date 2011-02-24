@@ -1,6 +1,5 @@
 package nl.mpi.arbil;
 
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -10,6 +9,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ArbilIcons
@@ -91,6 +91,11 @@ public class ArbilIcons {
     public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
     public ImageIcon vocabularyClosedListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed_list.png"));
 //
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+        bugCatcher = bugCatcherInstance;
+    }
     static private ArbilIcons singleInstance = null;
 
     static synchronized public ArbilIcons getSingleInstance() {
@@ -244,7 +249,7 @@ public class ArbilIcons {
                 iconsVector.add(fileIcon);
             } else if (mimeTypeForNode.length() > 0) {
                 iconsVector.add(questionRedIcon);
-                GuiHelper.linorgBugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
+                bugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
             }
         } else if (arbilNode.isInfoLink) {
             iconsVector.add(infofileIcon);

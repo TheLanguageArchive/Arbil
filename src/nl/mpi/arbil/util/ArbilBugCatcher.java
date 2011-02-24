@@ -10,7 +10,6 @@ import java.util.Date;
 import javax.imageio.ImageIO;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ArbilVersion;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 //import org.apache.log4j.Logger;
 
 /**
@@ -26,6 +25,11 @@ public class ArbilBugCatcher implements BugCatcher {
 //            log.warn("warn message.");
 //            log.error("error message.");
 //            log.fatal("fatal message.");
+
+    private static WindowManager windowManager;
+    public static void setWindowManager(WindowManager windowManagerInstance){
+        windowManager = windowManagerInstance;
+    }
 
     public ArbilBugCatcher() {
         // remove all previous error logs for this version other than the one for this build number
@@ -60,8 +64,7 @@ public class ArbilBugCatcher implements BugCatcher {
     public void grabApplicationShot() {
         try {
             Robot robot = new Robot();
-            //BufferedImage screenShot = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-            BufferedImage screenShot = robot.createScreenCapture(ArbilWindowManager.getSingleInstance().linorgFrame.getBounds());
+            BufferedImage screenShot = robot.createScreenCapture(windowManager.getMainFrame().getBounds());
             DecimalFormat myFormat = new DecimalFormat("000");
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
             String formattedDate = formatter.format(new Date());

@@ -258,7 +258,6 @@ public class TreeHelper {
             messageDialogHandler.addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
         }
         applyRootLocations();
-        //locationSettingsTable.setModel(guiHelper.getLocationsTableModel());
     }
 
     public boolean addLocation(URI addedLocation) {

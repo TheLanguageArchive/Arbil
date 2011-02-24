@@ -25,7 +25,7 @@ import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.XsdChecker;
+import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 
 /**

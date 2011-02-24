@@ -11,9 +11,9 @@ import java.util.Vector;
 import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 import org.xml.sax.InputSource;
 
 /**
@@ -24,17 +24,20 @@ import org.xml.sax.InputSource;
 public class ArbilVocabularies {
 
     private static MessageDialogHandler messageDialogHandler;
-
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
 
     private static BugCatcher bugCatcher;
-
     public static void setBugCatcher(BugCatcher bugCatcherInstance){
         bugCatcher = bugCatcherInstance;
     }
 
+    private static WindowManager windowManager;
+    public static void setWindowManager(WindowManager windowManagerInstance){
+        windowManager = windowManagerInstance;
+    }
+    
     private Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
     // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
     // every time IMDIVocab in the API is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else
@@ -80,7 +83,7 @@ public class ArbilVocabularies {
             public void run() {
                 int succeededCount = 0;
                 int failedCount = 0;
-                ProgressMonitor progressMonitor = new ProgressMonitor(ArbilWindowManager.getSingleInstance().desktopPane, "Downloading currently loaded vocabularies", "", 0, vocabulariesTable.size());
+                ProgressMonitor progressMonitor = windowManager.newProgressMonitor("Downloading currently loaded vocabularies", "", 0, vocabulariesTable.size());
                 for (String currentUrl : vocabulariesTable.keySet()) {
                     if (ArbilSessionStorage.getSingleInstance().replaceCacheCopy(currentUrl)) {
                         succeededCount++;

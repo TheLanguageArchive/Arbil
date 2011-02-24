@@ -1,6 +1,5 @@
 package nl.mpi.arbil.userstorage;
 
-import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.data.TreeHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,9 +37,9 @@ import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.WindowManager;
 
 /**
  * Document   : ArbilSessionStorage
@@ -51,16 +50,19 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 public class ArbilSessionStorage {
 
     private static MessageDialogHandler messageDialogHandler;
-
     public static void setMessageDialogHandler(MessageDialogHandler handler)
     {
         messageDialogHandler = handler;
     }
 
     private static BugCatcher bugCatcher;
-
     public static void setBugCatcher(BugCatcher bugCatcherInstance){
         bugCatcher = bugCatcherInstance;
+    }
+
+    private static WindowManager windowManager;
+    public static void setWindowManager(WindowManager windowManagerInstance){
+        windowManager = windowManagerInstance;
     }
 
     public File storageDirectory = null;
@@ -112,7 +114,6 @@ public class ArbilSessionStorage {
             }
         }
         if (storageDirectory == null) {
-            //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not create a working directory.\n" + testedStorageDirectories + "There may be issues creating, editing and saving.", null);
             messageDialogHandler.showMessageDialogBox("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error");
             System.exit(-1);
         } else {
@@ -149,7 +150,7 @@ public class ArbilSessionStorage {
         }
         if (foundDirectoryCount > 1) {
             String errorMessage = "More than one storage directory has been found.\nIt is recommended to remove any unused directories in this list.\nNote that the first occurrence is currently in use:\n" + storageDirectoryMessageString;
-            new ArbilBugCatcher().logError(new Exception(errorMessage));
+            bugCatcher.logError(new Exception(errorMessage));
         }
     }
 
@@ -194,7 +195,6 @@ public class ArbilSessionStorage {
         }
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
-            //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
             if (JOptionPane.YES_OPTION == messageDialogHandler.showConfirmDialog(
                     "The files in your 'Local Corpus' could not be moved to the requested location.\n"
                     + "You can cancel now and nothing will be changed, or you can change the working\n"
@@ -227,7 +227,7 @@ public class ArbilSessionStorage {
                 getCacheDirectory();
                 TreeHelper.getSingleInstance().loadLocationsList();
                 TreeHelper.getSingleInstance().applyRootLocations();
-                ArbilWindowManager.getSingleInstance().closeAllWindows();
+                windowManager.closeAllWindows();
             } catch (Exception ex) {
                 bugCatcher.logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());

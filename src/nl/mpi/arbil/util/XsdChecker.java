@@ -1,4 +1,4 @@
-package nl.mpi.arbil.ui;
+package nl.mpi.arbil.util;
 
 /**
  * Document   : XsdChecker
@@ -40,6 +40,10 @@ import org.xml.sax.SAXParseException;
 public class XsdChecker extends JSplitPane {
 //        SimpleAttributeSet set = new SimpleAttributeSet();
 //        StyleConstants.setForeground(set, Color.red);
+    private static BugCatcher bugCatcher;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     JTextPane outputPane = new JTextPane();
     JTextPane fileViewPane = new JTextPane();
@@ -111,11 +115,11 @@ public class XsdChecker extends JSplitPane {
             System.out.println("schemaLocationString: " + schemaLocationString);
 
         } catch (IOException iOException) {
-            GuiHelper.linorgBugCatcher.logError(iOException);
+            bugCatcher.logError(iOException);
         } catch (ParserConfigurationException parserConfigurationException) {
-            GuiHelper.linorgBugCatcher.logError(parserConfigurationException);
+            bugCatcher.logError(parserConfigurationException);
         } catch (SAXException sAXException) {
-            GuiHelper.linorgBugCatcher.logError(sAXException);
+            bugCatcher.logError(sAXException);
         }
         System.out.println("nameSpaceURI: " + nameSpaceURI);
         int daysTillExpire = 15;
@@ -128,7 +132,7 @@ public class XsdChecker extends JSplitPane {
                 // do not make cache copies of local schema files
                 schemaFile = new File(new URI(nameSpaceURI));
             } catch (URISyntaxException ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
             }
         }
         URL schemaURL = null;
@@ -186,7 +190,7 @@ public class XsdChecker extends JSplitPane {
                         // return the line plus the preceding and following lines
                         return (lineNumber - 1) + ": " + returnText + "\n" + (lineNumber) + ": " + scanner.nextLine() + "\n" + (lineNumber + 1) + ": " + scanner.nextLine();
                     } catch (FileNotFoundException fileNotFoundException) {
-                        GuiHelper.linorgBugCatcher.logError(fileNotFoundException);
+                        bugCatcher.logError(fileNotFoundException);
                         return fileNotFoundException.getMessage();
                     }
                 }
@@ -195,7 +199,7 @@ public class XsdChecker extends JSplitPane {
                     try {
                         doc.insertString(doc.getLength(), "warning: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleWarning);
                     } catch (BadLocationException badLocationException) {
-                        GuiHelper.linorgBugCatcher.logError(badLocationException);
+                        bugCatcher.logError(badLocationException);
                     }
                 }
 
@@ -203,7 +207,7 @@ public class XsdChecker extends JSplitPane {
                     try {
                         doc.insertString(doc.getLength(), "error: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleError);
                     } catch (BadLocationException badLocationException) {
-                        GuiHelper.linorgBugCatcher.logError(badLocationException);
+                        bugCatcher.logError(badLocationException);
                     }
                 }
 
@@ -211,7 +215,7 @@ public class XsdChecker extends JSplitPane {
                     try {
                         doc.insertString(doc.getLength(), "fatalError: " + exception.getMessage() + "\nline: " + exception.getLineNumber() + " col: " + exception.getColumnNumber() + "\n" + getLine(exception.getLineNumber()) + "\n", styleError);
                     } catch (BadLocationException badLocationException) {
-                        GuiHelper.linorgBugCatcher.logError(badLocationException);
+                        bugCatcher.logError(badLocationException);
                     }
                 }
             }
@@ -265,7 +269,7 @@ public class XsdChecker extends JSplitPane {
             try {
                 fileViewPane.setPage(imdiObject.getURI().toURL());
             } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
+                bugCatcher.logError(ex);
             }
         } catch (Exception ex) {
             encounteredAdditionalErrors = true;

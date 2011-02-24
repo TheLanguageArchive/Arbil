@@ -123,7 +123,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
             addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));
         }
         addedImdiObject.waitTillLoaded();
-        ArbilTableModel imdiTableModel = ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);
+        ArbilWindowManager.getSingleInstance().openFloatingTableOnce(new ArbilDataNode[]{addedImdiObject}, nodeTypeDisplayName);
         return addedImdiObject;
     }
 }

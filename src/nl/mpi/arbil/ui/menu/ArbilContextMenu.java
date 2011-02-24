@@ -158,7 +158,9 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
+                    URI uri = new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
+                    System.out.println("Converted to html in "+uri.toString());
+                    GuiHelper.getSingleInstance().openFileInExternalApplication(uri);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }

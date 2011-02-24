@@ -1,6 +1,6 @@
 package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.ui.XsdChecker;
+import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.net.URI;
 import java.util.Hashtable;

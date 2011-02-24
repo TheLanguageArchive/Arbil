@@ -5,10 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ArbilVersion;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 
 /**
  * Document   : ArbilVersionChecker
@@ -17,6 +15,16 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
  */
 public class ArbilVersionChecker {
 
+    private static MessageDialogHandler messageDialogHandler;
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+        messageDialogHandler = handler;
+    }
+
+    private static BugCatcher bugCatcher;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
+    
     public boolean forceUpdateCheck() {
         ArbilVersion linorgVersion = new ArbilVersion();
         String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
@@ -44,7 +52,7 @@ public class ArbilVersionChecker {
             // either exact or greater version matches will be considered correct because there will be cases where the txt file is older than the jar
             return (linorgVersion.currentRevision.compareTo(serverVersionString) >= 0);
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
         }
         return true;
     }
@@ -71,7 +79,7 @@ public class ArbilVersionChecker {
             if (0 == restartProcess.waitFor()) {
                 System.exit(0);
             } else {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("There was an error restarting the application.\nThe update will take effect next time the application is restarted.", null);
+                messageDialogHandler.addMessageDialogToQueue("There was an error restarting the application.\nThe update will take effect next time the application is restarted.", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +97,7 @@ public class ArbilVersionChecker {
                     new Thread("checkForUpdate") {
 
                         public void run() {
-                            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
+                            messageDialogHandler.addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
                         }
                     }.start();
                 }
@@ -118,14 +126,14 @@ public class ArbilVersionChecker {
                 {
                     if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-                        switch (JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        switch (messageDialogHandler.showConfirmDialog("There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             case JOptionPane.NO_OPTION:
                                 break;
                             case JOptionPane.YES_OPTION:
                                 if (doUpdate(webstartUrlString)) {
                                     restartApplication(webstartUrlString);
                                 } else {
-                                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("There was an error updating the application.\nPlease go to the website and update via the download link.", null);
+                                    messageDialogHandler.addMessageDialogToQueue("There was an error updating the application.\nPlease go to the website and update via the download link.", null);
                                 }
                                 break;
                             default:
