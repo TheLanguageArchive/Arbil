@@ -946,4 +946,23 @@ public class ArbilWindowManager implements MessageDialogHandler {
         arbilSplitPanel.addFocusListener(tableFrame);
         return arbilTableModel;
     }
+
+
+    //JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+                //"Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
+                //+ "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE))
+
+    /**
+     *
+     * @param message Message of the dialog
+     * @param title Title of the dialog
+     * @param optionType Option type, one of the constants of JOptionPane
+     * @param messageType Message type, one of the constants of JOptionPane
+     * @return One of the JOptionPane constants indicating the chosen option
+     *
+     * @see javax.swing.JOptionPane
+     */
+    public int showConfirmDialog(String message, String title, int optionType, int messageType){
+        return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
+    }
 }

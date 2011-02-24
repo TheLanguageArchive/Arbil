@@ -130,7 +130,7 @@ public class GuiHelper {
     public void openImdiXmlWindow(Object userObject, boolean formatXml, boolean launchInBrowser) {
         if (userObject instanceof ArbilDataNode) {
             if (((ArbilDataNode) (userObject)).getNeedsSaveToDisk(false)) {
-                if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                if (JOptionPane.OK_OPTION == ArbilWindowManager.getSingleInstance().showConfirmDialog("The node must be saved first.\nSave now?", "View IMDI XML", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                     ((ArbilDataNode) (userObject)).saveChangesToCache(true);
                 } else {
                     return;

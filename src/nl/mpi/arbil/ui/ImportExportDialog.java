@@ -1,12 +1,9 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.TreeHelper;
-import nl.mpi.arbil.*;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -47,7 +44,6 @@ import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.ui.XsdChecker;
 
 /**
  * Document   : ImportExportDialog
@@ -162,7 +158,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
         if (!selectedNodesContainDataNode()) {
-            JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+            ArbilWindowManager.getSingleInstance().showMessageDialogBox("No relevant nodes are selected", searchDialog.getTitle());
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -187,7 +183,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
         if (!selectedNodesContainDataNode()) {
-            JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "No relevant nodes are selected", searchDialog.getTitle(), JOptionPane.PLAIN_MESSAGE);
+            ArbilWindowManager.getSingleInstance().showMessageDialogBox("No relevant nodes are selected", searchDialog.getTitle());
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -878,7 +874,7 @@ public class ImportExportDialog {
                     diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
                     if (freeGbWarningPoint > freeGBytes) {
                         progressBar.setIndeterminate(false);
-                        if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        if (JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showConfirmDialog("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             freeGbWarningPoint = freeGBytes - 1;
                         } else {
                             stopSearch = true;

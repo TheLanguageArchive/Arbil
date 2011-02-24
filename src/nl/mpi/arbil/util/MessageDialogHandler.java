@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package nl.mpi.arbil.util;
 
 import java.io.File;
@@ -17,9 +16,12 @@ public interface MessageDialogHandler {
 
     boolean showMessageDialogBox(String messageString, String messageTitle);
 
+    int showConfirmDialog(String message, String title, int optionType, int messageType);
+
     File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles);
+
     File showEmptyExportDirectoryDialogue(String titleText);
-    
+
     /**
      * Shows a dialog that allows a user to confirm save pending changes
      * @throws Exception When user cancels save action

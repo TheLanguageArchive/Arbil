@@ -18,7 +18,6 @@ import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
@@ -341,7 +340,7 @@ public class TreeHelper {
                     }
                 }
             }
-            if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+            if(JOptionPane.OK_OPTION == messageDialogHandler.showConfirmDialog("Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
                 Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
                 Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();

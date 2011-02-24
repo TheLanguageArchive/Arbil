@@ -127,7 +127,6 @@ public class ArbilSessionStorage {
                 testFile.delete();
             } catch (IOException exception) {
                 System.out.println(exception);
-                //JOptionPane.showMessageDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error", JOptionPane.ERROR_MESSAGE);
                 messageDialogHandler.showMessageDialogBox("Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error");
                 System.exit(-1);
             }
@@ -150,7 +149,6 @@ public class ArbilSessionStorage {
         }
         if (foundDirectoryCount > 1) {
             String errorMessage = "More than one storage directory has been found.\nIt is recommended to remove any unused directories in this list.\nNote that the first occurrence is currently in use:\n" + storageDirectoryMessageString;
-            //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, errorMessage, "Arbil Storage Directory Error", JOptionPane.ERROR_MESSAGE);
             new ArbilBugCatcher().logError(new Exception(errorMessage));
         }
     }
@@ -160,7 +158,7 @@ public class ArbilSessionStorage {
         if (!preferedCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
             preferedCacheDirectory = new File(preferedCacheDirectory, "ArbilWorkingFiles");
         }
-        if (!moveFiles || JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+        if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showConfirmDialog(
                 "Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
                 + "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             if (moveFiles) {
@@ -197,7 +195,7 @@ public class ArbilSessionStorage {
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
             //LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not move the existing files to the requested location.", null); //\nThe files will need to be moved manually from:\n" + fromDirectory + "\nto:\n" + toDirectory, null);
-            if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+            if (JOptionPane.YES_OPTION == messageDialogHandler.showConfirmDialog(
                     "The files in your 'Local Corpus' could not be moved to the requested location.\n"
                     + "You can cancel now and nothing will be changed, or you can change the working\n"
                     + "directory anyway.\n"
@@ -541,15 +539,15 @@ public class ArbilSessionStorage {
         Properties configObject = getConfig();
         String stringProperty = configObject.getProperty("nl.mpi.arbil." + filename);
         if (stringProperty == null) {
-            stringProperty = new Boolean(defaultValue).toString();
+            stringProperty = Boolean.toString(defaultValue);
             saveBoolean(filename, defaultValue);
         }
-        return stringProperty.equalsIgnoreCase("true");
+        return Boolean.valueOf(stringProperty);
     }
 
     public void saveBoolean(String filename, boolean storableValue) {
         Properties configObject = getConfig();
-        configObject.setProperty("nl.mpi.arbil." + filename, new Boolean(storableValue).toString());
+        configObject.setProperty("nl.mpi.arbil." + filename, Boolean.toString(storableValue));
         saveConfig(configObject);
     }
 
