@@ -31,7 +31,8 @@ public class LanguageIdBox extends JComboBox {
         Arrays.sort(languageItemArray);
         for (ImdiVocabularies.VocabularyItem currentItem : languageItemArray) {
             this.addItem(currentItem);
-            if (fieldLanguageId.equals(currentItem.languageCode)) {
+            // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
+            if (fieldLanguageId.equals(currentItem.languageCode) || fieldLanguageId.equals(currentItem.descriptionString)) {
                 selectedItem = currentItem;
             }
         }
@@ -48,7 +49,13 @@ public class LanguageIdBox extends JComboBox {
                 try {
 //                        ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
                     if (LanguageIdBox.this.getSelectedItem() instanceof ImdiVocabularies.VocabularyItem) {
-                        cellField.setLanguageId(((ImdiVocabularies.VocabularyItem) LanguageIdBox.this.getSelectedItem()).languageCode, true, false);
+                        ImdiVocabularies.VocabularyItem selectedLanguage = (ImdiVocabularies.VocabularyItem) LanguageIdBox.this.getSelectedItem();
+                        String languageCode = selectedLanguage.languageCode;
+                        if (languageCode == null) {
+                            // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
+                            languageCode = selectedLanguage.descriptionString;
+                        }
+                        cellField.setLanguageId(languageCode, true, false);
                     }
                     LanguageIdBox.this.removeItem(defaultLanguageDropDownValue);
                 } catch (Exception ex) {
