@@ -133,26 +133,25 @@ public class ImdiUtils implements MetadataUtils {
                                     GuiHelper.linorgBugCatcher.logError(exception);
                                 }
                             }
-                        }
-                        System.out.println("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
-                        if (linkUriToUpdate != null) {
-                            // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
-                            // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
-                            // todo: cont... this must instead take oldurl newurl and the new imdi file location
+                            System.out.println("currentLink: " + linkUriToUpdate + " : " + currentLink.getRawURL().toString());
+                            if (linkUriToUpdate != null) {
+                                // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
+                                // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
+                                // todo: cont... this must instead take oldurl newurl and the new imdi file location
 //                            boolean changeLinkResult = api.changeIMDILink(nodDom, new mpi.util.OurURL(linkUriToUpdate.toURL()), currentLink);
 //                            if (!changeLinkResult) {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
-                            // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
-                            // Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
-                            currentLink.setURL(new mpi.util.OurURL(linkUriToUpdate.toURL()));
-                            //System.out.println("currentLink.getURL: " + currentLink.getURL());
-                            boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
-                            if (!changeLinkResult) {
-                                checkImdiApiResult(null, sourceURI);
-                                return false;
-                            }
+                                // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
+                                // Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
+                                currentLink.setURL(new mpi.util.OurURL(linkUriToUpdate.toURL()));
+                                //System.out.println("currentLink.getURL: " + currentLink.getURL());
+                                boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
+                                if (!changeLinkResult) {
+                                    checkImdiApiResult(null, sourceURI);
+                                    return false;
+                                }
 
 //                            String archiveHandle = currentLink.getURID();
 //                            api.removeIMDILink(nodDom, currentLink);
@@ -169,8 +168,10 @@ public class ImdiUtils implements MetadataUtils {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
-                        } else {
-                            return false;
+                            } else {
+                                GuiHelper.linorgBugCatcher.logError(new Exception(api.getMessage()));
+                                return false;
+                            }
                         }
                     }
                 }
