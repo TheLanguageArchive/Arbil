@@ -112,7 +112,6 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         }
         if (leadSelectedTreeNode != null) {
-            saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
             if (leadSelectedTreeNode.isFavorite()) {
                 addToFavouritesMenuItem.setVisible(true);
                 addToFavouritesMenuItem.setEnabled(true);
@@ -435,24 +434,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         });
 
         add(removeLocalDirectoryMenuItem);
-        saveMenuItem.setText("Save Changes to Disk");
-        saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    for (ArbilDataNode selectedNode : selectedTreeNodes) {
-                        System.out.println("userObject: " + selectedNode);
-                        // reloading will first check if a save is required then save and reload
-                        ArbilDataNodeLoader.getSingleInstance().requestReload((ArbilDataNode) selectedNode.getParentDomNode());
-                    }
-
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-
-        add(saveMenuItem);
         viewChangesMenuItem.setText("View Changes");
         viewChangesMenuItem.setEnabled(false);
         viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -801,7 +783,6 @@ public class TreeContextMenu extends ArbilContextMenu {
         deleteMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setVisible(false);
         addFromFavouritesMenu.setVisible(false);
-        saveMenuItem.setVisible(false);
         viewChangesMenuItem.setVisible(false);
         sendToServerMenuItem.setVisible(false);
         validateMenuItem.setVisible(false);
@@ -835,7 +816,6 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenuItem removeCachedCopyMenuItem = new JMenuItem();
     private JMenuItem removeLocalDirectoryMenuItem = new JMenuItem();
     private JMenuItem removeRemoteCorpusMenuItem = new JMenuItem();
-    private JMenuItem saveMenuItem = new JMenuItem();
     private JMenuItem searchSubnodesMenuItem = new JMenuItem();
     private JMenuItem sendToServerMenuItem = new JMenuItem();
     private JMenuItem validateMenuItem = new JMenuItem();

@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
@@ -64,6 +65,26 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         });
         add(browseForResourceFileMenuItem);
 
+        add(new JSeparator());
+
+        saveMenuItem.setText("Save Changes to Disk");
+        saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    for (ArbilDataNode selectedNode : selectedTreeNodes) {
+                        System.out.println("userObject: " + selectedNode);
+                        // reloading will first check if a save is required then save and reload
+                        ArbilDataNodeLoader.getSingleInstance().requestReload((ArbilDataNode) selectedNode.getParentDomNode());
+                    }
+
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+
+        add(saveMenuItem);
 
         add(new JSeparator());
 
@@ -159,7 +180,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     URI uri = new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
-                    System.out.println("Converted to html in "+uri.toString());
+                    System.out.println("Converted to html in " + uri.toString());
                     GuiHelper.getSingleInstance().openFileInExternalApplication(uri);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -167,7 +188,6 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             }
         });
         add(exportHtmlMenuItemFormatted);
-
     }
 
     protected void setUpCommonMenuItems() {
@@ -175,6 +195,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         if (leadSelectedTreeNode != null) {
             // TODO: test that the node is editable
             //if (leadSelectedTreeNode.is)
+            saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
+
             if (leadSelectedTreeNode.hasResource()) {
                 browseForResourceFileMenuItem.setVisible(true);
             }
@@ -231,11 +253,11 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         overrideTypeCheckerDecision.setVisible(false);
         viewInBrowserMenuItem.setVisible(false);
         browseForResourceFileMenuItem.setVisible(false);
-    }
+        saveMenuItem.setVisible(false);
 
+    }
     protected ArbilDataNode[] selectedTreeNodes = null;
     protected ArbilDataNode leadSelectedTreeNode = null;
-    
     private JMenuItem browseForResourceFileMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItemFormatted = new JMenuItem();
@@ -243,4 +265,5 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     private JMenuItem openXmlMenuItemFormatted = new JMenuItem();
     private JMenuItem exportHtmlMenuItemFormatted = new JMenuItem();
     private JMenuItem overrideTypeCheckerDecision = new JMenuItem();
+    private JMenuItem saveMenuItem = new JMenuItem();
 }
