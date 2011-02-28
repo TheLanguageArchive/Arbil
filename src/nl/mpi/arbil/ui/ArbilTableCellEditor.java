@@ -14,7 +14,6 @@ import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -426,9 +425,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         });
 
         if (cellValue instanceof ArbilField[]) {
-            if (cellHasControlledVocabulary()) {
-                return new ControlledVocabularyCellPanel(editorPanel, (ArbilField) cellValue[selectedField]);
-            }
+            return new ArbilIconCellPanel(editorPanel, ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]));
         }
         return editorPanel;
     }

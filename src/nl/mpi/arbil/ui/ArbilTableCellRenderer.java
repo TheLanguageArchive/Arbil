@@ -27,8 +27,17 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 
     public int getRequiredWidth(FontMetrics fontMetrics) {
         String currentCellString = getText();
-        return fontMetrics.stringWidth(currentCellString)
-                + ControlledVocabularyCellPanel.getAddedWidth(cellObject);
+        // Calculate width of text
+        int width = fontMetrics.stringWidth(currentCellString);
+        // ArbilField might have an icon
+        if (cellObject instanceof ArbilField) {
+            Icon icon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellObject);
+            // If there's an icon, add its width
+            if (icon != null) {
+                width += icon.getIconWidth();
+            }
+        }
+        return width;
     }
 
     @Override
@@ -36,11 +45,16 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
         // TODO: this might be a better place to set the backgound and text colours
         isCellSelected = isSelected;
         Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-        if (cellObject instanceof ArbilField && ((ArbilField) cellObject).hasVocabulary()) {
-            return new ControlledVocabularyCellPanel(component, (ArbilField) cellObject);
-        } else {
-            return component;
+
+        // ArbilField may have to be decorated with an icon
+        if (cellObject instanceof ArbilField) {
+            Icon icon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellObject);
+            if (icon != null) {
+                // An icon exists for this field, so wrap component with icon panel
+                return new ArbilIconCellPanel(component, icon);
+            }
         }
+        return component;
     }
 
     public ArbilTableCellRenderer() {

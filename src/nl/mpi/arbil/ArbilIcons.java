@@ -63,6 +63,7 @@ public class ArbilIcons {
 //    private ImageIcon exclamationGreenIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-green.png"));
 //    private ImageIcon sessionColorServerIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-server.png"));
     private ImageIcon exclamationRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-red.png"));
+    public ImageIcon languageIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/language.png"));
 //    private ImageIcon sessionIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session.png"));
 //    private ImageIcon exclamationYellowIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-yellow.png"));
 //    private ImageIcon stopIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/stop.png"));
@@ -185,6 +186,16 @@ public class ArbilIcons {
                     return vocabularyClosedIcon;
                 }
             }
+        } else {
+            return null;
+        }
+    }
+
+    public Icon getIconForField(ArbilField field) {
+        if (field.hasVocabulary()) {
+            return getIconForVocabulary(field);
+        } else if (field.getLanguageId() != null) {
+            return languageIcon;
         } else {
             return null;
         }
