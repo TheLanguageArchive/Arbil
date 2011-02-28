@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -425,7 +426,13 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         });
 
         if (cellValue instanceof ArbilField[]) {
-            return new ArbilIconCellPanel(editorPanel, ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]));
+            Icon icon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]);
+            if (icon != null) {
+                // Icon is available for field. Wrap editor panel with icon panel
+                return new ArbilIconCellPanel(editorPanel, icon);
+            } else {
+                return editorPanel;
+            }
         }
         return editorPanel;
     }

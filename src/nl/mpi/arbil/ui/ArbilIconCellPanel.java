@@ -35,18 +35,15 @@ public class ArbilIconCellPanel extends JPanel {
      */
     public ArbilIconCellPanel(Component component, Icon icon, String iconLocation) {
         super();
+        
         setLayout(new BorderLayout());
         add(component, BorderLayout.CENTER);
 
-        if (icon != null) {
-            this.icon = icon;
-            iconLabel = new JLabel(icon) ;
-            add(iconLabel, iconLocation);
-        }
-
+        this.icon = icon;
+        iconLabel = new JLabel(icon);
+        add(iconLabel, iconLocation);
         setBackground(component.getBackground());
     }
-
 
     @Override
     public void doLayout() {
