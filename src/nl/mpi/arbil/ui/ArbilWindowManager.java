@@ -14,6 +14,7 @@ import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -378,30 +379,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //        System.out.println("destinationUrl: " + destinationUrl);
 //        openUrlWindowOnce("Features/Known Bugs", destinationUrl);
 
-        try {
-            // load the saved windows
-            Hashtable windowListHashtable = (Hashtable) ArbilSessionStorage.getSingleInstance().loadObject("openWindows");
-            for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
-                String currentWindowName = windowNamesEnum.nextElement().toString();
-                System.out.println("currentWindowName: " + currentWindowName);
-                Vector imdiURLs = (Vector) windowListHashtable.get(currentWindowName);
-//                System.out.println("imdiEnumeration: " + imdiEnumeration);
-                ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[imdiURLs.size()];
-                for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
-                    try {
-                        imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
-                    } catch (URISyntaxException ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
-                    }
-                }
-                openFloatingTable(imdiObjectsArray, currentWindowName);
-                //openFloatingTable(null, currentWindowName);
-            }
-            System.out.println("done loading windowStates");
-        } catch (Exception ex) {
-            windowStatesHashtable = new Hashtable();
-            System.out.println("load windowStates failed: " + ex.getMessage());
-        }
+        initWindows();
 
         if (!TreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
             System.out.println("no local locations found, showing help window");
@@ -414,6 +392,68 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         startKeyListener();
         messagesCanBeShown = true;
         showMessageDialogQueue();
+    }
+
+    /**
+     * Loads previously saved windows and restores their state
+     */
+    private void initWindows() {
+        try {
+            // load the saved windows
+            Hashtable windowListHashtable = (Hashtable) ArbilSessionStorage.getSingleInstance().loadObject("openWindows");
+            for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
+                String currentWindowName = windowNamesEnum.nextElement().toString();
+                System.out.println("currentWindowName: " + currentWindowName);
+                Object windowState = windowListHashtable.get(currentWindowName);
+
+                Vector imdiURLs;
+                Point windowLocation = null;
+                Dimension windowSize = null;
+
+                if (windowState instanceof Vector) {
+                    // In previous versions or Arbil, window state was stored as a vector of IMDI urls
+                    imdiURLs = (Vector) windowState;
+                } else if (windowState instanceof ArbilWindowState) {
+                    imdiURLs = ((ArbilWindowState) windowState).currentNodes;
+                    windowLocation = ((ArbilWindowState) windowState).location;
+                    windowSize = ((ArbilWindowState) windowState).size;
+                } else {
+                    throw new Exception("Unknown window state format");
+                }
+
+                //= (Vector) windowListHashtable.get(currentWindowName);
+//                System.out.println("imdiEnumeration: " + imdiEnumeration);
+                ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[imdiURLs.size()];
+                for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
+                    try {
+                        imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
+                    } catch (URISyntaxException ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+
+                // Create window array for open method to put new window reference in
+                Component[] window = new Component[1];
+                openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
+
+                if (window[0] != null) {
+                    // Set size of new window from saved state
+                    if (windowSize != null) {
+                        window[0].setSize(windowSize);
+                    }
+                    // Set location new window from saved state
+                    if (windowLocation != null) {
+                        window[0].setLocation(windowLocation);
+                    }
+                }
+
+                //openFloatingTable(null, currentWindowName);
+            }
+            System.out.println("done loading windowStates");
+        } catch (Exception ex) {
+            windowStatesHashtable = new Hashtable();
+            System.out.println("load windowStates failed: " + ex.getMessage());
+        }
     }
 
     public void loadSplitPlanes(Component targetComponent) {
@@ -474,14 +514,20 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             ArbilSessionStorage.getSingleInstance().saveObject(windowStatesHashtable, "windowStates");
             // save the windows
             Hashtable windowListHashtable = new Hashtable();
+            //Hashtable windowDimensions = new Hashtable();
+            //Hashtable windowLocations = new Hashtable();
             //(Hashtable) windowList.clone();
             for (Enumeration windowNamesEnum = windowList.keys(); windowNamesEnum.hasMoreElements();) {
+                ArbilWindowState windowState = new ArbilWindowState();
+
                 String currentWindowName = windowNamesEnum.nextElement().toString();
                 System.out.println("currentWindowName: " + currentWindowName);
                 // set the value of the windowListHashtable to be the imdi urls rather than the windows
                 Object windowObject = ((Component[]) windowList.get(currentWindowName))[0];
                 try {
                     if (windowObject != null) {
+                        windowState.location = ((JInternalFrame) windowObject).getLocation();
+                        windowState.size = ((JInternalFrame) windowObject).getSize();
                         Object currentComponent = ((JInternalFrame) windowObject).getContentPane().getComponent(0);
                         if (currentComponent != null && currentComponent instanceof ArbilSplitPanel) {
                             // if this table has no nodes then don't save it
@@ -495,10 +541,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                                 for (String currentUrlString : ((ArbilTableModel) ((ArbilSplitPanel) currentComponent).arbilTable.getModel()).getArbilDataNodesURLs()) {
                                     currentNodesVector.add(currentUrlString);
                                 }
-                                windowListHashtable.put(currentWindowName, currentNodesVector);
+                                windowState.currentNodes = currentNodesVector;
                                 System.out.println("saved");
                             }
                         }
+                        windowListHashtable.put(currentWindowName, windowState);
                     }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -837,11 +884,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
-        openFloatingTableGetModel(rowNodesArray, frameTitle);
+        openFloatingTableGetModel(rowNodesArray, frameTitle, null);
     }
 
     public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
-        openFloatingTableGetModel(rowNodesArray, frameTitle);
+        openFloatingTableGetModel(rowNodesArray, frameTitle, null);
     }
 
     public ArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle) {
@@ -940,10 +987,17 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             }
         }
         // if through the above process a table containing all and only the nodes requested has not been found then create a new table
-        return openFloatingTableGetModel(rowNodesArray, frameTitle);
+        return openFloatingTableGetModel(rowNodesArray, frameTitle, null);
     }
 
-    private ArbilTableModel openFloatingTableGetModel(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    /**
+     * 
+     * @param rowNodesArray
+     * @param frameTitle 
+     * @param window Array in which created window is inserted (at index 0). If left null, this is skipped
+     * @return Table model for newly created table window
+     */
+    private ArbilTableModel openFloatingTableGetModel(ArbilDataNode[] rowNodesArray, String frameTitle, Component[] window) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
                 frameTitle = rowNodesArray[0].toString();
@@ -958,6 +1012,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         arbilSplitPanel.setSplitDisplay();
         JInternalFrame tableFrame = this.createWindow(frameTitle, arbilSplitPanel);
         arbilSplitPanel.addFocusListener(tableFrame);
+
+        if (window != null && window.length > 0) {
+            window[0] = tableFrame;
+        }
+
         return arbilTableModel;
     }
 

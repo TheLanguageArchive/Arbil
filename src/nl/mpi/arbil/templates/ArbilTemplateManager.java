@@ -42,21 +42,33 @@ public class ArbilTemplateManager {
         return singleInstance;
     }
 
+    /**
+     * Create new template of the given name from default
+     * @param selectedTemplate Name of the new template. Cannot be empty or equal to the name of a built in template
+     * @return File handle to the newly created template file, or null if the request is invalid
+     */
     public File createTemplate(String selectedTemplate) {
         if (selectedTemplate.length() == 0) {
+            // Template name cannot be null
             return null;
         } else if (Arrays.binarySearch(builtInTemplates2, selectedTemplate) > -1) {
+            // Cannot have the name of one of the built in templates
             return null;
         } else {
             File selectedTemplateFile = getTemplateFile(selectedTemplate);
+            // Make directory for new template
             selectedTemplateFile.getParentFile().mkdir();
+            // Copy template.xml from jar to the new directory
             ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"), selectedTemplateFile, null, true, new DownloadAbortFlag(), null);
+            // Make components directory
             File componentsDirectory = new File(selectedTemplateFile.getParentFile(), "components");
             componentsDirectory.mkdir(); // create the components directory
+            // Copy default.xml from jar to components directory
             ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, new DownloadAbortFlag(), null);
+            // Make example-components directory
             File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
             examplesDirectory.mkdir(); // create the example components directory
-            // copy example components from the jar file            
+            // copy example components from the jar file
             for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
                 ArbilSessionStorage.getSingleInstance().saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag(), null);
             }

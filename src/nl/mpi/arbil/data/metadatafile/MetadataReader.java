@@ -139,22 +139,28 @@ public class MetadataReader {
     public URI addFromTemplate(File destinationFile, String templateType) {
         System.out.println("addFromJarTemplateFile: " + templateType + " : " + destinationFile);
 
+        // Get local url for template type
         URL templateUrl = constructTemplateUrl(templateType);
         if (templateUrl == null) {
             return null;
         }
 
+        // Copy (1:1) template to new local file
         URI addedPathUri = copyToDisk(templateUrl, destinationFile);
 
         try {
+            // Open new metadata file
             Document addedDocument = ArbilComponentBuilder.getDocument(addedPathUri);
-            //            Document addedDocument = ImdiTreeObject.api.loadIMDIDocument(new OurURL(addedPathUri.toURL()), false);
             if (addedDocument == null) {
                 //                bugCatcher.logError(new Exception(ImdiTreeObject.api.getMessage()));
                 messageDialogHandler.addMessageDialogToQueue("Error inserting create date", "Add from Template");
             } else {
+                // Set some values to new instance of metadata file
+
                 Node linkNode = org.apache.xpath.XPathAPI.selectSingleNode(addedDocument, "/:METATRANSCRIPT");
                 NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
+
+                // Set the arbil version to the present version
                 ArbilVersion currentVersion = new ArbilVersion();
                 String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
 
@@ -167,7 +173,10 @@ public class MetadataReader {
                 arbilVersionString = arbilVersionString + ":" + metatranscriptAttributes.getNamedItem("Originator").getNodeValue();
                 metatranscriptAttributes.getNamedItem("Originator").setNodeValue(arbilVersionString);
                 //metatranscriptAttributes.getNamedItem("Type").setNodeValue(ArbilTemplateManager.getSingleInstance().getCurrentTemplateName());
+
+                // Set the date field to the current data + time
                 metatranscriptAttributes.getNamedItem("Date").setNodeValue(new SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().getTime()));
+                // Save new document in formatted XML
                 ArbilComponentBuilder.savePrettyFormatting(addedDocument, new File(addedPathUri));
             }
         } catch (Exception ex) {

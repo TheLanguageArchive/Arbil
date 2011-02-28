@@ -194,7 +194,9 @@ public class MetadataBuilder {
         }
 
         System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
+        // Create child node
         URI addedNodeUri = addChildNode(currentArbilNode, nodeType, targetXmlPath, resourceUri, mimeType);
+        // Get the newly created data node
         ArbilDataNode addedArbilNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
         if (addedArbilNode != null) {
             if (favouriteUrlString != null) {
@@ -256,6 +258,7 @@ public class MetadataBuilder {
                     System.out.println("adding new node");
                     URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
                     if (CmdiProfileReader.pathIsProfile(nodeType)) {
+                        // Is CMDI profile
                         ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                         try {
                             addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType), false);
