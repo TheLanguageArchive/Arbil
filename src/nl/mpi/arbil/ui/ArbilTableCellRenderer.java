@@ -66,7 +66,7 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
     }
 
     @Override
-    protected void setValue(Object value) {
+    protected final void setValue(Object value) {
         cellObject = value;
         super.setValue(value);
         if (cellObject instanceof ArbilField[]) {

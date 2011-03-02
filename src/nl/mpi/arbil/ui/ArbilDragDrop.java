@@ -63,6 +63,7 @@ public class ArbilDragDrop {
         try {
             target.addDropTargetListener(new DropTargetAdapter() {
 
+                @Override
                 public void dragOver(DropTargetDragEvent dtdEvent) {
                     System.out.println("arbilNodeSelection.dropAllowed: " + arbilNodeSelection.dropAllowed);
                     if (arbilNodeSelection.dropAllowed) {
@@ -415,188 +416,190 @@ public class ArbilDragDrop {
                 System.out.println("importData: " + comp.toString());
                 if (comp instanceof ArbilTable && draggedArbilNodes == null) {
                     ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
-                } else {
-                    //System.out.println("draggedImdiObjects: " + draggedImdiObjects);
-                    if (draggedArbilNodes != null) {
-                        if (comp instanceof JTree && canDropToTarget((ArbilTree) comp)) {
-                            System.out.println("comp: " + comp.getName());
-                            for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-                                System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
-                            }
-                            if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
-                                boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
-                                createTransferable(null); // clear the transfer objects
-                                return resultValue;
-                            } else {
-                                ArbilTree dropTree = (ArbilTree) comp;
-                                DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
-//                                TreeHelper.getSingleInstance().addToSortQueue(targetNode);
-                                Object dropTargetUserObject = targetNode.getUserObject();
-                                Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
-                                Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
-                                System.out.println("to: " + dropTargetUserObject.toString());
-//                     TODO: add drag to local corpus tree
-//                     TODO: consider adding a are you sure you want to move that node into this node ...
-//                     TODO: must prevent parent nodes being dragged into lower branches of itself
-                                if (dropTargetUserObject instanceof ArbilDataNode) {
-                                    //TODO: this should also allow drop to the root node
-//                        if (((ArbilDataNode) dropTargetUserObject).isImdiChild()) {
-//                            dropTargetUserObject = ((ArbilDataNode) dropTargetUserObject).getParentDomNode();
-//                        }
-                                    if (((ArbilDataNode) dropTargetUserObject).getParentDomNode().isCmdiMetaDataNode() || ((ArbilDataNode) dropTargetUserObject).getParentDomNode().isSession()/* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
-                                        //TODO: for now we do not allow drag on to imdi child nodes
-                                        if (selectionContainsArchivableLocalFile == true
-                                                && selectionContainsLocalFile == true
-                                                && selectionContainsLocalDirectory == false
-                                                && selectionContainsArbilResource == false
-                                                && selectionContainsArbilCorpus == false
-                                                && selectionContainsImdiSession == false
-                                                && selectionContainsArbilChild == false
-                                                && selectionContainsLocal == true
-                                                && selectionContainsRemote == false) {
-                                            System.out.println("ok to add local file");
-                                            for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-                                                System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
-                                                new MetadataBuilder().requestAddNode((ArbilDataNode) dropTargetUserObject, "Resource", draggedArbilNodes[draggedCounter]);
-                                            }
-                                            createTransferable(null); // clear the transfer objects
-                                            return true; // we have achieved the drag so return true
-                                        }
-                                    }
-                                }
-                                // allow drop to the root node wich will not be an ArbilDataNode
-//                    if (!(dropTargetUserObject instanceof ArbilDataNode) || ((ArbilDataNode) dropTargetUserObject).isCorpus()) {
-                                if (selectionContainsArchivableLocalFile == false
-                                        // selectionContainsLocalFile == true &&
-                                        && selectionContainsLocalDirectory == false
-                                        && selectionContainsArbilResource == false
-                                        && (selectionContainsArbilCorpus == false || selectionContainsImdiSession == false) //&&
-                                        //(selectionContainsImdiChild == false || GuiHelper.imdiSchema.nodeCanExistInNode((ArbilDataNode) dropTargetUserObject, (ArbilDataNode) draggedImdiObjects[draggedCounter]))// &&
-                                        //                                    selectionContainsLocal == true &&
-                                        //                                    selectionContainsRemote == false
-                                        ) {
-                                    System.out.println("ok to move local IMDI");
-                                    for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-                                        System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
-                                        if (!((ArbilDataNode) draggedArbilNodes[draggedCounter]).isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode((ArbilDataNode) dropTargetUserObject, (ArbilDataNode) draggedArbilNodes[draggedCounter])) {
-                                            //((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
-
-                                            // check that the node has not been dragged into itself
-                                            boolean draggedIntoSelf = false;
-                                            DefaultMutableTreeNode ancestorNode = targetNode;
-                                            while (ancestorNode != null) {
-                                                if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
-                                                    draggedIntoSelf = true;
-                                                    System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
-                                                }
-//                                        System.out.println("checking: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
-                                                ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
-                                            }
-                                            // todo: test for dragged to parent session
-                                            //System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
-
-                                            if (!draggedIntoSelf) {
-                                                if (((ArbilDataNode) draggedArbilNodes[draggedCounter]).isFavorite()) {
-                                                    //  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
-                                                    new MetadataBuilder().requestAddNode((ArbilDataNode) dropTargetUserObject, ((ArbilDataNode) draggedArbilNodes[draggedCounter]).toString(), ((ArbilDataNode) draggedArbilNodes[draggedCounter]));
-                                                } else if (!(((ArbilDataNode) draggedArbilNodes[draggedCounter]).isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(((ArbilDataNode) draggedArbilNodes[draggedCounter]).getFile()))) {
-                                                    importNodeList.add((ArbilDataNode) draggedArbilNodes[draggedCounter]);
-                                                } else {
-                                                    String targetNodeName;
-                                                    if (dropTargetUserObject instanceof ArbilDataNode) {
-                                                        targetNodeName = targetNode.getUserObject().toString();
-                                                    } else {
-                                                        targetNodeName = ((JLabel) targetNode.getUserObject()).getText();
-                                                    }
-//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
-                                                    int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
-                                                            "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
-                                                            + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
-                                                            "Arbil",
-                                                            JOptionPane.YES_NO_OPTION,
-                                                            JOptionPane.PLAIN_MESSAGE,
-                                                            null,
-                                                            new Object[]{"Move", "Cancel"},
-                                                            "Cancel");
-                                                    if (detailsOption == 0) {
-                                                        boolean addNodeResult = true;
-                                                        if (dropTargetUserObject instanceof ArbilDataNode) {
-                                                            addNodeResult = ((ArbilDataNode) dropTargetUserObject).addCorpusLink(draggedArbilNodes[draggedCounter]);
-                                                        } else {
-                                                            addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedArbilNodes[draggedCounter].getURI());
-                                                        }
-                                                        if (addNodeResult) {
-                                                            if (draggedTreeNodes[draggedCounter] != null) {
-                                                                if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
-                                                                    System.out.println("dragged from root");
-                                                                    TreeHelper.getSingleInstance().removeLocation(draggedArbilNodes[draggedCounter]);
-                                                                    TreeHelper.getSingleInstance().applyRootLocations();
-                                                                } else {
-                                                                    ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-                                                                    System.out.println("removeing from parent: " + parentNode);
-                                                                    // add the parent and the child node to the deletelist
-                                                                    if (!arbilNodesDeleteList.containsKey(parentNode)) {
-                                                                        arbilNodesDeleteList.put(parentNode, new Vector());
-                                                                    }
-                                                                    arbilNodesDeleteList.get(parentNode).add(draggedArbilNodes[draggedCounter]);
-//                                                            System.out.println("delete list: " + imdiNodesDeleteList.get(parentImdi).size());
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (importNodeList.size() > 0) {
-//                                  TODO: finish this import code
-                                        try {
-                                            ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
-                                            if (dropTargetUserObject instanceof ArbilDataNode) {
-                                                importExportDialog.setDestinationNode(((ArbilDataNode) dropTargetUserObject));
-                                            }
-                                            importExportDialog.copyToCache(importNodeList);
-                                        } catch (Exception e) {
-                                            System.out.println(e.getMessage());
-                                        }
-                                    }
-                                    for (ArbilDataNode currentParent : arbilNodesDeleteList.keySet()) {
-                                        System.out.println("deleting by corpus link");
-                                        ArbilDataNode[] arbilNodeArray = ((Vector<ArbilDataNode>) arbilNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{});
-                                        currentParent.deleteCorpusLink(arbilNodeArray);
-                                    }
-                                    if (dropTargetUserObject instanceof ArbilDataNode) {
-                                        // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
-//                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
-                                        ((ArbilDataNode) dropTargetUserObject).reloadNode();
-                                    } else {
-                                        TreeHelper.getSingleInstance().applyRootLocations();
-                                    }
-                                    createTransferable(null); // clear the transfer objects
-                                    return true; // we have achieved the drag so return true
-                                }
-                            }
-                        } else {
-                            Container arbilSplitPanel = findArbilDropableTarget(comp);
-                            if (arbilSplitPanel instanceof ArbilSplitPanel) {
-                                ArbilSplitPanel targetPanel = (ArbilSplitPanel) arbilSplitPanel;
-                                ArbilTableModel dropTableModel = (ArbilTableModel) targetPanel.arbilTable.getModel();
-                                dropTableModel.addArbilDataNodes(draggedArbilNodes);
-                                createTransferable(null); // clear the transfer objects
-                                return true; // we have achieved the drag so return true
-                            } else if (arbilSplitPanel instanceof JDesktopPane) {
-                                ArbilWindowManager.getSingleInstance().openFloatingTableOnce(draggedArbilNodes, null);
-                                createTransferable(null); // clear the transfer objects
-                                return true; // we have achieved the drag so return true
-                            }
-                        }
-                    }
+                } else if (draggedArbilNodes != null) {
+                    return importNodes(comp);
                 }
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
+            } finally {
+                createTransferable(null); // clear the transfer objects
             }
-            createTransferable(null); // clear the transfer objects
             return false;
+        }
+
+        private boolean importNodes(JComponent comp) {
+            if (comp instanceof ArbilTree && canDropToTarget((ArbilTree) comp)) {
+                // Drop target is targetable tree
+                return importToTree((ArbilTree) comp);
+            } else {
+                // Drop target is not a tree or not a valid target. Get dropable target for component
+                Container target = findArbilDropableTarget(comp);
+                if (target instanceof ArbilSplitPanel) {
+                    ArbilSplitPanel targetPanel = (ArbilSplitPanel) target;
+                    ArbilTableModel dropTableModel = (ArbilTableModel) targetPanel.arbilTable.getModel();
+                    dropTableModel.addArbilDataNodes(draggedArbilNodes);
+                    return true; // we have achieved the drag so return true
+                } else if (target instanceof JDesktopPane) {
+                    // Open new table window on the desktop pane for dragged nodes
+                    ArbilWindowManager.getSingleInstance().openFloatingTableOnce(draggedArbilNodes, null);
+                    return true; // we have achieved the drag so return true
+                }
+            }
+            return false;
+        }
+
+        private boolean importToTree(ArbilTree dropTree) {
+            for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
+                System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
+            }
+            if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
+                // Target component is the favourites tree
+                boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
+                return resultValue;
+            } else {
+                // Drop on local corpus
+                DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
+                Object dropTargetUserObject = targetNode.getUserObject();
+                Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
+                Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
+                System.out.println("to: " + dropTargetUserObject.toString());
+//                     TODO: add drag to local corpus tree
+//                     TODO: consider adding a are you sure you want to move that node into this node ...
+//                     TODO: must prevent parent nodes being dragged into lower branches of itself
+                if (dropTargetUserObject instanceof ArbilDataNode) {
+                    //TODO: this should also allow drop to the root node
+//                        if (((ArbilDataNode) dropTargetUserObject).isImdiChild()) {
+//                            dropTargetUserObject = ((ArbilDataNode) dropTargetUserObject).getParentDomNode();
+//                        }
+                    if (((ArbilDataNode) dropTargetUserObject).getParentDomNode().isCmdiMetaDataNode() || ((ArbilDataNode) dropTargetUserObject).getParentDomNode().isSession()/* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
+                        //TODO: for now we do not allow drag on to imdi child nodes
+                        if (selectionContainsArchivableLocalFile == true
+                                && selectionContainsLocalFile == true
+                                && selectionContainsLocalDirectory == false
+                                && selectionContainsArbilResource == false
+                                && selectionContainsArbilCorpus == false
+                                && selectionContainsImdiSession == false
+                                && selectionContainsArbilChild == false
+                                && selectionContainsLocal == true
+                                && selectionContainsRemote == false) {
+                            System.out.println("ok to add local file");
+                            for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
+                                System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
+                                new MetadataBuilder().requestAddNode((ArbilDataNode) dropTargetUserObject, "Resource", draggedArbilNodes[draggedCounter]);
+                            }
+                            return true; // we have achieved the drag so return true
+                        }
+                    }
+                }
+                
+                // allow drop to the root node wich will not be an ArbilDataNode
+                if (selectionContainsArchivableLocalFile == false
+                        // selectionContainsLocalFile == true &&
+                        && selectionContainsLocalDirectory == false
+                        && selectionContainsArbilResource == false
+                        && (selectionContainsArbilCorpus == false || selectionContainsImdiSession == false) //&&
+                        //(selectionContainsImdiChild == false || GuiHelper.imdiSchema.nodeCanExistInNode((ArbilDataNode) dropTargetUserObject, (ArbilDataNode) draggedImdiObjects[draggedCounter]))// &&
+                        //                                    selectionContainsLocal == true &&
+                        //                                    selectionContainsRemote == false
+                        ) {
+                    System.out.println("ok to move local IMDI");
+                    for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
+                        System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
+                        if (!((ArbilDataNode) draggedArbilNodes[draggedCounter]).isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode((ArbilDataNode) dropTargetUserObject, (ArbilDataNode) draggedArbilNodes[draggedCounter])) {
+                            //((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
+
+                            // check that the node has not been dragged into itself
+                            boolean draggedIntoSelf = false;
+                            DefaultMutableTreeNode ancestorNode = targetNode;
+                            while (ancestorNode != null) {
+                                if (draggedTreeNodes[draggedCounter].equals(ancestorNode)) {
+                                    draggedIntoSelf = true;
+                                    System.out.println("found ancestor: " + draggedTreeNodes[draggedCounter] + ":" + ancestorNode);
+                                }
+                                ancestorNode = (DefaultMutableTreeNode) ancestorNode.getParent();
+                            }
+                            // todo: test for dragged to parent session
+
+                            if (!draggedIntoSelf) {
+                                if (((ArbilDataNode) draggedArbilNodes[draggedCounter]).isFavorite()) {
+                                    //  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
+                                    new MetadataBuilder().requestAddNode((ArbilDataNode) dropTargetUserObject, ((ArbilDataNode) draggedArbilNodes[draggedCounter]).toString(), ((ArbilDataNode) draggedArbilNodes[draggedCounter]));
+                                } else if (!(((ArbilDataNode) draggedArbilNodes[draggedCounter]).isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(((ArbilDataNode) draggedArbilNodes[draggedCounter]).getFile()))) {
+                                    importNodeList.add((ArbilDataNode) draggedArbilNodes[draggedCounter]);
+                                } else {
+                                    String targetNodeName;
+                                    if (dropTargetUserObject instanceof ArbilDataNode) {
+                                        targetNodeName = targetNode.getUserObject().toString();
+                                    } else {
+                                        targetNodeName = ((JLabel) targetNode.getUserObject()).getText();
+                                    }
+//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
+                                    int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
+                                            "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
+                                            + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
+                                            "Arbil",
+                                            JOptionPane.YES_NO_OPTION,
+                                            JOptionPane.PLAIN_MESSAGE,
+                                            null,
+                                            new Object[]{"Move", "Cancel"},
+                                            "Cancel");
+                                    if (detailsOption == 0) {
+                                        boolean addNodeResult = true;
+                                        if (dropTargetUserObject instanceof ArbilDataNode) {
+                                            addNodeResult = ((ArbilDataNode) dropTargetUserObject).addCorpusLink(draggedArbilNodes[draggedCounter]);
+                                        } else {
+                                            addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedArbilNodes[draggedCounter].getURI());
+                                        }
+                                        if (addNodeResult) {
+                                            if (draggedTreeNodes[draggedCounter] != null) {
+                                                if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
+                                                    System.out.println("dragged from root");
+                                                    TreeHelper.getSingleInstance().removeLocation(draggedArbilNodes[draggedCounter]);
+                                                    TreeHelper.getSingleInstance().applyRootLocations();
+                                                } else {
+                                                    ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+                                                    System.out.println("removeing from parent: " + parentNode);
+                                                    // add the parent and the child node to the deletelist
+                                                    if (!arbilNodesDeleteList.containsKey(parentNode)) {
+                                                        arbilNodesDeleteList.put(parentNode, new Vector());
+                                                    }
+                                                    arbilNodesDeleteList.get(parentNode).add(draggedArbilNodes[draggedCounter]);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (importNodeList.size() > 0) {
+//                                  TODO: finish this import code
+                        try {
+                            ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
+                            if (dropTargetUserObject instanceof ArbilDataNode) {
+                                importExportDialog.setDestinationNode(((ArbilDataNode) dropTargetUserObject));
+                            }
+                            importExportDialog.copyToCache(importNodeList);
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                    }
+                    for (ArbilDataNode currentParent : arbilNodesDeleteList.keySet()) {
+                        System.out.println("deleting by corpus link");
+                        ArbilDataNode[] arbilNodeArray = ((Vector<ArbilDataNode>) arbilNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{});
+                        currentParent.deleteCorpusLink(arbilNodeArray);
+                    }
+                    if (dropTargetUserObject instanceof ArbilDataNode) {
+                        // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
+//                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
+                        ((ArbilDataNode) dropTargetUserObject).reloadNode();
+                    } else {
+                        TreeHelper.getSingleInstance().applyRootLocations();
+                    }
+                    return true; // we have achieved the drag so return true
+                }
+            }
+            return false; // drag not achieved, so return false
         }
 
         public Object getTransferData(DataFlavor flavor) {
