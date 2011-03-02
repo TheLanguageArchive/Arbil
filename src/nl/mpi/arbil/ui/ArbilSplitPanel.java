@@ -196,13 +196,13 @@ public class ArbilSplitPanel extends JPanel {
 //            splitPane.setTopComponent(tableScrollPane);
             splitPane.setBottomComponent(listScroller);
             ArbilDragDrop.getSingleInstance().addDrag(imagePreview);
-            ArbilDragDrop.getSingleInstance().addTransferHandler(tableScrollPane);
+            ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(tableScrollPane);
             this.add(splitPane);
             this.doLayout();
             splitPane.setDividerLocation(0.5);
         }
         ArbilDragDrop.getSingleInstance().addDrag(arbilTable);
-        ArbilDragDrop.getSingleInstance().addTransferHandler(this);
+        ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(this);
         this.doLayout();
     }
 

@@ -47,17 +47,17 @@ public class ArbilDragDrop {
         arbilNodeSelection = new ArbilNodeSelection();
     }
     // There are numerous limitations of drag and drop in 1.5 and to overcome the resulting issues we need to share the same transferable object on both the drag source and the drop target
-    public DataFlavor dataNodeFlavour;
-    public ArbilNodeSelection arbilNodeSelection;
+    private DataFlavor dataNodeFlavour;
+    private ArbilNodeSelection arbilNodeSelection;
 
     public void addDrag(JTable tableSource) {
         tableSource.setDragEnabled(true);
-        tableSource.setTransferHandler(arbilNodeSelection);
+        setTransferHandlerOnComponent(tableSource);
     }
 
     public void addDrag(JTree treeSource) {
         treeSource.setDragEnabled(true);
-        treeSource.setTransferHandler(arbilNodeSelection);
+        setTransferHandlerOnComponent(treeSource);
         treeSource.addTreeSelectionListener(arbilNodeSelection);
         DropTarget target = treeSource.getDropTarget();
         try {
@@ -84,35 +84,37 @@ public class ArbilDragDrop {
 
     public void addDrag(JList listSource) {
         listSource.setDragEnabled(true);
-        listSource.setTransferHandler(arbilNodeSelection);
+        setTransferHandlerOnComponent(listSource);
     }
 
-    public void addTransferHandler(JComponent targetComponent) {
+    public void setTransferHandlerOnComponent(JComponent targetComponent) {
         //targetComponent.setDragEnabled(true);
         targetComponent.setTransferHandler(arbilNodeSelection);
     }
 
-    public class ArbilNodeSelection extends TransferHandler implements Transferable, javax.swing.event.TreeSelectionListener {
-
+    /**
+     * Internal transfer handler class that deals with drag/drop of arbil nodes
+     */
+    private class ArbilNodeSelection extends TransferHandler implements Transferable, javax.swing.event.TreeSelectionListener {
         long dragStartMilliSeconds;
         DataFlavor flavors[] = {dataNodeFlavour};
         ArbilDataNode[] draggedArbilNodes;
         DefaultMutableTreeNode[] draggedTreeNodes;
-        public boolean selectionContainsArchivableLocalFile = false;
-        public boolean selectionContainsLocalFile = false;
-        public boolean selectionContainsLocalDirectory = false;
-        public boolean selectionContainsArbilResource = false;
-        public boolean selectionContainsArbilCorpus = false;
-        public boolean selectionContainsArbilInCache = false;
-        public boolean selectionContainsImdiCatalogue = false;
-        public boolean selectionContainsImdiSession = false;
-        public boolean selectionContainsCmdiMetadata = false;
-        public boolean selectionContainsArbilChild = false;
-        public boolean selectionContainsLocal = false;
-        public boolean selectionContainsRemote = false;
-        public boolean selectionContainsFavourite = false;
+        private boolean selectionContainsArchivableLocalFile = false;
+        private boolean selectionContainsLocalFile = false;
+        private boolean selectionContainsLocalDirectory = false;
+        private boolean selectionContainsArbilResource = false;
+        private boolean selectionContainsArbilCorpus = false;
+        //private boolean selectionContainsArbilInCache = false;
+        private boolean selectionContainsImdiCatalogue = false;
+        private boolean selectionContainsImdiSession = false;
+        private boolean selectionContainsCmdiMetadata = false;
+        private boolean selectionContainsArbilChild = false;
+        private boolean selectionContainsLocal = false;
+        private boolean selectionContainsRemote = false;
+        private boolean selectionContainsFavourite = false;
         private JComponent currentDropTarget = null;
-        public boolean dropAllowed = false;
+        protected boolean dropAllowed = false;
 
         public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
             if (evt.getSource() == currentDropTarget) {
@@ -370,10 +372,11 @@ public class ArbilDragDrop {
                         System.out.println("selectionContainsRemote");
                     }
                     if (currentDraggedObject.isMetaDataNode()) {
-                        if (currentDraggedObject.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
-                            selectionContainsArbilInCache = true;
-                            System.out.println("selectionContainsImdiInCache");
-                        }
+                        // TG 2011/3/2: selectionContainsArbilInCache member has been removed since it wasn't used
+//                        if (currentDraggedObject.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
+//                            selectionContainsArbilInCache = true;
+//                            System.out.println("selectionContainsImdiInCache");
+//                        }
                         if (currentDraggedObject.isChildNode()) {
                             selectionContainsArbilChild = true;
                             System.out.println("selectionContainsImdiChild");

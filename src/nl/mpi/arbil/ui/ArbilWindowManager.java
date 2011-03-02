@@ -84,7 +84,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private ArbilWindowManager() {
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(new java.awt.Color(204, 204, 204));
-        ArbilDragDrop.getSingleInstance().addTransferHandler(desktopPane);
+        ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
     }
 
     public void loadGuiState(JFrame linorgFrameLocal) {
