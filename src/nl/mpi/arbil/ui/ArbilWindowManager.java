@@ -8,6 +8,7 @@ import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
@@ -423,27 +424,29 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
                 //= (Vector) windowListHashtable.get(currentWindowName);
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
-                ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[imdiURLs.size()];
-                for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
-                    try {
-                        imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
-                    } catch (URISyntaxException ex) {
-                        GuiHelper.linorgBugCatcher.logError(ex);
+                if (imdiURLs != null) {
+                    ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[imdiURLs.size()];
+                    for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
+                        try {
+                            imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
+                        } catch (URISyntaxException ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
                     }
-                }
 
-                // Create window array for open method to put new window reference in
-                Component[] window = new Component[1];
-                openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
+                    // Create window array for open method to put new window reference in
+                    Component[] window = new Component[1];
+                    openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
 
-                if (window[0] != null) {
-                    // Set size of new window from saved state
-                    if (windowSize != null) {
-                        window[0].setSize(windowSize);
-                    }
-                    // Set location new window from saved state
-                    if (windowLocation != null) {
-                        window[0].setLocation(windowLocation);
+                    if (window[0] != null) {
+                        // Set size of new window from saved state
+                        if (windowSize != null) {
+                            window[0].setSize(windowSize);
+                        }
+                        // Set location new window from saved state
+                        if (windowLocation != null) {
+                            window[0].setLocation(windowLocation);
+                        }
                     }
                 }
 
@@ -1018,6 +1021,21 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         }
 
         return arbilTableModel;
+    }
+
+    /**
+     * Opens a new window containing a scrollpane with a nested collection of tables
+     * for the specified node and all of its subnodes.
+     * @param arbilDataNode Node to open window for
+     * @param frameTitle Title of window to be created
+     */
+    public void openFloatingSubnodesWindow(ArbilDataNode[] arbilDataNodes) {
+        for (ArbilDataNode arbilDataNode : arbilDataNodes) {
+            ArbilSubnodesPanel panel = new ArbilSubnodesPanel(arbilDataNode);
+            panel.setBackground(Color.WHITE);
+            JScrollPane scrollPane = new JScrollPane(panel);
+            createWindow(arbilDataNode.toString(), scrollPane);
+        }
     }
 
     //JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,

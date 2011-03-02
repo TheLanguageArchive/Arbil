@@ -341,9 +341,11 @@ public class ArbilTable extends JTable {
     @Override
     public int getRowHeight() {
         try {
-            FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
-            int requiredHeight = fontMetrics.getHeight();
-            return requiredHeight;
+            if (this.getGraphics() != null) {
+                FontMetrics fontMetrics = this.getGraphics().getFontMetrics();
+                int requiredHeight = fontMetrics.getHeight();
+                return requiredHeight;
+            }
         } catch (Exception exception) {
 //            GuiHelper.linorgBugCatcher.logError(exception);
             System.out.println("getRowHeight could not get the font metrics, using the default row height");

@@ -24,6 +24,8 @@ public interface WindowManager {
     void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle);
 
     void openSearchTable(ArbilDataNode[] selectedNodes, String frameTitle);
+    
+    void openFloatingSubnodesWindow(ArbilDataNode[] arbilDataNodes);
 
     JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl);
 

@@ -1,5 +1,7 @@
 package nl.mpi.arbil.ui.menu;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -59,10 +61,12 @@ public class TreeContextMenu extends ArbilContextMenu {
         if (selectionCount > 0) {
             nodeLevel = tree.getSelectionPath().getPathCount();
         }
+
         showRemoveLocationsTasks = (selectionCount == 1 && nodeLevel == 2) || selectionCount > 1;
         showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
         viewSelectedNodesMenuItem.setText("View Selected");
+        viewSelectedSubnodesMenuItem.setText("View/edit all metadata");
 //        mergeWithFavouritesMenu.setEnabled(false);
         deleteMenuItem.setEnabled(true);
 
@@ -134,6 +138,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+        viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1 && 
+                (tree.getSelectedNodes()[0].isMetaDataNode() && !tree.getSelectedNodes()[0].isCatalogue() && !tree.getSelectedNodes()[0].isCorpus() ));
     }
 
     private void setUpActions() {
@@ -145,6 +151,15 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         });
         add(viewSelectedNodesMenuItem);
+
+        viewSelectedSubnodesMenuItem.setText("View/edit all metadata");
+        viewSelectedSubnodesMenuItem.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                viewSelectedSubnodes();
+            }
+        });
+        add(viewSelectedSubnodesMenuItem);
 
 
         deleteMenuItem.setText("Delete");
@@ -741,6 +756,19 @@ public class TreeContextMenu extends ArbilContextMenu {
         }
     }
 
+    private void viewSelectedSubnodes() {
+        ArbilDataNode[] selectedNodes = ((ArbilTree) getInvoker()).getSelectedNodes();
+        ArrayList<ArbilDataNode> filteredNodes = new ArrayList<ArbilDataNode>(selectedNodes.length);
+        for(ArbilDataNode dataNode : selectedNodes){
+            if(dataNode.isSession() || dataNode.isMetaDataNode()){
+                filteredNodes.add(dataNode);
+            }
+        }
+        if (!filteredNodes.isEmpty()) {
+            ArbilWindowManager.getSingleInstance().openFloatingSubnodesWindow(filteredNodes.toArray(new ArbilDataNode[0]));
+        }
+    }
+
     private void reImportBranch() {
         try {
             URI remoteDataFile = ArbilSessionStorage.getSingleInstance().getOriginatingUri(leadSelectedTreeNode.getURI());
@@ -793,7 +821,6 @@ public class TreeContextMenu extends ArbilContextMenu {
         reImportBranchMenuItem.setVisible(false);
         addToFavouritesMenuItem.setVisible(false);
     }
-    
     private ArbilTree tree;
     private JMenu addFromFavouritesMenu = new JMenu();
     private JMenuItem addLocalDirectoryMenuItem = new JMenuItem();
@@ -822,4 +849,5 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenu historyMenu = new JMenu();
     private JMenuItem viewChangesMenuItem = new JMenuItem();
     private JMenuItem viewSelectedNodesMenuItem = new JMenuItem();
+    private JMenuItem viewSelectedSubnodesMenuItem = new JMenuItem();
 }
