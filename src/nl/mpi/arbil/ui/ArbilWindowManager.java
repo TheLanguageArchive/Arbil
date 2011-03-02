@@ -884,7 +884,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
-        openFloatingTableGetModel(rowNodesArray, frameTitle, null);
+        openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
     }
 
     public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
