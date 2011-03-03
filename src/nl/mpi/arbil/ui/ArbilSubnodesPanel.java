@@ -53,6 +53,11 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
             BorderFactory.createMatteBorder(0, 2, 2, 0, Color.BLACK), // Outer border - black line to the left
             new EmptyBorder(0, 10, 5, 0)); // Inner border - empty white space (inset)
 
+
+    public ArbilDataNode getDataNode(){
+        return this.dataNode;
+    }
+
     public ArbilSubnodesPanel(ArbilDataNode dataNode) {
         this(dataNode, null);
     }

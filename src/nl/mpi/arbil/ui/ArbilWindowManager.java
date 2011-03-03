@@ -8,14 +8,12 @@ import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.KeyboardFocusManager;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -405,30 +403,30 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
                 String currentWindowName = windowNamesEnum.nextElement().toString();
                 System.out.println("currentWindowName: " + currentWindowName);
-                Object windowState = windowListHashtable.get(currentWindowName);
+                ArbilWindowState windowState;
+                Object windowStateObject = windowListHashtable.get(currentWindowName);
 
-                Vector imdiURLs;
-                Point windowLocation = null;
-                Dimension windowSize = null;
+//                Vector imdiURLs;
+//                Point windowLocation = null;
+//                Dimension windowSize = null;
 
-                if (windowState instanceof Vector) {
+                if (windowStateObject instanceof Vector) {
                     // In previous versions or Arbil, window state was stored as a vector of IMDI urls
-                    imdiURLs = (Vector) windowState;
-                } else if (windowState instanceof ArbilWindowState) {
-                    imdiURLs = ((ArbilWindowState) windowState).currentNodes;
-                    windowLocation = ((ArbilWindowState) windowState).location;
-                    windowSize = ((ArbilWindowState) windowState).size;
+                    windowState = new ArbilWindowState();
+                    windowState.currentNodes = (Vector) windowStateObject;
+                } else if (windowStateObject instanceof ArbilWindowState) {
+                    windowState = (ArbilWindowState) windowStateObject;
                 } else {
                     throw new Exception("Unknown window state format");
                 }
 
                 //= (Vector) windowListHashtable.get(currentWindowName);
 //                System.out.println("imdiEnumeration: " + imdiEnumeration);
-                if (imdiURLs != null) {
-                    ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[imdiURLs.size()];
+                if (windowState.currentNodes != null) {
+                    ArbilDataNode[] imdiObjectsArray = new ArbilDataNode[windowState.currentNodes.size()];
                     for (int arrayCounter = 0; arrayCounter < imdiObjectsArray.length; arrayCounter++) {
                         try {
-                            imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(imdiURLs.elementAt(arrayCounter).toString())));
+                            imdiObjectsArray[arrayCounter] = (ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(windowState.currentNodes.elementAt(arrayCounter).toString())));
                         } catch (URISyntaxException ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
                         }
@@ -436,16 +434,20 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
                     // Create window array for open method to put new window reference in
                     Component[] window = new Component[1];
-                    openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
+                    if (windowState.windowType == ArbilWindowState.ArbilWindowType.nodeTable) {
+                        openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
+                    } else if (windowState.windowType == ArbilWindowState.ArbilWindowType.subnodesPanel) {
+                        openFloatingSubnodesWindow(imdiObjectsArray[0], currentWindowName, window);
+                    }
 
                     if (window[0] != null) {
                         // Set size of new window from saved state
-                        if (windowSize != null) {
-                            window[0].setSize(windowSize);
+                        if (windowState.size != null) {
+                            window[0].setSize(windowState.size);
                         }
                         // Set location new window from saved state
-                        if (windowLocation != null) {
-                            window[0].setLocation(windowLocation);
+                        if (windowState.location != null) {
+                            window[0].setLocation(windowState.location);
                         }
                     }
                 }
@@ -532,20 +534,28 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                         windowState.location = ((JInternalFrame) windowObject).getLocation();
                         windowState.size = ((JInternalFrame) windowObject).getSize();
                         Object currentComponent = ((JInternalFrame) windowObject).getContentPane().getComponent(0);
-                        if (currentComponent != null && currentComponent instanceof ArbilSplitPanel) {
-                            // if this table has no nodes then don't save it
-                            if (0 < ((ArbilSplitPanel) currentComponent).arbilTable.getRowCount()) {
-//                System.out.println("windowObject: " + windowObject);
-//                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane());
-//                System.out.println("getComponent: " + ((JInternalFrame) windowObject).getComponent(0));
-//                System.out.println("LinorgSplitPanel: " + ((LinorgSplitPanel)((JInternalFrame) windowObject).getContentPane()));
-//                System.out.println("getContentPane: " + ((JInternalFrame) windowObject).getContentPane().getComponent(0));                                           
-                                Vector currentNodesVector = new Vector();
-                                for (String currentUrlString : ((ArbilTableModel) ((ArbilSplitPanel) currentComponent).arbilTable.getModel()).getArbilDataNodesURLs()) {
-                                    currentNodesVector.add(currentUrlString);
+                        if (currentComponent != null) {
+                            if (currentComponent instanceof ArbilSplitPanel) {
+                                // Store as a node table window
+                                windowState.windowType = ArbilWindowState.ArbilWindowType.nodeTable;
+
+                                // if this table has no nodes then don't save it
+                                if (0 < ((ArbilSplitPanel) currentComponent).arbilTable.getRowCount()) {
+                                    Vector currentNodesVector = new Vector();
+                                    for (String currentUrlString : ((ArbilTableModel) ((ArbilSplitPanel) currentComponent).arbilTable.getModel()).getArbilDataNodesURLs()) {
+                                        currentNodesVector.add(currentUrlString);
+                                    }
+                                    windowState.currentNodes = currentNodesVector;
+                                    System.out.println("saved");
                                 }
-                                windowState.currentNodes = currentNodesVector;
-                                System.out.println("saved");
+                            } else if (currentComponent instanceof ArbilSubnodesScrollPane) {
+                                // Store as a subnodes panel window
+                                windowState.windowType = ArbilWindowState.ArbilWindowType.subnodesPanel;
+
+                                // Set top level node as only entry in the current nodes vector
+                                Vector nodeVector = new Vector(1);
+                                nodeVector.add(((ArbilSubnodesScrollPane) currentComponent).getDataNode().getUrlString());
+                                windowState.currentNodes = nodeVector;
                             }
                         }
                         windowListHashtable.put(currentWindowName, windowState);
@@ -1029,12 +1039,16 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      * @param arbilDataNode Node to open window for
      * @param frameTitle Title of window to be created
      */
-    public void openFloatingSubnodesWindow(ArbilDataNode[] arbilDataNodes) {
+    public void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes) {
         for (ArbilDataNode arbilDataNode : arbilDataNodes) {
-            ArbilSubnodesPanel panel = new ArbilSubnodesPanel(arbilDataNode);
-            panel.setBackground(Color.WHITE);
-            JScrollPane scrollPane = new JScrollPane(panel);
-            createWindow(arbilDataNode.toString(), scrollPane);
+            openFloatingSubnodesWindow(arbilDataNode, arbilDataNode.toString(), null);
+        }
+    }
+
+    private void openFloatingSubnodesWindow(ArbilDataNode arbilDataNode, String frameTitle, Component[] window) {
+        JInternalFrame tableFrame = createWindow(frameTitle, new ArbilSubnodesScrollPane(arbilDataNode));
+        if(window != null && window.length > 0){
+            window[0] = tableFrame;
         }
     }
 
@@ -1061,5 +1075,23 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public JFrame getMainFrame() {
         return linorgFrame;
+    }
+
+    public static class ArbilSubnodesScrollPane extends JScrollPane {
+
+        private ArbilSubnodesPanel panel;
+
+        public ArbilSubnodesScrollPane(ArbilDataNode dataNode) {
+            this(new ArbilSubnodesPanel(dataNode));
+        }
+
+        public ArbilSubnodesScrollPane(ArbilSubnodesPanel panel) {
+            super(panel);
+            this.panel = panel;
+        }
+
+        public ArbilDataNode getDataNode() {
+            return panel.getDataNode();
+        }
     }
 }

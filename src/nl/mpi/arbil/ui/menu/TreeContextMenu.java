@@ -765,7 +765,7 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         }
         if (!filteredNodes.isEmpty()) {
-            ArbilWindowManager.getSingleInstance().openFloatingSubnodesWindow(filteredNodes.toArray(new ArbilDataNode[0]));
+            ArbilWindowManager.getSingleInstance().openFloatingSubnodesWindows(filteredNodes.toArray(new ArbilDataNode[0]));
         }
     }
 
