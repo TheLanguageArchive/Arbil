@@ -7,6 +7,7 @@ package nl.mpi.arbil.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -53,12 +54,12 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
             BorderFactory.createMatteBorder(0, 2, 2, 0, Color.BLACK), // Outer border - black line to the left
             new EmptyBorder(0, 10, 5, 0)); // Inner border - empty white space (inset)
 
-
-    public ArbilDataNode getDataNode(){
+    public ArbilDataNode getDataNode() {
         return this.dataNode;
     }
 
     public ArbilSubnodesPanel(ArbilDataNode dataNode) {
+        // Construct a top-level subnodes panel (with no parent)
         this(dataNode, null);
     }
 
@@ -92,14 +93,20 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         dataNode.registerContainer(getTopLevelPanel());
     }
 
-    private void clear() {
+    public void clear() {
         for (ArbilSubnodesPanel child : children) {
+            // Make child clear its contents
             child.clear();
         }
+        // Clear list of children
         children.clear();
+        // Remove as container for the datanode
+        dataNode.removeContainer(getTopLevelPanel());
+        // Remove all contents from the contentpanel
         if (contentPanel != null) {
             contentPanel.removeAll();
         }
+        // Remove all contents from this panel
         this.removeAll();
     }
 
@@ -177,7 +184,22 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     protected void reloadAll() {
-        reloadNode(null);
+        if (EventQueue.isDispatchThread()) {
+            reloadNode(null);
+        } else {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+
+                    public void run() {
+                        reloadNode(null);
+                    }
+                });
+            } catch (InterruptedException ex) {
+                return;
+            } catch (InvocationTargetException ex) {
+                return;
+            }
+        }
     }
 
     protected void reloadNode(ArbilDataNode dataNode) {
@@ -192,7 +214,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         revalidate();
     }
 
-    protected ArbilSubnodesPanel getTopLevelPanel() {
+    protected final ArbilSubnodesPanel getTopLevelPanel() {
         if (parent == null) {
             return this;
         } else if (parent.parent == null) {
@@ -211,32 +233,45 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 
     private void requestReload() {
         synchronized (reloadLock) {
-            reloadRequested = true;
             if (!reloadThreadRunning) {
                 reloadThreadRunning = true;
-                EventQueue.invokeLater(new ReloadRunner());
+                new Thread(new ReloadRunner()).start();
+                //EventQueue.invokeLater(new ReloadRunner());
             }
+            reloadRequested = true;
+            reloadLock.notifyAll();
         }
     }
 
     private class ReloadRunner implements Runnable {
 
-        @SuppressWarnings("SleepWhileHoldingLock")
         public void run() {
-            while (reloadRequested) {
-                try {
-                    // Sleep to allow more requests to come in
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    return;
+            try {
+                // There may be new requests. If so, keep in the loop
+                while (reloadRequested) {
+                    // Go into wait for some short time while more reloads are requested
+                    waitForIncomingRequests();
+                    // No requests have been added for some time, so do the reload
+                    reloadAll();
                 }
+            } finally {
                 synchronized (reloadLock) {
-                    reloadRequested = false;
+                    reloadThreadRunning = false;
                 }
-                reloadAll();
             }
+        }
+
+        private void waitForIncomingRequests() {
             synchronized (reloadLock) {
-                reloadThreadRunning = false;
+                while (reloadRequested) {
+                    reloadRequested = false;
+                    try {
+                        // Give some time for another reload to be requested
+                        reloadLock.wait(150);
+                    } catch (InterruptedException ex) {
+                        return;
+                    }
+                }
             }
         }
     }
