@@ -50,8 +50,8 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer {
 
     private static Border levelBorder = BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.BLACK), // Outer border - black line to the left
-            new EmptyBorder(0, 10, 0, 0)); // Inner border - empty white space (inset)
+            BorderFactory.createMatteBorder(0, 2, 2, 0, Color.BLACK), // Outer border - black line to the left
+            new EmptyBorder(0, 10, 5, 0)); // Inner border - empty white space (inset)
 
     public ArbilSubnodesPanel(ArbilDataNode dataNode) {
         this(dataNode, null);
@@ -71,17 +71,20 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     final protected void addContents() {
-        // Add indent to the left (except for top level panel)
-            this.add(Box.createRigidArea(new Dimension(parent == null ? 5:20, 0)));
-        
+        // Add indent to the left
+        this.add(Box.createRigidArea(new Dimension(parent == null ? 5 : 20, 0)));
+
         contentPanel = createContentPanel(dataNode);
         this.add(contentPanel);
 
+        // Add some padding to the right at top level
         if (parent == null) {
-            dataNode.registerContainer(this);
-        } else {
-            dataNode.registerContainer(getTopLevelPanel());
+            this.add(Box.createRigidArea(new Dimension(10, 0)));
         }
+
+        // Register top level panel as container for dataNode, so that the entire
+        // panel will be notified upon deletion or clearing of a subnode
+        dataNode.registerContainer(getTopLevelPanel());
     }
 
     private void clear() {
@@ -132,6 +135,8 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
             ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this);
             children.add(childPanel);
             panel.add(childPanel);
+            // Add some padding below child
+            panel.add(Box.createRigidArea(new Dimension(0, 10)));
         }
         return panel;
     }
@@ -143,10 +148,6 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         table.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
         table.setAlignmentX(LEFT_ALIGNMENT);
         return table;
-//        table.setPreferredScrollableViewportSize(table.getPreferredSize());
-//        JScrollPane scrollPane = new JScrollPane(table);
-//        scrollPane.setAlignmentX(LEFT_ALIGNMENT);
-//        return scrollPane;
     }
 
     public void dataNodeRemoved(ArbilDataNode dataNode) {
@@ -207,6 +208,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         synchronized (reloadLock) {
             reloadRequested = true;
             if (!reloadThreadRunning) {
+                reloadThreadRunning = true;
                 EventQueue.invokeLater(new ReloadRunner());
             }
         }
@@ -214,9 +216,11 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 
     private class ReloadRunner implements Runnable {
 
+        @SuppressWarnings("SleepWhileHoldingLock")
         public void run() {
             while (reloadRequested) {
                 try {
+                    // Sleep to allow more requests to come in
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     return;
@@ -225,6 +229,9 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
                     reloadRequested = false;
                 }
                 reloadAll();
+            }
+            synchronized (reloadLock) {
+                reloadThreadRunning = false;
             }
         }
     }
