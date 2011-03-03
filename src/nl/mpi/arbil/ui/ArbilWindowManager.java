@@ -437,7 +437,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                     if (windowState.windowType == ArbilWindowState.ArbilWindowType.nodeTable) {
                         openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
                     } else if (windowState.windowType == ArbilWindowState.ArbilWindowType.subnodesPanel) {
-                        openFloatingSubnodesWindow(imdiObjectsArray[0], currentWindowName, window);
+                        openFloatingSubnodesWindowOnce(imdiObjectsArray[0], currentWindowName, window);
                     }
 
                     if (window[0] != null) {
@@ -1041,13 +1041,30 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      */
     public void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes) {
         for (ArbilDataNode arbilDataNode : arbilDataNodes) {
-            openFloatingSubnodesWindow(arbilDataNode, arbilDataNode.toString(), null);
+            openFloatingSubnodesWindowOnce(arbilDataNode, arbilDataNode.toString(), null);
         }
     }
 
-    private void openFloatingSubnodesWindow(ArbilDataNode arbilDataNode, String frameTitle, Component[] window) {
+    private void openFloatingSubnodesWindowOnce(ArbilDataNode arbilDataNode, String frameTitle, Component[] window) {
+        // Check if no subnodes window is opened with the same data node as top level node yet
+
+        for (String currentWindowName : windowList.keySet()) {
+            Component[] currentWindow = (Component[]) windowList.get(currentWindowName);
+            for (Component childComponent : ((JInternalFrame) currentWindow[0]).getContentPane().getComponents()) {
+                // loop through all the child components in the window (there will probably only be one)
+                if (childComponent instanceof ArbilSubnodesScrollPane) {
+                    if (((ArbilSubnodesScrollPane) childComponent).getDataNode().equals(arbilDataNode)) {
+                        // Make window get focus - a window was requested after all
+                        focusWindow(currentWindowName);
+                        // Return so a new window does not get created
+                        return;
+                    }
+                }
+            }
+        }
+
         JInternalFrame tableFrame = createWindow(frameTitle, new ArbilSubnodesScrollPane(arbilDataNode));
-        if(window != null && window.length > 0){
+        if (window != null && window.length > 0) {
             window[0] = tableFrame;
         }
     }
