@@ -27,7 +27,7 @@ import nl.mpi.arbil.ui.menu.ImagePreviewContextMenu;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilSplitPanel extends JPanel {
+public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
 
     private JList imagePreview;
     public ArbilTable arbilTable;
@@ -224,6 +224,10 @@ public class ArbilSplitPanel extends JPanel {
                 super.internalFrameDeactivated(e);
             }
         });
+    }
+
+    public void arbilWindowClosed() {
+        ((ArbilTableModel)arbilTable.getModel()).removeAllArbilDataNodeRows();
     }
 }
 

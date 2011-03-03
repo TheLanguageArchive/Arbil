@@ -575,7 +575,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         }
     }
 
-    private String addWindowToList(String windowName, JInternalFrame windowFrame) {
+    private String addWindowToList(String windowName, final JInternalFrame windowFrame) {
         int instanceCount = 0;
         String currentWindowName = windowName;
         while (windowList.containsKey(currentWindowName)) {
@@ -602,9 +602,18 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             public void internalFrameClosed(InternalFrameEvent e) {
                 String windowName = e.getInternalFrame().getName();
                 System.out.println("Closing window: " + windowName);
-                Component[] windowAndMenu = (Component[]) windowList.get(windowName);
+                Component[] windowAndMenu = windowList.get(windowName);
+
+                // Remove from windows menu
                 if (ArbilMenuBar.windowMenu != null && windowAndMenu != null) {
                     ArbilMenuBar.windowMenu.remove(windowAndMenu[1]);
+                }
+
+                // Check if the child component(s) implement ArbilWindowComponent. If so, call their window closed method
+                for (Component childComponent : ((JInternalFrame) windowFrame).getContentPane().getComponents()) {
+                    if (childComponent instanceof ArbilWindowComponent) {
+                        ((ArbilWindowComponent) childComponent).arbilWindowClosed();
+                    }
                 }
                 windowList.remove(windowName);
                 super.internalFrameClosed(e);
@@ -1094,7 +1103,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         return linorgFrame;
     }
 
-    public static class ArbilSubnodesScrollPane extends JScrollPane {
+    public static class ArbilSubnodesScrollPane extends JScrollPane implements ArbilWindowComponent {
 
         private ArbilSubnodesPanel panel;
 
@@ -1109,6 +1118,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
         public ArbilDataNode getDataNode() {
             return panel.getDataNode();
+        }
+
+        public void arbilWindowClosed() {
+            panel.clear();
         }
     }
 }

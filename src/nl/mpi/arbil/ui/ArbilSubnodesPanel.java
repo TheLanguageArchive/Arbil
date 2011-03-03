@@ -100,8 +100,13 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         }
         // Clear list of children
         children.clear();
+
         // Remove as container for the datanode
         dataNode.removeContainer(getTopLevelPanel());
+        if (table != null) {
+            // Remove data node from table
+            ((ArbilTableModel) table.getModel()).removeArbilDataNodes(new ArbilDataNode[]{dataNode});
+        }
         // Remove all contents from the contentpanel
         if (contentPanel != null) {
             contentPanel.removeAll();
@@ -135,7 +140,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         // Add table for the current node
         if (!dataNode.isEmptyMetaNode()) {
             // Add table to content panel
-            ArbilTable table = createArbilTable(dataNode);
+            table = createArbilTable(dataNode);
             panel.add(table.getTableHeader());
             panel.add(table);
             // Add some padding below table
@@ -163,8 +168,9 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     public void dataNodeRemoved(ArbilDataNode dataNode) {
-        deleteNodePanels(dataNode);
-        doLayout();
+        //deleteNodePanels(dataNode);
+        //doLayout();
+        requestReload();
     }
 
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
@@ -224,6 +230,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         }
     }
     private JPanel contentPanel;
+    private ArbilTable table;
     protected ArbilDataNode dataNode;
     protected ArbilSubnodesPanel parent;
     final protected ArrayList<ArbilSubnodesPanel> children = new ArrayList<ArbilSubnodesPanel>();
