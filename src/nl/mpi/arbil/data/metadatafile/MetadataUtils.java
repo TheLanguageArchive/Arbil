@@ -19,5 +19,5 @@ public interface MetadataUtils {
 
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException;
 
-    public URI[] getCorpusLinks(URI nodeURI);
+    public URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException;
 }

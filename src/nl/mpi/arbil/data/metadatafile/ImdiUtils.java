@@ -236,11 +236,14 @@ public class ImdiUtils implements MetadataUtils {
         return false;
     }
 
-    public URI[] getCorpusLinks(URI nodeURI) {
+    public URI[] getCorpusLinks(URI nodeURI) throws ArbilMetadataException {
         try {
             OurURL destinationUrl = new OurURL(nodeURI.toString());
             Document nodDom = api.loadIMDIDocument(destinationUrl, false);
             checkImdiApiResult(nodDom, nodeURI);
+            if (nodDom == null) {
+                throw new ArbilMetadataException("could not load file");
+            }
             IMDILink[] allImdiLinks;
             allImdiLinks = api.getIMDILinks(nodDom, destinationUrl, WSNodeType.UNKNOWN);
             checkImdiApiResult(allImdiLinks, nodeURI);
