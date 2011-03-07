@@ -319,7 +319,7 @@ public class TreeHelper {
                     if (userObject instanceof ImdiTreeObject) {
                         if (((ImdiTreeObject) userObject).fileNotFound) {
                             toDeleteCount++;
-                        else if (((ImdiTreeObject) userObject).isEmptyMetaNode()) {
+                        } else if (((ImdiTreeObject) userObject).isEmptyMetaNode()) {
                             toDeleteCount = toDeleteCount + ((ImdiTreeObject) userObject).getChildCount();
                         } else {
                             toDeleteCount++;
