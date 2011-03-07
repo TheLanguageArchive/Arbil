@@ -197,7 +197,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                     Object currentElement = localSearchNodes.remove(0);
                     if (currentElement instanceof ArbilDataNode) {
                         ArbilDataNode currentDataNode = (ArbilDataNode) currentElement;
-                        if (!currentDataNode.isChildNode() && (currentDataNode.isLoading() || !currentDataNode.dataLoaded)) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
+                        if (!currentDataNode.isChildNode() && (currentDataNode.isLoading() || !currentDataNode.dataLoaded)) {
                             System.out.println("searching: " + currentDataNode.getUrlString());
                             System.out.println("still loading so putting back into the list: " + currentDataNode);
                             if (!currentDataNode.fileNotFound) {
