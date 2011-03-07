@@ -1072,7 +1072,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             }
         }
 
-        JInternalFrame tableFrame = createWindow(frameTitle, new ArbilSubnodesScrollPane(arbilDataNode));
+        ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode);
+        JInternalFrame tableFrame = createWindow(frameTitle, scrollPane);
+        tableFrame.addInternalFrameListener(scrollPane.getInternalFrameListener());
         if (window != null && window.length > 0) {
             window[0] = tableFrame;
         }
@@ -1101,27 +1103,5 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public JFrame getMainFrame() {
         return linorgFrame;
-    }
-
-    public static class ArbilSubnodesScrollPane extends JScrollPane implements ArbilWindowComponent {
-
-        private ArbilSubnodesPanel panel;
-
-        public ArbilSubnodesScrollPane(ArbilDataNode dataNode) {
-            this(new ArbilSubnodesPanel(dataNode));
-        }
-
-        public ArbilSubnodesScrollPane(ArbilSubnodesPanel panel) {
-            super(panel);
-            this.panel = panel;
-        }
-
-        public ArbilDataNode getDataNode() {
-            return panel.getDataNode();
-        }
-
-        public void arbilWindowClosed() {
-            panel.clear();
-        }
     }
 }

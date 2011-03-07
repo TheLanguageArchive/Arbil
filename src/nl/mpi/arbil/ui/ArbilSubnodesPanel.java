@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
@@ -91,6 +92,18 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         // Register top level panel as container for dataNode, so that the entire
         // panel will be notified upon deletion or clearing of a subnode
         dataNode.registerContainer(getTopLevelPanel());
+    }
+
+    public void stopAllEditing() {
+        if (table != null) {
+            TableCellEditor cellEditor = table.getCellEditor();
+            if (cellEditor != null) {
+                cellEditor.stopCellEditing();
+            }
+        }
+        for(ArbilSubnodesPanel child : children){
+            child.stopAllEditing();
+        }
     }
 
     public void clear() {
