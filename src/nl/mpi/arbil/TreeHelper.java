@@ -317,7 +317,9 @@ public class TreeHelper {
                     selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                     Object userObject = selectedTreeNode.getUserObject();
                     if (userObject instanceof ImdiTreeObject) {
-                        if (((ImdiTreeObject) userObject).isEmptyMetaNode()) {
+                        if (((ImdiTreeObject) userObject).fileNotFound) {
+                            toDeleteCount++;
+                        else if (((ImdiTreeObject) userObject).isEmptyMetaNode()) {
                             toDeleteCount = toDeleteCount + ((ImdiTreeObject) userObject).getChildCount();
                         } else {
                             toDeleteCount++;

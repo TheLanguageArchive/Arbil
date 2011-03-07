@@ -439,15 +439,6 @@ public class ImdiTreeObject implements Comparable {
                         nodDom = new CmdiComponentBuilder().getDocument(this.getURI());
                         // only read the fields into imdi tree objects if it is not going to be saved to the cache
                         //            if (!useCache) {
-                        if (nodDom == null) {
-                            File nodeFile = this.getFile();
-                            if (nodeFile != null && nodeFile.exists()) {
-                                nodeText = "Could not load IMDI";
-                            } else {
-                                nodeText = "File not found";
-                                fileNotFound = true;
-                            }
-                        } else {
                             //set the string name to unknown, it will be updated in the tostring function
                             nodeText = "unknown";
                             if (this.isCmdiMetaDataNode()) {
@@ -490,7 +481,6 @@ public class ImdiTreeObject implements Comparable {
                                                 ((ImdiTree) currentContainer).requestResort();
                                             }
                                         }
-                                    }
                                 }
                             }
                         }
@@ -504,6 +494,13 @@ public class ImdiTreeObject implements Comparable {
                     } catch (Exception mue) {
                         GuiHelper.linorgBugCatcher.logError(this.getUrlString(), mue);
                         //            System.out.println("Invalid input URL: " + mue);
+                        File nodeFile = this.getFile();
+                        if (nodeFile != null && nodeFile.exists()) {
+                            nodeText = "Could not load data";
+                        } else {
+                            nodeText = "File not found";
+                            fileNotFound = true;
+                        }
                     }
                     //we are now done with the dom so free the memory
                     nodDom = null;
