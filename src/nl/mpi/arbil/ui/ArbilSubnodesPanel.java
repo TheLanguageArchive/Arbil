@@ -11,8 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,6 +23,7 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.util.ArbilActionBuffer;
 
 /**
  * ArbilSubnodesPanel is created for an ArbilDataNode and will contain the
@@ -280,58 +279,23 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
             return parent.getTopLevelPanel();
         }
     }
+
+    private void requestReload() {
+        reloadRunner.requestActionAndNotify();
+    }
+    
+    private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("SubnodePanelReload-" + this.hashCode(), 150) {
+
+        @Override
+        public void executeAction() {
+            reloadAll();
+        }
+    };
+    
     private JPanel contentPanel;
     private ArbilTable table;
     private JLabel titleLabel;
     protected ArbilDataNode dataNode;
     protected ArbilSubnodesPanel parent;
     final protected ArrayList<ArbilSubnodesPanel> children = new ArrayList<ArbilSubnodesPanel>();
-    private boolean reloadRequested = false;
-    private boolean reloadThreadRunning = false;
-    final private Object reloadLock = new Object();
-
-    private void requestReload() {
-        synchronized (reloadLock) {
-            if (!reloadThreadRunning) {
-                reloadThreadRunning = true;
-                new Thread(new ReloadRunner()).start();
-                //EventQueue.invokeLater(new ReloadRunner());
-            }
-            reloadRequested = true;
-            reloadLock.notifyAll();
-        }
-    }
-
-    private class ReloadRunner implements Runnable {
-
-        public void run() {
-            try {
-                // There may be new requests. If so, keep in the loop
-                while (reloadRequested) {
-                    // Go into wait for some short time while more reloads are requested
-                    waitForIncomingRequests();
-                    // No requests have been added for some time, so do the reload
-                    reloadAll();
-                }
-            } finally {
-                synchronized (reloadLock) {
-                    reloadThreadRunning = false;
-                }
-            }
-        }
-
-        private void waitForIncomingRequests() {
-            synchronized (reloadLock) {
-                while (reloadRequested) {
-                    reloadRequested = false;
-                    try {
-                        // Give some time for another reload to be requested
-                        reloadLock.wait(150);
-                    } catch (InterruptedException ex) {
-                        return;
-                    }
-                }
-            }
-        }
-    }
 }

@@ -24,6 +24,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
@@ -33,21 +34,22 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer {
-private static MessageDialogHandler messageDialogHandler;
+
+    private static MessageDialogHandler messageDialogHandler;
+
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     private static ClipboardOwner clipboardOwner;
-    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance){
+
+    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
         clipboardOwner = clipboardOwnerInstance;
     }
-
     // variables used by the thread
     private boolean reloadRequested = false;
     private boolean treeNodeSortQueueRunning = false;
@@ -610,28 +612,17 @@ private static MessageDialogHandler messageDialogHandler;
             Arrays.sort(dataTemp, new TableRowComparator(sortColumn, sortReverse));
         }
     }
+    
+    private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("TableReload-" + this.hashCode(), 50) {
 
-    synchronized public void requestReloadTableData() {
-        reloadRequested = true;
-        if (!treeNodeSortQueueRunning) {
-            treeNodeSortQueueRunning = true;
-            new Thread("treeNodeSortQueue") {
-
-                @Override
-                public void run() {
-                    try {
-                        // here we only want to respond the a request when it is requred but also respond if the request has arrived since the last reload started
-                        while (reloadRequested) {
-                            reloadRequested = false;
-                            reloadTableDataPrivate();
-                        }
-                    } catch (Exception ex) {
-                        bugCatcher.logError(ex);
-                    }
-                    treeNodeSortQueueRunning = false;
-                }
-            }.start();
+        @Override
+        public void executeAction() {
+            reloadTableDataPrivate();
         }
+    };
+
+    public void requestReloadTableData() {
+        reloadRunner.requestActionAndNotify();
     }
 
     // this will be hit by each imdi node in the table when the application starts hence it needs to be either put in a queue or be synchronised
@@ -649,7 +640,7 @@ private static MessageDialogHandler messageDialogHandler;
         if (!horizontalView) { // set the table for a single image if that is all that is shown
             //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
             // TODO: this does not account for when a resource is shown
-            if (filteredColumnNames.size() == 0) {
+            if (filteredColumnNames.isEmpty()) {
                 horizontalView = true;
             }
         }
