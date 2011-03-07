@@ -194,10 +194,11 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                         Object currentElement = localSearchNodes.remove(0);
                         if (currentElement instanceof ImdiTreeObject) {
                             ImdiTreeObject currentImdiNode = (ImdiTreeObject) currentElement;
-                            if (currentImdiNode.isLoading()) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
+                        if (!currentImdiNode.isImdiChild() && (currentImdiNode.isLoading() || !currentImdiNode.imdiDataLoaded)) {
                                 System.out.println("searching: " + currentImdiNode.getUrlString());
                                 System.out.println("still loading so putting back into the list: " + currentImdiNode);
                                 if (!currentImdiNode.fileNotFound) {
+                                currentImdiNode.registerContainer(ImdiNodeSearchPanel.this); // this causes the node to be loaded
                                     localSearchNodes.add(currentImdiNode);
                                 }
                             } else {
@@ -258,7 +259,7 @@ public class ImdiNodeSearchPanel extends javax.swing.JPanel {
                                 searchProgressBar.setMaximum(totalNodesToSearch);
                                 searchProgressBar.setValue(totalSearched);
                                 // todo: indicate how many metadata files searched rather than sub nodes
-                                searchProgressBar.setString("searched: " + totalSearched + " found: " + foundNodes.size());
+                            searchProgressBar.setString("searched: " + totalSearched + "/" + totalNodesToSearch + " found: " + foundNodes.size());
                             }
                         }
                         if (!parentFrame.isVisible()) {
