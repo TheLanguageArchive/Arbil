@@ -447,46 +447,36 @@ public class ArbilDataNode implements Comparable {
                         nodDom = ArbilComponentBuilder.getDocument(this.getURI());
                         // only read the fields into imdi tree objects if it is not going to be saved to the cache
                         //            if (!useCache) {
-                        if (nodDom == null) {
-                            File nodeFile = this.getFile();
-                            if (nodeFile != null && nodeFile.exists()) {
-                                nodeText = "Could not load data";
-                            } else {
-                                nodeText = "File not found";
-                                fileNotFound = true;
-                            }
+                        //set the string name to unknown, it will be updated in the tostring function
+                        nodeText = "unknown";
+                        if (this.isCmdiMetaDataNode()) {
+                            // load the links from the cmdi file
+                            // the links will be hooked to the relevent nodes when the rest of the xml is read
+                            cmdiComponentLinkReader = new CmdiComponentLinkReader();
+                            cmdiComponentLinkReader.readLinks(this.getURI());
                         } else {
-                            //set the string name to unknown, it will be updated in the tostring function
-                            nodeText = "unknown";
-                            if (this.isCmdiMetaDataNode()) {
-                                // load the links from the cmdi file
-                                // the links will be hooked to the relevent nodes when the rest of the xml is read
-                                cmdiComponentLinkReader = new CmdiComponentLinkReader();
-                                cmdiComponentLinkReader.readLinks(this.getURI());
-                            } else {
-                                cmdiComponentLinkReader = null;
-                            }
-                            Vector<String[]> childLinksTemp = new Vector<String[]>();
-                            Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new Hashtable<ArbilDataNode, HashSet<ArbilDataNode>>();
-                            Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
-                            // load the fields from the imdi file
-                            MetadataReader.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
-                            childLinks = childLinksTemp.toArray(new String[][]{});
-                            //ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
-                            for (ArbilDataNode currentNode : parentChildTree.keySet()) {
-                                //                        System.out.println("setting childArray on: " + currentNode.getUrlString());
-                                // save the old child array
-                                ArbilDataNode[] oldChildArray = currentNode.childArray;
-                                // set the new child array
-                                currentNode.childArray = parentChildTree.get(currentNode).toArray(new ArbilDataNode[]{});
-                                // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
-                                List currentChildList = Arrays.asList(currentNode.childArray);
-                                for (ArbilDataNode currentOldChild : oldChildArray) {
-                                    if (currentChildList.indexOf(currentOldChild) == -1) {
-                                        // remove from any containers that its found in
-                                        for (ArbilDataNodeContainer currentContainer : currentOldChild.getRegisteredContainers()) {
-                                            currentContainer.dataNodeRemoved(currentOldChild);
-                                        }
+                            cmdiComponentLinkReader = null;
+                        }
+                        Vector<String[]> childLinksTemp = new Vector<String[]>();
+                        Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new Hashtable<ArbilDataNode, HashSet<ArbilDataNode>>();
+                        Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
+                        // load the fields from the imdi file
+                        MetadataReader.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
+                        childLinks = childLinksTemp.toArray(new String[][]{});
+                        //ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
+                        for (ArbilDataNode currentNode : parentChildTree.keySet()) {
+                            //                        System.out.println("setting childArray on: " + currentNode.getUrlString());
+                            // save the old child array
+                            ArbilDataNode[] oldChildArray = currentNode.childArray;
+                            // set the new child array
+                            currentNode.childArray = parentChildTree.get(currentNode).toArray(new ArbilDataNode[]{});
+                            // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
+                            List currentChildList = Arrays.asList(currentNode.childArray);
+                            for (ArbilDataNode currentOldChild : oldChildArray) {
+                                if (currentChildList.indexOf(currentOldChild) == -1) {
+                                    // remove from any containers that its found in
+                                    for (ArbilDataNodeContainer currentContainer : currentOldChild.getRegisteredContainers()) {
+                                        currentContainer.dataNodeRemoved(currentOldChild);
                                     }
                                 }
                             }
@@ -501,6 +491,13 @@ public class ArbilDataNode implements Comparable {
                     } catch (Exception mue) {
                         bugCatcher.logError(this.getUrlString(), mue);
                         //            System.out.println("Invalid input URL: " + mue);
+                        File nodeFile = this.getFile();
+                        if (nodeFile != null && nodeFile.exists()) {
+                            nodeText = "Could not load data";
+                        } else {
+                            nodeText = "File not found";
+                            fileNotFound = true;
+                        }
                     }
                     //we are now done with the dom so free the memory
                     nodDom = null;

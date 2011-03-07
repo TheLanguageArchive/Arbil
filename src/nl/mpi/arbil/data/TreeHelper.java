@@ -331,7 +331,9 @@ public class TreeHelper {
                     selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                     Object userObject = selectedTreeNode.getUserObject();
                     if (userObject instanceof ArbilDataNode) {
-                        if (((ArbilDataNode) userObject).isEmptyMetaNode()) {
+                        if (((ArbilDataNode) userObject).fileNotFound) {
+                            toDeleteCount++;
+                        } else if (((ArbilDataNode) userObject).isEmptyMetaNode()) {
                             toDeleteCount = toDeleteCount + ((ArbilDataNode) userObject).getChildCount();
                         } else {
                             toDeleteCount++;
