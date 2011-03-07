@@ -9,6 +9,10 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -94,6 +98,14 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         dataNode.registerContainer(getTopLevelPanel());
     }
 
+    @Override
+    public String toString() {
+        if (dataNode != null) {
+            return "ArbilSubnodesPanel " + dataNode.toString();
+        }
+        return super.toString();
+    }
+
     public void stopAllEditing() {
         if (table != null) {
             TableCellEditor cellEditor = table.getCellEditor();
@@ -101,7 +113,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
                 cellEditor.stopCellEditing();
             }
         }
-        for(ArbilSubnodesPanel child : children){
+        for (ArbilSubnodesPanel child : children) {
             child.stopAllEditing();
         }
     }
@@ -146,7 +158,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         panel.setBorder(levelBorder);
 
         // Add title label (with icon) to panel
-        JLabel titleLabel = new JLabel(dataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(dataNode), SwingConstants.LEADING);
+        titleLabel = new JLabel(dataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(dataNode), SwingConstants.LEADING);
         titleLabel.setBorder(new EmptyBorder(5, 0, 5, 0));
         panel.add(titleLabel);
 
@@ -162,27 +174,34 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 
         // Recursively add ArbilSubnodesPanels to the content panel
         for (ArbilDataNode child : dataNode.getChildArray()) {
-            ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this);
-            children.add(childPanel);
-            panel.add(childPanel);
-            // Add some padding below child
-            panel.add(Box.createRigidArea(new Dimension(0, 10)));
+            addChildPanel(panel, child);
         }
         return panel;
+    }
+
+    private void updateTitleLabel() {
+        titleLabel.setText(dataNode.toString());
+        titleLabel.setIcon(ArbilIcons.getSingleInstance().getIconForNode(dataNode));
+    }
+
+    private void addChildPanel(JPanel panel, ArbilDataNode child) {
+        ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this);
+        children.add(childPanel);
+        panel.add(childPanel);
+        // Add some padding below child
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
 
     private ArbilTable createArbilTable(ArbilDataNode dataNode) {
         ArbilTableModel arbilTableModel = new ArbilTableModel();
         arbilTableModel.addArbilDataNodes(new ArbilDataNode[]{dataNode});
-        ArbilTable table = new ArbilTable(arbilTableModel, dataNode.toString());
-        table.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
-        table.setAlignmentX(LEFT_ALIGNMENT);
-        return table;
+        ArbilTable arbilTable = new ArbilTable(arbilTableModel, dataNode.toString());
+        arbilTable.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
+        arbilTable.setAlignmentX(LEFT_ALIGNMENT);
+        return arbilTable;
     }
 
     public void dataNodeRemoved(ArbilDataNode dataNode) {
-        //deleteNodePanels(dataNode);
-        //doLayout();
         requestReload();
     }
 
@@ -190,27 +209,15 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         requestReload();
     }
 
-    protected void deleteNodePanels(ArbilDataNode dataNode) {
-        synchronized (children) {
-            for (ArbilSubnodesPanel child : children) {
-                if (child.dataNode.equals(dataNode)) {
-                    contentPanel.remove(child);
-                } else {
-                    child.deleteNodePanels(dataNode);
-                }
-            }
-        }
-    }
-
     protected void reloadAll() {
         if (EventQueue.isDispatchThread()) {
-            reloadNode(null);
+            reload();
         } else {
             try {
                 EventQueue.invokeAndWait(new Runnable() {
 
                     public void run() {
-                        reloadNode(null);
+                        reload();
                     }
                 });
             } catch (InterruptedException ex) {
@@ -221,15 +228,46 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         }
     }
 
-    protected void reloadNode(ArbilDataNode dataNode) {
-        if (dataNode == null || this.dataNode == dataNode) {
-            clear();
-            addContents();
-        } else {
+    protected synchronized void reload() {
+        List<ArbilDataNode> nodeChildren = Arrays.asList(dataNode.getChildArray());
+        ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>(nodeChildren);
+
+        if (children.size() > 0) {
+            ArrayList<ArbilSubnodesPanel> panelsToRemove = new ArrayList<ArbilSubnodesPanel>();
+
+            // Update children of this node
             for (ArbilSubnodesPanel child : children) {
-                child.reloadNode(dataNode);
+
+                if (nodeChildren.contains(child.getDataNode())) {
+                    // Node is already on contents panel. Delete from list of nodes to add
+                    nodesToAdd.remove(child.getDataNode());
+                    // Reload this child
+                    child.reload();
+                } else {
+                    // Node is on panel but not a child of data node anymore. Mark for removal
+                    panelsToRemove.add(child);
+                }
+            }
+
+            // Remove panels marked for removal
+            for (ArbilSubnodesPanel panelToRemove : panelsToRemove) {
+                panelToRemove.clear();
+                contentPanel.remove(panelToRemove);
+                children.remove(panelToRemove);
             }
         }
+
+        // notesToAdd now contains only dataNodes that are not in the contents panel yet. Add them
+        for (ArbilDataNode child : nodesToAdd) {
+            addChildPanel(contentPanel, child);
+        }
+
+        // Title text or icon may have changed
+        updateTitleLabel();
+        if (table != null) {
+            table.arbilTableModel.requestReloadTableData();
+        }
+
         revalidate();
     }
 
@@ -244,6 +282,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
     private JPanel contentPanel;
     private ArbilTable table;
+    private JLabel titleLabel;
     protected ArbilDataNode dataNode;
     protected ArbilSubnodesPanel parent;
     final protected ArrayList<ArbilSubnodesPanel> children = new ArrayList<ArbilSubnodesPanel>();
