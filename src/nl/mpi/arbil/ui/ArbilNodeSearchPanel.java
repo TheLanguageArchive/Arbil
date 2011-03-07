@@ -197,10 +197,11 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                     Object currentElement = localSearchNodes.remove(0);
                     if (currentElement instanceof ArbilDataNode) {
                         ArbilDataNode currentDataNode = (ArbilDataNode) currentElement;
-                        if (currentDataNode.isLoading()) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
+                        if (!currentDataNode.isChildNode() && (currentDataNode.isLoading() || !currentDataNode.dataLoaded)) { // todo: not all nodes get searched first time, this may be due to them still loading at the time
                             System.out.println("searching: " + currentDataNode.getUrlString());
                             System.out.println("still loading so putting back into the list: " + currentDataNode);
                             if (!currentDataNode.fileNotFound) {
+                                currentDataNode.registerContainer(ArbilNodeSearchPanel.this); // this causes the node to be loaded
                                 localSearchNodes.add(currentDataNode);
                             }
                         } else {
@@ -261,7 +262,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                             searchProgressBar.setMaximum(totalNodesToSearch);
                             searchProgressBar.setValue(totalSearched);
                             // todo: indicate how many metadata files searched rather than sub nodes
-                            searchProgressBar.setString("searched: " + totalSearched + " found: " + foundNodes.size());
+                            searchProgressBar.setString("searched: " + totalSearched + "/" + totalNodesToSearch + " found: " + foundNodes.size());
                         }
                     }
                     if (!parentFrame.isVisible()) {
