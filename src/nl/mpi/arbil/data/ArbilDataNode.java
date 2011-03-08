@@ -1267,7 +1267,7 @@ public class ArbilDataNode implements Comparable {
         getLabelString:
         for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
             //System.out.println("currentField: " + currentPreferredName);
-            for (ArbilField[] currentFieldArray : fieldHashtable.values()) {
+            for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
                 //                System.out.println(currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "") + " : " + currentPreferredName);
                 if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
                     preferredNameFieldExists = true;
