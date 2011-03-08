@@ -26,6 +26,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -37,20 +38,20 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     private static BugCatcher bugCatcher;
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     private static WindowManager windowManager;
-    public static void setWindowManager(WindowManager windowManagerInstance){
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
-
     private static ClipboardOwner clipboardOwner;
-    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance){
+
+    public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
         clipboardOwner = clipboardOwnerInstance;
     }
-
     JListToolTip listToolTip = new JListToolTip();
 
     public ArbilTree() {
@@ -396,19 +397,11 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
             }
         }
     }
-    static final Object sortLockObject = new Object();
-    private boolean sortThreadRunning = false;
-    private boolean sortRequested = false;
+    
     public ArbilDataNode[] rootNodeChildren;
 
     public void requestResort() {
-        synchronized (sortLockObject) {
-            sortRequested = true;
-            if (!sortThreadRunning) {
-                sortThreadRunning = true;
-                new Thread(new SortRunner(), "ArbilTree sort thread").start();
-            }
-        }
+        sortRunner.requestActionAndNotify();
     }
 
     /**
@@ -426,27 +419,11 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
         requestResort();
     }
-
-    private class SortRunner implements Runnable {
+    ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
 
         @Override
-        public void run() {
-            try {
-                while (sortRequested) {
-                    Thread.sleep(100); // leave a delay so as to not take up too much thread time and allow more nodes to be loaded in the mean time
-                    sortRequested = false;
-//                                TreePath[] selectedPaths = ImdiTree.this.getSelectionPaths();
-//                                TreePath[] expandedPaths = ImdiTree.this.getExpandedDescendants(null);
-                    sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
-//                                ImdiTree.this.setSelectionPaths(selectedPaths);
-                }
-            } catch (Exception exception) {
-                bugCatcher.logError(exception);
-            }
-            synchronized (sortLockObject) {
-                // syncronising this is excessive but harmless
-                sortThreadRunning = false;
-            }
+        protected void executeAction() {
+            sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
         }
-    }
+    };
 }
