@@ -260,7 +260,7 @@ public class ArbilVocabularies {
                 String followUpVocab = atts.getValue("FollowUp");
                 if (vocabName != null) {
                     currentVocabItem = new ArbilVocabularyItem(vocabName, vocabCode, followUpVocab);
-                    collectedVocab.getVocabularyItems().add(currentVocabItem);
+                    collectedVocab.getVocabularyItemsUnfiltered().add(currentVocabItem);
                 } else {
                     bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
                 }

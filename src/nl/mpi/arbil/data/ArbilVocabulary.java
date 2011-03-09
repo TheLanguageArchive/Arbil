@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.util.List;
 import java.util.Vector;
 
 public class ArbilVocabulary {
@@ -45,7 +46,15 @@ public class ArbilVocabulary {
     /**
      * @return the vocabularyItems
      */
-    public Vector<ArbilVocabularyItem> getVocabularyItems() {
+    public List<ArbilVocabularyItem> getVocabularyItems() {
+        if (filter == null) {
+            return vocabularyItems;
+        } else {            
+            return filter.filterVocabularyItems(vocabularyItems);
+        }
+    }
+
+    public List<ArbilVocabularyItem> getVocabularyItemsUnfiltered(){
         return vocabularyItems;
     }
 
@@ -56,4 +65,9 @@ public class ArbilVocabulary {
         return vocabularyUrl;
     }
 
+    public void setFilter(ArbilVocabularyFilter filter) {
+        this.filter = filter;
+    }
+    
+    private ArbilVocabularyFilter filter = null;
 }

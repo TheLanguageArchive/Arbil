@@ -2,6 +2,7 @@ package nl.mpi.arbil.data;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.ui.DocumentationLanguages;
 
 /**
  * Document   : ArbilField
@@ -242,7 +243,10 @@ public class ArbilField {
         }
         if (hasVocabularyType) {
             if (cvUrlString != null && cvUrlString.length() > 0) {
-                fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
+                    fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
+                if (cvUrlString.equals(DocumentationLanguages.getLanguageVocabularyUrl())) {
+                    fieldVocabulary.setFilter(DocumentationLanguages.getSingleInstance());
+                }
             }
         } else {
             // vocabularies specified in the xml override vocabularies defined in the schema

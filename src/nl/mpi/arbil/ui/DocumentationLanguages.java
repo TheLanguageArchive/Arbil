@@ -3,35 +3,54 @@ package nl.mpi.arbil.ui;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.List;
 import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.ArbilVocabularyFilter;
 import nl.mpi.arbil.data.ArbilVocabularyItem;
-
 
 /**
  *  Document   : DocumentationLanguages
  *  Created on : Jul 6, 2010, 4:05:46 PM
  *  Author     : Peter Withers
  */
-public class DocumentationLanguages {
+public class DocumentationLanguages implements ArbilVocabularyFilter {
 
+    private static final String LANGUAGE_VOCABULARY_URL_KEY = "LanguageVocabularyUrl";
+    private static final String SELECTED_LANGUAGES_KEY = "selectedLanguages";
+    private static final String OLD_MPI_LANGUAGE_VOCABULARY_URL = "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml";
+    private static final String MPI_LANGUAGE_VOCABULARY_URL = "http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml";
     private static String languageVocabularyUrl = null;
 
-    public Vector<ArbilVocabularyItem> getallLanguages() {
+    public synchronized static String getLanguageVocabularyUrl() {
         if (languageVocabularyUrl == null) {
-            languageVocabularyUrl = ArbilSessionStorage.getSingleInstance().loadString("languageVocabularyUrl");
-            if (languageVocabularyUrl == null || languageVocabularyUrl.equals("http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml")) {
-                languageVocabularyUrl = "http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml";
-                ArbilSessionStorage.getSingleInstance().saveString("LanguageVocabularyUrl", languageVocabularyUrl);
+            languageVocabularyUrl = ArbilSessionStorage.getSingleInstance().loadString(LANGUAGE_VOCABULARY_URL_KEY);
+            if (languageVocabularyUrl == null || languageVocabularyUrl.equals(OLD_MPI_LANGUAGE_VOCABULARY_URL)) {
+                languageVocabularyUrl = MPI_LANGUAGE_VOCABULARY_URL;
+                ArbilSessionStorage.getSingleInstance().saveString(LANGUAGE_VOCABULARY_URL_KEY, languageVocabularyUrl);
             }
         }
-        return ArbilVocabularies.getSingleInstance().getVocabulary(null, languageVocabularyUrl).getVocabularyItems();
+        return languageVocabularyUrl;
+    }
+    private static DocumentationLanguages singleInstance = null;
+
+    public synchronized static DocumentationLanguages getSingleInstance() {
+        if (singleInstance == null) {
+            singleInstance = new DocumentationLanguages();
+        }
+        return singleInstance;
     }
 
-    public ArrayList<String> getSelectedLanguagesArrayList() {
+    private DocumentationLanguages() {
+    }
+
+    public synchronized List<ArbilVocabularyItem> getallLanguages() {
+        return ArbilVocabularies.getSingleInstance().getVocabulary(null, getLanguageVocabularyUrl()).getVocabularyItemsUnfiltered();
+    }
+
+    public synchronized ArrayList<String> getSelectedLanguagesArrayList() {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
         try {
-            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
+            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedLanguages file, will create one now.", e);
             addDefaultTemplates();
@@ -39,7 +58,7 @@ public class DocumentationLanguages {
         return selectedLanguages;
     }
 
-    public ArbilVocabularyItem[] getLanguageListSubset() {
+    public synchronized List<ArbilVocabularyItem> getLanguageListSubset() {
         ArrayList<ArbilVocabularyItem> languageListSubset = new ArrayList<ArbilVocabularyItem>();
         ArrayList<String> selectedLanguages = getSelectedLanguagesArrayList();
         for (ArbilVocabularyItem currentVocabItem : getallLanguages()) {
@@ -47,7 +66,7 @@ public class DocumentationLanguages {
                 languageListSubset.add(currentVocabItem);
             }
         }
-        return languageListSubset.toArray(new ArbilVocabularyItem[]{});
+        return languageListSubset;//.toArray(new ArbilVocabularyItem[]{});
     }
 
     private void addDefaultTemplates() {
@@ -56,23 +75,29 @@ public class DocumentationLanguages {
         }
     }
 
-    public void addselectedLanguages(String templateString) {
+    public synchronized void addselectedLanguages(String templateString) {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
         try {
-            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
+            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
         } catch (Exception e) {
             GuiHelper.linorgBugCatcher.logError("No selectedLanguages file, will create one now.", e);
         }
         selectedLanguages.add(templateString);
-        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedLanguages", selectedLanguages.toArray(new String[]{}));
+        ArbilSessionStorage.getSingleInstance().saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
     }
 
-    public void removeselectedLanguages(String templateString) {
+    public synchronized void removeselectedLanguages(String templateString) {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
-        selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedLanguages")));
+        selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
         while (selectedLanguages.contains(templateString)) {
             selectedLanguages.remove(templateString);
         }
-        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedLanguages", selectedLanguages.toArray(new String[]{}));
+        ArbilSessionStorage.getSingleInstance().saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
+    }
+
+    public List<ArbilVocabularyItem> filterVocabularyItems(List<ArbilVocabularyItem> items) {
+        List<ArbilVocabularyItem> vocabClone = new ArrayList<ArbilVocabularyItem>(items);
+        vocabClone.retainAll(getLanguageListSubset());
+        return vocabClone;
     }
 }

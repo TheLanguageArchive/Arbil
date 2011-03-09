@@ -236,17 +236,20 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
      */
     private int getMatchingItem(String text) {
         if (null != text && !text.isEmpty()) {
+            int itemsCount = getItemsCount();
+
             // Try previous match first, in many cases it will match and there's
             // no need to iterate over all items
             if (previousMatch >= 0
-                    && previousMatch < getItemsCount()
+                    && previousMatch < itemsCount
                     && ((String) getItemAt(previousMatch)).toLowerCase().startsWith(text.toLowerCase())) {
                 return previousMatch;
             }
 
-            for (int i = 0; i < getItemsCount(); i++) {
-                if (getItemAt(i) instanceof String) {
-                    if (((String) getItemAt(i)).regionMatches(true, 0, text, 0, text.length())) {
+            for (int i = 0; i < itemsCount; i++) {
+                String item = getItemAt(i);
+                if (item instanceof String) {
+                    if (item.regionMatches(true, 0, text, 0, text.length())) {
                         previousMatch = i;
                         return i;
                     }

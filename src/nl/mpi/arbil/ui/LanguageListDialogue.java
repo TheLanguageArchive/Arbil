@@ -33,9 +33,9 @@ public class LanguageListDialogue extends TemplateDialogue {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (((JCheckBox) e.getSource()).isSelected()) {
-            new DocumentationLanguages().addselectedLanguages(e.getActionCommand());
+            DocumentationLanguages.getSingleInstance().addselectedLanguages(e.getActionCommand());
         } else {
-            new DocumentationLanguages().removeselectedLanguages(e.getActionCommand());
+            DocumentationLanguages.getSingleInstance().removeselectedLanguages(e.getActionCommand());
         }
     }
 
@@ -43,9 +43,9 @@ public class LanguageListDialogue extends TemplateDialogue {
     protected void populateLists() {
         clarinProfilesPanel.getParent().remove(clarinProfilesPanel);
         internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box"));
-        ArrayList<String> selectedLanguages = new DocumentationLanguages().getSelectedLanguagesArrayList();
+        ArrayList<String> selectedLanguages = DocumentationLanguages.getSingleInstance().getSelectedLanguagesArrayList();
         checkBoxArray = new ArrayList<JCheckBox>();
-        for (ArbilVocabularyItem currentTemplate : new DocumentationLanguages().getallLanguages()) {
+        for (ArbilVocabularyItem currentTemplate : DocumentationLanguages.getSingleInstance().getallLanguages()) {
             JCheckBox languageCheckBox;
             languageCheckBox = new JCheckBox();
             languageCheckBox.setText(currentTemplate.itemDisplayName);
@@ -65,7 +65,7 @@ public class LanguageListDialogue extends TemplateDialogue {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 for (JCheckBox currentCheckBox : checkBoxArray) {
                     currentCheckBox.setSelected(true);
-                    new DocumentationLanguages().addselectedLanguages(currentCheckBox.getActionCommand());
+                    DocumentationLanguages.getSingleInstance().addselectedLanguages(currentCheckBox.getActionCommand());
                 }
             }
         });
@@ -76,7 +76,7 @@ public class LanguageListDialogue extends TemplateDialogue {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 for (JCheckBox currentCheckBox : checkBoxArray) {
                     currentCheckBox.setSelected(false);
-                    new DocumentationLanguages().removeselectedLanguages(currentCheckBox.getActionCommand());
+                    DocumentationLanguages.getSingleInstance().removeselectedLanguages(currentCheckBox.getActionCommand());
                 }
             }
         });
