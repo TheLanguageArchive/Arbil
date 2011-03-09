@@ -9,7 +9,7 @@ import javax.swing.JComboBox;
 import nl.mpi.arbil.ui.DocumentationLanguages;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.ArbilVocabularyItem;
 
 /**
  *  Document   : LanguageIdBox
@@ -25,11 +25,11 @@ public class LanguageIdBox extends JComboBox {
         String fieldLanguageId = cellField.getLanguageId();
 //        if (fieldLanguageId != null) {
         System.out.println("Has LanguageId");
-        ArbilVocabularies.VocabularyItem selectedItem = null;
+        ArbilVocabularyItem selectedItem = null;
         this.setEditable(false);
-        ArbilVocabularies.VocabularyItem[] languageItemArray = new DocumentationLanguages().getLanguageListSubset();
+        ArbilVocabularyItem[] languageItemArray = new DocumentationLanguages().getLanguageListSubset();
         Arrays.sort(languageItemArray);
-        for (ArbilVocabularies.VocabularyItem currentItem : languageItemArray) {
+        for (ArbilVocabularyItem currentItem : languageItemArray) {
             this.addItem(currentItem);
             // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#
             if (fieldLanguageId.equals(currentItem.itemCode) || fieldLanguageId.equals(currentItem.descriptionString)) {
@@ -48,8 +48,8 @@ public class LanguageIdBox extends JComboBox {
             public void actionPerformed(ActionEvent e) {
                 try {
 //                        ImdiField cellField = (ImdiField) cellValue[cellFieldIndex];
-                    if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularies.VocabularyItem) {
-                        ArbilVocabularies.VocabularyItem selectedLanguage = (ArbilVocabularies.VocabularyItem) LanguageIdBox.this.getSelectedItem();
+                    if (LanguageIdBox.this.getSelectedItem() instanceof ArbilVocabularyItem) {
+                        ArbilVocabularyItem selectedLanguage = (ArbilVocabularyItem) LanguageIdBox.this.getSelectedItem();
                         String languageCode = selectedLanguage.itemCode;
                         if (languageCode == null) {
                             // the code and description values have become unreliable due to changes to the controlled vocabularies see https://trac.mpi.nl/ticket/563#

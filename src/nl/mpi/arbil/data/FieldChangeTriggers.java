@@ -36,7 +36,7 @@ public class FieldChangeTriggers {
                 System.out.println("originalFieldPath: " + originalFieldPath);
                 System.out.println("targetFieldPath: " + targetFieldPath);
                 ArbilField[] targetField = changedArbilField.getSiblingField(targetFieldPath);
-                ArbilVocabularies.VocabularyItem vocabItem = changedArbilField.getVocabulary().findVocabularyItem(changedArbilField.getFieldValue());
+                ArbilVocabularyItem vocabItem = changedArbilField.getVocabulary().findVocabularyItem(changedArbilField.getFieldValue());
                 if (vocabItem != null) {
                     String valueForTargetField = null;
                     if (currentTrigger[2].equals("Content")) {

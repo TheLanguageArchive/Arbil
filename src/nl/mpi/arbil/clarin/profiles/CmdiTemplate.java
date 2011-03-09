@@ -18,6 +18,7 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -70,7 +71,7 @@ public class CmdiTemplate extends ArbilTemplate {
         // testing only
 //        new TestAnnotationsReader().Test();
         //super.readTemplate(new File(""), "template_cmdi");
-        vocabularyHashTable = new Hashtable<String, ArbilVocabularies.Vocabulary>();
+        vocabularyHashTable = new Hashtable<String, ArbilVocabulary>();
         nameSpaceString = nameSpaceStringLocal;
         // construct the template from the XSD
         try {
@@ -523,7 +524,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //            System.out.println("Controlled Vocabulary: " + schemaType.toString());
 //            System.out.println("Controlled Vocabulary: " + schemaType.getName());
 
-            ArbilVocabularies.Vocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
+            ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
             for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
 //                System.out.println("Value List: " + anySimpleType.getStringValue());

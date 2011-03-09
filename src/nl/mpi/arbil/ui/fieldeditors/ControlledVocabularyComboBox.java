@@ -1,12 +1,9 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import javax.swing.JComboBox;
-import javax.swing.text.JTextComponent;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.ArbilVocabulary;
+import nl.mpi.arbil.data.ArbilVocabularyItem;
 
 /**
  * Editable combo box that has the items of a controlled vocabulary in it. 
@@ -21,12 +18,12 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 public class ControlledVocabularyComboBox extends JComboBox {
 
     public ControlledVocabularyComboBox(ArbilField targetField) {
-        ArbilVocabularies.Vocabulary fieldsVocabulary = targetField.getVocabulary();
+        ArbilVocabulary fieldsVocabulary = targetField.getVocabulary();
         if (null == fieldsVocabulary || null == fieldsVocabulary.findVocabularyItem(targetField.getFieldValue())) {
             this.addItem(targetField.getFieldValue());
         }
         if (null != fieldsVocabulary) {
-            for (ArbilVocabularies.VocabularyItem vocabularyListItem : fieldsVocabulary.getVocabularyItems()) {
+            for (ArbilVocabularyItem vocabularyListItem : fieldsVocabulary.getVocabularyItems()) {
                 this.addItem(vocabularyListItem.itemDisplayName);
             }
         }

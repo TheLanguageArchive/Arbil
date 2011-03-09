@@ -16,7 +16,7 @@ import javax.swing.ComboBoxEditor;
 import javax.swing.JComboBox;
 import javax.swing.Timer;
 import nl.mpi.arbil.data.ArbilField;
-import nl.mpi.arbil.data.ArbilVocabularies.Vocabulary;
+import nl.mpi.arbil.data.ArbilVocabulary;
 
 /**
  * Text editor intended for use with ControlledVocabularyComboBox
@@ -87,11 +87,11 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
      * @return
      */
     private String getItemAt(int index) {
-        return vocabulary.getVocabularyItems()[index].itemDisplayName;
+        return vocabulary.getVocabularyItems().get(index).itemDisplayName;
     }
 
     private int getItemsCount() {
-        return vocabulary.getVocabularyItems().length;
+        return vocabulary.getVocabularyItems().size();
     }
 
     public void setComboBox(JComboBox comboBox) {
@@ -403,7 +403,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
     }
     // Private members
     private JComboBox comboBox;
-    private Vocabulary vocabulary;
+    private ArbilVocabulary vocabulary;
     private ArbilField targetField;
     private Timer typeaheadTimer;
     /**

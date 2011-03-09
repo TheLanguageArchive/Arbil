@@ -16,7 +16,7 @@ public class ArbilField {
     private String fieldValue = "";
     public String originalFieldValue = fieldValue;
     private int fieldOrder = -1;
-    private ArbilVocabularies.Vocabulary fieldVocabulary = null;
+    private ArbilVocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
     private boolean vocabularyIsOpen;
     private boolean vocabularyIsList;
@@ -182,7 +182,7 @@ public class ArbilField {
 
     }
 
-    public ArbilVocabularies.Vocabulary getVocabulary() {
+    public ArbilVocabulary getVocabulary() {
         return fieldVocabulary;
     }
 

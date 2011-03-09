@@ -3,8 +3,9 @@ package nl.mpi.arbil.ui;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import nl.mpi.arbil.data.ArbilVocabularies.VocabularyItem;
+import java.util.Vector;
 import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.ArbilVocabularyItem;
 
 
 /**
@@ -16,7 +17,7 @@ public class DocumentationLanguages {
 
     private static String languageVocabularyUrl = null;
 
-    public VocabularyItem[] getallLanguages() {
+    public Vector<ArbilVocabularyItem> getallLanguages() {
         if (languageVocabularyUrl == null) {
             languageVocabularyUrl = ArbilSessionStorage.getSingleInstance().loadString("languageVocabularyUrl");
             if (languageVocabularyUrl == null || languageVocabularyUrl.equals("http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml")) {
@@ -38,19 +39,19 @@ public class DocumentationLanguages {
         return selectedLanguages;
     }
 
-    public ArbilVocabularies.VocabularyItem[] getLanguageListSubset() {
-        ArrayList<VocabularyItem> languageListSubset = new ArrayList<VocabularyItem>();
+    public ArbilVocabularyItem[] getLanguageListSubset() {
+        ArrayList<ArbilVocabularyItem> languageListSubset = new ArrayList<ArbilVocabularyItem>();
         ArrayList<String> selectedLanguages = getSelectedLanguagesArrayList();
-        for (VocabularyItem currentVocabItem : getallLanguages()) {
+        for (ArbilVocabularyItem currentVocabItem : getallLanguages()) {
             if (selectedLanguages.contains(currentVocabItem.itemDisplayName)) {
                 languageListSubset.add(currentVocabItem);
             }
         }
-        return languageListSubset.toArray(new VocabularyItem[]{});
+        return languageListSubset.toArray(new ArbilVocabularyItem[]{});
     }
 
     private void addDefaultTemplates() {
-        for (VocabularyItem currentTemplate : getallLanguages()) {
+        for (ArbilVocabularyItem currentTemplate : getallLanguages()) {
             addselectedLanguages(currentTemplate.itemDisplayName);
         }
     }

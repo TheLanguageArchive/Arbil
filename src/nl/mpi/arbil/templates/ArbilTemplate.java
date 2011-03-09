@@ -12,6 +12,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.xml.sax.SAXException;
@@ -36,7 +37,7 @@ public class ArbilTemplate {
     }
 
     public File templateFile;
-    protected Hashtable<String, ArbilVocabularies.Vocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
+    protected Hashtable<String, ArbilVocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
     public String loadedTemplateName;
     public String[] preferredNameFields;
     public String[][] fieldTriggersArray;
@@ -400,7 +401,7 @@ public class ArbilTemplate {
         return "No usage description found in this template for: " + fieldName;
     }
 
-    public ArbilVocabularies.Vocabulary getFieldVocabulary(String nodePath) {
+    public ArbilVocabulary getFieldVocabulary(String nodePath) {
         if (vocabularyHashTable != null) {
             return vocabularyHashTable.get(nodePath);
         }

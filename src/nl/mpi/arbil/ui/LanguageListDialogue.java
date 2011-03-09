@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import nl.mpi.arbil.data.ArbilVocabularies.VocabularyItem;
+import nl.mpi.arbil.data.ArbilVocabularyItem;
 
 /**
  *  Document   : LanguageListDialogue
@@ -45,7 +45,7 @@ public class LanguageListDialogue extends TemplateDialogue {
         internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Languages to display in the field language select box"));
         ArrayList<String> selectedLanguages = new DocumentationLanguages().getSelectedLanguagesArrayList();
         checkBoxArray = new ArrayList<JCheckBox>();
-        for (VocabularyItem currentTemplate : new DocumentationLanguages().getallLanguages()) {
+        for (ArbilVocabularyItem currentTemplate : new DocumentationLanguages().getallLanguages()) {
             JCheckBox languageCheckBox;
             languageCheckBox = new JCheckBox();
             languageCheckBox.setText(currentTemplate.itemDisplayName);

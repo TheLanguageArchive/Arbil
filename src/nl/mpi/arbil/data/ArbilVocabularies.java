@@ -38,7 +38,7 @@ public class ArbilVocabularies {
         windowManager = windowManagerInstance;
     }
     
-    private Hashtable<String, Vocabulary> vocabulariesTable = new Hashtable<String, Vocabulary>();
+    private Hashtable<String, ArbilVocabulary> vocabulariesTable = new Hashtable<String, ArbilVocabulary>();
     // IMDIVocab has been abandoned, the mpi.vocabs.IMDIVocab class is too scary
     // every time IMDIVocab in the API is called (correction its in a static stansa ARRRGGG) it downloads the mpi homepage before anything else
     // mpi.vocabs.IMDIVocab cv = mpi.vocabs.IMDIVocab.get(vocabularyLocation);
@@ -68,7 +68,7 @@ public class ArbilVocabularies {
         if (!vocabulariesTable.containsKey(vocabularyLocation)) {
             parseRemoteFile(vocabularyLocation);
         }
-        Vocabulary tempVocab = vocabulariesTable.get(vocabularyLocation);
+        ArbilVocabulary tempVocab = vocabulariesTable.get(vocabularyLocation);
         if (tempVocab != null) {
             return (null != tempVocab.findVocabularyItem(valueString));
         } else {
@@ -103,7 +103,7 @@ public class ArbilVocabularies {
         }.start();
     }
 
-    public Vocabulary getVocabulary(ArbilField originatingArbilField, String vocabularyLocation) {
+    public ArbilVocabulary getVocabulary(ArbilField originatingArbilField, String vocabularyLocation) {
         // todo the MPI-Languages vocabularies should use the DocumentationLanguages().getLanguageListSubset(); class that provides a sub set list of languages
         if (originatingArbilField != null) {
             if (vocabularyLocation == null) {// || vocabularyLocation.length() == 0) {
@@ -140,8 +140,8 @@ public class ArbilVocabularies {
                 if (tempField != null) {
                     String redirectFieldString = tempField[0].toString();
                     // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
-                    Vocabulary tempVocabulary = tempField[0].getVocabulary();
-                    VocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
+                    ArbilVocabulary tempVocabulary = tempField[0].getVocabulary();
+                    ArbilVocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
 //                System.out.println("redirectFieldString: " + redirectFieldString);
                     if (redirectFieldVocabItem != null && redirectFieldVocabItem.followUpVocabulary != null) {
                         System.out.println("redirectFieldVocabItem.followUpVocabulary: " + redirectFieldVocabItem.followUpVocabulary);
@@ -164,13 +164,13 @@ public class ArbilVocabularies {
         }
     }
 
-    public Vocabulary getEmptyVocabulary(String vocabularyLocation) {
+    public ArbilVocabulary getEmptyVocabulary(String vocabularyLocation) {
         System.out.println("getEmptyVocabulary: " + vocabularyLocation);
         if (vocabularyLocation == null || vocabularyLocation.length() == 0) {
             return null;
         } else {
             if (!vocabulariesTable.containsKey(vocabularyLocation)) {
-                Vocabulary vocabulary = new Vocabulary(vocabularyLocation);
+                ArbilVocabulary vocabulary = new ArbilVocabulary(vocabularyLocation);
                 vocabulariesTable.put(vocabularyLocation, vocabulary);
                 return vocabulary;
             }
@@ -191,7 +191,7 @@ public class ArbilVocabularies {
                 }
             }
             System.out.println("parseRemoteFile: " + cachedFile);
-            Vocabulary vocabulary = new Vocabulary(vocabRemoteUrl);
+            ArbilVocabulary vocabulary = new ArbilVocabulary(vocabRemoteUrl);
             vocabulariesTable.put(vocabRemoteUrl, vocabulary);
             try {
                 javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
@@ -221,10 +221,10 @@ public class ArbilVocabularies {
 
     private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
-        Vocabulary collectedVocab;
-        VocabularyItem currentVocabItem = null;
+        ArbilVocabulary collectedVocab;
+        ArbilVocabularyItem currentVocabItem = null;
 
-        public SaxVocabularyHandler(Vocabulary vocabList) {
+        public SaxVocabularyHandler(ArbilVocabulary vocabList) {
             super();
             collectedVocab = vocabList;
         }
@@ -259,80 +259,12 @@ public class ArbilVocabularies {
                 String vocabCode = atts.getValue("Code");
                 String followUpVocab = atts.getValue("FollowUp");
                 if (vocabName != null) {
-                    currentVocabItem = new VocabularyItem(vocabName, vocabCode, followUpVocab);
-                    collectedVocab.vocabularyItems.add(currentVocabItem);
+                    currentVocabItem = new ArbilVocabularyItem(vocabName, vocabCode, followUpVocab);
+                    collectedVocab.getVocabularyItems().add(currentVocabItem);
                 } else {
-                    bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.vocabularyUrl));
+                    bugCatcher.logError(new Exception("Vocabulary item has no name in " + collectedVocab.getVocabularyUrl()));
                 }
             }
-        }
-    }
-
-    public class Vocabulary {
-
-        private Vector<VocabularyItem> vocabularyItems = new Vector<VocabularyItem>();
-//        this VocabularyRedirect code has been replaced by the templates
-//        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
-        public String vocabularyUrlRedirected = null; // the url of the vocabulary indicated by the value of the vocabularyRedirectField
-        private String vocabularyUrl = null;
-
-        public Vocabulary(String locationUrl) {
-            vocabularyUrl = locationUrl;
-        }
-
-        public void addEntry(String entryString, String entryCode) {
-            boolean itemExistsInVocab = false;
-            for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
-                if (currentVocabularyItem.itemDisplayName.equals(entryString)) {
-                    itemExistsInVocab = true;
-                }
-            }
-            if (!itemExistsInVocab) {
-                vocabularyItems.add(new VocabularyItem(entryString, entryCode, null));
-            }
-        }
-
-        public VocabularyItem findVocabularyItem(String searchString) {
-            for (VocabularyItem currentVocabularyItem : vocabularyItems.toArray(new VocabularyItem[]{})) {
-                if (currentVocabularyItem.itemDisplayName.equals(searchString)) {
-                    return currentVocabularyItem;
-                }
-            }
-            return null;
-        }
-
-        public String resolveFollowUpUrl(String folowUpString) {
-            vocabularyUrlRedirected = folowUpString;
-            String vocabUrlDirectory = vocabularyUrl.substring(0, vocabularyUrl.lastIndexOf("/") + 1);
-            System.out.println("vocabUrlDirectory: " + vocabUrlDirectory);
-            return (vocabUrlDirectory + folowUpString);
-        }
-
-        public VocabularyItem[] getVocabularyItems() {
-            return vocabularyItems.toArray(new VocabularyItem[]{});
-        }
-    }
-
-    public class VocabularyItem implements Comparable {
-
-        public String itemDisplayName;
-        public String itemCode;
-        public String followUpVocabulary;
-        public String descriptionString;
-
-        public VocabularyItem(String languageNameLocal, String languageCodeLocal, String followUpVocabularyLocal) {
-            itemDisplayName = languageNameLocal;
-            itemCode = languageCodeLocal;
-            followUpVocabulary = followUpVocabularyLocal;
-        }
-
-        @Override
-        public String toString() {
-            return itemDisplayName;
-        }
-
-        public int compareTo(Object otherObject) {
-            return this.toString().compareTo(otherObject.toString());
         }
     }
 }
