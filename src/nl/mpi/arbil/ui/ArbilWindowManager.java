@@ -91,15 +91,20 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         try {
             // load the saved states
             windowStatesHashtable = (Hashtable) ArbilSessionStorage.getSingleInstance().loadObject("windowStates");
-            // set the main window position and size
+
+            // set the main window position and size. Also puts window on the correct screen (relevant for maximization)
+            Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
+            if (linorgFrameBounds != null) {
+                linorgFrame.setBounds((Rectangle) linorgFrameBounds);
+            }
+
+            // set window state (i.e. maximized or not)
             linorgFrame.setExtendedState((Integer) windowStatesHashtable.get("linorgFrameExtendedState"));
             if (linorgFrame.getExtendedState() == JFrame.ICONIFIED) {
                 // start up iconified is just too confusing to the user
                 linorgFrame.setExtendedState(JFrame.NORMAL);
             }
-            // if the application was maximised when it was last closed then these values will not be set and this will through setting the size in the catch
-            Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
-            linorgFrame.setBounds((Rectangle) linorgFrameBounds);
+
             if (windowStatesHashtable.containsKey("ScreenDeviceCount")) {
                 int screenDeviceCount = ((Integer) windowStatesHashtable.get("ScreenDeviceCount"));
                 if (screenDeviceCount > GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length) {
@@ -508,9 +513,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         // loop windowList and make a hashtable of window names with a vector of the imdinodes displayed, then save the hashtable
         try {
             // collect the main window size and position for saving
-            if (linorgFrame.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
-                windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
-            }
+            windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
+
             windowStatesHashtable.put("ScreenDeviceCount", GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length);
             windowStatesHashtable.put("linorgFrameExtendedState", linorgFrame.getExtendedState());
             // collect the split pane positions for saving
