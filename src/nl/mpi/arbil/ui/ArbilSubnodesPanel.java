@@ -56,8 +56,9 @@ import nl.mpi.arbil.util.ArbilActionBuffer;
 public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer {
 
     private static Border levelBorder = BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 2, 2, 0, Color.BLACK), // Outer border - black line to the left
-            new EmptyBorder(0, 10, 5, 0)); // Inner border - empty white space (inset)
+            BorderFactory.createMatteBorder(0, 2, 2, 0, Color.LIGHT_GRAY), // Outer border - black line to the left
+            new EmptyBorder(0, 5, 0, 0)); // Inner border - empty white space (inset)
+    private static Border labelPadding = new EmptyBorder(2, 0, 2, 0);
 
     public ArbilDataNode getDataNode() {
         return this.dataNode;
@@ -95,15 +96,10 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 
     final protected void addContents() {
         // Add indent to the left
-        this.add(Box.createRigidArea(new Dimension(parent == null ? 5 : 20, 0)));
+        this.add(Box.createRigidArea(new Dimension(parent == null ? 2 : 5, 0)));
 
         contentPanel = createContentPanel(dataNode);
         this.add(contentPanel);
-
-        // Add some padding to the right at top level
-        if (parent == null) {
-            this.add(Box.createRigidArea(new Dimension(10, 0)));
-        }
 
         // Register top level panel as container for dataNode, so that the entire
         // panel will be notified upon deletion or clearing of a subnode
@@ -167,7 +163,8 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
 
         // Add title label (with icon) to panel
         titleLabel = new JLabel(dataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(dataNode), SwingConstants.LEADING);
-        titleLabel.setBorder(new EmptyBorder(5, 0, 5, 0));
+        // Empty border for some padding around the label
+        titleLabel.setBorder(labelPadding);
         panel.add(titleLabel);
 
         // Add table for the current node
@@ -188,29 +185,27 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     private void addTable(JPanel panel) {
+        // Create table model and put in a new ArbilTable
+        ArbilTableModel arbilTableModel = new ArbilTableModel();
+        arbilTableModel.addArbilDataNodes(new ArbilDataNode[]{dataNode});
+        table = new ArbilTable(arbilTableModel, dataNode.toString());
+        // Make sure table and its header align well in the parent container
+        table.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
+        table.setAlignmentX(LEFT_ALIGNMENT);
+
         // Add table to content panel
-        table = createArbilTable(dataNode);
         panel.add(table.getTableHeader());
         panel.add(table);
-        // Add some padding below table
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));
-    }
 
+        // Add some padding below table
+        panel.add(Box.createRigidArea(new Dimension(0, 5)));
+    }
     private void addChildPanel(JPanel panel, ArbilDataNode child) {
         ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this);
         children.add(childPanel);
         panel.add(childPanel);
         // Add some padding below child
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
-    }
-
-    private ArbilTable createArbilTable(ArbilDataNode dataNode) {
-        ArbilTableModel arbilTableModel = new ArbilTableModel();
-        arbilTableModel.addArbilDataNodes(new ArbilDataNode[]{dataNode});
-        ArbilTable arbilTable = new ArbilTable(arbilTableModel, dataNode.toString());
-        arbilTable.getTableHeader().setAlignmentX(LEFT_ALIGNMENT);
-        arbilTable.setAlignmentX(LEFT_ALIGNMENT);
-        return arbilTable;
     }
 
     public void dataNodeRemoved(ArbilDataNode dataNode) {
