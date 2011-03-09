@@ -200,6 +200,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         // Add some padding below table
         panel.add(Box.createRigidArea(new Dimension(0, 5)));
     }
+
     private void addChildPanel(JPanel panel, ArbilDataNode child) {
         ArbilSubnodesPanel childPanel = new ArbilSubnodesPanel(child, this);
         children.add(childPanel);
@@ -209,7 +210,12 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
     }
 
     public void dataNodeRemoved(ArbilDataNode dataNode) {
-        reloadRunner.requestActionAndNotify();
+        if (dataNode == this.dataNode) {
+            clear();
+            revalidate();
+        } else {
+            reloadRunner.requestActionAndNotify();
+        }
     }
 
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
