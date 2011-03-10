@@ -213,6 +213,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         if (dataNode == this.dataNode) {
             clear();
             revalidate();
+            repaint();
         } else {
             reloadRunner.requestActionAndNotify();
         }

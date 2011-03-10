@@ -1822,22 +1822,19 @@ public class ArbilDataNode implements Comparable {
         //        System.out.println("end clearIcon: " + this);
     }
 
-    public void removeFromAllContainers() {
+    public synchronized void removeFromAllContainers() {
         // todo: this should also scan all child nodes and also remove them in the same way
         for (ArbilDataNode currentChildNode : this.getAllChildren()) {
             currentChildNode.removeFromAllContainers();
         }
-        for (Enumeration<ArbilDataNodeContainer> containersIterator = containersOfThisNode.elements(); containersIterator.hasMoreElements();) { // changed back to a vector due to threading issues here
+        for (ArbilDataNodeContainer currentContainer : containersOfThisNode.toArray(new ArbilDataNodeContainer[]{})){
             try {
-                ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
+                //ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
                 currentContainer.dataNodeRemoved(this);
             } catch (java.util.NoSuchElementException ex) {
                 bugCatcher.logError(ex);
             }
         }
-        //            }
-        //        });
-        //        System.out.println("end clearIcon: " + this);
     }
 
     public boolean isFavorite() {
