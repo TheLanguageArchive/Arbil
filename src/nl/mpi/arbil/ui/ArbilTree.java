@@ -31,28 +31,31 @@ import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
+ * Interactive representation of a tree of arbil nodes
+ *
  * Document   : ArbilTree
  * Created on : Feb 16, 2009, 3:58:50 PM
  * @author Peter.Withers@mpi.nl
+ * 
+ * @see ArbilDataNode
+ * @see TreeHelper
+ * @see ArbilTreeRenderer
+ * @see TreeContextMenu
  */
 public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     private static BugCatcher bugCatcher;
-
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
-
     public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
     private static ClipboardOwner clipboardOwner;
-
     public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
         clipboardOwner = clipboardOwnerInstance;
     }
-    JListToolTip listToolTip = new JListToolTip();
 
     public ArbilTree() {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -160,49 +163,16 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     }
 
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
-// TODO add your handling code here:
         // test if click was over a selected node
-        javax.swing.tree.TreePath clickedNodePath = ((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY());
+        TreePath clickedNodePath = ((JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY());
 
-        int clickedNodeInt = ((javax.swing.JTree) evt.getSource()).getClosestRowForLocation(evt.getX(), evt.getY());
-        int leadSelectedInt = ((javax.swing.JTree) evt.getSource()).getLeadSelectionRow();
-
-        boolean clickedPathIsSelected = (((javax.swing.JTree) evt.getSource()).isPathSelected(clickedNodePath));
-        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
+        boolean clickedPathIsSelected = (((JTree) evt.getSource()).isPathSelected(clickedNodePath));
+        if (evt.isPopupTrigger()) {
             // this is simplified and made to match the same type of actions as the imditable 
             if (!evt.isShiftDown() && !evt.isControlDown() && !clickedPathIsSelected) {
                 ((javax.swing.JTree) evt.getSource()).clearSelection();
                 ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
             }
-        }
-//    if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) {
-//        if (/*(*/evt.isPopupTrigger() /* !evt.isControlDown() /*&& evt.getButton() == 1*/ /*&& !evt.isShiftDown())*/ /* || ((evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()) && !clickedPathIsSelected)*/) {
-//            System.out.println("alt not down so clearing selection");
-//            ((javax.swing.JTree) evt.getSource()).clearSelection();
-////        if (evt.getSource() != remoteCorpusTree) {
-////            remoteCorpusTree.clearSelection();
-////        }
-////        if (evt.getSource() != localCorpusTree) {
-////            localCorpusTree.clearSelection();
-////        }
-////        if (evt.getSource() != localDirectoryTree) {
-////            localDirectoryTree.clearSelection();
-////        }
-//            ((javax.swing.JTree) evt.getSource()).setSelectionPath(((javax.swing.JTree) evt.getSource()).getPathForLocation(evt.getX(), evt.getY()));
-//        } else if (clickedPathIsSelected) {
-//            System.out.println("alt down over selected node");
-//            ((javax.swing.JTree) evt.getSource()).removeSelectionPath(clickedNodePath);
-//        } else {
-//            System.out.println("alt down over unselected node");
-//            ((javax.swing.JTree) evt.getSource()).addSelectionPath(clickedNodePath);
-//        }
-//        if (evt.isShiftDown()) {
-//            System.out.println("shift down");
-//            ((javax.swing.JTree) evt.getSource()).addSelectionInterval(leadSelectedInt, clickedNodeInt);
-//        }
-//    }
-        if (evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
-            //new ContextMenu().showTreePopup(evt.getSource(), evt.getX(), evt.getY());
             new TreeContextMenu(this).show(evt.getX(), evt.getY());
         }
     }
@@ -227,8 +197,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     @Override
     public JToolTip createToolTip() {
-//        System.out.println("createToolTip");
-//        return super.createToolTip();
         listToolTip.updateList();
         return listToolTip;
     }
@@ -397,7 +365,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
             }
         }
     }
-    
     public ArbilDataNode[] rootNodeChildren;
 
     public void requestResort() {
@@ -426,4 +393,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
             sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
         }
     };
+    
+    private JListToolTip listToolTip = new JListToolTip();
 }
