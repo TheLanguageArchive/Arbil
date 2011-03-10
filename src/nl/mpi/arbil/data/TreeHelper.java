@@ -33,13 +33,11 @@ public class TreeHelper {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     public DefaultTreeModel localCorpusTreeModel;
     public DefaultTreeModel remoteCorpusTreeModel;
     public DefaultTreeModel localDirectoryTreeModel;
@@ -318,17 +316,15 @@ public class TreeHelper {
         return (DefaultMutableTreeNode) arbilTreePanel.localCorpusTree.getSelectionPath().getLastPathComponent();
     }
 
-    public void deleteNode(Object sourceObject) {
+    public void deleteNodes(Object sourceObject) {
         System.out.println("deleteNode: " + sourceObject);
-        DefaultMutableTreeNode selectedTreeNode = null;
-        DefaultMutableTreeNode parentTreeNode = null;
         if (sourceObject == arbilTreePanel.localCorpusTree) {
             TreePath currentNodePaths[] = ((ArbilTree) sourceObject).getSelectionPaths();
             int toDeleteCount = 0;
             // count the number of nodes to delete
             for (TreePath currentNodePath : currentNodePaths) {
                 if (currentNodePath != null) {
-                    selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
+                    DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
                     Object userObject = selectedTreeNode.getUserObject();
                     if (userObject instanceof ArbilDataNode) {
                         if (((ArbilDataNode) userObject).fileNotFound) {
@@ -341,92 +337,97 @@ public class TreeHelper {
                     }
                 }
             }
-            if(JOptionPane.OK_OPTION == messageDialogHandler.showConfirmDialog("Delete " + toDeleteCount + " nodes?", "Delete", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-                Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
+            if (JOptionPane.OK_OPTION == messageDialogHandler.showDialogBox(
+                    "Delete " + toDeleteCount + " nodes?", "Delete",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                // make lists of nodes to delete
                 Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
                 Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();
-                for (TreePath currentNodePath : currentNodePaths) {
-                    if (currentNodePath != null) {
-                        selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
-                        Object userObject = selectedTreeNode.getUserObject();
-                        System.out.println("trying to delete: " + userObject);
-                        if (currentNodePath.getPath().length == 2) {
-                            System.out.println("removing by location");
-                            removeLocation((ArbilDataNode) selectedTreeNode.getUserObject());
-                            applyRootLocations();
-                        } else {
-                            System.out.println("deleting from parent");
-                            parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
-                            if (parentTreeNode != null) {
-                                System.out.println("found parent to remove from");
-                                ArbilDataNode parentDataNode = (ArbilDataNode) parentTreeNode.getUserObject();
-                                ArbilDataNode childDataNode = (ArbilDataNode) selectedTreeNode.getUserObject();
-                                if (childDataNode.isChildNode()) {
-                                    // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
-                                    if (!childNodeDeleteList.containsKey(childDataNode.getParentDomNode())) {
-                                        childNodeDeleteList.put(childDataNode.getParentDomNode(), new Vector());
-                                    }
-                                    if (childDataNode.isEmptyMetaNode()) {
-                                        for (ArbilDataNode metaChildNode : childDataNode.getChildArray()) {
-                                            childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
-                                        }
-                                    }
-                                    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
-                                    childDataNode.removeFromAllContainers();
-                                } else {
-                                    // add the parent and the child node to the deletelist
-                                    if (!dataNodesDeleteList.containsKey(parentDataNode)) {
-                                        dataNodesDeleteList.put(parentDataNode, new Vector());
-                                    }
-                                    dataNodesDeleteList.get(parentDataNode).add(childDataNode);
-                                }
-// remove the deleted node from the favourites list if it is an imdichild node
-//                            if (userObject instanceof ImdiTreeObject) {
-//                                if (((ImdiTreeObject) userObject).isImdiChild()){
-//                                LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
-//                                }
-//                            }
-                            }
-                        }
-// todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
-//                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
-                        // make a list of all child nodes so that they can be removed from any tables etc
-                        dataNodesToRemove.add((ArbilDataNode) userObject);
-                        ((ArbilDataNode) userObject).getAllChildren(dataNodesToRemove);
-                    }
-                }
-                for (ArbilDataNode currentParent : childNodeDeleteList.keySet()) {
-                    System.out.println("deleting by child xml id link");
-                    // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
-                    //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
-                    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-                    boolean result = componentBuilder.removeChildNodes(currentParent, (childNodeDeleteList.get(currentParent)).toArray(new String[]{}));
-                    if (result) {
-                        currentParent.reloadNode();
-                    } else {
-                        messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
-                    }
-                    //bugCatcher.logError(new Exception("deleteFromDomViaId"));
-                }
-                for (ArbilDataNode currentParent : dataNodesDeleteList.keySet()) {
-                    System.out.println("deleting by corpus link");
-                    currentParent.deleteCorpusLink(((Vector<ArbilDataNode>) dataNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{}));
-                }
-//                // todo: this could probably be removed
-//                for (Enumeration<ImdiTreeObject> deletedNodesEnum = imdiNodesToRemove.elements(); deletedNodesEnum.hasMoreElements();) {
-//                    // remove the deleted node from all tables
-//                    // todo: this is also done in deleteCorpusLink and need not be here
-//                    ImdiTreeObject currentDeletedNode = deletedNodesEnum.nextElement();
-//                    for (Object currentContainer : currentDeletedNode.getRegisteredContainers()) {
-//                        // this is required here even though it is now also done in the reloading process
-//                        if (currentContainer instanceof ImdiTableModel) {
-//                            ((ImdiTableModel) currentContainer).removeImdiObjects(new ImdiTreeObject[]{currentDeletedNode});
-//                        }
-//                    }
-//                }
+                determineNodesToDelete(currentNodePaths, childNodeDeleteList, dataNodesDeleteList);
+                // delete child nodes
+                deleteNodesByChidXmlIdLink(childNodeDeleteList);
+                // delete parent nodes
+                deleteNodesByCorpusLink(dataNodesDeleteList);
             }
         } else {
             System.out.println("cannot delete from this tree");
+        }
+    }
+
+    private void determineNodesToDelete(TreePath[] nodePaths, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+        Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
+        for (TreePath currentNodePath : nodePaths) {
+            if (currentNodePath != null) {
+                DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
+                Object userObject = selectedTreeNode.getUserObject();
+                System.out.println("trying to delete: " + userObject);
+                if (currentNodePath.getPath().length == 2) {
+                    System.out.println("removing by location");
+                    removeLocation((ArbilDataNode) selectedTreeNode.getUserObject());
+                    applyRootLocations();
+                } else {
+                    System.out.println("deleting from parent");
+                    DefaultMutableTreeNode parentTreeNode = (DefaultMutableTreeNode) selectedTreeNode.getParent();
+                    if (parentTreeNode != null) {
+                        System.out.println("found parent to remove from");
+                        ArbilDataNode parentDataNode = (ArbilDataNode) parentTreeNode.getUserObject();
+                        ArbilDataNode childDataNode = (ArbilDataNode) selectedTreeNode.getUserObject();
+                        if (childDataNode.isChildNode()) {
+                            // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
+                            if (!childNodeDeleteList.containsKey(childDataNode.getParentDomNode())) {
+                                childNodeDeleteList.put(childDataNode.getParentDomNode(), new Vector());
+                            }
+                            if (childDataNode.isEmptyMetaNode()) {
+                                for (ArbilDataNode metaChildNode : childDataNode.getChildArray()) {
+                                    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
+                                }
+                            }
+                            childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
+                            childDataNode.removeFromAllContainers();
+                        } else {
+                            // add the parent and the child node to the deletelist
+                            if (!dataNodesDeleteList.containsKey(parentDataNode)) {
+                                dataNodesDeleteList.put(parentDataNode, new Vector());
+                            }
+                            dataNodesDeleteList.get(parentDataNode).add(childDataNode);
+                        }
+                        // remove the deleted node from the favourites list if it is an imdichild node
+                        //                            if (userObject instanceof ImdiTreeObject) {
+                        //                                if (((ImdiTreeObject) userObject).isImdiChild()){
+                        //                                LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
+                        //                                }
+                        //                            }
+                    }
+                }
+                // todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
+                //                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
+                // make a list of all child nodes so that they can be removed from any tables etc
+                dataNodesToRemove.add((ArbilDataNode) userObject);
+                ((ArbilDataNode) userObject).getAllChildren(dataNodesToRemove);
+            }
+        }
+    }
+
+    private void deleteNodesByChidXmlIdLink(Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList) {
+        for (ArbilDataNode currentParent : childNodeDeleteList.keySet()) {
+            System.out.println("deleting by child xml id link");
+            // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
+            //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+            ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+            boolean result = componentBuilder.removeChildNodes(currentParent, (childNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+            if (result) {
+                currentParent.reloadNode();
+            } else {
+                messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
+            }
+            //bugCatcher.logError(new Exception("deleteFromDomViaId"));
+        }
+    }
+
+    private void deleteNodesByCorpusLink(Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+        for (ArbilDataNode currentParent : dataNodesDeleteList.keySet()) {
+            System.out.println("deleting by corpus link");
+            currentParent.deleteCorpusLink(((Vector<ArbilDataNode>) dataNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{}));
         }
     }
 
