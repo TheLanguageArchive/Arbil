@@ -94,7 +94,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
             @Override
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 if (evt.getModifiers() == 0 && evt.getButton() == MouseEvent.BUTTON1) {
-                    System.out.println("jTree1MouseDragged");
                     JComponent c = (JComponent) evt.getSource();
                     TransferHandler th = c.getTransferHandler();
                     th.exportAsDrag(c, evt, TransferHandler.COPY);
@@ -178,7 +177,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     }
 
     private void treeKeyTyped(java.awt.event.KeyEvent evt) {
-        System.out.println(evt.paramString());
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_ENTER) {
             windowManager.openFloatingTableOnce(((ArbilTree) evt.getSource()).getSelectedNodes(), null);
         }
@@ -186,8 +184,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
             TreeHelper.getSingleInstance().deleteNodes((JTree) evt.getSource());
         }
-        System.out.println("evt.getKeyChar(): " + evt.getKeyChar());
-        System.out.println("VK_CONTEXT_MENU: " + java.awt.event.KeyEvent.VK_CONTEXT_MENU);
         if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_CONTEXT_MENU) {
 //        DefaultMutableTreeNode leadSelection = (DefaultMutableTreeNode) ((JTree) evt.getSource()).getSelectionPath().getLastPathComponent();
             Rectangle selectionBounds = ((JTree) evt.getSource()).getRowBounds(((JTree) evt.getSource()).getLeadSelectionRow());
