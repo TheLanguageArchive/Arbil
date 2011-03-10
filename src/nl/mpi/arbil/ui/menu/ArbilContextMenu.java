@@ -7,6 +7,11 @@ package nl.mpi.arbil.ui.menu;
 import java.awt.Component;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -24,10 +29,29 @@ import nl.mpi.arbil.ui.GuiHelper;
  */
 public abstract class ArbilContextMenu extends JPopupMenu {
 
+    private void applyMenuItems() {
+        boolean first = true;
+        for (List<OrderedMenuItem> category : itemsMap.values()) {
+            if (!category.isEmpty()) {
+                Collections.sort(category);
+                if (!first) {
+                    add(new JSeparator());
+                } else {
+                    first = false;
+                }
+                for (OrderedMenuItem item : category) {
+                    add(item.menuItem);
+                }
+            }
+        }
+    }
+
     public void show(int posX, int posY) {
         // Set common and concrete invisible
         setCommonInvisible();
         setAllInvisible();
+
+        prepareItemCategories();
 
         // Set up concrete menu
         setUpMenu();
@@ -35,6 +59,9 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         // Set up common items & actions
         setUpCommonMenuItems();
         setUpCommonActions();
+
+        // build menu from added items
+        applyMenuItems();
 
         // Configure separators
         configureMenuSeparators();
@@ -63,9 +90,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
-        add(browseForResourceFileMenuItem);
-
-        add(new JSeparator());
+        addItem(CATEGORY_NODE, PRIORITY_BOTTOM, browseForResourceFileMenuItem);
 
         saveMenuItem.setText("Save Changes to Disk");
         saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -84,9 +109,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             }
         });
 
-        add(saveMenuItem);
-
-        add(new JSeparator());
+        addItem(CATEGORY_DISK, PRIORITY_TOP, saveMenuItem);
 
         overrideTypeCheckerDecision.setText("Override Type Checker Decision");
         overrideTypeCheckerDecision.addActionListener(new java.awt.event.ActionListener() {
@@ -111,11 +134,11 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
-        add(overrideTypeCheckerDecision);
+        addItem(CATEGORY_WORKING_DIR, PRIORITY_TOP, overrideTypeCheckerDecision);
 
-        viewInBrowserMenuItem.setText("Open in External Application");
+        openInExternalApplicationMenuItem.setText("Open in External Application");
         // todo: add custom applicaitons menu with dialogue to enter them: suffix, switches, applicaiton file
-        viewInBrowserMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        openInExternalApplicationMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
@@ -125,10 +148,9 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
-        add(viewInBrowserMenuItem);
+        addItem(CATEGORY_DISK, PRIORITY_BOTTOM, openInExternalApplicationMenuItem);
 
         viewXmlMenuItem.setText("View XML");
-
         viewXmlMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -142,9 +164,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             }
         });
 
-        add(viewXmlMenuItem);
+        addItem(CATEGORY_XML, PRIORITY_TOP, viewXmlMenuItem);
         viewXmlMenuItemFormatted.setText("View IMDI Formatted");
-
         viewXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -157,8 +178,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
+        addItem(CATEGORY_XML, PRIORITY_TOP + 5, viewXmlMenuItemFormatted);
 
-        add(viewXmlMenuItemFormatted);
         openXmlMenuItemFormatted.setText("Open IMDI Formatted");
         openXmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
 
@@ -172,7 +193,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
-        add(openXmlMenuItemFormatted);
+        addItem(CATEGORY_XML, PRIORITY_TOP + 10, openXmlMenuItemFormatted);
 
         exportHtmlMenuItemFormatted.setText("Export IMDI to HTML");
         exportHtmlMenuItemFormatted.addActionListener(new java.awt.event.ActionListener() {
@@ -187,7 +208,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 }
             }
         });
-        add(exportHtmlMenuItemFormatted);
+        addItem(CATEGORY_XML, PRIORITY_TOP + 15, exportHtmlMenuItemFormatted);
     }
 
     protected void setUpCommonMenuItems() {
@@ -206,7 +227,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
                 openXmlMenuItemFormatted.setVisible(true);
                 exportHtmlMenuItemFormatted.setVisible(true);
             }
-            viewInBrowserMenuItem.setVisible(true);
+            openInExternalApplicationMenuItem.setVisible(true);
             overrideTypeCheckerDecision.setVisible(!leadSelectedTreeNode.isMetaDataNode() && leadSelectedTreeNode.mpiMimeType == null);
         }
     }
@@ -251,19 +272,81 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         openXmlMenuItemFormatted.setVisible(false);
         exportHtmlMenuItemFormatted.setVisible(false);
         overrideTypeCheckerDecision.setVisible(false);
-        viewInBrowserMenuItem.setVisible(false);
+        openInExternalApplicationMenuItem.setVisible(false);
         browseForResourceFileMenuItem.setVisible(false);
         saveMenuItem.setVisible(false);
-
     }
+
+
+    /**
+     * Defines some (or all) item categories in a specific order, so that
+     * the order in which actual items are added will not affect the order
+     * of these categories
+     */
+    protected void prepareItemCategories() {
+        addItemCategory(CATEGORY_NODE);
+        addItemCategory(CATEGORY_EDIT);
+
+        addItemCategory(CATEGORY_REMOTE_CORPUS);
+        addItemCategory(CATEGORY_WORKING_DIR);
+        addItemCategory(CATEGORY_TABLE_CELL);
+        addItemCategory(CATEGORY_ADD_FAVOURITES);
+
+        addItemCategory(CATEGORY_DISK);
+        addItemCategory(CATEGORY_IMPORT);
+        addItemCategory(CATEGORY_XML);
+    }
+
+    protected final void addItemCategory(String category) {
+        if (!itemsMap.containsKey(category)) {
+            itemsMap.put(category, new ArrayList<OrderedMenuItem>());
+        }
+    }
+
+    protected final void addItem(String category, int priority, JMenuItem item) {
+        addItemCategory(category);
+        itemsMap.get(category).add(new OrderedMenuItem(priority, item));
+    }
+
     protected ArbilDataNode[] selectedTreeNodes = null;
     protected ArbilDataNode leadSelectedTreeNode = null;
+
     private JMenuItem browseForResourceFileMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItemFormatted = new JMenuItem();
-    private JMenuItem viewInBrowserMenuItem = new JMenuItem();
+    private JMenuItem openInExternalApplicationMenuItem = new JMenuItem();
     private JMenuItem openXmlMenuItemFormatted = new JMenuItem();
     private JMenuItem exportHtmlMenuItemFormatted = new JMenuItem();
     private JMenuItem overrideTypeCheckerDecision = new JMenuItem();
     private JMenuItem saveMenuItem = new JMenuItem();
+
+    private LinkedHashMap<String, List<OrderedMenuItem>> itemsMap = new LinkedHashMap<String, List<OrderedMenuItem>>();
+
+    protected final static String CATEGORY_NODE = "node";
+    protected final static String CATEGORY_EDIT = "edit";
+    protected final static String CATEGORY_ADD_FAVOURITES = "add+favourites";
+    protected final static String CATEGORY_XML = "xml";
+    protected final static String CATEGORY_DISK = "disk";
+    protected final static String CATEGORY_REMOTE_CORPUS = "remote corpus";
+    protected final static String CATEGORY_WORKING_DIR = "working dir";
+    protected final static String CATEGORY_TABLE_CELL = "table cell";
+    protected final static String CATEGORY_IMPORT = "import";
+    
+    protected final static int PRIORITY_TOP = 0;
+    protected final static int PRIORITY_MIDDLE = 50;
+    protected final static int PRIORITY_BOTTOM = 100;
+
+    private class OrderedMenuItem implements Comparable<OrderedMenuItem> {
+
+        private OrderedMenuItem(int priority, JMenuItem item) {
+            menuItem = item;
+            itemPriority = Integer.valueOf(priority);
+        }
+        private JMenuItem menuItem;
+        private Integer itemPriority;
+
+        public int compareTo(OrderedMenuItem o) {
+            return itemPriority.compareTo(o.itemPriority);
+        }
+    }
 }

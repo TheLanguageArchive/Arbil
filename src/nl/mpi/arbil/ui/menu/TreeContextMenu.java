@@ -11,7 +11,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
@@ -150,7 +149,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 viewSelectedNodes();
             }
         });
-        add(viewSelectedNodesMenuItem);
+        addItem(CATEGORY_NODE, PRIORITY_TOP, viewSelectedNodesMenuItem);
 
         viewSelectedSubnodesMenuItem.setText("View/edit all metadata");
         viewSelectedSubnodesMenuItem.addActionListener(new ActionListener() {
@@ -159,7 +158,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 viewSelectedSubnodes();
             }
         });
-        add(viewSelectedSubnodesMenuItem);
+        addItem(CATEGORY_NODE, PRIORITY_TOP+1, viewSelectedSubnodesMenuItem);
 
 
         deleteMenuItem.setText("Delete");
@@ -173,7 +172,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(deleteMenuItem);
+        addItem(CATEGORY_EDIT, PRIORITY_TOP+10, deleteMenuItem);
 
         copyNodeUrlMenuItem.setText("Copy");
         copyNodeUrlMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -191,7 +190,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(copyNodeUrlMenuItem);
+        addItem(CATEGORY_EDIT, PRIORITY_TOP+15, copyNodeUrlMenuItem);
 
         pasteMenuItem1.setText("Paste");
         pasteMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -206,7 +205,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(pasteMenuItem1);
+        addItem(CATEGORY_EDIT, PRIORITY_TOP+20, pasteMenuItem1);
 
         searchRemoteBranchMenuItem.setText("Search Remote Corpus");
         searchRemoteBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -219,7 +218,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(searchRemoteBranchMenuItem);
+        addItem(CATEGORY_NODE, PRIORITY_MIDDLE, searchRemoteBranchMenuItem);
 
         copyBranchMenuItem.setText("Import to Local Corpus");
         copyBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -232,7 +231,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(copyBranchMenuItem);
+        addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, copyBranchMenuItem);
 
         searchSubnodesMenuItem.setText("Search");
         searchSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -245,7 +244,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(searchSubnodesMenuItem);
+        addItem(CATEGORY_NODE, PRIORITY_MIDDLE, searchSubnodesMenuItem);
 
         reloadSubnodesMenuItem.setText("Reload");
         reloadSubnodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -261,7 +260,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(reloadSubnodesMenuItem);
+        addItem(CATEGORY_NODE, PRIORITY_MIDDLE+5, reloadSubnodesMenuItem);
 
         addMenu.setText("Add");
         addMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -280,7 +279,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(addMenu);
+        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_TOP, addMenu);
 
         addFromFavouritesMenu.setText("Add From Favourites");
         addFromFavouritesMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -295,7 +294,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 initAddFromFavouritesMenu();
             }
         });
-        add(addFromFavouritesMenu);
+        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
 
         addToFavouritesMenuItem.setText("Set As Favourite");
         addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -308,7 +307,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(addToFavouritesMenuItem);
+        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE+5, addToFavouritesMenuItem);
 
 //        mergeWithFavouritesMenu.setText("Merge With Favourite");
 //        mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
@@ -324,7 +323,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(validateMenuItem);
+        addItem(CATEGORY_XML, PRIORITY_MIDDLE, validateMenuItem);
 
         historyMenu.setText("History");
         historyMenu.addMenuListener(new javax.swing.event.MenuListener() {
@@ -343,10 +342,9 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(historyMenu);
+        addItem(CATEGORY_EDIT, PRIORITY_BOTTOM, historyMenu);
 
 
-        add(new JSeparator());
         addRemoteCorpusMenuItem.setText("Add Remote Location");
 
         addRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -360,9 +358,9 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         });
 
-        add(addRemoteCorpusMenuItem);
-        addDefaultLocationsMenuItem.setText("Add Default Remote Locations");
+        addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE, addRemoteCorpusMenuItem);
 
+        addDefaultLocationsMenuItem.setText("Add Default Remote Locations");
         addDefaultLocationsMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -373,10 +371,9 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
+        addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE+5, addDefaultLocationsMenuItem);
 
-        add(addDefaultLocationsMenuItem);
         removeRemoteCorpusMenuItem.setText("Remove Remote Location");
-
         removeRemoteCorpusMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -390,8 +387,8 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
+        addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_MIDDLE+10, removeRemoteCorpusMenuItem);
 
-        add(removeRemoteCorpusMenuItem);
         removeCachedCopyMenuItem.setText("Remove Cache Link");
         removeCachedCopyMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -403,8 +400,8 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-
-        add(removeCachedCopyMenuItem);
+        addItem(CATEGORY_DISK, PRIORITY_BOTTOM+5, removeCachedCopyMenuItem);
+        
         addLocalDirectoryMenuItem.setText("Add Working Directory");
 
         addLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -418,7 +415,7 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         });
 
-        add(addLocalDirectoryMenuItem);
+        addItem(CATEGORY_WORKING_DIR, PRIORITY_TOP, addLocalDirectoryMenuItem);
 
         showHiddenFilesMenuItem.setText("Show Hidden Files");
         showHiddenFilesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -431,7 +428,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(showHiddenFilesMenuItem);
+        addItem(CATEGORY_WORKING_DIR, PRIORITY_MIDDLE, showHiddenFilesMenuItem);
 
         removeLocalDirectoryMenuItem.setText("Remove Link to Directory");
         removeLocalDirectoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -448,38 +445,38 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         });
 
-        add(removeLocalDirectoryMenuItem);
+        addItem(CATEGORY_REMOTE_CORPUS, PRIORITY_BOTTOM, removeLocalDirectoryMenuItem);
 
-        viewChangesMenuItem.setText("View Changes");
-        viewChangesMenuItem.setEnabled(false);
-        viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//        viewChangesMenuItem.setText("View Changes");
+//        viewChangesMenuItem.setEnabled(false);
+//        viewChangesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
+//                    for (ArbilDataNode currentNode : selectedTreeNodes) {
+////                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
+//                    }
+//                } catch (Exception ex) {
+//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                }
+//            }
+//        });
+//        add(viewChangesMenuItem);
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    for (ArbilDataNode currentNode : selectedTreeNodes) {
-//                        LinorgWindowManager.getSingleInstance().openDiffWindow(currentNode);
-                    }
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-        add(viewChangesMenuItem);
-
-        sendToServerMenuItem.setText("Send to Server");
-        sendToServerMenuItem.setEnabled(false);
-        sendToServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    sendToServerMenuItemActionPerformed(evt);
-
-                } catch (Exception ex) {
-                    GuiHelper.linorgBugCatcher.logError(ex);
-                }
-            }
-        });
-        add(sendToServerMenuItem);
+//        sendToServerMenuItem.setText("Send to Server");
+//        sendToServerMenuItem.setEnabled(false);
+//        sendToServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+//
+//            public void actionPerformed(java.awt.event.ActionEvent evt) {
+//                try {
+//                    sendToServerMenuItemActionPerformed(evt);
+//
+//                } catch (Exception ex) {
+//                    GuiHelper.linorgBugCatcher.logError(ex);
+//                }
+//            }
+//        });
+//        add(sendToServerMenuItem);
 
         exportMenuItem.setText("Export");
         exportMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -493,7 +490,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(exportMenuItem);
+        addItem(CATEGORY_DISK, PRIORITY_TOP+5, exportMenuItem);
 
         importCsvMenuItem.setText("Import CSV");
         importCsvMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -507,7 +504,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(importCsvMenuItem);
+        addItem(CATEGORY_IMPORT, PRIORITY_TOP, importCsvMenuItem);
 
         importBranchMenuItem.setText("Import Branch");
         importBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -523,7 +520,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(importBranchMenuItem);
+        addItem(CATEGORY_IMPORT, PRIORITY_TOP+5, importBranchMenuItem);
 
         reImportBranchMenuItem.setText("Re-Import this Branch");
         reImportBranchMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -532,7 +529,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 reImportBranch();
             }
         });
-        add(reImportBranchMenuItem);
+        addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
     }
 
     private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -811,8 +808,8 @@ public class TreeContextMenu extends ArbilContextMenu {
         deleteMenuItem.setVisible(false);
         viewSelectedNodesMenuItem.setVisible(false);
         addFromFavouritesMenu.setVisible(false);
-        viewChangesMenuItem.setVisible(false);
-        sendToServerMenuItem.setVisible(false);
+        //viewChangesMenuItem.setVisible(false);
+        //sendToServerMenuItem.setVisible(false);
         validateMenuItem.setVisible(false);
         historyMenu.setVisible(false);
         exportMenuItem.setVisible(false);

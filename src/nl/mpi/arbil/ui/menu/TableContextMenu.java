@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilField;
@@ -104,7 +103,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(copySelectedRowsMenuItem);
+        addItem(CATEGORY_EDIT, PRIORITY_BOTTOM + 5, copySelectedRowsMenuItem);
 
         pasteIntoSelectedRowsMenuItem.setText("Paste");
         pasteIntoSelectedRowsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -117,9 +116,8 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(pasteIntoSelectedRowsMenuItem);
+        addItem(CATEGORY_EDIT, PRIORITY_BOTTOM + 10, pasteIntoSelectedRowsMenuItem);
 
-        add(new JSeparator());
         // field menu items
         openInLongFieldEditorMenuItem.setText("Open in Long Field Editor");
         openInLongFieldEditorMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -132,7 +130,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(openInLongFieldEditorMenuItem);
+        addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 10, openInLongFieldEditorMenuItem);
 
         hideSelectedColumnsMenuItem.setText("Hide Selected Columns");
         hideSelectedColumnsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -145,7 +143,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(hideSelectedColumnsMenuItem);
+        addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
 
         showChildNodesMenuItem.setText("Show Child Nodes");
         showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -158,7 +156,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(showChildNodesMenuItem);
+        addItem(CATEGORY_TABLE_CELL, PRIORITY_BOTTOM, showChildNodesMenuItem);
 
         deleteFieldMenuItem.setText("Delete MultiField");
         deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -195,7 +193,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(deleteFieldMenuItem);
+        addItem(CATEGORY_TABLE_CELL, PRIORITY_MIDDLE + 10, deleteFieldMenuItem);
 
         revertFieldMenuItem.setText("Revert Selected Fields");
         revertFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -213,7 +211,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(revertFieldMenuItem);
+        addItem(CATEGORY_TABLE_CELL, PRIORITY_MIDDLE + 15, revertFieldMenuItem);
 
         copyCellToColumnMenuItem.setText("Copy Cell to Whole Column"); // NOI18N
         copyCellToColumnMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -231,7 +229,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(copyCellToColumnMenuItem);
+        addItem(CATEGORY_EDIT, PRIORITY_BOTTOM, copyCellToColumnMenuItem);
 
         matchingCellsMenuItem.setText("Highlight Matching Cells");
         matchingCellsMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -244,9 +242,9 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
-        add(matchingCellsMenuItem);
+        addItem(CATEGORY_TABLE_CELL, PRIORITY_BOTTOM+10, matchingCellsMenuItem);
 
-        clearCellColoursMenuItem.setText("Clear Cell Highlight"); // NOI18N
+        clearCellColoursMenuItem.setText("Clear Cell Highlight"); 
         clearCellColoursMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -257,6 +255,7 @@ public class TableContextMenu extends ArbilContextMenu {
                 }
             }
         });
+        //addItem(CATEGORY_TABLE_CELL, PRIORITY_BOTTOM+15, clearCellColoursMenuItem);
     }
 
     @Override
