@@ -125,7 +125,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         break;
                     } else {
                         int requiredWidth = fontMetrics.stringWidth(fieldValue);
-                        System.out.println("requiredWidth: " + requiredWidth + " availableWidth: " + availableWidth);
                         String fieldLanguageId = currentField.getLanguageId();
                         if (fieldLanguageId != null) {
                             requiredWidth += LanguageIdBox.languageSelectWidth;
@@ -166,7 +165,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         while (componentsWithFocusListners.size() > 0) {
             Component currentComponent = componentsWithFocusListners.remove(0);
             if (currentComponent != null) {
-                System.out.println("removeAllFocusListners:currentComponent:" + currentComponent.getClass());
                 for (FocusListener currentListner : currentComponent.getFocusListeners()) {
                     currentComponent.removeFocusListener(currentListner);
                 }
@@ -244,13 +242,11 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     }
 
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
-//        System.out.println("startEditorMode: " + selectedField + " lastKeyInt: " + lastKeyInt + " lastKeyChar: " + lastKeyChar);
         removeAllFocusListners();
         if (cellValue instanceof ArbilField[]) {
             if (cellHasControlledVocabulary()) {
                 if (isCellEditable()) {
                     // if the cell has a vocabulary then prevent the long field editor
-                    System.out.println("Has Vocabulary");
                     ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ArbilField) cellValue[selectedField]);
 
                     // Remove 'button', which is the non-editor mode component for the cell
@@ -352,7 +348,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     }
 
     public Object getCellEditorValue() {
-//        System.out.println("getCellEditorValue");
         if (selectedField != -1) {
             if (editorComponent != null) {
                 if (editorComponent instanceof ControlledVocabularyComboBox) {
@@ -375,9 +370,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 cellValue = ((ArbilField) value).parentDataNode.getFields().get(fieldName);
                 // TODO: find the chosen fields index in the array and store
                 for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
-                    System.out.println("selectedField: " + cellValue[cellFieldCounter] + " : " + value);
                     if (cellValue[cellFieldCounter].equals(value)) {
-                        System.out.println("selectedField found");
                         selectedField = cellFieldCounter;
                     }
                 }

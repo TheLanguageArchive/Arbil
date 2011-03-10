@@ -35,7 +35,6 @@ public class ArbilFavourites {
     static private ArbilFavourites singleInstance = null;
 
     static synchronized public ArbilFavourites getSingleInstance() {
-//        System.out.println("LinorgFavourites getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new ArbilFavourites();
         }

@@ -1192,7 +1192,6 @@ public class ArbilDataNode implements Comparable {
     }
 
     public synchronized void notifyLoaded() {
-        System.out.println("notifyAll");
         getParentDomNode().notifyAll();
     }
 

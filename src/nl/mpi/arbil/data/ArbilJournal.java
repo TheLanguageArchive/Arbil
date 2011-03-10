@@ -44,7 +44,6 @@ public class ArbilJournal {
     static private ArbilJournal singleInstance = null;
 
     static synchronized public ArbilJournal getSingleInstance() {
-        System.out.println("LinorgJournal getSingleInstance");
         if (singleInstance == null) {
             singleInstance = new ArbilJournal();
         }

@@ -248,7 +248,6 @@ public class ArbilTable extends JTable {
     }
 
     public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {
-        System.out.println("checkPopup");
         if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3 || evt.isMetaDown()*/) {
             // set the clicked cell selected
             java.awt.Point p = evt.getPoint();
@@ -440,42 +439,30 @@ public class ArbilTable extends JTable {
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
         if (arbilTableModel.isHorizontalView()) {
             boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilDataNode);
-//        System.out.println("rowSelection: " + rowSelection + ":" + clickedRow + ":" + clickedColumn);
             if (!arbilTableModel.isHorizontalView()) {
                 this.setRowSelectionAllowed(true);
                 this.setColumnSelectionAllowed(false);
             } else {
                 if (rowSelection) {
-                    System.out.println("set row select mode");
                     this.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
                     this.setRowSelectionAllowed(true);
                     this.setColumnSelectionAllowed(false);
-//                cellSelectionModeAsNotReturnedByJTable = false;
                 } else {
-                    System.out.println("set cell select mode");
-//                toggle = false;
-//                extend = true;
                     this.setRowSelectionAllowed(true);
                     this.setColumnSelectionAllowed(true);
                     this.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
                 }
             }
-            System.out.println("coll select mode: " + this.getColumnSelectionAllowed());
-            System.out.println("cell select mode: " + this.getCellSelectionEnabled());
-            System.out.println("getSelectionMode: " + this.getSelectionModel().getSelectionMode());
 
             super.changeSelection(rowIndex, columnIndex, toggle, extend);
         } else {
             this.setRowSelectionAllowed(true);
             this.setColumnSelectionAllowed(false);
             AWTEvent currentEvent = Toolkit.getDefaultToolkit().getSystemEventQueue().getCurrentEvent();
-            System.out.println("currentEvent: " + currentEvent);
             if (currentEvent instanceof KeyEvent && currentEvent != null) {
                 {
-                    System.out.println("is KeyEvent");
                     KeyEvent nextPress = (KeyEvent) currentEvent;
                     if (nextPress.isShiftDown()) {
-                        System.out.println("VK_SHIFT");
                         rowIndex--;
                         if (rowIndex < 0) {
                             rowIndex = getRowCount() - 1;
@@ -483,7 +470,6 @@ public class ArbilTable extends JTable {
                     }
                 }
             }
-            System.out.println("rowIndex: " + rowIndex);
             super.changeSelection(rowIndex, 1, toggle, extend);
         }
     }
