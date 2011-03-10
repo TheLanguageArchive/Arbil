@@ -185,7 +185,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                                 fileSelectDone = true;
                                 return destinationDirectory;
                             } else {
-                                if (showMessageDialogBox("The selected export directory is not empty.\nTo continue will merge and may overwrite files.\nDo you want to continue?", titleText)) {
+                                if (showConfirmDialogBox("The selected export directory is not empty.\nTo continue will merge and may overwrite files.\nDo you want to continue?", titleText)) {
                                     return destinationDirectory;
                                 }
                                 //JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The export directory must be empty", titleText, JOptionPane.PLAIN_MESSAGE);
@@ -305,7 +305,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         return returnFile;
     }
 
-    public boolean showMessageDialogBox(String messageString, String messageTitle) {
+    public boolean showConfirmDialogBox(String messageString, String messageTitle) {
         if (messageTitle == null) {
             messageTitle = "Arbil";
         }
@@ -1097,7 +1097,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      *
      * @see javax.swing.JOptionPane
      */
-    public int showConfirmDialog(String message, String title, int optionType, int messageType) {
+    public int showDialogBox(String message, String title, int optionType, int messageType) {
         return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
     }
 

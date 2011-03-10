@@ -114,7 +114,7 @@ public class ArbilSessionStorage {
             }
         }
         if (storageDirectory == null) {
-            messageDialogHandler.showMessageDialogBox("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error");
+            messageDialogHandler.addMessageDialogToQueue("Could not create a working directory in any of the potential location:\n" + testedStorageDirectories + "Please check that you have write permissions in at least one of these locations.\nThe application will now exit.", "Arbil Critical Error");
             System.exit(-1);
         } else {
             try {
@@ -128,7 +128,7 @@ public class ArbilSessionStorage {
                 testFile.delete();
             } catch (IOException exception) {
                 System.out.println(exception);
-                messageDialogHandler.showMessageDialogBox("Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error");
+                messageDialogHandler.addMessageDialogToQueue("Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error");
                 System.exit(-1);
             }
         }
@@ -159,7 +159,7 @@ public class ArbilSessionStorage {
         if (!preferedCacheDirectory.getAbsolutePath().contains("ArbilWorkingFiles") && !preferedCacheDirectory.getAbsolutePath().contains(".arbil/imdicache") && !localCacheDirectory.getAbsolutePath().contains(".linorg/imdicache")) {
             preferedCacheDirectory = new File(preferedCacheDirectory, "ArbilWorkingFiles");
         }
-        if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showConfirmDialog(
+        if (!moveFiles || JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
                 "Moving files from:\n" + fromDirectory + "\nto:\n" + preferedCacheDirectory + "\n"
                 + "Arbil will need to close all tables once the files are moved.\nDo you wish to continue?", "Arbil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
             if (moveFiles) {
@@ -195,7 +195,7 @@ public class ArbilSessionStorage {
         }
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
-            if (JOptionPane.YES_OPTION == messageDialogHandler.showConfirmDialog(
+            if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox(
                     "The files in your 'Local Corpus' could not be moved to the requested location.\n"
                     + "You can cancel now and nothing will be changed, or you can change the working\n"
                     + "directory anyway.\n"

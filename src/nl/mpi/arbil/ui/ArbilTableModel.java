@@ -373,7 +373,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             }
             if (clipBoardLines.length == 1) {
                 String messageString = selectedCells.length + " fields will be overwritten with the single value on the clipboard.\nContinue?";
-                if (messageDialogHandler.showMessageDialogBox(messageString, "Paste")) {
+                if (messageDialogHandler.showConfirmDialogBox(messageString, "Paste")) {
                     for (ArbilField targetField : selectedCells) {
                         targetField.setFieldValue(clipBoardString, true, false);
                         pastedCount++;
@@ -437,7 +437,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                         areYouSureMessageString = areYouSureMessageString + "There are " + deletingValuesCounter + " fields that will have their contents deleted by this paste action.\n\n";
                     }
                     if (areYouSureMessageString.length() > 0) {
-                        if (!messageDialogHandler.showMessageDialogBox(areYouSureMessageString + "Continue?", "Paste")) {
+                        if (!messageDialogHandler.showConfirmDialogBox(areYouSureMessageString + "Continue?", "Paste")) {
                             return null;
                         }
                     }

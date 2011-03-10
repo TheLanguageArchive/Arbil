@@ -126,7 +126,7 @@ public class ArbilVersionChecker {
                 {
                     if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-                        switch (messageDialogHandler.showConfirmDialog("There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        switch (messageDialogHandler.showDialogBox("There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             case JOptionPane.NO_OPTION:
                                 break;
                             case JOptionPane.YES_OPTION:

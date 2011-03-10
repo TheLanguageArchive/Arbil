@@ -166,7 +166,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    TreeHelper.getSingleInstance().deleteNode(getInvoker());
+                    TreeHelper.getSingleInstance().deleteNodes(getInvoker());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }

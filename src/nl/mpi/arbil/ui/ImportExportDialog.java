@@ -159,7 +159,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
 //        searchDialog.setTitle("Export Branch");
         if (!selectedNodesContainDataNode()) {
-            ArbilWindowManager.getSingleInstance().showMessageDialogBox("No relevant nodes are selected", searchDialog.getTitle());
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -184,7 +184,7 @@ public class ImportExportDialog {
         selectedNodes = localSelectedNodes;
         searchDialog.setTitle("Import Branch");
         if (!selectedNodesContainDataNode()) {
-            ArbilWindowManager.getSingleInstance().showMessageDialogBox("No relevant nodes are selected", searchDialog.getTitle());
+            ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No relevant nodes are selected", searchDialog.getTitle());
             return;
         }
         setNodesPanel(selectedNodes, inputNodePanel);
@@ -875,7 +875,7 @@ public class ImportExportDialog {
                     diskSpaceLabel.setText(diskFreeLabelText + freeGBytes + "GB");
                     if (freeGbWarningPoint > freeGBytes) {
                         progressBar.setIndeterminate(false);
-                        if (JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showConfirmDialog("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+                        if (JOptionPane.YES_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("There is only " + freeGBytes + "GB free space left on the disk.\nTo you still want to continue?", searchDialog.getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                             freeGbWarningPoint = freeGBytes - 1;
                         } else {
                             stopSearch = true;

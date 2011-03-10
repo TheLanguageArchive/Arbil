@@ -14,9 +14,9 @@ public interface MessageDialogHandler {
 
     void addMessageDialogToQueue(String messageString, String messageTitle);
 
-    boolean showMessageDialogBox(String messageString, String messageTitle);
+    boolean showConfirmDialogBox(String messageString, String messageTitle);
 
-    int showConfirmDialog(String message, String title, int optionType, int messageType);
+    int showDialogBox(String message, String title, int optionType, int messageType);
 
     File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles);
 

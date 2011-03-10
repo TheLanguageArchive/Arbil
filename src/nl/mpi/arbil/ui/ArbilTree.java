@@ -214,7 +214,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
-            TreeHelper.getSingleInstance().deleteNode((JTree) evt.getSource());
+            TreeHelper.getSingleInstance().deleteNodes((JTree) evt.getSource());
         }
         System.out.println("evt.getKeyChar(): " + evt.getKeyChar());
         System.out.println("VK_CONTEXT_MENU: " + java.awt.event.KeyEvent.VK_CONTEXT_MENU);
