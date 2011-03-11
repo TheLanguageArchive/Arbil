@@ -792,7 +792,7 @@ public class ArbilComponentBuilder {
 
     private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 //        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
-        Element currentElement = workingDocument.createElement(schemaProperty.getName().getLocalPart());
+        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd/", schemaProperty.getName().getLocalPart());
         SchemaType currentSchemaType = schemaProperty.getType();
         for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
             if (attributesProperty.getMinOccurs() != null && !attributesProperty.getMinOccurs().equals(BigInteger.ZERO)) {
@@ -801,8 +801,9 @@ public class ArbilComponentBuilder {
         }
         if (parentElement == null) {
             // this is probably not the way to set these, however this will do for now (many other methods have been tested and all failed to function correctly)
+            currentElement.setAttribute("CMDVersion", "1.1");
             currentElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-            currentElement.setAttribute("xsi:schemaLocation", "http://www.clarin.eu/cmd " + nameSpaceUri);
+            currentElement.setAttribute("xsi:schemaLocation", "http://www.clarin.eu/cmd/ " + nameSpaceUri);
             //          currentElement.setAttribute("xsi:schemaLocation", "cmd " + nameSpaceUri);
             workingDocument.appendChild(currentElement);
         } else {
