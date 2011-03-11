@@ -8,6 +8,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.TreeHelper;
@@ -99,6 +100,7 @@ public class ArbilInjector {
         CmdiComponentLinkReader.setBugCatcher(bugCatcher);
         CmdiTemplate.setBugCatcher(bugCatcher);
         CmdiUtils.setBugCatcher(bugCatcher);
+        DocumentationLanguages.setBugCatcher(bugCatcher);
         ImdiUtils.setBugCatcher(bugCatcher);
         MetadataBuilder.setBugCatcher(bugCatcher);
         MetadataReader.setBugCatcher(bugCatcher);

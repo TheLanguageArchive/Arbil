@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
-import nl.mpi.arbil.ui.DocumentationLanguages;
+import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabularyItem;

@@ -1,12 +1,10 @@
-package nl.mpi.arbil.ui;
+package nl.mpi.arbil.data;
 
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.data.ArbilVocabularyFilter;
-import nl.mpi.arbil.data.ArbilVocabularyItem;
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  *  Document   : DocumentationLanguages
@@ -14,6 +12,11 @@ import nl.mpi.arbil.data.ArbilVocabularyItem;
  *  Author     : Peter Withers
  */
 public class DocumentationLanguages implements ArbilVocabularyFilter {
+
+    private static BugCatcher bugCatcher;
+    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+        bugCatcher = bugCatcherInstance;
+    }
 
     private static final String LANGUAGE_VOCABULARY_URL_KEY = "LanguageVocabularyUrl";
     private static final String SELECTED_LANGUAGES_KEY = "selectedLanguages";
@@ -52,7 +55,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
         try {
             selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
         } catch (Exception e) {
-            GuiHelper.linorgBugCatcher.logError("No selectedLanguages file, will create one now.", e);
+            bugCatcher.logError("No selectedLanguages file, will create one now.", e);
             addDefaultTemplates();
         }
         return selectedLanguages;
@@ -80,7 +83,7 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
         try {
             selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
         } catch (Exception e) {
-            GuiHelper.linorgBugCatcher.logError("No selectedLanguages file, will create one now.", e);
+            bugCatcher.logError("No selectedLanguages file, will create one now.", e);
         }
         selectedLanguages.add(templateString);
         ArbilSessionStorage.getSingleInstance().saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));

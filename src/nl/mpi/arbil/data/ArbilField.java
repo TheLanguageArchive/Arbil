@@ -2,7 +2,6 @@ package nl.mpi.arbil.data;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
-import nl.mpi.arbil.ui.DocumentationLanguages;
 
 /**
  * Document   : ArbilField
