@@ -37,7 +37,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     JTextField keyEditorFields[] = null;
     JTextArea fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
-    JLabel fieldDescription = null;
+    JTextArea fieldDescription = null;
     JInternalFrame editorFrame = null;
 
     public ArbilLongFieldEditor(ArbilTable parentTableLocal) {
@@ -88,7 +88,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         fieldEditors = new JTextArea[arbilFields.length];
         keyEditorFields = new JTextField[arbilFields.length];
         fieldLanguageBoxs = new JComboBox[arbilFields.length];
-        fieldDescription = new JLabel();
+
+        fieldDescription = new JTextArea();
+        fieldDescription.setLineWrap(true);
+        fieldDescription.setEditable(false);
+        fieldDescription.setOpaque(false);
 
         FocusListener editorFocusListener = new FocusListener() {
 
