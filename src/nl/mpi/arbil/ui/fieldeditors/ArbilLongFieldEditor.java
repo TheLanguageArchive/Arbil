@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
@@ -242,6 +243,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         arbilFields = parentArbilDataNode.getFields().get(fieldName);
         selectedField = Math.min(0, tabPane.getSelectedIndex());
 
+        int selectedIndex = tabPane.getSelectedIndex();
         tabPane.removeAll();
         if (arbilFields != null && arbilFields.length > 0) {
             editorFrame.setTitle(getWindowTitle());
@@ -250,6 +252,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
             focusedTabTextArea.requestFocusInWindow();
         }
+        tabPane.setSelectedIndex(selectedIndex);
 
 
         // todo: this could be done more softly by using the below code when the fields have not been reloaded, but be carefull that the ImdiFields in the language boxes are not out of sync.
@@ -326,14 +329,19 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     }
 
     private void changeTab(int d) {
-        int index;
+        final int index;
         if (d > 0) {
             index = Math.min(tabPane.getSelectedIndex() + 1, tabPane.getTabCount() - 1);
         } else {
             index = Math.max(tabPane.getSelectedIndex() - 1, 0);
         }
         tabPane.setSelectedIndex(index);
-        fieldEditors[index].requestFocusInWindow();
+        EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                fieldEditors[index].requestFocusInWindow();
+            }
+        });
     }
 
     private void moveAdjacent(int d) {
