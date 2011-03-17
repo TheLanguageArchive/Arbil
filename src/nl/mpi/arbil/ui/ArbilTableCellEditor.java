@@ -419,7 +419,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         });
 
         if (cellValue instanceof ArbilField[]) {
-            Icon icon = ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]);
+            Icon icon = (selectedField < 0)?null:ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]);
             if (icon != null) {
                 // Icon is available for field. Wrap editor panel with icon panel
                 return new ArbilIconCellPanel(editorPanel, icon);
