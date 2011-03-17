@@ -59,6 +59,10 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     private JButton prevButton;
     private JButton nextButton;
 
+    public ArbilLongFieldEditor() {
+        this(null);
+    }
+
     public ArbilLongFieldEditor(ArbilTable parentTableLocal) {
         parentTable = parentTableLocal;
 
@@ -107,7 +111,9 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
                 // deregister component from imditreenode
                 parentArbilDataNode.removeContainer(ArbilLongFieldEditor.this);
                 super.internalFrameClosed(e);
-                parentTable.requestFocusInWindow();
+                if (parentTable != null) {
+                    parentTable.requestFocusInWindow();
+                }
             }
         });
         if (selectedField != -1) {
