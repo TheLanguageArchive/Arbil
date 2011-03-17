@@ -24,6 +24,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -660,26 +661,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
 
             // calculate which of the available columns to show
             ArbilField[] displayedColumnNames = filteredColumnNames.values().toArray(new ArbilField[filteredColumnNames.size()]);
-            Arrays.sort(displayedColumnNames, new Comparator<ArbilField>() {
-
-                public int compare(ArbilField firstColumn, ArbilField secondColumn) {
-                    try {
-                        int baseIntA = ((ArbilField) firstColumn).getFieldOrder();
-                        int comparedIntA = ((ArbilField) secondColumn).getFieldOrder();
-                        int returnValue = baseIntA - comparedIntA;
-                        if (returnValue == 0) {
-                            // if the xml node order is the same then also sort on the strings
-                            String baseStrA = firstColumn.getFieldValue();
-                            String comparedStrA = secondColumn.getFieldValue();
-                            returnValue = baseStrA.compareToIgnoreCase(comparedStrA);
-                        }
-                        return returnValue;
-                    } catch (Exception ex) {
-                        bugCatcher.logError(ex);
-                        return 1;
-                    }
-                }
-            });
+            Arrays.sort(displayedColumnNames, new ArbilFieldComparator());
             // end calculate which of the available columns to show
 
             // set the column offset to accomadate the icon which is not in the column hashtable

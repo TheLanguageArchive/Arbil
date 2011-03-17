@@ -1,10 +1,22 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
+import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import nl.mpi.arbil.data.ArbilField;
@@ -19,6 +32,8 @@ import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilFieldComparator;
+import nl.mpi.arbil.data.ArrayComparator;
 
 /**
  *  Document   : ArbilLongFieldEditor
@@ -39,30 +54,52 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     JComboBox fieldLanguageBoxs[] = null;
     JTextArea fieldDescription = null;
     JInternalFrame editorFrame = null;
+    private JPanel contentPanel;
+    private List<ArbilField[]> parentFieldList;
+    private JButton prevButton;
+    private JButton nextButton;
 
     public ArbilLongFieldEditor(ArbilTable parentTableLocal) {
         parentTable = parentTableLocal;
+
+        setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, new lfeInputMap(getInputMap()));
+        setActionMap(new lfeActionMap(getActionMap()));
+
+        // Window has two panels: content panel and panel with previous/next buttons
+        contentPanel = new JPanel();
         setLayout(new BorderLayout());
+        contentPanel.setLayout(new BorderLayout());
+
+        this.add(contentPanel, BorderLayout.CENTER);
+
+        this.add(createPreviousNextPanel(), BorderLayout.PAGE_END);
     }
 
     public void showEditor(ArbilField[] cellValueLocal, String currentEditorText, int selectedFieldLocal) {
         selectedField = selectedFieldLocal;
         arbilFields = cellValueLocal;
-        String parentNodeName = "unknown";
         parentArbilDataNode = arbilFields[0].parentDataNode;
         // todo: registerContainer should not be done on the parent node and the remove should scan all child nodes also, such that deleting a child like and actor would remove the correct nodes
         parentArbilDataNode.registerContainer(this);
-        parentNodeName = parentArbilDataNode.toString();
         fieldName = arbilFields[0].getTranslateFieldName();
+
+        setParentFieldList();
 
         tabPane = new JTabbedPane();
         JTextArea focusedTabTextArea = populateTabbedPane(currentEditorText);
+
+        fieldDescription = new JTextArea();
+        fieldDescription.setLineWrap(true);
+        fieldDescription.setEditable(false);
+        fieldDescription.setOpaque(false);
         fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
-        this.add(fieldDescription, BorderLayout.PAGE_START);
-        this.add(tabPane, BorderLayout.CENTER);
+
+        contentPanel.removeAll();
+        contentPanel.add(fieldDescription, BorderLayout.PAGE_START);
+        contentPanel.add(tabPane, BorderLayout.CENTER);
         // todo: add next and previous buttons for the current file
         // todo: add all unused attributes as editable text
-        editorFrame = ArbilWindowManager.getSingleInstance().createWindow(fieldName + " in " + parentNodeName, this);
+        editorFrame = ArbilWindowManager.getSingleInstance().createWindow(getWindowTitle(), this);
         editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
 
             @Override
@@ -78,6 +115,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         } else {
             tabPane.setSelectedIndex(0);
         }
+        setNavigationEnabled();
         focusedTabTextArea.requestFocusInWindow();
     }
 
@@ -88,11 +126,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         fieldEditors = new JTextArea[arbilFields.length];
         keyEditorFields = new JTextField[arbilFields.length];
         fieldLanguageBoxs = new JComboBox[arbilFields.length];
-
-        fieldDescription = new JTextArea();
-        fieldDescription.setLineWrap(true);
-        fieldDescription.setEditable(false);
-        fieldDescription.setOpaque(false);
 
         FocusListener editorFocusListener = new FocusListener() {
 
@@ -123,6 +156,8 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             }
             fieldEditors[cellFieldIndex].setLineWrap(true);
             fieldEditors[cellFieldIndex].setWrapStyleWord(true);
+            fieldEditors[cellFieldIndex].setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(fieldEditors[cellFieldIndex].getInputMap()));
+            fieldEditors[cellFieldIndex].setActionMap(new lfeActionMap(fieldEditors[cellFieldIndex].getActionMap()));
 
             JPanel tabPanel = new JPanel();
             JPanel tabTitlePanel = new JPanel();
@@ -159,17 +194,58 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
             tabPane.add(fieldName + " " + titleCount++, tabPanel);
         }
+
+        if (tabPane.getSelectedIndex() < 0 && tabPane.getTabCount() > 0) {
+            tabPane.setSelectedIndex(0);
+        }
+
         return focusedTabTextArea;
+    }
+
+    private String getWindowTitle() {
+        return fieldName + " in " + String.valueOf(parentArbilDataNode);
+    }
+
+    private JPanel createPreviousNextPanel() {
+        prevButton = new JButton(previousAction);
+        prevButton.setText("Previous");
+        prevButton.setMnemonic('p');
+
+        nextButton = new JButton(nextAction);
+        nextButton.setText("Next");
+        nextButton.setMnemonic('n');
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+        buttonsPanel.add(prevButton);
+        buttonsPanel.add(nextButton);
+        return buttonsPanel;
+    }
+
+    private void setParentFieldList() {
+        parentFieldList = new ArrayList<ArbilField[]>(parentArbilDataNode.getFields().values());
+        Collections.sort(parentFieldList, new ArrayComparator<ArbilField>(new ArbilFieldComparator(), 0));
+    }
+
+    private void setNavigationEnabled() {
+        int index = parentFieldList.indexOf(arbilFields);
+        nextButton.setEnabled(index < parentFieldList.size() - 1);
+        prevButton.setEnabled(index > 0);
     }
 
     public void updateEditor() {
         arbilFields = parentArbilDataNode.getFields().get(fieldName);
-        selectedField = tabPane.getSelectedIndex();
+        selectedField = Math.min(0, tabPane.getSelectedIndex());
+
         tabPane.removeAll();
         if (arbilFields != null && arbilFields.length > 0) {
-            populateTabbedPane(null);
+            editorFrame.setTitle(getWindowTitle());
+            JTextArea focusedTabTextArea = populateTabbedPane(null);
             tabPane.setSelectedIndex(selectedField);
+            fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
+            focusedTabTextArea.requestFocusInWindow();
         }
+
+
         // todo: this could be done more softly by using the below code when the fields have not been reloaded, but be carefull that the ImdiFields in the language boxes are not out of sync.
 //        // todo: the number of fields might have changed so we really should update the tabs or re create the form
 //        // this will only be called when the long field editor is shown
@@ -239,5 +315,100 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
      */
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
         updateEditor();
+        setParentFieldList();
+        setNavigationEnabled();
+    }
+
+    private void changeTab(int d) {
+        int index;
+        if (d > 0) {
+            index = Math.min(tabPane.getSelectedIndex() + 1, tabPane.getTabCount() - 1);
+        } else {
+            index = Math.max(tabPane.getSelectedIndex() - 1, 0);
+        }
+        tabPane.setSelectedIndex(index);
+        fieldEditors[index].requestFocusInWindow();
+    }
+
+    private void moveAdjacent(int d) {
+        int index = parentFieldList.indexOf(arbilFields);
+        index += d;
+        if (index < parentFieldList.size() && index >= 0) {
+            storeChanges();
+            fieldName = parentFieldList.get(index)[0].getTranslateFieldName();
+            updateEditor();
+            setNavigationEnabled();
+        }
+    }
+    private Action nextAction = new AbstractAction() {
+
+        public void actionPerformed(ActionEvent e) {
+            moveAdjacent(+1);
+        }
+    };
+    private Action previousAction = new AbstractAction() {
+
+        public void actionPerformed(ActionEvent e) {
+            moveAdjacent(-1);
+        }
+    };
+
+    private class lfeActionMap extends ActionMap {
+
+        public lfeActionMap(ActionMap parent) {
+            super();
+            if (parent != null) {
+                setParent(parent);
+            }
+
+            put("nextField", nextAction);
+            put("previousField", previousAction);
+
+            // Action that switches to the next tab (if there is one)
+            put("nextTab", new AbstractAction() {
+
+                public void actionPerformed(ActionEvent e) {
+                    changeTab(+1);
+                }
+            });
+
+            // Action that switches to the previous tab (if there is one)
+            put("previousTab", new AbstractAction() {
+
+                public void actionPerformed(ActionEvent e) {
+                    changeTab(-1);
+                }
+            });
+        }
+    }
+
+    private class lfeInputMap extends InputMap {
+
+        public lfeInputMap(InputMap parent) {
+            super();
+            if (parent != null) {
+                setParent(parent);
+            }
+
+            // Next field keys
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.META_DOWN_MASK), "nextField");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, KeyEvent.META_DOWN_MASK), "nextField");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_DOWN_MASK), "nextField");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, KeyEvent.CTRL_DOWN_MASK), "nextField");
+
+            // Previous field keys
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.META_DOWN_MASK), "previousField");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, KeyEvent.META_DOWN_MASK), "previousField");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_DOWN_MASK), "previousField");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, KeyEvent.CTRL_DOWN_MASK), "previousField");
+
+            // Next tab keys
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.META_DOWN_MASK), "nextTab");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, KeyEvent.CTRL_DOWN_MASK), "nextTab");
+
+            // Previous tab keys
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.META_DOWN_MASK), "previousTab");
+            put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.CTRL_DOWN_MASK), "previousTab");
+        }
     }
 }
