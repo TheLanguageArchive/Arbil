@@ -202,9 +202,9 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             tabPane.add(fieldName + " " + titleCount++, tabPanel);
         }
 
-        if (tabPane.getSelectedIndex() < 0 && tabPane.getTabCount() > 0) {
-            tabPane.setSelectedIndex(0);
-        }
+//        if (tabPane.getSelectedIndex() < 0 && tabPane.getTabCount() > 0) {
+//            tabPane.setSelectedIndex(0);
+//        }
 
         return focusedTabTextArea;
     }
@@ -241,19 +241,18 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     public void updateEditor() {
         arbilFields = parentArbilDataNode.getFields().get(fieldName);
-        selectedField = Math.min(0, tabPane.getSelectedIndex());
+        selectedField = Math.max(0, Math.min(tabPane.getTabCount(), tabPane.getSelectedIndex()));
 
-        int selectedIndex = tabPane.getSelectedIndex();
         tabPane.removeAll();
         if (arbilFields != null && arbilFields.length > 0) {
             editorFrame.setTitle(getWindowTitle());
             JTextArea focusedTabTextArea = populateTabbedPane(null);
-            tabPane.setSelectedIndex(selectedField);
             fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
             focusedTabTextArea.requestFocusInWindow();
+            if (selectedField < tabPane.getTabCount()) {
+                tabPane.setSelectedIndex(selectedField);
+            }
         }
-        tabPane.setSelectedIndex(selectedIndex);
-
 
         // todo: this could be done more softly by using the below code when the fields have not been reloaded, but be carefull that the ImdiFields in the language boxes are not out of sync.
 //        // todo: the number of fields might have changed so we really should update the tabs or re create the form
