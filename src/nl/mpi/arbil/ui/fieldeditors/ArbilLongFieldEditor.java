@@ -33,7 +33,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilFieldComparator;
-import nl.mpi.arbil.data.ArrayComparator;
+import nl.mpi.arbil.util.ArrayComparator;
 
 /**
  *  Document   : ArbilLongFieldEditor

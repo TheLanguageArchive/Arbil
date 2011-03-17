@@ -1,4 +1,4 @@
-package nl.mpi.arbil.data;
+package nl.mpi.arbil.util;
 
 import java.util.Comparator;
 

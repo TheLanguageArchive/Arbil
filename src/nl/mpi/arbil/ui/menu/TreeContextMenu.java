@@ -20,7 +20,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
-import nl.mpi.arbil.data.ArrayComparator;
+import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
