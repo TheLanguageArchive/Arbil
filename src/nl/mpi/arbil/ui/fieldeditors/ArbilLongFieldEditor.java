@@ -1,15 +1,12 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -37,8 +34,6 @@ import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
-import nl.mpi.arbil.data.ArbilFieldComparator;
-import nl.mpi.arbil.util.ArrayComparator;
 
 /**
  *  Document   : ArbilLongFieldEditor
@@ -126,105 +121,104 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         requestFocusFor(focusedTabTextArea);
     }
 
+    private JPanel createKeyEditor(final int cellFieldIndex) {
+        // if this is a key type field then show the editing options
+        JPanel keyNamePanel = new JPanel(new BorderLayout());
+        keyEditorFields[cellFieldIndex] = new JTextField(arbilFields[cellFieldIndex].getKeyName());
+        keyEditorFields[cellFieldIndex].addFocusListener(editorFocusListener);
+        keyEditorFields[cellFieldIndex].setEditable(parentArbilDataNode.getParentDomNode().isEditable());
+        keyNamePanel.add(new JLabel("Key Name:"), BorderLayout.LINE_START);
+        keyNamePanel.add(keyEditorFields[cellFieldIndex], BorderLayout.CENTER);
+        return keyNamePanel;
+    }
+
+    private JPanel createLanguageBox(final int cellFieldIndex) {
+        fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(arbilFields[cellFieldIndex], null);
+        JPanel languagePanel = new JPanel(new BorderLayout());
+        languagePanel.add(new JLabel("Language:"), BorderLayout.LINE_START);
+        if (parentArbilDataNode.getParentDomNode().isEditable()) {
+            languagePanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.CENTER);
+        } else {
+            languagePanel.add(new JLabel(fieldLanguageBoxs[cellFieldIndex].getSelectedItem().toString()), BorderLayout.CENTER);
+        }
+        return languagePanel;
+    }
+
     private JComponent populateTabbedPane(String currentEditorText) {
-        int titleCount = 1;
-        JTextArea focusedTabTextArea = null;
+        //int titleCount = 1;
+        JTextArea focusComponent = null;
 
         fieldEditors = new JTextArea[arbilFields.length];
         keyEditorFields = new JTextField[arbilFields.length];
         fieldLanguageBoxs = new JComboBox[arbilFields.length];
 
-        FocusListener editorFocusListener = new FocusListener() {
-
-            public void focusGained(FocusEvent e) {
-            }
-
-            public void focusLost(FocusEvent e) {
-                storeChanges();
-            }
-        };
-
-        for (int cellFieldCounter = 0; cellFieldCounter < arbilFields.length; cellFieldCounter++) {
-            final int cellFieldIndex = cellFieldCounter;
-
-            JPanel tabPanel = new JPanel();
-            JPanel tabTitlePanel = new JPanel();
-            tabPanel.setLayout(new BorderLayout());
-            tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
-
-
-            JTextArea fieldDescription = null;
-            fieldDescription = new JTextArea();
-            fieldDescription.setLineWrap(true);
-            fieldDescription.setEditable(false);
-            fieldDescription.setOpaque(false);
-            fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
-            fieldDescription.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-
-            tabTitlePanel.add(fieldDescription);
-
-//                    ImdiField cellField = ((ImdiField) cellValue[cellFieldIndex]);
-//                    final ImdiField sourceField = cellValueItem;
+        for (int cellFieldIndex = 0; cellFieldIndex < arbilFields.length; cellFieldIndex++) {
             fieldEditors[cellFieldIndex] = new JTextArea();
-            if (focusedTabTextArea == null || selectedField == cellFieldCounter) {
+            if (focusComponent == null || selectedField == cellFieldIndex) {
                 // set the selected field as the first one or in the case of a single node being selected tab to its pane
-                focusedTabTextArea = fieldEditors[cellFieldIndex];
+                focusComponent = fieldEditors[cellFieldIndex];
             }
-            fieldEditors[cellFieldIndex].setEditable(parentArbilDataNode.getParentDomNode().isEditable());
-            fieldEditors[cellFieldIndex].addFocusListener(editorFocusListener);
-            // insert the last key for only the selected field
-            if (currentEditorText != null && (selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0))) {
-                fieldEditors[cellFieldIndex].setText(currentEditorText);
-            } else {
-                fieldEditors[cellFieldIndex].setText(arbilFields[cellFieldIndex].getFieldValue());
-            }
-            fieldEditors[cellFieldIndex].setLineWrap(true);
-            fieldEditors[cellFieldIndex].setWrapStyleWord(true);
-            fieldEditors[cellFieldIndex].setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(fieldEditors[cellFieldIndex].getInputMap()));
-            fieldEditors[cellFieldIndex].setActionMap(new lfeActionMap(fieldEditors[cellFieldIndex].getActionMap()));
 
-            fieldLanguageBoxs[cellFieldIndex] = null;
-            if (arbilFields[cellFieldIndex] instanceof ArbilField) {
-                if (arbilFields[cellFieldIndex].getLanguageId() != null) {
-                    fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(arbilFields[cellFieldIndex], null);
-                    JPanel languagePanel = new JPanel(new BorderLayout());
-                    languagePanel.add(new JLabel("Language:"), BorderLayout.LINE_START);
-                    if (parentArbilDataNode.getParentDomNode().isEditable()) {
-                        languagePanel.add(fieldLanguageBoxs[cellFieldIndex], BorderLayout.CENTER);
-                    } else {
-                        languagePanel.add(new JLabel(fieldLanguageBoxs[cellFieldIndex].getSelectedItem().toString()), BorderLayout.CENTER);
-                    }
-                    tabTitlePanel.add(languagePanel);
-                }
-            }
-            String keyName = arbilFields[cellFieldIndex].getKeyName();
-            if (keyName != null) { // if this is a key type field then show the editing options
-                JPanel keyNamePanel = new JPanel(new BorderLayout());
-                keyEditorFields[cellFieldIndex] = new JTextField(arbilFields[cellFieldCounter].getKeyName());
-                keyEditorFields[cellFieldIndex].addFocusListener(editorFocusListener);
-                keyEditorFields[cellFieldIndex].setEditable(parentArbilDataNode.getParentDomNode().isEditable());
-                keyNamePanel.add(new JLabel("Key Name:"), BorderLayout.LINE_START);
-                keyNamePanel.add(keyEditorFields[cellFieldIndex], BorderLayout.CENTER);
-                tabTitlePanel.add(keyNamePanel);
-            }
-//                    tabTitlePanel.add(new JLabel("Field Value"));
-//                    int layoutRowCount = tabTitlePanel.getComponentCount() / 2;
-//                    tabTitlePanel.setLayout(new GridLayout(layoutRowCount, 2));
-            tabPanel.add(tabTitlePanel, BorderLayout.PAGE_START);
-            tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
-            tabPane.add(fieldName + " " + titleCount++, tabPanel);
+            JPanel tabPanel = createTabPanel(cellFieldIndex, currentEditorText, createFieldDescription());
+            tabPane.add(fieldName + ((arbilFields.length <= 1)?"" : " " + (cellFieldIndex+1)), tabPanel);
         }
-
-//        if (tabPane.getSelectedIndex() < 0 && tabPane.getTabCount() > 0) {
-//            tabPane.setSelectedIndex(0);
-//        }
 
         // If field has language attribute but no language has been chosen yet, request focus on the language select drop down
         if (arbilFields[selectedField].getLanguageId() != null && arbilFields[selectedField].getLanguageId().isEmpty()) {
             return fieldLanguageBoxs[selectedField];
+        } else {
+            return focusComponent;
+        }
+    }
+
+    private JPanel createTabPanel(final int cellFieldIndex, String currentEditorText, JComponent fieldDescription) {
+        JPanel tabPanel = new JPanel();
+        JPanel tabTitlePanel = new JPanel();
+        tabPanel.setLayout(new BorderLayout());
+        tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
+
+        tabTitlePanel.add(fieldDescription);
+
+        initFieldEditor(cellFieldIndex, currentEditorText);
+
+        //fieldLanguageBoxs[cellFieldIndex] = null;
+        if (arbilFields[cellFieldIndex].getLanguageId() != null) {
+            tabTitlePanel.add(createLanguageBox(cellFieldIndex));
         }
 
-        return focusedTabTextArea;
+        if (arbilFields[cellFieldIndex].getKeyName() != null) {
+            tabTitlePanel.add(createKeyEditor(cellFieldIndex));
+        }
+
+        tabPanel.add(tabTitlePanel, BorderLayout.PAGE_START);
+        tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
+        return tabPanel;
+    }
+
+    private JTextArea createFieldDescription() {
+        JTextArea fieldDescription = null;
+        fieldDescription = new JTextArea();
+        fieldDescription.setLineWrap(true);
+        fieldDescription.setEditable(false);
+        fieldDescription.setOpaque(false);
+        fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
+        fieldDescription.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        return fieldDescription;
+    }
+
+    private void initFieldEditor(final int cellFieldIndex, String currentEditorText) {
+        fieldEditors[cellFieldIndex].setEditable(parentArbilDataNode.getParentDomNode().isEditable());
+        fieldEditors[cellFieldIndex].addFocusListener(editorFocusListener);
+        // insert the last key for only the selected field
+        if (currentEditorText != null && (selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0))) {
+            fieldEditors[cellFieldIndex].setText(currentEditorText);
+        } else {
+            fieldEditors[cellFieldIndex].setText(arbilFields[cellFieldIndex].getFieldValue());
+        }
+        fieldEditors[cellFieldIndex].setLineWrap(true);
+        fieldEditors[cellFieldIndex].setWrapStyleWord(true);
+        fieldEditors[cellFieldIndex].setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(fieldEditors[cellFieldIndex].getInputMap()));
+        fieldEditors[cellFieldIndex].setActionMap(new lfeActionMap(fieldEditors[cellFieldIndex].getActionMap()));
     }
 
     private String getWindowTitle() {
@@ -445,4 +439,13 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.CTRL_DOWN_MASK), "previousTab");
         }
     }
+    private FocusListener editorFocusListener = new FocusListener() {
+
+        public void focusGained(FocusEvent e) {
+        }
+
+        public void focusLost(FocusEvent e) {
+            storeChanges();
+        }
+    };
 }
