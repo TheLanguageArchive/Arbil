@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -13,6 +14,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.InputMap;
 import javax.swing.JButton;
@@ -26,8 +28,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -53,7 +57,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     JTextField keyEditorFields[] = null;
     JTextArea fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
-    JTextArea fieldDescription = null;
     JInternalFrame editorFrame = null;
     private JPanel contentPanel;
     private List<ArbilField[]> parentFieldList;
@@ -90,19 +93,16 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
         setParentFieldList();
 
+        contentPanel.removeAll();
+
+        JLabel parentLabel = new JLabel(parentArbilDataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(parentArbilDataNode), SwingConstants.LEADING);
+        parentLabel.setBorder(BorderFactory.createEmptyBorder(5,2,0,0));
+        contentPanel.add(parentLabel, BorderLayout.NORTH);
+
         tabPane = new JTabbedPane();
         final JComponent focusedTabTextArea = populateTabbedPane(currentEditorText);
-
-        fieldDescription = new JTextArea();
-        fieldDescription.setLineWrap(true);
-        fieldDescription.setEditable(false);
-        fieldDescription.setOpaque(false);
-        fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
-
-        contentPanel.removeAll();
-        contentPanel.add(fieldDescription, BorderLayout.PAGE_START);
         contentPanel.add(tabPane, BorderLayout.CENTER);
-        // todo: add next and previous buttons for the current file
+
         // todo: add all unused attributes as editable text
         editorFrame = ArbilWindowManager.getSingleInstance().createWindow(getWindowTitle(), this);
         editorFrame.addInternalFrameListener(new InternalFrameAdapter() {
@@ -146,6 +146,23 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
         for (int cellFieldCounter = 0; cellFieldCounter < arbilFields.length; cellFieldCounter++) {
             final int cellFieldIndex = cellFieldCounter;
+
+            JPanel tabPanel = new JPanel();
+            JPanel tabTitlePanel = new JPanel();
+            tabPanel.setLayout(new BorderLayout());
+            tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
+
+
+            JTextArea fieldDescription = null;
+            fieldDescription = new JTextArea();
+            fieldDescription.setLineWrap(true);
+            fieldDescription.setEditable(false);
+            fieldDescription.setOpaque(false);
+            fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
+            fieldDescription.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+
+            tabTitlePanel.add(fieldDescription);
+
 //                    ImdiField cellField = ((ImdiField) cellValue[cellFieldIndex]);
 //                    final ImdiField sourceField = cellValueItem;
             fieldEditors[cellFieldIndex] = new JTextArea();
@@ -166,10 +183,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             fieldEditors[cellFieldIndex].setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(fieldEditors[cellFieldIndex].getInputMap()));
             fieldEditors[cellFieldIndex].setActionMap(new lfeActionMap(fieldEditors[cellFieldIndex].getActionMap()));
 
-            JPanel tabPanel = new JPanel();
-            JPanel tabTitlePanel = new JPanel();
-            tabPanel.setLayout(new BorderLayout());
-            tabTitlePanel.setLayout(new BoxLayout(tabTitlePanel, BoxLayout.PAGE_AXIS));
             fieldLanguageBoxs[cellFieldIndex] = null;
             if (arbilFields[cellFieldIndex] instanceof ArbilField) {
                 if (arbilFields[cellFieldIndex].getLanguageId() != null) {
@@ -261,7 +274,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         if (arbilFields != null && arbilFields.length > 0) {
             editorFrame.setTitle(getWindowTitle());
             JComponent focusedTabTextArea = populateTabbedPane(null);
-            fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
+//            fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
             requestFocusFor(focusedTabTextArea);
             if (selectedField < tabPane.getTabCount()) {
                 tabPane.setSelectedIndex(selectedField);
