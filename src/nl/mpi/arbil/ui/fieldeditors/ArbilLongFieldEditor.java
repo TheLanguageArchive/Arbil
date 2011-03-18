@@ -91,7 +91,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         setParentFieldList();
 
         tabPane = new JTabbedPane();
-        JTextArea focusedTabTextArea = populateTabbedPane(currentEditorText);
+        final JComponent focusedTabTextArea = populateTabbedPane(currentEditorText);
 
         fieldDescription = new JTextArea();
         fieldDescription.setLineWrap(true);
@@ -123,10 +123,10 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             tabPane.setSelectedIndex(0);
         }
         setNavigationEnabled();
-        focusedTabTextArea.requestFocusInWindow();
+        requestFocusFor(focusedTabTextArea);
     }
 
-    private JTextArea populateTabbedPane(String currentEditorText) {
+    private JComponent populateTabbedPane(String currentEditorText) {
         int titleCount = 1;
         JTextArea focusedTabTextArea = null;
 
@@ -206,6 +206,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 //            tabPane.setSelectedIndex(0);
 //        }
 
+        // If field has language attribute but no language has been chosen yet, request focus on the language select drop down
+        if (arbilFields[selectedField].getLanguageId() != null && arbilFields[selectedField].getLanguageId().isEmpty()) {
+            return fieldLanguageBoxs[selectedField];
+        }
+
         return focusedTabTextArea;
     }
 
@@ -239,6 +244,15 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         prevButton.setEnabled(index > 0);
     }
 
+    private void requestFocusFor(final JComponent component) {
+        EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                component.requestFocusInWindow();
+            }
+        });
+    }
+
     public void updateEditor() {
         arbilFields = parentArbilDataNode.getFields().get(fieldName);
         selectedField = Math.max(0, Math.min(tabPane.getTabCount(), tabPane.getSelectedIndex()));
@@ -246,9 +260,9 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         tabPane.removeAll();
         if (arbilFields != null && arbilFields.length > 0) {
             editorFrame.setTitle(getWindowTitle());
-            JTextArea focusedTabTextArea = populateTabbedPane(null);
+            JComponent focusedTabTextArea = populateTabbedPane(null);
             fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
-            focusedTabTextArea.requestFocusInWindow();
+            requestFocusFor(focusedTabTextArea);
             if (selectedField < tabPane.getTabCount()) {
                 tabPane.setSelectedIndex(selectedField);
             }
@@ -335,12 +349,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             index = Math.max(tabPane.getSelectedIndex() - 1, 0);
         }
         tabPane.setSelectedIndex(index);
-        EventQueue.invokeLater(new Runnable() {
-
-            public void run() {
-                fieldEditors[index].requestFocusInWindow();
-            }
-        });
+        requestFocusFor(fieldEditors[index]);
     }
 
     private void moveAdjacent(int d) {
