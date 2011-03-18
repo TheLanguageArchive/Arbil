@@ -72,8 +72,8 @@ public class TreeContextMenu extends ArbilContextMenu {
         showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
         viewSelectedNodesMenuItem.setText("View Selected");
-        viewSelectedSubnodesMenuItem.setText("View/edit all metadata");
-        editInLongFieldEditor.setText("Edit in Long Field Editor");
+        viewSelectedSubnodesMenuItem.setText("View/edit all Metadata");
+        editInLongFieldEditor.setText("View/edit in Long Field Editor");
 //        mergeWithFavouritesMenu.setEnabled(false);
         deleteMenuItem.setEnabled(true);
 
@@ -141,14 +141,15 @@ public class TreeContextMenu extends ArbilContextMenu {
             addToFavouritesMenuItem.setVisible(false);
         }
 
-        copyNodeUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1); // show the copy menu providing some nodes are selected and the root node is not the only one selected
+        ArbilDataNode[] selectedNodes = tree.getSelectedNodes();
 
+        copyNodeUrlMenuItem.setVisible((selectionCount == 1 && nodeLevel > 1) || selectionCount > 1);
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1
-                && (tree.getSelectedNodes()[0].isMetaDataNode() && !tree.getSelectedNodes()[0].isCatalogue() && !tree.getSelectedNodes()[0].isCorpus()));
+                && selectedNodes[0].isMetaDataNode()  && !tree.getSelectedNodes()[0].isCorpus());
         editInLongFieldEditor.setVisible(selectionCount > 0 && nodeLevel > 1
-                && (tree.getSelectedNodes()[0].isMetaDataNode() && !tree.getSelectedNodes()[0].isCatalogue() && !tree.getSelectedNodes()[0].isCorpus()));
+                && !selectedNodes[0].isEmptyMetaNode());
     }
 
     private void setUpActions() {
@@ -161,7 +162,6 @@ public class TreeContextMenu extends ArbilContextMenu {
         });
         addItem(CATEGORY_NODE, PRIORITY_TOP, viewSelectedNodesMenuItem);
 
-        viewSelectedSubnodesMenuItem.setText("View/edit all metadata");
         viewSelectedSubnodesMenuItem.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
