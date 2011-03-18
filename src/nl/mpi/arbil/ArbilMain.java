@@ -22,6 +22,8 @@ public class ArbilMain extends javax.swing.JFrame {
 //    static boolean updateViaJavaws = false;
 
     public ArbilMain() {
+        ArbilInjector.injectHandlers();
+
         this.addWindowListener(new WindowAdapter() {
 
             @Override
@@ -31,7 +33,6 @@ public class ArbilMain extends javax.swing.JFrame {
             }
         });
 
-        ArbilInjector.injectHandlers();
         
         initComponents();
         PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel();

@@ -44,15 +44,15 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilInjector {
 
+    private final static BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
     private final static MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
     private final static WindowManager windowManager = ArbilWindowManager.getSingleInstance();
-    private final static BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
     private final static ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public static void injectHandlers() {
+    public static synchronized void injectHandlers() {
         // Inject window manager
         ArbilBugCatcher.setWindowManager(windowManager);
         ArbilSessionStorage.setWindowManager(windowManager);

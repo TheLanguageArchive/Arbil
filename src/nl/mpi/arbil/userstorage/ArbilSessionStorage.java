@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
+import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
@@ -63,6 +64,14 @@ public class ArbilSessionStorage {
     private static WindowManager windowManager;
     public static void setWindowManager(WindowManager windowManagerInstance){
         windowManager = windowManagerInstance;
+    }
+
+    private static void logError(Exception exception){
+        if(bugCatcher != null){
+            bugCatcher.logError(exception);
+        } else{
+            System.out.println("BUGCATCHER: " + exception.getMessage());
+        }
     }
 
     public File storageDirectory = null;
@@ -150,7 +159,7 @@ public class ArbilSessionStorage {
         }
         if (foundDirectoryCount > 1) {
             String errorMessage = "More than one storage directory has been found.\nIt is recommended to remove any unused directories in this list.\nNote that the first occurrence is currently in use:\n" + storageDirectoryMessageString;
-            bugCatcher.logError(new Exception(errorMessage));
+            logError(new Exception(errorMessage));
         }
     }
 
@@ -191,7 +200,7 @@ public class ArbilSessionStorage {
             toDirectoryUriString = URLDecoder.decode(toDirectoryUriString, "UTF-8");
             fromDirectoryUriString = URLDecoder.decode(fromDirectoryUriString, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
-            bugCatcher.logError(uee);
+            logError(uee);
         }
         boolean success = fromDirectory.renameTo(toDirectory);
         if (!success) {
@@ -229,7 +238,7 @@ public class ArbilSessionStorage {
                 TreeHelper.getSingleInstance().applyRootLocations();
                 windowManager.closeAllWindows();
             } catch (Exception ex) {
-                bugCatcher.logError(ex);
+                logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
             }
 //            TreeHelper.getSingleInstance().loadLocationsList();
@@ -358,7 +367,7 @@ public class ArbilSessionStorage {
                 System.out.println("returnUri: " + returnUri);
             }
         } catch (URISyntaxException urise) {
-            bugCatcher.logError(urise);
+            logError(urise);
         }
         return returnUri;
     }
@@ -472,7 +481,7 @@ public class ArbilSessionStorage {
                 in.close();
                 return stringArrayList.toArray(new String[]{});
             } catch (IOException exception) {
-                bugCatcher.logError(exception);
+                logError(exception);
             }
         }
         return null;
@@ -508,7 +517,7 @@ public class ArbilSessionStorage {
             destinationConfigFile.delete();
             tempConfigFile.renameTo(destinationConfigFile);
         } catch (Exception exception) {
-            bugCatcher.logError(exception);
+            logError(exception);
         }
 //        try {
 //            Properties propertiesObject = new Properties();
@@ -570,7 +579,7 @@ public class ArbilSessionStorage {
             configObject.store(propertiesOutputStream, null);
             propertiesOutputStream.close();
         } catch (IOException ioe) {
-            bugCatcher.logError(ioe);
+            logError(ioe);
         }
     }
 
@@ -615,7 +624,7 @@ public class ArbilSessionStorage {
         try {
             saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
         } catch (MalformedURLException mul) {
-            bugCatcher.logError(pathString, mul);
+            logError(new Exception(pathString, mul));
         }
         return cachePath;
     }
@@ -626,7 +635,7 @@ public class ArbilSessionStorage {
         try {
             fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag(), null);
         } catch (MalformedURLException mul) {
-            bugCatcher.logError(mul);
+            logError(mul);
         }
         return fileDownloadedBoolean;
     }
@@ -680,12 +689,12 @@ public class ArbilSessionStorage {
         try {
             pathString = URLDecoder.decode(pathString, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
-            bugCatcher.logError(uee);
+            logError(uee);
         }
         pathString = pathString.replace("//", "/");
         for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", "ArbilWorkingFiles"}) {
             if (pathString.indexOf(searchString) > -1) {
-                bugCatcher.logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
+                logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
                 pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
             }
         }
@@ -789,7 +798,7 @@ public class ArbilSessionStorage {
                     System.out.println("Downloaded: " + totalRead / (1024*1024) + " Mb");
                 }
             } catch (Exception ex) {
-                bugCatcher.logError(ex);
+                logError(ex);
 //                System.out.println(ex.getMessage());
             }
         }
