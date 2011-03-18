@@ -14,10 +14,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JDialog;
@@ -31,6 +33,9 @@ import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
+import nl.mpi.arbil.data.ArbilFieldComparator;
+import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
+import nl.mpi.arbil.util.ArrayComparator;
 
 /**
  * Document   : ArbilTable
@@ -527,10 +532,24 @@ public class ArbilTable extends JTable {
                 }
             }
             for (int currentRow : selectedRows) {
-                for (int currentCol : selectedCols) {
-                    Object currentCellValue = this.getValueAt(currentRow, currentCol);
-                    if (currentCellValue instanceof ArbilField || currentCellValue instanceof ArbilField[]) {
-                        new ArbilTableCellEditor().startLongfieldEditor(this, currentCellValue, false, currentRow, currentCol);
+                if (arbilTableModel.isHorizontalView() && getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION && getSelectedColumnCount() > 0) {
+                    // Entire row selected in horizontal view - try to open the long field editor for data node
+                    Object currentCellValue = this.getValueAt(currentRow, getSelectedColumns()[0]);
+                    if (currentCellValue instanceof ArbilDataNode) {
+                        ArbilDataNode node = (ArbilDataNode) currentCellValue;
+                        if (node.getFields().size() > 0) {
+                            // Get fields for the node
+                            List<ArbilField[]> fieldArrays = node.getFieldsSorted();
+                            // Show the editor
+                            new ArbilLongFieldEditor(this).showEditor(fieldArrays.get(0), fieldArrays.get(0)[0].getFieldValue(), 0);
+                        }
+                    }
+                } else {
+                    for (int currentCol : selectedCols) {
+                        Object currentCellValue = this.getValueAt(currentRow, currentCol);
+                        if (currentCellValue instanceof ArbilField || currentCellValue instanceof ArbilField[]) {
+                            new ArbilTableCellEditor().startLongfieldEditor(this, currentCellValue, false, currentRow, currentCol);
+                        }
                     }
                 }
             }

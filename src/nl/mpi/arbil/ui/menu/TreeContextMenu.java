@@ -147,7 +147,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         viewSelectedNodesMenuItem.setVisible(selectionCount >= 1 && nodeLevel > 1);
         reloadSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
         viewSelectedSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1
-                && selectedNodes[0].isMetaDataNode()  && !tree.getSelectedNodes()[0].isCorpus());
+                && selectedNodes[0].isMetaDataNode() && !tree.getSelectedNodes()[0].isCorpus());
         editInLongFieldEditor.setVisible(selectionCount > 0 && nodeLevel > 1
                 && !selectedNodes[0].isEmptyMetaNode());
     }
@@ -177,7 +177,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 startLongFieldEditor();
             }
         });
-        addItem(CATEGORY_NODE, PRIORITY_TOP+2, editInLongFieldEditor);
+        addItem(CATEGORY_NODE, PRIORITY_TOP + 2, editInLongFieldEditor);
 
         deleteMenuItem.setText("Delete");
         deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -811,12 +811,10 @@ public class TreeContextMenu extends ArbilContextMenu {
      */
     private void startLongFieldEditor() {
         ArbilDataNode[] selectedNodes = ((ArbilTree) getInvoker()).getSelectedNodes();
-        for(ArbilDataNode node: selectedNodes){
-            if(node.getFields().size() > 0){
+        for (ArbilDataNode node : selectedNodes) {
+            if (node.getFields().size() > 0) {
                 // Get fields for the node
-                List<ArbilField[]> fieldArrays = new ArrayList<ArbilField[]>(node.getFields().values());
-                // Sort nodes using arbil field comparator, so that the order matches the default order in the table view (i.e. what the user expects)
-                Collections.sort(fieldArrays, new ArrayComparator<ArbilField>(new ArbilFieldComparator(),0));
+                List<ArbilField[]> fieldArrays = node.getFieldsSorted();
                 // Show the editor
                 new ArbilLongFieldEditor().showEditor(fieldArrays.get(0), fieldArrays.get(0)[0].getFieldValue(), 0);
             }

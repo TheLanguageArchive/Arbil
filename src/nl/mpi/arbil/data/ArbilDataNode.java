@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
@@ -92,17 +94,14 @@ public class ArbilDataNode implements Comparable {
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
     private static String NODE_LOADING_TEXT = "loading node...";
-
     private static MessageDialogHandler messageDialogHandler;
 
-    public static void setMessageDialogHandler(MessageDialogHandler handler)
-    {
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
 
@@ -1158,6 +1157,16 @@ public class ArbilDataNode implements Comparable {
         return fieldHashtable;
     }
 
+    /**
+     * Returns the fields of this data note sorted by field order
+     * @return
+     */
+    public List<ArbilField[]> getFieldsSorted() {
+        List<ArbilField[]> fieldArrays = new ArrayList<ArbilField[]>(getFields().values());
+        Collections.sort(fieldArrays, new ArrayComparator<ArbilField>(new ArbilFieldComparator(), 0));
+        return fieldArrays;
+    }
+
     //    public String getCommonFieldPathString() {
     //        // find repetitious path strings in the fields for this node so they can be omitted from the table display
     //        if (commonFieldPathString == null) {
@@ -1826,7 +1835,7 @@ public class ArbilDataNode implements Comparable {
         for (ArbilDataNode currentChildNode : this.getAllChildren()) {
             currentChildNode.removeFromAllContainers();
         }
-        for (ArbilDataNodeContainer currentContainer : containersOfThisNode.toArray(new ArbilDataNodeContainer[]{})){
+        for (ArbilDataNodeContainer currentContainer : containersOfThisNode.toArray(new ArbilDataNodeContainer[]{})) {
             try {
                 //ArbilDataNodeContainer currentContainer = containersIterator.nextElement();
                 currentContainer.dataNodeRemoved(this);

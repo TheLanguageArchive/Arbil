@@ -77,11 +77,11 @@ public class TableContextMenu extends ArbilContextMenu {
                 copyCellToColumnMenuItem.setVisible(true);
                 hideSelectedColumnsMenuItem.setVisible(true);
             }
-            if (!table.arbilTableModel.isHorizontalView() || table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+            //if (!table.arbilTableModel.isHorizontalView() || table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
                 // show the cell only menu items
                 openInLongFieldEditorMenuItem.setVisible(true); // this should not show for the node icon cell
                 matchingCellsMenuItem.setVisible(true);
-            }
+            //}
             jumpToNodeInTreeMenuItem.setVisible(true);
             clearCellColoursMenuItem.setVisible(true);
         }

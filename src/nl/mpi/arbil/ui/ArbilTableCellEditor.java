@@ -238,7 +238,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
             }
             new ArbilLongFieldEditor(parentTable).showEditor((ArbilField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ArbilField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
         }
-
     }
 
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {

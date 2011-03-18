@@ -96,7 +96,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         contentPanel.removeAll();
 
         JLabel parentLabel = new JLabel(parentArbilDataNode.toString(), ArbilIcons.getSingleInstance().getIconForNode(parentArbilDataNode), SwingConstants.LEADING);
-        parentLabel.setBorder(BorderFactory.createEmptyBorder(5,2,0,0));
+        parentLabel.setBorder(BorderFactory.createEmptyBorder(5, 2, 0, 0));
         contentPanel.add(parentLabel, BorderLayout.NORTH);
 
         tabPane = new JTabbedPane();
@@ -247,8 +247,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     }
 
     private void setParentFieldList() {
-        parentFieldList = new ArrayList<ArbilField[]>(parentArbilDataNode.getFields().values());
-        Collections.sort(parentFieldList, new ArrayComparator<ArbilField>(new ArbilFieldComparator(), 0));
+        parentFieldList = parentArbilDataNode.getFieldsSorted();
     }
 
     private void setNavigationEnabled() {
