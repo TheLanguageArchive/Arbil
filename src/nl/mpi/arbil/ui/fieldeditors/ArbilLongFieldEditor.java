@@ -160,7 +160,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             }
 
             JPanel tabPanel = createTabPanel(cellFieldIndex, currentEditorText, createFieldDescription());
-            tabPane.add(fieldName + ((arbilFields.length <= 1)?"" : " " + (cellFieldIndex+1)), tabPanel);
+            tabPane.add(fieldName + ((arbilFields.length <= 1) ? "" : " " + (cellFieldIndex + 1)), tabPanel);
         }
 
         // If field has language attribute but no language has been chosen yet, request focus on the language select drop down
@@ -315,14 +315,21 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         editorFrame.doDefaultCloseAction();
     }
 
-    public void storeChanges() {
+    public synchronized void storeChanges() {
         if (arbilFields != null) {
             for (int cellFieldCounter = 0; cellFieldCounter < arbilFields.length; cellFieldCounter++) {
                 ArbilField cellField = (ArbilField) arbilFields[cellFieldCounter];
                 if (cellField.parentDataNode.getParentDomNode().isEditable()) {
                     cellField.setFieldValue(fieldEditors[cellFieldCounter].getText(), true, false);
                     if (keyEditorFields[cellFieldCounter] != null) {
-                        cellField.setKeyName(keyEditorFields[cellFieldCounter].getText(), true, false);
+                        // Remember index of current field
+                        int index = parentFieldList.indexOf(arbilFields);
+                        // Let field apply new name if necessary
+                        if (cellField.setKeyName(keyEditorFields[cellFieldCounter].getText(), true, false)) {
+                            // Field name has changed, reload as required
+                            setParentFieldList();
+                            moveTo(index);
+                        }
                     }
                 }
             }
@@ -363,11 +370,16 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         index += d;
         if (index < parentFieldList.size() && index >= 0) {
             storeChanges();
-            fieldName = parentFieldList.get(index)[0].getTranslateFieldName();
-            updateEditor();
-            setNavigationEnabled();
+            moveTo(index);
         }
     }
+
+    private void moveTo(int index) {
+        fieldName = parentFieldList.get(index)[0].getTranslateFieldName();
+        updateEditor();
+        setNavigationEnabled();
+    }
+    
     private Action nextAction = new AbstractAction() {
 
         public void actionPerformed(ActionEvent e) {

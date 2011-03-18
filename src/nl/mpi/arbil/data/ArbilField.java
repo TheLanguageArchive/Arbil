@@ -242,7 +242,7 @@ public class ArbilField {
         }
         if (hasVocabularyType) {
             if (cvUrlString != null && cvUrlString.length() > 0) {
-                    fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
+                fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
                 if (cvUrlString.equals(DocumentationLanguages.getLanguageVocabularyUrl())) {
                     fieldVocabulary.setFilter(DocumentationLanguages.getSingleInstance());
                 }
@@ -276,7 +276,14 @@ public class ArbilField {
         return keyName;
     }
 
-    public void setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
+    /**
+     *
+     * @param keyNameLocal
+     * @param updateUI
+     * @param excludeFromUndoHistory
+     * @return Key name has actually been changed
+     */
+    public boolean setKeyName(String keyNameLocal, boolean updateUI, boolean excludeFromUndoHistory) {
         // todo: put this in to a syncronised lock so that it cannot change the value while the node is being modified
         // todo: consider the case of the node reloading with a different xpath then the lock allowing the edit, so it would be better to prevent the starting of the edit in the first place
         System.out.println("setKeyName: " + keyNameLocal);
@@ -293,11 +300,15 @@ public class ArbilField {
                 keyName = keyNameLocal;
                 translatedPath = null;
                 getTranslateFieldName();
-//                addFieldAttribute("Name", keyNameLocal);
                 parentDataNode.setDataNodeNeedsSaveToDisk(this, updateUI);
-//                }
+                if (parentDataNode.getNeedsSaveToDisk(false)) {
+                    parentDataNode.saveChangesToCache(true);
+                }
+                parentDataNode.reloadNode();
+                return true;
             }
         }
+        return false;
     }
 
     public String getTranslateFieldName() {
