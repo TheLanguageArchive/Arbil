@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -50,7 +51,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     int selectedField = -1;
 //    Object[] cellValue;
     JTextField keyEditorFields[] = null;
-    JTextArea fieldEditors[] = null;
+    JComponent fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
     JInternalFrame editorFrame = null;
     private JPanel contentPanel;
@@ -146,14 +147,18 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private JComponent populateTabbedPane(String currentEditorText) {
         //int titleCount = 1;
-        JTextArea focusComponent = null;
+        JComponent focusComponent = null;
 
-        fieldEditors = new JTextArea[arbilFields.length];
+        fieldEditors = new JComponent[arbilFields.length];
         keyEditorFields = new JTextField[arbilFields.length];
         fieldLanguageBoxs = new JComboBox[arbilFields.length];
 
         for (int cellFieldIndex = 0; cellFieldIndex < arbilFields.length; cellFieldIndex++) {
-            fieldEditors[cellFieldIndex] = new JTextArea();
+            if (arbilFields[cellFieldIndex].hasVocabulary()) {
+                fieldEditors[cellFieldIndex] = new ControlledVocabularyComboBox(arbilFields[cellFieldIndex]);
+            } else {
+                fieldEditors[cellFieldIndex] = new JTextArea();
+            }
             if (focusComponent == null || selectedField == cellFieldIndex) {
                 // set the selected field as the first one or in the case of a single node being selected tab to its pane
                 focusComponent = fieldEditors[cellFieldIndex];
@@ -191,7 +196,15 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         }
 
         tabPanel.add(tabTitlePanel, BorderLayout.PAGE_START);
-        tabPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
+
+        JPanel editorPanel = new JPanel(new BorderLayout());
+        editorPanel.setBackground(Color.white);
+        if (fieldEditors[cellFieldIndex] instanceof JTextArea) {
+            editorPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
+        } else if (fieldEditors[cellFieldIndex] instanceof ControlledVocabularyComboBox) {
+            editorPanel.add(fieldEditors[cellFieldIndex], BorderLayout.PAGE_START);
+        }
+        tabPanel.add(editorPanel, BorderLayout.CENTER);
         return tabPanel;
     }
 
@@ -207,16 +220,30 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     }
 
     private void initFieldEditor(final int cellFieldIndex, String currentEditorText) {
-        fieldEditors[cellFieldIndex].setEditable(parentArbilDataNode.getParentDomNode().isEditable());
-        fieldEditors[cellFieldIndex].addFocusListener(editorFocusListener);
-        // insert the last key for only the selected field
-        if (currentEditorText != null && (selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0))) {
-            fieldEditors[cellFieldIndex].setText(currentEditorText);
-        } else {
-            fieldEditors[cellFieldIndex].setText(arbilFields[cellFieldIndex].getFieldValue());
+        String text = currentEditorText;
+        if ((currentEditorText == null || !(selectedField == cellFieldIndex || (selectedField == -1 && cellFieldIndex == 0)))) {
+            text = arbilFields[cellFieldIndex].getFieldValue();
         }
-        fieldEditors[cellFieldIndex].setLineWrap(true);
-        fieldEditors[cellFieldIndex].setWrapStyleWord(true);
+
+        if (fieldEditors[cellFieldIndex] instanceof JTextArea) {
+            JTextArea fieldEditor = (JTextArea) fieldEditors[cellFieldIndex];
+
+            fieldEditor.setEditable(parentArbilDataNode.getParentDomNode().isEditable());
+            // insert the last key for only the selected field
+            fieldEditor.setText(text);
+            fieldEditor.setLineWrap(true);
+            fieldEditor.setWrapStyleWord(true);
+        } else {
+            ControlledVocabularyComboBox fieldEditor = (ControlledVocabularyComboBox) fieldEditors[cellFieldIndex];
+            ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(text, arbilFields[cellFieldIndex], fieldEditor);
+            fieldEditor.setEditor(cvcbEditor);
+
+            cvcbEditor.setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(cvcbEditor.getInputMap()));
+            cvcbEditor.setActionMap(new lfeActionMap(cvcbEditor.getActionMap()));
+
+            fieldEditor.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        }
+        fieldEditors[cellFieldIndex].addFocusListener(editorFocusListener);
         fieldEditors[cellFieldIndex].setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(fieldEditors[cellFieldIndex].getInputMap()));
         fieldEditors[cellFieldIndex].setActionMap(new lfeActionMap(fieldEditors[cellFieldIndex].getActionMap()));
     }
@@ -320,7 +347,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             for (int cellFieldCounter = 0; cellFieldCounter < arbilFields.length; cellFieldCounter++) {
                 ArbilField cellField = (ArbilField) arbilFields[cellFieldCounter];
                 if (cellField.parentDataNode.getParentDomNode().isEditable()) {
-                    cellField.setFieldValue(fieldEditors[cellFieldCounter].getText(), true, false);
+                    if (fieldEditors[cellFieldCounter] instanceof JTextArea) {
+                        cellField.setFieldValue(((JTextArea) fieldEditors[cellFieldCounter]).getText(), true, false);
+                    } else if (fieldEditors[cellFieldCounter] instanceof ControlledVocabularyComboBox) {
+                        cellField.setFieldValue(((ControlledVocabularyComboBox) fieldEditors[cellFieldCounter]).getCurrentValue(), true, false);
+                    }
                     if (keyEditorFields[cellFieldCounter] != null) {
                         // Remember index of current field
                         int index = parentFieldList.indexOf(arbilFields);
@@ -379,7 +410,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         updateEditor();
         setNavigationEnabled();
     }
-    
+
     private Action nextAction = new AbstractAction() {
 
         public void actionPerformed(ActionEvent e) {

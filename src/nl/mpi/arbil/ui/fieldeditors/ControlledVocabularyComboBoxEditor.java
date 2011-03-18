@@ -119,17 +119,21 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
     }
 
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER
-                || (targetField.isVocabularyList() && e.getKeyChar() == SEPARATOR)) {
-            // ENTER pressed or SEPARATOR in list field.
-            // Autocomplete current item
-            handleAutocompleteKey(e);
-        } else if (e.isActionKey()) {
-            // Navigate combo items
-            handleNavigateComboKey(e);
+        if (!comboBox.isPopupVisible()) {
+            comboBox.setPopupVisible(true);
         } else {
-            // Probably text entry
-            handleTextEntryKey(e);
+            if (e.getKeyCode() == KeyEvent.VK_ENTER
+                    || (targetField.isVocabularyList() && e.getKeyChar() == SEPARATOR)) {
+                // ENTER pressed or SEPARATOR in list field.
+                // Autocomplete current item
+                handleAutocompleteKey(e);
+            } else if (e.isActionKey()) {
+                // Navigate combo items
+                handleNavigateComboKey(e);
+            } else {
+                // Probably text entry
+                handleTextEntryKey(e);
+            }
         }
     }
 
@@ -154,18 +158,20 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
     }
 
     private void handleNavigateComboKey(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            moveSelectedIndex(+1);
-            e.consume();
-        } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-            moveSelectedIndex(-1);
-            e.consume();
-        } else if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-            moveSelectedIndex(+5);
-            e.consume();
-        } else if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-            moveSelectedIndex(-5);
-            e.consume();
+        if (e.getModifiers() == 0) {
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                moveSelectedIndex(+1);
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                moveSelectedIndex(-1);
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+                moveSelectedIndex(+5);
+                e.consume();
+            } else if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
+                moveSelectedIndex(-5);
+                e.consume();
+            }
         }
     }
 
