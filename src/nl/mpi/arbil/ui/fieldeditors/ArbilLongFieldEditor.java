@@ -354,7 +354,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         setNavigationEnabled();
     }
 
-    private void changeTab(int d) {
+    private synchronized void changeTab(int d) {
         final int index;
         if (d > 0) {
             index = Math.min(tabPane.getSelectedIndex() + 1, tabPane.getTabCount() - 1);
@@ -365,7 +365,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         requestFocusFor(fieldEditors[index]);
     }
 
-    private void moveAdjacent(int d) {
+    private synchronized void moveAdjacent(int d) {
         int index = parentFieldList.indexOf(arbilFields);
         index += d;
         if (index < parentFieldList.size() && index >= 0) {
@@ -374,7 +374,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         }
     }
 
-    private void moveTo(int index) {
+    private synchronized void moveTo(int index) {
         fieldName = parentFieldList.get(index)[0].getTranslateFieldName();
         updateEditor();
         setNavigationEnabled();
