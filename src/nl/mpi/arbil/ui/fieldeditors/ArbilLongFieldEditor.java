@@ -14,6 +14,7 @@ import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -164,7 +165,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
                 focusComponent = fieldEditors[cellFieldIndex];
             }
 
-            JPanel tabPanel = createTabPanel(cellFieldIndex, currentEditorText, createFieldDescription());
+            JPanel tabPanel = createTabPanel(cellFieldIndex, currentEditorText, createFieldDescription(cellFieldIndex));
             tabPane.add(fieldName + ((arbilFields.length <= 1) ? "" : " " + (cellFieldIndex + 1)), tabPanel);
         }
 
@@ -208,15 +209,31 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         return tabPanel;
     }
 
-    private JTextArea createFieldDescription() {
+    private JComponent createFieldDescription(int cellFieldIndex) {
+        // Create actual description textarea
         JTextArea fieldDescription = null;
         fieldDescription = new JTextArea();
         fieldDescription.setLineWrap(true);
         fieldDescription.setEditable(false);
         fieldDescription.setOpaque(false);
-        fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[0].getFullXmlPath()));
-        fieldDescription.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        return fieldDescription;
+        fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[cellFieldIndex].getFullXmlPath()));
+
+        JComponent component = fieldDescription;
+        // Try to find an icon for the field
+        Icon icon = ArbilIcons.getSingleInstance().getIconForField(arbilFields[cellFieldIndex]);
+        if (icon != null) {
+            // Add description text and icon to a panel
+            JPanel panel = new JPanel(new BorderLayout());
+            JLabel iconLabel = new JLabel(icon);
+            iconLabel.setVerticalAlignment(SwingConstants.TOP);
+            panel.add(fieldDescription, BorderLayout.CENTER);
+            panel.add(iconLabel, BorderLayout.LINE_END);
+            component = panel;
+        }
+
+        // Apply some padding to the component (i.e. text area or iconed panel)
+        component.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        return component;
     }
 
     private void initFieldEditor(final int cellFieldIndex, String currentEditorText) {
@@ -410,7 +427,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         updateEditor();
         setNavigationEnabled();
     }
-
     private Action nextAction = new AbstractAction() {
 
         public void actionPerformed(ActionEvent e) {
