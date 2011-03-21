@@ -199,7 +199,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         tabPanel.add(tabTitlePanel, BorderLayout.PAGE_START);
 
         JPanel editorPanel = new JPanel(new BorderLayout());
-        editorPanel.setBackground(Color.white);
         if (fieldEditors[cellFieldIndex] instanceof JTextArea) {
             editorPanel.add(new JScrollPane(fieldEditors[cellFieldIndex]), BorderLayout.CENTER);
         } else if (fieldEditors[cellFieldIndex] instanceof ControlledVocabularyComboBox) {
