@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.JLabel;
@@ -37,7 +37,6 @@ import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
-import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
@@ -268,7 +267,7 @@ public class ArbilSessionStorage {
             System.getenv("USERPROFILE") + File.separatorChar + ".linorg" + File.separatorChar,
             System.getProperty("user.dir") + File.separatorChar + ".linorg" + File.separatorChar
         };
-        HashSet<String> uniqueArray = new HashSet<String>();
+        List<String> uniqueArray = new ArrayList<String>();
         uniqueArray.addAll(Arrays.asList(locationOptions));
         for (Iterator<String> iterator = uniqueArray.iterator(); iterator.hasNext();) {
             String element = iterator.next();
