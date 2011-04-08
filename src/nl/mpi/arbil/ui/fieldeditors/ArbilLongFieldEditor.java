@@ -362,23 +362,37 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     public synchronized void storeChanges() {
         if (arbilFields != null) {
             for (int cellFieldCounter = 0; cellFieldCounter < arbilFields.length; cellFieldCounter++) {
-                ArbilField cellField = (ArbilField) arbilFields[cellFieldCounter];
-                if (cellField.parentDataNode.getParentDomNode().isEditable()) {
-                    if (fieldEditors[cellFieldCounter] instanceof JTextArea) {
-                        cellField.setFieldValue(((JTextArea) fieldEditors[cellFieldCounter]).getText(), true, false);
-                    } else if (fieldEditors[cellFieldCounter] instanceof ControlledVocabularyComboBox) {
-                        cellField.setFieldValue(((ControlledVocabularyComboBox) fieldEditors[cellFieldCounter]).getCurrentValue(), true, false);
-                    }
-                    if (keyEditorFields[cellFieldCounter] != null) {
-                        // Remember index of current field
-                        int index = parentFieldList.indexOf(arbilFields);
-                        // Let field apply new name if necessary
-                        if (cellField.setKeyName(keyEditorFields[cellFieldCounter].getText(), true, false)) {
-                            // Field name has changed, reload as required
-                            setParentFieldList();
-                            moveTo(index);
-                        }
-                    }
+                checkSaveCellField(cellFieldCounter);
+            }
+        }
+    }
+
+    private void checkSaveCellField(int cellFieldIndex) {
+        final ArbilField cellField = (ArbilField) arbilFields[cellFieldIndex];
+        if (cellField.parentDataNode.getParentDomNode().isEditable()) {
+            if (fieldEditors[cellFieldIndex] instanceof JTextArea) {
+                cellField.setFieldValue(((JTextArea) fieldEditors[cellFieldIndex]).getText(), true, false);
+            } else if (fieldEditors[cellFieldIndex] instanceof ControlledVocabularyComboBox) {
+                cellField.setFieldValue(((ControlledVocabularyComboBox) fieldEditors[cellFieldIndex]).getCurrentValue(), true, false);
+            }
+            if (keyEditorFields[cellFieldIndex] != null) {
+                checkSaveKeyEditorField(cellFieldIndex);
+            }
+        }
+    }
+
+    private void checkSaveKeyEditorField(int cellFieldIndex) {
+        final ArbilField cellField = (ArbilField) arbilFields[cellFieldIndex];
+        if (!keyEditorFields[cellFieldIndex].getText().equals(arbilFields[cellFieldIndex].getKeyName())) {
+            // Changing the key will save to disk. Warn user
+            if (ArbilWindowManager.getSingleInstance().askUserToSaveChanges(arbilFields[cellFieldIndex].parentDataNode.getParentDomNode().toString())) {
+                // Remember index of current field
+                int index = parentFieldList.indexOf(arbilFields);
+                // Let field apply new name if necessary (true,false = Request update UI, don't exclude from undo history)
+                if (cellField.setKeyName(keyEditorFields[cellFieldIndex].getText(), true, false)) {
+                    // Field name has changed, reload as required
+                    setParentFieldList();
+                    moveTo(index);
                 }
             }
         }

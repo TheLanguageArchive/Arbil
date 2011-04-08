@@ -1108,4 +1108,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public JFrame getMainFrame() {
         return linorgFrame;
     }
+
+    public boolean askUserToSaveChanges(String entityName) {
+        return showConfirmDialogBox("This action will save all pending changes on "+entityName+" to disk. Continue?", "Save to disk?");
+    }
 }
