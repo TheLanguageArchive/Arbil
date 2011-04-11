@@ -6,6 +6,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
+ * Class that defines a collection of columns that should be shown or hidden
+ * in a table view
  * Document   : ArbilFieldView
  * Created on : 
  * @author Peter.Withers@mpi.nl

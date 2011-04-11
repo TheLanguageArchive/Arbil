@@ -9,10 +9,13 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 /**
+ * Table for editing ArbilFieldViews
+ *
  * Document   : ArbilFieldViewTable
  * Used to edit the field view of an arbil table
  * Created on : Jan 5, 2009, 12:40:37 PM
  * @author Peter.Withers@mpi.nl
+ * @see ArbilFieldView
  */
 public class ArbilFieldViewTable extends JTable {
 

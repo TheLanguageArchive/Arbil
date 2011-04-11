@@ -21,6 +21,7 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -86,6 +87,7 @@ public class ArbilInjector {
         ArbilDataNode.setBugCatcher(bugCatcher);
         ArbilEntityResolver.setBugCatcher(bugCatcher);
         ArbilFavourites.setBugCatcher(bugCatcher);
+        ArbilFieldViews.setBugCatcher(bugCatcher);
         ArbilIcons.setBugCatcher(bugCatcher);
         ArbilJournal.setBugCatcher(bugCatcher);
         ArbilSessionStorage.setBugCatcher(bugCatcher);

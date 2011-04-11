@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -33,9 +32,7 @@ import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.util.ArrayComparator;
 
 /**
  * Document   : ArbilTable
@@ -59,177 +56,11 @@ public class ArbilTable extends JTable {
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.setGridColor(Color.LIGHT_GRAY);
 
-        this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
-//            public void mousePressed(java.awt.event.MouseEvent evt) {
+        initHeaderMouseListener();
+        initTableMouseListener();
+    }
 
-            @Override
-            public void mousePressed(MouseEvent evt) {
-//                System.out.println("mousePressed");
-                checkTableHeaderPopup(evt);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent evt) {
-//                System.out.println("mouseReleased");
-                checkTableHeaderPopup(evt);
-            }
-
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                System.out.println("mouseClicked");
-                System.out.println("table header click");
-                //targetTable = ((JTableHeader) evt.getComponent()).getTable();
-                if (evt.getButton() == MouseEvent.BUTTON1) {
-                    arbilTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
-                }
-                checkTableHeaderPopup(evt);
-            }
-
-            private void checkTableHeaderPopup(java.awt.event.MouseEvent evt) {
-                if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger() /* evt.getButton() == MouseEvent.BUTTON3*/) {
-                    //targetTable = ((JTableHeader) evt.getComponent()).getTable();
-                    int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
-                    System.out.println("columnIndex: " + targetColumn);
-
-                    JPopupMenu popupMenu = new JPopupMenu();
-                    // TODO: also add show only selected columns
-                    // TODO: also add hide selected columns
-                    if (targetColumn != 0) { // prevent hide column menu showing when the session column is selected because it cannot be hidden
-                        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
-                        hideColumnMenuItem.setActionCommand("" + targetColumn);
-                        hideColumnMenuItem.addActionListener(new ActionListener() {
-
-                            public void actionPerformed(ActionEvent e) {
-                                try {
-                                    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
-                                    arbilTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
-                                } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(ex);
-                                }
-                            }
-                        });
-                        popupMenu.add(hideColumnMenuItem);
-                    }
-                    if (arbilTableModel.isHorizontalView()) {
-                        JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-                        showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
-                        showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                try {
-                                    showRowChildData();
-                                } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(ex);
-                                }
-                            }
-                        });
-                        popupMenu.add(showChildNodesMenuItem);
-                    }
-
-                    JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
-                    saveViewMenuItem.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                //System.out.println("saveViewNenuItem: " + targetTable.toString());
-                                String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
-                                // if the user did not cancel
-                                if (fieldViewName != null) {
-                                    if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
-                                        ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
-                                    }
-                                }
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    popupMenu.add(saveViewMenuItem);
-
-                    JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
-                    editViewMenuItem.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(arbilTableModel);
-                                JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
-                                editViewsDialog.setTitle("Editing Current Column View");
-
-                                JScrollPane js = new JScrollPane(fieldViewTable);
-                                editViewsDialog.getContentPane().add(js);
-                                editViewsDialog.setBounds(50, 50, 600, 400);
-                                editViewsDialog.setVisible(true);
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    popupMenu.add(editViewMenuItem);
-
-                    JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
-                    showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            try {
-                                //System.out.println("saveViewNenuItem: " + targetTable.toString());
-                                arbilTableModel.showOnlyCurrentColumns();
-                            } catch (Exception ex) {
-                                GuiHelper.linorgBugCatcher.logError(ex);
-                            }
-                        }
-                    });
-                    popupMenu.add(showOnlyCurrentViewMenuItem);
-
-                    //popupMenu.add(applyViewNenuItem);
-                    //popupMenu.add(saveViewMenuItem);
-
-                    // create the views sub menu
-                    JMenu fieldViewsMenuItem = new JMenu("Column View for this Table");
-                    ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
-                    //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
-                    for (Enumeration savedViewsEnum = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
-                        String currentViewLabel = savedViewsEnum.nextElement().toString();
-                        javax.swing.JMenuItem viewLabelMenuItem;
-                        viewLabelMenuItem = new javax.swing.JMenuItem();
-                        viewMenuButtonGroup.add(viewLabelMenuItem);
-                        //  viewLabelMenuItem.setSelected(currentGlobalViewLabel.equals(currentViewLabel));
-                        viewLabelMenuItem.setText(currentViewLabel);
-                        viewLabelMenuItem.setName(currentViewLabel);
-                        viewLabelMenuItem.addActionListener(new ActionListener() {
-
-                            public void actionPerformed(ActionEvent evt) {
-                                try {
-                                    arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
-                                } catch (Exception ex) {
-                                    GuiHelper.linorgBugCatcher.logError(ex);
-                                }
-                            }
-                        });
-                        fieldViewsMenuItem.add(viewLabelMenuItem);
-                    }
-                    popupMenu.add(fieldViewsMenuItem);
-
-                    JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
-                    copyEmbedTagMenuItem.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            // find the table dimensions
-                            Component sizedComponent = ArbilTable.this;
-                            Component currentComponent = ArbilTable.this;
-                            while (currentComponent.getParent() != null) {
-                                currentComponent = currentComponent.getParent();
-                                if (currentComponent instanceof ArbilSplitPanel) {
-                                    sizedComponent = currentComponent;
-                                }
-                            }
-                            arbilTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
-                        }
-                    });
-                    popupMenu.add(copyEmbedTagMenuItem);
-                    popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
-                }
-            }
-        });
+    private void initTableMouseListener() {
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -250,6 +81,177 @@ public class ArbilTable extends JTable {
 //                checkPopup(evt);
 //            }
         });
+    }
+
+    private void initHeaderMouseListener() {
+        this.getTableHeader().addMouseListener(new java.awt.event.MouseAdapter() {
+
+            //            public void mousePressed(java.awt.event.MouseEvent evt) {
+            @Override
+            public void mousePressed(MouseEvent evt) {
+                //                System.out.println("mousePressed");
+                checkTableHeaderPopup(evt);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent evt) {
+                //                System.out.println("mouseReleased");
+                checkTableHeaderPopup(evt);
+            }
+
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                System.out.println("mouseClicked");
+                System.out.println("table header click");
+                //targetTable = ((JTableHeader) evt.getComponent()).getTable();
+                if (evt.getButton() == MouseEvent.BUTTON1) {
+                    arbilTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
+                }
+                checkTableHeaderPopup(evt);
+            }
+
+            private void checkTableHeaderPopup(java.awt.event.MouseEvent evt) {
+                handleTableHeaderPopup(evt);
+            }
+        });
+    }
+
+    private void handleTableHeaderPopup(MouseEvent evt) {
+        if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
+            //targetTable = ((JTableHeader) evt.getComponent()).getTable();
+            int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
+            System.out.println("columnIndex: " + targetColumn);
+            JPopupMenu popupMenu = new JPopupMenu();
+            // TODO: also add show only selected columns
+            // TODO: also add hide selected columns
+            if (targetColumn != 0) {
+                // prevent hide column menu showing when the session column is selected because it cannot be hidden
+                JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+                hideColumnMenuItem.setActionCommand("" + targetColumn);
+                hideColumnMenuItem.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            //System.out.println("hideColumnMenuItem: " + targetTable.toString());
+                            arbilTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
+                    }
+                });
+                popupMenu.add(hideColumnMenuItem);
+            }
+            if (arbilTableModel.isHorizontalView()) {
+                JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+                showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
+                showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        try {
+                            showRowChildData();
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
+                    }
+                });
+                popupMenu.add(showChildNodesMenuItem);
+            }
+            JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
+            saveViewMenuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        //System.out.println("saveViewNenuItem: " + targetTable.toString());
+                        String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
+                        // if the user did not cancel
+                        if (fieldViewName != null) {
+                            if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
+                                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
+                            }
+                        }
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
+            popupMenu.add(saveViewMenuItem);
+            JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
+            editViewMenuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(arbilTableModel);
+                        JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
+                        editViewsDialog.setTitle("Editing Current Column View");
+                        JScrollPane js = new JScrollPane(fieldViewTable);
+                        editViewsDialog.getContentPane().add(js);
+                        editViewsDialog.setBounds(50, 50, 600, 400);
+                        editViewsDialog.setVisible(true);
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
+            popupMenu.add(editViewMenuItem);
+            JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
+            showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        //System.out.println("saveViewNenuItem: " + targetTable.toString());
+                        arbilTableModel.showOnlyCurrentColumns();
+                    } catch (Exception ex) {
+                        GuiHelper.linorgBugCatcher.logError(ex);
+                    }
+                }
+            });
+            popupMenu.add(showOnlyCurrentViewMenuItem);
+            //popupMenu.add(applyViewNenuItem);
+            //popupMenu.add(saveViewMenuItem);
+            // create the views sub menu
+            JMenu fieldViewsMenuItem = new JMenu("Column View for this Table");
+            ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
+            //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
+            for (Enumeration savedViewsEnum = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
+                String currentViewLabel = savedViewsEnum.nextElement().toString();
+                javax.swing.JMenuItem viewLabelMenuItem;
+                viewLabelMenuItem = new javax.swing.JMenuItem();
+                viewMenuButtonGroup.add(viewLabelMenuItem);
+                //  viewLabelMenuItem.setSelected(currentGlobalViewLabel.equals(currentViewLabel));
+                viewLabelMenuItem.setText(currentViewLabel);
+                viewLabelMenuItem.setName(currentViewLabel);
+                viewLabelMenuItem.addActionListener(new ActionListener() {
+
+                    public void actionPerformed(ActionEvent evt) {
+                        try {
+                            arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
+                        } catch (Exception ex) {
+                            GuiHelper.linorgBugCatcher.logError(ex);
+                        }
+                    }
+                });
+                fieldViewsMenuItem.add(viewLabelMenuItem);
+            }
+            popupMenu.add(fieldViewsMenuItem);
+            JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
+            copyEmbedTagMenuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    // find the table dimensions
+                    Component sizedComponent = ArbilTable.this;
+                    Component currentComponent = ArbilTable.this;
+                    while (currentComponent.getParent() != null) {
+                        currentComponent = currentComponent.getParent();
+                        if (currentComponent instanceof ArbilSplitPanel) {
+                            sizedComponent = currentComponent;
+                        }
+                    }
+                    arbilTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
+                }
+            });
+            popupMenu.add(copyEmbedTagMenuItem);
+            popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+        }
     }
 
     public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {

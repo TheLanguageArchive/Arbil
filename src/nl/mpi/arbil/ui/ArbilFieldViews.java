@@ -3,6 +3,7 @@ package nl.mpi.arbil.ui;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import nl.mpi.arbil.util.BugCatcher;
 
 /**
  * Document   : ArbilFieldViews
@@ -14,6 +15,11 @@ public class ArbilFieldViews {
     private Hashtable<String, ArbilFieldView> savedFieldViews;
     private String currentGlobalViewName = "";
     static private ArbilFieldViews singleInstance = null;
+    private static BugCatcher bugCatcher;
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+        bugCatcher = bugCatcherInstance;
+    }
 
     static synchronized public ArbilFieldViews getSingleInstance() {
 //        System.out.println("ImdiFieldViews getSingleInstance");
@@ -56,14 +62,17 @@ public class ArbilFieldViews {
 
         try {
             savedFieldViews = (Hashtable<String, ArbilFieldView>) ArbilSessionStorage.getSingleInstance().loadObject("savedFieldViewsV2");
+        } catch (Exception ex) {
+            bugCatcher.logError("load savedFieldViews failed", ex);
+            savedFieldViews = new Hashtable<String, ArbilFieldView>();
+        }
+        try {
             currentGlobalViewName = ArbilSessionStorage.getSingleInstance().loadString("currentGlobalViewName");
             if (currentGlobalViewName == null) {
                 currentGlobalViewName = (String) ArbilSessionStorage.getSingleInstance().loadObject("currentGlobalViewName");
             }
         } catch (Exception ex) {
-//            GuiHelper.linorgBugCatcher.logError(ex);
-            System.out.println("load savedFieldViews failed: " + ex.getMessage());
-            savedFieldViews = new Hashtable<String, ArbilFieldView>();
+            bugCatcher.logError("load currentGlobalViewName failed ", ex);
 
             ArbilFieldView currentGlobalView = new ArbilFieldView();
             addArbilFieldView("All", currentGlobalView);
@@ -88,7 +97,7 @@ public class ArbilFieldViews {
             ArbilSessionStorage.getSingleInstance().saveObject(savedFieldViews, "savedFieldViewsV2");
             //LinorgSessionStorage.getSingleInstance().saveString("currentGlobalViewName", currentGlobalViewName);
         } catch (Exception ex) {
-            GuiHelper.linorgBugCatcher.logError(ex);
+            bugCatcher.logError(ex);
             //System.out.println("save savedFieldViews exception: " + ex.getMessage());
         }
     }
