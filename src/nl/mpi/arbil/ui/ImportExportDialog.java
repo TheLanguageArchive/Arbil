@@ -701,6 +701,8 @@ public class ImportExportDialog {
                     }
                     if (destinationNode == null) {
                         TreeHelper.getSingleInstance().applyRootLocations();
+                    } else{
+                        destinationNode.reloadNode();
                     }
                 }
                 progressBar.setIndeterminate(false);
