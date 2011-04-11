@@ -40,7 +40,7 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 /**
  *  Document   : ArbilLongFieldEditor
  *  Created on : Sep 14, 2010, 1:53:15 PM
- *  Author     : Peter Withers
+ *  Author     : Peter Withers, Twan Goosen
  */
 public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContainer {
 
@@ -123,17 +123,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         requestFocusFor(focusedTabTextArea);
     }
 
-    private JPanel createKeyEditor(final int cellFieldIndex) {
-        // if this is a key type field then show the editing options
-        JPanel keyNamePanel = new JPanel(new BorderLayout());
-        keyEditorFields[cellFieldIndex] = new JTextField(arbilFields[cellFieldIndex].getKeyName());
-        keyEditorFields[cellFieldIndex].addFocusListener(editorFocusListener);
-        keyEditorFields[cellFieldIndex].setEditable(parentArbilDataNode.getParentDomNode().isEditable());
-        keyNamePanel.add(new JLabel("Key Name:"), BorderLayout.LINE_START);
-        keyNamePanel.add(keyEditorFields[cellFieldIndex], BorderLayout.CENTER);
-        return keyNamePanel;
-    }
-
     private JPanel createLanguageBox(final int cellFieldIndex) {
         fieldLanguageBoxs[cellFieldIndex] = new LanguageIdBox(arbilFields[cellFieldIndex], null);
         JPanel languagePanel = new JPanel(new BorderLayout());
@@ -193,7 +182,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         }
 
         if (arbilFields[cellFieldIndex].getKeyName() != null) {
-            tabTitlePanel.add(createKeyEditor(cellFieldIndex));
+            tabTitlePanel.add(new KeyPanel(cellFieldIndex));
         }
 
         tabPanel.add(tabTitlePanel, BorderLayout.PAGE_START);
@@ -288,6 +277,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         parentFieldList = parentArbilDataNode.getFieldsSorted();
     }
 
+    private void setNavigationEnabled(boolean enabled) {
+        nextButton.setEnabled(enabled);
+        prevButton.setEnabled(enabled);
+    }
+
     private void setNavigationEnabled() {
         int index = parentFieldList.indexOf(arbilFields);
         nextButton.setEnabled(index < parentFieldList.size() - 1);
@@ -375,13 +369,16 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             } else if (fieldEditors[cellFieldIndex] instanceof ControlledVocabularyComboBox) {
                 cellField.setFieldValue(((ControlledVocabularyComboBox) fieldEditors[cellFieldIndex]).getCurrentValue(), true, false);
             }
-            if (keyEditorFields[cellFieldIndex] != null) {
-                checkSaveKeyEditorField(cellFieldIndex);
-            }
         }
     }
 
-    private void checkSaveKeyEditorField(int cellFieldIndex) {
+    /**
+     * Checks whether the key editor field has been changed, if so asks the user to go ahead and save pending changes, and finally
+     * saves changes if the user agrees
+     * @param cellFieldIndex
+     * @return False if the user has canceled save changes. True otherwise (i.e. there are no changes or user agrees to save)
+     */
+    private boolean checkSaveKeyEditorField(int cellFieldIndex) {
         final ArbilField cellField = (ArbilField) arbilFields[cellFieldIndex];
         if (!keyEditorFields[cellFieldIndex].getText().equals(arbilFields[cellFieldIndex].getKeyName())) {
             // Changing the key will save to disk. Warn user
@@ -394,8 +391,11 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
                     setParentFieldList();
                     moveTo(index);
                 }
+            } else {
+                return false;
             }
         }
+        return true;
     }
 
     /**
@@ -521,4 +521,131 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             storeChanges();
         }
     };
+
+    /**
+     * Panel for showing/editing the key name for fields with a custom key name
+     */
+    private class KeyPanel extends JPanel {
+
+        private final int cellFieldIndex;
+        private JButton changeKeyNameButton;
+        private JPanel changeActionButtonsPanel;
+        private JTextField keyEditorField;
+        private JLabel keyNameLabel;
+
+        public KeyPanel(final int cellFieldIndex) {
+            super(new BorderLayout());
+
+            this.cellFieldIndex = cellFieldIndex;
+
+            initComponents();
+            addComponents();
+        }
+
+        private void initComponents() {
+            keyNameLabel = new JLabel(arbilFields[cellFieldIndex].getKeyName());
+            initKeyEditorField(cellFieldIndex);
+            initChangeKeyNameButton();
+            initActionButtonsPanel();
+        }
+
+        private void addComponents() {
+            add(new JLabel("Key Name: "), BorderLayout.LINE_START);
+            add(keyNameLabel, BorderLayout.CENTER);
+            add(changeKeyNameButton, BorderLayout.LINE_END);
+        }
+
+        private void initActionButtonsPanel() {
+            JButton saveFieldNameButton = new JButton(keyNameSaveAction);
+            saveFieldNameButton.setText("Apply");
+            JButton cancelFieldNameButton = new JButton(keyNameCancelAction);
+            cancelFieldNameButton.setText("Cancel");
+            changeActionButtonsPanel = new JPanel(new BorderLayout());
+            changeActionButtonsPanel.add(saveFieldNameButton, BorderLayout.LINE_START);
+            changeActionButtonsPanel.add(cancelFieldNameButton, BorderLayout.LINE_END);
+        }
+
+        private void initChangeKeyNameButton() {
+            changeKeyNameButton = new JButton(new AbstractAction() {
+
+                public void actionPerformed(ActionEvent e) {
+                    enableEditMode();
+                }
+            });
+            changeKeyNameButton.setText("Change key name");
+            changeKeyNameButton.setMnemonic('c');
+        }
+
+        private void initKeyEditorField(final int cellFieldIndex) {
+            keyEditorField = new JTextField(arbilFields[cellFieldIndex].getKeyName());
+            keyEditorField.setEditable(parentArbilDataNode.getParentDomNode().isEditable());
+
+            // Add keyboard actions
+            keyEditorField.getActionMap().put("KeyNameOk", keyNameSaveAction);
+            keyEditorField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true), "KeyNameOk");
+            keyEditorField.getActionMap().put("KeyNameCancel", keyNameCancelAction);
+            keyEditorField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true), "KeyNameCancel");
+
+            // Add editor field to long field editor model, so that it can access it for saving the value
+            keyEditorFields[cellFieldIndex] = keyEditorField;
+        }
+
+        /**
+         * Action that saves the entered key name
+         */
+        private Action keyNameSaveAction = new AbstractAction("KeyNameOk") {
+
+            public void actionPerformed(ActionEvent e) {
+                if (checkSaveKeyEditorField(cellFieldIndex)) {
+                    disableEditMode();
+                }
+            }
+        };
+
+        /**
+         * Action that cancels the editing of the key name
+         */
+        private Action keyNameCancelAction = new AbstractAction("KeyNameCancel") {
+
+            public void actionPerformed(ActionEvent e) {
+                disableEditMode();
+            }
+        };
+
+        private void enableEditMode() {
+            keyNameLabel.setVisible(false);
+            remove(keyNameLabel);
+            changeKeyNameButton.setVisible(false);
+            remove(changeKeyNameButton);
+
+            keyEditorField.setText(arbilFields[cellFieldIndex].getKeyName());
+
+            add(keyEditorField, BorderLayout.CENTER);
+            keyEditorField.setVisible(true);
+            add(changeActionButtonsPanel, BorderLayout.LINE_END);
+            changeActionButtonsPanel.setVisible(true);
+
+            validate();
+            keyEditorField.requestFocusInWindow();
+
+            setNavigationEnabled(false);
+        }
+
+        private void disableEditMode() {
+            keyEditorField.setVisible(false);
+            remove(keyEditorField);
+            changeActionButtonsPanel.setVisible(false);
+            remove(changeActionButtonsPanel);
+
+            keyNameLabel.setText(arbilFields[cellFieldIndex].getKeyName());
+
+            add(keyNameLabel, BorderLayout.CENTER);
+            keyNameLabel.setVisible(true);
+            add(changeKeyNameButton, BorderLayout.LINE_END);
+            changeKeyNameButton.setVisible(true);
+
+            validate();
+            setNavigationEnabled(true);
+        }
+    }
 }
