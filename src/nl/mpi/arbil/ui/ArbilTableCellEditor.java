@@ -254,6 +254,16 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                     editorPanel.add(cvComboBox);
                     editorPanel.doLayout();
                     cvComboBox.setPopupVisible(true);
+                    
+                    editorComponent = cvComboBox;
+
+                    final String currentCellString = cellValue[selectedField].toString();
+                    String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
+
+                    // Set the editor for the combobox, so that it supports typeahead
+                    final ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, (ArbilField) cellValue[selectedField], cvComboBox);
+                    cvComboBox.setEditor(cvcbEditor);
+
                     cvComboBox.addPopupMenuListener(new PopupMenuListener() {
 
                         public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -264,17 +274,10 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         }
 
                         public void popupMenuCanceled(PopupMenuEvent e) {
+                            cvcbEditor.setText(currentCellString);
                             fireEditingStopped();
                         }
                     });
-                    editorComponent = cvComboBox;
-
-                    String currentCellString = cellValue[selectedField].toString();
-                    String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
-
-                    // Set the editor for the combobox, so that it supports typeahead
-                    ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, (ArbilField) cellValue[selectedField], cvComboBox);
-                    cvComboBox.setEditor(cvcbEditor);
 
                     // Make focus work (stop edit mode on lost focus)
                     addFocusListener(cvComboBox);

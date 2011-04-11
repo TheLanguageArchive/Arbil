@@ -30,6 +30,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
 
     public ControlledVocabularyComboBoxEditor(String initialValue, ArbilField arbilField, JComboBox comboBox) {
         super(initialValue);
+        this.initialValue = initialValue;
 
         if (comboBox != null) {
             setComboBox(comboBox);
@@ -94,7 +95,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         return vocabulary.getVocabularyItems().size();
     }
 
-    public void setComboBox(JComboBox comboBox) {
+    public final void setComboBox(JComboBox comboBox) {
         this.comboBox = comboBox;
         comboBox.setEditable(true);
     }
@@ -138,22 +139,22 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
     }
 
     private void handleTextEntryKey(KeyEvent e) {
-        if (!typingAhead
-                && !e.isActionKey()
-                && e.getKeyChar() != KeyEvent.CHAR_UNDEFINED
-                && e.getKeyCode() != KeyEvent.VK_BACK_SPACE
-                && e.getKeyCode() != KeyEvent.VK_DELETE) {
-            // Text is being typed. Start (or restart) timer, so that typeahead
-            // is executed after last keystroke within delay
-            startTypeaheadTimer(TYPEAHEAD_DELAY_SHORT);
-        } else if (!typingAhead
-                && (!targetField.isVocabularyOpen()
-                || (e.getKeyCode() != KeyEvent.VK_BACK_SPACE
-                && e.getKeyCode() != KeyEvent.VK_DELETE))) {
-            // In closed list, also autocomplete on backspace/delete but use
-            // a longer delay so as not to make it impossible to remove characters
-            // or even submit the (non-existent) entry
-            startTypeaheadTimer(TYPEAHEAD_DELAY_LONG);
+        if (!typingAhead) {
+            if (!e.isActionKey()
+                    && e.getKeyChar() != KeyEvent.CHAR_UNDEFINED
+                    && e.getKeyCode() != KeyEvent.VK_BACK_SPACE
+                    && e.getKeyCode() != KeyEvent.VK_DELETE) {
+                // Text is being typed. Start (or restart) timer, so that typeahead
+                // is executed after last keystroke within delay
+                startTypeaheadTimer(TYPEAHEAD_DELAY_SHORT);
+            } else if (!targetField.isVocabularyOpen()
+                    && (e.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                    || e.getKeyCode() == KeyEvent.VK_DELETE)) {
+                // In closed list, also autocomplete on backspace/delete but use
+                // a longer delay so as not to make it impossible to remove characters
+                // or even submit the (non-existent) entry
+                startTypeaheadTimer(TYPEAHEAD_DELAY_LONG);
+            }
         }
     }
 
@@ -411,6 +412,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         typeaheadTimer.setRepeats(false);
     }
     // Private members
+    private String initialValue;
     private JComboBox comboBox;
     private ArbilVocabulary vocabulary;
     private ArbilField targetField;
