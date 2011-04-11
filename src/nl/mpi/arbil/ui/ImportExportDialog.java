@@ -316,6 +316,11 @@ public class ImportExportDialog {
         renameFileToLamusFriendlyName = new JCheckBox("Limit Characters in File Names (LAMUS friendly format)", true);
         overwriteCheckBox = new JCheckBox("Overwrite Local Changes", false);
         shibbolethCheckBox = new JCheckBox("Shibboleth authentication via the SURFnet method", false);
+
+        // NOTE TG 11/4/2011: In ticket #679 it was decided to disable shibboleth authentication until the entire chain is functional.
+        // This requires some work on the server.
+        shibbolethCheckBox.setEnabled(false);
+
         shibbolethPanel = new JPanel();
         shibbolethCheckBox.setVisible(false);
         shibbolethPanel.setVisible(false);
