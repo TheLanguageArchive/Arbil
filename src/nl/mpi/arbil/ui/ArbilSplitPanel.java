@@ -66,8 +66,8 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
         tableOuterPanel = new JPanel(new BorderLayout());
         tableOuterPanel.add(tableScrollPane, BorderLayout.CENTER);
         tableOuterPanel.add(hiddenColumnsLabel, BorderLayout.SOUTH);
-        ((ArbilTableModel) localArbilTable.getModel()).setHiddenColumnsLabel(hiddenColumnsLabel);
-        imagePreview = new JList(((ArbilTableModel) localArbilTable.getModel()).getListModel(this));
+        localArbilTable.getArbilTableModel().setHiddenColumnsLabel(hiddenColumnsLabel);
+        imagePreview = new JList(localArbilTable.getArbilTableModel().getListModel(this));
         imagePreview.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         imagePreview.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         imagePreview.setVisibleRowCount(-1);
@@ -227,7 +227,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
     }
 
     public void arbilWindowClosed() {
-        ((ArbilTableModel)arbilTable.getModel()).removeAllArbilDataNodeRows();
+        arbilTable.getArbilTableModel().removeAllArbilDataNodeRows();
     }
 }
 

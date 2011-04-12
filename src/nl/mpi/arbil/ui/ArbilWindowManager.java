@@ -546,7 +546,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                                 // if this table has no nodes then don't save it
                                 if (0 < ((ArbilSplitPanel) currentComponent).arbilTable.getRowCount()) {
                                     Vector currentNodesVector = new Vector();
-                                    for (String currentUrlString : ((ArbilTableModel) ((ArbilSplitPanel) currentComponent).arbilTable.getModel()).getArbilDataNodesURLs()) {
+                                    for (String currentUrlString : ((ArbilSplitPanel) currentComponent).arbilTable.getArbilTableModel().getArbilDataNodesURLs()) {
                                         currentNodesVector.add(currentUrlString);
                                     }
                                     windowState.currentNodes = currentNodesVector;
@@ -986,7 +986,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                 // loop through all the child components in the window (there will probably only be one)
                 if (childComponent instanceof ArbilSplitPanel) {
                     // only consider components with a LinorgSplitPanel
-                    ArbilTableModel currentTableModel = (ArbilTableModel) ((ArbilSplitPanel) childComponent).arbilTable.getModel();
+                    ArbilTableModel currentTableModel = ((ArbilSplitPanel) childComponent).arbilTable.getArbilTableModel();
                     if (currentTableModel.getArbilDataNodeCount() == rowNodesArray.length) {
                         // first check that the number of nodes in the table matches
                         boolean tableMatches = true;
@@ -1110,6 +1110,6 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public boolean askUserToSaveChanges(String entityName) {
-        return showConfirmDialogBox("This action will save all pending changes on "+entityName+" to disk. Continue?", "Save to disk?");
+        return showConfirmDialogBox("This action will save all pending changes on " + entityName + " to disk. Continue?", "Save to disk?");
     }
 }

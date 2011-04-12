@@ -339,11 +339,11 @@ public class ArbilTable extends JTable {
     }
 
     public void showRowChildData() {
-        Object[] possibilities = ((ArbilTableModel) this.getModel()).getChildNames();
+        Object[] possibilities = this.getArbilTableModel().getChildNames();
         String selectionResult = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Select the child node type to display", "Show child nodes", JOptionPane.PLAIN_MESSAGE, null, possibilities, null);
 //      TODO: JOptionPane.show it would be good to have a miltiple select here
         if ((selectionResult != null) && (selectionResult.length() > 0)) {
-            ((ArbilTableModel) this.getModel()).addChildTypeToDisplay(selectionResult);
+            this.getArbilTableModel().addChildTypeToDisplay(selectionResult);
         }
     }
 
@@ -371,7 +371,6 @@ public class ArbilTable extends JTable {
     int lastRowCount = -1;
     int lastColumnPreferedWidth = 0;
     int totalPreferedWidth = 0;
-
     public final static int MIN_COLUMN_WIDTH = 50;
     public final static int MAX_COLUMN_WIDTH = 300;
 
@@ -450,7 +449,6 @@ public class ArbilTable extends JTable {
 
     //private int targetColumn;
     //Implement table cell tool tips.
-
     @Override
     public String getToolTipText(MouseEvent e) {
         String tip = null;
@@ -689,5 +687,8 @@ public class ArbilTable extends JTable {
             }
         }
     }
-    //jTable1.setAutoCreateRowSorter(true);
+
+    public ArbilTableModel getArbilTableModel() {
+        return arbilTableModel;
+    }
 }

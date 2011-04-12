@@ -134,7 +134,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         dataNode.removeContainer(getTopLevelPanel());
         if (table != null) {
             // Remove data node from table
-            ((ArbilTableModel) table.getModel()).removeArbilDataNodes(new ArbilDataNode[]{dataNode});
+            table.getArbilTableModel().removeArbilDataNodes(new ArbilDataNode[]{dataNode});
         }
         // Remove all contents from the contentpanel
         if (contentPanel != null) {

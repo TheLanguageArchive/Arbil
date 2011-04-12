@@ -439,7 +439,7 @@ public class ArbilDragDrop {
                 Container target = findArbilDropableTarget(comp);
                 if (target instanceof ArbilSplitPanel) {
                     ArbilSplitPanel targetPanel = (ArbilSplitPanel) target;
-                    ArbilTableModel dropTableModel = (ArbilTableModel) targetPanel.arbilTable.getModel();
+                    ArbilTableModel dropTableModel = targetPanel.arbilTable.getArbilTableModel();
                     dropTableModel.addArbilDataNodes(draggedArbilNodes);
                     return true; // we have achieved the drag so return true
                 } else if (target instanceof JDesktopPane) {

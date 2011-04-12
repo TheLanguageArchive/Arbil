@@ -45,14 +45,17 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     private static BugCatcher bugCatcher;
+
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
+
     public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
     private static ClipboardOwner clipboardOwner;
+
     public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
         clipboardOwner = clipboardOwnerInstance;
     }
@@ -146,8 +149,8 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
                     if (currentCellEditor != null) {
                         currentCellEditor.stopCellEditing();
                     }
-                    ((ArbilTableModel) PreviewSplitPanel.previewTable.getModel()).removeAllArbilDataNodeRows();
-                    ((ArbilTableModel) PreviewSplitPanel.previewTable.getModel()).addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionNode());
+                    PreviewSplitPanel.previewTable.getArbilTableModel().removeAllArbilDataNodeRows();
+                    PreviewSplitPanel.previewTable.getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionNode());
                 }
             }
         });
@@ -389,6 +392,5 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
             sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
         }
     };
-    
     private JListToolTip listToolTip = new JListToolTip();
 }

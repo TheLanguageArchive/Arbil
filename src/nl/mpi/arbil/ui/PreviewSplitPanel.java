@@ -29,7 +29,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 
         previewHiddenColumnLabel = new javax.swing.JLabel(" ");
         previewTable = new ArbilTable(new ArbilTableModel(), "Preview");
-        ((ArbilTableModel) previewTable.getModel()).setHiddenColumnsLabel(previewHiddenColumnLabel);
+        previewTable.getArbilTableModel().setHiddenColumnsLabel(previewHiddenColumnLabel);
         rightScrollPane = new JScrollPane(previewTable);
         previewPanel = new JPanel(new java.awt.BorderLayout());
         previewPanel.add(rightScrollPane, BorderLayout.CENTER);
@@ -51,7 +51,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
                 currentCellEditor.stopCellEditing();
             }
             // clear the grid to keep things tidy
-            ((ArbilTableModel) previewTable.getModel()).removeAllArbilDataNodeRows();
+            previewTable.getArbilTableModel().removeAllArbilDataNodeRows();
         } else {
             // put the jdesktoppane and the preview grid back into the right split pane
             this.remove(ArbilWindowManager.getSingleInstance().desktopPane);
@@ -63,7 +63,7 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
             if (currentCellEditor != null) {
                 currentCellEditor.stopCellEditing();
             }
-            ((ArbilTableModel) previewTable.getModel()).removeAllArbilDataNodeRows();
+            previewTable.getArbilTableModel().removeAllArbilDataNodeRows();
             selectedComponent = this;
 //            guiHelper.addToGridData(previewTable.getModel(), getSelectedNodes(new JTree[]{remoteCorpusTree, localCorpusTree, localDirectoryTree}));
         }
