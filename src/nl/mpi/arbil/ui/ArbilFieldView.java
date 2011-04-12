@@ -3,6 +3,7 @@ package nl.mpi.arbil.ui;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -18,12 +19,14 @@ public class ArbilFieldView implements Serializable {
     private Vector showOnlyColumns = new Vector();
     private Vector knownColumns = new Vector();
     private Vector alwaysShowColumns = new Vector();
+    private HashMap<String, Integer> columnWidths = new HashMap<String, Integer>();
 
     public void showState() {
         System.out.println("knownColumns: " + knownColumns);
         System.out.println("hiddenColumns: " + hiddenColumns);
         System.out.println("showOnlyColumns: " + showOnlyColumns);
         System.out.println("alwaysShowColumns: " + alwaysShowColumns);
+        System.out.println("columnWidths: " + columnWidths);
     }
 
     public void setAlwaysShowColumns(Vector alwaysShowColumns) {
@@ -52,6 +55,7 @@ public class ArbilFieldView implements Serializable {
         returnFieldView.setHiddenColumns((Vector) hiddenColumns.clone());
         returnFieldView.setKnownColumns((Vector) knownColumns.clone());
         returnFieldView.setShowOnlyColumns((Vector) showOnlyColumns.clone());
+        returnFieldView.columnWidths = (HashMap<String, Integer>) columnWidths.clone();
         return returnFieldView;
     }
 
@@ -137,5 +141,34 @@ public class ArbilFieldView implements Serializable {
 
     public boolean isAlwaysShowColumn(String columnString) {
         return alwaysShowColumns.contains(columnString);
+    }
+
+    /**
+     * Sets the preferred column width for the specified column
+     * @param columnString Name of column to set width for
+     * @param width Preferred width for specified column. Null to remove preference
+     */
+    public void setColumnWidth(String columnString, Integer width) {
+        if (width != null) {
+            columnWidths.put(columnString, width);
+        } else if (hasColumnWidthForColumn(columnString)) {
+            columnWidths.remove(columnString);
+        }
+    }
+
+    public boolean hasColumnWidthForColumn(String columnString) {
+        return columnWidths.containsKey(columnString);
+    }
+
+    /**
+     * @param columnString Name of the column to get the width for
+     * @return Preferred width of column, if set. Otherwise null;
+     */
+    public Integer getColumnWidth(String columnString) {
+        if (columnWidths.containsKey(columnString)) {
+            return columnWidths.get(columnString);
+        } else {
+            return null;
+        }
     }
 }
