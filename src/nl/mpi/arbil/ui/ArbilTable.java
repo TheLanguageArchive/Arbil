@@ -166,7 +166,7 @@ public class ArbilTable extends JTable {
                         String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
                         // if the user did not cancel
                         if (fieldViewName != null) {
-                            storeColumnWidthsInModel();
+                            arbilTableModel.getFieldView().storeColumnWidths(getColumnModel());
 
                             if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
                                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
@@ -683,14 +683,7 @@ public class ArbilTable extends JTable {
         }
     }
 
-    public void storeColumnWidthsInModel() {
-        for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
-            TableColumn column = getColumnModel().getColumn(i);
-            if (column.getHeaderValue() instanceof String) {
-                arbilTableModel.setPreferredColumnWidth((String) column.getHeaderValue(), column.getWidth());
-            }
-        }
-    }
+    
 
     public ArbilTableModel getArbilTableModel() {
         return arbilTableModel;

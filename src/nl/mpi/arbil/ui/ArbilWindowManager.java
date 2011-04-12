@@ -551,6 +551,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
                                     // Store field view (columns shown + widths)
                                     windowState.fieldView = table.getArbilTableModel().getFieldView();
+                                    windowState.fieldView.storeColumnWidths(table.getColumnModel());
                                     
                                     Vector currentNodesVector = new Vector(Arrays.asList(table.getArbilTableModel().getArbilDataNodesURLs()));
                                     windowState.currentNodes = currentNodesVector;

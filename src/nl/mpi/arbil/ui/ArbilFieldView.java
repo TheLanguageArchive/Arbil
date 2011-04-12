@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Vector;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 /**
  * Class that defines a collection of columns that should be shown or hidden
@@ -169,6 +171,15 @@ public class ArbilFieldView implements Serializable {
             return columnWidths.get(columnString);
         } else {
             return null;
+        }
+    }
+
+    public void storeColumnWidths(TableColumnModel columnModel) {
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            TableColumn column = columnModel.getColumn(i);
+            if (column.getHeaderValue() instanceof String) {
+                setColumnWidth((String) column.getHeaderValue(), column.getWidth());
+            }
         }
     }
 }
