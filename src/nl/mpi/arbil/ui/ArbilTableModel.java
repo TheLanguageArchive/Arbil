@@ -72,6 +72,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
     private String[] columnNames = new String[0];
     private Object[][] data = new Object[0][0];
     private Color cellColour[][] = new Color[0][0];
+    private boolean widthsChanged = true;
 
     public ArbilTableModel() {
         this(ArbilFieldViews.getSingleInstance().getCurrentGlobalView().clone());
@@ -558,6 +559,20 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
         requestReloadTableData();
     }
 
+    /**
+     * @return the widthsChanged
+     */
+    public boolean isWidthsChanged() {
+        return widthsChanged;
+    }
+
+    /**
+     * @param widthsChanged the widthsChanged to set
+     */
+    public synchronized void setWidthsChanged(boolean widthsChanged) {
+        this.widthsChanged = widthsChanged;
+    }
+
 //    private class TableRowComparator implements Comparator<ImdiField[]> {
     private class TableRowComparator implements Comparator {
 
@@ -793,6 +808,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             }
         }
         updateImageDisplayPanel(); // update the image panel now the rows have been sorted and the data array updated
+        setWidthsChanged(false);
     }
 
     public int getColumnCount() {
@@ -989,6 +1005,10 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
     }
 
     public void setPreferredColumnWidth(String columnName, Integer width) {
+        if(!isWidthsChanged() && width != tableFieldView.getColumnWidth(columnName)){
+            setWidthsChanged(true);
+            fireTableStructureChanged();
+        }
         tableFieldView.setColumnWidth(columnName, width);
     }
 

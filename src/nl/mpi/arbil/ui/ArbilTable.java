@@ -371,7 +371,7 @@ public class ArbilTable extends JTable {
 
     public void setColumnWidths() {
         // resize the columns only if the number of columns or rows have changed
-        boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
+        boolean resizeColumns = arbilTableModel.isWidthsChanged() || lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
         lastColumnCount = this.getModel().getColumnCount();
         lastRowCount = this.getModel().getRowCount();
         int parentWidth = this.getParent().getWidth();
