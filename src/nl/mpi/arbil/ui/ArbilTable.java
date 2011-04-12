@@ -233,6 +233,7 @@ public class ArbilTable extends JTable {
                     public void actionPerformed(ActionEvent evt) {
                         try {
                             arbilTableModel.setCurrentView(ArbilFieldViews.getSingleInstance().getView(((Component) evt.getSource()).getName()));
+                            doResizeColumns();
                         } catch (Exception ex) {
                             GuiHelper.linorgBugCatcher.logError(ex);
                         }
@@ -371,64 +372,22 @@ public class ArbilTable extends JTable {
     int lastColumnPreferedWidth = 0;
     int totalPreferedWidth = 0;
 
+    public final static int MIN_COLUMN_WIDTH = 50;
+    public final static int MAX_COLUMN_WIDTH = 300;
+
     public void setColumnWidths() {
         // resize the columns only if the number of columns or rows have changed
         boolean resizeColumns = lastColumnCount != this.getModel().getColumnCount() || lastRowCount != this.getModel().getRowCount();
         lastColumnCount = this.getModel().getColumnCount();
         lastRowCount = this.getModel().getRowCount();
-        int maxColumnWidth = 300;
-        int minWidth = 50;
         int parentWidth = this.getParent().getWidth();
         if (this.getRowCount() > 0 && this.getColumnCount() > 2) {
             if (resizeColumns) {
-                setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                ArbilTableCellRenderer arbilCellRenderer = new ArbilTableCellRenderer();
-                int totalColumnWidth = 0;
-                int columnCount = this.getColumnModel().getColumnCount();
-                Graphics g = getGraphics();
-                try {
-                    FontMetrics fontMetrics = g.getFontMetrics();
-                    for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
-                        TableColumn tableColumn = getColumnModel().getColumn(columnCounter);
-
-                        int currentWidth = minWidth;
-
-                        // Check if a column width has been stored for the current field view
-                        Integer storedColumnWidth = arbilTableModel.getPreferredColumnWidth(tableColumn.getHeaderValue().toString());
-                        if (storedColumnWidth != null) {
-                            // Use stored column width
-                            currentWidth = storedColumnWidth.intValue();
-                        } else {
-                            // Calculate required width
-                            for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
-                                arbilCellRenderer.setValue(arbilTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
-                                int requiredWidth = arbilCellRenderer.getRequiredWidth(fontMetrics);
-                                if (currentWidth < requiredWidth) {
-                                    currentWidth = requiredWidth;
-                                }
-                            }
-                        }
-                        if (currentWidth > maxColumnWidth) {
-                            currentWidth = maxColumnWidth;
-                        }
-                        tableColumn.setPreferredWidth(currentWidth);
-                        totalColumnWidth += currentWidth;
-                        lastColumnPreferedWidth = currentWidth;
-//                    this.getColumnModel().getColumn(columnCounter).setWidth(currentWidth);
-                    }
-                    totalPreferedWidth = totalColumnWidth;
-                    if (parentWidth > totalColumnWidth) {
-                        setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-                    } else {
-                        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                    }
-                } finally {
-                    g.dispose();
-                }
+                doResizeColumns();
             } else if (this.getParent() != null) {
                 int lastColumnWidth = this.getColumnModel().getColumn(this.getColumnModel().getColumnCount() - 1).getWidth();
                 int totalColWidth = this.getColumnModel().getTotalColumnWidth();
-                boolean lastcolumnSquished = lastColumnWidth < minWidth;
+                boolean lastcolumnSquished = lastColumnWidth < MIN_COLUMN_WIDTH;
                 if (parentWidth > totalColWidth) {
                     setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
                 } else if (parentWidth < totalColWidth) { // if the widths are equal then don't change anything
@@ -442,6 +401,53 @@ public class ArbilTable extends JTable {
             setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         }
     }
+
+    private void doResizeColumns() {
+        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        ArbilTableCellRenderer arbilCellRenderer = new ArbilTableCellRenderer();
+        int totalColumnWidth = 0;
+        int columnCount = this.getColumnModel().getColumnCount();
+        Graphics g = getGraphics();
+        try {
+            FontMetrics fontMetrics = g.getFontMetrics();
+            for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+                TableColumn tableColumn = getColumnModel().getColumn(columnCounter);
+                int currentWidth = MIN_COLUMN_WIDTH;
+                // Check if a column width has been stored for the current field view
+                Integer storedColumnWidth = arbilTableModel.getPreferredColumnWidth(tableColumn.getHeaderValue().toString());
+                if (storedColumnWidth != null) {
+                    // Use stored column width
+                    currentWidth = storedColumnWidth.intValue();
+                } else {
+                    // Calculate required width
+                    for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
+                        arbilCellRenderer.setValue(arbilTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
+                        int requiredWidth = arbilCellRenderer.getRequiredWidth(fontMetrics);
+                        if (currentWidth < requiredWidth) {
+                            currentWidth = requiredWidth;
+                        }
+                    }
+                }
+                if (currentWidth > MAX_COLUMN_WIDTH) {
+                    currentWidth = MAX_COLUMN_WIDTH;
+                }
+                tableColumn.setPreferredWidth(currentWidth);
+                tableColumn.setWidth(currentWidth);
+                totalColumnWidth += tableColumn.getWidth();
+                lastColumnPreferedWidth = currentWidth;
+                //                    this.getColumnModel().getColumn(columnCounter).setWidth(currentWidth);
+            }
+            totalPreferedWidth = totalColumnWidth;
+            if (this.getParent().getWidth() > totalColumnWidth) {
+                setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+            } else {
+                setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            }
+        } finally {
+            g.dispose();
+        }
+    }
+
     //private int targetColumn;
     //Implement table cell tool tips.
 
