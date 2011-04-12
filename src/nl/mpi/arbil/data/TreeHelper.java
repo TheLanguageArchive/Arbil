@@ -322,6 +322,7 @@ public class TreeHelper {
             TreePath currentNodePaths[] = ((ArbilTree) sourceObject).getSelectionPaths();
             int toDeleteCount = 0;
             // count the number of nodes to delete
+            String nameOfFirst = null;
             for (TreePath currentNodePath : currentNodePaths) {
                 if (currentNodePath != null) {
                     DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -330,15 +331,19 @@ public class TreeHelper {
                         if (((ArbilDataNode) userObject).fileNotFound) {
                             toDeleteCount++;
                         } else if (((ArbilDataNode) userObject).isEmptyMetaNode()) {
-                            toDeleteCount = toDeleteCount + ((ArbilDataNode) userObject).getChildCount();
+                            toDeleteCount += ((ArbilDataNode) userObject).getChildCount();
                         } else {
                             toDeleteCount++;
+                        }
+                        if(nameOfFirst == null){
+                            nameOfFirst = ((ArbilDataNode)userObject).toString();
                         }
                     }
                 }
             }
             if (JOptionPane.OK_OPTION == messageDialogHandler.showDialogBox(
-                    "Delete " + toDeleteCount + " nodes?", "Delete",
+                    "Delete " + (toDeleteCount == 1?"the node \""+nameOfFirst+"\"?": toDeleteCount + " nodes?")
+                    + " This will also save any pending changes to disk.", "Delete",
                     JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 // make lists of nodes to delete
                 Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();

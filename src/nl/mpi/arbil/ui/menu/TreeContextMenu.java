@@ -610,7 +610,6 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     public void initAddMenu(JMenu addMenu, Object targetNodeUserObject) {
-        boolean menuItemsAdded = false;
         addMenu.removeAll();
         ArbilTemplate currentTemplate;
         if (targetNodeUserObject instanceof ArbilDataNode && !((ArbilDataNode) targetNodeUserObject).isCorpus()) {
@@ -635,7 +634,13 @@ public class TreeContextMenu extends ArbilContextMenu {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
                         try {
                             if (leadSelectedTreeNode != null) {
-                                new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                if (!leadSelectedTreeNode.getParentDomNode().hasChangedFieldsInSubtree()
+                                        || ArbilWindowManager.getSingleInstance().showConfirmDialogBox(
+                                        "Adding a node will save pending changes to \""
+                                        +leadSelectedTreeNode.getParentDomNode().toString()
+                                        +"\" to disk. Do you want to proceed?", "Save pending changes?")) {
+                                    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                                }
                             } else {
                                 // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
                                 new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
@@ -646,7 +651,6 @@ public class TreeContextMenu extends ArbilContextMenu {
                     }
                 });
                 addMenu.add(addMenuItem);
-                menuItemsAdded = true;
             }
         } else {
             // consume the selected templates here rather than the clarin profile list

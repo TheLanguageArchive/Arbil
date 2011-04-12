@@ -289,6 +289,24 @@ public class ArbilDataNode implements Comparable {
         return fieldsHaveChanges;
     }
 
+    /**
+     * Searches for pending changes in this node or one of its subnodes
+     * @return Whether this node or any of its descendants has changed fields
+     * @see hasChangedFields()
+     */
+    public boolean hasChangedFieldsInSubtree() {
+        if (hasChangedFields()) {
+            return true;
+        } else {
+            for (ArbilDataNode child : getChildArray()) {
+                if (child.hasChangedFieldsInSubtree()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public void setDataNodeNeedsSaveToDisk(ArbilField originatingField, boolean updateUI) {
         if (resourceUrlField != null && resourceUrlField.equals(originatingField)) {
             hashString = null;
