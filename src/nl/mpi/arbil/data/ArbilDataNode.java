@@ -278,15 +278,14 @@ public class ArbilDataNode implements Comparable {
     }
 
     public boolean hasChangedFields() {
-        boolean fieldsHaveChanges = false;
         for (ArbilField[] currentFieldArray : this.fieldHashtable.values()) {
             for (ArbilField currentField : currentFieldArray) {
                 if (currentField.fieldNeedsSaveToDisk()) {
-                    fieldsHaveChanges = true;
+                    return true;
                 }
             }
         }
-        return fieldsHaveChanges;
+        return false;
     }
 
     /**
