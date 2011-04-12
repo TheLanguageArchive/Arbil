@@ -17,7 +17,7 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
         imdiTableModel = localImdiTableModel;
         //System.out.println("setting to: " + viewLabel);
         // "Column Description",  is not relevant here because this is a list of column names not imdi fields
-        setColumnIdentifiers(new String[]{"Column Name", "Show Only", "Hide"}); //, "Always Display"
+        setColumnIdentifiers(new String[]{"Column Name", "Show Only", "Hide", "Column width"}); //, "Always Display"
         // we want a table model even if it has no rows
         ArbilFieldView currentView = imdiTableModel.getFieldView();
         if (currentView != null) {
@@ -29,22 +29,26 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
                             // set the show only fields
                             ((ArbilFieldView) currentView).isShowOnlyColumn(currentFieldName),
                             // set the hidden fields
-                            ((ArbilFieldView) currentView).isHiddenColumn(currentFieldName)//,
+                            ((ArbilFieldView) currentView).isHiddenColumn(currentFieldName),
+                            // set width
+                            widthToString(((ArbilFieldView) currentView).getColumnWidth(currentFieldName))
+                        //,
                         // set alays show fields
                         //((LinorgFieldView) currentView).isAlwaysShowColumn(currentFieldName)
                         });
             }
         }
-
     }
     Class[] types = new Class[]{
-        java.lang.String.class, /*java.lang.String.class,*/ java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Boolean.class
+        java.lang.String.class, /*java.lang.String.class,*/ java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
     };
     private int showOnlyEnabledCount = -1;
     private final int showOnlyColumn = 1;
     private final int fieldNameColumn = 0;
     private final int hideColumn = 2;
+    private final int widthColumn = 3;
 
+    @Override
     public Class getColumnClass(int columnIndex) {
         return types[columnIndex];
     }
@@ -66,7 +70,7 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
             return showOnlyEnabledCount == 0;
 //                    return (getValueAt(row, showOnlyColumn).equals(true) || showOnlyEnabledCount == 0);
         }
-        return (column == showOnlyColumn || column == hideColumn);
+        return (column == showOnlyColumn || column == hideColumn || column == widthColumn);
     }
 
     @Override
@@ -93,16 +97,41 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
                     imdiTableModel.getFieldView().removeHiddenColumn(targetColumnName);
                 }
                 break;
-            case 4:
-                if (booleanState) {
-                    imdiTableModel.getFieldView().addAlwaysShowColumn(targetColumnName);
-                } else {
-                    imdiTableModel.getFieldView().removeAlwaysShowColumn(targetColumnName);
+            case widthColumn:
+                if (aValue != null) {
+                    if (aValue instanceof String) {
+                        String intString = ((String) aValue).trim();
+                        if (!intString.isEmpty()) {
+                            try {
+                                Integer width = Integer.parseInt((String) aValue);
+                                imdiTableModel.setPreferredColumnWidth(targetColumnName, width);
+                            } catch (NumberFormatException ex) {
+                                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Invalid width for column " + targetColumnName, "Column width invalid");
+                            }
+                            break;
+                        }
+                    }
                 }
+                // Empty or invalid column width
+                imdiTableModel.setPreferredColumnWidth(targetColumnName, null);
                 break;
+//            case 4:
+//                if (booleanState) {
+//                    imdiTableModel.getFieldView().addAlwaysShowColumn(targetColumnName);
+//                } else {
+//                    imdiTableModel.getFieldView().removeAlwaysShowColumn(targetColumnName);
+//                }
+//                break;
         }
         imdiTableModel.requestReloadTableData();
         fireTableStructureChanged();
     }//returnTableModel.setRowCount(0);
-}
 
+    private String widthToString(Integer width) {
+        if (width == null) {
+            return "";
+        } else {
+            return String.valueOf(width);
+        }
+    }
+}
