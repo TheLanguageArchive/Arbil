@@ -166,12 +166,7 @@ public class ArbilTable extends JTable {
                         String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
                         // if the user did not cancel
                         if (fieldViewName != null) {
-                            for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
-                                TableColumn column = getColumnModel().getColumn(i);
-                                if (column.getHeaderValue() instanceof String) {
-                                    arbilTableModel.setPreferredColumnWidth((String) column.getHeaderValue(), column.getWidth());
-                                }
-                            }
+                            storeColumnWidthsInModel();
 
                             if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
                                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
@@ -684,6 +679,15 @@ public class ArbilTable extends JTable {
             for (int coloumCount = 0; coloumCount < this.getColumnCount(); coloumCount++) {
                 // TODO: this could be more efficient if the array was converted into selection intervals rather than individual rows (although the SelectionModel might already do this)
                 this.getSelectionModel().addSelectionInterval((Integer) foundRows.get(foundCount), (Integer) foundRows.get(foundCount));
+            }
+        }
+    }
+
+    public void storeColumnWidthsInModel() {
+        for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
+            TableColumn column = getColumnModel().getColumn(i);
+            if (column.getHeaderValue() instanceof String) {
+                arbilTableModel.setPreferredColumnWidth((String) column.getHeaderValue(), column.getWidth());
             }
         }
     }

@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import java.util.Arrays;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
@@ -440,7 +441,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                     // Create window array for open method to put new window reference in
                     Component[] window = new Component[1];
                     if (windowState.windowType == ArbilWindowState.ArbilWindowType.nodeTable) {
-                        openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window);
+                        openFloatingTableGetModel(imdiObjectsArray, currentWindowName, window, windowState.fieldView);
                     } else if (windowState.windowType == ArbilWindowState.ArbilWindowType.subnodesPanel) {
                         openFloatingSubnodesWindowOnce(imdiObjectsArray[0], currentWindowName, window);
                     }
@@ -545,10 +546,15 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
                                 // if this table has no nodes then don't save it
                                 if (0 < ((ArbilSplitPanel) currentComponent).arbilTable.getRowCount()) {
-                                    Vector currentNodesVector = new Vector();
-                                    for (String currentUrlString : ((ArbilSplitPanel) currentComponent).arbilTable.getArbilTableModel().getArbilDataNodesURLs()) {
-                                        currentNodesVector.add(currentUrlString);
-                                    }
+
+                                    ArbilTable table = ((ArbilSplitPanel) currentComponent).arbilTable;
+
+                                    // Store field view (columns shown + widths)
+                                    // First push actual column widths to model
+                                    table.storeColumnWidthsInModel();
+                                    windowState.fieldView = table.getArbilTableModel().getFieldView();
+                                    
+                                    Vector currentNodesVector = new Vector(Arrays.asList(table.getArbilTableModel().getArbilDataNodesURLs()));
                                     windowState.currentNodes = currentNodesVector;
                                     System.out.println("saved");
                                 }
@@ -914,7 +920,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
-        openFloatingTableGetModel(rowNodesArray, frameTitle, null);
+        openFloatingTableGetModel(rowNodesArray, frameTitle, null, null);
     }
 
     public ArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle) {
@@ -1013,7 +1019,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             }
         }
         // if through the above process a table containing all and only the nodes requested has not been found then create a new table
-        return openFloatingTableGetModel(rowNodesArray, frameTitle, null);
+        return openFloatingTableGetModel(rowNodesArray, frameTitle, null, null);
     }
 
     /**
@@ -1021,9 +1027,10 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      * @param rowNodesArray
      * @param frameTitle 
      * @param window Array in which created window is inserted (at index 0). If left null, this is skipped
+     * @param fieldView Field view to initialize table model with. If left null, the default field view will be used
      * @return Table model for newly created table window
      */
-    private ArbilTableModel openFloatingTableGetModel(ArbilDataNode[] rowNodesArray, String frameTitle, Component[] window) {
+    private ArbilTableModel openFloatingTableGetModel(ArbilDataNode[] rowNodesArray, String frameTitle, Component[] window, ArbilFieldView fieldView) {
         if (frameTitle == null) {
             if (rowNodesArray.length == 1) {
                 frameTitle = rowNodesArray[0].toString();
@@ -1031,7 +1038,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
                 frameTitle = "Selection";
             }
         }
-        ArbilTableModel arbilTableModel = new ArbilTableModel();
+        ArbilTableModel arbilTableModel = fieldView == null ? new ArbilTableModel() : new ArbilTableModel(fieldView);
         ArbilTable arbilTable = new ArbilTable(arbilTableModel, frameTitle);
         ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
         arbilTableModel.addArbilDataNodes(rowNodesArray);

@@ -14,6 +14,7 @@ public class ArbilWindowState implements Serializable {
     public Point location;
     public Vector currentNodes;
     public ArbilWindowType windowType = ArbilWindowType.nodeTable;
+    public ArbilFieldView fieldView;
 
     public enum ArbilWindowType{
         nodeTable,

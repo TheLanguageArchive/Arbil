@@ -74,7 +74,11 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
     private Color cellColour[][] = new Color[0][0];
 
     public ArbilTableModel() {
-        tableFieldView = ArbilFieldViews.getSingleInstance().getCurrentGlobalView().clone();
+        this(ArbilFieldViews.getSingleInstance().getCurrentGlobalView().clone());
+    }
+
+    public ArbilTableModel(ArbilFieldView tableFieldView) {
+        this.tableFieldView = tableFieldView;
     }
 
     public void setHiddenColumnsLabel(JLabel hiddenColumnsLabelLocal) {
@@ -613,7 +617,6 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             Arrays.sort(dataTemp, new TableRowComparator(sortColumn, sortReverse));
         }
     }
-    
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("TableReload-" + this.hashCode(), 50) {
 
         @Override
@@ -985,11 +988,11 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
         return matchedRows;
     }
 
-    public void setPreferredColumnWidth(String columnName, Integer width){
+    public void setPreferredColumnWidth(String columnName, Integer width) {
         tableFieldView.setColumnWidth(columnName, width);
     }
 
-    public Integer getPreferredColumnWidth(String columnName){
+    public Integer getPreferredColumnWidth(String columnName) {
         return tableFieldView.getColumnWidth(columnName);
     }
 }
