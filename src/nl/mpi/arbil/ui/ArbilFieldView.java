@@ -174,6 +174,10 @@ public class ArbilFieldView implements Serializable {
         }
     }
 
+    public void resetColumnWidths(){
+        columnWidths.clear();
+    }
+
     public void storeColumnWidths(TableColumnModel columnModel) {
         for (int i = 0; i < columnModel.getColumnCount(); i++) {
             TableColumn column = columnModel.getColumn(i);

@@ -27,12 +27,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 
 /**
@@ -120,43 +122,12 @@ public class ArbilTable extends JTable {
     private void handleTableHeaderPopup(MouseEvent evt) {
         if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
             //targetTable = ((JTableHeader) evt.getComponent()).getTable();
-            int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
+            final int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
             System.out.println("columnIndex: " + targetColumn);
             JPopupMenu popupMenu = new JPopupMenu();
             // TODO: also add show only selected columns
             // TODO: also add hide selected columns
-            if (targetColumn != 0) {
-                // prevent hide column menu showing when the session column is selected because it cannot be hidden
-                JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
-                hideColumnMenuItem.setActionCommand("" + targetColumn);
-                hideColumnMenuItem.addActionListener(new ActionListener() {
 
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            //System.out.println("hideColumnMenuItem: " + targetTable.toString());
-                            arbilTableModel.hideColumn(Integer.parseInt(e.getActionCommand()));
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                popupMenu.add(hideColumnMenuItem);
-            }
-            if (arbilTableModel.isHorizontalView()) {
-                JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-                showChildNodesMenuItem.setText("Show Child Nodes"); // NOI18N
-                showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
-
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            showRowChildData();
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
-                        }
-                    }
-                });
-                popupMenu.add(showChildNodesMenuItem);
-            }
             JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
             saveViewMenuItem.addActionListener(new ActionListener() {
 
@@ -177,7 +148,6 @@ public class ArbilTable extends JTable {
                     }
                 }
             });
-            popupMenu.add(saveViewMenuItem);
             JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
             editViewMenuItem.addActionListener(new ActionListener() {
 
@@ -195,7 +165,6 @@ public class ArbilTable extends JTable {
                     }
                 }
             });
-            popupMenu.add(editViewMenuItem);
             JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
             showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 
@@ -208,7 +177,6 @@ public class ArbilTable extends JTable {
                     }
                 }
             });
-            popupMenu.add(showOnlyCurrentViewMenuItem);
             //popupMenu.add(applyViewNenuItem);
             //popupMenu.add(saveViewMenuItem);
             // create the views sub menu
@@ -236,7 +204,6 @@ public class ArbilTable extends JTable {
                 });
                 fieldViewsMenuItem.add(viewLabelMenuItem);
             }
-            popupMenu.add(fieldViewsMenuItem);
             JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
             copyEmbedTagMenuItem.addActionListener(new ActionListener() {
 
@@ -253,9 +220,82 @@ public class ArbilTable extends JTable {
                     arbilTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
                 }
             });
+            JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+            setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    int targetWidth = getColumnModel().getColumn(targetColumn).getWidth();
+                    for (int i = 0; i < getColumnCount(); i++) {
+                        TableColumn column = getColumnModel().getColumn(i);
+                        arbilTableModel.setPreferredColumnWidth(column.getHeaderValue().toString(), targetWidth);
+                    }
+                }
+            });
+            JMenuItem setAllColumnsSizeAuto = new JMenuItem("Make all columns fit contents");
+            setAllColumnsSizeAuto.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    arbilTableModel.getFieldView().resetColumnWidths();
+                    doResizeColumns();
+                }
+            });
+
+
+            if (targetColumn != 0) {
+                popupMenu.add(createHideColumnMenuItem(targetColumn));
+            }
+            if (arbilTableModel.isHorizontalView()) {
+                popupMenu.add(createShowChildNodesMenuItem(targetColumn));
+            }
+            popupMenu.add(setAllColumnsSizeFromColumn);
+            popupMenu.add(setAllColumnsSizeAuto);
+
+            popupMenu.add(new JSeparator());
+
+            popupMenu.add(fieldViewsMenuItem);
+            popupMenu.add(saveViewMenuItem);
+            popupMenu.add(editViewMenuItem);
+            popupMenu.add(showOnlyCurrentViewMenuItem);
+
+            popupMenu.add(new JSeparator());
             popupMenu.add(copyEmbedTagMenuItem);
+
             popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
+    }
+
+    private JMenuItem createHideColumnMenuItem(final int targetColumn) {
+        // prevent hide column menu showing when the session column is selected because it cannot be hidden
+        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+        hideColumnMenuItem.setActionCommand("" + targetColumn);
+        hideColumnMenuItem.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    //System.out.println("hideColumnMenuItem: " + targetTable.toString());
+                    arbilTableModel.hideColumn(targetColumn);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        return hideColumnMenuItem;
+    }
+
+    private JMenuItem createShowChildNodesMenuItem(final int targetColumn) {
+        JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
+        showChildNodesMenuItem.setText("Show Child Nodes for \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+        showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    showRowChildData();
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        return showChildNodesMenuItem;
     }
 
     public void checkPopup(java.awt.event.MouseEvent evt, boolean checkSelection) {
@@ -439,6 +479,7 @@ public class ArbilTable extends JTable {
             }
         } finally {
             g.dispose();
+            arbilTableModel.setWidthsChanged(false);
         }
     }
 
@@ -682,8 +723,6 @@ public class ArbilTable extends JTable {
             }
         }
     }
-
-    
 
     public ArbilTableModel getArbilTableModel() {
         return arbilTableModel;
