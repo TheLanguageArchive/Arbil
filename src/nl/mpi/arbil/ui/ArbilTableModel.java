@@ -984,4 +984,12 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
         }
         return matchedRows;
     }
+
+    public void setPreferredColumnWidth(String columnName, Integer width){
+        tableFieldView.setColumnWidth(columnName, width);
+    }
+
+    public Integer getPreferredColumnWidth(String columnName){
+        return tableFieldView.getColumnWidth(columnName);
+    }
 }
