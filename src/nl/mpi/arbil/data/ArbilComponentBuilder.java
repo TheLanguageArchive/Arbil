@@ -374,9 +374,10 @@ public class ArbilComponentBuilder {
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
         String elementName = favouriteArbilDataNode.getURI().getFragment();
-        String insertBefore = destinationArbilDataNode.nodeTemplate.getInsertBeforeOfTemplate(elementName);
+        //String insertBefore = destinationArbilDataNode.nodeTemplate.getInsertBeforeOfTemplate(elementName);
+        String insertBefore = destinationArbilDataNode.getNodeTemplate().getInsertBeforeOfTemplate(elementName);
         System.out.println("insertBefore: " + insertBefore);
-        int maxOccurs = destinationArbilDataNode.nodeTemplate.getMaxOccursForTemplate(elementName);
+        int maxOccurs = destinationArbilDataNode.getNodeTemplate().getMaxOccursForTemplate(elementName);
         System.out.println("maxOccurs: " + maxOccurs);
         if (destinationArbilDataNode.getNeedsSaveToDisk(false)) {
             destinationArbilDataNode.saveChangesToCache(true);
