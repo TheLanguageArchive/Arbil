@@ -120,18 +120,17 @@ public class TreeContextMenu extends ArbilContextMenu {
         }
         if (leadSelectedTreeNode != null) {
             if (leadSelectedTreeNode.isFavorite()) {
-                addToFavouritesMenuItem.setVisible(true);
-                addToFavouritesMenuItem.setEnabled(true);
+                addToFavouritesMenuItem.setVisible(false);
+                removeFromFavouritesMenuItem.setVisible(true);
+                removeFromFavouritesMenuItem.setEnabled(true);
+
                 addMenu.setVisible(selectedTreeNodes.length == 1);// for now adding is limited to single node selections
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
-                addToFavouritesMenuItem.setText("Remove From Favourites List");
-                addToFavouritesMenuItem.setActionCommand("false");
                 deleteMenuItem.setEnabled(false);
-            } else {
+            } else { // Nodes that are not favourites
+                removeFromFavouritesMenuItem.setVisible(false);
                 addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isMetaDataNode());
                 addToFavouritesMenuItem.setEnabled(!leadSelectedTreeNode.isCorpus() && leadSelectedTreeNode.isMetaDataNode());
-                addToFavouritesMenuItem.setText("Add To Favourites List");
-                addToFavouritesMenuItem.setActionCommand("true");
             }
         } else {
             addToFavouritesMenuItem.setVisible(false);
@@ -310,18 +309,31 @@ public class TreeContextMenu extends ArbilContextMenu {
         });
         addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
 
-        addToFavouritesMenuItem.setText("Set As Favourite");
+        addToFavouritesMenuItem.setText("Add To Favourites List");
         addToFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), addToFavouritesMenuItem.getActionCommand().equals("true"));
+                    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), true);
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
                 }
             }
         });
         addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE + 5, addToFavouritesMenuItem);
+
+        removeFromFavouritesMenuItem.setText("Remove from Favourites List");
+        removeFromFavouritesMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                try {
+                    ArbilFavourites.getSingleInstance().toggleFavouritesList(((ArbilTree) getInvoker()).getSelectedNodes(), false);
+                } catch (Exception ex) {
+                    GuiHelper.linorgBugCatcher.logError(ex);
+                }
+            }
+        });
+        addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE + 5, removeFromFavouritesMenuItem);
 
 //        mergeWithFavouritesMenu.setText("Merge With Favourite");
 //        mergeWithFavouritesMenu.setActionCommand("Merge With Favouurite");
@@ -637,8 +649,8 @@ public class TreeContextMenu extends ArbilContextMenu {
                                 if (!leadSelectedTreeNode.getParentDomNode().hasChangedFieldsInSubtree()
                                         || ArbilWindowManager.getSingleInstance().showConfirmDialogBox(
                                         "Adding a node will save pending changes to \""
-                                        +leadSelectedTreeNode.getParentDomNode().toString()
-                                        +"\" to disk. Do you want to proceed?", "Save pending changes?")) {
+                                        + leadSelectedTreeNode.getParentDomNode().toString()
+                                        + "\" to disk. Do you want to proceed?", "Save pending changes?")) {
                                     new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
                                 }
                             } else {
@@ -850,6 +862,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         importBranchMenuItem.setVisible(false);
         reImportBranchMenuItem.setVisible(false);
         addToFavouritesMenuItem.setVisible(false);
+        removeFromFavouritesMenuItem.setVisible(false);
         viewSelectedSubnodesMenuItem.setVisible(false);
         editInLongFieldEditor.setVisible(false);
     }
@@ -861,6 +874,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenu addMenu = new JMenu();
     private JMenuItem addRemoteCorpusMenuItem = new JMenuItem();
     private JMenuItem addToFavouritesMenuItem = new JMenuItem();
+    private JMenuItem removeFromFavouritesMenuItem = new JMenuItem();
     private JMenuItem copyBranchMenuItem = new JMenuItem();
     private JMenuItem searchRemoteBranchMenuItem = new JMenuItem();
     private JMenuItem copyNodeUrlMenuItem = new JMenuItem();
