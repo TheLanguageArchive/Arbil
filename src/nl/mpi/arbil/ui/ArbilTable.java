@@ -34,7 +34,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 
 /**
@@ -461,9 +460,9 @@ public class ArbilTable extends JTable {
                             currentWidth = requiredWidth;
                         }
                     }
-                }
-                if (currentWidth > MAX_COLUMN_WIDTH) {
-                    currentWidth = MAX_COLUMN_WIDTH;
+                    if (currentWidth > MAX_COLUMN_WIDTH) {
+                        currentWidth = MAX_COLUMN_WIDTH;
+                    }
                 }
                 tableColumn.setPreferredWidth(currentWidth);
                 tableColumn.setWidth(currentWidth);
