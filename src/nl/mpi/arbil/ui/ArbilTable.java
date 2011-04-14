@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -242,6 +243,14 @@ public class ArbilTable extends JTable {
                     doResizeColumns();
                 }
             });
+            final JMenuItem setColumnSizeAuto = new JMenuItem("Make column fit contents");
+            setColumnSizeAuto.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    arbilTableModel.getFieldView().setColumnWidth(targetColumnName, null);
+                    doResizeColumns(Arrays.asList(targetColumn));
+                }
+            });
             final JCheckBoxMenuItem setFixedColumnSize = new JCheckBoxMenuItem("Fixed column size");
             setFixedColumnSize.setSelected(arbilTableModel.getPreferredColumnWidth(targetColumnName) != null);
 
@@ -256,8 +265,10 @@ public class ArbilTable extends JTable {
             });
 
 
-            final JMenu thisColumnMenu = new JMenu("This column (" + targetColumnName + ")");
+            final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().isEmpty() ? "nameless" : targetColumnName) + ")");
             thisColumnMenu.add(setFixedColumnSize);
+            thisColumnMenu.add(setColumnSizeAuto);
+            thisColumnMenu.add(new JSeparator());
             if (targetColumn != 0) {
                 thisColumnMenu.add(createHideColumnMenuItem(targetColumn));
             }
@@ -270,7 +281,7 @@ public class ArbilTable extends JTable {
 
             popupMenu.add(thisColumnMenu);
             popupMenu.add(allColumnsMenu);
-            
+
             popupMenu.add(new JSeparator());
             popupMenu.add(fieldViewsMenuItem);
             popupMenu.add(saveViewMenuItem);
@@ -457,6 +468,10 @@ public class ArbilTable extends JTable {
     }
 
     private void doResizeColumns() {
+        doResizeColumns(null);
+    }
+
+    private void doResizeColumns(Collection<Integer> columnsToResize) {
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         ArbilTableCellRenderer arbilCellRenderer = new ArbilTableCellRenderer();
         int totalColumnWidth = 0;
@@ -465,25 +480,31 @@ public class ArbilTable extends JTable {
         try {
             FontMetrics fontMetrics = g.getFontMetrics();
             for (int columnCounter = 0; columnCounter < columnCount; columnCounter++) {
+
                 TableColumn tableColumn = getColumnModel().getColumn(columnCounter);
-                int currentWidth = MIN_COLUMN_WIDTH;
-                // Check if a column width has been stored for the current field view
-                Integer storedColumnWidth = arbilTableModel.getPreferredColumnWidth(tableColumn.getHeaderValue().toString());
-                if (storedColumnWidth != null) {
-                    // Use stored column width
-                    currentWidth = storedColumnWidth.intValue();
-                } else {
-                    // Calculate required width
-                    for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
-                        arbilCellRenderer.setValue(arbilTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
-                        int requiredWidth = arbilCellRenderer.getRequiredWidth(fontMetrics);
-                        if (currentWidth < requiredWidth) {
-                            currentWidth = requiredWidth;
+                int currentWidth;
+                if (columnsToResize == null || columnsToResize.contains(columnCounter)) {
+                    currentWidth = MIN_COLUMN_WIDTH;
+                    // Check if a column width has been stored for the current field view
+                    Integer storedColumnWidth = arbilTableModel.getPreferredColumnWidth(tableColumn.getHeaderValue().toString());
+                    if (storedColumnWidth != null) {
+                        // Use stored column width
+                        currentWidth = storedColumnWidth.intValue();
+                    } else {
+                        // Calculate required width
+                        for (int rowCounter = 0; rowCounter < this.getRowCount(); rowCounter++) {
+                            arbilCellRenderer.setValue(arbilTableModel.getValueAt(rowCounter, convertColumnIndexToModel(columnCounter)));
+                            int requiredWidth = arbilCellRenderer.getRequiredWidth(fontMetrics);
+                            if (currentWidth < requiredWidth) {
+                                currentWidth = requiredWidth;
+                            }
+                        }
+                        if (currentWidth > MAX_COLUMN_WIDTH) {
+                            currentWidth = MAX_COLUMN_WIDTH;
                         }
                     }
-                    if (currentWidth > MAX_COLUMN_WIDTH) {
-                        currentWidth = MAX_COLUMN_WIDTH;
-                    }
+                } else{
+                    currentWidth = tableColumn.getWidth();
                 }
                 tableColumn.setPreferredWidth(currentWidth);
                 tableColumn.setWidth(currentWidth);
