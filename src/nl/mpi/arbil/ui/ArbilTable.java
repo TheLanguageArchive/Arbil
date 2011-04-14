@@ -228,8 +228,9 @@ public class ArbilTable extends JTable {
                     int targetWidth = getColumnModel().getColumn(targetColumn).getWidth();
                     for (int i = 0; i < getColumnCount(); i++) {
                         TableColumn column = getColumnModel().getColumn(i);
-                        arbilTableModel.setPreferredColumnWidth(column.getHeaderValue().toString(), targetWidth);
+                        arbilTableModel.getFieldView().setColumnWidth(column.getHeaderValue().toString(), targetWidth);
                     }
+                    doResizeColumns();
                 }
             });
             final JMenuItem setAllColumnsSizeAuto = new JMenuItem("Make all columns fit contents");
