@@ -70,7 +70,7 @@ public class MetadataReader {
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
      */
     //public File selectedTemplateDirectory = null;
-    public static String imdiPathSeparator = ".";
+    public final static String imdiPathSeparator = ".";
     public boolean copyNewResourcesToCache = true; // todo: this variable should find a new home
 
     // todo: this should probably be moved into the arbiltemplate class
