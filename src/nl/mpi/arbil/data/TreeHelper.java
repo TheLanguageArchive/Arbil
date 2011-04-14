@@ -289,7 +289,7 @@ public class TreeHelper {
             reloadNodesInTree(childNodesEnum.nextElement());
         }
         if (parentTreeNode.getUserObject() instanceof ArbilDataNode) {
-            if (((ArbilDataNode) parentTreeNode.getUserObject()).dataLoaded) {
+            if (((ArbilDataNode) parentTreeNode.getUserObject()).isDataLoaded()) {
                 ((ArbilDataNode) parentTreeNode.getUserObject()).reloadNode();
             }
         }

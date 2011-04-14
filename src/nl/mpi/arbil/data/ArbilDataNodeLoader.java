@@ -133,7 +133,7 @@ public class ArbilDataNodeLoader {
         if (localUri != null && localUri.toString().length() > 0) {
             currentDataNode = getArbilDataNodeWithoutLoading(localUri);
 //            System.out.println(currentImdiObject.isImdiChild() + ", " + currentImdiObject.getParentDomNode().imdiDataLoaded + ", " + currentImdiObject.isLoading());
-            if (!currentDataNode.getParentDomNode().dataLoaded && !currentDataNode.isLoading()) {
+            if (!currentDataNode.getParentDomNode().isDataLoaded() && !currentDataNode.isLoading()) {
 //                System.out.println("created new ImdiObject: " + currentImdiObject.getUrlString());
                 if (ArbilDataNode.isStringChildNode(currentDataNode.getUrlString())) {
 //                    System.out.println("cause the parent node to be loaded");

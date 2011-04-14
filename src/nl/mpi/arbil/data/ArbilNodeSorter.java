@@ -45,7 +45,7 @@ public class ArbilNodeSorter implements Comparator {
         if (targetDataNode.isInfoLink) {
             return 1;
         }
-        if (targetDataNode.dataLoaded) { // caution: this sort can cause the tree to collapse when nodes reload because the nodes will be removed if not in order
+        if (targetDataNode.isDataLoaded()) { // caution: this sort can cause the tree to collapse when nodes reload because the nodes will be removed if not in order
             if (targetDataNode.isCorpus()) {
                 return 2;
             } else if (targetDataNode.isCatalogue()) {

@@ -746,7 +746,7 @@ public class MetadataReader {
                                 childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
                                 ArbilDataNode descriptionLinkNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink);
                                 descriptionLinkNode.isInfoLink = true;
-                                descriptionLinkNode.dataLoaded = true;
+                                descriptionLinkNode.setDataLoaded(true);
                                 parentChildTree.get(parentNode).add(descriptionLinkNode);
                                 descriptionLinkNode.addField(fieldToAdd);
                             }

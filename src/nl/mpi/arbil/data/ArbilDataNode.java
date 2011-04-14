@@ -54,7 +54,7 @@ public class ArbilDataNode implements Comparable {
     private boolean debugOn = false;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     private ArbilDataNode[] childArray = new ArbilDataNode[0];
-    public boolean dataLoaded;
+    private boolean dataLoaded;
     public int resourceFileServerResponse = -1; // -1 = not set otherwise this will be the http response code
     public String hashString;
     public String mpiMimeType = null;
@@ -1888,4 +1888,22 @@ public class ArbilDataNode implements Comparable {
         return icon;
     }
     private static ArbilNodeSorter imdiTreeNodeSorter = new ArbilNodeSorter();
+
+    /**
+     * @return the dataLoaded
+     */
+    public boolean isDataLoaded() {
+        if(isChildNode()){
+            return getParentDomNode().dataLoaded;
+        } else{
+            return dataLoaded;
+        }
+    }
+
+    /**
+     * @param dataLoaded the dataLoaded to set
+     */
+    public void setDataLoaded(boolean dataLoaded) {
+        this.dataLoaded = dataLoaded;
+    }
 }

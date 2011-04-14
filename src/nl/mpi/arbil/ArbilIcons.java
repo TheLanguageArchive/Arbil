@@ -204,7 +204,7 @@ public class ArbilIcons {
     public ImageIcon getIconForNode(ArbilDataNode arbilNode) {
         Vector iconsVector = new Vector();
 
-        if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().dataLoaded)) {
+        if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataLoaded())) {
             iconsVector.add(loadingIcon);
         }
         if (arbilNode.isLocal()) {
@@ -284,7 +284,7 @@ public class ArbilIcons {
                 iconsVector.add(clarinIcon);
             } else {
                 // this icon might not be the best one to show in this case
-                if (arbilNode.dataLoaded) {
+                if (arbilNode.isDataLoaded()) {
                     iconsVector.add(fileIcon);
                 }
                 //iconsVector.add(blankIcon);
