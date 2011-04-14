@@ -272,15 +272,15 @@ public class ArbilTable extends JTable {
             if (targetColumn != 0) {
                 thisColumnMenu.add(createHideColumnMenuItem(targetColumn));
             }
-            if (arbilTableModel.isHorizontalView()) {
-                thisColumnMenu.add(createShowChildNodesMenuItem(targetColumn));
-            }
             final JMenu allColumnsMenu = new JMenu("All columns");
             allColumnsMenu.add(setAllColumnsSizeFromColumn);
             allColumnsMenu.add(setAllColumnsSizeAuto);
 
             popupMenu.add(thisColumnMenu);
             popupMenu.add(allColumnsMenu);
+            if (arbilTableModel.isHorizontalView()) {
+                popupMenu.add(createShowChildNodesMenuItem(targetColumn));
+            }
 
             popupMenu.add(new JSeparator());
             popupMenu.add(fieldViewsMenuItem);
@@ -503,7 +503,7 @@ public class ArbilTable extends JTable {
                             currentWidth = MAX_COLUMN_WIDTH;
                         }
                     }
-                } else{
+                } else {
                     currentWidth = tableColumn.getWidth();
                 }
                 tableColumn.setPreferredWidth(currentWidth);
