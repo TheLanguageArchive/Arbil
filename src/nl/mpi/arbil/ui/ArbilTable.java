@@ -123,6 +123,7 @@ public class ArbilTable extends JTable {
         if (!arbilTableModel.hideContextMenuAndStatusBar && evt.isPopupTrigger()) {
             //targetTable = ((JTableHeader) evt.getComponent()).getTable();
             final int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
+            final String targetColumnName = arbilTableModel.getColumnName(targetColumn);
             System.out.println("columnIndex: " + targetColumn);
             final JPopupMenu popupMenu = new JPopupMenu();
             // TODO: also add show only selected columns
@@ -221,7 +222,7 @@ public class ArbilTable extends JTable {
                     arbilTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
                 }
             });
-            final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+            final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + targetColumnName + "\"");
             setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -242,32 +243,35 @@ public class ArbilTable extends JTable {
                 }
             });
             final JCheckBoxMenuItem setFixedColumnSize = new JCheckBoxMenuItem("Fixed column size");
-            setFixedColumnSize.setSelected(arbilTableModel.getPreferredColumnWidth(arbilTableModel.getColumnName(targetColumn)) != null);
+            setFixedColumnSize.setSelected(arbilTableModel.getPreferredColumnWidth(targetColumnName) != null);
 
             setFixedColumnSize.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    arbilTableModel.getFieldView().setColumnWidth(arbilTableModel.getColumnName(targetColumn),
-                            setFixedColumnSize.isSelected()?
-                                getColumnModel().getColumn(targetColumn).getWidth()
-                                :
-                                null
-                            );
+                    arbilTableModel.getFieldView().setColumnWidth(targetColumnName,
+                            setFixedColumnSize.isSelected()
+                            ? getColumnModel().getColumn(targetColumn).getWidth()
+                            : null);
                 }
             });
 
+
+            final JMenu thisColumnMenu = new JMenu("This column (" + targetColumnName + ")");
+            thisColumnMenu.add(setFixedColumnSize);
             if (targetColumn != 0) {
-                popupMenu.add(createHideColumnMenuItem(targetColumn));
+                thisColumnMenu.add(createHideColumnMenuItem(targetColumn));
             }
             if (arbilTableModel.isHorizontalView()) {
-                popupMenu.add(createShowChildNodesMenuItem(targetColumn));
+                thisColumnMenu.add(createShowChildNodesMenuItem(targetColumn));
             }
-            popupMenu.add(setAllColumnsSizeFromColumn);
-            popupMenu.add(setAllColumnsSizeAuto);
-            popupMenu.add(setFixedColumnSize);
+            final JMenu allColumnsMenu = new JMenu("All columns");
+            allColumnsMenu.add(setAllColumnsSizeFromColumn);
+            allColumnsMenu.add(setAllColumnsSizeAuto);
 
+            popupMenu.add(thisColumnMenu);
+            popupMenu.add(allColumnsMenu);
+            
             popupMenu.add(new JSeparator());
-
             popupMenu.add(fieldViewsMenuItem);
             popupMenu.add(saveViewMenuItem);
             popupMenu.add(editViewMenuItem);
@@ -282,7 +286,7 @@ public class ArbilTable extends JTable {
 
     private JMenuItem createHideColumnMenuItem(final int targetColumn) {
         // prevent hide column menu showing when the session column is selected because it cannot be hidden
-        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column: \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+        JMenuItem hideColumnMenuItem = new JMenuItem("Hide Column");
         hideColumnMenuItem.setActionCommand("" + targetColumn);
         hideColumnMenuItem.addActionListener(new ActionListener() {
 
@@ -300,7 +304,7 @@ public class ArbilTable extends JTable {
 
     private JMenuItem createShowChildNodesMenuItem(final int targetColumn) {
         JMenuItem showChildNodesMenuItem = new javax.swing.JMenuItem();
-        showChildNodesMenuItem.setText("Show Child Nodes for \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+        showChildNodesMenuItem.setText("Show Child Nodes");
         showChildNodesMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -499,12 +503,12 @@ public class ArbilTable extends JTable {
         }
     }
 
-    public void updateStoredColumnWidhts(){
+    public void updateStoredColumnWidhts() {
         final ArbilFieldView fieldView = arbilTableModel.getFieldView();
-        for(int i=0;i<getColumnModel().getColumnCount();i++){
+        for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
             TableColumn column = getColumnModel().getColumn(i);
             final String columnName = column.getHeaderValue().toString();
-            if(fieldView.hasColumnWidthForColumn(columnName)){
+            if (fieldView.hasColumnWidthForColumn(columnName)) {
                 fieldView.setColumnWidth(columnName, column.getWidth());
             }
         }
