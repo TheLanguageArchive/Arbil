@@ -1214,7 +1214,11 @@ public class ArbilDataNode implements Comparable {
      * @return The string comparison result.
      */
     public int compareTo(Object o) throws ClassCastException {
-        return imdiTreeNodeSorter.compare(this, o);
+        if (isFavorite()) {
+            return favouriteSorter.compare(this, o);
+        } else {
+            return dataNodeSorter.compare(this, o);
+        }
     }
 
     public synchronized void notifyLoaded() {
@@ -1861,13 +1865,19 @@ public class ArbilDataNode implements Comparable {
             }
         }
     }
+    private Boolean isFavorite = null;
 
     public boolean isFavorite() {
-        if (!this.isLocal()) {
-            // only local files can be favourites
-            return false;
+        // Is being cached because comparator checks this every time
+        if (isFavorite == null) {
+            if (!this.isLocal()) {
+                // only local files can be favourites
+                return false;
+            }
+            isFavorite = ArbilSessionStorage.getSingleInstance().pathIsInFavourites(this.getFile());
         }
-        return ArbilSessionStorage.getSingleInstance().pathIsInFavourites(this.getFile());
+        return isFavorite;
+
         //        return getParentDomNode().isFavourite;
     }
 
@@ -1887,15 +1897,16 @@ public class ArbilDataNode implements Comparable {
         }
         return icon;
     }
-    private static ArbilNodeSorter imdiTreeNodeSorter = new ArbilNodeSorter();
+    private static ArbilNodeSorter dataNodeSorter = new ArbilNodeSorter();
+    private static ArbilNodeSorter favouriteSorter = new ArbilFavouritesSorter();
 
     /**
      * @return the dataLoaded
      */
     public boolean isDataLoaded() {
-        if(isChildNode()){
+        if (isChildNode()) {
             return getParentDomNode().dataLoaded;
-        } else{
+        } else {
             return dataLoaded;
         }
     }

@@ -41,7 +41,7 @@ public class ArbilNodeSorter implements Comparator {
         }
     }
 
-    private int getTypeIndex(ArbilDataNode targetDataNode) {
+    protected int getTypeIndex(ArbilDataNode targetDataNode) {
         if (targetDataNode.isInfoLink) {
             return 1;
         }
