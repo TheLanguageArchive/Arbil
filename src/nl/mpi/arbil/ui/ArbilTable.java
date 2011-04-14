@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -123,11 +124,11 @@ public class ArbilTable extends JTable {
             //targetTable = ((JTableHeader) evt.getComponent()).getTable();
             final int targetColumn = convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY())));
             System.out.println("columnIndex: " + targetColumn);
-            JPopupMenu popupMenu = new JPopupMenu();
+            final JPopupMenu popupMenu = new JPopupMenu();
             // TODO: also add show only selected columns
             // TODO: also add hide selected columns
 
-            JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
+            final JMenuItem saveViewMenuItem = new JMenuItem("Save Current Column View");
             saveViewMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -136,7 +137,7 @@ public class ArbilTable extends JTable {
                         String fieldViewName = (String) JOptionPane.showInputDialog(null, "Enter a name to save this Column View as", "Save Column View", JOptionPane.PLAIN_MESSAGE);
                         // if the user did not cancel
                         if (fieldViewName != null) {
-                            arbilTableModel.getFieldView().storeColumnWidths(getColumnModel());
+                            updateStoredColumnWidhts();
 
                             if (!ArbilFieldViews.getSingleInstance().addArbilFieldView(fieldViewName, arbilTableModel.getFieldView())) {
                                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("A Column View with the same name already exists, nothing saved", "Save Column View");
@@ -147,10 +148,11 @@ public class ArbilTable extends JTable {
                     }
                 }
             });
-            JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
+            final JMenuItem editViewMenuItem = new JMenuItem("Edit this Column View");
             editViewMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
+                    updateStoredColumnWidhts();
                     try {
                         ArbilFieldViewTable fieldViewTable = new ArbilFieldViewTable(arbilTableModel);
                         JDialog editViewsDialog = new JDialog(JOptionPane.getFrameForComponent(ArbilWindowManager.getSingleInstance().linorgFrame), true);
@@ -164,7 +166,7 @@ public class ArbilTable extends JTable {
                     }
                 }
             });
-            JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
+            final JMenuItem showOnlyCurrentViewMenuItem = new JMenuItem("Limit View to Current Columns");
             showOnlyCurrentViewMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -179,7 +181,7 @@ public class ArbilTable extends JTable {
             //popupMenu.add(applyViewNenuItem);
             //popupMenu.add(saveViewMenuItem);
             // create the views sub menu
-            JMenu fieldViewsMenuItem = new JMenu("Column View for this Table");
+            final JMenu fieldViewsMenuItem = new JMenu("Column View for this Table");
             ButtonGroup viewMenuButtonGroup = new javax.swing.ButtonGroup();
             //String currentGlobalViewLabel = GuiHelper.imdiFieldViews.currentGlobalViewName;
             for (Enumeration savedViewsEnum = ArbilFieldViews.getSingleInstance().getSavedFieldViewLables(); savedViewsEnum.hasMoreElements();) {
@@ -203,7 +205,7 @@ public class ArbilTable extends JTable {
                 });
                 fieldViewsMenuItem.add(viewLabelMenuItem);
             }
-            JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
+            final JMenuItem copyEmbedTagMenuItem = new JMenuItem("Copy Table For Website");
             copyEmbedTagMenuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -219,7 +221,7 @@ public class ArbilTable extends JTable {
                     arbilTableModel.copyHtmlEmbedTagToClipboard(sizedComponent.getHeight(), sizedComponent.getWidth());
                 }
             });
-            JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
+            final JMenuItem setAllColumnsSizeFromColumn = new JMenuItem("Make all columns the size of \"" + arbilTableModel.getColumnName(targetColumn) + "\"");
             setAllColumnsSizeFromColumn.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -230,7 +232,7 @@ public class ArbilTable extends JTable {
                     }
                 }
             });
-            JMenuItem setAllColumnsSizeAuto = new JMenuItem("Make all columns fit contents");
+            final JMenuItem setAllColumnsSizeAuto = new JMenuItem("Make all columns fit contents");
             setAllColumnsSizeAuto.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -238,7 +240,20 @@ public class ArbilTable extends JTable {
                     doResizeColumns();
                 }
             });
+            final JCheckBoxMenuItem setFixedColumnSize = new JCheckBoxMenuItem("Fixed column size");
+            setFixedColumnSize.setSelected(arbilTableModel.getPreferredColumnWidth(arbilTableModel.getColumnName(targetColumn)) != null);
 
+            setFixedColumnSize.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    arbilTableModel.getFieldView().setColumnWidth(arbilTableModel.getColumnName(targetColumn),
+                            setFixedColumnSize.isSelected()?
+                                getColumnModel().getColumn(targetColumn).getWidth()
+                                :
+                                null
+                            );
+                }
+            });
 
             if (targetColumn != 0) {
                 popupMenu.add(createHideColumnMenuItem(targetColumn));
@@ -248,6 +263,7 @@ public class ArbilTable extends JTable {
             }
             popupMenu.add(setAllColumnsSizeFromColumn);
             popupMenu.add(setAllColumnsSizeAuto);
+            popupMenu.add(setFixedColumnSize);
 
             popupMenu.add(new JSeparator());
 
@@ -479,6 +495,17 @@ public class ArbilTable extends JTable {
         } finally {
             g.dispose();
             arbilTableModel.setWidthsChanged(false);
+        }
+    }
+
+    public void updateStoredColumnWidhts(){
+        final ArbilFieldView fieldView = arbilTableModel.getFieldView();
+        for(int i=0;i<getColumnModel().getColumnCount();i++){
+            TableColumn column = getColumnModel().getColumn(i);
+            final String columnName = column.getHeaderValue().toString();
+            if(fieldView.hasColumnWidthForColumn(columnName)){
+                fieldView.setColumnWidth(columnName, column.getWidth());
+            }
         }
     }
 
