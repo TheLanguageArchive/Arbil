@@ -240,7 +240,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
             fieldEditor.setWrapStyleWord(true);
         } else {
             ControlledVocabularyComboBox fieldEditor = (ControlledVocabularyComboBox) fieldEditors[cellFieldIndex];
-            ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(text, arbilFields[cellFieldIndex], fieldEditor);
+            ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(text, text, arbilFields[cellFieldIndex], fieldEditor);
             fieldEditor.setEditor(cvcbEditor);
 
             cvcbEditor.addFocusListener(editorFocusListener);

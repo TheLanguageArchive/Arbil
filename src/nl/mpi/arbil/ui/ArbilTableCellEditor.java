@@ -261,7 +261,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                     String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
 
                     // Set the editor for the combobox, so that it supports typeahead
-                    final ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, (ArbilField) cellValue[selectedField], cvComboBox);
+                    final ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, currentCellString, (ArbilField) cellValue[selectedField], cvComboBox);
                     cvComboBox.setEditor(cvcbEditor);
 
                     cvComboBox.addPopupMenuListener(new PopupMenuListener() {
@@ -274,7 +274,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         }
 
                         public void popupMenuCanceled(PopupMenuEvent e) {
-                            cvcbEditor.setText(currentCellString);
+//                            cvcbEditor.setText(currentCellString);
                             fireEditingStopped();
                         }
                     });

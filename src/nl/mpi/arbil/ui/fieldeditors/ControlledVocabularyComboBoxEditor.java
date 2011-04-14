@@ -28,7 +28,9 @@ import nl.mpi.arbil.data.ArbilVocabulary;
  */
 public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor implements ComboBoxEditor, KeyListener, FocusListener {
 
-    public ControlledVocabularyComboBoxEditor(String initialValue, ArbilField arbilField, JComboBox comboBox) {
+    private final String originalValue;
+
+    public ControlledVocabularyComboBoxEditor(String initialValue, String originalValue, ArbilField arbilField, JComboBox comboBox) {
         super(initialValue);
         this.initialValue = initialValue;
 
@@ -41,6 +43,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
 
         this.targetField = arbilField;
         this.vocabulary = arbilField.getVocabulary();
+        this.originalValue = originalValue;
 
         addKeyListener(this);
         addFocusListener(this);
@@ -128,6 +131,8 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
                 // ENTER pressed or SEPARATOR in list field.
                 // Autocomplete current item
                 handleAutocompleteKey(e);
+            } else if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                setText(originalValue);
             } else if (e.isActionKey()) {
                 // Navigate combo items
                 handleNavigateComboKey(e);
