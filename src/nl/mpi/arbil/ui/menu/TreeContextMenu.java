@@ -20,6 +20,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
+import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -631,41 +632,51 @@ public class TreeContextMenu extends ArbilContextMenu {
         if (targetNodeUserObject instanceof ArbilDataNode && !((ArbilDataNode) targetNodeUserObject).isCorpus()) {
             ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
             currentTemplate = ((ArbilDataNode) targetNodeUserObject).getNodeTemplate();
+
+            MetadataBuilder mdBuilder = new MetadataBuilder();
+
             for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
-                String[] currentField = (String[]) menuItemName.nextElement();
+                final String[] currentField = (String[]) menuItemName.nextElement();
+                final String nodeText = currentField[0];
+                final String nodeType = currentField[1];
 
                 JMenuItem addMenuItem;
                 addMenuItem = new JMenuItem();
-                addMenuItem.setText(currentField[0]);
-                addMenuItem.setName(currentField[0]);
-                addMenuItem.setToolTipText(currentField[1]);
-                addMenuItem.setActionCommand(currentField[1]);
-                if (null != currentTemplate.pathIsChildNode(currentField[1])) {
+                addMenuItem.setText(nodeText);
+                addMenuItem.setName(nodeText);
+                addMenuItem.setToolTipText(nodeType);
+                if (null != currentTemplate.pathIsChildNode(nodeType)) {
                     addMenuItem.setIcon(arbilIcons.dataIcon);
                 } else {
                     addMenuItem.setIcon(arbilIcons.fieldIcon);
                 }
-                addMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        try {
-                            if (leadSelectedTreeNode != null) {
-                                if (!leadSelectedTreeNode.getParentDomNode().hasChangedFieldsInSubtree()
-                                        || ArbilWindowManager.getSingleInstance().showConfirmDialogBox(
-                                        "Adding a node will save pending changes to \""
-                                        + leadSelectedTreeNode.getParentDomNode().toString()
-                                        + "\" to disk. Do you want to proceed?", "Save pending changes?")) {
-                                    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                if (mdBuilder.canAddChildNode((ArbilDataNode) targetNodeUserObject, nodeType)) {
+
+                    addMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                        public void actionPerformed(java.awt.event.ActionEvent evt) {
+                            try {
+                                if (leadSelectedTreeNode != null) {
+                                    if (!leadSelectedTreeNode.getParentDomNode().hasChangedFieldsInSubtree()
+                                            || ArbilWindowManager.getSingleInstance().showConfirmDialogBox(
+                                            "Adding a node will save pending changes to \""
+                                            + leadSelectedTreeNode.getParentDomNode().toString()
+                                            + "\" to disk. Do you want to proceed?", "Save pending changes?")) {
+                                        new MetadataBuilder().requestAddNode(leadSelectedTreeNode, nodeType, nodeText);
+                                    }
+                                } else {
+                                    // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
+                                    new MetadataBuilder().requestRootAddNode(nodeType, ((JMenuItem) evt.getSource()).getText());
                                 }
-                            } else {
-                                // no nodes found that were valid imdi tree objects so we can assume that tis is the tree root
-                                new MetadataBuilder().requestRootAddNode(evt.getActionCommand(), ((JMenuItem) evt.getSource()).getText());
+                            } catch (Exception ex) {
+                                GuiHelper.linorgBugCatcher.logError(ex);
                             }
-                        } catch (Exception ex) {
-                            GuiHelper.linorgBugCatcher.logError(ex);
                         }
-                    }
-                });
+                    });
+                } else {
+                    addMenuItem.setEnabled(false);
+                }
                 addMenu.add(addMenuItem);
             }
         } else {

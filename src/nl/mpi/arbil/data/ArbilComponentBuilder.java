@@ -320,55 +320,6 @@ public class ArbilComponentBuilder {
         }
     }
 
-    public static Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
-        // todo: read the template for max occurs values and use them here and for all inserts
-        Node insertBeforeNode = null;
-        if (insertBefore != null && insertBefore.length() > 0) {
-            String[] insertBeforeArray = insertBefore.split(",");
-            // find the node to add the new section before
-            NodeList childNodes = destinationNode.getChildNodes();
-            outerloop:
-            for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
-                String childsName = childNodes.item(childCounter).getLocalName();
-                for (String currentInsertBefore : insertBeforeArray) {
-                    if (currentInsertBefore.equals(childsName)) {
-                        System.out.println("insertbefore: " + childsName);
-                        insertBeforeNode = childNodes.item(childCounter);
-                        break outerloop;
-
-                    }
-                }
-            }
-        }
-        if (maxOccurs > 0) {
-            String addableName = addableNode.getLocalName();
-            if (addableName == null) {
-                addableName = addableNode.getNodeName();
-            }
-            NodeList childNodes = destinationNode.getChildNodes();
-            int duplicateNodeCounter = 0;
-            for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
-                String childsName = childNodes.item(childCounter).getLocalName();
-                if (addableName.equals(childsName)) {
-                    duplicateNodeCounter++;
-                    if (duplicateNodeCounter >= maxOccurs) {
-                        throw new ArbilMetadataException("The maximum nodes of this type have already been added.\n");
-                    }
-                }
-            }
-        }
-        // find the node to add the new section to
-        Node addedNode;
-        if (insertBeforeNode != null) {
-            System.out.println("inserting before: " + insertBeforeNode.getNodeName());
-            addedNode = destinationNode.insertBefore(addableNode, insertBeforeNode);
-        } else {
-            System.out.println("inserting");
-            addedNode = destinationNode.appendChild(addableNode);
-        }
-        return addedNode;
-    }
-
     public URI insertFavouriteComponent(ArbilDataNode destinationArbilDataNode, ArbilDataNode favouriteArbilDataNode) throws ArbilMetadataException {
         URI returnUri = null;
         // this node has already been saved in the metadatabuilder which called this
@@ -446,6 +397,65 @@ public class ArbilComponentBuilder {
             bugCatcher.logError(exception);
         }
         return returnUri;
+    }
+
+
+    public static boolean canInsertNode(Node destinationNode, Node addableNode, int maxOccurs) {
+        if (maxOccurs > 0) {
+            String addableName = addableNode.getLocalName();
+            if (addableName == null) {
+                addableName = addableNode.getNodeName();
+            }
+            NodeList childNodes = destinationNode.getChildNodes();
+            int duplicateNodeCounter = 0;
+            for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
+                String childsName = childNodes.item(childCounter).getLocalName();
+                if (addableName.equals(childsName)) {
+                    duplicateNodeCounter++;
+                    if (duplicateNodeCounter >= maxOccurs) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public static Node insertNodeInOrder(Node destinationNode, Node addableNode, String insertBefore, int maxOccurs) throws TransformerException, ArbilMetadataException {
+        if (!canInsertNode(destinationNode, addableNode, maxOccurs)) {
+            throw new ArbilMetadataException("The maximum nodes of this type have already been added.\n");
+        }
+
+        // todo: read the template for max occurs values and use them here and for all inserts
+        Node insertBeforeNode = null;
+        if (insertBefore != null && insertBefore.length() > 0) {
+            String[] insertBeforeArray = insertBefore.split(",");
+            // find the node to add the new section before
+            NodeList childNodes = destinationNode.getChildNodes();
+            outerloop:
+            for (int childCounter = 0; childCounter < childNodes.getLength(); childCounter++) {
+                String childsName = childNodes.item(childCounter).getLocalName();
+                for (String currentInsertBefore : insertBeforeArray) {
+                    if (currentInsertBefore.equals(childsName)) {
+                        System.out.println("insertbefore: " + childsName);
+                        insertBeforeNode = childNodes.item(childCounter);
+                        break outerloop;
+
+                    }
+                }
+            }
+        }
+
+        // find the node to add the new section to
+        Node addedNode;
+        if (insertBeforeNode != null) {
+            System.out.println("inserting before: " + insertBeforeNode.getNodeName());
+            addedNode = destinationNode.insertBefore(addableNode, insertBeforeNode);
+        } else {
+            System.out.println("inserting");
+            addedNode = destinationNode.appendChild(addableNode);
+        }
+        return addedNode;
     }
 
     public URI insertChildComponent(ArbilDataNode arbilDataNode, String targetXmlPath, String cmdiComponentId) {

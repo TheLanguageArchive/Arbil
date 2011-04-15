@@ -28,15 +28,14 @@ public class MetadataBuilder {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     private static WindowManager windowManager;
-    public static void setWindowManager(WindowManager windowManagerInstance){
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
 
@@ -48,6 +47,50 @@ public class MetadataBuilder {
     public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
         ArbilDataNode arbilDataNode = new ArbilDataNode(ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
         requestAddNode(arbilDataNode, nodeType, nodeTypeDisplayName);
+    }
+
+    /**
+     * Checks whether the destinationNode in its current state supports adding a node of the specified type <em>FROM IMDI TEMPLATE</em>
+     *
+     * <strong>NOTE:</strong> For other node types, specifically CMDI NODES, this method will <strong>always return true</strong>
+     * 
+     * @param destinationNode Proposed destination node
+     * @param nodeType Full type name of the node to add
+     * @return Whether the node can be added - if it is an IMDI template. Otherwise, always returns TRUE
+     */
+    public boolean canAddChildNode(final ArbilDataNode destinationNode, final String nodeType) {
+        final String targetXmlPath = destinationNode.getURI().getFragment();
+
+        synchronized (destinationNode.getParentDomLockObject()) {
+            // Ignore CMDI metadata
+            if (!(nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode())) {
+                // Ignore non-child nodes
+                if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType)) {
+                    // Do a quick pre-check whether there is a finite number of occurrences
+                    if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
+                        System.out.println("adding to current node");
+                        try {
+                            Document nodDom = nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+                            if (nodDom == null) {
+                                messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
+                            } else {
+                                return MetadataReader.getSingleInstance().canInsertFromTemplate(destinationNode.getNodeTemplate(), nodeType, targetXmlPath, nodDom);
+                            }
+                        } catch (ParserConfigurationException ex) {
+                            bugCatcher.logError(ex);
+                        } catch (SAXException ex) {
+                            bugCatcher.logError(ex);
+                        } catch (IOException ex) {
+                            bugCatcher.logError(ex);
+                        } catch (ArbilMetadataException ex) {
+                            bugCatcher.logError(ex);
+                        }
+                    }
+                }
+            }
+        }
+        // Other cases not handled
+        return true;
     }
 
     /**
