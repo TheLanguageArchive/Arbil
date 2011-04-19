@@ -127,8 +127,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 
                 addMenu.setVisible(selectedTreeNodes.length == 1);// for now adding is limited to single node selections
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
-                deleteMenuItem.setVisible(!isFavouriteTopLevel);
-                deleteMenuItem.setEnabled(!isFavouriteTopLevel);
+                // for now deleting is limited to single node selections, to prevent top level favourites for being deleted in multi-selections
+                deleteMenuItem.setVisible(!isFavouriteTopLevel && selectedTreeNodes.length == 1);
+                deleteMenuItem.setEnabled(!isFavouriteTopLevel && selectedTreeNodes.length == 1);
             } else { // Nodes that are not favourites
                 removeFromFavouritesMenuItem.setVisible(false);
                 addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isMetaDataNode());
