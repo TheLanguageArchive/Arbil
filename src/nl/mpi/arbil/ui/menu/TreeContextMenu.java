@@ -119,14 +119,16 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         }
         if (leadSelectedTreeNode != null) {
-            if (leadSelectedTreeNode.isFavorite() && TreeHelper.getSingleInstance().isInFavouritesNodes(leadSelectedTreeNode)) {
+            if (leadSelectedTreeNode.isFavorite()) {
+                boolean isFavouriteTopLevel = TreeHelper.getSingleInstance().isInFavouritesNodes(leadSelectedTreeNode);
                 addToFavouritesMenuItem.setVisible(false);
-                removeFromFavouritesMenuItem.setVisible(true);
-                removeFromFavouritesMenuItem.setEnabled(true);
+                removeFromFavouritesMenuItem.setVisible(isFavouriteTopLevel);
+                removeFromFavouritesMenuItem.setEnabled(isFavouriteTopLevel);
 
                 addMenu.setVisible(selectedTreeNodes.length == 1);// for now adding is limited to single node selections
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
-                deleteMenuItem.setEnabled(false);
+                deleteMenuItem.setVisible(!isFavouriteTopLevel);
+                deleteMenuItem.setEnabled(!isFavouriteTopLevel);
             } else { // Nodes that are not favourites
                 removeFromFavouritesMenuItem.setVisible(false);
                 addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isMetaDataNode());
