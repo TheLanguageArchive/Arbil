@@ -68,6 +68,7 @@ public class ArbilDataNode implements Comparable {
     private String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
     private URI nodeUri;
+    private boolean resourceSet;
     public ArbilField resourceUrlField;
     public CmdiComponentLinkReader cmdiComponentLinkReader = null;
     public boolean isDirectory;
@@ -1916,5 +1917,12 @@ public class ArbilDataNode implements Comparable {
      */
     public void setDataLoaded(boolean dataLoaded) {
         this.dataLoaded = dataLoaded;
+    }
+
+    /**
+     * @return Whether a resource URI has been set for this node
+     */
+    public boolean isResourceSet() {
+        return resourceUrlField != null && !resourceUrlField.getFieldValue().isEmpty();
     }
 }

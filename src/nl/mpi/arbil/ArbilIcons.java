@@ -296,7 +296,11 @@ public class ArbilIcons {
         }
         // add missing file icon
         if ((arbilNode.fileNotFound || arbilNode.resourceFileNotFound())) {
-            iconsVector.add(missingRedIcon);
+            if (arbilNode.isResourceSet()) {
+                iconsVector.add(missingRedIcon);
+            } else {
+                iconsVector.add(questionRedIcon);
+            }
         }
         // add a file attached to a session icon
         if (!arbilNode.isMetaDataNode() && arbilNode.matchesInCache + arbilNode.matchesRemote > 0) {
