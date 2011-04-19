@@ -271,7 +271,10 @@ public class MimeHashQueue {
                     resourceConnection.setRequestProperty("Connection", "Close");
 //            System.out.println("conn: " + resourceConnection.getURL());
                     currentDataNode.resourceFileServerResponse = resourceConnection.getResponseCode();
-                    if (currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND || currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN) {
+                    if (currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_NOT_FOUND 
+                            || currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_FORBIDDEN
+                            || currentDataNode.resourceFileServerResponse == HttpURLConnection.HTTP_MOVED_PERM // Many not founds turn up as a 301
+                            ) {
                         currentDataNode.fileNotFound = true;
                     } else {
                         currentDataNode.fileNotFound = false;
