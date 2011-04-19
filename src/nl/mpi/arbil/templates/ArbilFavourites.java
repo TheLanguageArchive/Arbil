@@ -79,7 +79,7 @@ public class ArbilFavourites {
             }
         }
         for (ArbilDataNode currentImdiObject : imdiObjectArray) {
-            if (currentImdiObject.isEmptyMetaNode()) {
+            if (setAsTempate && currentImdiObject.isEmptyMetaNode()) {
                 // don't add this node, but do add its children (if there are any)
                 if (currentImdiObject.getChildArray().length > 0) {
                     toggleFavouritesList(currentImdiObject.getChildArray(), true);

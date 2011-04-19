@@ -20,7 +20,6 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
-import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -120,7 +119,7 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         }
         if (leadSelectedTreeNode != null) {
-            if (leadSelectedTreeNode.isFavorite()) {
+            if (leadSelectedTreeNode.isFavorite() && TreeHelper.getSingleInstance().isInFavouritesNodes(leadSelectedTreeNode)) {
                 addToFavouritesMenuItem.setVisible(false);
                 removeFromFavouritesMenuItem.setVisible(true);
                 removeFromFavouritesMenuItem.setEnabled(true);

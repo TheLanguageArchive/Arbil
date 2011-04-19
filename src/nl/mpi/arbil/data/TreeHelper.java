@@ -335,14 +335,14 @@ public class TreeHelper {
                         } else {
                             toDeleteCount++;
                         }
-                        if(nameOfFirst == null){
-                            nameOfFirst = ((ArbilDataNode)userObject).toString();
+                        if (nameOfFirst == null) {
+                            nameOfFirst = ((ArbilDataNode) userObject).toString();
                         }
                     }
                 }
             }
             if (JOptionPane.OK_OPTION == messageDialogHandler.showDialogBox(
-                    "Delete " + (toDeleteCount == 1?"the node \""+nameOfFirst+"\"?": toDeleteCount + " nodes?")
+                    "Delete " + (toDeleteCount == 1 ? "the node \"" + nameOfFirst + "\"?" : toDeleteCount + " nodes?")
                     + " This will also save any pending changes to disk.", "Delete",
                     JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
                 // make lists of nodes to delete
@@ -446,5 +446,9 @@ public class TreeHelper {
                 messageDialogHandler.addMessageDialogToQueue("The selected cell has no value or is not associated with a node in the tree", "Jump to in Tree");
             }
         }
+    }
+
+    public boolean isInFavouritesNodes(ArbilDataNode dataNode) {
+        return Arrays.asList(favouriteNodes).contains(dataNode);
     }
 }
