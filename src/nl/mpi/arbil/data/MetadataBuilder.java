@@ -38,6 +38,7 @@ public class MetadataBuilder {
     public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
+    private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
     /**
      * Requests to add a new node of given type to root
@@ -50,21 +51,21 @@ public class MetadataBuilder {
     }
 
     /**
-     * Checks whether the destinationNode in its current state supports adding a node of the specified type <em>FROM IMDI TEMPLATE</em>
-     *
-     * <strong>NOTE:</strong> For other node types, specifically CMDI NODES, this method will <strong>always return true</strong>
+     * Checks whether the destinationNode in its current state supports adding a node of the specified type
      * 
      * @param destinationNode Proposed destination node
      * @param nodeType Full type name of the node to add
-     * @return Whether the node can be added - if it is an IMDI template. Otherwise, always returns TRUE
+     * @return Whether the node can be added
      */
     public boolean canAddChildNode(final ArbilDataNode destinationNode, final String nodeType) {
         final String targetXmlPath = destinationNode.getURI().getFragment();
 
         synchronized (destinationNode.getParentDomLockObject()) {
             // Ignore CMDI metadata
-            if (!(nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode())) {
-                // Ignore non-child nodes
+            if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
+                // Check whether clarin sub node can be added
+                return arbilComponentBuilder.canInsertChildComponent(destinationNode, targetXmlPath, nodeType);
+            } else {                // Ignore non-child nodes
                 if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType)) {
                     // Do a quick pre-check whether there is a finite number of occurrences
                     if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
@@ -87,10 +88,10 @@ public class MetadataBuilder {
                         }
                     }
                 }
+                // Other cases not handled
+                return true;
             }
         }
-        // Other cases not handled
-        return true;
     }
 
     /**
@@ -217,8 +218,7 @@ public class MetadataBuilder {
                     addedNode.loadArbilDom();
                     addedNode.scrollToRequested = true;
                 } else {
-                    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-                    addedNodeUri = componentBuilder.insertFavouriteComponent(destinationNode, addableNode);
+                    addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
                     new ArbilComponentBuilder().removeArchiveHandles(destinationNode);
                 }
                 destinationNode.getParentDomNode().loadArbilDom();
@@ -275,8 +275,7 @@ public class MetadataBuilder {
             }
             if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
                 // Add clarin sub nodes
-                ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-                addedNodePath = componentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
+                addedNodePath = arbilComponentBuilder.insertChildComponent(destinationNode, targetXmlPath, nodeType);
             } else {
                 if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
                     System.out.println("adding to current node");
@@ -302,9 +301,8 @@ public class MetadataBuilder {
                     URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
                     if (CmdiProfileReader.pathIsProfile(nodeType)) {
                         // Is CMDI profile
-                        ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
                         try {
-                            addedNodePath = componentBuilder.createComponentFile(targetFileURI, new URI(nodeType), false);
+                            addedNodePath = arbilComponentBuilder.createComponentFile(targetFileURI, new URI(nodeType), false);
                             // TODO: some sort of warning like: "Could not add node of type: " + nodeType; would be useful here or downstream
 //                    if (addedNodePath == null) {
 //                      LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add node of type: " + nodeType, "Error inserting node");

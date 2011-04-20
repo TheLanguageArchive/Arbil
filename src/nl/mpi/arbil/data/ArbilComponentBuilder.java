@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -399,7 +400,6 @@ public class ArbilComponentBuilder {
         return returnUri;
     }
 
-
     public static boolean canInsertNode(Node destinationNode, Node addableNode, int maxOccurs) {
         if (maxOccurs > 0) {
             String addableName = addableNode.getLocalName();
@@ -458,6 +458,33 @@ public class ArbilComponentBuilder {
         return addedNode;
     }
 
+    private String checkTargetXmlPath(String targetXmlPath, String cmdiComponentId) {
+        // check for issues with the path
+        if (targetXmlPath == null) {
+            targetXmlPath = cmdiComponentId.replaceAll("\\.[^.]+$", "");
+        } else if (targetXmlPath.replaceAll("\\(\\d+\\)", "").length() == cmdiComponentId.length()) {
+            // trim the last path component if the destination equals the new node path
+            // i.e. xsdPath: .CMD.Components.Session.Resources.MediaFile.Keys.Key into .CMD.Components.Session.Resources.MediaFile(1).Keys.Key
+            targetXmlPath = targetXmlPath.replaceAll("\\.[^.]+$", "");
+        }
+        // make sure the target xpath has all the required parts
+        String[] cmdiComponentArray = cmdiComponentId.split("\\.");
+        String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
+        for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
+            System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
+            targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
+        }
+        // end path corrections
+        return targetXmlPath;
+    }
+
+    /**
+     * Adds a CMD component to a datanode
+     * @param arbilDataNode
+     * @param targetXmlPath
+     * @param cmdiComponentId
+     * @return
+     */
     public URI insertChildComponent(ArbilDataNode arbilDataNode, String targetXmlPath, String cmdiComponentId) {
         if (arbilDataNode.getNeedsSaveToDisk(false)) {
             arbilDataNode.saveChangesToCache(true);
@@ -465,22 +492,7 @@ public class ArbilComponentBuilder {
         synchronized (arbilDataNode.getParentDomLockObject()) {
             System.out.println("insertChildComponent: " + cmdiComponentId);
             System.out.println("targetXmlPath: " + targetXmlPath);
-            // check for issues with the path
-            if (targetXmlPath == null) {
-                targetXmlPath = cmdiComponentId.replaceAll("\\.[^.]+$", "");
-            } else if (targetXmlPath.replaceAll("\\(\\d+\\)", "").length() == cmdiComponentId.length()) {
-                // trim the last path component if the destination equals the new node path
-                // i.e. xsdPath: .CMD.Components.Session.Resources.MediaFile.Keys.Key into .CMD.Components.Session.Resources.MediaFile(1).Keys.Key
-                targetXmlPath = targetXmlPath.replaceAll("\\.[^.]+$", "");
-            }
-            // make sure the target xpath has all the required parts
-            String[] cmdiComponentArray = cmdiComponentId.split("\\.");
-            String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
-            for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
-                System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
-                targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
-            }
-            // end path corrections
+            targetXmlPath = checkTargetXmlPath(targetXmlPath, cmdiComponentId);
 
             System.out.println("trimmed targetXmlPath: " + targetXmlPath);
             //String targetXpath = targetNode.getURI().getFragment();
@@ -525,6 +537,41 @@ public class ArbilComponentBuilder {
             } catch (URISyntaxException exception) {
                 bugCatcher.logError(exception);
                 return null;
+            }
+        }
+    }
+
+    /**
+     * Tests whether the specified CMD component can be added to the specified datanode
+     * @param arbilDataNode
+     * @param targetXmlPath
+     * @param cmdiComponentId
+     * @return
+     */
+    public boolean canInsertChildComponent(ArbilDataNode arbilDataNode, String targetXmlPath, String cmdiComponentId) {
+        synchronized (arbilDataNode.getParentDomLockObject()) {
+            targetXmlPath = checkTargetXmlPath(targetXmlPath, cmdiComponentId);
+            try {
+                // load the schema
+                SchemaType schemaType = getFirstSchemaType(arbilDataNode);
+                // load the dom
+                Document targetDocument = getDocument(arbilDataNode.getURI());
+                // insert the new section
+                try {
+                    return canInsertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
+                } catch (ArbilMetadataException exception) {
+                    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
+                    return false;
+                }
+            } catch (IOException exception) {
+                bugCatcher.logError(exception);
+                return false;
+            } catch (ParserConfigurationException exception) {
+                bugCatcher.logError(exception);
+                return false;
+            } catch (SAXException exception) {
+                bugCatcher.logError(exception);
+                return false;
             }
         }
     }
@@ -619,7 +666,7 @@ public class ArbilComponentBuilder {
             }
             strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
         }
-        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section        
+        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section
         System.out.println("strippedXpath: " + strippedXpath);
         for (String currentPathComponent : xsdPath.split("\\.")) {
             if (currentPathComponent.length() > 0) {
@@ -707,6 +754,116 @@ public class ArbilComponentBuilder {
         return addedNode;
     }
 
+    private boolean canInsertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
+        System.out.println("insertSectionToXpath");
+        System.out.println("xsdPath: " + xsdPath);
+        System.out.println("targetXpath: " + targetXpath);
+        SchemaProperty foundProperty = null;
+        String insertBefore = "";
+        if (targetXpath == null) {
+            documentNode = documentNode.getParentNode();
+        } else {
+            try {
+                documentNode = selectSingleNode(targetDocument, targetXpath);
+            } catch (TransformerException exception) {
+                bugCatcher.logError(exception);
+                return false;
+            }
+        }
+        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section
+        for (String currentPathComponent : xsdPath.split("\\.")) {
+            if (currentPathComponent.length() > 0) {
+                foundProperty = null;
+                for (SchemaProperty schemaProperty : schemaType.getProperties()) {
+                    String currentName = schemaProperty.getName().getLocalPart();
+                    //System.out.println("currentName: " + currentName);
+                    if (foundProperty == null) {
+                        if (currentPathComponent.equals(currentName)) {
+                            foundProperty = schemaProperty;
+                            insertBefore = "";
+                        }
+                    } else {
+                        if (!schemaProperty.isAttribute()) {
+                            if (insertBefore.length() < 1) {
+                                insertBefore = currentName;
+                            } else {
+                                insertBefore = insertBefore + "," + currentName;
+                            }
+                        }
+                    }
+                }
+                if (foundProperty == null) {
+                    throw new ArbilMetadataException("failed to find the path in the schema: " + currentPathComponent);
+                } else {
+                    schemaType = foundProperty.getType();
+                }
+            }
+        }
+        System.out.println("Adding destination sub nodes node to: " + documentNode.getLocalName());
+        Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
+
+        System.out.println("insertBefore: " + insertBefore);
+        int maxOccurs;
+        if (foundProperty.getMaxOccurs() != null) {
+            maxOccurs = foundProperty.getMaxOccurs().intValue();
+        } else {
+            maxOccurs = -1;
+        }
+        System.out.println("maxOccurs: " + maxOccurs);
+        if (insertBefore.length() > 0 || maxOccurs != -1) {
+            documentNode.removeChild(addedNode);
+            return canInsertNode(documentNode, addedNode, maxOccurs);
+        }
+        return true;
+    }
+
+    private boolean _canInsertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
+        SchemaProperty foundProperty = null;
+        String strippedXpath = null;
+        if (targetXpath == null) {
+            documentNode = documentNode.getParentNode();
+        } else {
+            try {
+                // test profile book is a good sample to test for errors; if you add Authors description from the root of the node it will cause a schema error but if you add from the author it is valid
+                documentNode = selectSingleNode(targetDocument, targetXpath);
+            } catch (TransformerException exception) {
+                bugCatcher.logError(exception);
+                return false;
+            }
+            strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
+        }
+        // at this point we have the xml node that the user acted on but next must get any additional nodes with the next section        
+        System.out.println("strippedXpath: " + strippedXpath);
+        for (String currentPathComponent : xsdPath.split("\\.")) {
+            if (currentPathComponent.length() > 0) {
+                // get the starting point in the schema
+                foundProperty = null;
+                for (SchemaProperty schemaProperty : schemaType.getProperties()) {
+                    String currentName = schemaProperty.getName().getLocalPart();
+                    if (foundProperty == null) {
+                        if (currentPathComponent.equals(currentName)) {
+                            foundProperty = schemaProperty;
+                        }
+                    }
+                }
+                if (foundProperty == null) {
+                    throw new ArbilMetadataException("failed to find the path in the schema: " + currentPathComponent);
+                } else {
+                    schemaType = foundProperty.getType();
+                }
+            }
+        }
+        Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
+
+        int maxOccurs;
+        if (foundProperty.getMaxOccurs() != null) {
+            maxOccurs = foundProperty.getMaxOccurs().intValue();
+        } else {
+            maxOccurs = -1;
+        }
+        return canInsertNode(documentNode, addedNode, maxOccurs);
+    }
+
     public static String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
         System.out.println("Calculating the added fragment");
         // count siblings to get the correct child index for the fragment
@@ -766,19 +923,40 @@ public class ArbilComponentBuilder {
         }
         return cmdiNodeFile;
     }
+    private HashMap<ArbilDataNode, SchemaType> nodeSchemaTypeMap = new HashMap<ArbilDataNode, SchemaType>();
+
+    /**
+     * Caches schema type for data nodes as fetching the schema type is rather expensive.
+     * This is not static, so only as long as this component builder lives (e.g. during series of canInsertChildComponent calls)
+     * @param arbilDataNode
+     * @return
+     */
+    private SchemaType getFirstSchemaType(ArbilDataNode arbilDataNode) {
+        if (nodeSchemaTypeMap.containsKey(arbilDataNode)) {
+            return nodeSchemaTypeMap.get(arbilDataNode);
+        } else {
+            SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
+            nodeSchemaTypeMap.put(arbilDataNode, schemaType);
+            return schemaType;
+        }
+    }
 
     private SchemaType getFirstSchemaType(File schemaFile) {
         try {
             InputStream inputStream = new FileInputStream(schemaFile);
-            //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
-            XmlOptions xmlOptions = new XmlOptions();
-            xmlOptions.setCharacterEncoding("UTF-8");
+            try {
+                //Since we're dealing with xml schema files here the character encoding is assumed to be UTF-8
+                XmlOptions xmlOptions = new XmlOptions();
+                xmlOptions.setCharacterEncoding("UTF-8");
 //            CatalogDocument catalogDoc = CatalogDocument.Factory.newInstance(); 
-            xmlOptions.setEntityResolver(new ArbilEntityResolver(ArbilSessionStorage.getSingleInstance().getOriginatingUri(schemaFile.toURI()))); // this schema file is in the cache and must be resolved back to the origin in order to get unresolved imports within the schema file
-            //xmlOptions.setCompileDownloadUrls();
-            SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
-            // there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
-            return sts.documentTypes()[0];
+                xmlOptions.setEntityResolver(new ArbilEntityResolver(ArbilSessionStorage.getSingleInstance().getOriginatingUri(schemaFile.toURI()))); // this schema file is in the cache and must be resolved back to the origin in order to get unresolved imports within the schema file
+                //xmlOptions.setCompileDownloadUrls();
+                SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+                // there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
+                return sts.documentTypes()[0];
+            } finally {
+                inputStream.close();
+            }
         } catch (IOException e) {
             bugCatcher.logError(e);
         } catch (XmlException e) {
