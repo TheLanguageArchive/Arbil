@@ -6,7 +6,8 @@
  * @author Peter.Withers@mpi.nl
 -->
 <project name="Arbil" default="compile">
-    <target name="setproperties">
+	<target name="setproperties">
+    	<property file="${user.home}/.ant.properties"/>
         <property name="arbil.current.major" value="2"/>
         <property name="arbil.current.minor" value="2"/>
         <property name="arbil.filenameidentifier" value="-pretesting"/>
@@ -492,5 +493,32 @@ public class ArbilVersion {
             <!-- -DgeneratePom=true -->
         </exec>
     </target>
+<!-- Findbugs stuff -->
+	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+
+	<!--
+		If the ant property findbugs_home is set, it is used.
+		Otherwise the environment variable FINDBUGS_HOME is used.
+		If both are unset, an error will occur.
+	-->
+	<target name="setFindbugsHome" if="env.FINDBUGS_HOME">
+		<property name="findbugs_home" value="${env.FINDBUGS_HOME}"/>
+	</target>
+	
+	<target name="checkFindbugsHome" unless="findbugs_home">
+		<fail message="Findbugs not found! Please specify either the env var FINDBUGS_HOME or the ant property findbugs_home to point to your Findbugs installation." />
+	</target>
+
+	<target name="findbugs" depends="setproperties, compile, setFindbugsHome, checkFindbugsHome">
+		<findbugs home="${findbugs_home}" 
+			output="xml:withMessages" outputFile="findbugs.xml"
+			jvmargs="-Xmx1000m">
+			<auxClasspath location="${LIBDIR}" />
+			<sourcePath path="${SRCDIR}" />
+			<class location="${BUILDDIR}" />
+		</findbugs>
+	</target>
+	
+
 </project>
  
