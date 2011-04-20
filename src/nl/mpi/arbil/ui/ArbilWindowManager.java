@@ -392,7 +392,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
             if (null == focusWindow(ArbilHelp.helpWindowTitle)) {
                 createWindow(ArbilHelp.helpWindowTitle, helpComponent);
             }
-            helpComponent.setCurrentPage(ArbilHelp.IntroductionPage);
+            helpComponent.setCurrentPage(ArbilHelp.INTRODUCTION_PAGE);
         }
         startKeyListener();
         messagesCanBeShown = true;

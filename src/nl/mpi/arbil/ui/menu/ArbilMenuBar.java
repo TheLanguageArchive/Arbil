@@ -711,7 +711,7 @@ public class ArbilMenuBar extends JMenuBar {
         if (null == ArbilWindowManager.getSingleInstance().focusWindow(ArbilHelp.helpWindowTitle)) {
             ArbilWindowManager.getSingleInstance().createWindow(ArbilHelp.helpWindowTitle, helpComponent);
         }
-        helpComponent.setCurrentPage(ArbilHelp.ShorCutKeysPage);
+        helpComponent.setCurrentPage(ArbilHelp.SHOTCUT_KEYS_PAGE);
     }
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {

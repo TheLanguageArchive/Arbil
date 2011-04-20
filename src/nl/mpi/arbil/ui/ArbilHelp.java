@@ -27,13 +27,13 @@ import javax.swing.tree.TreeSelectionModel;
  */
 public class ArbilHelp extends javax.swing.JPanel {
 
-    static public String ShorCutKeysPage = "Short Cut Keys";
-    static public String IntroductionPage = "2. Quick Introduction";
+    final static public String SHOTCUT_KEYS_PAGE = "Short Cut Keys";
+    final static public String INTRODUCTION_PAGE = "2. Quick Introduction";
     DefaultMutableTreeNode rootContentsNode;
     DefaultTreeModel helpTreeModel;
     static private ArbilHelp singleInstance = null;
     private HelpNodeUserObject[] allHelpNodes;
-    static public String helpWindowTitle = "Help Viewer";
+    final static public String helpWindowTitle = "Help Viewer";
 
     static synchronized public ArbilHelp getSingleInstance() {
         System.out.println("LinorgHelp getSingleInstance");

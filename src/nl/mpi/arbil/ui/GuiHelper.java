@@ -30,11 +30,11 @@ import javax.swing.table.AbstractTableModel;
 public class GuiHelper {
 
 //    static ArbilDragDrop arbilDragDrop = new ArbilDragDrop();
-    public static ArbilBugCatcher linorgBugCatcher = new ArbilBugCatcher();
+    public final static ArbilBugCatcher linorgBugCatcher = new ArbilBugCatcher();
 //    private JPanel selectedFilesPanel;
     //static LinorgWindowManager linorgWindowManager = new LinorgWindowManager();
     // create a clip board owner for copy and paste actions
-    private static ClipboardOwner clipboardOwner = new ClipboardOwner() {
+    private final static ClipboardOwner clipboardOwner = new ClipboardOwner() {
 
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
             System.out.println("lost clipboard ownership");
