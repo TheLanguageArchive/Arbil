@@ -201,10 +201,13 @@ public abstract class ArbilContextMenu extends JPopupMenu {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     URI uri = new ArbilToHtmlConverter().exportImdiToHtml(selectedTreeNodes);
-                    System.out.println("Converted to html in " + uri.toString());
-                    GuiHelper.getSingleInstance().openFileInExternalApplication(uri);
+                    if (uri != null) {
+                        System.out.println("Converted to html in " + uri.toString());
+                        GuiHelper.getSingleInstance().openFileInExternalApplication(uri);
+                    }
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
+                    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Export to HTML failed. Check the error log for details.", "Export failed");
                 }
             }
         });
@@ -277,7 +280,6 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         saveMenuItem.setVisible(false);
     }
 
-
     /**
      * Defines some (or all) item categories in a specific order, so that
      * the order in which actual items are added will not affect the order
@@ -307,10 +309,8 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         addItemCategory(category);
         itemsMap.get(category).add(new OrderedMenuItem(priority, item));
     }
-
     protected ArbilDataNode[] selectedTreeNodes = null;
     protected ArbilDataNode leadSelectedTreeNode = null;
-
     private JMenuItem browseForResourceFileMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItemFormatted = new JMenuItem();
@@ -319,9 +319,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     private JMenuItem exportHtmlMenuItemFormatted = new JMenuItem();
     private JMenuItem overrideTypeCheckerDecision = new JMenuItem();
     private JMenuItem saveMenuItem = new JMenuItem();
-
     private LinkedHashMap<String, List<OrderedMenuItem>> itemsMap = new LinkedHashMap<String, List<OrderedMenuItem>>();
-
     protected final static String CATEGORY_NODE = "node";
     protected final static String CATEGORY_EDIT = "edit";
     protected final static String CATEGORY_ADD_FAVOURITES = "add+favourites";
@@ -331,7 +329,6 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected final static String CATEGORY_WORKING_DIR = "working dir";
     protected final static String CATEGORY_TABLE_CELL = "table cell";
     protected final static String CATEGORY_IMPORT = "import";
-    
     protected final static int PRIORITY_TOP = 0;
     protected final static int PRIORITY_MIDDLE = 50;
     protected final static int PRIORITY_BOTTOM = 100;

@@ -143,12 +143,10 @@ public class ArbilDataNode implements Comparable {
     }
 
     static public URI conformStringToUrl(String inputUrlString) {
-        //        System.out.println("conformStringToUrl: " + inputUrlString);
-        URI returnUrl = null;
         try {
             //            localUrlString = localUrlString.replace("\\", "/");
             if (!inputUrlString.toLowerCase().startsWith("http") && !inputUrlString.toLowerCase().startsWith("file:") && !inputUrlString.toLowerCase().startsWith(".")) {
-                returnUrl = new File(inputUrlString).toURI();
+                return new File(inputUrlString).toURI();
             } else {
                 // apache method
                 //                URI tempURI = new URI(inputUrlString);
@@ -188,7 +186,7 @@ public class ArbilDataNode implements Comparable {
                 }
                 // note that this must be done as separate parameters not a single string otherwise it will not get url encoded
                 // TODO: this could require the other url components to be added here
-                returnUrl = new URI(protocolComponent, pathComponent, fragmentComponent);
+                return new URI(protocolComponent, pathComponent, fragmentComponent);
                 //                System.out.println("returnUrl: " + returnUrl);
                 ////                int protocolEndIndex = inputUrlString.lastIndexOf("/", "xxxx:".length());
 
@@ -204,9 +202,9 @@ public class ArbilDataNode implements Comparable {
             //            System.out.println("conformStringToUrl URI: " + new URI(returnUrl.toString()));
         } catch (Exception ex) {
             bugCatcher.logError(ex);
+            return null;
         }
         //        System.out.println("conformStringToUrl out: " + returnUrl.toString());
-        return normaliseURI(returnUrl);
     }
 
     static public URI normaliseURI(URI inputURI) {

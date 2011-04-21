@@ -23,16 +23,17 @@ public class ArbilToHtmlConverter {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
 
     public URI exportImdiToHtml(ArbilDataNode[] inputNodeArray) {
         File destinationDirectory = messageDialogHandler.showEmptyExportDirectoryDialogue("Export HTML");
-        if (destinationDirectory != null) {
+        if (destinationDirectory == null) {
+            return null;
+        } else {
             copyDependancies(destinationDirectory, false);
             for (ArbilDataNode currentNode : inputNodeArray) {
                 File destinationFile = new File(destinationDirectory, currentNode.toString() + ".html");
@@ -47,8 +48,8 @@ public class ArbilToHtmlConverter {
                     bugCatcher.logError(exception);
                 }
             }
+            return destinationDirectory.toURI();
         }
-        return destinationDirectory.toURI();
     }
 
     public File convertToHtml(ArbilDataNode inputNode) throws IOException, TransformerException {
