@@ -17,6 +17,7 @@
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
+	<property name="JAVADOCDIR" value="${OUTPUTDIR}javadoc"/>
         <property name="TypeCheckVersion" value="typecheck-1.5.16185.jar"/>
         <property name="pathToMpiTrunk" value="${SRCDIR}../../../trunk/"/> <!-- pathToMpiTrunk is being used until a better method becomes available (such as when the required files are in a maven like repository) -->
         <!-- todo: add all the dependancies here like the type checker -->
@@ -518,7 +519,23 @@ public class ArbilVersion {
 			<class location="${BUILDDIR}" />
 		</findbugs>
 	</target>
-	
+        <target name="javadoc" depends="setproperties">
+            <javadoc
+                  access="public"
+                   destdir="${JAVADOCDIR}"
+                   author="true"
+                   version="true"
+                   use="true"
+                   windowtitle="nl.mpi.arbil"
+               >
+
+                <fileset dir="${SRCDIR}" defaultexcludes="yes">
+                    <include name="**/*.java" />
+                    <exclude name="mpi/arbil/resources/**/*.*" />
+                </fileset>
+            </javadoc>
+        </target>
+
 
 </project>
  
