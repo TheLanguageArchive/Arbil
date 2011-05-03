@@ -1005,7 +1005,9 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
     }
 
     public void setPreferredColumnWidth(String columnName, Integer width) {
-        if (!isWidthsChanged() && Integer.valueOf(tableFieldView.getColumnWidth(columnName)).equals(width)) {
+        Integer currentWidth = tableFieldView.getColumnWidth(columnName);
+        if (!isWidthsChanged()
+                && !(width == null && currentWidth == null || width != null && width.equals(currentWidth))) {
             setWidthsChanged(true);
             fireTableStructureChanged();
         }
