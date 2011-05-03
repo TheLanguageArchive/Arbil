@@ -3,7 +3,8 @@ package nl.mpi.arbil.ui;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
 import java.net.URI;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collections;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -18,7 +19,7 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
  * Created on : Feb 17, 2009, 4:42:59 PM
  * @author Peter.Withers@mpi.nl 
  */
-public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDataNodeContainer {
+public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContainer {
 
     private ArbilNodeSearchPanel thisPanel = this;
     private JInternalFrame parentFrame;
@@ -180,7 +181,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
 
         @Override
         public void run() {
-            Vector<ArbilDataNode> foundNodes = new Vector();
+            ArrayList<ArbilDataNode> foundNodes = new ArrayList();
             try {
 //                    if (totalNodesToSearch == -1) {
 //                        searchProgressBar.setIndeterminate(true);
@@ -190,12 +191,12 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                 searchProgressBar.setMaximum(totalNodesToSearch);
                 searchProgressBar.setValue(0);
 //                    }
-                for (Component currentTermComp : getSearchTermsPanel().getComponents()) {
+                for (Component currentTermComp : searchTermsPanel.getComponents()) {
                     ((ArbilNodeSearchTerm) currentTermComp).populateSearchTerm();
                 }
                 int totalSearched = 0;
-                Vector<ArbilDataNode> localSearchNodes = new Vector<ArbilDataNode>();
-                Vector<ArbilDataNode> remoteSearchNodes = new Vector<ArbilDataNode>();
+                ArrayList<ArbilDataNode> localSearchNodes = new ArrayList<ArbilDataNode>();
+                ArrayList<ArbilDataNode> remoteSearchNodes = new ArrayList<ArbilDataNode>();
                 for (ArbilDataNode arbilDataNode : selectedNodes) {
                     if (arbilDataNode.isLocal()) {
                         localSearchNodes.add(arbilDataNode);
@@ -238,7 +239,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                                 }
                             }
                             boolean nodePassedFilter = true;
-                            for (Component currentTermComponent : getSearchTermsPanel().getComponents()) {
+                            for (Component currentTermComponent : searchTermsPanel.getComponents()) {
                                 ArbilNodeSearchTerm currentTermPanel = (ArbilNodeSearchTerm) currentTermComponent;
                                 boolean termPassedFilter = true;
                                 // filter by the node type if entered
@@ -307,8 +308,8 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
             searchButton.setEnabled(true);
             stopButton.setEnabled(false);
             // add the results to the table
-            resultsTableModel.addArbilDataNodes(foundNodes.elements());
-            foundNodes.removeAllElements();
+            resultsTableModel.addArbilDataNodes(Collections.enumeration(foundNodes));
+            foundNodes.clear();
         }
     }
 
