@@ -900,13 +900,20 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openSearchTable(ArbilDataNode[] selectedNodes, String frameTitle) {
+        // Create tabel with model and split panel to show it in
         ArbilTableModel resultsTableModel = new ArbilTableModel();
         ArbilTable arbilTable = new ArbilTable(resultsTableModel, frameTitle);
-        ArbilSplitPanel arbilSplitPanel = new ArbilSplitPanel(arbilTable);
-        JInternalFrame searchFrame = this.createWindow(frameTitle, arbilSplitPanel);
-        searchFrame.add(new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes), BorderLayout.NORTH);
-        arbilSplitPanel.setSplitDisplay();
-        arbilSplitPanel.addFocusListener(searchFrame);
+        ArbilSplitPanel tablePanel = new ArbilSplitPanel(arbilTable);
+
+        // Create window with search table in center
+        JInternalFrame searchFrame = this.createWindow(frameTitle, tablePanel);
+        // Add search panel above
+        ArbilNodeSearchPanel searchPanel = new ArbilNodeSearchPanel(searchFrame, resultsTableModel, selectedNodes);
+        searchFrame.add(searchPanel, BorderLayout.NORTH);
+
+        // Prepare table panel and window for display
+        tablePanel.setSplitDisplay();
+        tablePanel.addFocusListener(searchFrame);
         searchFrame.pack();
     }
 

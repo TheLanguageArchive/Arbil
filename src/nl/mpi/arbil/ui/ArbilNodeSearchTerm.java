@@ -141,7 +141,7 @@ public class ArbilNodeSearchTerm extends javax.swing.JPanel {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    parentPanel.searchTermsPanel.remove(thisPanel);
+                    parentPanel.getSearchTermsPanel().remove(thisPanel);
                     parentPanel.revalidate();
                     parentPanel.stopSearch();
                 } catch (Exception ex) {

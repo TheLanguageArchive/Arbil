@@ -4,8 +4,12 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
 import java.net.URI;
 import java.util.Vector;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 
@@ -16,61 +20,46 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
  */
 public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDataNodeContainer {
 
-    ArbilNodeSearchPanel thisPanel = this;
-    JInternalFrame parentFrame;
-    ArbilTableModel resultsTableModel;
+    private ArbilNodeSearchPanel thisPanel = this;
+    private JInternalFrame parentFrame;
+    private ArbilTableModel resultsTableModel;
     private ArbilDataNode[] selectedNodes;
-    private javax.swing.JButton addButton;
-    public javax.swing.JPanel searchTermsPanel;
-    private javax.swing.JPanel inputNodePanel;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JButton searchButton;
-    private javax.swing.JProgressBar searchProgressBar;
-    private javax.swing.JButton stopButton;
+    private JPanel searchTermsPanel;
+    private JPanel inputNodePanel;
+    private JProgressBar searchProgressBar;
+    private JButton searchButton;
+    private JButton stopButton;
+    
     private boolean stopSearch = false;
-    private boolean threadRunning = false;
-    int totalNodesToSearch = -1;
+    private int totalNodesToSearch = -1;
     private RemoteServerSearchTerm remoteServerSearchTerm = null;
 
     public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilDataNode[] localSelectedNodes) {
         parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
         selectedNodes = localSelectedNodes;
-        searchTermsPanel = new javax.swing.JPanel();
-        inputNodePanel = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        addButton = new javax.swing.JButton();
-        stopButton = new javax.swing.JButton();
-        searchProgressBar = new javax.swing.JProgressBar();
-        searchButton = new javax.swing.JButton();
+        searchTermsPanel = new JPanel();
 
-        setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
-        inputNodePanel.setLayout(new java.awt.GridLayout());
+        setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
+        initNodePanel();
         add(inputNodePanel);
-        for (ArbilDataNode currentNode : selectedNodes) {
-            JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
-            inputNodePanel.add(currentLabel);
-        }
 
-        searchTermsPanel.setLayout(new javax.swing.BoxLayout(searchTermsPanel, javax.swing.BoxLayout.PAGE_AXIS));
-        // check if this search includes remote nodes
-        boolean remoteSearch = false;
-        for (ArbilDataNode arbilDataNode : localSelectedNodes) {
-            if (!arbilDataNode.isLocal()) {
-                remoteSearch = true;
-                break;
-            }
-        }
-        if (remoteSearch) {
-            remoteServerSearchTerm = new RemoteServerSearchTerm(this);
-            this.add(remoteServerSearchTerm);
-        }
-
-        searchTermsPanel.add(new ArbilNodeSearchTerm(this));
+        initSearchTermsPanel();
         add(searchTermsPanel);
 
-        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.LINE_AXIS));
+        JPanel buttonsProgressPanel = createButtonsProgressPanel();
+        add(buttonsProgressPanel);
+        
+        hideFirstBooleanOption();
+        parentFrame.pack();
+    }
 
+    private JPanel createButtonsProgressPanel(){
+        JPanel buttonsProgressPanel = new JPanel();
+        buttonsProgressPanel.setLayout(new BoxLayout(buttonsProgressPanel, BoxLayout.LINE_AXIS));
+
+        JButton addButton = new JButton();
         addButton.setText("+");
         addButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -78,7 +67,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                 try {
                     System.out.println("adding new term");
                     stopSearch();
-                    searchTermsPanel.add(new ArbilNodeSearchTerm(thisPanel));
+                    getSearchTermsPanel().add(new ArbilNodeSearchTerm(thisPanel));
                     hideFirstBooleanOption();
 //                searchTermsPanel.revalidate();
                 } catch (Exception ex) {
@@ -86,12 +75,14 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                 }
             }
         });
-        jPanel2.add(addButton);
+        buttonsProgressPanel.add(addButton);
 
+        searchProgressBar = new JProgressBar();
         searchProgressBar.setString("");
         searchProgressBar.setStringPainted(true);
-        jPanel2.add(searchProgressBar);
+        buttonsProgressPanel.add(searchProgressBar);
 
+        stopButton = new JButton();
         stopButton.setText("stop");
         stopButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -104,8 +95,9 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
             }
         });
         stopButton.setEnabled(false);
-        jPanel2.add(stopButton);
+        buttonsProgressPanel.add(stopButton);
 
+        searchButton = new JButton();
         searchButton.setText("search");
         searchButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -117,11 +109,34 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                 }
             }
         });
-        jPanel2.add(searchButton);
+        buttonsProgressPanel.add(searchButton);
+        return buttonsProgressPanel;
+    }
 
-        add(jPanel2);
-        hideFirstBooleanOption();
-        parentFrameLocal.pack();
+    private void initSearchTermsPanel() {
+        searchTermsPanel.setLayout(new BoxLayout(searchTermsPanel, BoxLayout.PAGE_AXIS));
+        // check if this search includes remote nodes
+        boolean remoteSearch = false;
+        for (ArbilDataNode arbilDataNode : selectedNodes) {
+            if (!arbilDataNode.isLocal()) {
+                remoteSearch = true;
+                break;
+            }
+        }
+        if (remoteSearch) {
+            remoteServerSearchTerm = new RemoteServerSearchTerm(this);
+            this.add(remoteServerSearchTerm);
+        }
+        searchTermsPanel.add(new ArbilNodeSearchTerm(this));
+    }
+
+    private void initNodePanel() {
+        inputNodePanel = new JPanel();
+        inputNodePanel.setLayout(new java.awt.GridLayout());
+        for (ArbilDataNode currentNode : selectedNodes) {
+            JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
+            inputNodePanel.add(currentLabel);
+        }
     }
 
     private void hideFirstBooleanOption() {
@@ -154,11 +169,17 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
         thread.start();
     }
 
+    /**
+     * @return the searchTermsPanel
+     */
+    public JPanel getSearchTermsPanel() {
+        return searchTermsPanel;
+    }
+
     private class SearchThread implements Runnable {
 
         @Override
         public void run() {
-            threadRunning = true;
             Vector<ArbilDataNode> foundNodes = new Vector();
             try {
 //                    if (totalNodesToSearch == -1) {
@@ -169,7 +190,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                 searchProgressBar.setMaximum(totalNodesToSearch);
                 searchProgressBar.setValue(0);
 //                    }
-                for (Component currentTermComp : searchTermsPanel.getComponents()) {
+                for (Component currentTermComp : getSearchTermsPanel().getComponents()) {
                     ((ArbilNodeSearchTerm) currentTermComp).populateSearchTerm();
                 }
                 int totalSearched = 0;
@@ -217,7 +238,7 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
                                 }
                             }
                             boolean nodePassedFilter = true;
-                            for (Component currentTermComponent : searchTermsPanel.getComponents()) {
+                            for (Component currentTermComponent : getSearchTermsPanel().getComponents()) {
                                 ArbilNodeSearchTerm currentTermPanel = (ArbilNodeSearchTerm) currentTermComponent;
                                 boolean termPassedFilter = true;
                                 // filter by the node type if entered
@@ -285,7 +306,6 @@ public class ArbilNodeSearchPanel extends javax.swing.JPanel implements ArbilDat
             searchProgressBar.setMaximum(1000);
             searchButton.setEnabled(true);
             stopButton.setEnabled(false);
-            threadRunning = false;
             // add the results to the table
             resultsTableModel.addArbilDataNodes(foundNodes.elements());
             foundNodes.removeAllElements();
