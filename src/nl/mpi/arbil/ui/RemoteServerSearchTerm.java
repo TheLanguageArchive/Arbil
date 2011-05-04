@@ -27,6 +27,7 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class RemoteServerSearchTerm extends javax.swing.JPanel {
+    public static final String IMDI_SEARCH_BASE = "http://corpus1.mpi.nl/ds/imdi_search/servlet?action=getMatches";
 
     javax.swing.JPanel thisPanel = this;
     ArbilNodeSearchPanel parentPanel;
@@ -77,7 +78,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
         ArrayList<String> returnArray = new ArrayList<String>();
         int maxResultNumber = 1000;
         try {
-            String fullQueryString = "http://corpus1.mpi.nl/ds/imdi_search/servlet?action=getMatches";
+            String fullQueryString = IMDI_SEARCH_BASE;
             fullQueryString += "&num=" + maxResultNumber;
             fullQueryString += "&query=" + URLEncoder.encode(searchString, "UTF-8");
             fullQueryString += "&type=simple";
