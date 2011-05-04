@@ -81,6 +81,7 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
             fullQueryString += "&num=" + maxResultNumber;
             fullQueryString += "&query=" + URLEncoder.encode(searchString, "UTF-8");
             fullQueryString += "&type=simple";
+            fullQueryString += "&includeUrl=true";
             for (ArbilDataNode arbilDataNode : arbilDataNodeArray) {
                 if (arbilDataNode.archiveHandle != null) {
                     fullQueryString += "&archiveHandle=" + arbilDataNode.archiveHandle;
