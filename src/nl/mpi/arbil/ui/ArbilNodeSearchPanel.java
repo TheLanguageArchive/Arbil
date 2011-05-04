@@ -30,7 +30,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private JProgressBar searchProgressBar;
     private JButton searchButton;
     private JButton stopButton;
-    
     private boolean stopSearch = false;
     private int totalNodesToSearch = -1;
     private RemoteServerSearchTerm remoteServerSearchTerm = null;
@@ -51,12 +50,12 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
         JPanel buttonsProgressPanel = createButtonsProgressPanel();
         add(buttonsProgressPanel);
-        
+
         hideFirstBooleanOption();
         parentFrame.pack();
     }
 
-    private JPanel createButtonsProgressPanel(){
+    private JPanel createButtonsProgressPanel() {
         JPanel buttonsProgressPanel = new JPanel();
         buttonsProgressPanel.setLayout(new BoxLayout(buttonsProgressPanel, BoxLayout.LINE_AXIS));
 
@@ -179,119 +178,23 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 
     private class SearchThread implements Runnable {
 
+        private int totalSearched;
+        private ArrayList<ArbilDataNode> localSearchNodes = new ArrayList<ArbilDataNode>();
+        private ArrayList<ArbilDataNode> remoteSearchNodes = new ArrayList<ArbilDataNode>();
+        private ArrayList<ArbilDataNode> foundNodes = new ArrayList();
+
         @Override
         public void run() {
-            ArrayList<ArbilDataNode> foundNodes = new ArrayList();
             try {
-//                    if (totalNodesToSearch == -1) {
-//                        searchProgressBar.setIndeterminate(true);
-//                    } else {
-                searchProgressBar.setIndeterminate(false);
-                searchProgressBar.setMinimum(0);
-                searchProgressBar.setMaximum(totalNodesToSearch);
-                searchProgressBar.setValue(0);
-//                    }
+                prepareUI();
+
                 for (Component currentTermComp : searchTermsPanel.getComponents()) {
                     ((ArbilNodeSearchTerm) currentTermComp).populateSearchTerm();
                 }
-                int totalSearched = 0;
-                ArrayList<ArbilDataNode> localSearchNodes = new ArrayList<ArbilDataNode>();
-                ArrayList<ArbilDataNode> remoteSearchNodes = new ArrayList<ArbilDataNode>();
-                for (ArbilDataNode arbilDataNode : selectedNodes) {
-                    if (arbilDataNode.isLocal()) {
-                        localSearchNodes.add(arbilDataNode);
-                    } else {
-                        remoteSearchNodes.add(arbilDataNode);
-                    }
-                }
-                if (remoteServerSearchTerm != null) {
-                    searchProgressBar.setIndeterminate(true);
-                    searchProgressBar.setString("connecting to server");
-                    for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ArbilDataNode[]{}))) {
-                        System.out.println("remote node found: " + serverFoundUrl);
-                        localSearchNodes.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, serverFoundUrl));
-                    }
-                    searchProgressBar.setString("");
-                    searchProgressBar.setIndeterminate(false);
-                }
-                while (localSearchNodes.size() > 0 && !stopSearch) {
-                    System.out.println("parentFrame: " + parentFrame.isVisible());
-                    Object currentElement = localSearchNodes.remove(0);
-                    if (currentElement instanceof ArbilDataNode) {
-                        ArbilDataNode currentDataNode = (ArbilDataNode) currentElement;
-                        if (!currentDataNode.isChildNode() && (currentDataNode.isLoading() || !currentDataNode.isDataLoaded())) {
-                            System.out.println("searching: " + currentDataNode.getUrlString());
-                            System.out.println("still loading so putting back into the list: " + currentDataNode);
-                            if (!currentDataNode.fileNotFound) {
-                                currentDataNode.registerContainer(ArbilNodeSearchPanel.this); // this causes the node to be loaded
-                                localSearchNodes.add(currentDataNode);
-                            }
-                        } else {
-                            // perform the search
-                            System.out.println("searching: " + currentDataNode);
-                            // add the child nodes
-                            if (currentDataNode.isLocal() || !currentDataNode.isCorpus()) {
-                                // don't search remote corpus
-                                for (ArbilDataNode currentChildNode : currentDataNode.getChildArray()) {
-                                    System.out.println("adding to search list: " + currentChildNode);
-                                    currentChildNode.registerContainer(ArbilNodeSearchPanel.this); // this causes the node to be loaded
-                                    localSearchNodes.add(currentChildNode);
-                                }
-                            }
-                            boolean nodePassedFilter = true;
-                            for (Component currentTermComponent : searchTermsPanel.getComponents()) {
-                                ArbilNodeSearchTerm currentTermPanel = (ArbilNodeSearchTerm) currentTermComponent;
-                                boolean termPassedFilter = true;
-                                // filter by the node type if entered
-                                if (currentTermPanel.nodeType.equals("Corpus")) {
-                                    termPassedFilter = currentDataNode.isCorpus();
-                                } else if (currentTermPanel.nodeType.equals("Session")) {
-                                    termPassedFilter = currentDataNode.isSession();
-                                } else if (currentTermPanel.nodeType.equals("Catalogue")) {
-                                    termPassedFilter = currentDataNode.isCatalogue();
-                                } else if (!currentTermPanel.nodeType.equals("All")) {
-                                    termPassedFilter = currentDataNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
-                                }
-                                if (currentTermPanel.searchFieldName.length() > 0) {// filter by the feild name and search string if entered
-                                    termPassedFilter = termPassedFilter && (currentDataNode.containsFieldValue(currentTermPanel.searchFieldName, currentTermPanel.searchString));
-                                } else if (currentTermPanel.searchString.length() > 0) { // filter by the search string if entered
-                                    termPassedFilter = termPassedFilter && (currentDataNode.containsFieldValue(currentTermPanel.searchString));
-                                }
-                                // invert based on the == / != selection
-                                termPassedFilter = currentTermPanel.notEqual != termPassedFilter;
-                                // apply the and or booleans against the other search terms
-                                if (!currentTermPanel.booleanAnd && nodePassedFilter) {
-                                    // we have moved into an OR block so if we already have a positive result then exit the term checking loop
-                                    break;
-                                }
-                                if (currentTermPanel.booleanAnd) {
-                                    nodePassedFilter = (nodePassedFilter && termPassedFilter);
-                                } else {
-                                    nodePassedFilter = (nodePassedFilter || termPassedFilter);
-                                }
-                            }
-                            totalSearched++;
-                            // if the node has no fields it should still be added since it will only pass a search if for instance the search is for actors and in that case it should be shown even if blank
-                            if (nodePassedFilter) {
-                                foundNodes.add(currentDataNode);
-                                resultsTableModel.addSingleArbilDataNode(currentDataNode);
-                            } else {
-                                currentDataNode.removeContainer(ArbilNodeSearchPanel.this);
-                            }
-                            if (totalNodesToSearch < totalSearched + localSearchNodes.size()) {
-                                totalNodesToSearch = totalSearched + localSearchNodes.size();
-                            }
-                            searchProgressBar.setMaximum(totalNodesToSearch);
-                            searchProgressBar.setValue(totalSearched);
-                            // todo: indicate how many metadata files searched rather than sub nodes
-                            searchProgressBar.setString("searched: " + totalSearched + "/" + totalNodesToSearch + " found: " + foundNodes.size());
-                        }
-                    }
-                    if (!parentFrame.isVisible()) {
-                        // in the case that the user has closed the search window we want to stop the thread
-                        stopSearch = true;
-                    }
-                }
+
+                splitLocalRemote();
+                fetchRemoteSearchResults();
+                searchLocalNodes();
 
                 if (stopSearch) {
                     searchProgressBar.setString("search canceled");
@@ -302,14 +205,135 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
             } catch (Exception ex) {
                 GuiHelper.linorgBugCatcher.logError(ex);
             }
+            finishUI();
+            // add the results to the table
+            resultsTableModel.addArbilDataNodes(Collections.enumeration(foundNodes));
+            foundNodes.clear();
+        }
+
+        private void finishUI() {
             searchProgressBar.setIndeterminate(false);
             searchProgressBar.setValue(0);
             searchProgressBar.setMaximum(1000);
             searchButton.setEnabled(true);
             stopButton.setEnabled(false);
-            // add the results to the table
-            resultsTableModel.addArbilDataNodes(Collections.enumeration(foundNodes));
-            foundNodes.clear();
+        }
+
+        private void prepareUI() {
+            searchProgressBar.setIndeterminate(false);
+            searchProgressBar.setMinimum(0);
+            searchProgressBar.setMaximum(totalNodesToSearch);
+            searchProgressBar.setValue(0);
+        }
+
+        private void searchLocalNodes() {
+            totalSearched = 0;
+            while (localSearchNodes.size() > 0 && !stopSearch) {
+                Object currentElement = localSearchNodes.remove(0);
+                if (currentElement instanceof ArbilDataNode) {
+                    searchLocalNode((ArbilDataNode) currentElement);
+                    searchProgressBar.setMaximum(totalNodesToSearch);
+                    searchProgressBar.setValue(totalSearched);
+                    // todo: indicate how many metadata files searched rather than sub nodes
+                    searchProgressBar.setString("searched: " + totalSearched + "/" + totalNodesToSearch + " found: " + foundNodes.size());
+                }
+                if (!parentFrame.isVisible()) {
+                    // in the case that the user has closed the search window we want to stop the thread
+                    stopSearch = true;
+                }
+            }
+        }
+
+        private void splitLocalRemote() {
+            for (ArbilDataNode arbilDataNode : selectedNodes) {
+                if (arbilDataNode.isLocal()) {
+                    localSearchNodes.add(arbilDataNode);
+                } else {
+                    remoteSearchNodes.add(arbilDataNode);
+                }
+            }
+        }
+
+        private int searchLocalNode(ArbilDataNode currentDataNode) {
+            if (!currentDataNode.isChildNode() && (currentDataNode.isLoading() || !currentDataNode.isDataLoaded())) {
+                System.out.println("searching: " + currentDataNode.getUrlString());
+                System.out.println("still loading so putting back into the list: " + currentDataNode);
+                if (!currentDataNode.fileNotFound) {
+                    currentDataNode.registerContainer(ArbilNodeSearchPanel.this); // this causes the node to be loaded
+                    localSearchNodes.add(currentDataNode);
+                }
+            } else {
+                // perform the search
+                System.out.println("searching: " + currentDataNode);
+                // add the child nodes
+                if (currentDataNode.isLocal() || !currentDataNode.isCorpus()) {
+                    // don't search remote corpus
+                    for (ArbilDataNode currentChildNode : currentDataNode.getChildArray()) {
+                        System.out.println("adding to search list: " + currentChildNode);
+                        currentChildNode.registerContainer(ArbilNodeSearchPanel.this); // this causes the node to be loaded
+                        localSearchNodes.add(currentChildNode);
+                    }
+                }
+                boolean nodePassedFilter = true;
+                for (Component currentTermComponent : searchTermsPanel.getComponents()) {
+                    ArbilNodeSearchTerm currentTermPanel = (ArbilNodeSearchTerm) currentTermComponent;
+                    boolean termPassedFilter = true;
+                    // filter by the node type if entered
+                    if (currentTermPanel.nodeType.equals("Corpus")) {
+                        termPassedFilter = currentDataNode.isCorpus();
+                    } else if (currentTermPanel.nodeType.equals("Session")) {
+                        termPassedFilter = currentDataNode.isSession();
+                    } else if (currentTermPanel.nodeType.equals("Catalogue")) {
+                        termPassedFilter = currentDataNode.isCatalogue();
+                    } else if (!currentTermPanel.nodeType.equals("All")) {
+                        termPassedFilter = currentDataNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
+                    }
+                    if (currentTermPanel.searchFieldName.length() > 0) {
+                        // filter by the feild name and search string if entered
+                        termPassedFilter = termPassedFilter && (currentDataNode.containsFieldValue(currentTermPanel.searchFieldName, currentTermPanel.searchString));
+                    } else if (currentTermPanel.searchString.length() > 0) {
+                        // filter by the search string if entered
+                        termPassedFilter = termPassedFilter && (currentDataNode.containsFieldValue(currentTermPanel.searchString));
+                    }
+                    // invert based on the == / != selection
+                    termPassedFilter = currentTermPanel.notEqual != termPassedFilter;
+                    // apply the and or booleans against the other search terms
+                    if (!currentTermPanel.booleanAnd && nodePassedFilter) {
+                        // we have moved into an OR block so if we already have a positive result then exit the term checking loop
+                        break;
+                    }
+                    if (currentTermPanel.booleanAnd) {
+                        nodePassedFilter = (nodePassedFilter && termPassedFilter);
+                    } else {
+                        nodePassedFilter = (nodePassedFilter || termPassedFilter);
+                    }
+                }
+                totalSearched++;
+                // if the node has no fields it should still be added since it will only pass a search if for instance the search is for actors and in that case it should be shown even if blank
+                if (nodePassedFilter) {
+                    foundNodes.add(currentDataNode);
+                    resultsTableModel.addSingleArbilDataNode(currentDataNode);
+                } else {
+                    currentDataNode.removeContainer(ArbilNodeSearchPanel.this);
+                }
+                if (totalNodesToSearch < totalSearched + localSearchNodes.size()) {
+                    totalNodesToSearch = totalSearched + localSearchNodes.size();
+                }
+            }
+            return totalSearched;
+        }
+
+        private void fetchRemoteSearchResults() {
+            if (remoteServerSearchTerm != null) {
+                searchProgressBar.setIndeterminate(true);
+                searchProgressBar.setString("connecting to server");
+                for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ArbilDataNode[]{}))) {
+                    System.out.println("remote node found: " + serverFoundUrl);
+                    localSearchNodes.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, serverFoundUrl));
+                }
+                searchProgressBar.setString("");
+                searchProgressBar.setIndeterminate(false);
+            }
         }
     }
 
