@@ -47,7 +47,7 @@ import org.w3c.dom.Document;
  * Created on :
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilDataNode implements Comparable {
+public class ArbilDataNode implements ArbilNode, Comparable {
 
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
