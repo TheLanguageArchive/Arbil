@@ -7,6 +7,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 
 /**
  * Document   : ArbilTreeRenderer
@@ -18,15 +19,18 @@ public class ArbilTreeRenderer implements TreeCellRenderer {
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         JLabel returnComponent;
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-        if (node.getUserObject() instanceof ArbilDataNode) {
-            ArbilDataNode arbilDataNode = (ArbilDataNode) node.getUserObject();
+        if (node.getUserObject() instanceof ArbilNode) {
+            ArbilNode arbilNode = (ArbilNode) node.getUserObject();
             // create the object with parameters so the jvm has a chance to reused objects in memory
-            returnComponent = new JLabel(arbilDataNode.toString(), arbilDataNode.getIcon(), JLabel.LEFT);
-            if (/*!sel && */arbilDataNode.hasSchemaError) {
-                returnComponent.setForeground(Color.RED);
-            }
-            if (/*!sel && */arbilDataNode.getNeedsSaveToDisk(true)) {
-                returnComponent.setForeground(Color.BLUE);
+            returnComponent = new JLabel(arbilNode.toString(), arbilNode.getIcon(), JLabel.LEFT);
+
+            if (arbilNode instanceof ArbilDataNode) {
+                if (/*!sel && */((ArbilDataNode)arbilNode).hasSchemaError) {
+                    returnComponent.setForeground(Color.RED);
+                }
+                if (/*!sel && */((ArbilDataNode)arbilNode).getNeedsSaveToDisk(true)) {
+                    returnComponent.setForeground(Color.BLUE);
+                }
             }
         } else if (node.getUserObject() instanceof JLabel) {
             // create the object with parameters so the jvm has a chance to reused objects in memory

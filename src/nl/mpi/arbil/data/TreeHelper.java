@@ -4,12 +4,12 @@ import java.awt.Component;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -65,10 +65,10 @@ public class TreeHelper {
     }
 
     private TreeHelper() {
-        localCorpusRootNode = new DefaultMutableTreeNode();
-        remoteCorpusRootNode = new DefaultMutableTreeNode();
-        localDirectoryRootNode = new DefaultMutableTreeNode();
-        favouritesRootNode = new DefaultMutableTreeNode();
+        localCorpusRootNode = new DefaultMutableTreeNode(localCorpusRootNodeObject);
+        remoteCorpusRootNode = new DefaultMutableTreeNode(remoteCorpusRootNodeObject);
+        localDirectoryRootNode = new DefaultMutableTreeNode(localDirectoryRootNodeObject);
+        favouritesRootNode = new DefaultMutableTreeNode(favouritesRootNodeObject);
 
         localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
         remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
@@ -117,12 +117,6 @@ public class TreeHelper {
 
     public void setTrees(ArbilTreePanels arbilTreePanelLocal) {
         arbilTreePanel = arbilTreePanelLocal;
-//            ImdiTree tempRemoteCorpusTree, ImdiTree tempLocalCorpusTree, ImdiTree tempLocalDirectoryTree) {
-        remoteCorpusRootNode.setUserObject(new JLabel("Remote Corpus", ArbilIcons.getSingleInstance().serverIcon, JLabel.LEFT));
-        localCorpusRootNode.setUserObject(new JLabel("Local Corpus", ArbilIcons.getSingleInstance().directoryIcon, JLabel.LEFT));
-        localDirectoryRootNode.setUserObject(new JLabel("Working Directories", ArbilIcons.getSingleInstance().computerIcon, JLabel.LEFT));
-        favouritesRootNode.setUserObject(new JLabel("Favourites", ArbilIcons.getSingleInstance().favouriteIcon, JLabel.LEFT));
-
         arbilTreePanel.remoteCorpusTree.setName("RemoteCorpusTree");
         arbilTreePanel.localCorpusTree.setName("LocalCorpusTree");
         arbilTreePanel.localDirectoryTree.setName("LocalDirectoryTree");
@@ -175,7 +169,7 @@ public class TreeHelper {
                     locationsSet.remove(currentRemoveable.getUrlString());
                 }
             }
-            Vector<String> locationsList = new Vector<String>(); // this vector is kept for backwards compatability
+            ArrayList<String> locationsList = new ArrayList<String>(); // this vector is kept for backwards compatability
             for (String currentLocation : locationsSet) {
                 locationsList.add(URLDecoder.decode(currentLocation, "UTF-8"));
             }
@@ -188,17 +182,17 @@ public class TreeHelper {
         }
     }
 
-    public void loadLocationsList() {
+    public final void loadLocationsList() {
         try {
             System.out.println("loading locationsList");
             String[] locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("locationsList");
             if (locationsArray == null) {
                 addDefaultCorpusLocations();
             } else {
-                Vector<ArbilDataNode> remoteCorpusNodesVector = new Vector<ArbilDataNode>();
-                Vector<ArbilDataNode> localCorpusNodesVector = new Vector<ArbilDataNode>();
-                Vector<ArbilDataNode> localFileNodesVector = new Vector<ArbilDataNode>();
-                Vector<ArbilDataNode> favouriteNodesVector = new Vector<ArbilDataNode>();
+                ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
+                ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
+                ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
+                ArrayList<ArbilDataNode> favouriteNodesList = new ArrayList<ArbilDataNode>();
 
                 // this also removes all locations and replaces them with normalised paths
                 for (String currentLocationString : locationsArray) {
@@ -206,22 +200,22 @@ public class TreeHelper {
                     ArbilDataNode currentTreeObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentLocation);
                     if (currentTreeObject.isLocal()) {
                         if (currentTreeObject.isFavorite()) {
-                            favouriteNodesVector.add(currentTreeObject);
+                            favouriteNodesList.add(currentTreeObject);
                         } else if (ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
                             if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isChildNode()) {
-                                localCorpusNodesVector.add(currentTreeObject);
+                                localCorpusNodesList.add(currentTreeObject);
                             }
                         } else {
-                            localFileNodesVector.add(currentTreeObject);
+                            localFileNodesList.add(currentTreeObject);
                         }
                     } else {
-                        remoteCorpusNodesVector.add(currentTreeObject);
+                        remoteCorpusNodesList.add(currentTreeObject);
                     }
                 }
-                remoteCorpusNodes = remoteCorpusNodesVector.toArray(new ArbilDataNode[]{});
-                localCorpusNodes = localCorpusNodesVector.toArray(new ArbilDataNode[]{});
-                localFileNodes = localFileNodesVector.toArray(new ArbilDataNode[]{});
-                favouriteNodes = favouriteNodesVector.toArray(new ArbilDataNode[]{});
+                remoteCorpusNodes = remoteCorpusNodesList.toArray(new ArbilDataNode[]{});
+                localCorpusNodes = localCorpusNodesList.toArray(new ArbilDataNode[]{});
+                localFileNodes = localFileNodesList.toArray(new ArbilDataNode[]{});
+                favouriteNodes = favouriteNodesList.toArray(new ArbilDataNode[]{});
             }
         } catch (Exception ex) {
 //            System.out.println("load locationsList failed: " + ex.getMessage());
@@ -451,4 +445,28 @@ public class TreeHelper {
     public boolean isInFavouritesNodes(ArbilDataNode dataNode) {
         return Arrays.asList(favouriteNodes).contains(dataNode);
     }
+    private ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon) {
+
+        public ArbilDataNode[] getChildArray() {
+            return localCorpusNodes;
+        }
+    };
+    private ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon) {
+
+        public ArbilDataNode[] getChildArray() {
+            return remoteCorpusNodes;
+        }
+    };
+    private ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon) {
+
+        public ArbilDataNode[] getChildArray() {
+            return localFileNodes;
+        }
+    };
+    private ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon) {
+
+        public ArbilDataNode[] getChildArray() {
+            return favouriteNodes;
+        }
+    };
 }
