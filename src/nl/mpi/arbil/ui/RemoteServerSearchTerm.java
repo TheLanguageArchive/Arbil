@@ -28,10 +28,10 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class RemoteServerSearchTerm extends javax.swing.JPanel {
+
     private final static String IMDI_SEARCH_BASE = "http://corpus1.mpi.nl/ds/imdi_search/servlet?action=getMatches";
     private final static String IMDI_RESULT_URL_XPATH = "/ImdiSearchResponse/Result/Match/URL";
     private final static String valueFieldMessage = "<remote server search term (required)>";
-    
     private ArbilNodeSearchPanel parentPanel;
     private JTextField searchField;
     private JLabel resultCountLabel;
@@ -116,15 +116,22 @@ public class RemoteServerSearchTerm extends javax.swing.JPanel {
         return resultsDocument;
     }
 
-    private static String constructSearchQuery(ArbilDataNode[] arbilDataNodeArray, String searchString, int maxResultNumber) throws UnsupportedEncodingException {
+    private static String constructSearchQuery(ArbilDataNode[] arbilDataNodeArray, String searchString, int maxResultNumber) {
+        String encodedQuery;
+        try {
+            encodedQuery = URLEncoder.encode(searchString, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+
         String fullQueryString = IMDI_SEARCH_BASE;
         fullQueryString += "&num=" + maxResultNumber;
-        fullQueryString += "&query=" + URLEncoder.encode(searchString, "UTF-8");
+        fullQueryString += "&query=" + encodedQuery;
         fullQueryString += "&type=simple";
         fullQueryString += "&includeUrl=true";
         for (ArbilDataNode arbilDataNode : arbilDataNodeArray) {
             if (arbilDataNode.archiveHandle != null) {
-                fullQueryString += "&archiveHandle=" + arbilDataNode.archiveHandle;
+                fullQueryString += "&nodeid=" + arbilDataNode.archiveHandle;
             } else {
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot search \"" + arbilDataNode + "\" because it does not have an archive handle", "Remote Search");
             }
