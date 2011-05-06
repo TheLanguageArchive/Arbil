@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,10 +15,10 @@ import nl.mpi.arbil.util.BugCatcher;
 public class DocumentationLanguages implements ArbilVocabularyFilter {
 
     private static BugCatcher bugCatcher;
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     private static final String LANGUAGE_VOCABULARY_URL_KEY = "LanguageVocabularyUrl";
     private static final String SELECTED_LANGUAGES_KEY = "selectedLanguages";
     private static final String OLD_MPI_LANGUAGE_VOCABULARY_URL = "http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml";
@@ -86,17 +87,31 @@ public class DocumentationLanguages implements ArbilVocabularyFilter {
             bugCatcher.logError("No selectedLanguages file, will create one now.", e);
         }
         selectedLanguages.add(templateString);
-        ArbilSessionStorage.getSingleInstance().saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
+        saveSelectedLanguages(selectedLanguages);
     }
 
     public synchronized void removeselectedLanguages(String templateString) {
         ArrayList<String> selectedLanguages = new ArrayList<String>();
-        selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
-        while (selectedLanguages.contains(templateString)) {
-            selectedLanguages.remove(templateString);
+        try {
+            selectedLanguages.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray(SELECTED_LANGUAGES_KEY)));
+            while (selectedLanguages.contains(templateString)) {
+                selectedLanguages.remove(templateString);
+            }
+        } catch (IOException ex) {
+            bugCatcher.logError(ex);
         }
-        ArbilSessionStorage.getSingleInstance().saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
+        saveSelectedLanguages(selectedLanguages);
     }
+
+    private void saveSelectedLanguages(ArrayList<String> selectedLanguages) {
+        try {
+            ArbilSessionStorage.getSingleInstance().saveStringArray(SELECTED_LANGUAGES_KEY, selectedLanguages.toArray(new String[]{}));
+        } catch (IOException ex) {
+            bugCatcher.logError(ex);
+        }
+    }
+
+
 
     public List<ArbilVocabularyItem> filterVocabularyItems(List<ArbilVocabularyItem> items) {
         List<ArbilVocabularyItem> vocabClone = new ArrayList<ArbilVocabularyItem>(items);

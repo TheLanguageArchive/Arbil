@@ -50,29 +50,28 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilSessionStorage {
 
     private static MessageDialogHandler messageDialogHandler;
-    public static void setMessageDialogHandler(MessageDialogHandler handler)
-    {
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     private static WindowManager windowManager;
-    public static void setWindowManager(WindowManager windowManagerInstance){
+
+    public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
 
-    private static void logError(Exception exception){
-        if(bugCatcher != null){
+    private static void logError(Exception exception) {
+        if (bugCatcher != null) {
             bugCatcher.logError(exception);
-        } else{
+        } else {
             System.out.println("BUGCATCHER: " + exception.getMessage());
         }
     }
-
     public File storageDirectory = null;
     private File localCacheDirectory = null;
     static private ArbilSessionStorage singleInstance = null;
@@ -464,24 +463,20 @@ public class ArbilSessionStorage {
         return object;
     }
 
-    public String[] loadStringArray(String filename) {
+    public String[] loadStringArray(String filename) throws IOException {
         // read the location list from a text file that admin-users can read and hand edit if they really want to
         File currentConfigFile = new File(storageDirectory, filename + ".config");
         if (currentConfigFile.exists()) {
-            try {
-                ArrayList<String> stringArrayList = new ArrayList<String>();
-                FileInputStream fstream = new FileInputStream(currentConfigFile);
-                DataInputStream in = new DataInputStream(fstream);
-                BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                String strLine;
-                while ((strLine = br.readLine()) != null) {
-                    stringArrayList.add(strLine);
-                }
-                in.close();
-                return stringArrayList.toArray(new String[]{});
-            } catch (IOException exception) {
-                logError(exception);
+            ArrayList<String> stringArrayList = new ArrayList<String>();
+            FileInputStream fstream = new FileInputStream(currentConfigFile);
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                stringArrayList.add(strLine);
             }
+            in.close();
+            return stringArrayList.toArray(new String[]{});
         }
         return null;
 
@@ -502,22 +497,19 @@ public class ArbilSessionStorage {
 //        return stringProperty;
     }
 
-    public void saveStringArray(String filename, String[] storableValue) {
+    public void saveStringArray(String filename, String[] storableValue) throws IOException {
         // save the location list to a text file that admin-users can read and hand edit if they really want to
         File destinationConfigFile = new File(storageDirectory, filename + ".config");
         File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
-        try {
-            FileWriter fstream = new FileWriter(tempConfigFile);
-            BufferedWriter out = new BufferedWriter(fstream);
-            for (String currentString : storableValue) {
-                out.write(currentString + "\r\n");
-            }
-            out.close();
-            destinationConfigFile.delete();
-            tempConfigFile.renameTo(destinationConfigFile);
-        } catch (Exception exception) {
-            logError(exception);
+
+        FileWriter fstream = new FileWriter(tempConfigFile);
+        BufferedWriter out = new BufferedWriter(fstream);
+        for (String currentString : storableValue) {
+            out.write(currentString + "\r\n");
         }
+        out.close();
+        destinationConfigFile.delete();
+        tempConfigFile.renameTo(destinationConfigFile);
 //        try {
 //            Properties propertiesObject = new Properties();
 //            FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, filename + ".config"));
@@ -794,7 +786,7 @@ public class ArbilSessionStorage {
                         tempFile.renameTo(destinationFile);
                         downloadSucceeded = true;
                     }
-                    System.out.println("Downloaded: " + totalRead / (1024*1024) + " Mb");
+                    System.out.println("Downloaded: " + totalRead / (1024 * 1024) + " Mb");
                 }
             } catch (Exception ex) {
                 logError(ex);

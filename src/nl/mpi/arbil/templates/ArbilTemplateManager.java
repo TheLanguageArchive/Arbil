@@ -1,5 +1,6 @@
 package nl.mpi.arbil.templates;
 
+import java.io.IOException;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
@@ -24,10 +25,9 @@ public class ArbilTemplateManager {
 
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     //private String defaultArbilTemplateName;
     static private ArbilTemplateManager singleInstance = null;
     private Hashtable<String, ArbilTemplate> templatesHashTable;
@@ -112,27 +112,43 @@ public class ArbilTemplateManager {
     public void addSelectedTemplates(String templateString) {
         ArrayList<String> selectedTamplates = new ArrayList<String>();
         try {
-            selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+            selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
         } catch (Exception e) {
             bugCatcher.logError("No selectedTemplates file, will create one now.", e);
         }
         selectedTamplates.add(templateString);
+        try {
+            saveSelectedTemplates(selectedTamplates);
+        } catch (IOException ex) {
+            bugCatcher.logError("Could not crate new selectedTemplates file.", ex);
+        }
+    }
+
+    private String[] loadSelectedTemplates() throws IOException {
+        return ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+    }
+
+    private void saveSelectedTemplates(ArrayList<String> selectedTamplates) throws IOException {
         ArbilSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
     }
 
     public void removeSelectedTemplates(String templateString) {
         ArrayList<String> selectedTamplates = new ArrayList<String>();
-        selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
-        while (selectedTamplates.contains(templateString)) {
-            selectedTamplates.remove(templateString);
+        try {
+            selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
+            while (selectedTamplates.contains(templateString)) {
+                selectedTamplates.remove(templateString);
+            }
+            saveSelectedTemplates(selectedTamplates);
+        } catch (IOException ex) {
+            bugCatcher.logError("Could not load or create selectedTemplates file.", ex);
         }
-        ArbilSessionStorage.getSingleInstance().saveStringArray("selectedTemplates", selectedTamplates.toArray(new String[]{}));
     }
 
     public ArrayList<String> getSelectedTemplateArrayList() {
         ArrayList<String> selectedTamplates = new ArrayList<String>();
         try {
-            selectedTamplates.addAll(Arrays.asList(ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates")));
+            selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
         } catch (Exception e) {
             bugCatcher.logError("No selectedTemplates file, will create one now.", e);
             addDefaultTemplates();
@@ -156,10 +172,16 @@ public class ArbilTemplateManager {
 
     public MenuItemData[] getSelectedTemplates() {
         ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
-        String[] locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
-        if (locationsArray == null || locationsArray.length == 0) {
-            addDefaultTemplates();
-            locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("selectedTemplates");
+        String[] locationsArray = null;
+        try {
+            loadSelectedTemplates();
+            if (locationsArray == null || locationsArray.length == 0) {
+                addDefaultTemplates();
+                locationsArray = loadSelectedTemplates();
+            }
+        } catch (IOException ex) {
+            bugCatcher.logError(ex);
+            return new MenuItemData[0];
         }
         MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
         for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
