@@ -12,10 +12,12 @@ public abstract class ArbilRootNode implements ArbilNode {
 
     private String name;
     private ImageIcon icon;
+    private boolean local;
 
-    protected ArbilRootNode(String name, ImageIcon icon) {
+    protected ArbilRootNode(String name, ImageIcon icon, boolean local) {
         this.name = name;
         this.icon = icon;
+        this.local = local;
     }
 
     @Override
@@ -92,7 +94,7 @@ public abstract class ArbilRootNode implements ArbilNode {
     }
 
     public boolean isLocal() {
-        return false;
+        return this.local;
     }
 
     public boolean isMetaDataNode() {

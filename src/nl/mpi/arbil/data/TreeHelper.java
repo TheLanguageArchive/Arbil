@@ -445,25 +445,25 @@ public class TreeHelper {
     public boolean isInFavouritesNodes(ArbilDataNode dataNode) {
         return Arrays.asList(favouriteNodes).contains(dataNode);
     }
-    private ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon) {
+    private ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon, true) {
 
         public ArbilDataNode[] getChildArray() {
             return localCorpusNodes;
         }
     };
-    private ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon) {
+    private ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon, false) {
 
         public ArbilDataNode[] getChildArray() {
             return remoteCorpusNodes;
         }
     };
-    private ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon) {
+    private ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon, true) {
 
         public ArbilDataNode[] getChildArray() {
             return localFileNodes;
         }
     };
-    private ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon) {
+    private ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon, true) {
 
         public ArbilDataNode[] getChildArray() {
             return favouriteNodes;
