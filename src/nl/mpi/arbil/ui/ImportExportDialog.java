@@ -44,6 +44,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 
 /**
@@ -121,15 +122,15 @@ public class ImportExportDialog {
 
     private void setLocalCacheToNodesPanel(JPanel nodePanel) {
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localCorpusTreeModel.getRoot();
-        JLabel rootNodeLabel = (JLabel) rootNode.getUserObject();
-        JLabel currentLabel = new JLabel(rootNodeLabel.getText(), rootNodeLabel.getIcon(), JLabel.CENTER);
+        ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
+        JLabel currentLabel = new JLabel(rootArbilNode.toString(), rootArbilNode.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
     }
 
     private void setLocalFileToNodesPanel(JPanel nodePanel, File destinationDirectory) {
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localDirectoryTreeModel.getRoot();
-        JLabel rootNodeLabel = (JLabel) rootNode.getUserObject();
-        JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootNodeLabel.getIcon(), JLabel.CENTER);
+        ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
+        JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootArbilNode.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
     }
 
@@ -701,7 +702,7 @@ public class ImportExportDialog {
                     }
                     if (destinationNode == null) {
                         TreeHelper.getSingleInstance().applyRootLocations();
-                    } else{
+                    } else {
                         destinationNode.reloadNode();
                     }
                 }

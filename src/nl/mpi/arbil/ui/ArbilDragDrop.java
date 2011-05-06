@@ -23,6 +23,7 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
 
@@ -531,11 +532,9 @@ public class ArbilDragDrop {
                                 } else if (!(((ArbilDataNode) draggedArbilNodes[draggedCounter]).isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(((ArbilDataNode) draggedArbilNodes[draggedCounter]).getFile()))) {
                                     importNodeList.add((ArbilDataNode) draggedArbilNodes[draggedCounter]);
                                 } else {
-                                    String targetNodeName;
-                                    if (dropTargetUserObject instanceof ArbilDataNode) {
+                                    String targetNodeName = null;
+                                    if (dropTargetUserObject instanceof ArbilNode) {
                                         targetNodeName = targetNode.getUserObject().toString();
-                                    } else {
-                                        targetNodeName = ((JLabel) targetNode.getUserObject()).getText();
                                     }
 //                                        if (draggedTreeNodes[draggedCounter].getUserObject())
                                     int detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
