@@ -127,7 +127,7 @@ public class ArbilDragDrop {
         }
 
         private boolean canDropToTarget(ArbilTree dropTree) {
-            ArbilDataNode currentLeadSelection = dropTree.getLeadSelectionNode();
+            ArbilDataNode currentLeadSelection = dropTree.getLeadSelectionDataNode();
             if (currentLeadSelection == null) {
                 // this check is for the root node of the trees
                 if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {

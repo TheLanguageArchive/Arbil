@@ -26,6 +26,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.WindowManager;
@@ -150,7 +151,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
                         currentCellEditor.stopCellEditing();
                     }
                     PreviewSplitPanel.previewTable.getArbilTableModel().removeAllArbilDataNodeRows();
-                    PreviewSplitPanel.previewTable.getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionNode());
+                    PreviewSplitPanel.previewTable.getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionDataNode());
                 }
             }
         });
@@ -237,36 +238,47 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         return tip;
     }
 
-    public ArbilDataNode[] getSelectedNodes() {
-        ArrayList<ArbilDataNode> selectedNodes = new ArrayList<ArbilDataNode>();
-        for (int selectedCount = 0; selectedCount < this.getSelectionCount(); selectedCount++) {
-            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) this.getSelectionPaths()[selectedCount].getLastPathComponent();
-            if (parentNode.getUserObject() instanceof ArbilDataNode) {
-                ArbilDataNode currentTreeObject = (ArbilDataNode) parentNode.getUserObject();
-//                if (currentTreeObject.isEmptyMetaNode()) {
-                // exchange the meta nodes for its child nodes
-//                    for (ImdiTreeObject subChildNode : currentTreeObject.getChildArray()) {
-//                        selectedNodes.add(subChildNode);
-//                    }
-//                } else {
-                selectedNodes.add(currentTreeObject);
-//                }
-            }
-        }
-        return selectedNodes.toArray(new ArbilDataNode[]{});
+    public ArbilNode[] getAllSelectedNodes() {
+        return getSelectedNodesOfType(ArbilNode.class).toArray(new ArbilNode[]{});
     }
 
-    public ArbilDataNode getLeadSelectionNode() {
+    public ArbilDataNode[] getSelectedNodes() {
+        return getSelectedNodesOfType(ArbilDataNode.class).toArray(new ArbilDataNode[]{});
+    }
+
+    public <T> ArrayList<T> getSelectedNodesOfType(Class<T> type) {
+        ArrayList<T> selectedNodes = new ArrayList<T>();
+        for (int selectedCount = 0; selectedCount < this.getSelectionCount(); selectedCount++) {
+            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) this.getSelectionPaths()[selectedCount].getLastPathComponent();
+            if (type.isAssignableFrom(parentNode.getUserObject().getClass())) {
+                T currentTreeObject = (T) parentNode.getUserObject();
+                selectedNodes.add(currentTreeObject);
+            }
+        }
+        return selectedNodes;
+    }
+
+
+    public ArbilNode getLeadSelectionNode() {
         DefaultMutableTreeNode selectedTreeNode = null;
-        ArbilDataNode returnObject = null;
+        ArbilNode returnObject = null;
         javax.swing.tree.TreePath currentNodePath = this.getSelectionPath();
         if (currentNodePath != null) {
             selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
         }
-        if (selectedTreeNode != null && selectedTreeNode.getUserObject() instanceof ArbilDataNode) {
-            returnObject = (ArbilDataNode) selectedTreeNode.getUserObject();
+        if (selectedTreeNode != null && selectedTreeNode.getUserObject() instanceof ArbilNode) {
+            returnObject = (ArbilNode) selectedTreeNode.getUserObject();
         }
         return returnObject;
+    }
+
+    public ArbilDataNode getLeadSelectionDataNode() {
+        DefaultMutableTreeNode selectedTreeNode = null;
+        ArbilNode returnObject = getLeadSelectionNode();
+        if(returnObject != null && returnObject instanceof ArbilDataNode){
+            return (ArbilDataNode) returnObject;
+        }
+        return null;
     }
 
     public void copyNodeUrlToClipboard(ArbilDataNode[] selectedNodes) {

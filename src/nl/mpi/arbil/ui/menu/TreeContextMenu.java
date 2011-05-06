@@ -45,7 +45,7 @@ public class TreeContextMenu extends ArbilContextMenu {
         setInvoker(tree);
 
         selectedTreeNodes = tree.getSelectedNodes();
-        leadSelectedTreeNode = tree.getLeadSelectionNode();
+        leadSelectedTreeNode = tree.getLeadSelectionDataNode();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class TreeContextMenu extends ArbilContextMenu {
                 viewSelectedNodesMenuItem.setText("View/Edit Selected");
                 //removeCachedCopyMenuItem.setVisible(showRemoveLocationsTasks);
                 pasteMenuItem1.setVisible(selectionCount > 0 && nodeLevel > 1);
-                searchSubnodesMenuItem.setVisible(selectionCount > 0 && nodeLevel > 1);
+                searchSubnodesMenuItem.setVisible(selectionCount > 0);
                 // a corpus can be added even at the root node
                 addMenu.setVisible(selectionCount == 1); // && /*nodeLevel > 1 &&*/ TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree.getSelectionCount() > 0/* && ((DefaultMutableTreeNode)localCorpusTree.getSelectionPath().getLastPathComponent()).getUserObject() instanceof */); // could check for imdi childnodes
 //            addMenu.setEnabled(nodeLevel > 1); // not yet functional so lets dissable it for now
@@ -608,7 +608,7 @@ public class TreeContextMenu extends ArbilContextMenu {
     }
 
     private void searchSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-        ArbilWindowManager.getSingleInstance().openSearchTable(((ArbilTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getSelectedNodes(), "Search");
+        ArbilWindowManager.getSingleInstance().openSearchTable(((ArbilTree) TreeHelper.getSingleInstance().arbilTreePanel.localCorpusTree).getAllSelectedNodes(), "Search");
     }
 
     private void searchRemoteSubnodesMenuItemActionPerformed(java.awt.event.ActionEvent evt) {

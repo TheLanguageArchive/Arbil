@@ -25,7 +25,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private ArbilNodeSearchPanel thisPanel = this;
     private JInternalFrame parentFrame;
     private ArbilTableModel resultsTableModel;
-    private ArbilDataNode[] selectedNodes;
+    private ArbilNode[] selectedNodes;
     private JPanel searchTermsPanel;
     private JPanel inputNodePanel;
     private JProgressBar searchProgressBar;
@@ -35,7 +35,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private int totalNodesToSearch = -1;
     private RemoteServerSearchTerm remoteServerSearchTerm = null;
 
-    public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilDataNode[] localSelectedNodes) {
+    public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilNode[] localSelectedNodes) {
         parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
         selectedNodes = localSelectedNodes;
@@ -118,7 +118,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
         searchTermsPanel.setLayout(new BoxLayout(searchTermsPanel, BoxLayout.PAGE_AXIS));
         // check if this search includes remote nodes
         boolean remoteSearch = false;
-        for (ArbilDataNode arbilDataNode : selectedNodes) {
+        for (ArbilNode arbilDataNode : selectedNodes) {
             if (!arbilDataNode.isLocal()) {
                 remoteSearch = true;
                 break;
@@ -134,7 +134,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private void initNodePanel() {
         inputNodePanel = new JPanel();
         inputNodePanel.setLayout(new java.awt.GridLayout());
-        for (ArbilDataNode currentNode : selectedNodes) {
+        for (ArbilNode currentNode : selectedNodes) {
             JLabel currentLabel = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.CENTER);
             inputNodePanel.add(currentLabel);
         }
@@ -246,7 +246,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
         }
 
         private void splitLocalRemote() {
-            for (ArbilDataNode arbilDataNode : selectedNodes) {
+            for (ArbilNode arbilDataNode : selectedNodes) {
                 if (arbilDataNode.isLocal()) {
                     localSearchNodes.add(arbilDataNode);
                 } else {

@@ -51,6 +51,7 @@ import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilNode;
 
 /**
  * Document   : ArbilWindowManager
@@ -899,7 +900,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
         return htmlDisplay;
     }
 
-    public void openSearchTable(ArbilDataNode[] selectedNodes, String frameTitle) {
+    public void openSearchTable(ArbilNode[] selectedNodes, String frameTitle) {
         // Create tabel with model and split panel to show it in
         ArbilTableModel resultsTableModel = new ArbilTableModel();
         ArbilTable arbilTable = new ArbilTable(resultsTableModel, frameTitle);
