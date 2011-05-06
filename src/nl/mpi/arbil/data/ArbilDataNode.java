@@ -1758,8 +1758,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
             try {
                 return new File(new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
             } catch (Exception urise) {
-                System.err.println("nodeUri: " + nodeUri);
-                bugCatcher.logError(urise);
+                bugCatcher.logError(nodeUri.toString(), urise);
             }
         }
         return null;

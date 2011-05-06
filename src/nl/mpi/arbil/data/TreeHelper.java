@@ -1,6 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.awt.Component;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -183,53 +184,60 @@ public class TreeHelper {
     }
 
     public final void loadLocationsList() {
+        System.out.println("loading locationsList");
+        String[] locationsArray = null;
         try {
-            System.out.println("loading locationsList");
-            String[] locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("locationsList");
-            if (locationsArray == null) {
-                addDefaultCorpusLocations();
-            } else {
-                ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
-                ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
-                ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
-                ArrayList<ArbilDataNode> favouriteNodesList = new ArrayList<ArbilDataNode>();
+            locationsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("locationsList");
+        } catch (IOException ex) {
+            bugCatcher.logError(ex);
+            messageDialogHandler.addMessageDialogToQueue("Could not find or load locations. Adding default locations.", "Error");
+        }
+        if (locationsArray == null) {
+            addDefaultCorpusLocations();
+        } else {
+            ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
+            ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
+            ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
+            ArrayList<ArbilDataNode> favouriteNodesList = new ArrayList<ArbilDataNode>();
 
-                // this also removes all locations and replaces them with normalised paths
-                for (String currentLocationString : locationsArray) {
-                    URI currentLocation = ArbilDataNode.conformStringToUrl(currentLocationString);
-                    ArbilDataNode currentTreeObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentLocation);
-                    if (currentTreeObject.isLocal()) {
-                        if (currentTreeObject.isFavorite()) {
-                            favouriteNodesList.add(currentTreeObject);
-                        } else if (ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
-                            if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isChildNode()) {
-                                localCorpusNodesList.add(currentTreeObject);
+            int failedLoads = 0;
+            // this also removes all locations and replaces them with normalised paths
+            for (String currentLocationString : locationsArray) {
+                URI currentLocation = ArbilDataNode.conformStringToUrl(currentLocationString);
+                if (currentLocation == null) {
+                    bugCatcher.logError("Could conform string to url: " + currentLocationString, null);
+                    failedLoads++;
+                } else {
+                    try {
+                        ArbilDataNode currentTreeObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentLocation);
+                        if (currentTreeObject.isLocal()) {
+                            if (currentTreeObject.isFavorite()) {
+                                favouriteNodesList.add(currentTreeObject);
+                            } else if (ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentTreeObject.getFile())) {
+                                if (currentTreeObject.isMetaDataNode() && !currentTreeObject.isChildNode()) {
+                                    localCorpusNodesList.add(currentTreeObject);
+                                }
+                            } else {
+                                localFileNodesList.add(currentTreeObject);
                             }
                         } else {
-                            localFileNodesList.add(currentTreeObject);
+                            remoteCorpusNodesList.add(currentTreeObject);
                         }
-                    } else {
-                        remoteCorpusNodesList.add(currentTreeObject);
+                    } catch (Exception ex) {
+                        bugCatcher.logError("Failure in trying to load " + currentLocationString, null);
+                        failedLoads++;
                     }
                 }
-                remoteCorpusNodes = remoteCorpusNodesList.toArray(new ArbilDataNode[]{});
-                localCorpusNodes = localCorpusNodesList.toArray(new ArbilDataNode[]{});
-                localFileNodes = localFileNodesList.toArray(new ArbilDataNode[]{});
-                favouriteNodes = favouriteNodesList.toArray(new ArbilDataNode[]{});
             }
-        } catch (Exception ex) {
-//            System.out.println("load locationsList failed: " + ex.getMessage());
-            bugCatcher.logError(ex);
-//            locationsList.add("http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi");
-//            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi");
-//            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
-//            locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
-//            //locationsList.add("http://lux16.mpi.nl/corpora/ac-ESF/Info/ladfc2.txt");
-//            //locationsList.add("file:///data1/media-archive-copy/Corpusstructure/MPI.imdi");
-//            locationsList.add("http://corpus1.mpi.nl/qfs1/media-archive/Comprehension/Elizabeth_Johnson/Corpusstructure/1.imdi");
-//            //locationsList.add("file:///data1/media-archive-copy/TestWorkingDirectory/");
 
-//            System.out.println("created new locationsList");
+            if (failedLoads > 0) {
+                messageDialogHandler.addMessageDialogToQueue("Failed to load " + failedLoads + " locations. See error log for details.", "Warning");
+            }
+
+            remoteCorpusNodes = remoteCorpusNodesList.toArray(new ArbilDataNode[]{});
+            localCorpusNodes = localCorpusNodesList.toArray(new ArbilDataNode[]{});
+            localFileNodes = localFileNodesList.toArray(new ArbilDataNode[]{});
+            favouriteNodes = favouriteNodesList.toArray(new ArbilDataNode[]{});
         }
         showHiddenFilesInTree = ArbilSessionStorage.getSingleInstance().loadBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
     }
