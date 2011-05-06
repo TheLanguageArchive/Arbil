@@ -107,8 +107,7 @@ public class ArbilSessionStorage {
                 if (!currentStorageDirectory.startsWith("null")) {
                     File storageFile = new File(currentStorageDirectory);
                     if (!storageFile.exists()) {
-                        storageFile.mkdir();
-                        if (!storageFile.exists()) {
+                        if (!storageFile.mkdir()) {
                             testedStorageDirectories = testedStorageDirectories + currentStorageDirectory + "\n";
                             System.out.println("failed to create: " + currentStorageDirectory);
                         } else {
@@ -147,12 +146,12 @@ public class ArbilSessionStorage {
     private void checkForMultipleStorageDirectories() {
         // look for any additional storage directories
         int foundDirectoryCount = 0;
-        String storageDirectoryMessageString = "";
+        StringBuilder storageDirectoryMessageString = new StringBuilder();
         for (String currentStorageDirectory : getLocationOptions()) {
             File storageFile = new File(currentStorageDirectory);
             if (storageFile.exists()) {
                 foundDirectoryCount++;
-                storageDirectoryMessageString = storageDirectoryMessageString + currentStorageDirectory + "\n";
+                storageDirectoryMessageString.append(storageDirectoryMessageString).append(currentStorageDirectory).append("\n");
             }
         }
         if (foundDirectoryCount > 1) {
@@ -342,7 +341,7 @@ public class ArbilSessionStorage {
             return false;
         }
         File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
-        return getFavouritesDir().equals(testFile);
+        return testFile.equals(getFavouritesDir());
     }
 
     public URI getOriginatingUri(URI locationInCacheURI) {
@@ -394,7 +393,10 @@ public class ArbilSessionStorage {
         File favDirectory = new File(storageDirectory, "favourites"); // storageDirectory already has the file separator appended
         boolean favDirExists = favDirectory.exists();
         if (!favDirExists) {
-            favDirExists = favDirectory.mkdir();
+            if (!favDirectory.mkdir()) {
+                bugCatcher.logError("Could not create favourites directory", null);
+                return null;
+            }
         }
         return favDirectory;
     }
@@ -425,7 +427,10 @@ public class ArbilSessionStorage {
             }
             boolean cacheDirExists = localCacheDirectory.exists();
             if (!cacheDirExists) {
-                cacheDirExists = localCacheDirectory.mkdirs();
+                if (!localCacheDirectory.mkdirs()) {
+                    bugCatcher.logError("Could not create cache directory", null);
+                    return null;
+                }
             }
         }
         return localCacheDirectory;
@@ -470,12 +475,19 @@ public class ArbilSessionStorage {
             ArrayList<String> stringArrayList = new ArrayList<String>();
             FileInputStream fstream = new FileInputStream(currentConfigFile);
             DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String strLine;
-            while ((strLine = br.readLine()) != null) {
-                stringArrayList.add(strLine);
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                try {
+                    String strLine;
+                    while ((strLine = br.readLine()) != null) {
+                        stringArrayList.add(strLine);
+                    }
+                } finally {
+                    br.close();
+                }
+            } finally {
+                in.close();
             }
-            in.close();
             return stringArrayList.toArray(new String[]{});
         }
         return null;
