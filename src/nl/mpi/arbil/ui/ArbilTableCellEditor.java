@@ -342,13 +342,17 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 //                ArbilTableCellEditor.this.stopCellEditing();
             }
         } else if (cellValue instanceof ArbilDataNode[]) {
+            /* Cell contains collection of child nodes. Open in table */
             ArbilWindowManager.getSingleInstance().openFloatingTableOnce((ArbilDataNode[]) cellValue, fieldName + " in " + registeredOwner);
+        } else if (cellValue.length == 1 && cellValue[0] instanceof ArbilFieldPlaceHolder) {
+            /* Cell value is field place holder, meaning that the node does not
+             contain the selected field and may not be able to. Investigate, and
+             initiate editor if possible */
+
+            ArbilDataNode dataNode = ((ArbilFieldPlaceHolder)cellValue[0]).getArbilDataNode();
+            // Todo: check if field can be added to node
         } else {
-            try {
-                throw new Exception("Edit cell type not supported");
-            } catch (Exception ex) {
-                GuiHelper.linorgBugCatcher.logError(ex);
-            }
+            GuiHelper.linorgBugCatcher.logError("Edit cell type not supported", null);
         }
     }
 
@@ -384,10 +388,13 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 if (cellValue[0] instanceof ArbilField) {
                     fieldName = ((ArbilField[]) cellValue)[0].getTranslateFieldName();
                 }
+            } else if (value instanceof ArbilFieldPlaceHolder) {
+                fieldName = ((ArbilFieldPlaceHolder) value).getFieldName();
+                cellValue = new Object[]{value};
             } else {
                 throw new ArbilMetadataException("Object type unsupported by cell editor");
             }
-            if (cellValue[0] instanceof ArbilField) {
+            if (cellValue != null && cellValue[0] instanceof ArbilField) {
                 registeredOwner = ((ArbilField) cellValue[0]).parentDataNode;
             }
         } else {

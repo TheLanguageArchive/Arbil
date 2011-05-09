@@ -1,5 +1,7 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.data.ArbilDataNode;
+
 /**
  * Used as blank in horizontal tables (grid view) in cells that represent
  * fields that are not present in the node represented by their row, i.e. the
@@ -9,16 +11,19 @@ package nl.mpi.arbil.ui;
 public class ArbilFieldPlaceHolder {
 
     private String fieldName;
+    private ArbilDataNode arbilDataNode;
 
-    public ArbilFieldPlaceHolder(String fieldName) {
+    public ArbilFieldPlaceHolder(String fieldName, ArbilDataNode dataNode) {
         this.fieldName = fieldName;
+        this.arbilDataNode = dataNode;
     }
 
-    /**
-     * @return the fieldName
-     */
     public String getFieldName() {
         return fieldName;
+    }
+
+    public ArbilDataNode getArbilDataNode() {
+        return arbilDataNode;
     }
 
     @Override
