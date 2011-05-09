@@ -616,31 +616,20 @@ public class MetadataReader {
                     destinationNode = parentNode;
                 }
 
-                boolean shouldAddCurrent = false;
                 NodeList childNodes = childNode.getChildNodes();
-                // if there is no child nodes or there is only one and it is text then add the field
-                if ((childNodes.getLength() == 0 && localName != null) || (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE)) {
-                    //                System.out.println("should add");
-                    shouldAddCurrent = true;
-                }
+                boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
+                        || (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
 
-                String fieldValue;
-                if (childNodes.getLength() == 1) {
-                    fieldValue = childNodes.item(0).getTextContent();
-                } else {
-                    fieldValue = "";
-                }
+                String fieldValue = (childNodes.getLength() == 1) ? childNodes.item(0).getTextContent() : "";
 
                 // calculate the xpath index for multiple fields like description
-                //            System.out.println("siblingNodePath: " + siblingNodePath);
-                //            String siblingNodePath destinationNode.getURI().getFragment()
                 if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
                     siblingNodePathCounter.put(fullSubNodePath, 0);
                 } else {
                     siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
                 }
                 if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { // is a leaf not a branch
-                    nodeOrderCounter = initEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, childNode, parentNode, childLinks, parentChildTree, shouldAddCurrent);
+                    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, childNode, parentNode, childLinks, parentChildTree, shouldAddCurrent);
                 }
                 nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
             }
@@ -662,7 +651,7 @@ public class MetadataReader {
         } // end get the xml node id
     }
 
-    private int initEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, Node childNode, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, boolean shouldAddCurrent) {
+    private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, Node childNode, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, boolean shouldAddCurrent) {
         // is a leaf not a branch
         //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
         ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));

@@ -730,14 +730,14 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                                 newData[rowCounter][columnCounter] = currentValue;
                             }
                         } else {
-                            newData[rowCounter][columnCounter] = "";
+                            newData[rowCounter][columnCounter] = new ArbilFieldPlaceHolder(columnNamesTemp[columnCounter]);
                         }
                     } else {
                         // populate the cell with any the child nodes for the current child nodes column
                         newData[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
                         // prevent null values
                         if (newData[rowCounter][columnCounter] == null) {
-                            newData[rowCounter][columnCounter] = "";
+                            newData[rowCounter][columnCounter] = new ArbilFieldPlaceHolder(columnNamesTemp[columnCounter]);
                         }
                     }
                 }

@@ -395,6 +395,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         }
     }
 
+    @Override
     public Component getTableCellEditorComponent(JTable table,
             Object value,
             boolean isSelected,
@@ -408,7 +409,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         try {
             convertCellValue(value);
         } catch (ArbilMetadataException ex) {
-            return null;
+            // Value type not supported, simply return non-edit renderer
+            return cellRenderer;
         }
 
         // Create and add 'button', which is the non-editor mode component for the cell
