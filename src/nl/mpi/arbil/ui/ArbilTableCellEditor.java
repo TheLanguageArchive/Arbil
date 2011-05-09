@@ -24,12 +24,14 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.fieldeditors.ArbilFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 import nl.mpi.arbil.ui.fieldeditors.LanguageIdBox;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 
 /**
  * Document   : ArbilTableCellEditor
@@ -49,6 +51,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     Object[] cellValue;
     int selectedField = -1;
     Vector<Component> componentsWithFocusListners = new Vector();
+    private static ArbilBugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 
     public ArbilTableCellEditor() {
         button = new JLabel("...");
@@ -238,7 +241,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         return ((evt.isAltDown() || evt.isControlDown()));
     }
 
-    private void removeAllFocusListners() {
+    private void removeAllFocusListeners() {
         while (componentsWithFocusListners.size() > 0) {
             Component currentComponent = componentsWithFocusListners.remove(0);
             if (currentComponent != null) {
@@ -318,7 +321,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     }
 
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
-        removeAllFocusListners();
+        removeAllFocusListeners();
         if (cellValue instanceof ArbilField[]) {
             if (cellHasControlledVocabulary() && isCellEditable()) {
                 initControlledVocabularyEditor(lastKeyInt, lastKeyChar);
@@ -364,7 +367,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         }
     }
 
-    private void convertCellValue(Object value) {
+    private void convertCellValue(Object value) throws ArbilMetadataException {
         if (value != null) {
             if (value instanceof ArbilField) {
                 // TODO: get the whole array from the parent and select the correct tab for editing
@@ -376,17 +379,19 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                         selectedField = cellFieldCounter;
                     }
                 }
-            } else {
+            } else if (value instanceof Object[]) {
                 cellValue = (Object[]) value;
                 if (cellValue[0] instanceof ArbilField) {
                     fieldName = ((ArbilField[]) cellValue)[0].getTranslateFieldName();
                 }
+            } else {
+                throw new ArbilMetadataException("Object type unsupported by cell editor");
             }
             if (cellValue[0] instanceof ArbilField) {
                 registeredOwner = ((ArbilField) cellValue[0]).parentDataNode;
             }
         } else {
-            GuiHelper.linorgBugCatcher.logError(new Exception("value is null in convertCellValue"));
+            bugCatcher.logError(new Exception("value is null in convertCellValue"));
         }
     }
 
@@ -400,9 +405,11 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         parentTable = (ArbilTable) table;
         parentCellRect = parentTable.getCellRect(row, column, false);
         ArbilTableCellRenderer cellRenderer = new ArbilTableCellRenderer(value);
-        convertCellValue(value);
-//        columnName = table.getColumnName(column);
-//        rowImdi = table.getValueAt(row, 0);
+        try {
+            convertCellValue(value);
+        } catch (ArbilMetadataException ex) {
+            return null;
+        }
 
         // Create and add 'button', which is the non-editor mode component for the cell
         button.setText(cellRenderer.getText());

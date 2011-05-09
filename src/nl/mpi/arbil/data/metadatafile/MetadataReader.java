@@ -538,123 +538,35 @@ public class MetadataReader {
                 if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Resources")) {
                     continue;
                 }
+
                 // get the xml node id
                 NamedNodeMap attributesMap = childNode.getAttributes();
                 if (attributesMap != null) {
-                    // look for node id attribites that should be removed from imdi files
-                    if (attributesMap.getNamedItem("id") != null) {
-                        if (!parentNode.hasDomIdAttribute) {
-                            if (!parentNode.isCmdiMetaDataNode()) {
-                                // only if this is an imdi file we will require the node to be saved which will remove the dom id attributes
-                                parentNode.hasDomIdAttribute = true;
-                                showDomIdFoundMessage();
-                                parentNode.setDataNodeNeedsSaveToDisk(null, false);
-                            }
-                        }
-                    }// end get the xml node id
+                    removeImdiNodeIds(attributesMap, parentNode);
                 }
-                //System.out.println(fullNodePath);
-                //System.out.println(childNode.getLocalName());
+
                 if (fullNodePath.length() == 0) {
-                    // if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
-                    if (!childNode.getLocalName().equals("METATRANSCRIPT")) {  // change made for clarin
-                        try {
-                            // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
-                            //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
-                            //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
-                            //                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
-                            //                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
-                            String schemaLocationString = null;
-                            Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
-                            if (schemaLocationNode == null) {
-                                schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
-                            }
-                            if (schemaLocationNode != null) {
-                                schemaLocationString = schemaLocationNode.getNodeValue();
-                                String[] schemaLocation = schemaLocationString.split("\\s");
-                                schemaLocationString = schemaLocation[schemaLocation.length - 1];
-                                schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
-                            } else {
-                                throw new Exception("Could not find the schema url: schemaLocationNode = " + schemaLocationNode);
-                            }
-                            //if (schemaLocation != null && schemaLocation.length > 0) {
-                            // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
-                            // this method also assumes that the xsd url is fully resolved
-                            parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
-                            /*
-                            // TODO: pass the resource node to a class to handle the resources
-                            childNode = childNode.getAttributes().getNamedItem("Components");
-                            nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
-                            break;
-                             */
-                        } catch (Exception exception) {
-                            bugCatcher.logError(exception);
-                            messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
-                        }
-                    }
-                    if (attributesMap != null) {
-                        // this is an imdi file so get an imdi template etc
-                        if (childNode.getLocalName().equals("METATRANSCRIPT")) {
-                            // these attributes exist only in the metatranscript node
-                            Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
-                            if (archiveHandleAtt != null) {
-                                parentNode.archiveHandle = archiveHandleAtt.getNodeValue();
-                            } else {
-                                parentNode.archiveHandle = null;
-                            }
-                            Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
-                            if (templateOriginatorAtt != null) {
-                                String templateOriginator = templateOriginatorAtt.getNodeValue();
-                                int separatorIndex = templateOriginator.indexOf(":");
-                                if (separatorIndex > -1) {
-                                    parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
-                                } else {
-                                    // TODO: this is redundant but is here for backwards compatability
-                                    Node templateTypeAtt = attributesMap.getNamedItem("Type");
-                                    if (templateTypeAtt != null) {
-                                        String templateType = templateTypeAtt.getNodeValue();
-                                        // most of the time this will return the default template, but if the named template exixts it will be used
-                                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    getClarinTemplate(childNode, parentNode, attributesMap);
                 }
                 if (childNode.getLocalName().equals("Corpus")) {
-                    // get the imdi catalogue if it exists
-                    Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
-                    if (catalogueLinkAtt != null) {
-                        String catalogueLink = catalogueLinkAtt.getNodeValue();
-                        if (catalogueLink.length() > 0) {
-                            URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
-                            childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
-                            parentChildTree.get(parentNode).add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink));
-                        }
-                    }
+                    getImdiCatalogue(attributesMap, parentNode, childLinks, parentChildTree);
                 }
                 String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
                 String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
 
                 ArbilDataNode destinationNode;
-                String parentNodePath = parentNode.getURI().getFragment();
-                if (parentNodePath == null) {
-                    // pathIsChildNode needs to have the entire path of the node not just the local part
-                    parentNodePath = "";
-                } else {
-                    parentNodePath = parentNodePath.replaceAll("\\(\\d+\\)", "");
-                }
+                String parentNodePath = determineParentPath(parentNode);
                 String childsMetaNode = parentNode.getParentDomNode().getNodeTemplate().pathIsChildNode(parentNodePath + siblingNodePath);
-                //            System.out.println("pathIsChildNode: " + childsMetaNode + " : " + siblingNodePath);
                 int maxOccurs = parentNode.getParentDomNode().getNodeTemplate().getMaxOccursForTemplate(parentNodePath + siblingNodePath);
+
                 if (localName != null && childsMetaNode != null) {
                     try {
-                        String siblingSpacer = "";
+                        ArbilDataNode metaNode = null;
                         String pathUrlXpathSeparator = "";
                         if (!parentNode.getUrlString().contains("#")) {
                             pathUrlXpathSeparator = "#";
                         }
-                        ArbilDataNode metaNode = null;
+                        String siblingSpacer = "";
                         if (maxOccurs > 1 || maxOccurs == -1 || !(parentNode.getParentDomNode().nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
                             metaNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
                             metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
@@ -676,7 +588,6 @@ public class MetadataReader {
                                     if (localName.equals(siblingPath)) {
                                         siblingCount++;
                                     }
-//                                    System.out.println(localName + " : " + siblingCount + " : " + siblingPath + " : " + siblingNode.getURI().getFragment());
                                 }
                             }
                             siblingSpacer = "(" + siblingCount + ")";
@@ -702,12 +613,9 @@ public class MetadataReader {
                     }
                     siblingNodePath = "";
                 } else {
-//                    parentNode.setNodeText(parentNode.getURI().getFragment());
                     destinationNode = parentNode;
                 }
-                //            System.out.println("destinationNode: " + destinationNode);
-                //            System.out.println("getLocalName: " + childNode.getLocalName());
-                //            System.out.println("hasChildNodes: " + childNode.hasChildNodes());
+
                 boolean shouldAddCurrent = false;
                 NodeList childNodes = childNode.getChildNodes();
                 // if there is no child nodes or there is only one and it is text then add the field
@@ -715,7 +623,7 @@ public class MetadataReader {
                     //                System.out.println("should add");
                     shouldAddCurrent = true;
                 }
-                //            System.out.println("getChildNodes: " + childNode.getChildNodes().getLength());
+
                 String fieldValue;
                 if (childNodes.getLength() == 1) {
                     fieldValue = childNodes.item(0).getTextContent();
@@ -732,95 +640,205 @@ public class MetadataReader {
                     siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
                 }
                 if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { // is a leaf not a branch
-                    //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-                    ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
-
-                    // TODO: about to write this function
-                    //GuiHelper.imdiSchema.convertXmlPathToUiPath();
-
-                    // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
-                    // TODO: note that this method does not use any attributes without a node value
-                    //            if (childNode.getLocalName() != null) {
-                    //                nodeCounter++;
-                    //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
-                    //            }
-                    NamedNodeMap namedNodeMap = childNode.getAttributes();
-                    if (namedNodeMap != null) {
-                        String cvType = getNamedAttributeValue(namedNodeMap, "Type");
-                        String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
-                        String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
-                        if (languageId == null) {
-                            languageId = getNamedAttributeValue(namedNodeMap, "xml:lang");
-                        }
-                        String keyName = getNamedAttributeValue(namedNodeMap, "Name");
-                        fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
-                        if (fieldToAdd.xmlPath.endsWith("Description")) {
-                            if (cvUrlString != null && cvUrlString.length() > 0) {
-                                // TODO: this field sould be put in the link node not the parent node
-                                URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
-                                childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
-                                ArbilDataNode descriptionLinkNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink);
-                                descriptionLinkNode.isInfoLink = true;
-                                descriptionLinkNode.setDataLoaded(true);
-                                parentChildTree.get(parentNode).add(descriptionLinkNode);
-                                descriptionLinkNode.addField(fieldToAdd);
-                            }
-                        }
-                        // get CMDI links
-                        String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
-                        if (clarinRefId != null && clarinRefId.length() > 0) {
-                            System.out.println("clarinRefId: " + clarinRefId);
-                            CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
-                            if (cmdiComponentLinkReader != null) {
-                                URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
-                                if (clarinLink != null) {
-                                    clarinLink = parentNode.getURI().resolve(clarinLink);
-                                    childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-                                    parentChildTree.get(destinationNode).add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(clarinLink));
-                                }
-                            }
-                        }
-                    }
-                    if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
-                        //                System.out.println("Adding: " + fieldToAdd);
-                        //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
-                        //                fieldToAdd.translateFieldName(siblingNodePath);
-                        destinationNode.addField(fieldToAdd);
-                    } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
-                        //                System.out.println("LinkValue: " + fieldValue);
-                        //                System.out.println("ParentPath: " + parentPath);
-                        //                System.out.println("Parent: " + this.getUrlString());
-                        try {
-                            URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
-                            childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
-                            ArbilDataNode linkedNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(linkPath);
-                            linkedNode.setNodeText(fieldToAdd.getKeyName());
-                            parentChildTree.get(parentNode).add(linkedNode);
-                        } catch (Exception ex) {
-                            bugCatcher.logError(ex);
-                            System.out.println("Exception CorpusLink: " + ex.getMessage());
-                        }
-                    }
-                    //            if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
-                    //                // the corpus link nodes are used but via the api.getlinks so dont log them here
-                    //                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
-                    //                if (namedNodeMap != null) {
-                    //                    for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
-                    //                        String attributeName = fieldToAdd.xmlPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
-                    //                        // add all attributes even if they contain no value
-                    //                        // TODO: check if this should be removed yet
-                    //                        if (!listDiscardedOfAttributes.contains(attributeName) && !attributeName.endsWith(":id")) {
-                    //                            // also ignore any id attributes that would have been attached to blank fields
-                    //                            listDiscardedOfAttributes.add(attributeName);
-                    //                        }
-                    //                    }
-                    //                }
-                    //            }
-                    fieldToAdd.finishLoading();
+                    nodeOrderCounter = initEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, childNode, parentNode, childLinks, parentChildTree, shouldAddCurrent);
                 }
                 nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
             }
         }
         return nodeOrderCounter;
+    }
+
+    private void removeImdiNodeIds(NamedNodeMap attributesMap, ArbilDataNode parentNode) {
+        // look for node id attribites that should be removed from imdi files
+        if (attributesMap.getNamedItem("id") != null) {
+            if (!parentNode.hasDomIdAttribute) {
+                if (!parentNode.isCmdiMetaDataNode()) {
+                    // only if this is an imdi file we will require the node to be saved which will remove the dom id attributes
+                    parentNode.hasDomIdAttribute = true;
+                    showDomIdFoundMessage();
+                    parentNode.setDataNodeNeedsSaveToDisk(null, false);
+                }
+            }
+        } // end get the xml node id
+    }
+
+    private int initEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, Node childNode, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, boolean shouldAddCurrent) {
+        // is a leaf not a branch
+        //            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
+        ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
+        // TODO: about to write this function
+        //GuiHelper.imdiSchema.convertXmlPathToUiPath();
+        // TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
+        // TODO: note that this method does not use any attributes without a node value
+        //            if (childNode.getLocalName() != null) {
+        //                nodeCounter++;
+        //System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
+        //            }
+        NamedNodeMap namedNodeMap = childNode.getAttributes();
+        if (namedNodeMap != null) {
+            String cvType = getNamedAttributeValue(namedNodeMap, "Type");
+            String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
+            String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
+            if (languageId == null) {
+                languageId = getNamedAttributeValue(namedNodeMap, "xml:lang");
+            }
+            String keyName = getNamedAttributeValue(namedNodeMap, "Name");
+            fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
+            if (fieldToAdd.xmlPath.endsWith("Description")) {
+                if (cvUrlString != null && cvUrlString.length() > 0) {
+                    // TODO: this field sould be put in the link node not the parent node
+                    URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
+                    childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
+                    ArbilDataNode descriptionLinkNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink);
+                    descriptionLinkNode.isInfoLink = true;
+                    descriptionLinkNode.setDataLoaded(true);
+                    parentChildTree.get(parentNode).add(descriptionLinkNode);
+                    descriptionLinkNode.addField(fieldToAdd);
+                }
+            }
+            String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
+            if (clarinRefId != null && clarinRefId.length() > 0) {
+                System.out.println("clarinRefId: " + clarinRefId);
+                CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
+                if (cmdiComponentLinkReader != null) {
+                    URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
+                    if (clarinLink != null) {
+                        clarinLink = parentNode.getURI().resolve(clarinLink);
+                        childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
+                        parentChildTree.get(destinationNode).add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(clarinLink));
+                    }
+                }
+            }
+        }
+        if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
+            //                System.out.println("Adding: " + fieldToAdd);
+            //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
+            //                fieldToAdd.translateFieldName(siblingNodePath);
+            destinationNode.addField(fieldToAdd);
+        } else if (shouldAddCurrent && fieldToAdd.xmlPath.contains("CorpusLink") && fieldValue.length() > 0) {
+            //                System.out.println("LinkValue: " + fieldValue);
+            //                System.out.println("ParentPath: " + parentPath);
+            //                System.out.println("Parent: " + this.getUrlString());
+            try {
+                URI linkPath = correctLinkPath(parentNode.getURI(), fieldToAdd.getFieldValue());
+                childLinks.add(new String[]{linkPath.toString(), "IMDI Link"});
+                ArbilDataNode linkedNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(linkPath);
+                linkedNode.setNodeText(fieldToAdd.getKeyName());
+                parentChildTree.get(parentNode).add(linkedNode);
+            } catch (Exception ex) {
+                bugCatcher.logError(ex);
+                System.out.println("Exception CorpusLink: " + ex.getMessage());
+            }
+        } //                // the corpus link nodes are used but via the api.getlinks so dont log them here
+        //                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
+        //            if (debugOn && !fieldToAdd.xmlPath.contains("CorpusLink")) {
+        //                // the corpus link nodes are used but via the api.getlinks so dont log them here
+        //                NamedNodeMap namedNodeMap = childNode.getParentNode().getAttributes();
+        //                if (namedNodeMap != null) {
+        //                    for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
+        //                        String attributeName = fieldToAdd.xmlPath + ":" + namedNodeMap.item(attributeCounter).getNodeName();
+        //                        // add all attributes even if they contain no value
+        //                        // TODO: check if this should be removed yet
+        //                        if (!listDiscardedOfAttributes.contains(attributeName) && !attributeName.endsWith(":id")) {
+        //                            // also ignore any id attributes that would have been attached to blank fields
+        //                            listDiscardedOfAttributes.add(attributeName);
+        //                        }
+        //                    }
+        //                }
+        //            }
+        fieldToAdd.finishLoading();
+        return nodeOrderCounter;
+    }
+
+    private String determineParentPath(ArbilDataNode parentNode) {
+        String parentNodePath = parentNode.getURI().getFragment();
+        if (parentNodePath == null) {
+            // pathIsChildNode needs to have the entire path of the node not just the local part
+            parentNodePath = "";
+        } else {
+            parentNodePath = parentNodePath.replaceAll("\\(\\d+\\)", "");
+        }
+        return parentNodePath;
+    }
+
+    private void getClarinTemplate(Node childNode, ArbilDataNode parentNode, NamedNodeMap attributesMap) throws DOMException {
+        // if this is the first node and it is not metatranscript then it is not an imdi so get the clarin template
+        if (!childNode.getLocalName().equals("METATRANSCRIPT")) {
+            // change made for clarin
+            try {
+                // TODO: for some reason getNamespaceURI does not retrieve the uri so we are resorting to simply gettting the attribute
+                //                    System.out.println("startNode.getNamespaceURI():" + startNode.getNamespaceURI());
+                //                    System.out.println("childNode.getNamespaceURI():" + childNode.getNamespaceURI());
+                //                    System.out.println("schemaLocation:" + childNode.getAttributes().getNamedItem("xsi:schemaLocation"));
+                //                    System.out.println("noNamespaceSchemaLocation:" + childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation"));
+                String schemaLocationString = null;
+                Node schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:noNamespaceSchemaLocation");
+                if (schemaLocationNode == null) {
+                    schemaLocationNode = childNode.getAttributes().getNamedItem("xsi:schemaLocation");
+                }
+                if (schemaLocationNode != null) {
+                    schemaLocationString = schemaLocationNode.getNodeValue();
+                    String[] schemaLocation = schemaLocationString.split("\\s");
+                    schemaLocationString = schemaLocation[schemaLocation.length - 1];
+                    schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
+                } else {
+                    throw new Exception("Could not find the schema url: schemaLocationNode = " + schemaLocationNode);
+                }
+                //if (schemaLocation != null && schemaLocation.length > 0) {
+                // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
+                // this method also assumes that the xsd url is fully resolved
+                parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getCmdiTemplate(schemaLocationString);
+                /*
+                // TODO: pass the resource node to a class to handle the resources
+                childNode = childNode.getAttributes().getNamedItem("Components");
+                nodeCounter = iterateChildNodes(parentNode, childLinks, childNode, nodePath, parentChildTree, nodeCounter);
+                break;
+                 */
+            } catch (Exception exception) {
+                bugCatcher.logError(exception);
+                messageDialogHandler.addMessageDialogToQueue("Could not find the schema url, some nodes will not display correctly.", "CMDI Schema Location");
+            }
+        }
+        if (attributesMap != null) {
+            // this is an imdi file so get an imdi template etc
+            if (childNode.getLocalName().equals("METATRANSCRIPT")) {
+                // these attributes exist only in the metatranscript node
+                Node archiveHandleAtt = attributesMap.getNamedItem("ArchiveHandle");
+                if (archiveHandleAtt != null) {
+                    parentNode.archiveHandle = archiveHandleAtt.getNodeValue();
+                } else {
+                    parentNode.archiveHandle = null;
+                }
+                Node templateOriginatorAtt = attributesMap.getNamedItem("Originator");
+                if (templateOriginatorAtt != null) {
+                    String templateOriginator = templateOriginatorAtt.getNodeValue();
+                    int separatorIndex = templateOriginator.indexOf(":");
+                    if (separatorIndex > -1) {
+                        parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateOriginator.substring(separatorIndex + 1));
+                    } else {
+                        // TODO: this is redundant but is here for backwards compatability
+                        Node templateTypeAtt = attributesMap.getNamedItem("Type");
+                        if (templateTypeAtt != null) {
+                            String templateType = templateTypeAtt.getNodeValue();
+                            // most of the time this will return the default template, but if the named template exixts it will be used
+                            parentNode.nodeTemplate = ArbilTemplateManager.getSingleInstance().getTemplate(templateType);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void getImdiCatalogue(NamedNodeMap attributesMap, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws DOMException {
+        // get the imdi catalogue if it exists
+        Node catalogueLinkAtt = attributesMap.getNamedItem("CatalogueLink");
+        if (catalogueLinkAtt != null) {
+            String catalogueLink = catalogueLinkAtt.getNodeValue();
+            if (catalogueLink.length() > 0) {
+                URI correcteLink = correctLinkPath(parentNode.getURI(), catalogueLink);
+                childLinks.add(new String[]{correcteLink.toString(), "CatalogueLink"});
+                parentChildTree.get(parentNode).add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(correcteLink));
+            }
+        }
     }
 }

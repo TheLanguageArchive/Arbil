@@ -383,9 +383,10 @@ public class ArbilTable extends JTable {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        Object cellValue = arbilTableModel.getValueAt(row, convertColumnIndexToModel(column));
-        // only and always allow imdi fields or array objects because the editabilty of them is determinied in the field editor
-        return (cellValue instanceof Object[] || cellValue instanceof ArbilField);
+//        Object cellValue = arbilTableModel.getValueAt(row, convertColumnIndexToModel(column));
+//        // only and always allow imdi fields or array objects because the editabilty of them is determinied in the field editor
+//        return (cellValue instanceof Object[] || cellValue instanceof ArbilField);
+        return true;
     }
 
     @Override
