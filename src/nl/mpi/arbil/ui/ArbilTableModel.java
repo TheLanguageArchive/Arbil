@@ -646,58 +646,60 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
 
     // this will be hit by each imdi node in the table when the application starts hence it needs to be either put in a queue or be synchronised
     private synchronized void reloadTableDataPrivate() { // with the queue this does not need to be synchronised but in this case it will not slow things too much
-//        System.out.println("reloadTableData");
         int previousColumnCount = getColumnCount();
-        String[] columnNamesTemp = new String[0];
-        Object[][] dataTemp = new Object[0][0];
 
         ArbilDataNode[] tableRowsArbilArray = updateAllDataNodes();
 
+        updateViewOrientation(tableRowsArbilArray);
+        initTableData(tableRowsArbilArray, previousColumnCount);
+
+        updateImageDisplayPanel(); // update the image panel now the rows have been sorted and the data array updated
+        setWidthsChanged(false);
+    }
+
+    private void updateViewOrientation(ArbilDataNode[] tableRowsArbilArray) {
         // set the view to either horizontal or vertical and set the default sort
         boolean lastHorizontalView = horizontalView;
         horizontalView = tableRowsArbilArray.length > 1;
-        if (!horizontalView) { // set the table for a single image if that is all that is shown
+        if (!horizontalView) {
+            // set the table for a single image if that is all that is shown
             //if (imdiObjectHash.size() == listModel.getSize()) { // TODO: this does not account for when a resource is shown
             // TODO: this does not account for when a resource is shown
             if (filteredColumnNames.isEmpty()) {
                 horizontalView = true;
             }
         }
-
         if (lastHorizontalView != horizontalView) {
             sortReverse = false;
             // update to the default sort
-            if (horizontalView) {
-                sortColumn = 0;
-            } else {
-                sortColumn = -1;
-            }
+            sortColumn = horizontalView ? 0 : -1;
         }
+    }
+
+    private void initTableData(ArbilDataNode[] tableRowsArbilArray, int previousColumnCount) {
+        String[] columnNamesTemp;
+        Object[][] newData;
 
         if (horizontalView) {
             // display the grid view
-
             // calculate which of the available columns to show
             ArbilField[] displayedColumnNames = filteredColumnNames.values().toArray(new ArbilField[filteredColumnNames.size()]);
             Arrays.sort(displayedColumnNames, new ArbilFieldComparator());
             // end calculate which of the available columns to show
-
             // set the column offset to accomadate the icon which is not in the column hashtable
             int firstFreeColumn = 0;
             if (showIcons) {
-//                System.out.println("showing icon");
+                //                System.out.println("showing icon");
                 // this assumes that the icon will always be in the leftmost column
                 firstFreeColumn = 1;
             }
-
-            // create and populate the column names array and prepend the icon and append the imdinode
             columnNamesTemp = new String[displayedColumnNames.length + firstFreeColumn + childColumnNames.size()];
             int columnPopulateCounter = firstFreeColumn;
             if (columnNamesTemp.length > 0) {
                 columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
             }
             for (ArbilField currentColumn : displayedColumnNames) {
-//                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
+                //                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
                 columnNamesTemp[columnPopulateCounter] = currentColumn.getTranslateFieldName();
                 columnPopulateCounter++;
             }
@@ -706,18 +708,16 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                 columnNamesTemp[columnPopulateCounter] = childColEnum.nextElement().toString();
                 columnPopulateCounter++;
             }
-
             // end create the column names array and prepend the icon and append the imdinode
-
-            dataTemp = allocateCellData(tableRowsArbilArray.length, columnNamesTemp.length);
+            newData = allocateCellData(tableRowsArbilArray.length, columnNamesTemp.length);
 
             int rowCounter = 0;
             for (ArbilDataNode currentNode : tableRowsArbilArray) {
-//                System.out.println("currentNode: " + currentNode.toString());
+                //                System.out.println("currentNode: " + currentNode.toString());
                 Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
                 if (showIcons) {
                     //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
-                    dataTemp[rowCounter][0] = currentNode;
+                    newData[rowCounter][0] = currentNode;
                 }
                 for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
                     //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
@@ -725,37 +725,45 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                         ArbilField[] currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
                         if (currentValue != null) {
                             if (currentValue.length == 1) {
-                                dataTemp[rowCounter][columnCounter] = currentValue[0];
+                                newData[rowCounter][columnCounter] = currentValue[0];
                             } else {
-                                dataTemp[rowCounter][columnCounter] = currentValue;
+                                newData[rowCounter][columnCounter] = currentValue;
                             }
                         } else {
-                            dataTemp[rowCounter][columnCounter] = "";
+                            newData[rowCounter][columnCounter] = "";
                         }
                     } else {
                         // populate the cell with any the child nodes for the current child nodes column
-                        dataTemp[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
+                        newData[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
                         // prevent null values
-                        if (dataTemp[rowCounter][columnCounter] == null) {
-                            dataTemp[rowCounter][columnCounter] = "";
+                        if (newData[rowCounter][columnCounter] == null) {
+                            newData[rowCounter][columnCounter] = "";
                         }
                     }
                 }
                 rowCounter++;
             }
-//            System.out.println("setting column widths: " + maxColumnWidthsTemp);
-//            // display the column names use count for testing only
-//            Enumeration tempEnum = columnNameHash.elements();
-//            int tempColCount = 0;
-//            while (tempEnum.hasMoreElements()){
-//                data[0][tempColCount] = tempEnum.nextElement().toString();
-//                tempColCount++;
-//            }
+            //            System.out.println("setting column widths: " + maxColumnWidthsTemp);
+            //            // display the column names use count for testing only
+            //            Enumeration tempEnum = columnNameHash.elements();
+            //            int tempColCount = 0;
+            //            while (tempEnum.hasMoreElements()){
+            //                data[0][tempColCount] = tempEnum.nextElement().toString();
+            //                tempColCount++;
+            //            }
+            //            System.out.println("setting column widths: " + maxColumnWidthsTemp);
+            //            // display the column names use count for testing only
+            //            Enumeration tempEnum = columnNameHash.elements();
+            //            int tempColCount = 0;
+            //            while (tempEnum.hasMoreElements()){
+            //                data[0][tempColCount] = tempEnum.nextElement().toString();
+            //                tempColCount++;
+            //            }
         } else {
             // display the single node view
             columnNamesTemp = singleNodeViewHeadings;
             if (tableRowsArbilArray.length == 0) {
-                dataTemp = allocateCellData(0, columnNamesTemp.length);
+                newData = allocateCellData(0, columnNamesTemp.length);
             } else {
                 if (tableRowsArbilArray[0] != null) {
                     Hashtable<String, ArbilField[]> fieldsHash = tableRowsArbilArray[0].getFields();
@@ -764,33 +772,36 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                     for (Enumeration<ArbilField[]> valuesEnum = fieldsHash.elements(); valuesEnum.hasMoreElements();) {
                         ArbilField[] currentFieldArray = valuesEnum.nextElement();
                         for (ArbilField currentField : currentFieldArray) {
-                            if (currentField.xmlPath.length() > 0) { // prevent non fields being displayed
+                            if (currentField.xmlPath.length() > 0) {
+                                // prevent non fields being displayed
                                 if (tableFieldView.viewShowsColumn(currentField.getTranslateFieldName())) {
                                     allRowFields.add(currentField);
                                 }
                             }
                         }
                     }
-                    dataTemp = allocateCellData(allRowFields.size(), 2);
-//                    Enumeration<String> labelsEnum = fieldsHash.keys();
-//                    Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements();
+                    newData = allocateCellData(allRowFields.size(), 2);
+                    //                    Enumeration<String> labelsEnum = fieldsHash.keys();
+                    //                    Enumeration<ImdiField[]> valuesEnum = fieldsHash.elements();
                     int rowCounter = 0;
                     for (Enumeration<ArbilField> allFieldsEnum = allRowFields.elements(); allFieldsEnum.hasMoreElements();) {
                         ArbilField currentField = allFieldsEnum.nextElement();
-                        dataTemp[rowCounter][0] = currentField.getTranslateFieldName();
-                        dataTemp[rowCounter][1] = currentField;
+                        newData[rowCounter][0] = currentField.getTranslateFieldName();
+                        newData[rowCounter][1] = currentField;
                         rowCounter++;
                     }
+                } else {
+                    newData = new Object[0][0];
                 }
             }
         }
         // update the table model, note that this could be more specific, ie. just row or all it the columns have changed
         //fireTableDataChanged();
-        sortTableRows(columnNamesTemp, dataTemp);
+        sortTableRows(columnNamesTemp, newData);
         columnNames = columnNamesTemp;
-        cellColour = setCellColours(dataTemp);
+        cellColour = setCellColours(newData);
         Object[][] prevousData = data;
-        data = dataTemp;
+        data = newData;
         if (previousColumnCount != getColumnCount() || prevousData.length != data.length) {
             try {
                 fireTableStructureChanged();
@@ -800,15 +811,13 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
         } else {
             for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
                 for (int colCounter = 0; colCounter < getColumnCount(); colCounter++) {
-//                    if (prevousData[rowCounter][colCounter] != data[rowCounter][colCounter]) {
-//                        System.out.println("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
+                    //                    if (prevousData[rowCounter][colCounter] != data[rowCounter][colCounter]) {
+                    //                        System.out.println("fireTableCellUpdated: " + rowCounter + ":" + colCounter);
                     fireTableCellUpdated(rowCounter, colCounter);
-//                    }
+                    //                    }
                 }
             }
         }
-        updateImageDisplayPanel(); // update the image panel now the rows have been sorted and the data array updated
-        setWidthsChanged(false);
     }
 
     public int getColumnCount() {

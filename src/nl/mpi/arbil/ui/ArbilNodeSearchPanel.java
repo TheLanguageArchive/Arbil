@@ -38,7 +38,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilNode[] localSelectedNodes) {
         parentFrame = parentFrameLocal;
         resultsTableModel = resultsTableModelLocal;
-        selectedNodes = localSelectedNodes;
+        selectedNodes = localSelectedNodes.clone();
         searchTermsPanel = new JPanel();
 
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
