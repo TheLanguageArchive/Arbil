@@ -103,6 +103,84 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         });
     }
 
+    private void initControlledVocabularyEditor(int lastKeyInt, char lastKeyChar) {
+        // Remove 'button', which is the non-editor mode component for the cell
+        editorPanel.remove(button);
+        // if the cell has a vocabulary then prevent the long field editor
+        ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ArbilField) cellValue[selectedField]);
+        // Add combobox
+        editorPanel.add(cvComboBox);
+        editorPanel.doLayout();
+        cvComboBox.setPopupVisible(true);
+        editorComponent = cvComboBox;
+        final String currentCellString = cellValue[selectedField].toString();
+        String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
+        // Set the editor for the combobox, so that it supports typeahead
+        final ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, currentCellString, (ArbilField) cellValue[selectedField], cvComboBox);
+        cvComboBox.setEditor(cvcbEditor);
+        cvComboBox.addPopupMenuListener(new PopupMenuListener() {
+
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                fireEditingStopped();
+            }
+
+            public void popupMenuCanceled(PopupMenuEvent e) {
+                //                            cvcbEditor.setText(currentCellString);
+                fireEditingStopped();
+            }
+        });
+        // Make focus work (stop edit mode on lost focus)
+        addFocusListener(cvComboBox);
+        addFocusListener(cvComboBox.getEditor().getEditorComponent());
+        cvComboBox.getEditor().getEditorComponent().requestFocusInWindow();
+    }
+
+    private void initFieldEditor(int lastKeyInt, char lastKeyChar) {
+        // Remove 'button', which is the non-editor mode component for the cell
+        editorPanel.remove(button);
+        editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
+        final String currentCellString = cellValue[selectedField].toString();
+        ArbilFieldEditor editorTextField = new ArbilFieldEditor(getEditorText(lastKeyInt, lastKeyChar, currentCellString));
+        editorTextField.addKeyListener(new java.awt.event.KeyListener() {
+
+            public void keyTyped(KeyEvent evt) {
+                if (isStartLongFieldKey(evt)) {
+                    // if this is a long start long field event the we don't want that key appended so it is not passed on here
+                    if (cellValue instanceof ArbilField[]) {
+                        int currentFieldIndex = selectedField;
+                        if (currentFieldIndex < 0) {
+                            currentFieldIndex = 0;
+                        }
+                        new ArbilLongFieldEditor(parentTable).showEditor((ArbilField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ArbilField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
+                    }
+                }
+            }
+
+            public void keyPressed(KeyEvent evt) {
+            }
+
+            public void keyReleased(KeyEvent evt) {
+            }
+        });
+        editorPanel.setBorder(null);
+        editorPanel.add(editorTextField);
+        addFocusListener(editorTextField);
+        if (cellValue[selectedField] instanceof ArbilField) {
+            if (((ArbilField) cellValue[selectedField]).getLanguageId() != null) {
+                // this is an ImdiField that has a fieldLanguageId
+                JComboBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
+                editorPanel.add(fieldLanguageBox);
+                addFocusListener(fieldLanguageBox);
+            }
+        }
+        editorPanel.doLayout();
+        editorTextField.requestFocusInWindow();
+        editorComponent = editorTextField;
+    }
+
     private boolean requiresLongFieldEditor() {
         boolean requiresLongFieldEditor = false;
         if (cellValue instanceof ArbilField[]) {
@@ -144,13 +222,12 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     }
 
     private boolean isCellEditable() {
-        boolean returnValue = false;
         if (cellValue instanceof ArbilField[]) {
             ArbilDataNode parentObject = ((ArbilField[]) cellValue)[0].parentDataNode;
             // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
-            returnValue = !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
+            return !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
         }
-        return (returnValue);
+        return false;
     }
 
     private boolean isStartLongFieldKey(KeyEvent evt) {
@@ -243,90 +320,13 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     private void startEditorMode(boolean ctrlDown, int lastKeyInt, char lastKeyChar) {
         removeAllFocusListners();
         if (cellValue instanceof ArbilField[]) {
-            if (cellHasControlledVocabulary()) {
-                if (isCellEditable()) {
-                    // if the cell has a vocabulary then prevent the long field editor
-                    ControlledVocabularyComboBox cvComboBox = new ControlledVocabularyComboBox((ArbilField) cellValue[selectedField]);
-
-                    // Remove 'button', which is the non-editor mode component for the cell
-                    editorPanel.remove(button);
-                    // Add combobox
-                    editorPanel.add(cvComboBox);
-                    editorPanel.doLayout();
-                    cvComboBox.setPopupVisible(true);
-                    
-                    editorComponent = cvComboBox;
-
-                    final String currentCellString = cellValue[selectedField].toString();
-                    String initialValue = getEditorText(lastKeyInt, lastKeyChar, currentCellString);
-
-                    // Set the editor for the combobox, so that it supports typeahead
-                    final ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(initialValue, currentCellString, (ArbilField) cellValue[selectedField], cvComboBox);
-                    cvComboBox.setEditor(cvcbEditor);
-
-                    cvComboBox.addPopupMenuListener(new PopupMenuListener() {
-
-                        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        }
-
-                        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                            fireEditingStopped();
-                        }
-
-                        public void popupMenuCanceled(PopupMenuEvent e) {
-//                            cvcbEditor.setText(currentCellString);
-                            fireEditingStopped();
-                        }
-                    });
-
-                    // Make focus work (stop edit mode on lost focus)
-                    addFocusListener(cvComboBox);
-                    addFocusListener(cvComboBox.getEditor().getEditorComponent());
-                    cvComboBox.getEditor().getEditorComponent().requestFocusInWindow();
-                }
-            } else if (!ctrlDown && selectedField != -1 && (!requiresLongFieldEditor() || getEditorText(lastKeyInt, lastKeyChar, "anystring").length() == 0)) { // make sure the long field editor is not shown when the contents of the field are being deleted
-                if (isCellEditable()) {
-                    editorPanel.remove(button);
-                    editorPanel.setLayout(new BoxLayout(editorPanel, BoxLayout.X_AXIS));
-                    String currentCellString = cellValue[selectedField].toString();
-                    ArbilFieldEditor editorTextField = new ArbilFieldEditor(getEditorText(lastKeyInt, lastKeyChar, currentCellString));
-                    editorTextField.addKeyListener(new java.awt.event.KeyListener() {
-
-                        public void keyTyped(KeyEvent evt) {
-                            if (isStartLongFieldKey(evt)) {
-                                // if this is a long start long field event the we don't want that key appended so it is not passed on here
-                                if (cellValue instanceof ArbilField[]) {
-                                    int currentFieldIndex = selectedField;
-                                    if (currentFieldIndex < 0) {
-                                        currentFieldIndex = 0;
-                                    }
-                                    new ArbilLongFieldEditor(parentTable).showEditor((ArbilField[]) cellValue, getEditorText(KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED, ((ArbilField) cellValue[currentFieldIndex]).getFieldValue()), currentFieldIndex);
-                                }
-                            }
-                        }
-
-                        public void keyPressed(KeyEvent evt) {
-                        }
-
-                        public void keyReleased(KeyEvent evt) {
-                        }
-                    });
-                    editorPanel.setBorder(null);
-                    editorPanel.add(editorTextField);
-
-                    addFocusListener(editorTextField);
-                    if (cellValue[selectedField] instanceof ArbilField) {
-                        if (((ArbilField) cellValue[selectedField]).getLanguageId() != null) {
-                            // this is an ImdiField that has a fieldLanguageId
-                            JComboBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
-                            editorPanel.add(fieldLanguageBox);
-                            addFocusListener(fieldLanguageBox);
-                        }
-                    }
-                    editorPanel.doLayout();
-                    editorTextField.requestFocusInWindow();
-                    editorComponent = editorTextField;
-                }
+            if (cellHasControlledVocabulary() && isCellEditable()) {
+                initControlledVocabularyEditor(lastKeyInt, lastKeyChar);
+            } else if (!ctrlDown
+                    && selectedField != -1
+                    && isCellEditable()
+                    && (!requiresLongFieldEditor() || getEditorText(lastKeyInt, lastKeyChar, "anystring").length() == 0)) { // make sure the long field editor is not shown when the contents of the field are being deleted
+                initFieldEditor(lastKeyInt, lastKeyChar);
             } else {
                 fireEditingStopped();
                 if (cellValue instanceof ArbilField[]) {
@@ -421,7 +421,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         });
 
         if (cellValue instanceof ArbilField[]) {
-            Icon icon = (selectedField < 0)?null:ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]);
+            Icon icon = (selectedField < 0) ? null : ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]);
             if (icon != null) {
                 // Icon is available for field. Wrap editor panel with icon panel
                 return new ArbilIconCellPanel(editorPanel, icon);

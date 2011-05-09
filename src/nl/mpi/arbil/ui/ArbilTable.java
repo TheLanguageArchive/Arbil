@@ -390,9 +390,6 @@ public class ArbilTable extends JTable {
 
     @Override
     public TableCellEditor getCellEditor(int row, int viewcolumn) {
-        int modelcolumn = convertColumnIndexToModel(viewcolumn);
-        Object cellField = getModel().getValueAt(row, modelcolumn);
-//        System.out.println("getCellEditor: " + cellField.toString());
         return new ArbilTableCellEditor();
     }
 
