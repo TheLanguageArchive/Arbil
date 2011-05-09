@@ -737,7 +737,7 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                         newData[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
                         // prevent null values
                         if (newData[rowCounter][columnCounter] == null) {
-                            newData[rowCounter][columnCounter] = new ArbilFieldPlaceHolder(columnNamesTemp[columnCounter], currentNode);
+                            newData[rowCounter][columnCounter] = "";
                         }
                     }
                 }

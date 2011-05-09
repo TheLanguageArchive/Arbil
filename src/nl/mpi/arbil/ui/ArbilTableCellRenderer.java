@@ -75,8 +75,8 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
             super.setForeground(new Color(greyTone, greyTone, greyTone));
         }
         if (!isCellSelected) {
-            if (cellObject instanceof ArbilFieldPlaceHolder) {
-                // Field does not exist in node
+            if (cellObject instanceof ArbilFieldPlaceHolder || cellObject instanceof String && "".equals(cellObject)) {
+                // Field does not exist in node OR childs column and node has no children of this type
                 super.setBackground(new Color(230, 230, 230)/*Color.lightGray*/);
             } else if (cellObject instanceof ArbilField && ((ArbilField) cellObject).fieldNeedsSaveToDisk()) {
                 // Value has changed since last save
