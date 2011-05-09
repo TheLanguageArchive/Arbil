@@ -170,65 +170,77 @@ public class ArbilTemplateManager {
         addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
     }
 
-    public MenuItemData[] getSelectedTemplates() {
+    private MenuItemData createMenuItemForTemplate(String location) {
         ArbilIcons arbilIcons = ArbilIcons.getSingleInstance();
-        String[] locationsArray = null;
-        try {
-            loadSelectedTemplates();
-            if (locationsArray == null || locationsArray.length == 0) {
-                addDefaultTemplates();
-                locationsArray = loadSelectedTemplates();
-            }
-        } catch (IOException ex) {
-            bugCatcher.logError(ex);
-            return new MenuItemData[0];
-        }
-        MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
-        for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
-            returnArray[insertableCounter] = new MenuItemData();
-            if (locationsArray[insertableCounter].startsWith("builtin:")) {
-                String currentString = locationsArray[insertableCounter].substring("builtin:".length());
-                for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
-                    if (currentString.equals(currentTemplateName[0])) {
-                        returnArray[insertableCounter].menuText = currentTemplateName[1];
-                        returnArray[insertableCounter].menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
-                        returnArray[insertableCounter].menuToolTip = currentTemplateName[1];
-                        if (returnArray[insertableCounter].menuText.contains("Corpus")) {
-                            returnArray[insertableCounter].menuIcon = arbilIcons.corpusnodeColorIcon;
-                        } else if (returnArray[insertableCounter].menuText.contains("Catalogue")) {
-                            returnArray[insertableCounter].menuIcon = arbilIcons.catalogueColorIcon;
-                        } else {
-                            returnArray[insertableCounter].menuIcon = arbilIcons.sessionColorIcon;
-                        }
+        MenuItemData menuItem = new MenuItemData();
+        if (location.startsWith("builtin:")) {
+            String currentString = location.substring("builtin:".length());
+            for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).rootTemplatesArray) {
+                if (currentString.equals(currentTemplateName[0])) {
+                    menuItem.menuText = currentTemplateName[1];
+                    menuItem.menuAction = "." + currentTemplateName[0].replaceFirst("\\.xml$", "");
+                    menuItem.menuToolTip = currentTemplateName[1];
+                    if (menuItem.menuText.contains("Corpus")) {
+                        menuItem.menuIcon = arbilIcons.corpusnodeColorIcon;
+                    } else if (menuItem.menuText.contains("Catalogue")) {
+                        menuItem.menuIcon = arbilIcons.catalogueColorIcon;
+                    } else {
+                        menuItem.menuIcon = arbilIcons.sessionColorIcon;
                     }
                 }
-            } else if (locationsArray[insertableCounter].startsWith("custom:")) {
-                String currentString = locationsArray[insertableCounter].substring("custom:".length());
-                returnArray[insertableCounter].menuText = currentString.substring(currentString.lastIndexOf("/") + 1);
-                returnArray[insertableCounter].menuAction = currentString;
-                returnArray[insertableCounter].menuToolTip = currentString;
-                returnArray[insertableCounter].menuIcon = arbilIcons.clarinIcon;
-            } else if (locationsArray[insertableCounter].startsWith("template:")) {
-                // todo:
-                String currentString = locationsArray[insertableCounter].substring("template:".length());
-                returnArray[insertableCounter].menuText = currentString + " (not available)";
-                returnArray[insertableCounter].menuAction = currentString;
-                returnArray[insertableCounter].menuToolTip = currentString;
-                returnArray[insertableCounter].menuIcon = arbilIcons.sessionColorIcon;
-            } else if (locationsArray[insertableCounter].startsWith("clarin:")) {
-                String currentString = locationsArray[insertableCounter].substring("clarin:".length());
-                CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
-                if (cmdiProfile == null) {
-                    returnArray[insertableCounter].menuText = "<unknown>";
-                    returnArray[insertableCounter].menuAction = "<unknown>";
-                    returnArray[insertableCounter].menuToolTip = currentString;
-                } else {
-                    returnArray[insertableCounter].menuText = cmdiProfile.name;
-                    returnArray[insertableCounter].menuAction = cmdiProfile.getXsdHref();
-                    returnArray[insertableCounter].menuToolTip = cmdiProfile.description;
-                }
-                returnArray[insertableCounter].menuIcon = arbilIcons.clarinIcon;
             }
+        } else if (location.startsWith("custom:")) {
+            String currentString = location.substring("custom:".length());
+            menuItem.menuText = currentString.substring(currentString.lastIndexOf("/") + 1);
+            menuItem.menuAction = currentString;
+            menuItem.menuToolTip = currentString;
+            menuItem.menuIcon = arbilIcons.clarinIcon;
+        } else if (location.startsWith("template:")) {
+            // todo:
+            String currentString = location.substring("template:".length());
+            menuItem.menuText = currentString + " (not available)";
+            menuItem.menuAction = currentString;
+            menuItem.menuToolTip = currentString;
+            menuItem.menuIcon = arbilIcons.sessionColorIcon;
+        } else if (location.startsWith("clarin:")) {
+            String currentString = location.substring("clarin:".length());
+            CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
+            if (cmdiProfile == null) {
+                menuItem.menuText = "<unknown>";
+                menuItem.menuAction = "<unknown>";
+                menuItem.menuToolTip = currentString;
+            } else {
+                menuItem.menuText = cmdiProfile.name;
+                menuItem.menuAction = cmdiProfile.getXsdHref();
+                menuItem.menuToolTip = cmdiProfile.description;
+            }
+            menuItem.menuIcon = arbilIcons.clarinIcon;
+        }
+        return menuItem;
+    }
+
+    public MenuItemData[] getSelectedTemplatesMenuItems() {
+        String[] locationsArray = null;
+        try {
+            locationsArray = loadSelectedTemplates();
+        } catch (IOException ex) {
+            bugCatcher.logError(ex);
+        }
+        if (locationsArray == null || locationsArray.length == 0) {
+            try {
+                addDefaultTemplates();
+                locationsArray = loadSelectedTemplates();
+            } catch (IOException ex) {
+                bugCatcher.logError(ex);
+            }
+        }
+        if (locationsArray == null) {
+            return new MenuItemData[0];
+        }
+
+        MenuItemData[] returnArray = new MenuItemData[locationsArray.length];
+        for (int insertableCounter = 0; insertableCounter < locationsArray.length; insertableCounter++) {
+            returnArray[insertableCounter] = createMenuItemForTemplate(locationsArray[insertableCounter]);
         }
         Arrays.sort(returnArray, new Comparator() {
 
@@ -237,10 +249,7 @@ public class ArbilTemplateManager {
             }
         });
         return returnArray;
-
-
-
-
+    }
 
 //     
 //                Vector childTypes = new Vector();
@@ -279,12 +288,6 @@ public class ArbilTemplateManager {
 //            }
 //        });
 //        return childTypes.elements();
-
-
-
-
-
-
 //    HashSet<String> locationsSet = new HashSet<String>();
 //            for (ImdiTreeObject[] currentTreeArray : new ImdiTreeObject[][]{remoteCorpusNodes, localCorpusNodes, localFileNodes, favouriteNodes}) {
 //                for (ImdiTreeObject currentLocation : currentTreeArray) {
@@ -307,7 +310,6 @@ public class ArbilTemplateManager {
 //            }
 //            //LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
 //            LinorgSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
-    }
 
     public String[] getAvailableTemplates() {
         File templatesDir = getTemplateDirectory();

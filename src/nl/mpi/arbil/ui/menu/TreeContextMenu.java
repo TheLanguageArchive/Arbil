@@ -683,7 +683,7 @@ public class TreeContextMenu extends ArbilContextMenu {
             }
         } else {
             // consume the selected templates here rather than the clarin profile list
-            for (MenuItemData currentAddable : ArbilTemplateManager.getSingleInstance().getSelectedTemplates()) {
+            for (MenuItemData currentAddable : ArbilTemplateManager.getSingleInstance().getSelectedTemplatesMenuItems()) {
                 JMenuItem addMenuItem;
                 addMenuItem = new JMenuItem();
                 addMenuItem.setText(currentAddable.menuText);
