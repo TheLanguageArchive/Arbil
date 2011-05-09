@@ -70,17 +70,17 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
         cellObject = value;
         super.setValue(value);
         if (cellObject instanceof ArbilField[]) {
+            // Multi-valued field
             int greyTone = 150;
             super.setForeground(new Color(greyTone, greyTone, greyTone));
         }
         if (!isCellSelected) {
-            if (cellObject instanceof String && cellObject.equals("")) {
+            if (cellObject instanceof String && "".equals(cellObject)) {
+                // Field does not exist in node
                 super.setBackground(new Color(230, 230, 230)/*Color.lightGray*/);
-            }
-            if (cellObject instanceof ArbilField) {
-                if (((ArbilField) cellObject).fieldNeedsSaveToDisk()) {
-                    super.setForeground(Color.blue);
-                }
+            } else if (cellObject instanceof ArbilField && ((ArbilField) cellObject).fieldNeedsSaveToDisk()) {
+                // Value has changed since last save
+                super.setForeground(Color.blue);
             }
         }
     }

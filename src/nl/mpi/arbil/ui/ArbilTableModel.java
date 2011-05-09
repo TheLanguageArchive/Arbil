@@ -712,18 +712,18 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             newData = allocateCellData(tableRowsArbilArray.length, columnNamesTemp.length);
 
             int rowCounter = 0;
+            final int childColumnsIndex = columnNamesTemp.length - childColumnNames.size();
             for (ArbilDataNode currentNode : tableRowsArbilArray) {
                 //                System.out.println("currentNode: " + currentNode.toString());
                 Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
                 if (showIcons) {
-                    //data[rowCounter][0] = new JLabel(currentNode.toString(), currentNode.getIcon(), JLabel.LEFT);
+                    // First column contains node icon
                     newData[rowCounter][0] = currentNode;
                 }
                 for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
-                    //System.out.println("columnNames[columnCounter]: " + columnNames[columnCounter] + " : " + columnCounter);
-                    if (columnCounter < columnNamesTemp.length - childColumnNames.size()) {
-                        ArbilField[] currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
-                        if (currentValue != null) {
+                    if (columnCounter < childColumnsIndex) {
+                        if (fieldsHash.containsKey(columnNamesTemp[columnCounter])) {
+                            ArbilField[] currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
                             if (currentValue.length == 1) {
                                 newData[rowCounter][columnCounter] = currentValue[0];
                             } else {
