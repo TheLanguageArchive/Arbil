@@ -771,7 +771,7 @@ public class MetadataReader {
                     schemaLocationString = schemaLocation[schemaLocation.length - 1];
                     schemaLocationString = parentNode.getURI().resolve(schemaLocationString).toString();
                 } else {
-                    throw new Exception("Could not find the schema url: schemaLocationNode = " + schemaLocationNode);
+                    throw new Exception("Could not find the schema url: " + childNode.toString());
                 }
                 //if (schemaLocation != null && schemaLocation.length > 0) {
                 // this method of extracting the url has to accommadate many formatting variants such as \r\n or extra spaces
