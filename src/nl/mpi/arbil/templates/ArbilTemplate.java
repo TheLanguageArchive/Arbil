@@ -1,6 +1,5 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
@@ -10,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilVocabulary;
@@ -23,19 +23,17 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplate {
+
     private static MessageDialogHandler messageDialogHandler;
 
-    public static void setMessageDialogHandler(MessageDialogHandler handler)
-    {
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
         messageDialogHandler = handler;
     }
-
     private static BugCatcher bugCatcher;
 
-    public static void setBugCatcher(BugCatcher bugCatcherInstance){
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-
     public File templateFile;
     protected Hashtable<String, ArbilVocabulary> vocabularyHashTable = null; // this is used by clarin vocabularies. clarin vocabularies are also stored with the imdi vocabularies in the Imdi Vocabularies class.
     public String loadedTemplateName;
@@ -235,7 +233,12 @@ public class ArbilTemplate {
         return returnValue; //!childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Session") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Corpus") && !childType.equals(imdiPathSeparator + "METATRANSCRIPT" + imdiPathSeparator + "Catalogue");
     }
 
-    private Vector getSubnodesFromTemplatesDir(String nodepath) {
+    /**
+     *
+     * @param nodepath
+     * @return List of arrays, with String[0] having the value, String[1]
+     */
+    private List<String[]> getSubnodesFromTemplatesDir(String nodepath) {
         Vector<String[]> returnVector = new Vector<String[]>();
         System.out.println("getSubnodesOf: " + nodepath);
         String targetNodePath = nodepath.substring(0, nodepath.lastIndexOf(")") + 1);
@@ -343,9 +346,23 @@ public class ArbilTemplate {
      * @return An enumeration of Strings for the available child types, one of which will be passed to "listFieldsFor()".
      */
     public Enumeration listTypesFor(Object targetNodeUserObject) {
-        // temp method for testing until replaced
+        // Get possible types for object
+        List<String[]> childTypes = getTypesFor(targetNodeUserObject);
+        // Sort on field value (not name)
+        Collections.sort(childTypes, new Comparator() {
+
+            public int compare(Object o1, Object o2) {
+                String value1 = ((String[]) o1)[0];
+                String value2 = ((String[]) o2)[0];
+                return value1.compareTo(value2);
+            }
+        });
+        return Collections.enumeration(childTypes);
+    }
+
+    private List<String[]> getTypesFor(Object targetNodeUserObject) {
         // TODO: implement this using data from the xsd on the server (server version needs to be updated)
-        Vector childTypes = new Vector();
+        List<String[]> childTypes;
         if (targetNodeUserObject instanceof ArbilDataNode) {
             String xpath = MetadataReader.getNodePath((ArbilDataNode) targetNodeUserObject);
             childTypes = getSubnodesFromTemplatesDir(xpath); // add the main entries based on the node path of the target
@@ -363,8 +380,8 @@ public class ArbilTemplate {
                     }
                 }
             }
-//            System.out.println("childTypes: " + childTypes);
         } else {
+            childTypes = new ArrayList<String[]>();
             // add the the root node items
             for (String[] currentTemplate : rootTemplatesArray) {
                 if (!currentTemplate[1].equals("Catalogue")) {// make sure the catalogue can not be added at the root level
@@ -372,15 +389,22 @@ public class ArbilTemplate {
                 }
             }
         }
-        Collections.sort(childTypes, new Comparator() {
+        return childTypes;
+    }
 
-            public int compare(Object o1, Object o2) {
-                String value1 = ((String[]) o1)[0];
-                String value2 = ((String[]) o2)[0];
-                return value1.compareTo(value2);
+    /**
+     * @param dataNode Node that has to be checked
+     * @param type XML path of candidate type for containment
+     * @return Whether any of the possible types matches the provided type
+     */
+    public boolean nodeCanContainType(ArbilDataNode dataNode, String type) {
+        for (String[] currentField : getTypesFor(dataNode)) {
+            final String nodeType = currentField[1];
+            if (nodeType.equals(type)) {
+                return true;
             }
-        });
-        return childTypes.elements();
+        }
+        return false;
     }
 
     public ArrayList<String> listAllTemplates() {
