@@ -344,13 +344,19 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         } else if (cellValue instanceof ArbilDataNode[]) {
             /* Cell contains collection of child nodes. Open in table */
             ArbilWindowManager.getSingleInstance().openFloatingTableOnce((ArbilDataNode[]) cellValue, fieldName + " in " + registeredOwner);
+
+
+
         } else if (cellValue.length == 1 && cellValue[0] instanceof ArbilFieldPlaceHolder) {
             /* Cell value is field place holder, meaning that the node does not
-             contain the selected field and may not be able to. Investigate, and
-             initiate editor if possible */
-
-            ArbilDataNode dataNode = ((ArbilFieldPlaceHolder)cellValue[0]).getArbilDataNode();
+            contain the selected field and may not be able to. Investigate, and
+            initiate editor if possible */
+	    // TODO: implement editing field placeholders
+//            final String xmlPath = ((ArbilFieldPlaceHolder) cellValue[0]).getFieldName();
+//            final ArbilDataNode dataNode = ((ArbilFieldPlaceHolder) cellValue[0]).getArbilDataNode();
+//            final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
             // Todo: check if field can be added to node
+
         } else {
             GuiHelper.linorgBugCatcher.logError("Edit cell type not supported", null);
         }

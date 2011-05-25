@@ -677,7 +677,8 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
     }
 
     private void initTableData(ArbilDataNode[] tableRowsArbilArray, int previousColumnCount) {
-        String[] columnNamesTemp;
+        String[] columnNamesTemp; // will contain translated field names (for column headers)
+        String[] fieldNames; // will contain actual field names
         Object[][] newData;
 
         if (horizontalView) {
@@ -694,12 +695,14 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                 firstFreeColumn = 1;
             }
             columnNamesTemp = new String[displayedColumnNames.length + firstFreeColumn + childColumnNames.size()];
+            fieldNames = new String[displayedColumnNames.length + firstFreeColumn + childColumnNames.size()];
             int columnPopulateCounter = firstFreeColumn;
             if (columnNamesTemp.length > 0) {
                 columnNamesTemp[0] = " "; // make sure the the icon column is shown its string is not null
             }
             for (ArbilField currentColumn : displayedColumnNames) {
                 //                System.out.println("columnPopulateCounter: " + columnPopulateCounter);
+                fieldNames[columnPopulateCounter] = currentColumn.xmlPath;
                 columnNamesTemp[columnPopulateCounter] = currentColumn.getTranslateFieldName();
                 columnPopulateCounter++;
             }
@@ -730,7 +733,9 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
                                 newData[rowCounter][columnCounter] = currentValue;
                             }
                         } else {
-                            newData[rowCounter][columnCounter] = new ArbilFieldPlaceHolder(columnNamesTemp[columnCounter],currentNode);
+			    // Field does not exist for node. Insert field placeholder, so that upon editing request the field name
+			    // can be resolved (and checked whether the field is actually addable)
+                            newData[rowCounter][columnCounter] = new ArbilFieldPlaceHolder(fieldNames[columnCounter],currentNode);
                         }
                     } else {
                         // populate the cell with any the child nodes for the current child nodes column
