@@ -165,16 +165,16 @@ public class GuiHelper {
     }
     // TODO: this could be merged witht the add row function
 
-    public AbstractTableModel getImdiTableModel(Hashtable rowNodes) {
-        ArbilTableModel searchTableModel = new ArbilTableModel();
-        searchTableModel.setShowIcons(true);
-        searchTableModel.addArbilDataNodes(rowNodes.elements());
-        //Enumeration rowNodeEnum = rowNodes.elements();
-        //while (rowNodeEnum.hasMoreElements()) {
-        //searchTableModel.addImdiObject((ImdiHelper.ImdiTreeObject) rowNodeEnum.nextElement());
-        //}
-        return searchTableModel;
-    }
+//    public AbstractTableModel getImdiTableModel(Hashtable rowNodes) {
+//        ArbilTableModel searchTableModel = new ArbilTableModel();
+//        searchTableModel.setShowIcons(true);
+//        searchTableModel.addArbilDataNodes(rowNodes.elements());
+//        //Enumeration rowNodeEnum = rowNodes.elements();
+//        //while (rowNodeEnum.hasMoreElements()) {
+//        //searchTableModel.addImdiObject((ImdiHelper.ImdiTreeObject) rowNodeEnum.nextElement());
+//        //}
+//        return searchTableModel;
+//    }
 
     public AbstractTableModel getImdiTableModel() {
         ArbilTableModel tempModel = new ArbilTableModel();

@@ -7,7 +7,6 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,7 +21,6 @@ import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.util.ArbilActionBuffer;
@@ -149,8 +147,6 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
             Object currentObject = nodesToAdd.nextElement();
             if (currentObject instanceof ArbilDataNode) {
                 addArbilDataNode((ArbilDataNode) currentObject);
-            } else if (currentObject instanceof URI) {
-                addArbilDataNode((URI) currentObject);
             }
         }
         requestReloadTableData();
@@ -159,10 +155,6 @@ public class ArbilTableModel extends AbstractTableModel implements ArbilDataNode
     public void addSingleArbilDataNode(ArbilDataNode arbilDataNode) {
         addArbilDataNode(arbilDataNode);
         requestReloadTableData();
-    }
-
-    public void addArbilDataNode(URI nodeURI) {
-        addArbilDataNode(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, nodeURI));
     }
 
     private void addArbilDataNode(ArbilDataNode arbilDataNode) {
