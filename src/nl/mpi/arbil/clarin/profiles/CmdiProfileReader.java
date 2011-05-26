@@ -3,7 +3,7 @@ package nl.mpi.arbil.clarin.profiles;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JProgressBar;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import org.apache.commons.digester.Digester;
 
 /**
@@ -12,7 +12,11 @@ import org.apache.commons.digester.Digester;
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiProfileReader {
+private static SessionStorage sessionStorage;
 
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
     // todo: move this url into the config file
     String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
@@ -74,7 +78,7 @@ public class CmdiProfileReader {
         } else {
             updateDays = 100;
         }
-        ArbilSessionStorage.getSingleInstance().updateCache(profilesUrlString, updateDays);
+        sessionStorage.updateCache(profilesUrlString, updateDays);
         loadProfiles();
         progressBar.setIndeterminate(false);
         progressBar.setMinimum(0);
@@ -84,7 +88,7 @@ public class CmdiProfileReader {
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
             progressBar.setString(currentCmdiProfile.name);
             System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
-            ArbilSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), updateDays);
+            sessionStorage.updateCache(currentCmdiProfile.getXsdHref(), updateDays);
             progressBar.setValue(progressBar.getValue() + 1);
         }
         progressBar.setString("");
@@ -92,7 +96,7 @@ public class CmdiProfileReader {
     }
 
     public void loadProfiles() {
-        File profileXmlFile = ArbilSessionStorage.getSingleInstance().updateCache(profilesUrlString, 10);
+        File profileXmlFile = sessionStorage.updateCache(profilesUrlString, 10);
         try {
             Digester digester = new Digester();
             // This method pushes this (SampleDigester) class to the Digesters

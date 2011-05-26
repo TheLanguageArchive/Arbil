@@ -33,7 +33,7 @@ public class ArbilBugCatcher implements BugCatcher {
 
     public ArbilBugCatcher() {
 	// remove all previous error logs for this version other than the one for this build number
-	File errorLogFile = new File(ArbilSessionStorage.getSingleInstance().storageDirectory, "linorgerror.log");
+	File errorLogFile = new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "linorgerror.log");
 	if (errorLogFile.exists()) {
 	    errorLogFile.delete();
 	}
@@ -41,14 +41,14 @@ public class ArbilBugCatcher implements BugCatcher {
 	ArbilVersion linorgVersion = new ArbilVersion();
 	String currentApplicationVersionMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-";
 	String currentLogFileMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log";
-	for (String currentFile : ArbilSessionStorage.getSingleInstance().storageDirectory.list()) {
+	for (String currentFile : ArbilSessionStorage.getSingleInstance().getStorageDirectory().list()) {
 	    if (currentFile.startsWith(currentApplicationVersionMatch)) {
 		if (currentFile.startsWith(currentLogFileMatch)) {
 		    // keeping this builds log file
 		    System.out.println("currentLogFileMatch: " + currentFile);
 		} else {
 		    System.out.println("deleting old log file: " + currentFile);
-		    new File(ArbilSessionStorage.getSingleInstance().storageDirectory, currentFile).delete();
+		    new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), currentFile).delete();
 		}
 	    }
 	}
@@ -57,7 +57,7 @@ public class ArbilBugCatcher implements BugCatcher {
 
     public File getLogFile() {
 	ArbilVersion linorgVersion = new ArbilVersion();
-	return new File(ArbilSessionStorage.getSingleInstance().storageDirectory, "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
+	return new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
     }
 
     public void grabApplicationShot() {
@@ -68,7 +68,7 @@ public class ArbilBugCatcher implements BugCatcher {
 	    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 	    String formattedDate = formatter.format(new Date());
 	    String formattedCount = myFormat.format(new Integer(captureCount));
-	    ImageIO.write(screenShot, "JPG", new File(ArbilSessionStorage.getSingleInstance().storageDirectory, "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
+	    ImageIO.write(screenShot, "JPG", new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
 	    captureCount++;
 	} catch (Exception e) {
 	}

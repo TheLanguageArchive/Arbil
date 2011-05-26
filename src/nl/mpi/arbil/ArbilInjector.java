@@ -2,10 +2,15 @@ package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.clarin.profiles.ProfilePreview;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilEntityResolver;
+import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DocumentationLanguages;
@@ -28,6 +33,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilVersionChecker;
 import nl.mpi.arbil.util.BinaryMetadataReader;
@@ -49,70 +55,93 @@ public class ArbilInjector {
     private final static MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
     private final static WindowManager windowManager = ArbilWindowManager.getSingleInstance();
     private final static ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
+    private static SessionStorage sessionStorage;
 
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public static synchronized void injectHandlers() {
-        // Inject window manager
-        ArbilBugCatcher.setWindowManager(windowManager);
-        ArbilSessionStorage.setWindowManager(windowManager);
-        ArbilTree.setWindowManager(windowManager);
-        ArbilVocabularies.setWindowManager(windowManager);
-        MetadataBuilder.setWindowManager(windowManager);
+    public static synchronized void injectHandlers(){
+	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
+	ArbilSessionStorage.setBugCatcher(bugCatcher);
+	ArbilSessionStorage.setWindowManager(windowManager);
+	// Session storage
+	sessionStorage = ArbilSessionStorage.getSingleInstance();
+	ArbilComponentBuilder.setSessionStorage(sessionStorage);
+	ArbilDataNode.setSessionStorage(sessionStorage);
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	ArbilEntityResolver.setSessionStorage(sessionStorage);
+	ArbilField.setSessionStorage(sessionStorage);
+	ArbilJournal.setSessionStorage(sessionStorage);
+	ArbilVocabularies.setSessionStorage(sessionStorage);
+	DocumentationLanguages.setSessionStorage(sessionStorage);
+	MetadataBuilder.setSessionStorage(sessionStorage);
+	TreeHelper.setSessionStorage(sessionStorage);
+	MetadataReader.setSessionStorage(sessionStorage);
+	CmdiProfileReader.setSessionStorage(sessionStorage);
+	ProfilePreview.setSessionStorage(sessionStorage);
+	CmdiTemplate.setSessionStorage(sessionStorage);
+	ArbilFavourites.setSessionStorage(sessionStorage);
+	MimeHashQueue.setSessionStorage(sessionStorage);
+	XsdChecker.setSessionStorage(sessionStorage);
+	ArbilVersionChecker.setSessionStorage(sessionStorage);
+	ArbilTemplateManager.setSessionStorage(sessionStorage);
 
-        // Inject message dialog handler
-        ArbilComponentBuilder.setMessageDialogHandler(messageDialogHandler);
-        ArbilCsvImporter.setMessageDialogHandler(messageDialogHandler);
-        ArbilDataNode.setMessageDialogHandler(messageDialogHandler);
-        ArbilFavourites.setMessageDialogHandler(messageDialogHandler);
-        ArbilJournal.setMessageDialogHandler(messageDialogHandler);
-        ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
-        ArbilTableModel.setMessageDialogHandler(messageDialogHandler);
-        ArbilTemplate.setMessageDialogHandler(messageDialogHandler);
-        ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
-        ArbilVersionChecker.setMessageDialogHandler(messageDialogHandler);
-        ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
-        CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
-        FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
-        ImdiUtils.setMessageDialogHandler(messageDialogHandler);
-        MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
-        MetadataReader.setMessageDialogHandler(messageDialogHandler);
-        ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
-        TreeHelper.setMessageDialogHandler(messageDialogHandler);
+	// Inject window manager
+	ArbilBugCatcher.setWindowManager(windowManager);
+	ArbilTree.setWindowManager(windowManager);
+	ArbilVocabularies.setWindowManager(windowManager);
+	MetadataBuilder.setWindowManager(windowManager);
 
-        // Inject bug catcher
-        ArbilComponentBuilder.setBugCatcher(bugCatcher);
-        ArbilCsvImporter.setBugCatcher(bugCatcher);
-        ArbilDataNode.setBugCatcher(bugCatcher);
-        ArbilEntityResolver.setBugCatcher(bugCatcher);
-        ArbilFavourites.setBugCatcher(bugCatcher);
-        ArbilFieldViews.setBugCatcher(bugCatcher);
-        ArbilIcons.setBugCatcher(bugCatcher);
-        ArbilJournal.setBugCatcher(bugCatcher);
-        ArbilSessionStorage.setBugCatcher(bugCatcher);
-        ArbilTableModel.setBugCatcher(bugCatcher);
-        ArbilTemplate.setBugCatcher(bugCatcher);
-        ArbilTemplateManager.setBugCatcher(bugCatcher);
-        ArbilToHtmlConverter.setBugCatcher(bugCatcher);
-        ArbilTree.setBugCatcher(bugCatcher);
-        ArbilVersionChecker.setBugCatcher(bugCatcher);
-        ArbilVocabularies.setBugCatcher(bugCatcher);
-        BinaryMetadataReader.setBugCatcher(bugCatcher);
-        CmdiComponentLinkReader.setBugCatcher(bugCatcher);
-        CmdiTemplate.setBugCatcher(bugCatcher);
-        CmdiUtils.setBugCatcher(bugCatcher);
-        DocumentationLanguages.setBugCatcher(bugCatcher);
-        ImdiUtils.setBugCatcher(bugCatcher);
-        MetadataBuilder.setBugCatcher(bugCatcher);
-        MetadataReader.setBugCatcher(bugCatcher);
-        MimeHashQueue.setBugCatcher(bugCatcher);
-        ShibbolethNegotiator.setBugCatcher(bugCatcher);
-        TreeHelper.setBugCatcher(bugCatcher);
-        XsdChecker.setBugCatcher(bugCatcher);
+	// Inject message dialog handler
+	ArbilComponentBuilder.setMessageDialogHandler(messageDialogHandler);
+	ArbilCsvImporter.setMessageDialogHandler(messageDialogHandler);
+	ArbilDataNode.setMessageDialogHandler(messageDialogHandler);
+	ArbilFavourites.setMessageDialogHandler(messageDialogHandler);
+	ArbilJournal.setMessageDialogHandler(messageDialogHandler);
+	ArbilTableModel.setMessageDialogHandler(messageDialogHandler);
+	ArbilTemplate.setMessageDialogHandler(messageDialogHandler);
+	ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
+	ArbilVersionChecker.setMessageDialogHandler(messageDialogHandler);
+	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
+	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
+	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
+	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
+	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
+	MetadataReader.setMessageDialogHandler(messageDialogHandler);
+	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
+	TreeHelper.setMessageDialogHandler(messageDialogHandler);
 
-        // Clipboard owner
-        ArbilTree.setClipboardOwner(clipboardOwner);
-        ArbilTableModel.setClipboardOwner(clipboardOwner);
+	// Inject bug catcher
+	ArbilComponentBuilder.setBugCatcher(bugCatcher);
+	ArbilCsvImporter.setBugCatcher(bugCatcher);
+	ArbilDataNode.setBugCatcher(bugCatcher);
+	ArbilEntityResolver.setBugCatcher(bugCatcher);
+	ArbilFavourites.setBugCatcher(bugCatcher);
+	ArbilFieldViews.setBugCatcher(bugCatcher);
+	ArbilIcons.setBugCatcher(bugCatcher);
+	ArbilJournal.setBugCatcher(bugCatcher);
+	ArbilTableModel.setBugCatcher(bugCatcher);
+	ArbilTemplate.setBugCatcher(bugCatcher);
+	ArbilTemplateManager.setBugCatcher(bugCatcher);
+	ArbilToHtmlConverter.setBugCatcher(bugCatcher);
+	ArbilTree.setBugCatcher(bugCatcher);
+	ArbilVersionChecker.setBugCatcher(bugCatcher);
+	ArbilVocabularies.setBugCatcher(bugCatcher);
+	BinaryMetadataReader.setBugCatcher(bugCatcher);
+	CmdiComponentLinkReader.setBugCatcher(bugCatcher);
+	CmdiTemplate.setBugCatcher(bugCatcher);
+	CmdiUtils.setBugCatcher(bugCatcher);
+	DocumentationLanguages.setBugCatcher(bugCatcher);
+	ImdiUtils.setBugCatcher(bugCatcher);
+	MetadataBuilder.setBugCatcher(bugCatcher);
+	MetadataReader.setBugCatcher(bugCatcher);
+	MimeHashQueue.setBugCatcher(bugCatcher);
+	ShibbolethNegotiator.setBugCatcher(bugCatcher);
+	TreeHelper.setBugCatcher(bugCatcher);
+	XsdChecker.setBugCatcher(bugCatcher);
+
+	// Clipboard owner
+	ArbilTree.setClipboardOwner(clipboardOwner);
+	ArbilTableModel.setClipboardOwner(clipboardOwner);
     }
 }

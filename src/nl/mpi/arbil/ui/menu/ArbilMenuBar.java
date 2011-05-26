@@ -475,13 +475,13 @@ public class ArbilMenuBar extends JMenuBar {
         });
         optionsMenu.add(schemaCheckLocalFiles);
 
-        trackTableSelectionCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().trackTableSelection);
+        trackTableSelectionCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().isTrackTableSelection());
         trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
         trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    ArbilSessionStorage.getSingleInstance().trackTableSelection = trackTableSelectionCheckBoxMenuItem.getState();
+                    ArbilSessionStorage.getSingleInstance().setTrackTableSelection(trackTableSelectionCheckBoxMenuItem.getState());
                     ArbilSessionStorage.getSingleInstance().saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
                 } catch (Exception ex) {
                     GuiHelper.linorgBugCatcher.logError(ex);
@@ -491,18 +491,18 @@ public class ArbilMenuBar extends JMenuBar {
         trackTableSelectionCheckBoxMenuItem.setEnabled(false);
         optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
-        useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().useLanguageIdInColumnName);
+        useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().isUseLanguageIdInColumnName());
         useLanguageIdInColumnNameCheckBoxMenuItem.setText("Show Language in Column Name");
         useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
                     ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
-                    ArbilSessionStorage.getSingleInstance().useLanguageIdInColumnName = useLanguageIdInColumnNameCheckBoxMenuItem.getState();
+                    ArbilSessionStorage.getSingleInstance().setUseLanguageIdInColumnName(useLanguageIdInColumnNameCheckBoxMenuItem.getState());
                     ArbilSessionStorage.getSingleInstance().saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
                     ArbilDataNodeLoader.getSingleInstance().requestReloadAllNodes();
                 } catch (Exception ex) {
-                    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().useLanguageIdInColumnName);
+                    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().isUseLanguageIdInColumnName());
                 }
             }
         });

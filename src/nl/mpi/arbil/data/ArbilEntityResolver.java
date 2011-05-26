@@ -3,7 +3,7 @@ package nl.mpi.arbil.data;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -20,6 +20,11 @@ public class ArbilEntityResolver implements EntityResolver {
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
+    }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
     }
     private URI parentUri;
 
@@ -38,7 +43,7 @@ public class ArbilEntityResolver implements EntityResolver {
         } else {
             targetString = systemId;
         }
-        File cachedfile = ArbilSessionStorage.getSingleInstance().updateCache(targetString, 7);
+        File cachedfile = sessionStorage.updateCache(targetString, 7);
         if (!cachedfile.exists()) {
             // todo: pull the file out of the jar
             bugCatcher.logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));

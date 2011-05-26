@@ -7,9 +7,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.templates.ArbilFavourites;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
@@ -38,6 +38,11 @@ public class MetadataBuilder {
     public static void setWindowManager(WindowManager windowManagerInstance) {
         windowManager = windowManagerInstance;
     }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
     /**
@@ -46,7 +51,7 @@ public class MetadataBuilder {
      * @param nodeTypeDisplayName Name to display as node type
      */
     public void requestRootAddNode(String nodeType, String nodeTypeDisplayName) {
-        ArbilDataNode arbilDataNode = new ArbilDataNode(ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getSaveLocation(""), nodeType));
+        ArbilDataNode arbilDataNode = new ArbilDataNode(sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), nodeType));
         requestAddNode(arbilDataNode, nodeType, nodeTypeDisplayName);
     }
 
@@ -210,7 +215,7 @@ public class MetadataBuilder {
             private void addMetaDataNode() throws ArbilMetadataException {
                 URI addedNodeUri;
                 if (addableNode.getURI().getFragment() == null) {
-                    addedNodeUri = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
+                    addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
                     ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
                     ArbilDataNode addedNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
                     new ArbilComponentBuilder().removeArchiveHandles(addedNode);
@@ -298,7 +303,7 @@ public class MetadataBuilder {
 //            needsSaveToDisk = true;
                 } else {
                     System.out.println("adding new node");
-                    URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
+                    URI targetFileURI = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), nodeType);
                     if (CmdiProfileReader.pathIsProfile(nodeType)) {
                         // Is CMDI profile
                         try {

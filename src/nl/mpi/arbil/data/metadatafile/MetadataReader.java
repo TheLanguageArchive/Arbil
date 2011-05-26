@@ -1,7 +1,6 @@
 package nl.mpi.arbil.data.metadatafile;
 
 import java.io.UnsupportedEncodingException;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
@@ -31,6 +30,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.*;
@@ -48,6 +48,11 @@ public class MetadataReader {
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     static private MetadataReader singleInstance = null;
 
     static synchronized public MetadataReader getSingleInstance() {
@@ -63,7 +68,7 @@ public class MetadataReader {
     }
 
     private MetadataReader() {
-        copyNewResourcesToCache = ArbilSessionStorage.getSingleInstance().loadBoolean("copyNewResources", false);
+        copyNewResourcesToCache = sessionStorage.loadBoolean("copyNewResources", false);
     }
     /**
      * http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd
