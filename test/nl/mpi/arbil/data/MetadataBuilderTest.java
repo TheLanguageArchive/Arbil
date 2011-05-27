@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.net.URI;
+import nl.mpi.arbil.ArbilInjector;
 import nl.mpi.arbil.ArbilMetadataException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -20,6 +22,7 @@ import static org.junit.Assert.*;
  * Created on : Nov 4, 2010, 10:46:21 PM
  * @author Peter.Withers@mpi.nl
  */
+@Ignore
 public class MetadataBuilderTest {
 
     public MetadataBuilderTest() {
@@ -27,6 +30,7 @@ public class MetadataBuilderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+	ArbilInjector.injectHandlers();
     }
 
     @AfterClass

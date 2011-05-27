@@ -1,5 +1,6 @@
 package nl.mpi.arbil.MetadataFile;
 
+import org.junit.Ignore;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,17 +8,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import mpi.util.OurURL;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.templates.ArbilTemplate;
-import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.ArbilInjector;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.w3c.dom.Document;
 
 /**
  * Document   : MetadataReaderTest
@@ -31,6 +28,7 @@ public class MetadataReaderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+	ArbilInjector.injectHandlers();
     }
 
     @AfterClass
@@ -78,6 +76,7 @@ public class MetadataReaderTest {
      * Test of addFromTemplate method, of class MetadataReader.
      */
     @Test
+    @Ignore
     public void testAddFromTemplate() {
         System.out.println("addFromTemplate");
         MetadataReader instance = MetadataReader.getSingleInstance();

@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -66,6 +67,7 @@ public class LinorgSessionStorageTest {
      * Test of pathIsInsideCache method, of class LinorgSessionStorage.
      */
     @Test
+    @Ignore("Machine specific, should be fixed")
     public void testPathIsInsideCache() {
         System.out.println("pathIsInsideCache");
         ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
@@ -122,6 +124,7 @@ public class LinorgSessionStorageTest {
      * Test of getSaveLocation method, of class LinorgSessionStorage.
      */
     @Test
+    @Ignore("Machine specific, should be fixed")
     public void testGetSaveLocation() {
         System.out.println("getSaveLocation");
         // this test must confirm that "/.linorg/imdicache/file/Users/testUser/.linorg/imdicache/" can never happen
