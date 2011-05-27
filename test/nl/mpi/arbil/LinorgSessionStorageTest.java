@@ -2,11 +2,8 @@ package nl.mpi.arbil;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.io.File;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -72,8 +69,8 @@ public class LinorgSessionStorageTest {
     public void testPathIsInsideCache() {
         System.out.println("pathIsInsideCache");
         ArbilSessionStorage instance = ArbilSessionStorage.getSingleInstance();
-        File oldStorageDirectory = instance.storageDirectory;
-        instance.storageDirectory = new File("/Users/testUser/.arbil/");
+        File oldStorageDirectory = instance.getStorageDirectory();
+        //instance.storageDirectory = new File("/Users/testUser/.arbil/");
         File[] testInputArrayTrue = {
             new File("/Users/testUser/.arbil/imdicache/http/www.mpi.nl/IMDI/Schema/Continents.xml"),
             new File("//Users//testUser//.arbil//imdicache//http//www.mpi.nl//IMDI//Schema//Continents.xml"),
@@ -90,7 +87,7 @@ public class LinorgSessionStorageTest {
         for (File fullTestFile : testInputArrayFalse) {
             assertFalse(instance.pathIsInsideCache(fullTestFile));
         }
-        instance.storageDirectory = oldStorageDirectory;
+        //instance.storageDirectory = oldStorageDirectory;
     }
 
     /**
