@@ -8,7 +8,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,6 +16,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -488,6 +488,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		}
 	    } finally {
 		in.close();
+		fstream.close();
 	    }
 	    return stringArrayList.toArray(new String[]{});
 	}
@@ -515,8 +516,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	File destinationConfigFile = new File(storageDirectory, filename + ".config");
 	File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
 
-	FileWriter fstream = new FileWriter(tempConfigFile);
-	BufferedWriter out = new BufferedWriter(fstream);
+	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile),"UTF8"));
 	for (String currentString : storableValue) {
 	    out.write(currentString + "\r\n");
 	}
