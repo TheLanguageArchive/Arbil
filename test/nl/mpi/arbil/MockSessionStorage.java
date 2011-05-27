@@ -16,7 +16,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
