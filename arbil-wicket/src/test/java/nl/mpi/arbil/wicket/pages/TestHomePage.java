@@ -1,6 +1,9 @@
-package nl.mpi;
+package nl.mpi.arbil.wicket.pages;
 
+import nl.mpi.arbil.wicket.WicketApplication;
+import nl.mpi.arbil.wicket.pages.HomePage;
 import junit.framework.TestCase;
+import nl.mpi.arbil.wicket.WicketApplication;
 import org.apache.wicket.util.tester.WicketTester;
 
 /**

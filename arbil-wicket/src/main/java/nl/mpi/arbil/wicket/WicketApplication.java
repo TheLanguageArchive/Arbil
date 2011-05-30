@@ -1,5 +1,6 @@
-package nl.mpi;
+package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.wicket.pages.HomePage;
 import org.apache.wicket.protocol.http.WebApplication;
 
 /**
