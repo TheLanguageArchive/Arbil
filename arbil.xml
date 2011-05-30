@@ -14,6 +14,7 @@
         <property name="arbil.application-title" value="Arbil (pretesting)"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/main/java/"/>
+        <property name="RESOURCESDIR" value="src/main/resources/"/>
         <property name="OUTPUTDIR" value="${user.home}/Desktop/arbil-build-${arbil.current.major}.${arbil.current.minor}.x/"/>
         <property name="BUILDDIR" value="${OUTPUTDIR}classes"/>
         <property name="LIBDIR" value="${OUTPUTDIR}lib/"/>
@@ -33,7 +34,7 @@
         <property name="package.name" value="arbil${arbil.filenameidentifier}"/>
         <property name="package.jarname" value="${ArbilJarName}"/>
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="packageIconAvail"/>
+        <available file="${RESOURCESDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="packageIconAvail"/>
         <fail unless="packageIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
         <property name="distributionDirectory" value="${OUTPUTDIR}/distribution"/>
         <mkdir dir="${distributionDirectory}"/>
@@ -60,7 +61,7 @@ Arbil is an application for arranging research material and associated metadata 
 http://www.lat-mpi.eu/tools/imdi/Arbil/
             </description>
             <tarfileset file="${OUTPUTDIR}/${package.jarname}" prefix="usr/share/${package.name}"/>
-            <tarfileset file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" prefix="usr/share/${package.name}"/>
+            <tarfileset file="${RESOURCESDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" prefix="usr/share/${package.name}"/>
             <tarfileset dir="${LIBDIR}" prefix="usr/share/${package.name}/lib">
                 <include name="*.jar"/>
             </tarfileset>
@@ -82,7 +83,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     <!-- target compile (this is included by build.all) -->
     <target name="compile" depends="clean, copyJarFilesToLib, getsvnversion" description="compile the arbil source code to class files">
         <echo message="Compiling Arbil"/>
-        <javac target="1.5" debug="on" srcdir="${SRCDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
+        <javac target="1.5" debug="on" srcdir="${SRCDIR};${RESOURCESDIR}" destdir="${BUILDDIR}" includes="nl/mpi/arbil/**.java">
             <classpath>
                 <fileset dir="${LIBDIR}" includes="*.jar"/>
             </classpath>
@@ -115,11 +116,11 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="buildWindowsInstaller" depends="updateJnlpAndAppletHtml">
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.ico" property="installedIconAvail"/>
+        <available file="${RESOURCESDIR}nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.ico" property="installedIconAvail"/>
         <fail unless="installedIconAvail" message="${arbil.icon-file-name}.ico doesn't exist!"/>
         <mkdir dir="${OUTPUTDIR}/distribution-win32/temp/"/>
         <copy todir="${OUTPUTDIR}/distribution-win32/temp/">
-            <fileset dir="${SRCDIR}nl/mpi/arbil/resources/icons/" includes="*.ico"/>
+            <fileset dir="${RESOURCESDIR}nl/mpi/arbil/resources/icons/" includes="*.ico"/>
         </copy>
         <!--get unzip then delete the imagemagick jar-->
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/lib/ImageMagick-6.5.9-Win32.jar" dest="${OUTPUTDIR}/ImageMagick-6.5.9-Win32.jar"/>
@@ -138,11 +139,11 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="buildMacInstaller" depends="updateJnlpAndAppletHtml">
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}.icns" property="installedIconAvail"/>
+        <available file="${RESOURCESDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}.icns" property="installedIconAvail"/>
         <fail unless="installedIconAvail" message="arbil${arbil.filenameidentifier}.icns doesn't exist!"/>
         <copy file="${BUILDDIR}/Info.plist" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/"/>
         <copy file="${BUILDDIR}/start-arbil" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/MacOS/"/>
-        <copy file="${SRCDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}.icns" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/Resources/"/>
+        <copy file="${RESOURCESDIR}nl/mpi/arbil/resources/icons/arbil${arbil.filenameidentifier}.icns" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/Resources/"/>
         <copy file="${OUTPUTDIR}/${ArbilJarName}" todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/MacOS/"/>
         <copy todir="${OUTPUTDIR}/distribution-mac/arbil${arbil.filenameidentifier}.app/Contents/MacOS/lib/">
             <fileset dir="${OUTPUTDIR}/lib/" includes="*.jar"/>
@@ -273,18 +274,18 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
     </target>
     <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib, updateJnlpAndAppletHtml" description="create a Jar file">
         <!--check that the icon exists and fail if not-->
-        <available file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="jarIconAvail"/>
+        <available file="${RESOURCESDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="jarIconAvail"/>
         <fail unless="jarIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
         <mkdir dir="${BUILDDIR}/JNLP-INF/"/>
         <copy overwrite="true" file="${BUILDDIR}/arbil.jnlp" tofile="${BUILDDIR}/JNLP-INF/application.jnlp"/>
         <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
-            <fileset dir="${SRCDIR}" includes="log4j.properties"/>
-            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
-            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
-            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
-            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/html/help/**/*.*"/>
-            <fileset dir="${SRCDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
+            <fileset dir="${RESOURCESDIR}" includes="log4j.properties"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/help/**/*.*"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
@@ -424,7 +425,7 @@ public class ArbilVersion {
         <scp file="${OUTPUTDIR}/${ArbilJarName}" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil${arbil.filenameidentifier}_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <scp file="${distributionDirectory}/arbil${arbil.filenameidentifier}_${arbil.current.major}.${arbil.current.minor}-${arbil.current.revision}_all.deb" remoteTofile="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.deb"/>
-        <scp file="${SRCDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
+        <scp file="${RESOURCESDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" todir="${lux09.user}:${lux09.pw}@lux09.mpi.nl:/data/extweb1/docs/TG/j2se/jnlp/arbil/"/>
         <!-- http://lux17.mpi.nl/arbil/arbil-applet.html -->
         <!--<scp file="${OUTPUTDIR}/${ArbilJarName}" remoteTofile="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/arbil.jar"/>-->
 <!--
