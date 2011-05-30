@@ -15,7 +15,7 @@ import nl.mpi.arbil.MockBugCatcher;
 import nl.mpi.arbil.MockDialogHandler;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import nl.mpi.arbil.TestInjector;
+import nl.mpi.arbil.ArbilTestInjector;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,7 +31,7 @@ public class TreeHelperTest {
 	MockBugCatcher bc = new MockBugCatcher();
 	MockDialogHandler dh = new MockDialogHandler();
 
-	TestInjector.injectHandlers(new TestSessionStorage(), bc, dh, null, null);
+	ArbilTestInjector.injectHandlers(new TestSessionStorage(), bc, dh, null, null);
     }
 
     @Test

@@ -272,7 +272,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             </fileset>
         </copy>-->
     </target>
-    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyFilesForXSL, copyJarFilesToLib, updateJnlpAndAppletHtml" description="create a Jar file">
+    <target name="jar" depends="setproperties, compile, getFallbackFiles, copyJarFilesToLib, updateJnlpAndAppletHtml" description="create a Jar file"><!--copyFilesForXSL -->
         <!--check that the icon exists and fail if not-->
         <available file="${RESOURCESDIR}/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png" property="jarIconAvail"/>
         <fail unless="jarIconAvail" message="${arbil.icon-file-name}.png doesn't exist!"/>
@@ -286,9 +286,9 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/help/**/*.*"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
-            <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <fileset dir="${BUILDDIR}" includes="JNLP-INF/application.jnlp"/>
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.ArbilMain"/>
