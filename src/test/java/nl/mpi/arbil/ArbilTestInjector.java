@@ -41,7 +41,7 @@ import nl.mpi.arbil.util.XsdChecker;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class TestInjector {
+public class ArbilTestInjector {
 
     public static synchronized void injectHandlers(SessionStorage sessionStorage, BugCatcher bugCatcher, MessageDialogHandler messageDialogHandler, WindowManager windowManager, ClipboardOwner clipboardOwner) {
 	if (sessionStorage != null) {
