@@ -1,0 +1,14 @@
+<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI">
+      <Project>
+        <Name/>
+        <Title/>
+        <Id/>
+        <Contact>
+          <Name/>
+          <Address/>
+          <Email/>
+          <Organisation/>
+        </Contact>
+        <Description LanguageId="" Link=""/>
+      </Project>
+</InsertableSection>

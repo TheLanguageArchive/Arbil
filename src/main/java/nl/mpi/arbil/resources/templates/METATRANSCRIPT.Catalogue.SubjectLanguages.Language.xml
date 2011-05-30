@@ -1,0 +1,12 @@
+
+<InsertableSection xmlns="http://www.mpi.nl/IMDI/Schema/IMDI">
+    <Language>
+        <Id/>
+        <Name Link="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" Type="OpenVocabulary"/>
+        <Dominant>Unspecified</Dominant><!--Boolean-->
+        <SourceLanguage>Unspecified</SourceLanguage><!--Boolean-->
+        <TargetLanguage>Unspecified</TargetLanguage><!--Boolean-->
+        <!--Description: minOccurs=0 maxOccurs=unbounded-->
+        <Description ArchiveHandle="" LanguageId="" Link="" Name=""/>
+    </Language>
+</InsertableSection>

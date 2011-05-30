@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : template_cmdi.xml
+    Created on : December 15, 2009, 11:10 AM
+    Author     : Peter.Withers@mpi.nl
+    Description:
+        Purpose of the document follows.
+-->
+<template>
+    <RequiredFields>
+        <comment>The fields listed here as required fields will be highlighted in the application until they have a value entered</comment>
+    </RequiredFields>
+    <AutoFields>
+        <comment>The fields listed here will be overwritten when the data becomes available and updated if it changes (this is primarily for resource files)</comment>
+    </AutoFields>
+    <GenreSubgenres>
+        <comment>The field pairs listed here will be linked as genre subgenre where the subgenre field gets its controlled vocabulary from the genre fields current selection</comment>
+    </GenreSubgenres>
+    <FieldConstraints>
+        <comment>The fields listed here will be required to match the regex constraint and will be highlighted in the application if they do not</comment>
+    </FieldConstraints>
+    <FieldTriggers>
+        <comment>The field triggers cause the target field to be set after the source field is edited, the value set in the target is determined by the controlled vocabulary on the source field</comment>
+        <comment>The primary use fof these triggers are to set the corresponding language code when the language name field is changed is set</comment>
+        <comment>The SourceFieldValue sets the source of the data to be inserted into the target field from the source fields controlled vocabulary. Possible values relate to the vocabulary xml format and include: "Content" "Value" "Code" "FollowUp".</comment>
+    </FieldTriggers>
+    <ChildNodePaths>
+        <comment>The child node paths are used to determin the points at which to add a meta node in the user interface and to provide the text for the meta node name</comment>
+        <ChildNodePath ChildPath=".CMD.Components.Actor" SubNodeName="Actors" />
+        <ChildNodePath ChildPath=".ActorLanguage" SubNodeName="Languages" />
+        <ChildNodePath ChildPath=".CMD.Resources.ResourceProxyList.ResourceProxy" SubNodeName="ResourceProxy" />
+        <ChildNodePath ChildPath=".CMD.Resources.ResourceRelationList.ResourceRelation" SubNodeName="ResourceRelation" />
+        <ChildNodePath ChildPath=".CMD.Header.TextTMD" SubNodeName="TextTMD" />
+        <ChildNodePath ChildPath=".CMD.Header.PhotoTMD" SubNodeName="PhotoTMD" />
+    </ChildNodePaths>
+    <RootTemplateComponents>
+        <comment>The template components that can be added at the root or corpus branch level via the add menu and the display name for each</comment>
+    </RootTemplateComponents>
+    <AvailableTemplateComponents>
+        <comment>The template components that can be added via the add menu and the display name for each</comment>
+    </AvailableTemplateComponents>
+    <FieldUsageDescriptions>
+    </FieldUsageDescriptions>
+</template>
