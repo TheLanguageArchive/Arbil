@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -21,7 +22,7 @@ import org.xml.sax.InputSource;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilVocabularies {
+public class ArbilVocabularies implements Serializable {
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -224,7 +225,7 @@ public class ArbilVocabularies {
 	}
     }
 
-    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
+    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler implements Serializable {
 
 	ArbilVocabulary collectedVocab;
 	ArbilVocabularyItem currentVocabItem = null;

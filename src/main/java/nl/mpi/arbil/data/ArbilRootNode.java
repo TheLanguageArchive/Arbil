@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -8,7 +9,7 @@ import javax.swing.ImageIcon;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class ArbilRootNode implements ArbilNode {
+public abstract class ArbilRootNode implements ArbilNode, Serializable {
 
     private String name;
     private ImageIcon icon;

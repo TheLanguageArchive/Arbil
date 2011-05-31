@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.io.Serializable;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
@@ -8,7 +9,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  * Created on : Wed Dec 03 13:29:30 CET 2008
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilField {
+public class ArbilField implements Serializable {
 
     public ArbilDataNode parentDataNode;
     public String xmlPath;

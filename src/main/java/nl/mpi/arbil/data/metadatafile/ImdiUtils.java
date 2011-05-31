@@ -2,6 +2,7 @@ package nl.mpi.arbil.data.metadatafile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,7 +21,7 @@ import org.w3c.dom.Document;
  *  Created on : May 21, 2010, 9:30:03 PM
  *  Author     : Peter Withers
  */
-public class ImdiUtils implements MetadataUtils {
+public class ImdiUtils implements MetadataUtils, Serializable {
 
     private static MessageDialogHandler messageDialogHandler;
 
