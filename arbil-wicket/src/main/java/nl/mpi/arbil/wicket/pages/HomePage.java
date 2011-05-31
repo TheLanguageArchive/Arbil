@@ -1,11 +1,15 @@
 package nl.mpi.arbil.wicket.pages;
 
+import nl.mpi.arbil.wicket.model.DataNodeDataProvider;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.wicket.components.NodeIcon;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -14,6 +18,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
@@ -42,6 +47,30 @@ public class HomePage extends WebPage {
 
     private Component createTable(String name, ArbilDataNode[] dataNodes) {
 	IColumn<?>[] columns = new IColumn<?>[]{
+	    new AbstractColumn<ArbilDataNode>(new Model<String>("Icon")) {
+
+		public void populateItem(Item<ICellPopulator<ArbilDataNode>> cellItem, String componentId, final IModel<ArbilDataNode> rowModel) {
+		    cellItem.add(new NodeIcon(componentId, new DynamicImageResource() {
+
+			@Override
+			protected byte[] getImageData() {
+			    java.awt.Image image = rowModel.getObject().getIcon().getImage();
+
+			    // Create empty BufferedImage, sized to Image
+			    BufferedImage buffImage =
+				    new BufferedImage(
+				    image.getWidth(null),
+				    image.getHeight(null),
+				    BufferedImage.TYPE_INT_ARGB);
+
+			    // Draw Image into BufferedImage
+			    Graphics g = buffImage.getGraphics();
+			    g.drawImage(image, 0, 0, null);
+			    return toImageData(buffImage);
+			}
+		    }));
+		}
+	    },
 	    new AbstractColumn<ArbilDataNode>(new Model<String>("Data node")) {
 
 		public void populateItem(Item<ICellPopulator<ArbilDataNode>> cellItem, String componentId, IModel<ArbilDataNode> rowModel) {
@@ -52,36 +81,5 @@ public class HomePage extends WebPage {
 
 	DataTable<ArbilDataNode> table = new DataTable(name, columns, new DataNodeDataProvider(dataNodes), 100);
 	return table;
-    }
-
-    private class DataNodeDataProvider implements IDataProvider<ArbilDataNode> {
-
-	private List<ArbilDataNode> dataNodes;
-
-	public DataNodeDataProvider(ArbilDataNode[] dataNodes) {
-	    this.dataNodes = Arrays.asList(dataNodes);
-	}
-
-	public Iterator<? extends ArbilDataNode> iterator(int first, int count) {
-	    return dataNodes.subList(first, count).listIterator();
-	}
-
-	public int size() {
-	    return dataNodes.size();
-	}
-
-	public IModel<ArbilDataNode> model(final ArbilDataNode object) {
-	    return new LoadableDetachableModel<ArbilDataNode>(object) {
-
-		@Override
-		protected ArbilDataNode load() {
-		    return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, object.getURI());
-		}
-	    };
-	}
-
-	public void detach() {
-	    //
-	}
     }
 }
