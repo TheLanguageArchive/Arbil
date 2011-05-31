@@ -1,33 +1,61 @@
 package nl.mpi.arbil.wicket.pages;
 
+import nl.mpi.arbil.ArbilInjector;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.wicket.WicketApplication;
-import nl.mpi.arbil.wicket.pages.HomePage;
-import junit.framework.TestCase;
-import nl.mpi.arbil.wicket.WicketApplication;
+import org.apache.wicket.Page;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
+import org.apache.wicket.util.tester.ITestPageSource;
 import org.apache.wicket.util.tester.WicketTester;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Simple test using the WicketTester
  */
-public class TestHomePage extends TestCase
-{
-	private WicketTester tester;
+public class TestHomePage {
 
-	@Override
-	public void setUp()
-	{
-		tester = new WicketTester(new WicketApplication());
-	}
+    private WicketTester tester;
 
-	public void testRenderMyPage()
-	{
-		//start and render the test page
-		tester.startPage(HomePage.class);
+    @Before
+    public void setUp() {
+	tester = new WicketTester(new WicketApplication());
+	ArbilInjector.injectHandlers();
+    }
 
-		//assert rendered page class
-		tester.assertRenderedPage(HomePage.class);
+    @Test
+    public void testRenderMyPage() {
 
-		//assert rendered label component
-		tester.assertLabel("message", "If you see this message wicket is properly configured and running");
-	}
+	//start and render the test page
+	//tester.startPage(HomePage.class); //getTestPageSource(new ArbilDataNode[0])
+	tester.startPage(getTestPageSource(TreeHelper.getSingleInstance().localCorpusNodes));
+
+	//assert rendered page class
+	tester.assertRenderedPage(HomePage.class);
+	tester.assertComponent("datatable", DataTable.class);
+	//assert rendered label component
+	//tester.assertLabel("message", "If you see this message wicket is properly configured and running");
+    }
+//    
+//    @Test
+//    public void testRenderMyPage() {
+//	ArbilDataNode[] dataNodes = new ArbilDataNode[0];
+//	tester.startPage(getTestPageSource(dataNodes));
+//	
+//	tester.assertRenderedPage(HomePage.class);
+//	tester.assertComponent("datatable", DataTable.class);
+//    }
+//
+
+    private ITestPageSource getTestPageSource(final ArbilDataNode[] dataNodes) {
+	return new ITestPageSource() {
+
+	    public Page getTestPage() {
+		return new HomePage(dataNodes);
+	    }
+	};
+    }
 }
