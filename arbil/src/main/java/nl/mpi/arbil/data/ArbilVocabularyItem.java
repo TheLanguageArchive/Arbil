@@ -4,7 +4,9 @@
  */
 package nl.mpi.arbil.data;
 
-public class ArbilVocabularyItem implements Comparable {
+import java.io.Serializable;
+
+public class ArbilVocabularyItem implements Comparable, Serializable {
 
     public String itemDisplayName;
     public String itemCode;

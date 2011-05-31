@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -47,7 +48,7 @@ import org.w3c.dom.Document;
  * Created on :
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilDataNode implements ArbilNode, Comparable {
+public class ArbilDataNode implements ArbilNode, Comparable, Serializable {
 
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
@@ -79,7 +80,8 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     private String[][] childLinks = new String[0][0]; // each element in this array is an array [linkPath, linkId]. When the link is from an imdi the id will be the node id, when from get links or list direcotry id will be null
     private Vector<ArbilDataNodeContainer> /*<Component>*/ containersOfThisNode;
     private int isLoadingCount = 0;
-    final private Object loadingCountLock = new Object();
+    
+    transient final private Object loadingCountLock = new Object();
     @Deprecated
     public boolean lockedByLoadingThread = false;
     //    private boolean isFavourite;
@@ -93,7 +95,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     private ArbilDataNode domParentNode = null; // the parent imdi containing the dom, only set for imdi child nodes
     //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
-    private final Object domLockObjectPrivate = new Object();
+    transient private final Object domLockObjectPrivate = new Object();
     private static String NODE_LOADING_TEXT = "loading node...";
     private static MessageDialogHandler messageDialogHandler;
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import org.apache.xmlbeans.XmlOptions;
  * Created on March 10, 2010, 17:34:45 AM
  * @author Peter.Withers@mpi.nl
  */
-public class CmdiTemplate extends ArbilTemplate {
+public class CmdiTemplate extends ArbilTemplate implements Serializable {
 
     private static MessageDialogHandler messageDialogHandler;
 

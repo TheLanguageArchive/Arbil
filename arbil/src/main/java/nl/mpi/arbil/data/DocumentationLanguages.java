@@ -1,6 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,7 @@ import nl.mpi.arbil.util.BugCatcher;
  *  Created on : Jul 6, 2010, 4:05:46 PM
  *  Author     : Peter Withers
  */
-public class DocumentationLanguages implements ArbilVocabularyFilter {
+public class DocumentationLanguages implements ArbilVocabularyFilter, Serializable {
 
     private static BugCatcher bugCatcher;
 
