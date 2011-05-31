@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui.applet;
 
 import javax.swing.SwingUtilities;
-import nl.mpi.arbil.ArbilInjector;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.util.ArbilBugCatcher;
@@ -21,7 +21,7 @@ public class ArbilApplet extends javax.swing.JApplet {
             SwingUtilities.invokeAndWait(new Runnable() {
 
                 public void run() {
-                    ArbilInjector.injectHandlers();
+                    ArbilDesktopInjector.injectHandlers();
                     mainSplitPane = new javax.swing.JSplitPane();
                     getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
                     previewSplitPanel = new PreviewSplitPanel();

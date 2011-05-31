@@ -22,7 +22,7 @@ public class ArbilMain extends javax.swing.JFrame {
 //    static boolean updateViaJavaws = false;
 
     public ArbilMain() {
-        ArbilInjector.injectHandlers();
+        ArbilDesktopInjector.injectHandlers();
 
         this.addWindowListener(new WindowAdapter() {
 

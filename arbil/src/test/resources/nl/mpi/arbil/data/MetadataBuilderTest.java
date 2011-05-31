@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import java.net.URI;
-import nl.mpi.arbil.ArbilInjector;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ArbilMetadataException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -30,7 +30,7 @@ public class MetadataBuilderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	ArbilInjector.injectHandlers();
+	ArbilDesktopInjector.injectHandlers();
     }
 
     @AfterClass

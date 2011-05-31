@@ -85,6 +85,7 @@
 		    </archive>
 		</configuration>
 	    </plugin>
+	    <!-- TODO: copy fallback IMDI templates (call ant task) -->
 	</plugins>
     </build>
     <dependencies>

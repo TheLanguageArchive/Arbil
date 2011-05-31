@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import nl.mpi.arbil.ArbilInjector;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class MetadataReaderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	ArbilInjector.injectHandlers();
+	ArbilDesktopInjector.injectHandlers();
     }
 
     @AfterClass
