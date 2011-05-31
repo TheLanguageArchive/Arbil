@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui.applet;
 
 import javax.swing.JApplet;
-import nl.mpi.arbil.ArbilInjector;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
@@ -57,7 +57,7 @@ public class ArbilApplet2 extends JApplet {
             javax.swing.SwingUtilities.invokeAndWait(new Runnable() {
 
                 public void run() {
-                    ArbilInjector.injectHandlers();
+                    ArbilDesktopInjector.injectHandlers();
                     System.setProperty("sun.swing.enableImprovedDragGesture", "true");
                     System.setProperty("apple.awt.graphics.UseQuartz", "true");
                     System.setProperty("apple.laf.useScreenMenuBar", "true");

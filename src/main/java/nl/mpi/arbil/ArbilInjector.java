@@ -3,7 +3,6 @@ package nl.mpi.arbil;
 import java.awt.datatransfer.ClipboardOwner;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.clarin.profiles.ProfilePreview;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
@@ -29,10 +28,6 @@ import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
-import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.util.XsdChecker;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilVersionChecker;
@@ -41,6 +36,7 @@ import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.WindowManager;
+import nl.mpi.arbil.util.XsdChecker;
 
 /**
  * Takes care of injecting certain class instances into objects or classes.
@@ -49,23 +45,14 @@ import nl.mpi.arbil.util.WindowManager;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilInjector {
+public abstract class ArbilInjector {
 
-    private final static BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
-    private final static MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
-    private final static WindowManager windowManager = ArbilWindowManager.getSingleInstance();
-    private final static ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
-    private static SessionStorage sessionStorage;
-
-    /**
-     * Does initial injection into static classes. Needs to be called only once.
-     */
-    public static synchronized void injectHandlers(){
-	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
-	ArbilSessionStorage.setBugCatcher(bugCatcher);
-	ArbilSessionStorage.setWindowManager(windowManager);
-	// Session storage
-	sessionStorage = ArbilSessionStorage.getSingleInstance();
+    protected static synchronized void injectHandlers(
+	    MessageDialogHandler messageDialogHandler,
+	    WindowManager windowManager,
+	    SessionStorage sessionStorage,
+	    BugCatcher bugCatcher,
+	    ClipboardOwner clipboardOwner) {
 	ArbilComponentBuilder.setSessionStorage(sessionStorage);
 	ArbilDataNode.setSessionStorage(sessionStorage);
 	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
