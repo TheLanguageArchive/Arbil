@@ -39,7 +39,7 @@ public class TreeHelperTest {
 	// This will create the treehelper and load locations in the process
 	TreeHelper th = TreeHelper.getSingleInstance();
 	assertEquals(0, th.localCorpusNodes.length);
-	th.addLocation(TreeHelperTest.class.getResource("/nl/mpi/arbil/data/testfiles/ımdıtest.imdi").toURI());
+	th.addLocation(TreeHelperTest.class.getResource("/nl/mpi/arbil/data/testfiles/\u0131md\u0131test.imdi").toURI());
 	for (ArbilDataNode node : th.localCorpusNodes) {
 	    node.waitTillLoaded();
 	}
