@@ -1,6 +1,5 @@
 package nl.mpi.arbil.wicket;
 
-import nl.mpi.arbil.ArbilInjector;
 import nl.mpi.arbil.wicket.pages.HomePage;
 import org.apache.wicket.protocol.http.WebApplication;
 
@@ -15,7 +14,7 @@ public class WicketApplication extends WebApplication {
      * Constructor
      */
     public WicketApplication() {
-	ArbilInjector.injectHandlers();
+	ArbilWicketInjector.injectHandlers();
     }
 
     /**
