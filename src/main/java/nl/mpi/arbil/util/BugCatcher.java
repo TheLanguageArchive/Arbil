@@ -5,17 +5,11 @@
 
 package nl.mpi.arbil.util;
 
-import java.io.File;
-
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public interface BugCatcher {
-
-    File getLogFile();
-
-    void grabApplicationShot();
 
     void logError(Exception exception);
 
