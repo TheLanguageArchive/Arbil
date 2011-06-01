@@ -19,13 +19,12 @@ public class ArbilWicketInjector extends ArbilInjector {
     private static BugCatcher bugCatcher = new ArbilWicketBugCatcher();
     private static MessageDialogHandler messageDialogHandler = new ArbilWicketMessageDialogHandler();
     private static WindowManager windowManager = new ArbilWicketWindowManager();
-    private static SessionStorage sessionStorage = null;
-    
+    private static SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
+
     public static void injectHandlers() {
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilSessionStorage.setWindowManager(windowManager);
-	sessionStorage = ArbilSessionStorage.getSingleInstance();
 	injectHandlers(messageDialogHandler, windowManager, sessionStorage, bugCatcher, null);
     }
 }
