@@ -16,12 +16,4 @@ public class MockBugCatcher implements BugCatcher {
     public void logError(String messageString, Exception exception) {
 	log.log(Level.SEVERE, messageString, exception);
     }
-
-    public File getLogFile() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void grabApplicationShot() {
-	throw new UnsupportedOperationException("Not supported yet.");
-    }
 }
