@@ -40,7 +40,7 @@ import org.apache.xmlbeans.XmlOptions;
  * Created on March 10, 2010, 17:34:45 AM
  * @author Peter.Withers@mpi.nl
  */
-public class CmdiTemplate extends ArbilTemplate implements Serializable {
+public class CmdiTemplate extends ArbilTemplate {
 
     private static MessageDialogHandler messageDialogHandler;
 
