@@ -3,7 +3,6 @@ package nl.mpi.arbil.wicket.components;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.wicket.model.DataNodeDataProvider;
 import org.apache.wicket.Resource;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -12,6 +11,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
 import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -21,8 +21,8 @@ import org.apache.wicket.model.Model;
  */
 public class ArbilTable extends DataTable<ArbilDataNode> {
 
-    public ArbilTable(String id, ArbilDataNode[] dataNodes) {
-	super(id, createColumns(), new DataNodeDataProvider(dataNodes), 100);
+    public ArbilTable(String id, IDataProvider<ArbilDataNode> dataNodes) {
+	super(id, createColumns(), dataNodes, 100);
     }
 
     private static IColumn<ArbilDataNode>[] createColumns() {

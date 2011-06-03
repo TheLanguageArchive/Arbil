@@ -4,10 +4,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
  *
@@ -30,16 +28,13 @@ public class DataNodeDataProvider implements IDataProvider<ArbilDataNode> {
     }
 
     public IModel<ArbilDataNode> model(final ArbilDataNode object) {
-	return new LoadableDetachableModel<ArbilDataNode>(object) {
-
-	    @Override
-	    protected ArbilDataNode load() {
-		return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, object.getURI());
-	    }
-	};
+	return new DataNodeModel(object);
+    }    
+    
+    public List<ArbilDataNode> getDataNodes() {
+	return dataNodes;
     }
 
     public void detach() {
-	//
     }
 }
