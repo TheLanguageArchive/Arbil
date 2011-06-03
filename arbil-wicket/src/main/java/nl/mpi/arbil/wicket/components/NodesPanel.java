@@ -5,7 +5,6 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.wicket.model.DataNodeDataProvider;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.wicketstuff.push.AbstractPushEventHandler;
 import org.wicketstuff.push.IPushEventContext;
 import org.wicketstuff.push.IPushEventHandler;
