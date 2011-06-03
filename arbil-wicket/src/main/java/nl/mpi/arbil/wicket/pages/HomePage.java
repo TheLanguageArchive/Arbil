@@ -1,8 +1,8 @@
 package nl.mpi.arbil.wicket.pages;
 
+import nl.mpi.arbil.wicket.components.NodesPanel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.TreeHelper;
-import nl.mpi.arbil.wicket.components.ArbilTable;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 
@@ -22,6 +22,6 @@ public class HomePage extends WebPage {
     }
 
     public HomePage(ArbilDataNode[] dataNodes) {
-	add(new ArbilTable("datatable", dataNodes));
+	add(new NodesPanel("nodespanel", dataNodes));
     }
 }
