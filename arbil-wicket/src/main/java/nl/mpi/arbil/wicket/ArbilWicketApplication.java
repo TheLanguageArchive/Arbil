@@ -9,17 +9,12 @@ import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
 
-/**
- * Application object for your web application. If you want to run this application without deploying, run the Start class.
- * 
- * @see nl.mpi.arbil.wicket.Start#main(String[])
- */
-public class WicketApplication extends WebApplication {
+public class ArbilWicketApplication extends WebApplication {
 
     /**
      * Constructor
      */
-    public WicketApplication() {
+    public ArbilWicketApplication() {
 	ArbilWicketInjector.injectHandlers();
     }
 

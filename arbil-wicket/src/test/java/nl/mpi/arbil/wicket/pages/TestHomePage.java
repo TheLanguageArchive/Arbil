@@ -1,7 +1,7 @@
 package nl.mpi.arbil.wicket.pages;
 
 import nl.mpi.arbil.wicket.ArbilWicketInjector;
-import nl.mpi.arbil.wicket.WicketApplication;
+import nl.mpi.arbil.wicket.ArbilWicketApplication;
 import nl.mpi.arbil.wicket.components.NodesPanel;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.util.tester.WicketTester;
@@ -17,7 +17,7 @@ public class TestHomePage {
 
     @Before
     public void setUp() {
-	tester = new WicketTester(new WicketApplication());
+	tester = new WicketTester(new ArbilWicketApplication());
 	ArbilWicketInjector.injectHandlers();
     }
 

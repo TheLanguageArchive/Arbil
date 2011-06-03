@@ -13,9 +13,9 @@ import org.apache.wicket.protocol.http.WebSession;
 public class ArbilWicketSession extends WebSession {
 
     private SessionStorage sessionStorage;
-    private WicketApplication application;
+    private ArbilWicketApplication application;
 
-    public ArbilWicketSession(WicketApplication application, Request request) {
+    public ArbilWicketSession(ArbilWicketApplication application, Request request) {
 	super(request);
 	this.application = application;
     }
