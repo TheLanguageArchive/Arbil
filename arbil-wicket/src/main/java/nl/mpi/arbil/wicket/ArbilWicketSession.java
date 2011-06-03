@@ -1,21 +1,23 @@
 package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 
 /**
- *
+ * Session for ArbilWicket, keeps user/session specific stuff, such as SessionStorage
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketSession extends WebSession {
 
     private SessionStorage sessionStorage;
+    private WicketApplication application;
 
-    public ArbilWicketSession(Request request, SessionStorage sessionStorage) {
+    public ArbilWicketSession(WicketApplication application, Request request) {
 	super(request);
-	this.sessionStorage = sessionStorage;
+	this.application = application;
     }
 
     public static ArbilWicketSession get() {
@@ -25,7 +27,10 @@ public class ArbilWicketSession extends WebSession {
     /**
      * @return This session's SessionStorage
      */
-    public SessionStorage getSessionStorage() {
+    public synchronized SessionStorage getSessionStorage() {
+	if (sessionStorage == null) {
+	    sessionStorage = application.newSessionStorage();
+	}
 	return sessionStorage;
     }
 }

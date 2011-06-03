@@ -18,7 +18,9 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
 public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 
     private SessionStorage getSessionStorage() {
-	return ArbilWicketSession.get().getSessionStorage();
+	// Session storage is retrieved from the request cycle. It is kept there because it gets
+	// stored in a thread local variable per request
+	return ArbilWicketRequestCycle.getSessionStorage();
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {
