@@ -3,7 +3,6 @@ package nl.mpi.arbil.templates;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +22,7 @@ import org.xml.sax.SAXException;
  * Created on Aug 14, 2009, 11:30:20 AM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilTemplate implements Serializable {
+public class ArbilTemplate {
 
     private static MessageDialogHandler messageDialogHandler;
 

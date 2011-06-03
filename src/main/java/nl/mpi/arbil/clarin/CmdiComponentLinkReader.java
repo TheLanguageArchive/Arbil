@@ -1,6 +1,5 @@
 package nl.mpi.arbil.clarin;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import org.apache.commons.digester.Digester;
  * Created on March 12, 2010, 17:04:03
  * @author Peter.Withers@mpi.nl
  */
-public class CmdiComponentLinkReader implements Serializable{
+public class CmdiComponentLinkReader {
 
     private static BugCatcher bugCatcher;
 

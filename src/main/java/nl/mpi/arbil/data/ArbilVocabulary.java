@@ -1,10 +1,9 @@
 package nl.mpi.arbil.data;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
-public class ArbilVocabulary implements Serializable {
+public class ArbilVocabulary  {
 
     private Vector<ArbilVocabularyItem> vocabularyItems = new Vector<ArbilVocabularyItem>();
 //        this VocabularyRedirect code has been replaced by the templates

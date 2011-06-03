@@ -2,7 +2,6 @@ package nl.mpi.arbil.data.metadatafile;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,7 +15,7 @@ import org.xml.sax.SAXException;
  *  Created on : May 22, 2010, 10:30:36 AM
  *  Author     : Peter Withers
  */
-public class CmdiUtils implements MetadataUtils, Serializable {
+public class CmdiUtils implements MetadataUtils {
 
     private static BugCatcher bugCatcher;
 
