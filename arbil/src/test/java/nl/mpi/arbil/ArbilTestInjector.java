@@ -15,7 +15,7 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
 import nl.mpi.arbil.data.MetadataBuilder;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
@@ -54,7 +54,7 @@ public class ArbilTestInjector {
 	    ArbilVocabularies.setSessionStorage(sessionStorage);
 	    DocumentationLanguages.setSessionStorage(sessionStorage);
 	    MetadataBuilder.setSessionStorage(sessionStorage);
-	    TreeHelper.setSessionStorage(sessionStorage);
+	    ArbilTreeHelper.setSessionStorage(sessionStorage);
 	    MetadataReader.setSessionStorage(sessionStorage);
 	    CmdiProfileReader.setSessionStorage(sessionStorage);
 	    ProfilePreview.setSessionStorage(sessionStorage);
@@ -92,7 +92,7 @@ public class ArbilTestInjector {
 	    MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
 	    MetadataReader.setMessageDialogHandler(messageDialogHandler);
 	    ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
-	    TreeHelper.setMessageDialogHandler(messageDialogHandler);
+	    ArbilTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	}
 
 	if (bugCatcher != null) {
@@ -122,7 +122,7 @@ public class ArbilTestInjector {
 	    MetadataReader.setBugCatcher(bugCatcher);
 	    MimeHashQueue.setBugCatcher(bugCatcher);
 	    ShibbolethNegotiator.setBugCatcher(bugCatcher);
-	    TreeHelper.setBugCatcher(bugCatcher);
+	    ArbilTreeHelper.setBugCatcher(bugCatcher);
 	    XsdChecker.setBugCatcher(bugCatcher);
 	}
 

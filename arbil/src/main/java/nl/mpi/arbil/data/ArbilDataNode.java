@@ -426,7 +426,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	//            //loadChildNodes();
 	//            clearIcon();
 	//            // TODO: this could just remove the decendant nodes and let the user re open them
-	//            TreeHelper.getSingleInstance().updateTreeNodeChildren(this);
+	//            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(this);
 	////            this.clearIcon();
 	//        } else {
 	////            if (getParentDomNode().isCorpus()) {
@@ -553,7 +553,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
 		    URI childURI = dirLinkArray[linkCount].toURI();
 		    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(childURI);
-		    if (TreeHelper.getSingleInstance().showHiddenFilesInTree || !currentNode.getFile().isHidden()) {
+		    if (ArbilTreeHelper.getSingleInstance().isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
 			childLinksTemp.add(currentNode);
 		    }
 		} catch (Exception ex) {
@@ -873,7 +873,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	}
 	//        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
 	////            currentChildNode.clearIcon();
-	//            TreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
+	//            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
 	//        }
 	for (ArbilDataNode removedChild : targetImdiNodes) {
 	    removedChild.removeFromAllContainers();

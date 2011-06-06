@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilField;
 import java.awt.Component;
 import java.awt.Container;
@@ -116,8 +116,8 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
             URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
             targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
             addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, targetFileURI);
-            TreeHelper.getSingleInstance().addLocation(targetFileURI);
-            TreeHelper.getSingleInstance().applyRootLocations();
+            ArbilTreeHelper.getSingleInstance().addLocation(targetFileURI);
+            ArbilTreeHelper.getSingleInstance().applyRootLocations();
         } else {
             parentNode.saveChangesToCache(true);
             addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(parentNode, nodeType, targetXmlPath, resourceUri, mimeType));

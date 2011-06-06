@@ -1,6 +1,6 @@
 package nl.mpi.arbil.userstorage;
 
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -212,13 +212,13 @@ public class ArbilSessionStorage implements SessionStorage {
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
 		getCacheDirectory();
-		TreeHelper.getSingleInstance().loadLocationsList();
-		TreeHelper.getSingleInstance().applyRootLocations();
+		ArbilTreeHelper.getSingleInstance().loadLocationsList();
+		ArbilTreeHelper.getSingleInstance().applyRootLocations();
 	    }
 	} else {
 	    try {
 		Vector<String> locationsList = new Vector<String>();
-		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{TreeHelper.getSingleInstance().remoteCorpusNodes, TreeHelper.getSingleInstance().localCorpusNodes, TreeHelper.getSingleInstance().localFileNodes, TreeHelper.getSingleInstance().favouriteNodes}) {
+		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{ArbilTreeHelper.getSingleInstance().getRemoteCorpusNodes(), ArbilTreeHelper.getSingleInstance().getLocalCorpusNodes(), ArbilTreeHelper.getSingleInstance().getLocalFileNodes(), ArbilTreeHelper.getSingleInstance().getFavouriteNodes()}) {
 		    for (ArbilDataNode currentLocation : currentTreeArray) {
 			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
 			System.out.println("currentLocationString: " + currentLocationString);
@@ -232,14 +232,14 @@ public class ArbilSessionStorage implements SessionStorage {
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
 		getCacheDirectory();
-		TreeHelper.getSingleInstance().loadLocationsList();
-		TreeHelper.getSingleInstance().applyRootLocations();
+		ArbilTreeHelper.getSingleInstance().loadLocationsList();
+		ArbilTreeHelper.getSingleInstance().applyRootLocations();
 		windowManager.closeAllWindows();
 	    } catch (Exception ex) {
 		logError(ex);
 //            System.out.println("save locationsList exception: " + ex.getMessage());
 	    }
-//            TreeHelper.getSingleInstance().loadLocationsList();
+//            ArbilTreeHelper.getSingleInstance().loadLocationsList();
 //            JOptionPane.showOptionDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "The working files have been moved.", "Arbil", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[]{"Exit"}, "Exit");
 //            System.exit(0); // TODO: this exit might be unrequired
 	}

@@ -5,7 +5,7 @@ import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -387,7 +387,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
         initWindows();
 
-        if (!TreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
+        if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
             System.out.println("no local locations found, showing help window");
             ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
             if (null == focusWindow(ArbilHelp.helpWindowTitle)) {

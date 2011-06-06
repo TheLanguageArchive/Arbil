@@ -4,7 +4,7 @@ import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -121,14 +121,14 @@ public class ImportExportDialog {
     }
 
     private void setLocalCacheToNodesPanel(JPanel nodePanel) {
-        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localCorpusTreeModel.getRoot();
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel().getRoot();
         ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
         JLabel currentLabel = new JLabel(rootArbilNode.toString(), rootArbilNode.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
     }
 
     private void setLocalFileToNodesPanel(JPanel nodePanel, File destinationDirectory) {
-        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) TreeHelper.getSingleInstance().localDirectoryTreeModel.getRoot();
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) ArbilTreeHelper.getSingleInstance().getLocalDirectoryTreeModel().getRoot();
         ArbilNode rootArbilNode = (ArbilNode) rootNode.getUserObject();
         JLabel currentLabel = new JLabel(destinationDirectory.getPath(), rootArbilNode.getIcon(), JLabel.CENTER);
         nodePanel.add(currentLabel);
@@ -693,7 +693,7 @@ public class ImportExportDialog {
                                     destinationNode.addCorpusLink(currentFinishedNode);
                                 }
                             } else {
-                                if (!TreeHelper.getSingleInstance().addLocation(currentFinishedNode.getURI())) {
+                                if (!ArbilTreeHelper.getSingleInstance().addLocation(currentFinishedNode.getURI())) {
                                     finalMessageString = finalMessageString + "The location:\n" + currentFinishedNode + "\nalready exists and need not be added again\n";
                                 }
                             }
@@ -701,7 +701,7 @@ public class ImportExportDialog {
                         }
                     }
                     if (destinationNode == null) {
-                        TreeHelper.getSingleInstance().applyRootLocations();
+                        ArbilTreeHelper.getSingleInstance().applyRootLocations();
                     } else {
                         destinationNode.reloadNode();
                     }

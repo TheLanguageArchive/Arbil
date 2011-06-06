@@ -6,7 +6,7 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.ArbilVersionChecker;
 import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -723,7 +723,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void importMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         try {
-            ImportExportDialog importExportDialog = new ImportExportDialog(TreeHelper.getSingleInstance().arbilTreePanel.remoteCorpusTree);
+            ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree);
             importExportDialog.importArbilBranch();
         } catch (Exception e) {
             System.out.println(e.getMessage());

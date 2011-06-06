@@ -23,11 +23,11 @@ import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
 /**
- * Document   : TreeHelper
+ * Document   : ArbilTreeHelper
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class TreeHelper {
+public class ArbilTreeHelper {
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -44,33 +44,33 @@ public class TreeHelper {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
-    public DefaultTreeModel localCorpusTreeModel;
-    public DefaultTreeModel remoteCorpusTreeModel;
-    public DefaultTreeModel localDirectoryTreeModel;
-    public DefaultTreeModel favouritesTreeModel;
+    private DefaultTreeModel localCorpusTreeModel;
+    private DefaultTreeModel remoteCorpusTreeModel;
+    private DefaultTreeModel localDirectoryTreeModel;
+    private DefaultTreeModel favouritesTreeModel;
     private DefaultMutableTreeNode localCorpusRootNode;
     private DefaultMutableTreeNode remoteCorpusRootNode;
     private DefaultMutableTreeNode localDirectoryRootNode;
     private DefaultMutableTreeNode favouritesRootNode;
-    public ArbilTreePanels arbilTreePanel;
-    public ArbilDataNode[] remoteCorpusNodes = new ArbilDataNode[]{};
-    public ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
-    public ArbilDataNode[] localFileNodes = new ArbilDataNode[]{};
-    public ArbilDataNode[] favouriteNodes = new ArbilDataNode[]{};
-    static private TreeHelper singleInstance = null;
+    private ArbilTreePanels arbilTreePanel;
+    private ArbilDataNode[] remoteCorpusNodes = new ArbilDataNode[]{};
+    private ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
+    private ArbilDataNode[] localFileNodes = new ArbilDataNode[]{};
+    private ArbilDataNode[] favouriteNodes = new ArbilDataNode[]{};
+    static private ArbilTreeHelper singleInstance = null;
     Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
     boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
-    public boolean showHiddenFilesInTree = false;
+    private boolean showHiddenFilesInTree = false;
 
-    static synchronized public TreeHelper getSingleInstance() {
-//        System.out.println("TreeHelper getSingleInstance");
+    static synchronized public ArbilTreeHelper getSingleInstance() {
+//        System.out.println("ArbilTreeHelper getSingleInstance");
 	if (singleInstance == null) {
-	    singleInstance = new TreeHelper();
+	    singleInstance = new ArbilTreeHelper();
 	}
 	return singleInstance;
     }
 
-    private TreeHelper() {
+    private ArbilTreeHelper() {
 	localCorpusRootNode = new DefaultMutableTreeNode(localCorpusRootNodeObject);
 	remoteCorpusRootNode = new DefaultMutableTreeNode(remoteCorpusRootNodeObject);
 	localDirectoryRootNode = new DefaultMutableTreeNode(localDirectoryRootNodeObject);
@@ -412,7 +412,7 @@ public class TreeHelper {
 		    }
 		}
 		// todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
-		//                        TreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
+		//                        ArbilTreeHelper.getSingleInstance().removeAndDetatchDescendantNodes(selectedTreeNode);
 		// make a list of all child nodes so that they can be removed from any tables etc
 		dataNodesToRemove.add((ArbilDataNode) userObject);
 		((ArbilDataNode) userObject).getAllChildren(dataNodesToRemove);
@@ -461,25 +461,95 @@ public class TreeHelper {
     private ArbilRootNode localCorpusRootNodeObject = new ArbilRootNode("Local corpus", ArbilIcons.getSingleInstance().directoryIcon, true) {
 
 	public ArbilDataNode[] getChildArray() {
-	    return localCorpusNodes;
+	    return getLocalCorpusNodes();
 	}
     };
     private ArbilRootNode remoteCorpusRootNodeObject = new ArbilRootNode("Remote corpus", ArbilIcons.getSingleInstance().serverIcon, false) {
 
 	public ArbilDataNode[] getChildArray() {
-	    return remoteCorpusNodes;
+	    return getRemoteCorpusNodes();
 	}
     };
     private ArbilRootNode localDirectoryRootNodeObject = new ArbilRootNode("Working Directories", ArbilIcons.getSingleInstance().computerIcon, true) {
 
 	public ArbilDataNode[] getChildArray() {
-	    return localFileNodes;
+	    return getLocalFileNodes();
 	}
     };
     private ArbilRootNode favouritesRootNodeObject = new ArbilRootNode("Favourites", ArbilIcons.getSingleInstance().favouriteIcon, true) {
 
 	public ArbilDataNode[] getChildArray() {
-	    return favouriteNodes;
+	    return getFavouriteNodes();
 	}
     };
+
+    /**
+     * @return the localCorpusTreeModel
+     */
+    public DefaultTreeModel getLocalCorpusTreeModel() {
+	return localCorpusTreeModel;
+    }
+
+    /**
+     * @return the remoteCorpusTreeModel
+     */
+    public DefaultTreeModel getRemoteCorpusTreeModel() {
+	return remoteCorpusTreeModel;
+    }
+
+    /**
+     * @return the localDirectoryTreeModel
+     */
+    public DefaultTreeModel getLocalDirectoryTreeModel() {
+	return localDirectoryTreeModel;
+    }
+
+    /**
+     * @return the favouritesTreeModel
+     */
+    public DefaultTreeModel getFavouritesTreeModel() {
+	return favouritesTreeModel;
+    }
+
+    /**
+     * @return the arbilTreePanel
+     */
+    public ArbilTreePanels getArbilTreePanel() {
+	return arbilTreePanel;
+    }
+
+    /**
+     * @return the remoteCorpusNodes
+     */
+    public ArbilDataNode[] getRemoteCorpusNodes() {
+	return remoteCorpusNodes;
+    }
+
+    /**
+     * @return the localCorpusNodes
+     */
+    public ArbilDataNode[] getLocalCorpusNodes() {
+	return localCorpusNodes;
+    }
+
+    /**
+     * @return the localFileNodes
+     */
+    public ArbilDataNode[] getLocalFileNodes() {
+	return localFileNodes;
+    }
+
+    /**
+     * @return the favouriteNodes
+     */
+    public ArbilDataNode[] getFavouriteNodes() {
+	return favouriteNodes;
+    }
+
+    /**
+     * @return the showHiddenFilesInTree
+     */
+    public boolean isShowHiddenFilesInTree() {
+	return showHiddenFilesInTree;
+    }
 }

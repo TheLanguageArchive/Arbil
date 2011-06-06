@@ -323,8 +323,8 @@ public class MetadataBuilder {
                         destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
                         destinationNode.getParentDomNode().loadArbilDom();
                     } else {
-                        TreeHelper.getSingleInstance().addLocation(addedNodePath);
-                        TreeHelper.getSingleInstance().applyRootLocations();
+                        ArbilTreeHelper.getSingleInstance().addLocation(addedNodePath);
+                        ArbilTreeHelper.getSingleInstance().applyRootLocations();
                     }
                 }
                 // CODE REMOVED: load then save the dom via the api to make sure there are id fields to each node then reload this imdi object

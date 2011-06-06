@@ -37,14 +37,14 @@ public class TreeHelperTest {
     @Test
     public void testLocationsList() throws Exception {
 	// This will create the treehelper and load locations in the process
-	TreeHelper th = TreeHelper.getSingleInstance();
-	assertEquals(0, th.localCorpusNodes.length);
+	ArbilTreeHelper th = ArbilTreeHelper.getSingleInstance();
+	assertEquals(0, th.getLocalCorpusNodes().length);
 	th.addLocation(TreeHelperTest.class.getResource("/nl/mpi/arbil/data/testfiles/\u0131md\u0131test.imdi").toURI());
-	for (ArbilDataNode node : th.localCorpusNodes) {
+	for (ArbilDataNode node : th.getLocalCorpusNodes()) {
 	    node.waitTillLoaded();
 	}
-	assertEquals(1, th.localCorpusNodes.length);
-	assertFalse(th.localCorpusNodes[0].fileNotFound);
+	assertEquals(1, th.getLocalCorpusNodes().length);
+	assertFalse(th.getLocalCorpusNodes()[0].fileNotFound);
     }
 
     private static class TestSessionStorage extends MockSessionStorage {
