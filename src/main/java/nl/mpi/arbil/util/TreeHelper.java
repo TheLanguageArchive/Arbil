@@ -75,8 +75,6 @@ public interface TreeHelper {
      */
     DefaultTreeModel getRemoteCorpusTreeModel();
 
-    ArbilTree getTreeForNode(DefaultMutableTreeNode nodeToTest);
-
     boolean isInFavouritesNodes(ArbilDataNode dataNode);
 
     /**
