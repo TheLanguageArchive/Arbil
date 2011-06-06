@@ -5,6 +5,7 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -16,19 +17,21 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilWicketInjector extends ArbilInjector {
 
-    private static BugCatcher bugCatcher = new ArbilWicketBugCatcher();
-    private static MessageDialogHandler messageDialogHandler = new ArbilWicketMessageDialogHandler();
-    private static WindowManager windowManager = new ArbilWicketWindowManager();
-    private static SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
+    private final static BugCatcher bugCatcher = new ArbilWicketBugCatcher();
+    private final static MessageDialogHandler messageDialogHandler = new ArbilWicketMessageDialogHandler();
+    private final static WindowManager windowManager = new ArbilWicketWindowManager();
+    private final static SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
+    private final static TreeHelper treeHelper = new ArbilWicketTreeHelperProxy();
 
     public static void injectHandlers() {
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilSessionStorage.setWindowManager(windowManager);
-	
+
 	injectBugCatcher(bugCatcher);
 	injectDialogHandler(messageDialogHandler);
 	injectWindowManager(windowManager);
 	injectSessionStorage(sessionStorage);
+	injectTreeHelper(treeHelper);
     }
 }

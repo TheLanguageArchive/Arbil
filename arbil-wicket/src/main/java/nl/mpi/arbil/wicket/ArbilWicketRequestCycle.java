@@ -1,6 +1,7 @@
 package nl.mpi.arbil.wicket;
 
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.TreeHelper;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -18,6 +19,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 public class ArbilWicketRequestCycle extends WebRequestCycle {
 
     private final static InheritableThreadLocal<SessionStorage> sessionStorage = new InheritableThreadLocal<SessionStorage>();
+    private final static InheritableThreadLocal<TreeHelper> treeHelper = new InheritableThreadLocal<TreeHelper>();
 
     /**
      * 
@@ -25,6 +27,10 @@ public class ArbilWicketRequestCycle extends WebRequestCycle {
      */
     public static SessionStorage getSessionStorage() {
 	return sessionStorage.get();
+    }
+    
+    public static TreeHelper getTreeHelper() {
+	return treeHelper.get();
     }
 
     public ArbilWicketRequestCycle(WebApplication application, Request request, Response response) {
@@ -36,6 +42,8 @@ public class ArbilWicketRequestCycle extends WebRequestCycle {
 	super.onBeginRequest();
 	// Take sessionStorage from current session and put in threadlocal variable
 	sessionStorage.set(getArbilSession().getSessionStorage());
+	// Take treeHelper from current session and put in threadlocal variable
+	treeHelper.set(getArbilSession().getTreeHelper());
     }
 
     @Override
@@ -43,6 +51,7 @@ public class ArbilWicketRequestCycle extends WebRequestCycle {
 	super.onEndRequest();
 	// Remove sessionStorage from threadlocal variable
 	sessionStorage.remove();
+	treeHelper.remove();
     }
 
     ArbilWicketSession getArbilSession() {

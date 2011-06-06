@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.TreeHelper;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
@@ -13,6 +14,7 @@ import org.apache.wicket.protocol.http.WebSession;
 public class ArbilWicketSession extends WebSession {
 
     private SessionStorage sessionStorage;
+    private TreeHelper treeHelper;
     private ArbilWicketApplication application;
 
     public ArbilWicketSession(ArbilWicketApplication application, Request request) {
@@ -32,5 +34,16 @@ public class ArbilWicketSession extends WebSession {
 	    sessionStorage = application.newSessionStorage();
 	}
 	return sessionStorage;
+    }
+
+    /**
+     * 
+     * @return This session's TreeHelper
+     */
+    public synchronized TreeHelper getTreeHelper() {
+	if (treeHelper == null) {
+	    treeHelper = application.newTreeHelper(getSessionStorage());
+	}
+	return treeHelper;
     }
 }

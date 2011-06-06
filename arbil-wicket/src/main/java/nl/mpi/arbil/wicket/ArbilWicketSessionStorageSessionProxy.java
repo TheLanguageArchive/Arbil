@@ -12,7 +12,7 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
 
 /**
  * Proxy for the ArbilWicketSessionStorage that is contained in the session that makes
- * the request. To be used in native Arbil classes.
+ * the request. To be injected into native Arbil classes.
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {

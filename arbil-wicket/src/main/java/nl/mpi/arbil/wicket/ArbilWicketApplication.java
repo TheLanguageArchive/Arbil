@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.wicket.pages.HomePage;
 import org.apache.wicket.Request;
 import org.apache.wicket.RequestCycle;
@@ -41,5 +42,14 @@ public class ArbilWicketApplication extends WebApplication {
      */
     public SessionStorage newSessionStorage() {
 	return ArbilSessionStorage.getSingleInstance();
+    }
+
+    /**
+     * 
+     * @param sessionStorage Session storage the treehelper should be tied to
+     * @return New treehelper object
+     */
+    public TreeHelper newTreeHelper(SessionStorage sessionStorage) {
+	return new ArbilWicketTreeHelper(sessionStorage);
     }
 }
