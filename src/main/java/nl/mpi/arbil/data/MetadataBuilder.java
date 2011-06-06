@@ -12,6 +12,7 @@ import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -43,6 +44,12 @@ public class MetadataBuilder {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+        private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
+    }
+
     private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
     /**
@@ -323,8 +330,8 @@ public class MetadataBuilder {
                         destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodePath});
                         destinationNode.getParentDomNode().loadArbilDom();
                     } else {
-                        ArbilTreeHelper.getSingleInstance().addLocation(addedNodePath);
-                        ArbilTreeHelper.getSingleInstance().applyRootLocations();
+                        treeHelper.addLocation(addedNodePath);
+                        treeHelper.applyRootLocations();
                     }
                 }
                 // CODE REMOVED: load then save the dom via the api to make sure there are id fields to each node then reload this imdi object
