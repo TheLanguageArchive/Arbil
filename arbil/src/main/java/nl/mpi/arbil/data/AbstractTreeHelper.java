@@ -73,20 +73,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     @Override
-    public ArbilTree getTreeForNode(DefaultMutableTreeNode nodeToTest) {
-	if (nodeToTest.getRoot().equals(remoteCorpusRootNode)) {
-	    return arbilTreePanel.remoteCorpusTree;
-	}
-	if (nodeToTest.getRoot().equals(localCorpusRootNode)) {
-	    return arbilTreePanel.localCorpusTree;
-	}
-	if (nodeToTest.getRoot().equals(localDirectoryRootNode)) {
-	    return arbilTreePanel.localDirectoryTree;
-	}
-	return arbilTreePanel.favouritesTree;
-    }
-
-    @Override
     public DefaultTreeModel getModelForNode(DefaultMutableTreeNode nodeToTest) {
 	if (nodeToTest.getRoot().equals(remoteCorpusRootNode)) {
 	    return remoteCorpusTreeModel;
