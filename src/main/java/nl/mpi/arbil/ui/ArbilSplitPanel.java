@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -128,7 +128,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
                             }
                         }
                         if (ArbilSessionStorage.getSingleInstance().isTrackTableSelection()) {
-                            TreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ArbilDataNode) ((JList) e.getSource()).getSelectedValue());
+                            ArbilTreeHelper.getSingleInstance().jumpToSelectionInTree(true, (ArbilDataNode) ((JList) e.getSource()).getSelectedValue());
                         }
                     }
                     selectionChangeInProcess = false;
@@ -163,7 +163,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
                         imagePreview.scrollRectToVisible(imagePreview.getCellBounds(minSelectedRow, maxSelectedRow));
                     }
                     if (ArbilSessionStorage.getSingleInstance().isTrackTableSelection()) {
-                        TreeHelper.getSingleInstance().jumpToSelectionInTree(true, arbilTable.getDataNodeForSelection());
+                        ArbilTreeHelper.getSingleInstance().jumpToSelectionInTree(true, arbilTable.getDataNodeForSelection());
                     }
                     selectionChangeInProcess = false;
                 }

@@ -2,7 +2,7 @@ package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.templates.ArbilFavourites;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Container;
 import java.awt.datatransfer.Clipboard;
@@ -131,12 +131,12 @@ public class ArbilDragDrop {
             ArbilDataNode currentLeadSelection = dropTree.getLeadSelectionDataNode();
             if (currentLeadSelection == null) {
                 // this check is for the root node of the trees
-                if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
+                if (ArbilTreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
                     // allow drop to the favourites tree even when no selection is made
                     // allow drop to only the root node of the favourites tree
                     System.out.println("favourites tree check");
                     return !selectionContainsFavourite;
-                } else if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
+                } else if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
                     //if (dropTree.getSelectionPath().getPathCount() == 1) {
                     // allow import to local tree if no nodes are selected
                     // allow drop to the root node if it is an import
@@ -152,7 +152,7 @@ public class ArbilDragDrop {
 //                todo: prevent dragging to self but allow dragging to other branch of parent session
 //                todo: look for error dragging actor from favourites
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
-                if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
+                if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
                     if (currentLeadSelection.isCmdiMetaDataNode()) {
                         if (currentLeadSelection.getParentDomNode().nodeTemplate == null) {
                             System.out.println("no template for drop target node");
@@ -224,7 +224,7 @@ public class ArbilDragDrop {
             currentDropTarget = null;
             dropAllowed = false;
             if (comp instanceof JTree) {
-                if (TreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(comp)) {
+                if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(comp)) {
                     System.out.println("localcorpustree so can drop here");
                     if (selectionContainsArchivableLocalFile
                             || //selectionContainsLocalFile ||
@@ -243,7 +243,7 @@ public class ArbilDragDrop {
                         return true;
                     }
                 }
-                if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(comp)) {
+                if (ArbilTreeHelper.getSingleInstance().componentIsTheFavouritesTree(comp)) {
                     System.out.println("favourites tree so can drop here");
                     if (//selectionContainsArchivableLocalFile &&
                             //selectionContainsLocalFile ||
@@ -457,13 +457,13 @@ public class ArbilDragDrop {
             for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
                 System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
             }
-            if (TreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
+            if (ArbilTreeHelper.getSingleInstance().componentIsTheFavouritesTree(currentDropTarget)) {
                 // Target component is the favourites tree
                 boolean resultValue = ArbilFavourites.getSingleInstance().toggleFavouritesList(draggedArbilNodes, true);
                 return resultValue;
             } else {
                 // Drop on local corpus
-                DefaultMutableTreeNode targetNode = TreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
+                DefaultMutableTreeNode targetNode = ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
                 Object dropTargetUserObject = targetNode.getUserObject();
                 Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
                 Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
@@ -551,14 +551,14 @@ public class ArbilDragDrop {
                                         if (dropTargetUserObject instanceof ArbilDataNode) {
                                             addNodeResult = ((ArbilDataNode) dropTargetUserObject).addCorpusLink(draggedArbilNodes[draggedCounter]);
                                         } else {
-                                            addNodeResult = TreeHelper.getSingleInstance().addLocation(draggedArbilNodes[draggedCounter].getURI());
+                                            addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(draggedArbilNodes[draggedCounter].getURI());
                                         }
                                         if (addNodeResult) {
                                             if (draggedTreeNodes[draggedCounter] != null) {
                                                 if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
                                                     System.out.println("dragged from root");
-                                                    TreeHelper.getSingleInstance().removeLocation(draggedArbilNodes[draggedCounter]);
-                                                    TreeHelper.getSingleInstance().applyRootLocations();
+                                                    ArbilTreeHelper.getSingleInstance().removeLocation(draggedArbilNodes[draggedCounter]);
+                                                    ArbilTreeHelper.getSingleInstance().applyRootLocations();
                                                 } else {
                                                     ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
                                                     System.out.println("removeing from parent: " + parentNode);
@@ -597,7 +597,7 @@ public class ArbilDragDrop {
 //                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
                         ((ArbilDataNode) dropTargetUserObject).reloadNode();
                     } else {
-                        TreeHelper.getSingleInstance().applyRootLocations();
+                        ArbilTreeHelper.getSingleInstance().applyRootLocations();
                     }
                     return true; // we have achieved the drag so return true
                 }

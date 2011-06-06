@@ -1,6 +1,6 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import javax.swing.JTabbedPane;
 
 /**
@@ -30,16 +30,16 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         localCorpusTree = new ArbilTree();
         favouritesTree = new ArbilTree();
 
-        remoteCorpusTree.setModel(TreeHelper.getSingleInstance().remoteCorpusTreeModel);
+        remoteCorpusTree.setModel(ArbilTreeHelper.getSingleInstance().getRemoteCorpusTreeModel());
         remoteCorpusScrollPane.setViewportView(remoteCorpusTree);
 
-        localCorpusTree.setModel(TreeHelper.getSingleInstance().localCorpusTreeModel);
+        localCorpusTree.setModel(ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel());
         localCorpusScrollPane.setViewportView(localCorpusTree);
 
-        localDirectoryTree.setModel(TreeHelper.getSingleInstance().localDirectoryTreeModel);
+        localDirectoryTree.setModel(ArbilTreeHelper.getSingleInstance().getLocalDirectoryTreeModel());
         localDirectoryScrollPane.setViewportView(localDirectoryTree);
 
-        favouritesTree.setModel(TreeHelper.getSingleInstance().favouritesTreeModel);
+        favouritesTree.setModel(ArbilTreeHelper.getSingleInstance().getFavouritesTreeModel());
         favouritesScrollPane.setViewportView(favouritesTree);
 
         JTabbedPane treeTabPane = new JTabbedPane();
@@ -52,7 +52,7 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         this.setBottomComponent(leftLocalSplitPane);
         this.setLeftComponent(remoteCorpusScrollPane);
 
-        TreeHelper.getSingleInstance().setTrees(this);
+        ArbilTreeHelper.getSingleInstance().setTrees(this);
         setDefaultTreePaneSize();
     }
 

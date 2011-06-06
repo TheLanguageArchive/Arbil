@@ -1,7 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -39,7 +39,7 @@ import nl.mpi.arbil.util.WindowManager;
  * @author Peter.Withers@mpi.nl
  * 
  * @see ArbilDataNode
- * @see TreeHelper
+ * @see ArbilTreeHelper
  * @see ArbilTreeRenderer
  * @see TreeContextMenu
  */
@@ -114,7 +114,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
                     parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
                     // load imdi data if not already loaded
                     ArbilTree.this.requestResort();
-//                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+//                    ArbilTreeHelper.getSingleInstance().addToSortQueue(parentNode);
                 }
             }
 
@@ -137,7 +137,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 //                } else {
 //                    parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
 //                    // load imdi data if not already loaded
-//                    TreeHelper.getSingleInstance().addToSortQueue(parentNode);
+//                    ArbilTreeHelper.getSingleInstance().addToSortQueue(parentNode);
 //                }
             }
         });
@@ -186,7 +186,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         }
         if (evt.getKeyChar() == java.awt.event.KeyEvent.VK_DELETE) {
 //        GuiHelper.treeHelper.deleteNode(GuiHelper.treeHelper.getSingleSelectedNode((JTree) evt.getSource()));
-            TreeHelper.getSingleInstance().deleteNodes((JTree) evt.getSource());
+            ArbilTreeHelper.getSingleInstance().deleteNodes((JTree) evt.getSource());
         }
         if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_CONTEXT_MENU) {
 //        DefaultMutableTreeNode leadSelection = (DefaultMutableTreeNode) ((JTree) evt.getSource()).getSelectionPath().getLastPathComponent();

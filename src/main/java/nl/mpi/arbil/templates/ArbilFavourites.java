@@ -1,6 +1,6 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.data.TreeHelper;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
@@ -124,16 +124,16 @@ public class ArbilFavourites {
 //                loadSelectedFavourites();
 //                favouriteImdiObject.setFavouriteStatus(true);
 //            }
-	    TreeHelper.getSingleInstance().addLocation(favouriteUri);
-	    TreeHelper.getSingleInstance().applyRootLocations();
+	    ArbilTreeHelper.getSingleInstance().addLocation(favouriteUri);
+	    ArbilTreeHelper.getSingleInstance().applyRootLocations();
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
 	}
     }
 
     private void removeFromFavourites(URI imdiUri) {
-	TreeHelper.getSingleInstance().removeLocation(imdiUri);
-	TreeHelper.getSingleInstance().applyRootLocations();
+	ArbilTreeHelper.getSingleInstance().removeLocation(imdiUri);
+	ArbilTreeHelper.getSingleInstance().applyRootLocations();
     }
 
 //    public void saveSelectedFavourites() {
@@ -158,7 +158,7 @@ public class ArbilFavourites {
 	    boolean targetIsCorpus = targetImdiObject.isCorpus();
 	    boolean targetIsSession = targetImdiObject.isSession();
 	    boolean targetIsImdiChild = targetImdiObject.isChildNode();
-	    for (ArbilDataNode currentFavouritesObject : TreeHelper.getSingleInstance().favouriteNodes) {
+	    for (ArbilDataNode currentFavouritesObject : ArbilTreeHelper.getSingleInstance().getFavouriteNodes()) {
 		boolean addThisFavourites = false;
 		if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
 		    addThisFavourites = true;
