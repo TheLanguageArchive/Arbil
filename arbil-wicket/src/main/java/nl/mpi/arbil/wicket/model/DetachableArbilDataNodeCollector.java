@@ -3,6 +3,7 @@ package nl.mpi.arbil.wicket.model;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +17,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
  * @see ArbilDataNode
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class DetachableArbilDataNodeCollector {
+public abstract class DetachableArbilDataNodeCollector implements Serializable {
 
     /**
      * URIs that represent data nodes
