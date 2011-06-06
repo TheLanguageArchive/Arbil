@@ -10,7 +10,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.ui.ArbilTree;
-import nl.mpi.arbil.ui.ArbilTreePanels;
 
 /**
  *
@@ -31,11 +30,6 @@ public interface TreeHelper {
     boolean componentIsTheLocalCorpusTree(Component componentToTest);
 
     void deleteNodes(Object sourceObject);
-
-    /**
-     * @return the arbilTreePanel
-     */
-    ArbilTreePanels getArbilTreePanel();
 
     /**
      * @return the favouriteNodes
@@ -103,7 +97,5 @@ public interface TreeHelper {
     void saveLocations(ArbilDataNode[] nodesToAdd, ArbilDataNode[] nodesToRemove);
 
     void setShowHiddenFilesInTree(boolean showState);
-
-    void setTrees(ArbilTreePanels arbilTreePanelLocal);
     
 }

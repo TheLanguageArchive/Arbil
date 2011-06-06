@@ -22,6 +22,10 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 
     private ArbilTreeHelper() {
 	super();
+	initTrees();
+	// load any locations from the previous file formats
+	//LinorgFavourites.getSingleInstance().convertOldFormatLocationLists();
+	loadLocationsList();
     }
 
     @Override

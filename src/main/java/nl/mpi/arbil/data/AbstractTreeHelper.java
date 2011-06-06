@@ -59,7 +59,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     protected abstract SessionStorage getSessionStorage();
 
-    protected AbstractTreeHelper() {
+
+    protected final void initTrees() {
 	localCorpusRootNode = new DefaultMutableTreeNode(localCorpusRootNodeObject);
 	remoteCorpusRootNode = new DefaultMutableTreeNode(remoteCorpusRootNodeObject);
 	localDirectoryRootNode = new DefaultMutableTreeNode(localDirectoryRootNodeObject);
@@ -69,10 +70,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
 	localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
 	favouritesTreeModel = new DefaultTreeModel(favouritesRootNode, true);
-	// load any locations from the previous file formats
-	//LinorgFavourites.getSingleInstance().convertOldFormatLocationLists();
-
-	loadLocationsList();
     }
 
     @Override
@@ -114,7 +111,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	return componentToTest.equals(arbilTreePanel.favouritesTree);
     }
 
-    @Override
     public void setTrees(ArbilTreePanels arbilTreePanelLocal) {
 	arbilTreePanel = arbilTreePanelLocal;
 	arbilTreePanel.remoteCorpusTree.setName("RemoteCorpusTree");
@@ -526,7 +522,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     /**
      * @return the arbilTreePanel
      */
-    @Override
     public ArbilTreePanels getArbilTreePanel() {
 	return arbilTreePanel;
     }
