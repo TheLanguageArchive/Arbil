@@ -25,6 +25,10 @@ public class ArbilWicketInjector extends ArbilInjector {
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilSessionStorage.setWindowManager(windowManager);
-	injectHandlers(messageDialogHandler, windowManager, sessionStorage, bugCatcher, null);
+	
+	injectBugCatcher(bugCatcher);
+	injectDialogHandler(messageDialogHandler);
+	injectWindowManager(windowManager);
+	injectSessionStorage(sessionStorage);
     }
 }
