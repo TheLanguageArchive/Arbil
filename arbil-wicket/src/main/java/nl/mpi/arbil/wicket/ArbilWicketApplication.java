@@ -1,5 +1,6 @@
 package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.TreeHelper;
@@ -50,6 +51,6 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New treehelper object
      */
     public TreeHelper newTreeHelper(SessionStorage sessionStorage) {
-	return new ArbilWicketTreeHelper(sessionStorage);
+	return ArbilTreeHelper.getSingleInstance(); //new ArbilWicketTreeHelper(sessionStorage);
     }
 }

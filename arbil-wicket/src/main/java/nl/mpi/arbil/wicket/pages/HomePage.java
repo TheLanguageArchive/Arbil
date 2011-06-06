@@ -1,9 +1,10 @@
 package nl.mpi.arbil.wicket.pages;
 
+import java.util.Arrays;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.wicket.components.NodesPanel;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.TreeHelper;
 import nl.mpi.arbil.wicket.model.DataNodeDataProvider;
+import nl.mpi.arbil.wicket.model.DetachableArbilDataNodeCollector;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 
@@ -18,11 +19,13 @@ public class HomePage extends WebPage {
      * Constructor that is invoked when page is invoked without a session.
      * 
      */
+    //this(TreeHelper.getSingleInstance().localCorpusNodes);
+    //}
     public HomePage(final PageParameters parameters) {
-	this(TreeHelper.getSingleInstance().localCorpusNodes);
-    }
-
-    public HomePage(ArbilDataNode[] dataNodes) {
-	add(new NodesPanel("nodespanel", new DataNodeDataProvider(dataNodes)));
+	super(parameters);
+	add(new NodesPanel("nodespanel", new DataNodeDataProvider(DetachableArbilDataNodeCollector.URIsFromNodes(
+		Arrays.asList(ArbilWicketSession.get().getTreeHelper().getLocalCorpusNodes())))));
+	//ArbilWicketSession.get().getTreeHelper().applyRootLocations();
+	//add(new Tree("tree", ArbilWicketSession.get().getTreeHelper().getRemoteCorpusTreeModel()));
     }
 }

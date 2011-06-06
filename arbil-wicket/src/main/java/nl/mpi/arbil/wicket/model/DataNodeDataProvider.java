@@ -17,10 +17,6 @@ public class DataNodeDataProvider extends DetachableArbilDataNodeCollector imple
 	super(uris);
     }
 
-    public DataNodeDataProvider(ArbilDataNode[] dataNodes) {
-	super(dataNodes);
-    }
-
     public Iterator<? extends ArbilDataNode> iterator(int first, int count) {
 	return getDataNodes().subList(first, count).listIterator();
     }
