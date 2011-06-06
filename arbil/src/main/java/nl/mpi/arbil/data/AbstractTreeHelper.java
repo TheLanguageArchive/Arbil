@@ -34,10 +34,10 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     private DefaultTreeModel remoteCorpusTreeModel;
     private DefaultTreeModel localDirectoryTreeModel;
     private DefaultTreeModel favouritesTreeModel;
-    private DefaultMutableTreeNode localCorpusRootNode;
-    private DefaultMutableTreeNode remoteCorpusRootNode;
-    private DefaultMutableTreeNode localDirectoryRootNode;
-    private DefaultMutableTreeNode favouritesRootNode;
+    protected DefaultMutableTreeNode localCorpusRootNode;
+    protected DefaultMutableTreeNode remoteCorpusRootNode;
+    protected DefaultMutableTreeNode localDirectoryRootNode;
+    protected DefaultMutableTreeNode favouritesRootNode;
     private ArbilTreePanels arbilTreePanel;
     private ArbilDataNode[] remoteCorpusNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
@@ -61,15 +61,22 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
 
     protected final void initTrees() {
-	localCorpusRootNode = new DefaultMutableTreeNode(localCorpusRootNodeObject);
-	remoteCorpusRootNode = new DefaultMutableTreeNode(remoteCorpusRootNodeObject);
-	localDirectoryRootNode = new DefaultMutableTreeNode(localDirectoryRootNodeObject);
-	favouritesRootNode = new DefaultMutableTreeNode(favouritesRootNodeObject);
+	initRootNodes();
+	initTreeModels();
+    }
 
+    protected void initTreeModels() {
 	localCorpusTreeModel = new DefaultTreeModel(localCorpusRootNode, true);
 	remoteCorpusTreeModel = new DefaultTreeModel(remoteCorpusRootNode, true);
 	localDirectoryTreeModel = new DefaultTreeModel(localDirectoryRootNode, true);
 	favouritesTreeModel = new DefaultTreeModel(favouritesRootNode, true);
+    }
+
+    private void initRootNodes() {
+	localCorpusRootNode = new DefaultMutableTreeNode(localCorpusRootNodeObject);
+	remoteCorpusRootNode = new DefaultMutableTreeNode(remoteCorpusRootNodeObject);
+	localDirectoryRootNode = new DefaultMutableTreeNode(localDirectoryRootNodeObject);
+	favouritesRootNode = new DefaultMutableTreeNode(favouritesRootNodeObject);
     }
 
     @Override
