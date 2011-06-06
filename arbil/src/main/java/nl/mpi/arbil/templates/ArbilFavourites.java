@@ -1,6 +1,5 @@
 package nl.mpi.arbil.templates;
 
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
@@ -11,6 +10,7 @@ import java.util.Vector;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Document   : ArbilFavourites
@@ -34,6 +34,12 @@ public class ArbilFavourites {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
+    }
+
     //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private ArbilFavourites singleInstance = null;
 
@@ -124,16 +130,16 @@ public class ArbilFavourites {
 //                loadSelectedFavourites();
 //                favouriteImdiObject.setFavouriteStatus(true);
 //            }
-	    ArbilTreeHelper.getSingleInstance().addLocation(favouriteUri);
-	    ArbilTreeHelper.getSingleInstance().applyRootLocations();
+	    treeHelper.addLocation(favouriteUri);
+	    treeHelper.applyRootLocations();
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
 	}
     }
 
     private void removeFromFavourites(URI imdiUri) {
-	ArbilTreeHelper.getSingleInstance().removeLocation(imdiUri);
-	ArbilTreeHelper.getSingleInstance().applyRootLocations();
+	treeHelper.removeLocation(imdiUri);
+	treeHelper.applyRootLocations();
     }
 
 //    public void saveSelectedFavourites() {
@@ -158,7 +164,7 @@ public class ArbilFavourites {
 	    boolean targetIsCorpus = targetImdiObject.isCorpus();
 	    boolean targetIsSession = targetImdiObject.isSession();
 	    boolean targetIsImdiChild = targetImdiObject.isChildNode();
-	    for (ArbilDataNode currentFavouritesObject : ArbilTreeHelper.getSingleInstance().getFavouriteNodes()) {
+	    for (ArbilDataNode currentFavouritesObject : treeHelper.getFavouriteNodes()) {
 		boolean addThisFavourites = false;
 		if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
 		    addThisFavourites = true;

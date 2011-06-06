@@ -1,12 +1,16 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
 /**
@@ -23,17 +27,21 @@ public class ArbilDesktopInjector extends ArbilInjector {
      */
     public static synchronized void injectHandlers() {
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
-	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
-	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();
-	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
-
-	// Session storage needs some injection before instantiation
-	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
-	ArbilSessionStorage.setBugCatcher(bugCatcher);
-	ArbilSessionStorage.setWindowManager(windowManager);
-	// Session storage
-	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	injectBugCatcher(bugCatcher);
 	
-	injectHandlers(messageDialogHandler, windowManager, sessionStorage, bugCatcher, clipboardOwner);
+	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
+	injectDialogHandler(messageDialogHandler);
+	
+	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
+	injectWindowManager(windowManager);
+	
+	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
+	injectClipboardOwner(clipboardOwner);
+	
+	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	injectSessionStorage(sessionStorage);
+	
+	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
+	injectTreeHelper(treeHelper);
     }
 }

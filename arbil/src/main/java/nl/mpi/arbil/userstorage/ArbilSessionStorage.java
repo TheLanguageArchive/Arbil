@@ -1,6 +1,5 @@
 package nl.mpi.arbil.userstorage;
 
-import nl.mpi.arbil.data.ArbilTreeHelper;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -37,6 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -65,7 +65,7 @@ public class ArbilSessionStorage implements SessionStorage {
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
-    
+
     private static void logError(Exception exception) {
 	if (bugCatcher != null) {
 	    bugCatcher.logError(exception);
@@ -218,7 +218,11 @@ public class ArbilSessionStorage implements SessionStorage {
 	} else {
 	    try {
 		Vector<String> locationsList = new Vector<String>();
-		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{ArbilTreeHelper.getSingleInstance().getRemoteCorpusNodes(), ArbilTreeHelper.getSingleInstance().getLocalCorpusNodes(), ArbilTreeHelper.getSingleInstance().getLocalFileNodes(), ArbilTreeHelper.getSingleInstance().getFavouriteNodes()}) {
+		for (ArbilDataNode[] currentTreeArray : new ArbilDataNode[][]{
+			    ArbilTreeHelper.getSingleInstance().getRemoteCorpusNodes(),
+			    ArbilTreeHelper.getSingleInstance().getLocalCorpusNodes(),
+			    ArbilTreeHelper.getSingleInstance().getLocalFileNodes(),
+			    ArbilTreeHelper.getSingleInstance().getFavouriteNodes()}) {
 		    for (ArbilDataNode currentLocation : currentTreeArray) {
 			String currentLocationString = URLDecoder.decode(currentLocation.getUrlString(), "UTF-8");
 			System.out.println("currentLocationString: " + currentLocationString);
@@ -516,7 +520,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	File destinationConfigFile = new File(storageDirectory, filename + ".config");
 	File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
 
-	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile),"UTF8"));
+	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
 	for (String currentString : storableValue) {
 	    out.write(currentString + "\r\n");
 	}

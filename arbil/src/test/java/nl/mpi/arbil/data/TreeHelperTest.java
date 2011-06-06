@@ -1,5 +1,7 @@
 package nl.mpi.arbil.data;
 
+import org.junit.Before;
+import nl.mpi.arbil.util.TreeHelper;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
@@ -7,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import org.junit.BeforeClass;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,18 +29,30 @@ import static org.junit.Assert.assertFalse;
  */
 public class TreeHelperTest {
 
-    @BeforeClass
-    public static void inject() throws IOException {
-	MockBugCatcher bc = new MockBugCatcher();
-	MockDialogHandler dh = new MockDialogHandler();
+    private TreeHelper th;
 
-	ArbilTestInjector.injectHandlers(new TestSessionStorage(), bc, dh, null, null);
+    @Before
+    public void inject() throws IOException {
+	MockBugCatcher bc = new MockBugCatcher();
+	ArbilTestInjector.injectBugCatcher(bc);
+	MockDialogHandler dh = new MockDialogHandler();
+	ArbilTestInjector.injectDialogHandler(dh);
+
+	final SessionStorage ss = new TestSessionStorage();
+	ArbilTestInjector.injectSessionStorage(ss);
+
+	th = new AbstractTreeHelper() {
+
+	    @Override
+	    protected SessionStorage getSessionStorage() {
+		return ss;
+	    }
+	};
+	ArbilTestInjector.injectTreeHelper(th);
     }
 
     @Test
     public void testLocationsList() throws Exception {
-	// This will create the treehelper and load locations in the process
-	ArbilTreeHelper th = ArbilTreeHelper.getSingleInstance();
 	assertEquals(0, th.getLocalCorpusNodes().length);
 	th.addLocation(TreeHelperTest.class.getResource("/nl/mpi/arbil/data/testfiles/\u0131md\u0131test.imdi").toURI());
 	for (ArbilDataNode node : th.getLocalCorpusNodes()) {
@@ -48,6 +63,7 @@ public class TreeHelperTest {
     }
 
     private static class TestSessionStorage extends MockSessionStorage {
+
 	@Override
 	public final String[] loadStringArray(String filename) throws IOException {
 	    File currentConfigFile = new File(getStorageDirectory(), filename + ".config");
@@ -80,7 +96,7 @@ public class TreeHelperTest {
 	    File destinationConfigFile = new File(getStorageDirectory(), filename + ".config");
 	    File tempConfigFile = new File(getStorageDirectory(), filename + ".config.tmp");
 
-	    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile),"UTF8"));
+	    BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
 	    for (String currentString : storableValue) {
 		out.write(currentString + "\r\n");
 	    }

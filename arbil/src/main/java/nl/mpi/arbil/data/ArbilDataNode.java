@@ -40,6 +40,7 @@ import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.TreeHelper;
 import org.w3c.dom.Document;
 
 /**
@@ -109,6 +110,11 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static TreeHelper treeHelper;
+
+    public static void setTreeHelper(TreeHelper treeHelperInstance) {
+	treeHelper = treeHelperInstance;
     }
 
     protected ArbilDataNode(URI localUri) {
@@ -553,7 +559,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
 		    URI childURI = dirLinkArray[linkCount].toURI();
 		    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(childURI);
-		    if (ArbilTreeHelper.getSingleInstance().isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
+		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
 			childLinksTemp.add(currentNode);
 		    }
 		} catch (Exception ex) {
