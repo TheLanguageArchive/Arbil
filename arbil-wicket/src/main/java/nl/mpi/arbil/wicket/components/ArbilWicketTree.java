@@ -43,6 +43,4 @@ public class ArbilWicketTree extends Tree {
 	}
 	return state;
     }
-    
-    
 }

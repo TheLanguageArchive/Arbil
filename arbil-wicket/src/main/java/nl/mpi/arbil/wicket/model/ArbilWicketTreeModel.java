@@ -10,7 +10,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
-import nl.mpi.arbil.util.ArbilActionBuffer;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
@@ -26,13 +25,6 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     private List<ArbilDataNode> getRootNodeChildrenList() {
 	return rootNoteChildren.getDataNodes();
     }
-    private transient ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
-
-	@Override
-	protected void executeAction() {
-	    sortDescendentNodes((DefaultMutableTreeNode) getRoot());
-	}
-    };
 
     public ArbilWicketTreeModel(TreeNode root) {
 	super(root, true);
@@ -81,7 +73,15 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 		// check if using an existing node failed and if so then add a new node
 		if (childIndex >= ((DefaultTreeModel) treeModel).getChildCount(currentNode) || !((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, childIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
 		    childDataNodeArray[childIndex].registerContainer(this);
-		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childDataNodeArray[childIndex]);
+		    final ArbilDataNode dataNode = childDataNodeArray[childIndex];
+		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(dataNode){
+
+			@Override
+			public boolean isLeaf() {
+			    return dataNode.getChildCount() <= 0;
+			}
+			
+		    };
 		    ((DefaultTreeModel) treeModel).insertNodeInto(addableNode, currentNode, childIndex);
 		}
 	    }
@@ -97,9 +97,18 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     }
 
     public void requestResort() {
-	// For now, do not do this in separate thread
+	// This used to be done in a separate thread, like so:
+	//	      private transient ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
+	//
+	//		@Override
+	//		protected void executeAction() {
+	//		    sortDescendentNodes((DefaultMutableTreeNode) getRoot());
+	//		}
+	//      };
+	//	sortRunner.requestActionAndNotify();
+	// 
+	// but that will break Wicket. So do it synchronous sorting (and hope that it scales)
 	sortDescendentNodes((DefaultMutableTreeNode) getRoot());
-	//sortRunner.requestActionAndNotify();
     }
 
     /**
@@ -115,7 +124,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
-	requestResort();
+	//requestResort();
     }
 
     /**
@@ -139,10 +148,10 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     }
     private List<TreeNode> expanded = new ArrayList<TreeNode>();
 
-    private synchronized boolean isNodeExpanded(DefaultMutableTreeNode node){
+    private synchronized boolean isNodeExpanded(DefaultMutableTreeNode node) {
 	return expanded.contains(node);
     }
-    
+
     public synchronized void allNodesCollapsed() {
 	expanded.clear();
     }
