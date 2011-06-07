@@ -1,6 +1,7 @@
 package nl.mpi.arbil.data;
 
 import java.awt.Component;
+import java.net.URI;
 import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -126,6 +127,14 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 	} else {
 	    System.out.println("cannot delete from this tree");
 	}
+    }
+    
+    public void addLocationGui(URI addableLocation) {
+	if (!addLocation(addableLocation)) {
+	    // alert the user when the node already exists and cannot be added again
+	    messageDialogHandler.addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
+	}
+	applyRootLocations();
     }
 
     public ArbilTreePanels getArbilTreePanel() {
