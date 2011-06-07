@@ -1,6 +1,5 @@
 package nl.mpi.arbil.wicket;
 
-import java.awt.Component;
 import java.net.URI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -26,10 +25,6 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 
     public boolean addLocation(URI addedLocation) {
 	return getTreeHelper().addLocation(addedLocation);
-    }
-
-    public void addLocationGui(URI addableLocation) {
-	getTreeHelper().addLocationGui(addableLocation);
     }
 
     public void applyRootLocations() {

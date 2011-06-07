@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import org.apache.wicket.model.IDetachable;
 
 /**
  * Base class that keeps a list of URI's and attaches/detaches ArbilDataNodes
@@ -17,7 +18,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
  * @see ArbilDataNode
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class DetachableArbilDataNodeCollector implements Serializable {
+public class DetachableArbilDataNodeCollector implements Serializable, IDetachable {
 
     /**
      * URIs that represent data nodes

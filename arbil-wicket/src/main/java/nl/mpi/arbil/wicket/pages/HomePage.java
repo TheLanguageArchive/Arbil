@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket.pages;
 
 import javax.swing.tree.TreeModel;
 import nl.mpi.arbil.wicket.ArbilWicketSession;
+import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.tree.Tree;
 import org.apache.wicket.markup.html.WebPage;
@@ -24,7 +25,7 @@ public class HomePage extends WebPage {
 //	add(new NodesPanel("testcomponent", new DataNodeDataProvider(DetachableArbilDataNodeCollector.URIsFromNodes(
 //		Arrays.asList(ArbilWicketSession.get().getTreeHelper().getLocalCorpusNodes())))));
 	ArbilWicketSession.get().getTreeHelper().applyRootLocations();
-	TreeModel model = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
-	add(new Tree("testcomponent", model));
+	TreeModel treeModel = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
+	add(new Tree("testcomponent", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(treeModel)));
     }
 }

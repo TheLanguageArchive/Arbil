@@ -1,24 +1,43 @@
 package nl.mpi.arbil.wicket.model;
 
+import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.util.ArbilActionBuffer;
+import org.apache.wicket.model.IDetachable;
+import org.apache.wicket.model.IModel;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataNodeContainer {
-    public ArbilWicketTreeModel(TreeNode root){
+public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataNodeContainer, IDetachable, Serializable {
+
+    private DetachableArbilDataNodeCollector rootNoteChildren;
+
+    private List<ArbilDataNode> getRootNodeChildrenList() {
+	return rootNoteChildren.getDataNodes();
+    }
+    private transient ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
+
+	@Override
+	protected void executeAction() {
+	    sortDescendentNodes((DefaultMutableTreeNode) getRoot());
+	}
+    };
+
+    public ArbilWicketTreeModel(TreeNode root) {
 	super(root, true);
     }
     
-    private ArbilDataNode[] rootNodeChildren;
     
+
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode/*, TreePath[] selectedPaths*/) {
 	// todo: consider returning a list of tree paths for the nodes that are opened and have no open children
 //        if (currentNode.getUserObject() instanceof JLabel) {
@@ -26,8 +45,8 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 //        } else {
 //            System.out.println("currentNode: " + currentNode);
 //        }
-	boolean isExpanded = true;
-	ArbilDataNode[] childDataNodeArray = rootNodeChildren;
+	boolean isExpanded = false;
+	ArbilDataNode[] childDataNodeArray = getRootNodeChildren();
 	if (currentNode instanceof DefaultMutableTreeNode) {
 	    if (currentNode.getUserObject() instanceof ArbilDataNode) {
 		ArbilDataNode curentDataNode = (ArbilDataNode) currentNode.getUserObject();
@@ -40,7 +59,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	Arrays.sort(childDataNodeArray);
 
 	DefaultTreeModel treeModel = this;
-	
+
 	if (!isExpanded) {
 	    currentNode.setAllowsChildren(childDataNodeArray.length > 0);
 	    ((DefaultTreeModel) treeModel).nodeChanged(currentNode);
@@ -102,27 +121,51 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
 	requestResort();
     }
-    ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
-
-	@Override
-	protected void executeAction() {
-	    sortDescendentNodes((DefaultMutableTreeNode)getRoot());
-	}
-    };
 
     /**
      * @return the rootNodeChildren
      */
     public ArbilDataNode[] getRootNodeChildren() {
-	return rootNodeChildren;
+	return getRootNodeChildrenList().toArray(new ArbilDataNode[]{});
     }
 
     /**
      * @param rootNodeChildren the rootNodeChildren to set
      */
     public void setRootNodeChildren(ArbilDataNode[] rootNodeChildren) {
-	this.rootNodeChildren = rootNodeChildren;
+	this.rootNoteChildren = new DetachableArbilDataNodeCollector(rootNodeChildren);
     }
-    
-    
+
+    public void detach() {
+	if (rootNoteChildren != null) {
+	    rootNoteChildren.detach();
+	}
+    }
+
+    public static class DetachableArbilWicketTreeModel implements IModel<TreeModel>, IDetachable {
+
+	private TreeModel treeModel;
+
+	public DetachableArbilWicketTreeModel(TreeModel object) {
+	    treeModel = object;
+	}
+
+	public DetachableArbilWicketTreeModel(TreeNode root) {
+	    treeModel = new ArbilWicketTreeModel(root);
+	}
+
+	public TreeModel getObject() {
+	    return treeModel;
+	}
+
+	public void setObject(TreeModel object) {
+	    treeModel = object;
+	}
+
+	public void detach() {
+	    if (treeModel != null && treeModel instanceof ArbilWicketTreeModel) {
+		((ArbilWicketTreeModel) treeModel).detach();
+	    }
+	}
+    }
 }
