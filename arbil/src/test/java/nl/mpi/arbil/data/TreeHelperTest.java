@@ -41,7 +41,7 @@ public class TreeHelperTest {
 	final SessionStorage ss = new TestSessionStorage();
 	ArbilTestInjector.injectSessionStorage(ss);
 
-	th = new AbstractTreeHelper() {
+	th = new ArbilTreeHelper() {
 
 	    @Override
 	    protected SessionStorage getSessionStorage() {

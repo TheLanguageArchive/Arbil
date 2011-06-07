@@ -11,6 +11,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilJournal;
+import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
@@ -118,6 +119,7 @@ public abstract class ArbilInjector {
 	ArbilTableModel.setMessageDialogHandler(messageDialogHandler);
 	ArbilTemplate.setMessageDialogHandler(messageDialogHandler);
 	ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
+	ArbilTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	ArbilVersionChecker.setMessageDialogHandler(messageDialogHandler);
 	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
 	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);

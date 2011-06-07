@@ -9,7 +9,7 @@
     <target name="setproperties">
         <property file="${user.home}/.ant.properties"/>
         <property name="arbil.current.major" value="2"/>
-        <property name="arbil.current.minor" value="2"/>
+        <property name="arbil.current.minor" value="3"/>
         <property name="arbil.filenameidentifier" value="-pretesting"/>
         <property name="arbil.application-title" value="Arbil (pretesting)"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>

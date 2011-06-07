@@ -4,12 +4,10 @@
  */
 package nl.mpi.arbil.util;
 
-import java.awt.Component;
 import java.net.URI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.ui.ArbilTree;
 
 /**
  *
@@ -24,10 +22,6 @@ public interface TreeHelper {
     void addLocationGui(URI addableLocation);
 
     void applyRootLocations();
-
-    boolean componentIsTheFavouritesTree(Component componentToTest);
-
-    boolean componentIsTheLocalCorpusTree(Component componentToTest);
 
     void deleteNodes(Object sourceObject);
 
@@ -50,8 +44,6 @@ public interface TreeHelper {
      * @return the localCorpusTreeModel
      */
     DefaultTreeModel getLocalCorpusTreeModel();
-
-    DefaultMutableTreeNode getLocalCorpusTreeSingleSelection();
 
     /**
      * @return the localDirectoryTreeModel
