@@ -19,8 +19,6 @@ public interface TreeHelper {
 
     boolean addLocation(URI addedLocation);
 
-    void addLocationGui(URI addableLocation);
-
     void applyRootLocations();
 
     void deleteNodes(Object sourceObject);

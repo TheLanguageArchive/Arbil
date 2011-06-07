@@ -88,8 +88,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	return favouritesTreeModel;
     }
     
-
-
     @Override
     public int addDefaultCorpusLocations() {
 	HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
@@ -221,15 +219,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     @Override
-    public void addLocationGui(URI addableLocation) {
-	if (!addLocation(addableLocation)) {
-	    // alert the user when the node already exists and cannot be added again
-	    messageDialogHandler.addMessageDialogToQueue("The location already exists and cannot be added again", "Add location");
-	}
-	applyRootLocations();
-    }
-
-    @Override
     public boolean addLocation(URI addedLocation) {
 	System.out.println("addLocation: " + addedLocation.toString());
 	// make sure the added location url matches that of the imdi node format
@@ -276,8 +265,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public abstract void applyRootLocations();
-
-    
 
     @Override
     public abstract void deleteNodes(Object sourceObject);
