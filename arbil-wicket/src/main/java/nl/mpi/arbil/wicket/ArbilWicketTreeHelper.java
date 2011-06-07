@@ -1,6 +1,5 @@
 package nl.mpi.arbil.wicket;
 
-import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
@@ -38,13 +37,13 @@ public class ArbilWicketTreeHelper extends AbstractTreeHelper {
 	localCorpusTreeModel.setRootNodeChildren(getLocalCorpusNodes());
 	localCorpusTreeModel.requestResort();
 
-	remoteCorpusTreeModel.setRootNodeChildren(getLocalCorpusNodes());
+	remoteCorpusTreeModel.setRootNodeChildren(getRemoteCorpusNodes());
 	remoteCorpusTreeModel.requestResort();
 
-	localDirectoryTreeModel.setRootNodeChildren(getLocalCorpusNodes());
+	localDirectoryTreeModel.setRootNodeChildren(getLocalFileNodes());
 	localDirectoryTreeModel.requestResort();
 
-	favouritesTreeModel.setRootNodeChildren(getLocalCorpusNodes());
+	favouritesTreeModel.setRootNodeChildren(getFavouriteNodes());
 	favouritesTreeModel.requestResort();
 
     }
@@ -55,5 +54,30 @@ public class ArbilWicketTreeHelper extends AbstractTreeHelper {
 	remoteCorpusTreeModel = new ArbilWicketTreeModel(remoteCorpusRootNode);
 	localDirectoryTreeModel = new ArbilWicketTreeModel(localDirectoryRootNode);
 	favouritesTreeModel = new ArbilWicketTreeModel(favouritesRootNode);
+    }
+
+    @Override
+    public void deleteNodes(Object sourceObject) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public ArbilWicketTreeModel getRemoteCorpusTreeModel() {
+	return remoteCorpusTreeModel;
+    }
+
+    @Override
+    public ArbilWicketTreeModel getLocalCorpusTreeModel() {
+	return localCorpusTreeModel;
+    }
+
+    @Override
+    public ArbilWicketTreeModel getLocalDirectoryTreeModel() {
+	return localDirectoryTreeModel;
+    }
+
+    @Override
+    public ArbilWicketTreeModel getFavouritesTreeModel() {
+	return favouritesTreeModel;
     }
 }

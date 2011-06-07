@@ -36,14 +36,6 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 	getTreeHelper().applyRootLocations();
     }
 
-    public boolean componentIsTheFavouritesTree(Component componentToTest) {
-	return getTreeHelper().componentIsTheFavouritesTree(componentToTest);
-    }
-
-    public boolean componentIsTheLocalCorpusTree(Component componentToTest) {
-	return getTreeHelper().componentIsTheLocalCorpusTree(componentToTest);
-    }
-
     public void deleteNodes(Object sourceObject) {
 	getTreeHelper().deleteNodes(sourceObject);
     }
@@ -62,10 +54,6 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 
     public DefaultTreeModel getLocalCorpusTreeModel() {
 	return getTreeHelper().getLocalCorpusTreeModel();
-    }
-
-    public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
-	return getTreeHelper().getLocalCorpusTreeSingleSelection();
     }
 
     public DefaultTreeModel getLocalDirectoryTreeModel() {

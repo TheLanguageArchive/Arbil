@@ -51,6 +51,6 @@ public class ArbilWicketApplication extends WebApplication {
      * @return New treehelper object
      */
     public TreeHelper newTreeHelper(SessionStorage sessionStorage) {
-	return ArbilTreeHelper.getSingleInstance(); //new ArbilWicketTreeHelper(sessionStorage);
+	return new ArbilWicketTreeHelper(sessionStorage);
     }
 }
