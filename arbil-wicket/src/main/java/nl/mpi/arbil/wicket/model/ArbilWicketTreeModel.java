@@ -1,6 +1,7 @@
 package nl.mpi.arbil.wicket.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -10,6 +11,7 @@ import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.util.ArbilActionBuffer;
+import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
 
@@ -17,7 +19,7 @@ import org.apache.wicket.model.IModel;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataNodeContainer, IDetachable, Serializable {
+public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataNodeContainer, IDetachable, Serializable, ITreeStateListener {
 
     private DetachableArbilDataNodeCollector rootNoteChildren;
 
@@ -35,24 +37,16 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     public ArbilWicketTreeModel(TreeNode root) {
 	super(root, true);
     }
-    
-    
 
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode/*, TreePath[] selectedPaths*/) {
-	// todo: consider returning a list of tree paths for the nodes that are opened and have no open children
-//        if (currentNode.getUserObject() instanceof JLabel) {
-//            System.out.println("currentNode: " + ((JLabel) currentNode.getUserObject()).getText());
-//        } else {
-//            System.out.println("currentNode: " + currentNode);
-//        }
-	boolean isExpanded = false;
+	boolean isExpanded = true;
 	ArbilDataNode[] childDataNodeArray = getRootNodeChildren();
 	if (currentNode instanceof DefaultMutableTreeNode) {
 	    if (currentNode.getUserObject() instanceof ArbilDataNode) {
 		ArbilDataNode curentDataNode = (ArbilDataNode) currentNode.getUserObject();
 		if (curentDataNode != null) {
 		    childDataNodeArray = curentDataNode.getChildArray();
-		    //isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
+		    isExpanded = isNodeExpanded(currentNode);
 		}
 	    }
 	}
@@ -103,7 +97,9 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     }
 
     public void requestResort() {
-	sortRunner.requestActionAndNotify();
+	// For now, do not do this in separate thread
+	sortDescendentNodes((DefaultMutableTreeNode) getRoot());
+	//sortRunner.requestActionAndNotify();
     }
 
     /**
@@ -140,6 +136,38 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	if (rootNoteChildren != null) {
 	    rootNoteChildren.detach();
 	}
+    }
+    private List<TreeNode> expanded = new ArrayList<TreeNode>();
+
+    private synchronized boolean isNodeExpanded(DefaultMutableTreeNode node){
+	return expanded.contains(node);
+    }
+    
+    public synchronized void allNodesCollapsed() {
+	expanded.clear();
+    }
+
+    public synchronized void allNodesExpanded() {
+	// TODO: What to do?
+    }
+
+    public synchronized void nodeCollapsed(Object node) {
+	if (node instanceof TreeNode && expanded.contains((TreeNode) node)) {
+	    expanded.remove((TreeNode) node);
+	}
+    }
+
+    public synchronized void nodeExpanded(Object node) {
+	if (node instanceof TreeNode) {
+	    expanded.add((TreeNode) node);
+	}
+	requestResort();
+    }
+
+    public void nodeSelected(Object node) {
+    }
+
+    public void nodeUnselected(Object node) {
     }
 
     public static class DetachableArbilWicketTreeModel implements IModel<TreeModel>, IDetachable {
