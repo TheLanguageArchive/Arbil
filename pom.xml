@@ -6,9 +6,15 @@
     <groupId>nl.mpi</groupId>
     <artifactId>arbil</artifactId>
     <packaging>jar</packaging>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.3-SNAPSHOT</version>
     <name>Arbil</name>
-    <url>http://maven.apache.org</url>
+    <organization> 
+	<name>The Language Archive</name> 
+	<url>http://www.lat-mpi.eu/</url>
+    </organization>
+    <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <build>
 	<plugins>
 <!--            <plugin> this plugin seems not to be properly supported
@@ -76,6 +82,7 @@
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-jar-plugin</artifactId>
+		<version>2.3.1</version>
 		<configuration>
 		    <archive>
 			<manifest>
@@ -125,41 +132,41 @@
 	    <version>4.6</version>
 	    <scope>test</scope>
 	</dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon</artifactId>
-            <version>8.7</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon-dom</artifactId>
-            <version>8.7</version>
-        </dependency>
+	<dependency>
+	    <groupId>net.sf.saxon</groupId>
+	    <artifactId>saxon</artifactId>
+	    <version>8.7</version>
+	</dependency>
+	<dependency>
+	    <groupId>net.sf.saxon</groupId>
+	    <artifactId>saxon-dom</artifactId>
+	    <version>8.7</version>
+	</dependency>
 	<dependency>
 	    <groupId>xerces</groupId>
 	    <artifactId>xercesImpl</artifactId>
 	    <version>2.9.0</version>
 	</dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>nl.mpi</groupId>
-            <artifactId>corpusstructure</artifactId>
-            <version>1.6.5.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-            <version>2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-        </dependency>
+	<dependency>
+	    <groupId>xalan</groupId>
+	    <artifactId>xalan</artifactId>
+	    <version>2.6.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>nl.mpi</groupId>
+	    <artifactId>corpusstructure</artifactId>
+	    <version>1.6.5.4</version>
+	</dependency>
+	<dependency>
+	    <groupId>commons-digester</groupId>
+	    <artifactId>commons-digester</artifactId>
+	    <version>2.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>log4j</groupId>
+	    <artifactId>log4j</artifactId>
+	    <version>1.2.16</version>
+	</dependency>
     </dependencies>
     <repositories>
 	<repository>

@@ -1,7 +1,6 @@
 package nl.mpi.arbil.data;
 
 import nl.mpi.arbil.util.TreeHelper;
-import java.awt.Component;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,13 +11,10 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
-import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ArbilIcons;
-import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -38,7 +34,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     protected DefaultMutableTreeNode remoteCorpusRootNode;
     protected DefaultMutableTreeNode localDirectoryRootNode;
     protected DefaultMutableTreeNode favouritesRootNode;
-    private ArbilTreePanels arbilTreePanel;
     private ArbilDataNode[] remoteCorpusNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] localFileNodes = new ArbilDataNode[]{};
@@ -92,27 +87,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
 	return favouritesTreeModel;
     }
+    
 
-    @Override
-    public boolean componentIsTheLocalCorpusTree(Component componentToTest) {
-	return componentToTest.equals(arbilTreePanel.localCorpusTree);
-	//return localCorpusTree.getName().equals(componentToTest.getName());
-    }
-
-    @Override
-    public boolean componentIsTheFavouritesTree(Component componentToTest) {
-	return componentToTest.equals(arbilTreePanel.favouritesTree);
-    }
-
-    public void setTrees(ArbilTreePanels arbilTreePanelLocal) {
-	arbilTreePanel = arbilTreePanelLocal;
-	arbilTreePanel.remoteCorpusTree.setName("RemoteCorpusTree");
-	arbilTreePanel.localCorpusTree.setName("LocalCorpusTree");
-	arbilTreePanel.localDirectoryTree.setName("LocalDirectoryTree");
-	arbilTreePanel.favouritesTree.setName("FavouritesTree");
-
-	applyRootLocations();
-    }
 
     @Override
     public int addDefaultCorpusLocations() {
@@ -299,69 +275,14 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     @Override
-    public void applyRootLocations() {
-	System.out.println("applyRootLocations");
-	arbilTreePanel.localCorpusTree.rootNodeChildren = localCorpusNodes;
-	arbilTreePanel.remoteCorpusTree.rootNodeChildren = remoteCorpusNodes;
-	arbilTreePanel.localDirectoryTree.rootNodeChildren = localFileNodes;
-	arbilTreePanel.favouritesTree.rootNodeChildren = favouriteNodes;
-	arbilTreePanel.localCorpusTree.requestResort();
-	arbilTreePanel.remoteCorpusTree.requestResort();
-	arbilTreePanel.localDirectoryTree.requestResort();
-	arbilTreePanel.favouritesTree.requestResort();
-    }
+    public abstract void applyRootLocations();
+
+    
 
     @Override
-    public DefaultMutableTreeNode getLocalCorpusTreeSingleSelection() {
-	System.out.println("localCorpusTree: " + arbilTreePanel.localCorpusTree);
-	return (DefaultMutableTreeNode) arbilTreePanel.localCorpusTree.getSelectionPath().getLastPathComponent();
-    }
+    public abstract void deleteNodes(Object sourceObject);
 
-    @Override
-    public void deleteNodes(Object sourceObject) {
-	System.out.println("deleteNode: " + sourceObject);
-	if (sourceObject == arbilTreePanel.localCorpusTree || sourceObject == arbilTreePanel.favouritesTree) {
-	    TreePath currentNodePaths[] = ((ArbilTree) sourceObject).getSelectionPaths();
-	    int toDeleteCount = 0;
-	    // count the number of nodes to delete
-	    String nameOfFirst = null;
-	    for (TreePath currentNodePath : currentNodePaths) {
-		if (currentNodePath != null) {
-		    DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
-		    Object userObject = selectedTreeNode.getUserObject();
-		    if (userObject instanceof ArbilDataNode) {
-			if (((ArbilDataNode) userObject).fileNotFound) {
-			    toDeleteCount++;
-			} else if (((ArbilDataNode) userObject).isEmptyMetaNode()) {
-			    toDeleteCount += ((ArbilDataNode) userObject).getChildCount();
-			} else {
-			    toDeleteCount++;
-			}
-			if (nameOfFirst == null) {
-			    nameOfFirst = ((ArbilDataNode) userObject).toString();
-			}
-		    }
-		}
-	    }
-	    if (JOptionPane.OK_OPTION == messageDialogHandler.showDialogBox(
-		    "Delete " + (toDeleteCount == 1 ? "the node \"" + nameOfFirst + "\"?" : toDeleteCount + " nodes?")
-		    + " This will also save any pending changes to disk.", "Delete",
-		    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-		// make lists of nodes to delete
-		Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
-		Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();
-		determineNodesToDelete(currentNodePaths, childNodeDeleteList, dataNodesDeleteList);
-		// delete child nodes
-		deleteNodesByChidXmlIdLink(childNodeDeleteList);
-		// delete parent nodes
-		deleteNodesByCorpusLink(dataNodesDeleteList);
-	    }
-	} else {
-	    System.out.println("cannot delete from this tree");
-	}
-    }
-
-    private void determineNodesToDelete(TreePath[] nodePaths, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+    protected void determineNodesToDelete(TreePath[] nodePaths, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
 	Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
 	for (TreePath currentNodePath : nodePaths) {
 	    if (currentNodePath != null) {
@@ -415,7 +336,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
     }
 
-    private void deleteNodesByChidXmlIdLink(Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList) {
+    protected void deleteNodesByChidXmlIdLink(Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList) {
 	for (ArbilDataNode currentParent : childNodeDeleteList.keySet()) {
 	    System.out.println("deleting by child xml id link");
 	    // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
@@ -431,7 +352,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
     }
 
-    private void deleteNodesByCorpusLink(Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+    protected void deleteNodesByCorpusLink(Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
 	for (ArbilDataNode currentParent : dataNodesDeleteList.keySet()) {
 	    System.out.println("deleting by corpus link");
 	    currentParent.deleteCorpusLink(((Vector<ArbilDataNode>) dataNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{}));
@@ -510,13 +431,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public DefaultTreeModel getFavouritesTreeModel() {
 	return favouritesTreeModel;
-    }
-
-    /**
-     * @return the arbilTreePanel
-     */
-    public ArbilTreePanels getArbilTreePanel() {
-	return arbilTreePanel;
     }
 
     /**
