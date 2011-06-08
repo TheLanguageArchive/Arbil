@@ -11,7 +11,7 @@ import org.apache.wicket.model.IModel;
  * Provider for ArbilDataNodes
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class DataNodeDataProvider extends DetachableArbilDataNodeCollector implements IDataProvider<ArbilDataNode> {
+public class DataNodeDataProvider extends DetachableArbilDataNodeCollection implements IDataProvider<ArbilDataNode> {
 
     public DataNodeDataProvider(List<URI> uris) {
 	super(uris);
@@ -19,10 +19,6 @@ public class DataNodeDataProvider extends DetachableArbilDataNodeCollector imple
 
     public Iterator<? extends ArbilDataNode> iterator(int first, int count) {
 	return getDataNodes().subList(first, count).listIterator();
-    }
-
-    public int size() {
-	return getURIs().size();
     }
 
     public IModel<ArbilDataNode> model(final ArbilDataNode object) {

@@ -6,6 +6,8 @@ import com.google.common.collect.Lists;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
@@ -18,7 +20,7 @@ import org.apache.wicket.model.IDetachable;
  * @see ArbilDataNode
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class DetachableArbilDataNodeCollector implements Serializable, IDetachable {
+public class DetachableArbilDataNodeCollection implements Serializable, IDetachable, Collection<ArbilDataNode> {
 
     /**
      * URIs that represent data nodes
@@ -29,11 +31,11 @@ public class DetachableArbilDataNodeCollector implements Serializable, IDetachab
      */
     private transient List<ArbilDataNode> dataNodes;
 
-    public DetachableArbilDataNodeCollector(List<URI> uris) {
+    public DetachableArbilDataNodeCollection(List<URI> uris) {
 	this.URIs = uris;
     }
 
-    public DetachableArbilDataNodeCollector(ArbilDataNode[] dataNodes) {
+    public DetachableArbilDataNodeCollection(ArbilDataNode[] dataNodes) {
 	this.dataNodes = Arrays.asList(dataNodes);
 	URIs = URIsFromNodes(this.dataNodes);
     }
@@ -62,7 +64,7 @@ public class DetachableArbilDataNodeCollector implements Serializable, IDetachab
 	    }
 	}));
     }
-    
+
     /**
      * @return the URIs
      */
@@ -78,5 +80,81 @@ public class DetachableArbilDataNodeCollector implements Serializable, IDetachab
 	    dataNodes = nodesFromURIs(URIs);
 	}
 	return dataNodes;
+    }
+
+    public int size() {
+	return getURIs().size();
+    }
+
+    public boolean isEmpty() {
+	return getURIs().isEmpty();
+    }
+
+    public boolean contains(Object o) {
+	if (o instanceof ArbilDataNode) {
+	    return getURIs().contains(((ArbilDataNode) o).getURI());
+	} else if (o instanceof URI) {
+	    return getURIs().contains((URI) o);
+	} else {
+	    return false;
+	}
+    }
+
+    public Iterator<ArbilDataNode> iterator() {
+	return getDataNodes().iterator();
+    }
+
+    public Object[] toArray() {
+	return getDataNodes().toArray();
+    }
+
+    public <T> T[] toArray(T[] a) {
+	return getDataNodes().toArray(a);
+    }
+
+    public boolean add(ArbilDataNode e) {
+	if (getURIs().add(e.getURI())) {
+	    // Invalidate dataNodes
+	    detach();
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
+    public boolean remove(Object o) {
+	boolean result = false;
+	if (o instanceof ArbilDataNode) {
+	    result = getURIs().remove(((ArbilDataNode) o).getURI());
+	} else if (o instanceof URI) {
+	    result = getURIs().remove((URI) o);
+	}
+	if (result) {
+	    // Invalidate dataNodes
+	    detach();
+	}
+	return result;
+    }
+
+    public boolean containsAll(Collection<?> c) {
+	return getDataNodes().containsAll(c);
+    }
+
+    public boolean addAll(Collection<? extends ArbilDataNode> c) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean removeAll(Collection<?> c) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean retainAll(Collection<?> c) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void clear() {
+	URIs.clear();
+	// Invalidate dataNodes
+	detach();
     }
 }

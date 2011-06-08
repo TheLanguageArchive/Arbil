@@ -22,7 +22,7 @@ import org.apache.wicket.model.IModel;
  */
 public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataNodeContainer, IDetachable, Serializable, ITreeStateListener {
 
-    private DetachableArbilDataNodeCollector rootNoteChildren;
+    private DetachableArbilDataNodeCollection rootNoteChildren;
 
     private List<ArbilDataNode> getRootNodeChildrenList() {
 	return rootNoteChildren.getDataNodes();
@@ -50,7 +50,8 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 
 	if (!isExpanded) {
 	    currentNode.setAllowsChildren(childDataNodeArray.length > 0);
-	    ((DefaultTreeModel) treeModel).nodeChanged(currentNode);
+	    // Don't signal node changed as this wicket tree will choke
+	    //((DefaultTreeModel) treeModel).nodeChanged(currentNode);
 	} else {
 	    if (childDataNodeArray.length > 0) {
 		// never disable allows children when there are child nodes!
@@ -92,6 +93,10 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     }
 
     public void requestResort() {
+	requestResort((DefaultMutableTreeNode) getRoot());
+    }
+
+    public void requestResort(DefaultMutableTreeNode node) {
 	// This used to be done in a separate thread, like so:
 	//	      private transient ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
 	//
@@ -103,7 +108,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	//	sortRunner.requestActionAndNotify();
 	// 
 	// but that will break Wicket. So do it synchronous sorting (and hope that it scales)
-	sortDescendentNodes((DefaultMutableTreeNode) getRoot());
+	sortDescendentNodes(node);
     }
 
     /**
@@ -133,7 +138,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
      * @param rootNodeChildren the rootNodeChildren to set
      */
     public void setRootNodeChildren(ArbilDataNode[] rootNodeChildren) {
-	this.rootNoteChildren = new DetachableArbilDataNodeCollector(rootNodeChildren);
+	this.rootNoteChildren = new DetachableArbilDataNodeCollection(rootNodeChildren);
     }
 
     public void detach() {
@@ -155,18 +160,18 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	    }
 	}
     }
-    private DetachableArbilDataNodeCollector expandedNodes = new DetachableArbilDataNodeCollector(new ArrayList<URI>());
+    private DetachableArbilDataNodeCollection expandedNodes = new DetachableArbilDataNodeCollection(new ArrayList<URI>());
 
     private synchronized boolean isNodeExpanded(DefaultMutableTreeNode node) {
 	if (node.getUserObject() instanceof ArbilDataNode) {
-	    return expandedNodes.getURIs().contains(((ArbilDataNode) node.getUserObject()).getURI());
+	    return expandedNodes.contains((ArbilDataNode) node.getUserObject());
 	} else {
 	    return false;
 	}
     }
 
     public synchronized void allNodesCollapsed() {
-	expandedNodes.getURIs().clear();
+	expandedNodes.clear();
     }
 
     public synchronized void allNodesExpanded() {
@@ -177,7 +182,10 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	if (node instanceof DefaultMutableTreeNode) {
 	    Object userObject = (((DefaultMutableTreeNode) node).getUserObject());
 	    if (userObject instanceof ArbilDataNode) {
-		expandedNodes.getURIs().remove(((ArbilDataNode) userObject).getURI());
+		expandedNodes.remove(((ArbilDataNode) userObject));
+	    }
+	    if (node instanceof ArbilWicketTreeNode) {
+		((ArbilWicketTreeNode) node).detach();
 	    }
 	}
     }
@@ -186,10 +194,12 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	if (node instanceof DefaultMutableTreeNode) {
 	    Object userObject = (((DefaultMutableTreeNode) node).getUserObject());
 	    if (userObject instanceof ArbilDataNode) {
-		expandedNodes.getURIs().add(((ArbilDataNode) userObject).getURI());
+		expandedNodes.add(((ArbilDataNode) userObject));
 	    }
+	    requestResort(((DefaultMutableTreeNode) node));
+	} else {
+	    requestResort(((DefaultMutableTreeNode) getRoot()));
 	}
-	requestResort();
     }
 
     public void nodeSelected(Object node) {
