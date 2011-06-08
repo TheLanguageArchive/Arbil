@@ -2,7 +2,6 @@ package nl.mpi.arbil.wicket.model;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Enumeration;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
@@ -16,9 +15,9 @@ public class ArbilWicketTreeNode extends DefaultMutableTreeNode implements IDeta
 
     private URI uri;
     private transient ArbilDataNode dataNode;
-
+    
     public ArbilWicketTreeNode(ArbilDataNode dataNode) {
-	this.dataNode = dataNode;
+    this.dataNode = dataNode;
 	this.uri = dataNode.getURI();
 	setUserObject(dataNode);
     }
