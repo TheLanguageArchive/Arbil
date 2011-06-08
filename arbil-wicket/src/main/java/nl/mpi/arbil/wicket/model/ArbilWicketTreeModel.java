@@ -1,8 +1,10 @@
 package nl.mpi.arbil.wicket.model;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -74,14 +76,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 		if (childIndex >= ((DefaultTreeModel) treeModel).getChildCount(currentNode) || !((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, childIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
 		    childDataNodeArray[childIndex].registerContainer(this);
 		    final ArbilDataNode dataNode = childDataNodeArray[childIndex];
-		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(dataNode){
-
-			@Override
-			public boolean isLeaf() {
-			    return dataNode.getChildCount() <= 0;
-			}
-			
-		    };
+		    DefaultMutableTreeNode addableNode = new ArbilWicketTreeNode(dataNode);
 		    ((DefaultTreeModel) treeModel).insertNodeInto(addableNode, currentNode, childIndex);
 		}
 	    }
@@ -145,15 +140,33 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	if (rootNoteChildren != null) {
 	    rootNoteChildren.detach();
 	}
+	detachChildren((DefaultMutableTreeNode) getRoot());
     }
-    private List<TreeNode> expanded = new ArrayList<TreeNode>();
+
+    private void detachChildren(TreeNode node) {
+	Enumeration children = node.children();
+	while (children.hasMoreElements()) {
+	    Object child = children.nextElement();
+	    if (child instanceof TreeNode) {
+		detachChildren((TreeNode) child);
+	    }
+	    if (child instanceof ArbilWicketTreeNode) {
+		((ArbilWicketTreeNode) child).detach();
+	    }
+	}
+    }
+    private DetachableArbilDataNodeCollector expandedNodes = new DetachableArbilDataNodeCollector(new ArrayList<URI>());
 
     private synchronized boolean isNodeExpanded(DefaultMutableTreeNode node) {
-	return expanded.contains(node);
+	if (node.getUserObject() instanceof ArbilDataNode) {
+	    return expandedNodes.getURIs().contains(((ArbilDataNode) node.getUserObject()).getURI());
+	} else {
+	    return false;
+	}
     }
 
     public synchronized void allNodesCollapsed() {
-	expanded.clear();
+	expandedNodes.getURIs().clear();
     }
 
     public synchronized void allNodesExpanded() {
@@ -161,14 +174,20 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
     }
 
     public synchronized void nodeCollapsed(Object node) {
-	if (node instanceof TreeNode && expanded.contains((TreeNode) node)) {
-	    expanded.remove((TreeNode) node);
+	if (node instanceof DefaultMutableTreeNode) {
+	    Object userObject = (((DefaultMutableTreeNode) node).getUserObject());
+	    if (userObject instanceof ArbilDataNode) {
+		expandedNodes.getURIs().remove(((ArbilDataNode) userObject).getURI());
+	    }
 	}
     }
 
     public synchronized void nodeExpanded(Object node) {
-	if (node instanceof TreeNode) {
-	    expanded.add((TreeNode) node);
+	if (node instanceof DefaultMutableTreeNode) {
+	    Object userObject = (((DefaultMutableTreeNode) node).getUserObject());
+	    if (userObject instanceof ArbilDataNode) {
+		expandedNodes.getURIs().add(((ArbilDataNode) userObject).getURI());
+	    }
 	}
 	requestResort();
     }
