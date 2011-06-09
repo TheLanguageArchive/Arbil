@@ -1,12 +1,11 @@
 package nl.mpi.arbil.wicket.components;
 
-import java.util.Iterator;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeContainer;
-import nl.mpi.arbil.wicket.model.DataNodeDataProvider;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import nl.mpi.arbil.ui.AbstractArbilTableModel;
+import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.wicketstuff.push.AbstractPushEventHandler;
 import org.wicketstuff.push.IPushEventContext;
 import org.wicketstuff.push.IPushEventHandler;
@@ -18,52 +17,47 @@ import org.wicketstuff.push.timer.TimerPushService;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilWicketTablePanel extends Panel implements ArbilDataNodeContainer {
+public class ArbilWicketTablePanel extends Panel implements TableModelListener {
 
     private transient IPushEventHandler handler;
     private transient IPushService pushService;
-    private transient IPushNode<ArbilDataNode> pushNode;
+    private transient IPushNode<AbstractArbilTableModel> pushNode;
     private ArbilWicketDataTable table;
+    private ArbilWicketTableModel tableModel;
 
-    public ArbilWicketTablePanel(String id, IDataProvider<ArbilDataNode> dataNodes) {
+    public ArbilWicketTablePanel(String id, ArbilWicketTableModel model) {
 	super(id);
-	table = new ArbilWicketDataTable("datatable", dataNodes);
+	this.tableModel = model;
+	model.addTableModelListener(this);
+
+	table = new ArbilWicketDataTable("datatable", model);
 	add(table);
 	table.setOutputMarkupId(true);
 
 	/**
 	 * Push handler
 	 */
-	handler = new AbstractPushEventHandler<ArbilDataNode>() {
+	handler = new AbstractPushEventHandler<AbstractArbilTableModel>() {
 
 	    /**
 	     * DataNode event (could be made more specific)
 	     */
-	    public void onEvent(AjaxRequestTarget target, ArbilDataNode event, IPushNode node, IPushEventContext ctx) {
-		target.addComponent(table);
+	    public void onEvent(AjaxRequestTarget target, AbstractArbilTableModel event, IPushNode node, IPushEventContext ctx) {
+		if (target != null) {
+		    target.addComponent(table);
+		}
 	    }
 	};
 
 	pushService = TimerPushService.get();
 	pushNode = pushService.installNode(this, handler);
-	for (Iterator<? extends ArbilDataNode> it = dataNodes.iterator(0, dataNodes.size()); it.hasNext();) {
-	    it.next().registerContainer(this);
-	}
     }
 
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void tableChanged(TableModelEvent e) {
 	if (pushService.isConnected(pushNode)) {
-	    pushService.publish(pushNode, dataNode);
+	    pushService.publish(pushNode, tableModel);
 	} else {
-	    dataNode.removeContainer(this);
-	}
-    }
-
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
-	if (pushService.isConnected(pushNode)) {
-	    pushService.publish(pushNode, dataNode);
-	} else {
-	    dataNode.removeContainer(this);
+	    tableModel.removeTableModelListener(this);
 	}
     }
 }
