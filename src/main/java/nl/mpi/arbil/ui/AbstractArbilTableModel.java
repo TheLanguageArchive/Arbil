@@ -20,11 +20,11 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public abstract class AbstractArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer {
 
-    protected ArbilFieldView tableFieldView;
-    protected String[] singleNodeViewHeadings = new String[]{"Field Name", "Value"};
+    protected final static String[] SINGLE_NODE_VIEW_HEADINGS = new String[]{"Field Name", "Value"};
     private boolean showIcons = false;
     private boolean sortReverse = false;
     private HashMap<String, ArbilField> filteredColumnNames = new HashMap<String, ArbilField>();
+    private ArbilFieldView tableFieldView;
     private Vector childColumnNames = new Vector();
     private boolean horizontalView = false;
     private int sortColumn = -1;
@@ -33,7 +33,11 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private String[] columnNames = new String[0];
     private Color cellColour[][] = new Color[0][0];
     // Handlers to be injected
-    protected static BugCatcher bugCatcher;
+    private static BugCatcher bugCatcher;
+
+    protected static BugCatcher getBugCatcher() {
+	return bugCatcher;
+    }
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
@@ -204,10 +208,6 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      */
     protected abstract Hashtable<String, ArbilDataNode> getDataNodeHash();
 
-    public ArbilFieldView getFieldView() {
-	return tableFieldView;
-    }
-
     public Vector getMatchingRows(int sampleRowNumber) {
 	System.out.println("MatchingRows for: " + sampleRowNumber);
 	Vector matchedRows = new Vector();
@@ -255,13 +255,13 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	// TODO: hide column
 	System.out.println("hideColumn: " + getColumnName(columnIndex));
 	if (!childColumnNames.remove(getColumnName(columnIndex))) {
-	    tableFieldView.addHiddenColumn(getColumnName(columnIndex));
+	    getFieldView().addHiddenColumn(getColumnName(columnIndex));
 	}
 	requestReloadTableData();
     }
 
     protected abstract String getRenderedText(Object data);
-    
+
     public void highlightMatchingCells(int row, int col) {
 	getHighlightCells().add(getRenderedText(getData()[row][col]));
 	cellColour = setCellColours(getData());
@@ -332,7 +332,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void showOnlyCurrentColumns() {
-	tableFieldView.setShowOnlyColumns(getColumnNames());
+	getFieldView().setShowOnlyColumns(getColumnNames());
     }
 
     //    @Override
@@ -375,7 +375,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
     public void setCurrentView(ArbilFieldView localFieldView) {
 	ArbilFieldView tempFieldView = localFieldView.clone();
-	for (Enumeration oldKnowenColoumns = tableFieldView.getKnownColumns(); oldKnowenColoumns.hasMoreElements();) {
+	for (Enumeration oldKnowenColoumns = getFieldView().getKnownColumns(); oldKnowenColoumns.hasMoreElements();) {
 	    tempFieldView.addKnownColumn(oldKnowenColoumns.nextElement().toString());
 	}
 	tableFieldView = tempFieldView;
@@ -433,7 +433,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    for (ArbilField[] currentFieldArray : currentRowNode.getFields().values().toArray(new ArbilField[][]{})) {
 		for (ArbilField currentField : currentFieldArray) {
 		    String currentColumnName = currentField.getTranslateFieldName();
-		    if (tableFieldView.viewShowsColumn(currentColumnName)) {
+		    if (getFieldView().viewShowsColumn(currentColumnName)) {
 			if (!filteredColumnNames.containsKey(currentColumnName)) {
 			    filteredColumnNames.put(currentColumnName, currentField);
 			} else {
@@ -448,7 +448,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		    } else {
 			hiddenColumnCount++;
 		    }
-		    tableFieldView.addKnownColumn(currentColumnName);
+		    getFieldView().addKnownColumn(currentColumnName);
 		}
 	    }
 	}
@@ -567,7 +567,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    //            }
 	} else {
 	    // display the single node view
-	    columnNamesTemp = singleNodeViewHeadings;
+	    columnNamesTemp = SINGLE_NODE_VIEW_HEADINGS;
 	    if (tableRowsArbilArray.length == 0) {
 		newData = allocateCellData(0, columnNamesTemp.length);
 	    } else {
@@ -580,7 +580,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 			for (ArbilField currentField : currentFieldArray) {
 			    if (currentField.xmlPath.length() > 0) {
 				// prevent non fields being displayed
-				if (tableFieldView.viewShowsColumn(currentField.getTranslateFieldName())) {
+				if (getFieldView().viewShowsColumn(currentField.getTranslateFieldName())) {
 				    allRowFields.add(currentField);
 				}
 			    }
@@ -612,7 +612,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    try {
 		fireTableStructureChanged();
 	    } catch (Exception ex) {
-		bugCatcher.logError(ex);
+		getBugCatcher().logError(ex);
 	    }
 	} else {
 	    for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
@@ -716,6 +716,13 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	return showIcons;
     }
 
+    /**
+     * @return the table's FieldView
+     */
+    public ArbilFieldView getFieldView() {
+	return tableFieldView;
+    }
+
 //    private class TableRowComparator implements Comparator<ImdiField[]> {
     private class TableRowComparator implements Comparator {
 
@@ -732,7 +739,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	public int compare(Object firstRowArray, Object secondRowArray) {
 	    if (sortColumn >= 0) {
 		// (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
-		String baseValueA =  getRenderedText(((Object[]) firstRowArray)[sortColumn]);
+		String baseValueA = getRenderedText(((Object[]) firstRowArray)[sortColumn]);
 		String comparedValueA = getRenderedText(((Object[]) secondRowArray)[sortColumn]);
 		// TODO: add the second or more sort column
 //            if (!(baseValueA.equals(comparedValueA))) {
@@ -762,7 +769,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 //                        return 0;
 //                    }
 		} catch (Exception ex) {
-		    bugCatcher.logError(ex);
+		    getBugCatcher().logError(ex);
 		    return 1;
 		}
 	    }
