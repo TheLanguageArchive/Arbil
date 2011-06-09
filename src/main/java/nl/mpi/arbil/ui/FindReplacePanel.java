@@ -90,7 +90,7 @@ public class FindReplacePanel extends JPanel implements ActionListener, FocusLis
 
         if (actionEvent.getSource().equals(replaceButton)) {
             for (ArbilField currentField : splitPanel.arbilTable.getSelectedFields()) {
-                if (currentField.parentDataNode.isEditable() && currentField.getFieldValue().contains(searchString)) {
+                if (currentField.getParentDataNode().isEditable() && currentField.getFieldValue().contains(searchString)) {
                     String currentFieldString = currentField.getFieldValue();
                     if (currentFieldString.contains(searchString)) {
                         currentFieldString = currentFieldString.replace(searchString, replaceString);

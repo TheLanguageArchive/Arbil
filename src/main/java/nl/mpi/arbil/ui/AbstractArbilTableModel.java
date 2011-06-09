@@ -406,11 +406,11 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	if (getData()[rowNumber][0] instanceof ArbilDataNode) {
 	    return (ArbilDataNode) getData()[rowNumber][0];
 	} else if (getData()[rowNumber][0] instanceof ArbilField[]) {
-	    return ((ArbilField[]) getData()[rowNumber][getColumnNames().length - 1])[0].parentDataNode;
+	    return ((ArbilField[]) getData()[rowNumber][getColumnNames().length - 1])[0].getParentDataNode();
 	} else {
 	    // in the case that the icon and sting are not displayed then try to get the imdifield in order to get the imdinode
 	    // TODO: this will fail if the imdiobject for the row does not have a field to display for the first column because there will be no imdi nor field in the first coloumn
-	    return ((ArbilField) getData()[rowNumber][getColumnNames().length - 1]).parentDataNode;
+	    return ((ArbilField) getData()[rowNumber][getColumnNames().length - 1]).getParentDataNode();
 	    //throw new UnsupportedOperationException("Not supported yet.");
 	}
     }

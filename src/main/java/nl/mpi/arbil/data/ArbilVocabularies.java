@@ -120,21 +120,21 @@ public class ArbilVocabularies {
 		boolean foundTrigger = false;
 //            System.out.println("vocabularyLocation: " + vocabularyLocation);
 //            System.out.println("Field: " + originatingImdiField.getFullXmlPath());
-		for (String[] currentTrigger : originatingArbilField.parentDataNode.getNodeTemplate().fieldTriggersArray) {
+		for (String[] currentTrigger : originatingArbilField.getParentDataNode().getNodeTemplate().fieldTriggersArray) {
 		    if (fieldPath.equals(currentTrigger[0])) {
 			foundTrigger = true;
 		    }
 		}
 		if (!foundTrigger) {
 		    if (!fieldPath.equals(".METATRANSCRIPT.Session.Resources.LexiconResource(x).MetaLanguages.Language")) {
-			bugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.parentDataNode.getUrlString()));
+			bugCatcher.logError(new Exception("Missing Field Trigger for: " + fieldPath + " in " + originatingArbilField.getParentDataNode().getUrlString()));
 		    }
 		}
 	    }
 	    ///////////////////////////////
 	    // look for genre / sub genre redirects in the template
 	    String vocabularyRedirectField = null;
-	    for (String[] currentRedirect : originatingArbilField.parentDataNode.getNodeTemplate().genreSubgenreArray) {
+	    for (String[] currentRedirect : originatingArbilField.getParentDataNode().getNodeTemplate().genreSubgenreArray) {
 		if (fieldPath.equals(currentRedirect[0])) {
 		    vocabularyRedirectField = currentRedirect[1];
 		}

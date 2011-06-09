@@ -83,7 +83,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     public void showEditor(ArbilField[] cellValueLocal, String currentEditorText, int selectedFieldLocal) {
         selectedField = selectedFieldLocal;
         arbilFields = cellValueLocal;
-        parentArbilDataNode = arbilFields[0].parentDataNode;
+        parentArbilDataNode = arbilFields[0].getParentDataNode();
         // todo: registerContainer should not be done on the parent node and the remove should scan all child nodes also, such that deleting a child like and actor would remove the correct nodes
         parentArbilDataNode.registerContainer(this);
         fieldName = arbilFields[0].getTranslateFieldName();
@@ -363,7 +363,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private void checkSaveCellField(int cellFieldIndex) {
         final ArbilField cellField = (ArbilField) arbilFields[cellFieldIndex];
-        if (cellField.parentDataNode.getParentDomNode().isEditable()) {
+        if (cellField.getParentDataNode().getParentDomNode().isEditable()) {
             if (fieldEditors[cellFieldIndex] instanceof JTextArea) {
                 cellField.setFieldValue(((JTextArea) fieldEditors[cellFieldIndex]).getText(), true, false);
             } else if (fieldEditors[cellFieldIndex] instanceof ControlledVocabularyComboBox) {
@@ -382,7 +382,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
         final ArbilField cellField = (ArbilField) arbilFields[cellFieldIndex];
         if (!keyEditorFields[cellFieldIndex].getText().equals(arbilFields[cellFieldIndex].getKeyName())) {
             // Changing the key will save to disk. Warn user
-            if (ArbilWindowManager.getSingleInstance().askUserToSaveChanges(arbilFields[cellFieldIndex].parentDataNode.getParentDomNode().toString())) {
+            if (ArbilWindowManager.getSingleInstance().askUserToSaveChanges(arbilFields[cellFieldIndex].getParentDataNode().getParentDomNode().toString())) {
                 // Remember index of current field
                 int index = parentFieldList.indexOf(arbilFields);
                 // Let field apply new name if necessary (true,false = Request update UI, don't exclude from undo history)
