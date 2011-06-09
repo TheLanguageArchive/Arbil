@@ -291,7 +291,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	for (Enumeration removableNodes = getDataNodeHash().elements(); removableNodes.hasMoreElements();) {
 	    ((ArbilDataNode) removableNodes.nextElement()).removeContainer(this);
 	}
-	getDataNodeHash().clear();
+	clearDataNodeHash();
 	filteredColumnNames.clear();
 	columnNames = new String[0];
 	setData(new Object[0][0]);
@@ -299,6 +299,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	// add the icon column if icons are to be displayed
 	setShowIcons(isShowIcons());
 	requestReloadTableData();
+    }
+
+    protected void clearDataNodeHash() {
+	getDataNodeHash().clear();
     }
 
     public void removeArbilDataNodeRows(int[] selectedRows) {
@@ -320,9 +324,17 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	requestReloadTableData();
     }
 
+    protected void putInDataNodeHash(ArbilDataNode arbilDataNode) {
+	getDataNodeHash().put(arbilDataNode.getUrlString(), arbilDataNode);
+    }
+
     protected void removeArbilDataNode(ArbilDataNode arbilDataNode) {
-	getDataNodeHash().remove(arbilDataNode.getUrlString());
+	removeFromDataNodeHash(arbilDataNode);
 	arbilDataNode.removeContainer(this);
+    }
+
+    protected void removeFromDataNodeHash(ArbilDataNode arbilDataNode) {
+	getDataNodeHash().remove(arbilDataNode.getUrlString());
     }
 
     public abstract void requestReloadTableData();
@@ -390,11 +402,11 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		// add child nodes if it is a directory
 		// this is non recursive and does not reload the table
 		for (ArbilDataNode currentChild : arbilDataNode.getChildArray()) {
-		    getDataNodeHash().put(currentChild.getUrlString(), currentChild);
+		    putInDataNodeHash(currentChild);
 		    currentChild.registerContainer(this);
 		}
 	    } else {
-		getDataNodeHash().put(arbilDataNode.getUrlString(), arbilDataNode);
+		putInDataNodeHash(arbilDataNode);
 		arbilDataNode.registerContainer(this);
 	    }
 	}
