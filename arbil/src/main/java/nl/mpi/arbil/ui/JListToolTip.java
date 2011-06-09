@@ -167,14 +167,14 @@ class JListToolTip extends JToolTip {
                     addIconLabel(((Object[]) targetObject)[childCounter]);
                 }
                 if (((Object[]) targetObject)[0] != null && ((Object[]) targetObject)[0] instanceof ArbilField) {
-                    addDetailLabel(((ArbilField) ((Object[]) targetObject)[0]).parentDataNode.getNodeTemplate().getHelpStringForField(((ArbilField) ((Object[]) targetObject)[0]).getFullXmlPath()));
+                    addDetailLabel(((ArbilField) ((Object[]) targetObject)[0]).getParentDataNode().getNodeTemplate().getHelpStringForField(((ArbilField) ((Object[]) targetObject)[0]).getFullXmlPath()));
                 }
             } else if (targetObject instanceof ArbilDataNode) {
                 addIconLabel(targetObject);
                 addLabelsForDataNode((ArbilDataNode) targetObject);
             } else if (targetObject instanceof ArbilField) {
                 addDetailLabel(targetObject.toString());
-                addDetailLabel(((ArbilField) targetObject).parentDataNode.getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
+                addDetailLabel(((ArbilField) targetObject).getParentDataNode().getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
                 addVocabularyType((ArbilField) targetObject);
             } else {
                 addDetailLabel(targetObject.toString());

@@ -1094,7 +1094,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	}
 	fieldHashtable.put(fieldToAdd.getTranslateFieldName(), currentFieldsArray);
 
-	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.parentDataNode.isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
+	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
 	    resourceUrlField = fieldToAdd;
 	    MimeHashQueue.getSingleInstance().addToQueue(this);
 	}

@@ -1,5 +1,7 @@
 package nl.mpi.arbil.data;
 
+import java.io.Serializable;
+import java.net.URI;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
@@ -8,9 +10,10 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  * Created on : Wed Dec 03 13:29:30 CET 2008
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilField {
+public class ArbilField implements Serializable {
 
-    public ArbilDataNode parentDataNode;
+    private transient ArbilDataNode parentDataNode;
+    private URI parentDataNodeURI;
     public String xmlPath;
     private String translatedPath = null;
     private String fieldValue = "";
@@ -35,7 +38,7 @@ public class ArbilField {
 
     public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount) {
 	fieldOrder = fieldOrderLocal;
-	parentDataNode = localParentDataNode;
+	setParentDataNode(localParentDataNode);
 	fieldValue = tempValue;
 	originalFieldValue = fieldValue;
 	xmlPath = tempPath;
@@ -54,7 +57,7 @@ public class ArbilField {
 	if (isRequiredField < 0) {
 	    isRequiredField = 0;
 	    String fullXmlPath = getGenericFullXmlPath();
-	    for (String currentRequiredField : parentDataNode.getNodeTemplate().requiredFields) {
+	    for (String currentRequiredField : getParentDataNode().getNodeTemplate().requiredFields) {
 		if (fullXmlPath.matches(currentRequiredField)) {
 		    isRequiredField = 1;
 		    break;
@@ -82,7 +85,7 @@ public class ArbilField {
 	if (canValidateField != 0) { // only do this the first time or once a field constraint has been found
 	    canValidateField = 0;
 	    String fullXmlPath = getGenericFullXmlPath();
-	    for (String[] currentRequiredField : parentDataNode.getNodeTemplate().fieldConstraints) {
+	    for (String[] currentRequiredField : getParentDataNode().getNodeTemplate().fieldConstraints) {
 		if (fullXmlPath.matches(currentRequiredField[0])) {
 		    canValidateField = 1;
 		    isValidValue = (fieldValue.matches(currentRequiredField[1]));
@@ -125,7 +128,7 @@ public class ArbilField {
 
     public String getFullXmlPath() {
 	String returnValue;
-	String[] pathStringArray = this.parentDataNode.getUrlString().split("#");
+	String[] pathStringArray = this.getParentDataNode().getUrlString().split("#");
 	if (pathStringArray.length > 1) {
 	    returnValue = pathStringArray[1] + this.xmlPath;
 	} else {
@@ -145,11 +148,11 @@ public class ArbilField {
 	    if (!excludeFromUndoHistory) {
 		ArbilJournal.getSingleInstance().recordFieldChange(this, this.fieldValue, fieldValueToBe, ArbilJournal.UndoType.Value);
 	    }
-	    ArbilJournal.getSingleInstance().saveJournalEntry(this.parentDataNode.getUrlString(), getFullXmlPath(), this.fieldValue, fieldValueToBe, "edit");
+	    ArbilJournal.getSingleInstance().saveJournalEntry(this.getParentDataNode().getUrlString(), getFullXmlPath(), this.fieldValue, fieldValueToBe, "edit");
 	    this.fieldValue = fieldValueToBe;
 	    new FieldChangeTriggers().actOnChange(this);
 	    // this now scans all fields in the imdiparent and its child nodes to set the "needs save to disk" flag in the imdi nodes
-	    parentDataNode.setDataNodeNeedsSaveToDisk(this, updateUI);
+	    getParentDataNode().setDataNodeNeedsSaveToDisk(this, updateUI);
 	}
     }
 
@@ -178,11 +181,11 @@ public class ArbilField {
 	    if (!excludeFromUndoHistory) {
 		ArbilJournal.getSingleInstance().recordFieldChange(this, this.getLanguageId(), languageIdLocal, ArbilJournal.UndoType.LanguageId);
 	    }
-	    ArbilJournal.getSingleInstance().saveJournalEntry(this.parentDataNode.getUrlString(), getFullXmlPath() + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
+	    ArbilJournal.getSingleInstance().saveJournalEntry(this.getParentDataNode().getUrlString(), getFullXmlPath() + ":LanguageId", oldLanguageId, languageIdLocal, "edit");
 	    //addFieldAttribute("LanguageId", languageIdLocal);
 	    languageId = languageIdLocal;
 //            fieldLanguageId = languageId;
-	    parentDataNode.setDataNodeNeedsSaveToDisk(this, updateUI);
+	    getParentDataNode().setDataNodeNeedsSaveToDisk(this, updateUI);
 	}
 
     }
@@ -193,7 +196,7 @@ public class ArbilField {
 
     public ArbilField[] getSiblingField(String pathString) {
 //        System.out.println("getSiblingField: " + pathString);
-	for (ArbilField[] tempField : parentDataNode.getFields().values().toArray(new ArbilField[][]{})) {
+	for (ArbilField[] tempField : getParentDataNode().getFields().values().toArray(new ArbilField[][]{})) {
 //            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
 	    if (tempField[0].getFullXmlPath().equals(pathString)) {
 		return tempField;
@@ -214,7 +217,7 @@ public class ArbilField {
 	setLanguageId(originalLanguageId, false, false);
 	setKeyName(originalKeyName, false, false);
 	boolean updateUI = true;
-	parentDataNode.setDataNodeNeedsSaveToDisk(this, updateUI);
+	getParentDataNode().setDataNodeNeedsSaveToDisk(this, updateUI);
     }
 
     public void setFieldAttribute(String cvType, String cvUrlString, String languageIdLocal, String keyNameLocal) {
@@ -254,12 +257,12 @@ public class ArbilField {
 	    }
 	} else {
 	    // vocabularies specified in the xml override vocabularies defined in the schema
-	    if (parentDataNode.getParentDomNode().nodeTemplate != null) {
+	    if (getParentDataNode().getParentDomNode().nodeTemplate != null) {
 		// get the schema vocabularies
 		String strippedXmlPath = this.getGenericFullXmlPath().replaceAll("\\(x\\)", "");
 //                System.out.println("parentImdi.getParentDomNode().nodeTemplate: " + parentImdi.getParentDomNode().nodeTemplate.loadedTemplateName);
 //                System.out.println("strippedXmlPath: " + strippedXmlPath);
-		fieldVocabulary = parentDataNode.getParentDomNode().nodeTemplate.getFieldVocabulary(strippedXmlPath);
+		fieldVocabulary = getParentDataNode().getParentDomNode().nodeTemplate.getFieldVocabulary(strippedXmlPath);
 	    }
 	}
     }
@@ -301,15 +304,15 @@ public class ArbilField {
 		    ArbilJournal.getSingleInstance().recordFieldChange(this, this.getKeyName(), keyNameLocal, ArbilJournal.UndoType.KeyName);
 		}
 		// TODO: resolve how to log key name changes
-		ArbilJournal.getSingleInstance().saveJournalEntry(this.parentDataNode.getUrlString(), getFullXmlPath(), lastValue, keyNameLocal, "editkeyname");
+		ArbilJournal.getSingleInstance().saveJournalEntry(this.getParentDataNode().getUrlString(), getFullXmlPath(), lastValue, keyNameLocal, "editkeyname");
 		keyName = keyNameLocal;
 		translatedPath = null;
 		getTranslateFieldName();
-		parentDataNode.setDataNodeNeedsSaveToDisk(this, updateUI);
-		if (parentDataNode.getNeedsSaveToDisk(false)) {
-		    parentDataNode.saveChangesToCache(true);
+		getParentDataNode().setDataNodeNeedsSaveToDisk(this, updateUI);
+		if (getParentDataNode().getNeedsSaveToDisk(false)) {
+		    getParentDataNode().saveChangesToCache(true);
 		}
-		parentDataNode.reloadNode();
+		getParentDataNode().reloadNode();
 		return true;
 	    }
 	}
@@ -373,5 +376,23 @@ public class ArbilField {
      */
     public boolean isVocabularyList() {
 	return vocabularyIsList;
+    }
+
+    /**
+     * @return the parentDataNode
+     */
+    public synchronized ArbilDataNode getParentDataNode() {
+	if(parentDataNode == null && parentDataNodeURI != null){
+	    parentDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, parentDataNodeURI);
+	}
+	return parentDataNode;
+    }
+
+    /**
+     * @param parentDataNode the parentDataNode to set
+     */
+    public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
+	this.parentDataNode = parentDataNode;
+	this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
     }
 }

@@ -721,9 +721,9 @@ public class ArbilTable extends JTable {
         Object cellValue = arbilTableModel.getValueAt(getSelectedRow(), getSelectedColumn());
         ArbilDataNode cellDataNode = null;
         if (cellValue instanceof ArbilField) {
-            cellDataNode = ((ArbilField) cellValue).parentDataNode;
+            cellDataNode = ((ArbilField) cellValue).getParentDataNode();
         } else if (cellValue instanceof ArbilField[]) {
-            cellDataNode = ((ArbilField[]) cellValue)[0].parentDataNode;
+            cellDataNode = ((ArbilField[]) cellValue)[0].getParentDataNode();
         } else if (cellValue instanceof ArbilDataNode) {
             cellDataNode = (ArbilDataNode) cellValue;
         } else if (cellValue instanceof ArbilDataNode[]) {

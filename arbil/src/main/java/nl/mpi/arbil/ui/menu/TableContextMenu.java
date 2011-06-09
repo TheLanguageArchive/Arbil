@@ -48,7 +48,7 @@ public class TableContextMenu extends ArbilContextMenu {
             boolean canDeleteSelectedFields = true;
             ArbilField[] currentSelection = table.getSelectedFields();
             for (ArbilField currentField : currentSelection) {
-                if (!currentField.parentDataNode.getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
+                if (!currentField.getParentDataNode().getNodeTemplate().pathIsDeleteableField(currentField.getGenericFullXmlPath())) {
                     canDeleteSelectedFields = false;
                     break;
                 }
@@ -169,10 +169,10 @@ public class TableContextMenu extends ArbilContextMenu {
 //                                  todo: the delete field action should also be available in the long field editor
                         Hashtable<ArbilDataNode, ArrayList> selectedFieldHashtable = new Hashtable<ArbilDataNode, ArrayList>();
                         for (ArbilField currentField : selectedFields) {
-                            ArrayList currentList = selectedFieldHashtable.get(currentField.parentDataNode);
+                            ArrayList currentList = selectedFieldHashtable.get(currentField.getParentDataNode());
                             if (currentList == null) {
                                 currentList = new ArrayList();
-                                selectedFieldHashtable.put(currentField.parentDataNode, currentList);
+                                selectedFieldHashtable.put(currentField.getParentDataNode(), currentList);
                             }
                             currentList.add(currentField.getFullXmlPath());
                         }

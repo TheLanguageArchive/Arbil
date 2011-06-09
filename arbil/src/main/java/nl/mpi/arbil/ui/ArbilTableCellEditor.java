@@ -226,7 +226,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
     private boolean isCellEditable() {
         if (cellValue instanceof ArbilField[]) {
-            ArbilDataNode parentObject = ((ArbilField[]) cellValue)[0].parentDataNode;
+            ArbilDataNode parentObject = ((ArbilField[]) cellValue)[0].getParentDataNode();
             // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
             return !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
         }
@@ -382,7 +382,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
             if (value instanceof ArbilField) {
                 // TODO: get the whole array from the parent and select the correct tab for editing
                 fieldName = ((ArbilField) value).getTranslateFieldName();
-                cellValue = ((ArbilField) value).parentDataNode.getFields().get(fieldName);
+                cellValue = ((ArbilField) value).getParentDataNode().getFields().get(fieldName);
                 // TODO: find the chosen fields index in the array and store
                 for (int cellFieldCounter = 0; cellFieldCounter < cellValue.length; cellFieldCounter++) {
                     if (cellValue[cellFieldCounter].equals(value)) {
@@ -401,7 +401,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
                 throw new ArbilMetadataException("Object type unsupported by cell editor");
             }
             if (cellValue != null && cellValue[0] instanceof ArbilField) {
-                registeredOwner = ((ArbilField) cellValue[0]).parentDataNode;
+                registeredOwner = ((ArbilField) cellValue[0]).getParentDataNode();
             }
         } else {
             bugCatcher.logError(new Exception("value is null in convertCellValue"));
