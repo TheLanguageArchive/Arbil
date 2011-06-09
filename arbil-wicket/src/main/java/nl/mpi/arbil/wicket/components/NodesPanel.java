@@ -21,11 +21,11 @@ public class NodesPanel extends Panel implements ArbilDataNodeContainer {
     private transient IPushEventHandler handler;
     private transient IPushService pushService;
     private transient IPushNode<ArbilDataNode> pushNode;
-    private ArbilTable table;
+    private ArbilWicketDataTable table;
 
     public NodesPanel(String id, DataNodeDataProvider dataNodes) {
 	super(id);
-	table = new ArbilTable("datatable", dataNodes);
+	table = new ArbilWicketDataTable("datatable", dataNodes);
 	add(table);
 	table.setOutputMarkupId(true);
 
