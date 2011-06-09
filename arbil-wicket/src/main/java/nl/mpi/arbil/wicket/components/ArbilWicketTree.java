@@ -8,7 +8,6 @@ import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.extensions.markup.html.tree.Tree;
-import org.apache.wicket.markup.html.tree.DefaultTreeState;
 import org.apache.wicket.markup.html.tree.ITreeState;
 import org.apache.wicket.model.IModel;
 
@@ -25,8 +24,9 @@ public class ArbilWicketTree extends Tree {
 
     @Override
     protected ITreeState newTreeState() {
-	return new DefaultTreeState() {
-	};
+	ITreeState treeState = super.newTreeState();
+	//treeState.setAllowSelectMultiple(true);
+	return treeState;
     }
 
     /**

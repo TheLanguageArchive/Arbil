@@ -9,7 +9,8 @@ import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.wicket.components.ArbilWicketTree;
-import nl.mpi.arbil.wicket.components.NodesPanel;
+import nl.mpi.arbil.wicket.components.ArbilWicketTablePanel;
+import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeNode;
 import nl.mpi.arbil.wicket.model.DataNodeDataProvider;
@@ -18,6 +19,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 
 /**
  * Homepage (test page)
@@ -50,13 +52,22 @@ public class HomePage extends WebPage {
 		    if (tree.getTreeState().isNodeSelected(node)) {
 			container.remove(tablePanel);
 			ArbilDataNode dataNode = node.getDataNode();
-			DataNodeDataProvider provider;
+			IDataProvider<ArbilDataNode> provider;
+//			if (dataNode.isEmptyMetaNode()) {
+//			    provider = new DataNodeDataProvider(DetachableArbilDataNodeCollection.URIsFromNodes(Arrays.asList(dataNode.getAllChildren())));
+//			} else {
+//			    provider = new DataNodeDataProvider(Collections.singletonList(dataNode.getURI()));
+//			}
+
+			ArbilWicketTableModel model = new ArbilWicketTableModel();
 			if (dataNode.isEmptyMetaNode()) {
-			    provider = new DataNodeDataProvider(DetachableArbilDataNodeCollection.URIsFromNodes(Arrays.asList(dataNode.getAllChildren())));
+			    model.addArbilDataNodes(dataNode.getAllChildren());
 			} else {
-			    provider = new DataNodeDataProvider(Collections.singletonList(dataNode.getURI()));
+			    model.addSingleArbilDataNode(dataNode);
 			}
-			tablePanel = new NodesPanel("tablePanel", provider);
+			provider = model;
+
+			tablePanel = new ArbilWicketTablePanel("tablePanel", provider);
 			container.add(tablePanel);
 			if (target != null) {
 			    target.addComponent(container);
