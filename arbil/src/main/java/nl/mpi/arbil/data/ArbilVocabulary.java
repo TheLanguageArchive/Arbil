@@ -1,9 +1,10 @@
 package nl.mpi.arbil.data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
-public class ArbilVocabulary  {
+public class ArbilVocabulary implements Serializable {
 
     private Vector<ArbilVocabularyItem> vocabularyItems = new Vector<ArbilVocabularyItem>();
 //        this VocabularyRedirect code has been replaced by the templates
@@ -69,5 +70,5 @@ public class ArbilVocabulary  {
         this.filter = filter;
     }
     
-    private ArbilVocabularyFilter filter = null;
+    private transient ArbilVocabularyFilter filter = null;
 }
