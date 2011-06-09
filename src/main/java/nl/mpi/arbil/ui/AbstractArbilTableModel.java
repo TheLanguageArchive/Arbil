@@ -12,6 +12,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
+import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**
@@ -109,8 +110,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	for (int rowCounter = 0; rowCounter < getRowCount(); rowCounter++) {
 	    if (rowCounter != row) {
 		// TODO: a user may want to copy fields with multiple values to the whole column eg descritions in multiple languages
-		if (getData()[rowCounter][col] instanceof ArbilField) {
-		    ((ArbilField) getData()[rowCounter][col]).setFieldValue(((ArbilField) getData()[row][col]).getFieldValue(), false, false);
+		if (getData()[rowCounter][col].getContent() instanceof ArbilField) {
+		    ((ArbilField) getData()[rowCounter][col].getContent()).setFieldValue(((ArbilField) getData()[row][col].getContent()).getFieldValue(), false, false);
 		}
 		fireTableCellUpdated(rowCounter, col);
 	    }
@@ -244,7 +245,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
     public Object getValueAt(int row, int col) {
 	try {
-	    return getData()[row][col];
+	    return getData()[row][col].getContent();
 	} catch (Exception e) {
 	    return null;
 	}
@@ -294,7 +295,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	clearDataNodeHash();
 	filteredColumnNames.clear();
 	columnNames = new String[0];
-	setData(new Object[0][0]);
+	setData(new ArbilTableCell[0][0]);
 	cellColour = new Color[0][0];
 	// add the icon column if icons are to be displayed
 	setShowIcons(isShowIcons());
@@ -415,14 +416,14 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     protected ArbilDataNode getDataNodeFromRow(int rowNumber) {
 	// TODO: find error removing rows // look again here...
 	// if that the first column is the imdi node (ergo string and icon) use that to remove the row
-	if (getData()[rowNumber][0] instanceof ArbilDataNode) {
-	    return (ArbilDataNode) getData()[rowNumber][0];
-	} else if (getData()[rowNumber][0] instanceof ArbilField[]) {
-	    return ((ArbilField[]) getData()[rowNumber][getColumnNames().length - 1])[0].getParentDataNode();
+	if (getData()[rowNumber][0].getContent() instanceof ArbilDataNode) {
+	    return (ArbilDataNode) getData()[rowNumber][0].getContent();
+	} else if (getData()[rowNumber][0].getContent() instanceof ArbilField[]) {
+	    return ((ArbilField[]) getData()[rowNumber][getColumnNames().length - 1].getContent())[0].getParentDataNode();
 	} else {
 	    // in the case that the icon and sting are not displayed then try to get the imdifield in order to get the imdinode
 	    // TODO: this will fail if the imdiobject for the row does not have a field to display for the first column because there will be no imdi nor field in the first coloumn
-	    return ((ArbilField) getData()[rowNumber][getColumnNames().length - 1]).getParentDataNode();
+	    return ((ArbilField) getData()[rowNumber][getColumnNames().length - 1].getContent()).getParentDataNode();
 	    //throw new UnsupportedOperationException("Not supported yet.");
 	}
     }
@@ -492,7 +493,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     private void initTableData(ArbilDataNode[] tableRowsArbilArray, int previousColumnCount) {
 	String[] columnNamesTemp; // will contain translated field names (for column headers)
 	String[] fieldNames; // will contain actual field names
-	Object[][] newData;
+	ArbilTableCell[][] newData;
 
 	if (isHorizontalView()) {
 	    // display the grid view
@@ -534,28 +535,28 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
 		if (isShowIcons()) {
 		    // First column contains node icon
-		    newData[rowCounter][0] = currentNode;
+		    newData[rowCounter][0] = new ArbilTableCell(currentNode);
 		}
 		for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
 		    if (columnCounter < childColumnsIndex) {
 			if (fieldsHash.containsKey(columnNamesTemp[columnCounter])) {
 			    ArbilField[] currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
 			    if (currentValue.length == 1) {
-				newData[rowCounter][columnCounter] = currentValue[0];
+				newData[rowCounter][columnCounter] = new ArbilTableCell(currentValue[0]);
 			    } else {
-				newData[rowCounter][columnCounter] = currentValue;
+				newData[rowCounter][columnCounter] = new ArbilTableCell(currentValue);
 			    }
 			} else {
 			    // Field does not exist for node. Insert field placeholder, so that upon editing request the field name
 			    // can be resolved (and checked whether the field is actually addable)
-			    newData[rowCounter][columnCounter] = new ArbilFieldPlaceHolder(fieldNames[columnCounter], currentNode);
+			    newData[rowCounter][columnCounter] = new ArbilTableCell(new ArbilFieldPlaceHolder(fieldNames[columnCounter], currentNode));
 			}
 		    } else {
 			// populate the cell with any the child nodes for the current child nodes column
-			newData[rowCounter][columnCounter] = currentNode.getChildNodesArray(columnNamesTemp[columnCounter]);
+			newData[rowCounter][columnCounter] = new ArbilTableCell(currentNode.getChildNodesArray(columnNamesTemp[columnCounter]));
 			// prevent null values
 			if (newData[rowCounter][columnCounter] == null) {
-			    newData[rowCounter][columnCounter] = "";
+			    newData[rowCounter][columnCounter] = new ArbilTableCell("");
 			}
 		    }
 		}
@@ -604,12 +605,12 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		    int rowCounter = 0;
 		    for (Enumeration<ArbilField> allFieldsEnum = allRowFields.elements(); allFieldsEnum.hasMoreElements();) {
 			ArbilField currentField = allFieldsEnum.nextElement();
-			newData[rowCounter][0] = currentField.getTranslateFieldName();
-			newData[rowCounter][1] = currentField;
+			newData[rowCounter][0] = new ArbilTableCell(currentField.getTranslateFieldName());
+			newData[rowCounter][1] = new ArbilTableCell(currentField);
 			rowCounter++;
 		    }
 		} else {
-		    newData = new Object[0][0];
+		    newData = new ArbilTableCell[0][0];
 		}
 	    }
 	}
@@ -685,20 +686,20 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	return cellColourTemp;
     }
 
-    protected Object[][] allocateCellData(int rows, int cols) {
-	Object[][] dataTemp = new Object[rows][cols];
+    protected ArbilTableCell[][] allocateCellData(int rows, int cols) {
+	ArbilTableCell[][] dataTemp = new ArbilTableCell[rows][cols];
 	return dataTemp;
     }
 
     /**
      * @return the data
      */
-    protected abstract Object[][] getData();
+    protected abstract ArbilTableCell[][] getData();
 
     /**
      * @param data the data to set
      */
-    protected abstract void setData(Object[][] data);
+    protected abstract void setData(ArbilTableCell[][] data);
 
     /**
      * @return the childColumnNames
@@ -751,8 +752,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	public int compare(Object firstRowArray, Object secondRowArray) {
 	    if (sortColumn >= 0) {
 		// (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
-		String baseValueA = getRenderedText(((Object[]) firstRowArray)[sortColumn]);
-		String comparedValueA = getRenderedText(((Object[]) secondRowArray)[sortColumn]);
+		String baseValueA = getRenderedText(((ArbilTableCell[]) firstRowArray)[sortColumn].getContent());
+		String comparedValueA = getRenderedText(((ArbilTableCell[]) secondRowArray)[sortColumn].getContent());
 		// TODO: add the second or more sort column
 //            if (!(baseValueA.equals(comparedValueA))) {
 //                return baseValueB.compareTo(comparedValueB);
@@ -767,13 +768,13 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    } else {
 		try {
 //                    if (baseValueA != null && comparedValueA != null) { // if either id is null then check why it is being draw when it should be reloaded first
-		    int baseIntA = ((ArbilField) ((Object[]) firstRowArray)[1]).getFieldOrder();
-		    int comparedIntA = ((ArbilField) ((Object[]) secondRowArray)[1]).getFieldOrder();
+		    int baseIntA = ((ArbilField) ((ArbilTableCell[]) firstRowArray)[1].getContent()).getFieldOrder();
+		    int comparedIntA = ((ArbilField) ((ArbilTableCell[]) secondRowArray)[1].getContent()).getFieldOrder();
 		    int returnValue = baseIntA - comparedIntA;
 		    if (returnValue == 0) {
 			// if the xml node order is the same then also sort on the strings
-			String baseStrA = ((ArbilField) ((Object[]) firstRowArray)[1]).getFieldValue();
-			String comparedStrA = ((ArbilField) ((Object[]) secondRowArray)[1]).getFieldValue();
+			String baseStrA = ((ArbilField) ((ArbilTableCell[]) firstRowArray)[1].getContent()).getFieldValue();
+			String comparedStrA = ((ArbilField) ((ArbilTableCell[]) secondRowArray)[1].getContent()).getFieldValue();
 			returnValue = baseStrA.compareToIgnoreCase(comparedStrA);
 		    }
 		    return returnValue;

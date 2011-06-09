@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
@@ -24,7 +25,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
 public class ArbilTableModel extends AbstractArbilTableModel {
 
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
-    private Object[][] data = new Object[0][0];
+    private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     private boolean widthsChanged = true;
     private JLabel hiddenColumnsLabel;
@@ -368,14 +369,14 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     /**
      * @return the data
      */
-    protected Object[][] getData() {
+    protected ArbilTableCell[][] getData() {
 	return data;
     }
 
     /**
      * @param data the data to set
      */
-    protected void setData(Object[][] data) {
+    protected void setData(ArbilTableCell[][] data) {
 	this.data = data;
     }
 
