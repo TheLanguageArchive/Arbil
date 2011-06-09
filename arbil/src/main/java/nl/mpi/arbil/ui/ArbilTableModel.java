@@ -111,7 +111,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	    StringSelection stringSelection = new StringSelection(embedTagString);
 	    clipboard.setContents(stringSelection, clipboardOwner);
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    getBugCatcher().logError(ex);
 	}
     }
 
@@ -171,17 +171,17 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
 
     public void setPreferredColumnWidth(String columnName, Integer width) {
-	Integer currentWidth = tableFieldView.getColumnWidth(columnName);
+	Integer currentWidth = getFieldView().getColumnWidth(columnName);
 	if (!isWidthsChanged()
 		&& !(width == null && currentWidth == null || width != null && width.equals(currentWidth))) {
 	    setWidthsChanged(true);
 	    fireTableStructureChanged();
 	}
-	tableFieldView.setColumnWidth(columnName, width);
+	getFieldView().setColumnWidth(columnName, width);
     }
 
     public Integer getPreferredColumnWidth(String columnName) {
-	return tableFieldView.getColumnWidth(columnName);
+	return getFieldView().getColumnWidth(columnName);
     }
 
     public void copyArbilRows(int[] selectedRows) {
@@ -222,8 +222,8 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     public void copyArbilFields(ArbilField[] selectedCells) {
 	String csvSeparator = "\t"; // excel seems to work with tab but not comma
 	String copiedString = "";
-	copiedString = copiedString + "\"" + singleNodeViewHeadings[0] + "\"" + csvSeparator;
-	copiedString = copiedString + "\"" + singleNodeViewHeadings[1] + "\"";
+	copiedString = copiedString + "\"" + SINGLE_NODE_VIEW_HEADINGS[0] + "\"" + csvSeparator;
+	copiedString = copiedString + "\"" + SINGLE_NODE_VIEW_HEADINGS[1] + "\"";
 	copiedString = copiedString + "\n";
 	boolean isFirstCol = true;
 	for (ArbilField currentField : selectedCells) {
@@ -282,7 +282,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 		boolean singleNodeAxis = false;
 		String regexString = "[(\"^)($\")]";
 		System.out.println("regexString: " + (firstLine[0].replaceAll(regexString, "")));
-		if (firstLine[0].replaceAll(regexString, "").equals(singleNodeViewHeadings[0]) && firstLine[1].replaceAll(regexString, "").equals(singleNodeViewHeadings[1])) {
+		if (firstLine[0].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADINGS[0]) && firstLine[1].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADINGS[1])) {
 		    singleNodeAxis = true;
 		}
 		if (!singleNodeAxis) {
@@ -347,7 +347,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 		}
 	    }
 	} catch (Exception ex) {
-	    bugCatcher.logError(ex);
+	    getBugCatcher().logError(ex);
 	}
 	return resultMessage;
     }
