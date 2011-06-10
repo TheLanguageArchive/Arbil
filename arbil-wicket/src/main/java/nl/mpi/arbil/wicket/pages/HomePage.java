@@ -66,12 +66,13 @@ public class HomePage extends WebPage {
     private void onTreeNodeClicked(Tree tree, AjaxRequestTarget target) {
 	ArbilWicketTableModel model = new ArbilWicketTableModel();
 	model.setShowIcons(true);
-	model.addSelectedNodesToModel(tree.getTreeState());
-
-	tablePanel = new ArbilWicketTablePanel("tablePanel", model);
-	tableContainer.addOrReplace(tablePanel);
-	if (target != null) {
-	    target.addComponent(tableContainer);
-	}
+	if (0 < model.addSelectedNodesToModel(tree.getTreeState())) {
+	    // Nodes have been added to model. Show new table
+	    tablePanel = new ArbilWicketTablePanel("tablePanel", model);
+	    tableContainer.addOrReplace(tablePanel);
+	    if (target != null) {
+		target.addComponent(tableContainer);
+	    }
+	} // else nothing to show
     }
 }

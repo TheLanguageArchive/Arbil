@@ -42,13 +42,21 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 	super(new ArbilFieldView());
     }
 
-    public void addSelectedNodesToModel(ITreeState treeState) {
+    /**
+     * Adds selected nodes from a TreeState to the table model
+     * @param treeState
+     * @return Number of nodes added to the model 
+     */
+    public int addSelectedNodesToModel(ITreeState treeState) {
+	int rowCount = getRowCount();
 	Collection<Object> selected = treeState.getSelectedNodes();
 	if (selected.size() == 1) {
 	    // Single selection
 	    Object node = selected.iterator().next();
 	    if (node instanceof ArbilWicketTreeNode) {
 		addSingleArbilDataNode(((ArbilWicketTreeNode) node).getDataNode());
+	    } else {
+		return 0;
 	    }
 	} else {
 	    // Multiselect
@@ -58,8 +66,13 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 		    displayNodes.add(((ArbilWicketTreeNode) node).getDataNode());
 		}
 	    }
-	    addArbilDataNodes(Collections.enumeration(displayNodes));
+	    if (displayNodes.isEmpty()) {
+		return 0;
+	    } else {
+		addArbilDataNodes(Collections.enumeration(displayNodes));
+	    }
 	}
+	return getRowCount() - rowCount;
     }
 
     // IDataProvider<ArbilDataNode> method implementations
