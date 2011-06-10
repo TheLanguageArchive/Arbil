@@ -1,0 +1,13 @@
+.arbilTable{
+    border-collapse: collapse;
+}
+
+.arbilTable th{
+    background: #eee;
+}
+
+.arbilTable th, .arbilTable td{
+    border: 1px solid #ccc;
+    text-align: left;
+    padding: 2px;
+}
