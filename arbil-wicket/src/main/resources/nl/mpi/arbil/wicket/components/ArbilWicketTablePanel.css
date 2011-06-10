@@ -1,3 +1,9 @@
+#arbilTableContainer{
+    overflow: auto;
+    max-height: 450px;
+    padding-left: 5px;
+}
+
 .arbilTable{
     border-collapse: collapse;
 }
@@ -10,4 +16,11 @@
     border: 1px solid #ccc;
     text-align: left;
     padding: 2px;
+    overflow: hidden;
+}
+
+.arbilTable td span{
+    display: block;
+    max-height: 5em;
+    overflow: hidden;
 }
