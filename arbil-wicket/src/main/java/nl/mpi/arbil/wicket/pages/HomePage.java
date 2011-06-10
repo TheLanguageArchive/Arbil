@@ -50,6 +50,7 @@ public class HomePage extends WebPage {
 			} else {
 			    model.addSingleArbilDataNode(dataNode);
 			}
+			model.setShowIcons(true);
 
 			tablePanel = new ArbilWicketTablePanel("tablePanel", model);
 			container.addOrReplace(tablePanel);
