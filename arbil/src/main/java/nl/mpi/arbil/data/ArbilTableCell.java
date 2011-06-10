@@ -3,28 +3,19 @@ package nl.mpi.arbil.data;
 import java.io.Serializable;
 
 /**
- *
+ * Serializable container for arbil table cells
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilTableCell<T> implements Serializable {
-
-    private T content;
-
-    public ArbilTableCell(T content) {
-	this.content = content;
-    }
+public interface ArbilTableCell<T> extends Serializable {
 
     /**
      * @return the content
      */
-    public T getContent() {
-	return content;
-    }
+    T getContent();
 
     /**
      * @param content the content to set
      */
-    public void setContent(T content) {
-	this.content = content;
-    }
+    void setContent(T content);
+    
 }

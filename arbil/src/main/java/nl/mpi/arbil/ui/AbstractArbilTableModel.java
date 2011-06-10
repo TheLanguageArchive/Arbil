@@ -9,10 +9,13 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.data.ArbilTableCell;
+import nl.mpi.arbil.data.DefaultArbilTableCell;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**
@@ -535,28 +538,28 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
 		if (isShowIcons()) {
 		    // First column contains node icon
-		    newData[rowCounter][0] = new ArbilTableCell(currentNode);
+		    newData[rowCounter][0] = new ArbilDataNodeTableCell(currentNode);
 		}
 		for (int columnCounter = firstFreeColumn; columnCounter < columnNamesTemp.length; columnCounter++) {
 		    if (columnCounter < childColumnsIndex) {
 			if (fieldsHash.containsKey(columnNamesTemp[columnCounter])) {
 			    ArbilField[] currentValue = fieldsHash.get(columnNamesTemp[columnCounter]);
 			    if (currentValue.length == 1) {
-				newData[rowCounter][columnCounter] = new ArbilTableCell(currentValue[0]);
+				newData[rowCounter][columnCounter] = new DefaultArbilTableCell(currentValue[0]);
 			    } else {
-				newData[rowCounter][columnCounter] = new ArbilTableCell(currentValue);
+				newData[rowCounter][columnCounter] = new DefaultArbilTableCell(currentValue);
 			    }
 			} else {
 			    // Field does not exist for node. Insert field placeholder, so that upon editing request the field name
 			    // can be resolved (and checked whether the field is actually addable)
-			    newData[rowCounter][columnCounter] = new ArbilTableCell(new ArbilFieldPlaceHolder(fieldNames[columnCounter], currentNode));
+			    newData[rowCounter][columnCounter] = new DefaultArbilTableCell(new ArbilFieldPlaceHolder(fieldNames[columnCounter], currentNode));
 			}
 		    } else {
 			// populate the cell with any the child nodes for the current child nodes column
-			newData[rowCounter][columnCounter] = new ArbilTableCell(currentNode.getChildNodesArray(columnNamesTemp[columnCounter]));
+			newData[rowCounter][columnCounter] = new ArbilDataNodeArrayTableCell(currentNode.getChildNodesArray(columnNamesTemp[columnCounter]));
 			// prevent null values
 			if (newData[rowCounter][columnCounter] == null) {
-			    newData[rowCounter][columnCounter] = new ArbilTableCell("");
+			    newData[rowCounter][columnCounter] = new DefaultArbilTableCell("");
 			}
 		    }
 		}
@@ -605,8 +608,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		    int rowCounter = 0;
 		    for (Enumeration<ArbilField> allFieldsEnum = allRowFields.elements(); allFieldsEnum.hasMoreElements();) {
 			ArbilField currentField = allFieldsEnum.nextElement();
-			newData[rowCounter][0] = new ArbilTableCell(currentField.getTranslateFieldName());
-			newData[rowCounter][1] = new ArbilTableCell(currentField);
+			newData[rowCounter][0] = new DefaultArbilTableCell(currentField.getTranslateFieldName());
+			newData[rowCounter][1] = new DefaultArbilTableCell(currentField);
 			rowCounter++;
 		    }
 		} else {
