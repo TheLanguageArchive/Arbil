@@ -45,12 +45,12 @@ public class HomePage extends WebPage {
 		    if (tree.getTreeState().isNodeSelected(node)) {
 			ArbilDataNode dataNode = node.getDataNode();
 			ArbilWicketTableModel model = new ArbilWicketTableModel();
+			model.setShowIcons(true);
 			if (dataNode.isEmptyMetaNode()) {
 			    model.addArbilDataNodes(dataNode.getAllChildren());
 			} else {
 			    model.addSingleArbilDataNode(dataNode);
 			}
-			model.setShowIcons(true);
 
 			tablePanel = new ArbilWicketTablePanel("tablePanel", model);
 			container.addOrReplace(tablePanel);
