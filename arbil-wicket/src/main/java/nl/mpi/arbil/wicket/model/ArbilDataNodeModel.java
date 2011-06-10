@@ -9,16 +9,16 @@ import org.apache.wicket.model.LoadableDetachableModel;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class DataNodeModel extends LoadableDetachableModel<ArbilDataNode>{
+public class ArbilDataNodeModel extends LoadableDetachableModel<ArbilDataNode>{
 
     private URI uri;
     
-    public DataNodeModel(ArbilDataNode dataNode){
+    public ArbilDataNodeModel(ArbilDataNode dataNode){
 	super(dataNode);
 	this.uri = dataNode.getURI();
     }
     
-    public DataNodeModel(URI uri){
+    public ArbilDataNodeModel(URI uri){
 	super();
 	this.uri = uri;
     }
