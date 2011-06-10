@@ -1,0 +1,32 @@
+#tableContainer{
+    float: right;
+    width: 75%;
+}
+
+#trees{
+    width: 25%;
+}
+
+#trees .wicket-tree{
+    border: 0;
+    margin-top: 2px;
+}
+
+#trees .wicket-tree span.icon {
+    margin-right: 5px;
+}
+
+#trees .remoteTree, #trees .localTree {
+    overflow: auto; 
+    overflow-x:hidden;
+    border: 1px solid #ccc;
+}
+
+#trees .remoteTree{
+    height:300px; 
+    margin-bottom: 5px;
+}
+
+#trees .localTree{
+    height: 150px;
+}

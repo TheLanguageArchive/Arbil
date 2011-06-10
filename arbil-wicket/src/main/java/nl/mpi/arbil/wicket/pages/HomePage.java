@@ -2,15 +2,14 @@ package nl.mpi.arbil.wicket.pages;
 
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.wicket.components.ArbilWicketTree;
 import nl.mpi.arbil.wicket.components.ArbilWicketTablePanel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
-import nl.mpi.arbil.wicket.model.ArbilWicketTreeNode;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.tree.Tree;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 
@@ -20,7 +19,9 @@ import org.apache.wicket.markup.html.WebPage;
 public class HomePage extends WebPage {
 
     private static final long serialVersionUID = 1L;
-    private ArbilWicketTree tree;
+    private ArbilWicketTree remoteTree;
+    private ArbilWicketTree localTree;
+    WebMarkupContainer tableContainer;
     private WebMarkupContainer tablePanel;
 
     public HomePage(final PageParameters parameters) {
@@ -28,41 +29,49 @@ public class HomePage extends WebPage {
 
 	ArbilWicketSession.get().getTreeHelper().applyRootLocations();
 
-	final WebMarkupContainer container = new WebMarkupContainer("mainContainer");
-	container.setOutputMarkupId(true);
+	tableContainer = new WebMarkupContainer("tableContainer");
+	tableContainer.setOutputMarkupId(true);
+	tableContainer.setMarkupId("tableContainer");
+	add(tableContainer);
 
 	// Empty placeholder for table panel until a node is selected
 	tablePanel = new WebMarkupContainer("tablePanel");
-	container.add(tablePanel);
+	tableContainer.add(tablePanel);
 
-	TreeModel treeModel = ArbilWicketSession.get().getTreeHelper().getRemoteCorpusTreeModel();
-	tree = new ArbilWicketTree("tree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(treeModel)) {
+	// Create remote tree
+	TreeModel remoteTreeModel = ArbilWicketSession.get().getTreeHelper().getRemoteCorpusTreeModel();
+	TreeModel localTreeModel = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
+	remoteTree = new ArbilWicketTree("remoteTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(remoteTreeModel)) {
 
 	    @Override
 	    protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode treeNode) {
-		if (treeNode instanceof ArbilWicketTreeNode) {
-		    ArbilWicketTreeNode node = (ArbilWicketTreeNode) treeNode;
-		    if (tree.getTreeState().isNodeSelected(node)) {
-			ArbilDataNode dataNode = node.getDataNode();
-			ArbilWicketTableModel model = new ArbilWicketTableModel();
-			model.setShowIcons(true);
-			if (dataNode.isEmptyMetaNode()) {
-			    model.addArbilDataNodes(dataNode.getAllChildren());
-			} else {
-			    model.addSingleArbilDataNode(dataNode);
-			}
-
-			tablePanel = new ArbilWicketTablePanel("tablePanel", model);
-			container.addOrReplace(tablePanel);
-			if (target != null) {
-			    target.addComponent(container);
-			}
-		    }
-		}
+		onTreeNodeClicked(this, target);
 	    }
 	};
-	tree.getTreeState().expandNode(treeModel.getRoot());
-	add(tree);
-	add(container);
+	remoteTree.getTreeState().expandNode(remoteTreeModel.getRoot());
+	add(remoteTree);
+
+	// Create local tree
+	localTree = new ArbilWicketTree("localTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(localTreeModel)) {
+
+	    @Override
+	    protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode treeNode) {
+		onTreeNodeClicked(this, target);
+	    }
+	};
+	localTree.getTreeState().expandNode(localTreeModel.getRoot());
+	add(localTree);
+    }
+
+    private void onTreeNodeClicked(Tree tree, AjaxRequestTarget target) {
+	ArbilWicketTableModel model = new ArbilWicketTableModel();
+	model.setShowIcons(true);
+	model.addSelectedNodesToModel(tree.getTreeState());
+
+	tablePanel = new ArbilWicketTablePanel("tablePanel", model);
+	tableContainer.addOrReplace(tablePanel);
+	if (target != null) {
+	    target.addComponent(tableContainer);
+	}
     }
 }

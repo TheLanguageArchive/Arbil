@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
+import nl.mpi.arbil.wicket.model.ArbilDataNodeModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
+import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -31,7 +33,7 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
 
 	    @Override
 	    public String getObject() {
-		return model.isHorizontalView()?"horizontal":"non-horizontal";
+		return model.isHorizontalView() ? "horizontal" : "non-horizontal";
 	    }
 	}, " "));
     }
@@ -46,7 +48,7 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
 
 		public void populateItem(Item<ICellPopulator<ArrayList<ArbilTableCell>>> cellItem, String componentId, IModel<ArrayList<ArbilTableCell>> rowModel) {
 		    ArbilTableCell cell = rowModel.getObject().get(column);
-		    cellItem.add(new Label(componentId, getText(cell)));
+		    cellItem.add(createComponentForCell(componentId, cell));
 		}
 	    };
 	}
@@ -61,6 +63,14 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
     //		cellItem.add(new NodeIcon(componentId, rowModel.getObject().getIcon().getImage()));
     //	    }
     //	};
+    private static Component createComponentForCell(String componentId, ArbilTableCell cell) {
+	if (cell instanceof ArbilDataNodeTableCell) {
+	    return new NodePanel(componentId, new ArbilDataNodeModel(((ArbilDataNodeTableCell)cell).getContent()));
+	} else {
+	    return new Label(componentId, getText(cell));
+	}
+    }
+
     private static String getText(ArbilTableCell cell) {
 	Object cellObject = cell.getContent();
 	if (cellObject instanceof ArbilDataNode) {

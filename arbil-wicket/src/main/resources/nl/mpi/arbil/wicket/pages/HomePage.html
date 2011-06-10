@@ -1,21 +1,32 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
     <head>  
         <title>Arbil wicket test</title>
-    </head>
-    <body>
-	<h1>Arbil wicket test</h1>
+    <wicket:link>
+	<link rel="stylesheet" type="text/css" href="HomePage.css"/>
+    </wicket:link>
+</head>
+<body>
+    <h1>Arbil wicket test</h1>
 
-	<div>
-	    <div wicket:id="tree" style="float: left; height:450px; overflow: auto; overflow-x:hidden;">
+    <div>
+	
+	<div id="tableContainer" wicket:id="tableContainer">
+
+	    <div wicket:id="tablePanel">
+	    </div>
+
+	</div>
+	
+	<div id="trees">
+	    <div class="remoteTree" wicket:id="remoteTree" >
 
 	    </div>
 
-	    <div wicket:id="mainContainer">
-
-		<div wicket:id="tablePanel">
-		</div>
+	    <div class="localTree" wicket:id="localTree" >
 
 	    </div>
 	</div>
-    </body>
+
+    </div>
+</body>
 </html>
