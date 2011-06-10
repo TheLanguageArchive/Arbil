@@ -24,3 +24,11 @@
     max-height: 5em;
     overflow: hidden;
 }
+
+.arbilTable.non-horizontal{
+    width: 100%;
+}
+
+.arbilTable.non-horizontal td{
+    width: 50%;
+}

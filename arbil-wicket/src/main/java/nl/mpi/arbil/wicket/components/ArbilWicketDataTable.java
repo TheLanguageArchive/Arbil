@@ -7,10 +7,12 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -22,8 +24,16 @@ import org.apache.wicket.model.Model;
  */
 public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableCell>> {
 
-    public ArbilWicketDataTable(String id, ArbilWicketTableModel model) {
+    public ArbilWicketDataTable(String id, final ArbilWicketTableModel model) {
 	super(id, createColumns(model), model, model.getRowCount());
+
+	add(new AttributeAppender("class", true, new Model<String>() {
+
+	    @Override
+	    public String getObject() {
+		return model.isHorizontalView()?"horizontal":"non-horizontal";
+	    }
+	}, " "));
     }
 
     private static IColumn<ArrayList<ArbilTableCell>>[] createColumns(ArbilWicketTableModel model) {
@@ -51,7 +61,6 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
     //		cellItem.add(new NodeIcon(componentId, rowModel.getObject().getIcon().getImage()));
     //	    }
     //	};
-
     private static String getText(ArbilTableCell cell) {
 	Object cellObject = cell.getContent();
 	if (cellObject instanceof ArbilDataNode) {
