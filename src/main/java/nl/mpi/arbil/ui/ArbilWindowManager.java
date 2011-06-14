@@ -61,14 +61,16 @@ import nl.mpi.arbil.data.ArbilNode;
  */
 public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
-    Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
-    Hashtable windowStatesHashtable;
+    private Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
+    private Hashtable windowStatesHashtable;
     public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
     public JFrame linorgFrame;
-    int nextWindowX = 50;
-    int nextWindowY = 50;
-    int nextWindowWidth = 800;
-    int nextWindowHeight = 600;
+    private final int defaultWindowX = 50;
+    private final int defaultWindowY = 50;
+    private int nextWindowX = defaultWindowX;
+    private int nextWindowY = defaultWindowY;
+    private final int nextWindowWidth = 800;
+    private final int nextWindowHeight = 600;
     float fontScale = 1;
     private Hashtable<String, String> messageDialogQueue = new Hashtable<String, String>();
     private boolean messagesCanBeShown = false;
@@ -333,6 +335,47 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	showMessageDialogQueue();
     }
 
+    private void applyWindowDefaults(JInternalFrame currentInternalFrame) {
+	int tempWindowWidth, tempWindowHeight;
+	if (desktopPane.getWidth() > nextWindowWidth) {
+	    tempWindowWidth = nextWindowWidth;
+	} else {
+	    tempWindowWidth = desktopPane.getWidth() - 50;
+	}
+	if (desktopPane.getHeight() > nextWindowHeight) {
+	    tempWindowHeight = nextWindowHeight;
+	} else {
+	    tempWindowHeight = desktopPane.getHeight() - 50;
+	}
+	if (tempWindowHeight < 100) {
+	    tempWindowHeight = 100;
+	}
+	currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
+
+	currentInternalFrame.setClosable(true);
+	currentInternalFrame.setIconifiable(true);
+	currentInternalFrame.setMaximizable(true);
+	currentInternalFrame.setResizable(true);
+	currentInternalFrame.setVisible(true);
+
+//        selectedFilesFrame.setSize(destinationComp.getWidth(), 300);
+//        selectedFilesFrame.setRequestFocusEnabled(false);
+//        selectedFilesFrame.getContentPane().add(selectedFilesPanel, java.awt.BorderLayout.CENTER);
+//        selectedFilesFrame.setBounds(0, 0, 641, 256);
+//        destinationComp.add(selectedFilesFrame, javax.swing.JLayeredPane.DEFAULT_LAYER);
+	// set the window position so that they are cascaded
+	currentInternalFrame.setLocation(nextWindowX, nextWindowY);
+	nextWindowX = nextWindowX + 10;
+	nextWindowY = nextWindowY + 10;
+	// TODO: it would be nice to use the JInternalFrame's title bar height to increment the position
+	if (nextWindowX + tempWindowWidth > desktopPane.getWidth()) {
+	    nextWindowX = 0;
+	}
+	if (nextWindowY + tempWindowHeight > desktopPane.getHeight()) {
+	    nextWindowY = 0;
+	}
+    }
+
     private synchronized void showMessageDialogQueue() {
 	if (!showMessageThreadrunning) {
 	    new Thread("showMessageThread") {
@@ -508,6 +551,23 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	if (targetComponent instanceof JPanel) {
 	    for (Component childComponent : ((JPanel) targetComponent).getComponents()) {
 		saveSplitPlanes(childComponent);
+	    }
+	}
+    }
+
+    /**
+     * Resets all windows to default size and location
+     */
+    public void resetWindows() {
+	nextWindowX = defaultWindowX;
+	nextWindowY = defaultWindowY;
+	for (Enumeration windowNamesEnum = windowList.keys(); windowNamesEnum.hasMoreElements();) {
+	    String currentWindowName = windowNamesEnum.nextElement().toString();
+	    System.out.println("currentWindowName: " + currentWindowName);
+	    // set the value of the windowListHashtable to be the imdi urls rather than the windows
+	    Object windowObject = ((Component[]) windowList.get(currentWindowName))[0];
+	    if (windowObject != null) {
+		applyWindowDefaults((JInternalFrame) windowObject);
 	    }
 	}
     }
@@ -820,49 +880,14 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	//        GuiHelper.arbilDragDrop.addTransferHandler(currentInternalFrame);
 	currentInternalFrame.add(contentsComponent, BorderLayout.CENTER);
 	windowTitle = addWindowToList(windowTitle, currentInternalFrame);
-
-	// set the new window size to be fully visible
-	int tempWindowWidth, tempWindowHeight;
-	if (desktopPane.getWidth() > nextWindowWidth) {
-	    tempWindowWidth = nextWindowWidth;
-	} else {
-	    tempWindowWidth = desktopPane.getWidth() - 50;
-	}
-	if (desktopPane.getHeight() > nextWindowHeight) {
-	    tempWindowHeight = nextWindowHeight;
-	} else {
-	    tempWindowHeight = desktopPane.getHeight() - 50;
-	}
-	if (tempWindowHeight < 100) {
-	    tempWindowHeight = 100;
-	}
-	currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
-
-	currentInternalFrame.setClosable(true);
-	currentInternalFrame.setIconifiable(true);
-	currentInternalFrame.setMaximizable(true);
-	currentInternalFrame.setResizable(true);
+	
 	currentInternalFrame.setTitle(windowTitle);
 	currentInternalFrame.setToolTipText(windowTitle);
 	currentInternalFrame.setName(windowTitle);
-	currentInternalFrame.setVisible(true);
 
-//        selectedFilesFrame.setSize(destinationComp.getWidth(), 300);
-//        selectedFilesFrame.setRequestFocusEnabled(false);
-//        selectedFilesFrame.getContentPane().add(selectedFilesPanel, java.awt.BorderLayout.CENTER);
-//        selectedFilesFrame.setBounds(0, 0, 641, 256);
-//        destinationComp.add(selectedFilesFrame, javax.swing.JLayeredPane.DEFAULT_LAYER);
-	// set the window position so that they are cascaded
-	currentInternalFrame.setLocation(nextWindowX, nextWindowY);
-	nextWindowX = nextWindowX + 10;
-	nextWindowY = nextWindowY + 10;
-	// TODO: it would be nice to use the JInternalFrame's title bar height to increment the position
-	if (nextWindowX + tempWindowWidth > desktopPane.getWidth()) {
-	    nextWindowX = 0;
-	}
-	if (nextWindowY + tempWindowHeight > desktopPane.getHeight()) {
-	    nextWindowY = 0;
-	}
+	applyWindowDefaults(currentInternalFrame);
+
+
 	desktopPane.add(currentInternalFrame, 0);
 	try {
 	    // prevent the frame focus process consuming mouse events that should be recieved by the jtable etc.

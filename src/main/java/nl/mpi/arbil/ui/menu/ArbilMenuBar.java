@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui.menu;
 
+import java.awt.event.ActionEvent;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilVocabularies;
@@ -13,6 +14,7 @@ import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -65,6 +67,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenu setCacheDirectoryMenu = new JMenu();
     private JMenu viewMenu = new JMenu();
     static public JMenu windowMenu = new JMenu();
+    private JMenuItem resetWindowsMenuItem = new JMenuItem();
     private JMenu optionsMenu = new JMenu();
     private JMenuItem pasteMenuItem = new JMenuItem();
     private JMenuItem printHelpMenuItem = new JMenuItem();
@@ -540,6 +543,16 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void initWindowMenu() {
         windowMenu.setText("Window");
+	resetWindowsMenuItem.setText("Reset windows");
+	resetWindowsMenuItem.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		if(ArbilWindowManager.getSingleInstance().showConfirmDialogBox("Reset all windows to default size and location?","Reset windows"))
+		ArbilWindowManager.getSingleInstance().resetWindows();
+	    }
+	});
+	windowMenu.add(resetWindowsMenuItem);
+	windowMenu.add(new JSeparator());
         this.add(windowMenu);
     }
 
