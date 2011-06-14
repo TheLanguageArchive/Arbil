@@ -32,3 +32,19 @@
 .arbilTable.non-horizontal td{
     width: 50%;
 }
+
+.arbilTable .editable{
+/*    border: 1px dashed #eee;*/
+}
+
+.arbilTable .required, .invalid{
+    color: red;
+}
+
+.arbilTable .needssave{
+    color: blue;
+}
+
+.arbilTable .nosuchfield{
+    background: #ccc;
+}
