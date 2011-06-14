@@ -1,6 +1,5 @@
 package nl.mpi.arbil.data;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
