@@ -872,6 +872,26 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //            System.out.println(ex.getMessage());
 	}
 
+	// Add frame listener that puts windows with negative y-positions back on the desktop pane
+	currentInternalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+
+	    @Override
+	    public void internalFrameDeactivated(InternalFrameEvent e) {
+		fixLocation(e.getInternalFrame());
+	    }
+
+	    @Override
+	    public void internalFrameActivated(InternalFrameEvent e) {
+		fixLocation(e.getInternalFrame());
+	    }
+
+	    private void fixLocation(final JInternalFrame frame) {
+		if (frame.getLocation().getY() < 0) {
+		    frame.setLocation(new Point((int) frame.getLocation().getX(), 0));
+		}
+	    }
+	});
+
 	return currentInternalFrame;
     }
 
