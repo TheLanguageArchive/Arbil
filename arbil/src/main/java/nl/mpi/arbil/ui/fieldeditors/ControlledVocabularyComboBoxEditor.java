@@ -247,7 +247,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
      * @return Index of matching item, guaranteed to be a String; -1 if no match
      */
     private int getMatchingItem(String text) {
-        if (null != text && !text.isEmpty()) {
+        if (null != text && text.length() > 0) {
             int itemsCount = getItemsCount();
 
             // Try previous match first, in many cases it will match and there's
@@ -281,7 +281,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
         StringBuilder sb = new StringBuilder(st.countTokens());
         while (st.hasMoreTokens()) {
             String token = st.nextToken().trim();
-            if (!token.isEmpty()) {
+            if (token.length() > 0) {
                 sb.append(token);
                 if (st.hasMoreTokens()) {
                     sb.append(SEPARATOR);
