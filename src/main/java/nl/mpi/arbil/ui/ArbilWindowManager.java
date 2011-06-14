@@ -365,8 +365,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //        destinationComp.add(selectedFilesFrame, javax.swing.JLayeredPane.DEFAULT_LAYER);
 	// set the window position so that they are cascaded
 	currentInternalFrame.setLocation(nextWindowX, nextWindowY);
-	nextWindowX = nextWindowX + 10;
-	nextWindowY = nextWindowY + 10;
+	nextWindowX += Math.max(10, currentInternalFrame.getInsets().left);
+	nextWindowY += Math.max(10, currentInternalFrame.getInsets().top - 10);
 	// TODO: it would be nice to use the JInternalFrame's title bar height to increment the position
 	if (nextWindowX + tempWindowWidth > desktopPane.getWidth()) {
 	    nextWindowX = 0;
@@ -880,7 +880,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	//        GuiHelper.arbilDragDrop.addTransferHandler(currentInternalFrame);
 	currentInternalFrame.add(contentsComponent, BorderLayout.CENTER);
 	windowTitle = addWindowToList(windowTitle, currentInternalFrame);
-	
+
 	currentInternalFrame.setTitle(windowTitle);
 	currentInternalFrame.setToolTipText(windowTitle);
 	currentInternalFrame.setName(windowTitle);

@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import com.sun.xml.internal.ws.util.StringUtils;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -1931,7 +1932,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
      * @return Whether a resource URI has been set for this node
      */
     public boolean isResourceSet() {
-	return resourceUrlField != null && !resourceUrlField.getFieldValue().isEmpty();
+	return resourceUrlField != null && resourceUrlField.getFieldValue().length() > 0;
     }
 //
 //    @Override

@@ -265,7 +265,7 @@ public class ArbilTable extends JTable {
             });
 
 
-            final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().isEmpty() ? "nameless" : targetColumnName) + ")");
+            final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName) + ")");
             thisColumnMenu.add(setFixedColumnSize);
             thisColumnMenu.add(setColumnSizeAuto);
             if (targetColumn != 0) {

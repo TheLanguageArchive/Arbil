@@ -585,8 +585,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	try {
 	    //new OutputStreamWriter
 	    FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
-	    OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
-	    configObject.store(propertiesOutputStreamWriter, null);
+	    if (System.getProperty("java.version").startsWith("1.6")) {
+		// Writing to an (encoding-specific) StreamWriter is not supported until 1.6
+		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
+		configObject.store(propertiesOutputStreamWriter, null);
+	    } else {
+		configObject.store(propertiesOutputStream, null);
+	    }
 	    propertiesOutputStream.close();
 	} catch (IOException ioe) {
 	    logError(ioe);
