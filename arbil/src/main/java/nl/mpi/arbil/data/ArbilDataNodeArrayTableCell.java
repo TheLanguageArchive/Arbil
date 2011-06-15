@@ -2,6 +2,8 @@ package nl.mpi.arbil.data;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * ArbilTableCell for arrays of ArbilDataNodes. Serializable due to transient ArbilDataNode field.
@@ -10,8 +12,8 @@ import java.util.ArrayList;
  */
 public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode[]> {
 
-    private transient ArbilDataNode[] dataNode;
-    private ArrayList<URI> contentUri;
+    private transient ArbilDataNode[] dataNodes;
+    private ArrayList<URI> contentUris;
 
     public ArbilDataNodeArrayTableCell(ArbilDataNode[] dataNode) {
 	setContent(dataNode);
@@ -23,10 +25,10 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
      */
     @Override
     public ArbilDataNode[] getContent() {
-	if (dataNode == null && contentUri != null) {
+	if (dataNodes == null && contentUris != null) {
 	    loadNodes();
 	}
-	return dataNode;
+	return dataNodes;
     }
 
     /**
@@ -34,23 +36,45 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
      */
     @Override
     public final void setContent(ArbilDataNode[] content) {
-	this.dataNode = content;
+	this.dataNodes = content;
 	setURIs();
     }
 
     private void setURIs() {
-	assert dataNode != null;
-	contentUri = new ArrayList<URI>(dataNode.length);
-	for (ArbilDataNode node : dataNode) {
-	    contentUri.add(node != null ? node.getURI() : null);
+	assert dataNodes != null;
+	contentUris = new ArrayList<URI>(dataNodes.length);
+	for (ArbilDataNode node : dataNodes) {
+	    contentUris.add(node != null ? node.getURI() : null);
 	}
     }
 
     private void loadNodes() {
-	assert contentUri != null;
-	dataNode = new ArbilDataNode[contentUri.size()];
-	for (int i = 0; i < contentUri.size(); i++) {
-	    dataNode[i] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUri.get(i));
+	assert contentUris != null;
+	dataNodes = new ArbilDataNode[contentUris.size()];
+	for (int i = 0; i < contentUris.size(); i++) {
+	    dataNodes[i] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUris.get(i));
 	}
+    }
+
+    @Override
+    public String toString() {
+	String cellText = "";
+	Arrays.sort(getContent(), new Comparator() {
+
+	    public int compare(Object o1, Object o2) {
+		String value1 = o1.toString();
+		String value2 = o2.toString();
+		return value1.compareToIgnoreCase(value2);
+	    }
+	});
+	boolean hasAddedValues = false;
+	for (ArbilDataNode currentArbilDataNode : getContent()) {
+	    cellText = cellText + "[" + currentArbilDataNode.toString() + "],";
+	    hasAddedValues = true;
+	}
+	if (hasAddedValues) {
+	    cellText = cellText.substring(0, cellText.length() - 1);
+	}
+	return (cellText);
     }
 }

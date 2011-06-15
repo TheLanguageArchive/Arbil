@@ -246,9 +246,13 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	return selectedNodesArray;
     }
 
+    public ArbilTableCell getTableCellAt(int row, int col) {
+	return getData()[row][col];
+    }
+    
     public Object getValueAt(int row, int col) {
 	try {
-	    return getData()[row][col].getContent();
+	    return getTableCellAt(row,col);//.getContent();
 	} catch (Exception e) {
 	    return null;
 	}
@@ -264,7 +268,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	requestReloadTableData();
     }
 
-    protected abstract String getRenderedText(Object data);
+    protected abstract String getRenderedText(ArbilTableCell data);
 
     public void highlightMatchingCells(int row, int col) {
 	getHighlightCells().add(getRenderedText(getData()[row][col]));
@@ -649,7 +653,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
-    protected Color[][] setCellColours(Object[][] dataTemp) {
+    protected Color[][] setCellColours(ArbilTableCell[][] dataTemp) {
 	Color[][] cellColourTemp;
 	if (dataTemp.length == 0) {
 	    cellColourTemp = new Color[0][0];
@@ -755,8 +759,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	public int compare(Object firstRowArray, Object secondRowArray) {
 	    if (sortColumn >= 0) {
 		// (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
-		String baseValueA = getRenderedText(((ArbilTableCell[]) firstRowArray)[sortColumn].getContent());
-		String comparedValueA = getRenderedText(((ArbilTableCell[]) secondRowArray)[sortColumn].getContent());
+		String baseValueA = getRenderedText(((ArbilTableCell[]) firstRowArray)[sortColumn]);
+		String comparedValueA = getRenderedText(((ArbilTableCell[]) secondRowArray)[sortColumn]);
 		// TODO: add the second or more sort column
 //            if (!(baseValueA.equals(comparedValueA))) {
 //                return baseValueB.compareTo(comparedValueB);

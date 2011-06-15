@@ -112,7 +112,7 @@ public class ArbilSplitPanel extends JPanel implements ArbilWindowComponent {
                             arbilTable.setColumnSelectionAllowed(false);
                             arbilTable.setRowSelectionAllowed(true);
                             for (int rowCount = 0; rowCount < arbilTable.getRowCount(); rowCount++) {
-                                if (arbilTable.getValueAt(rowCount, 0).equals(selectedRow)) {
+                                if (arbilTable.getTableCellContentAt(rowCount, 0).equals(selectedRow)) {
                                     arbilTable.addRowSelectionInterval(rowCount, rowCount);
                                     if (maxSelectedRow == -1 || maxSelectedRow < rowCount) {
                                         maxSelectedRow = rowCount;

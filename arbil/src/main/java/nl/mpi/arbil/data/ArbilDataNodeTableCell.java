@@ -38,4 +38,9 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
 	this.dataNode = content;
 	contentUri = content != null ? content.getURI() : null;
     }
+
+    @Override
+    public String toString() {
+	return dataNode.toString();
+    }
 }

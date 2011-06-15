@@ -26,6 +26,7 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBox;
@@ -377,7 +378,8 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
         }
     }
 
-    private void convertCellValue(Object value) throws ArbilMetadataException {
+    private void convertCellValue(ArbilTableCell cell) throws ArbilMetadataException {
+	Object value = cell.getContent();
         if (value != null) {
             if (value instanceof ArbilField) {
                 // TODO: get the whole array from the parent and select the correct tab for editing
@@ -410,12 +412,14 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 
     @Override
     public Component getTableCellEditorComponent(JTable table,
-            Object value,
+            Object valueObject,
             boolean isSelected,
             int row,
             int column) {
 //         TODO: something in this area is preventing the table selection change listener firing ergo the tree selection does not get updated (this symptom can also be caused by a node not being loaded into the tree)
 //        receivedKeyDown = true;
+	ArbilTableCell value = (ArbilTableCell)valueObject;
+	
         parentTable = (ArbilTable) table;
         parentCellRect = parentTable.getCellRect(row, column, false);
         ArbilTableCellRenderer cellRenderer = new ArbilTableCellRenderer(value);
