@@ -380,7 +380,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	this.data = data;
     }
 
-    protected String getRenderedText(Object data) {
+    protected String getRenderedText(ArbilTableCell data) {
 	return new ArbilTableCellRenderer(data).getText();
     }
 }
