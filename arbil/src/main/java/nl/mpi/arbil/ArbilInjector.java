@@ -5,6 +5,7 @@ import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.clarin.profiles.ProfilePreview;
+import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
@@ -86,6 +87,7 @@ public abstract class ArbilInjector {
 	ArbilTemplateManager.setBugCatcher(bugCatcher);
 	ArbilToHtmlConverter.setBugCatcher(bugCatcher);
 	ArbilTree.setBugCatcher(bugCatcher);
+	AbstractTreeHelper.setBugCatcher(bugCatcher);
 	ArbilVersionChecker.setBugCatcher(bugCatcher);
 	ArbilVocabularies.setBugCatcher(bugCatcher);
 	BinaryMetadataReader.setBugCatcher(bugCatcher);
@@ -120,6 +122,7 @@ public abstract class ArbilInjector {
 	ArbilTableModel.setMessageDialogHandler(messageDialogHandler);
 	ArbilTemplate.setMessageDialogHandler(messageDialogHandler);
 	ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
+	AbstractTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	ArbilTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	ArbilVersionChecker.setMessageDialogHandler(messageDialogHandler);
 	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
