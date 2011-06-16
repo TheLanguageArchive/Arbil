@@ -50,6 +50,7 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilSessionStorage implements SessionStorage {
 
+    private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -853,5 +854,14 @@ public class ArbilSessionStorage implements SessionStorage {
      */
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
 	this.useLanguageIdInColumnName = useLanguageIdInColumnName;
+    }
+
+    public File getTypeCheckerConfig() {
+	File typeCheckerConfig = new File(getStorageDirectory(), TYPECHECKER_CONFIG_FILENAME);
+	if (typeCheckerConfig.exists()) {
+	    return typeCheckerConfig;
+	} else {
+	    return null;
+	}
     }
 }
