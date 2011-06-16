@@ -12,6 +12,9 @@
 		<name>The Language Archive</name> 
 		<url>http://www.lat-mpi.eu/</url>
     </organization>
+    <scm>
+    	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
+  	</scm>
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
