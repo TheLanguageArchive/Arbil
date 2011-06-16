@@ -16,39 +16,33 @@ import nl.mpi.arbil.util.WindowManager;
 public class MockWindowManager implements WindowManager {
 
     public JFrame getMainFrame() {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return null;
     }
 
     public void closeAllWindows() {
-	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
-	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
-	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
-	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void openSearchTable(ArbilNode[] selectedNodes, String frameTitle) {
-	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void openFloatingSubnodesWindows(ArbilDataNode[] arbilDataNodes) {
-	throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return null;
     }
 
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return null;
     }
     
 }

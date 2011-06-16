@@ -1,9 +1,7 @@
 package nl.mpi.arbil;
 
-import java.awt.GraphicsEnvironment;
 import java.awt.datatransfer.ClipboardOwner;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -21,10 +19,10 @@ public class ArbilTestInjector extends ArbilInjector {
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 	injectBugCatcher(bugCatcher);
 
-	final MessageDialogHandler messageDialogHandler = GraphicsEnvironment.isHeadless() ? new MockDialogHandler() : ArbilWindowManager.getSingleInstance();
+	final MessageDialogHandler messageDialogHandler = new MockDialogHandler();
 	injectDialogHandler(messageDialogHandler);
 
-	final WindowManager windowManager = GraphicsEnvironment.isHeadless() ? new MockWindowManager() : ArbilWindowManager.getSingleInstance();
+	final WindowManager windowManager = new MockWindowManager();
 	injectWindowManager(windowManager);
 
 	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
