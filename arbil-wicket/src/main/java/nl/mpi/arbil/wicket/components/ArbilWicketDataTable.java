@@ -93,7 +93,7 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
 			    }
 
 			    public String convertToString(Object value, Locale locale) {
-				return getText((ArbilTableCell) value);
+				return ((ArbilTableCell) value).toString();
 			    }
 			};
 		    }
@@ -106,45 +106,10 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
 
 		return component;
 	    } else {
-		Label component = new Label(componentId, getText(cell));
+		Label component = new Label(componentId, cell.toString());
 		component.add(new CellValueStyleAppender(cell, false));
 		return component;
 	    }
-	}
-    }
-
-    private static String getText(ArbilTableCell cell) {
-	Object cellObject = cell.getContent();
-	if (cellObject instanceof ArbilDataNode) {
-	    return (((ArbilDataNode) cellObject).toString());
-	} else if (cellObject instanceof ArbilDataNode[]) {
-	    String cellText = "";
-	    Arrays.sort((ArbilDataNode[]) cellObject, new Comparator() {
-
-		public int compare(Object o1, Object o2) {
-		    String value1 = o1.toString();
-		    String value2 = o2.toString();
-		    return value1.compareToIgnoreCase(value2);
-		}
-	    });
-	    boolean hasAddedValues = false;
-	    for (ArbilDataNode currentArbilDataNode : (ArbilDataNode[]) cellObject) {
-		cellText = cellText + "[" + currentArbilDataNode.toString() + "],";
-		hasAddedValues = true;
-	    }
-	    if (hasAddedValues) {
-		cellText = cellText.substring(0, cellText.length() - 1);
-	    }
-	    return (cellText);
-	} else if (cellObject instanceof ArbilField[]) {
-	    return "<multiple values>";
-	} else if (cellObject instanceof ArbilField && ((ArbilField) cellObject).isRequiredField() && ((ArbilField) cellObject).toString().length() == 0) {
-	    return "<required field>";
-	}
-	if (cellObject != null) {
-	    return cellObject.toString();
-	} else {
-	    return "";
 	}
     }
 

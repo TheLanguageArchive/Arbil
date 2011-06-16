@@ -158,7 +158,7 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
     }
 
     @Override
-    protected String getRenderedText(Object data) {
+    protected String getRenderedText(ArbilTableCell data) {
 	return data.toString();
     }
 

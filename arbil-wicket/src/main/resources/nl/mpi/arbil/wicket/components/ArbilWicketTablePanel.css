@@ -34,7 +34,7 @@
 }
 
 .arbilTable .editable{
-/*    border: 1px dashed #eee;*/
+    /*    border: 1px dashed #eee;*/
 }
 
 .arbilTable .required, .invalid{
@@ -47,4 +47,8 @@
 
 .arbilTable .nosuchfield{
     background: #ccc;
+}
+
+.arbilTable .editable input{
+    width: 100%;
 }
