@@ -1,6 +1,5 @@
 package nl.mpi.arbil;
 
-import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.mpi.arbil.util.BugCatcher;
