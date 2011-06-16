@@ -1,5 +1,6 @@
 package nl.mpi.arbil.MetadataFile;
 
+import java.awt.GraphicsEnvironment;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import org.junit.Ignore;
@@ -25,13 +26,17 @@ import static org.junit.Assert.*;
  */
 public class MetadataReaderTest {
 
+    static {
+	System.setProperty("java.awt.headless", "true");
+    }
+
     public MetadataReaderTest() {
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
 	ArbilTestInjector.injectHandlers();
-	
+
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
 	ArbilTestInjector.injectSessionStorage(sessionStorage);
     }
@@ -49,32 +54,32 @@ public class MetadataReaderTest {
     }
 
     public static void assertFileContents(URI leftUri, URI rightUri) {
-        System.out.println("leftUri: " + leftUri);
-        System.out.println("rightUri: " + rightUri);
-        try {
-            BufferedReader leftReader = new BufferedReader(new InputStreamReader(leftUri.toURL().openStream()));
-            BufferedReader rightReader = new BufferedReader(new InputStreamReader(rightUri.toURL().openStream()));
-            String leftLine;
-            while ((leftLine = leftReader.readLine()) != null) {
-                leftLine = leftLine.trim();
-                String rightLine = rightReader.readLine().trim();
-                boolean skipLine = false;
+	System.out.println("leftUri: " + leftUri);
+	System.out.println("rightUri: " + rightUri);
+	try {
+	    BufferedReader leftReader = new BufferedReader(new InputStreamReader(leftUri.toURL().openStream()));
+	    BufferedReader rightReader = new BufferedReader(new InputStreamReader(rightUri.toURL().openStream()));
+	    String leftLine;
+	    while ((leftLine = leftReader.readLine()) != null) {
+		leftLine = leftLine.trim();
+		String rightLine = rightReader.readLine().trim();
+		boolean skipLine = false;
 
-                if (leftLine.startsWith("Date=") || leftLine.startsWith("Originator=\"Arbil")) {
-                    skipLine = true; // ignore the date and creator differences
-                }
-                System.out.println("leftLine: " + leftLine);
-                System.out.println("rightLine: " + rightLine);
-                if (!skipLine) {
-                    assertEquals(leftLine, rightLine);
-                }
+		if (leftLine.startsWith("Date=") || leftLine.startsWith("Originator=\"Arbil")) {
+		    skipLine = true; // ignore the date and creator differences
+		}
+		System.out.println("leftLine: " + leftLine);
+		System.out.println("rightLine: " + rightLine);
+		if (!skipLine) {
+		    assertEquals(leftLine, rightLine);
+		}
 
-            }
-            assertNull("Left file has more lines then the expected.", leftReader.readLine());
-            assertNull("Right file has more lines then the actual.", rightReader.readLine());
-        } catch (IOException ioe) {
-            fail(ioe.getMessage());
-        }
+	    }
+	    assertNull("Left file has more lines then the expected.", leftReader.readLine());
+	    assertNull("Right file has more lines then the actual.", rightReader.readLine());
+	} catch (IOException ioe) {
+	    fail(ioe.getMessage());
+	}
     }
 
     /**
@@ -83,32 +88,32 @@ public class MetadataReaderTest {
     @Test
     @Ignore
     public void testAddFromTemplate() {
-        System.out.println("addFromTemplate");
-        MetadataReader instance = MetadataReader.getSingleInstance();
-        String[] testTemplateTypes = {".METATRANSCRIPT.Corpus", ".METATRANSCRIPT.Session", ".METATRANSCRIPT.Catalogue"};
-        URI[] expectedTypes = null;
-        try {
-            expectedTypes = new URI[]{
-                        MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI(),
-                        MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session.imdi").toURI(),
-                        MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toURI()
-                    };
-        } catch (URISyntaxException urise) {
-            fail(urise.getMessage());
-        }
-        for (int testCounter = 0; testCounter < testTemplateTypes.length; testCounter++) {
-            try {
-                File destinationFile = File.createTempFile("testFile", ".imdi");
-                destinationFile.deleteOnExit();
-                String templateType = testTemplateTypes[testCounter];
-                URI expResult = expectedTypes[testCounter];
-                URI result = instance.addFromTemplate(destinationFile, templateType);
-                System.out.println("assertFileContents: " + expResult);
-                assertFileContents(expResult, result);
-            } catch (IOException ioe) {
-                fail(ioe.getMessage());
-            }
-        }
+	System.out.println("addFromTemplate");
+	MetadataReader instance = MetadataReader.getSingleInstance();
+	String[] testTemplateTypes = {".METATRANSCRIPT.Corpus", ".METATRANSCRIPT.Session", ".METATRANSCRIPT.Catalogue"};
+	URI[] expectedTypes = null;
+	try {
+	    expectedTypes = new URI[]{
+		MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/corpus.imdi").toURI(),
+		MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/session.imdi").toURI(),
+		MetadataReaderTest.class.getResource("/nl/mpi/arbil/data/testfiles/catalogue.imdi").toURI()
+	    };
+	} catch (URISyntaxException urise) {
+	    fail(urise.getMessage());
+	}
+	for (int testCounter = 0; testCounter < testTemplateTypes.length; testCounter++) {
+	    try {
+		File destinationFile = File.createTempFile("testFile", ".imdi");
+		destinationFile.deleteOnExit();
+		String templateType = testTemplateTypes[testCounter];
+		URI expResult = expectedTypes[testCounter];
+		URI result = instance.addFromTemplate(destinationFile, templateType);
+		System.out.println("assertFileContents: " + expResult);
+		assertFileContents(expResult, result);
+	    } catch (IOException ioe) {
+		fail(ioe.getMessage());
+	    }
+	}
     }
 
     /**
@@ -116,22 +121,21 @@ public class MetadataReaderTest {
      */
     @Test
     public void testGetNodeTypeFromMimeType() {
-        System.out.println("getNodeTypeFromMimeType");
-        String[][] testCases = {
-            {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-            {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"},
-            {"Manual/WrittenResource", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
-            {"Manual/MediaFile", ".METATRANSCRIPT.Session.Resources.MediaFile"}
-        };
-        for (String[] currentTest : testCases) {
-            String mimeType = currentTest[0];
-            MetadataReader instance = MetadataReader.getSingleInstance();
-            String expResult = currentTest[1];
-            String result = instance.getNodeTypeFromMimeType(mimeType);
-            assertEquals(expResult, result);
-        }
+	System.out.println("getNodeTypeFromMimeType");
+	String[][] testCases = {
+	    {"application/pdf", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+	    {"image/jpeg", ".METATRANSCRIPT.Session.Resources.MediaFile"},
+	    {"Manual/WrittenResource", ".METATRANSCRIPT.Session.Resources.WrittenResource"},
+	    {"Manual/MediaFile", ".METATRANSCRIPT.Session.Resources.MediaFile"}
+	};
+	for (String[] currentTest : testCases) {
+	    String mimeType = currentTest[0];
+	    MetadataReader instance = MetadataReader.getSingleInstance();
+	    String expResult = currentTest[1];
+	    String result = instance.getNodeTypeFromMimeType(mimeType);
+	    assertEquals(expResult, result);
+	}
     }
-
     /**
      * Test of insertFromTemplate method, of class MetadataReader.
      */
