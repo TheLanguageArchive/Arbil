@@ -123,5 +123,9 @@ public class ArbilWicketSessionStorage implements SessionStorage {
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public File getTypeCheckerConfig() {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
     
 }

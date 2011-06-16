@@ -130,4 +130,8 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
 	getSessionStorage().setUseLanguageIdInColumnName(useLanguageIdInColumnName);
     }
+
+    public File getTypeCheckerConfig() {
+	return getSessionStorage().getTypeCheckerConfig();
+    }
 }
