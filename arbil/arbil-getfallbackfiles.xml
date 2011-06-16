@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="antprettybuild-3.2.0.xsl"?>
+<!--
+ * arbil.xml
+ * Created on 10 September 2008, 10:03
+ * @author Peter.Withers@mpi.nl
+-->
+<project name="Arbil" default="compile">
+    <target name="getFallbackFiles-x" description="download the latest schema and controlled vocabularies from the web server">
+        <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
+        <mkdir dir="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/"/>
+        <!-- get the latest schema -->
+        <get src="http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/IMDI_3.0.xsd"/>
+        <!-- get the latest controlled vocabularies -->
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-FamilySocialRole.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Actor-FamilySocialRole.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-PlanningType.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-PlanningType.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Type.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/MediaFile-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Role.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Actor-Role.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SocialContext.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-SocialContext.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MPI-Languages.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/MPI-Languages.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Actor-Sex.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Actor-Sex.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Discourse.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-SubGenre-Discourse.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Source-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Source-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Boolean.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Boolean.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre-Stimuli.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-SubGenre-Stimuli.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Methodology.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Validation-Methodology.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Channel.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Channel.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-SubGenre.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-SubGenre.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Validation-Type.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Validation-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-EventStructure.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-EventStructure.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Subject.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Subject.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Derivation.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-Derivation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Discursive.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Genre-Discursive.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Task.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Task.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre-Interactional.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Genre-Interactional.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Continents.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Continents.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType-Annotation.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-SubType-Annotation.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/AnnotationUnit-Type.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/AnnotationUnit-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/AnnotationUnit-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/AnnotationUnit-Format.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Genre.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Genre.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Countries.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Countries.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-SubType.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-SubType.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Interactivity.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Interactivity.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/ISO639-2Languages.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/ISO639-2Languages.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/WrittenResource-Type.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/WrittenResource-Type.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Involvement.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Involvement.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/LanguagesID.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/LanguagesID.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/Content-Modalities.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/Content-Modalities.xml"/>
+        <get src="http://www.mpi.nl/IMDI/Schema/MediaFile-Format.xml" dest="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/MediaFile-Format.xml"/>
+    </target>
+</project>
+ 

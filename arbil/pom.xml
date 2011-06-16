@@ -59,7 +59,7 @@
 				<configuration>
 				  <target>
 				  	<property name="BUILDDIR" value="${project.build.outputDirectory}"/>
-				  	<ant antfile="arbil.xml">
+				  	<ant antfile="arbil-getfallbackfiles.xml">
 					  	<target name="getFallbackFiles-x" />
 				  	</ant>
 				  </target>
