@@ -163,8 +163,8 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil${arbil.filenameidentifier}.jnlp" dest="${SRCDIR}nl/mpi/arbil/ui/applet/arbil${arbil.filenameidentifier}.jnlp"/>
         <get src="http://www.mpi.nl/tg/j2se/jnlp/arbil/ui/applet/arbil-applet${arbil.filenameidentifier}.html" dest="${SRCDIR}nl/mpi/arbil/arbil-applet${arbil.filenameidentifier}.html"/>
     </target>
-    <target name="getFallbackFiles-x" depends="setproperties"/>
-    <target name="getFallbackFiles" depends="setproperties" description="download the latest schema and controlled vocabularies from the web server">
+    <target name="getFallbackFiles" depends="setproperties, getFallbackFiles-x"/>
+    <target name="getFallbackFiles-x" description="download the latest schema and controlled vocabularies from the web server">
         <!-- these files are only used if the server is not available on the first run and will be replaced by the application as soon as a network connection is available -->
         <mkdir dir="${BUILDDIR}/nl/mpi/arbil/resources/IMDI/FallBack/"/>
         <!-- get the latest schema -->
