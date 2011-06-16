@@ -144,4 +144,9 @@ public interface SessionStorage {
      * @param useLanguageIdInColumnName the useLanguageIdInColumnName to set
      */
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName);
+    
+    /**
+     * @return Custom TypeChecker config file, or null if no such file exists
+     */
+    public File getTypeCheckerConfig();
 }

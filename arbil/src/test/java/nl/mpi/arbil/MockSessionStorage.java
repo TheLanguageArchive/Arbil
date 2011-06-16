@@ -47,11 +47,11 @@ public class MockSessionStorage implements SessionStorage {
 //		    File localWorkingDirectory = (File) loadObject("cacheDirectory");
 //		    localCacheDirectory = localWorkingDirectory;
 //		} catch (Exception exception) {
-		    if (new File(getStorageDirectory(), "imdicache").exists()) {
-			localCacheDirectory = new File(getStorageDirectory(), "imdicache");
-		    } else {
-			localCacheDirectory = new File(getStorageDirectory(), "ArbilWorkingFiles");
-		    }
+		if (new File(getStorageDirectory(), "imdicache").exists()) {
+		    localCacheDirectory = new File(getStorageDirectory(), "imdicache");
+		} else {
+		    localCacheDirectory = new File(getStorageDirectory(), "ArbilWorkingFiles");
+		}
 //		}
 		saveString("cacheDirectory", localCacheDirectory.getAbsolutePath());
 	    }
@@ -359,5 +359,9 @@ public class MockSessionStorage implements SessionStorage {
 
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName) {
 	log.log(Level.INFO, "setUseLanguageIdInColumnName");
+    }
+
+    public File getTypeCheckerConfig() {
+	return null;
     }
 }
