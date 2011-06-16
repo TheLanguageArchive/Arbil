@@ -29,8 +29,29 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  * @author Peter.Withers@mpi.nl
  */
 public class MimeHashQueue {
-    // stored across sessions
 
+    /**
+     * @return the fileType
+     */
+    private static synchronized mpi.bcarchive.typecheck.FileType getFileType() {
+	if (fileType == null) {
+	    File configFile = null;
+	    try {
+		configFile = sessionStorage.getTypeCheckerConfig();
+	    } catch (Exception ex) {
+		bugCatcher.logError("Error while trying to retrieve file checker configuration", ex);
+	    }
+	    if (configFile != null) {
+		// User user's custom configuration
+		fileType = new mpi.bcarchive.typecheck.FileType(configFile);
+	    } else {
+		// Use default (included) configuration
+		fileType = new mpi.bcarchive.typecheck.FileType();
+	    }
+	}
+	return fileType;
+    }
+    // stored across sessions
     private Hashtable/*<String, Long>*/ processedFilesMTimes; // make this a vector and maybe remove or maybe make file path and file mtime
     private Hashtable<String, String[]> knownMimeTypes; // imdi path/file path, mime type : maybe sould only be file path
     private Hashtable<String, Vector<String>> md5SumToDuplicates;
@@ -43,7 +64,7 @@ public class MimeHashQueue {
     private boolean checkResourcePermissions = true;
     private static boolean allowCookies = false; // this is a silly place for this and should find a better home, but the cookies are only dissabled for the permissions test in this class
     private Thread mimeHashQueueThread;
-    private static mpi.bcarchive.typecheck.FileType fileType = new mpi.bcarchive.typecheck.FileType(); //  used to check the file type
+    private static mpi.bcarchive.typecheck.FileType fileType;  //  used to check the file type
     private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
     private static BugCatcher bugCatcher;
 
@@ -435,7 +456,7 @@ public class MimeHashQueue {
 			if (deep) {
 			    typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
 			} else {
-			    typeCheckerMessage = fileType.checkStream(inputStream, fileUri.toString());
+			    typeCheckerMessage = getFileType().checkStream(inputStream, fileUri.toString());
 			}
 //                    System.out.println("mpiMimeType: " + typeCheckerMessage);
 		    }
