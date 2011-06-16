@@ -9,62 +9,14 @@
     <version>2.3-SNAPSHOT</version>
     <name>Arbil</name>
     <organization> 
-	<name>The Language Archive</name> 
-	<url>http://www.lat-mpi.eu/</url>
+		<name>The Language Archive</name> 
+		<url>http://www.lat-mpi.eu/</url>
     </organization>
     <properties>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
 	<plugins>
-<!--            <plugin> this plugin seems not to be properly supported
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>deb-maven-plugin</artifactId>
-                <configuration>
-                    <description>Kinship and research tool</description>
-                    <maintainer>Peter Withers &lt;Peter.Withers@mpi.nl&gt;</maintainer>
-                    <section>science</section>
-                    <priority>optional</priority>
-                    <architecture>all</architecture>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>deb</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>-->
-<!--            <plugin>
-                <groupId>org.codehaus.mojo.webstart</groupId>
-                <artifactId>webstart-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>jnlp</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-                <configuration>
-
-                    <jnlpFiles>
-                        <jnlpFile>
-                            <jarResources>
-                                <jarResource>
-                                    <groupId>nl.mpi</groupId>
-                                    <artifactId>Kinnate</artifactId>
-                                    <version>1.0-SNAPSHOT</version>
-                                    <mainClass>nl.mpi.kinnate.MainFrame</mainClass>
-                                </jarResource>
-                            </jarResources>
-                        </jnlpFile>
-                    </jnlpFiles>
-
-                </configuration>
-
-            </plugin>-->
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-compiler-plugin</artifactId>
@@ -72,11 +24,6 @@
 		<configuration>
 		    <source>1.5</source>
 		    <target>1.5</target>
-<!--		    
-		    <includes>
-			<include>src/main/java/nl/mpi/arbil/templates/**</include>
-			<include>src/main/java/nl/mpi/arbil/resources/**</include>
-		    </includes>-->
 		</configuration>
 	    </plugin>
 	    <plugin>
@@ -90,9 +37,36 @@
 			    <mainClass>nl.mpi.arbil.ArbilMain</mainClass>
 			</manifest>
 		    </archive>
+		    <excludes>
+		    	<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
+		    	<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
+		    	<exclude>nl/mpi/arbil/resources/icons/*.ico</exclude>
+		    	<exclude>nl/mpi/arbil/resources/icons/*.icns</exclude>
+		    	<exclude>nl/mpi/arbil/ui/applet/**</exclude>
+			</excludes>
 		</configuration>
 	    </plugin>
-	    <!-- TODO: copy fallback IMDI templates (call ant task) -->
+	    <!--copy fallback IMDI templates (call ant task) -->
+	    <plugin>
+			<artifactId>maven-antrun-plugin</artifactId>
+			<version>1.6</version>
+			<executions>
+			  <execution>
+				<phase>compile</phase>
+				<configuration>
+				  <target>
+				  	<property name="BUILDDIR" value="${project.build.outputDirectory}"/>
+				  	<ant antfile="arbil.xml">
+					  	<target name="getFallbackFiles-x" />
+				  	</ant>
+				  </target>
+				</configuration>
+				<goals>
+				  <goal>run</goal>
+				</goals>
+			  </execution>
+			</executions>
+		  </plugin>
 	</plugins>
     </build>
     <dependencies>
