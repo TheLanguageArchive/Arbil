@@ -586,7 +586,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	try {
 	    //new OutputStreamWriter
 	    FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
-	    if (System.getProperty("java.version").startsWith("1.6")) {
+	    if (System.getProperty("java.version").startsWith("1.6")) { //TODO: should not break with 1.7 - better is check if method exists
 		// Writing to an (encoding-specific) StreamWriter is not supported until 1.6
 		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
 		configObject.store(propertiesOutputStreamWriter, null);

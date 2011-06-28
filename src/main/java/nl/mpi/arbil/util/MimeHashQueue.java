@@ -35,16 +35,17 @@ public class MimeHashQueue {
      */
     private static synchronized mpi.bcarchive.typecheck.FileType getFileType() {
 	if (fileType == null) {
-	    File configFile = null;
 	    try {
-		configFile = sessionStorage.getTypeCheckerConfig();
+		File configFile = sessionStorage.getTypeCheckerConfig();
+		if (configFile != null) {
+		    // User user's custom configuration
+		    fileType = new mpi.bcarchive.typecheck.FileType(configFile);
+		}
 	    } catch (Exception ex) {
-		bugCatcher.logError("Error while trying to retrieve file checker configuration", ex);
+		messageDialogHandler.addMessageDialogToQueue("A custom typechecker file types configuration was found. However, it cannot be processed, therefore the default configuration will be used.", "Type checker configuration error");
+		bugCatcher.logError("Error while retrieving or applying file checker configuration. Using default configuration.", ex);
 	    }
-	    if (configFile != null) {
-		// User user's custom configuration
-		fileType = new mpi.bcarchive.typecheck.FileType(configFile);
-	    } else {
+	    if (fileType == null) {
 		// Use default (included) configuration
 		fileType = new mpi.bcarchive.typecheck.FileType();
 	    }
@@ -75,6 +76,11 @@ public class MimeHashQueue {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static MessageDialogHandler messageDialogHandler;
+
+    public static void setMessageDialogHandler(MessageDialogHandler handler) {
+	messageDialogHandler = handler;
     }
 
     static synchronized public MimeHashQueue getSingleInstance() {
