@@ -131,6 +131,7 @@ public abstract class ArbilInjector {
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
 	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
 	MetadataReader.setMessageDialogHandler(messageDialogHandler);
+	MimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
