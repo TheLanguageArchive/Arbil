@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
@@ -954,12 +955,17 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
 		clipBoardString = clipBoardData.toString();
 		System.out.println("clipBoardString: " + clipBoardString);
+
+		String[] elements;
 		if (clipBoardString.contains("\n")) {
-		    for (String element : clipBoardString.split("\n")) {
-			pasteIntoNode(element);
-		    }
+		    elements = clipBoardString.split("\n");
 		} else {
-		    pasteIntoNode(clipBoardString);
+		    elements = new String[]{clipBoardString};
+		}
+		for (String element : elements) {
+		}
+		for (ArbilDataNode clipboardNode : pasteIntoNode(elements)) {
+		    new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
 		}
 	    }
 	} catch (Exception ex) {
@@ -967,32 +973,50 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	}
     }
 
-    private boolean pasteIntoNode(String clipBoardString) {
-	if (this.isCorpus()) {
-	    if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
-		ArbilDataNode clipboardNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
-		if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
-		    if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
-			if (this.getFile().exists()) {
-			    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
-			    new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
-			    return true;
+//    if (currentNode.getNeedsSaveToDisk(false)) {
+//			    if (JOptionPane.CANCEL_OPTION == ArbilWindowManager.getSingleInstance().showDialogBox("The nodes to be copied contain unsaved changes.\nUnless these changes are saved, the resulting nodes will be copies of the currently saved nodes.\nContinue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+//				return;
+//			    }
+//			    break;
+//			}
+    private Collection<ArbilDataNode> pasteIntoNode(String[] clipBoardStrings) {
+	ArrayList<ArbilDataNode> nodesToAdd = new ArrayList<ArbilDataNode>();
+	boolean ignoreSaveChanges = false;
+	for (String clipBoardString : clipBoardStrings) {
+	    if (this.isCorpus()) {
+		if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
+		    ArbilDataNode clipboardNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		    if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
+			if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
+			    if (this.getFile().exists()) {
+				if (!ignoreSaveChanges && clipboardNode.getNeedsSaveToDisk(false)) {
+				    if (JOptionPane.CANCEL_OPTION == messageDialogHandler.showDialogBox(
+					    "Some of the nodes to be copied contain unsaved changes.\nUnless they are saved, these changes will not be present in the resulting nodes. Continue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+					return new ArrayList<ArbilDataNode>(0);
+				    } else{
+					ignoreSaveChanges = true;
+				    }
+				}
+
+				// this must use merge like favoirite to prevent instances end endless loops in corpus branches
+				nodesToAdd.add(clipboardNode);
+			    } else {
+				messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
+			    }
 			} else {
-			    messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
+			    messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
 			}
 		    } else {
-			messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
+			messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
 		    }
 		} else {
-		    messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
+		    messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
 		}
 	    } else {
-		messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+		messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
 	    }
-	} else {
-	    messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
 	}
-	return false;
+	return nodesToAdd;
     }
 
     /**
