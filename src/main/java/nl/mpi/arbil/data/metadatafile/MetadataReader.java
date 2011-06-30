@@ -516,6 +516,8 @@ public class MetadataReader {
 
     private void showDomIdFoundMessage() {
         if (!ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
+	    // Note TG: it may be good to add something like 'non-critical error' or something, so users feel safe to 
+	    // ignore this if they do not know what it means.
             messageDialogHandler.addMessageDialogToQueue("A dom id attribute has been found in one or more files, these files will need to be saved to correct this.", "Load IMDI Files");
         }
     }
