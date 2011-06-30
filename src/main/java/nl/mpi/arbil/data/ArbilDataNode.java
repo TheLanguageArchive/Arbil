@@ -954,33 +954,45 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    if (clipBoardData != null) {//TODO: check that this is not null first but let it pass on null so that the no data to paste messages get sent to the user
 		clipBoardString = clipBoardData.toString();
 		System.out.println("clipBoardString: " + clipBoardString);
-		if (this.isCorpus()) {
-		    if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
-			ArbilDataNode clipboardNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
-			if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
-			    if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
-				if (this.getFile().exists()) {
-				    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
-				    new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
-				} else {
-				    messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
-				}
-			    } else {
-				messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
-			    }
-			} else {
-			    messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
-			}
-		    } else {
-			messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+		if (clipBoardString.contains("\n")) {
+		    for (String element : clipBoardString.split("\n")) {
+			pasteIntoNode(element);
 		    }
 		} else {
-		    messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
+		    pasteIntoNode(clipBoardString);
 		}
 	    }
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
 	}
+    }
+
+    private boolean pasteIntoNode(String clipBoardString) {
+	if (this.isCorpus()) {
+	    if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
+		ArbilDataNode clipboardNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
+		    if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
+			if (this.getFile().exists()) {
+			    // this must use merge like favoirite to prevent instances end endless loops in corpus branches
+			    new MetadataBuilder().requestAddNode(this, "copy of " + clipboardNode, clipboardNode);
+			    return true;
+			} else {
+			    messageDialogHandler.addMessageDialogToQueue("The target node's file does not exist", null);
+			}
+		    } else {
+			messageDialogHandler.addMessageDialogToQueue("Cannot paste session subnodes into a corpus", null);
+		    }
+		} else {
+		    messageDialogHandler.addMessageDialogToQueue("The target file is not in the cache", null);
+		}
+	    } else {
+		messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
+	    }
+	} else {
+	    messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
+	}
+	return false;
     }
 
     /**
