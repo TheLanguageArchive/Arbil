@@ -49,6 +49,7 @@ public class MimeHashQueue {
 		// Use default (included) configuration
 		fileType = new mpi.bcarchive.typecheck.FileType();
 	    }
+	    fileType._cmdlineMode = true; // Not preferred but we've got to find out what's causing the typechecker message: null issues
 	}
 	return fileType;
     }
@@ -453,9 +454,10 @@ public class MimeHashQueue {
 	    if (!new File(fileUri).exists()) {
 //            System.out.println("File does not exist: " + fileUrl);
 	    } else {
+		InputStream inputStream = null;
 		try {
 		    // this will choke on strings that look url encoded but are not. because it erroneously decodes them
-		    InputStream inputStream = fileUri.toURL().openStream();
+		    inputStream = fileUri.toURL().openStream();
 		    if (inputStream != null) {
 //                    String pamperUrl = fileUrl.getFile().replace("//", "/");
 			// Node that the type checker will choke if the path includes "//"
@@ -470,6 +472,18 @@ public class MimeHashQueue {
 		} catch (Exception ioe) {
 //                bugCatcher.logError(ioe);
 		    System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
+		    bugCatcher.logError(ioe);
+		    if (typeCheckerMessage == null) {
+			typeCheckerMessage = "I/O Exception: " + ioe.getMessage();
+		    }
+		} finally {
+		    if (inputStream != null) {
+			try {
+			    inputStream.close();
+			} catch (IOException ex) {
+			    bugCatcher.logError(ex);
+			}
+		    }
 		}
 		System.out.println(mpiMimeType);
 	    }
