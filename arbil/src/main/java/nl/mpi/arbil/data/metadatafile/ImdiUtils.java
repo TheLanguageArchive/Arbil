@@ -6,17 +6,17 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.xml.transform.TransformerException;
-import mpi.imdi.api.IMDIDom;
-import mpi.imdi.api.IMDILink;
-import mpi.imdi.api.WSNodeType;
-import mpi.util.OurURL;
+import nl.mpi.imdi.api.IMDIDom;
+import nl.mpi.imdi.api.IMDILink;
+import nl.mpi.imdi.api.WSNodeType;
+import nl.mpi.util.OurURL;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.Document;
 
 /**
- *  Document   : ImdiUtils
+ *  Document   : ImdiUtilsL
  *  Created on : May 21, 2010, 9:30:03 PM
  *  Author     : Peter Withers
  */
@@ -36,7 +36,7 @@ public class ImdiUtils implements MetadataUtils {
 
     private boolean isCatalogue(URI sourceURI) {
         try {
-            mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
+            OurURL inUrlLocal = new OurURL(sourceURI.toURL());
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             checkImdiApiResult(nodDom, sourceURI);
             return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Catalogue");
@@ -50,7 +50,7 @@ public class ImdiUtils implements MetadataUtils {
 
     private boolean isSession(URI sourceURI) {
         try {
-            mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
+            OurURL inUrlLocal = new OurURL(sourceURI.toURL());
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             checkImdiApiResult(nodDom, sourceURI);
             return null != org.apache.xpath.XPathAPI.selectSingleNode(nodDom, "/:METATRANSCRIPT/:Session");
@@ -116,8 +116,8 @@ public class ImdiUtils implements MetadataUtils {
 
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) throws ArbilMetadataException {
         try {
-            mpi.util.OurURL inUrlLocal = new mpi.util.OurURL(sourceURI.toURL());
-            mpi.util.OurURL destinationUrl = new mpi.util.OurURL(destinationFile.toURI().toURL());
+            OurURL inUrlLocal = new OurURL(sourceURI.toURL());
+            OurURL destinationUrl = new OurURL(destinationFile.toURI().toURL());
 
             org.w3c.dom.Document nodDom = api.loadIMDIDocument(inUrlLocal, false);
             checkImdiApiResult(nodDom, sourceURI);
@@ -126,10 +126,10 @@ public class ImdiUtils implements MetadataUtils {
                 messageDialogHandler.addMessageDialogToQueue("Error reading via the IMDI API", "Copy IMDI File");
                 return false;
             } else {
-                mpi.imdi.api.IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, mpi.imdi.api.WSNodeType.UNKNOWN);
+                IMDILink[] links = api.getIMDILinks(nodDom, inUrlLocal, WSNodeType.UNKNOWN);
                 checkImdiApiResult(links, sourceURI);
                 if (links != null && updateLinks) {
-                    for (mpi.imdi.api.IMDILink currentLink : links) {
+                    for (IMDILink currentLink : links) {
                         URI linkUriToUpdate = null;
                         if (linksToUpdate != null) {
                             for (URI[] updatableLink : linksToUpdate) {
@@ -147,14 +147,14 @@ public class ImdiUtils implements MetadataUtils {
                                 // todo: this is not going to always work because the changeIMDILink is too limited, when a link points to a different domain for example
                                 // todo: cont... or when a remote imdi is imported without its files then exported while copying its files, the files will be copied but the links not updated by the api
                                 // todo: cont... this must instead take oldurl newurl and the new imdi file location
-//                            boolean changeLinkResult = api.changeIMDILink(nodDom, new mpi.util.OurURL(linkUriToUpdate.toURL()), currentLink);
+//                            boolean changeLinkResult = api.changeIMDILink(nodDom, new OurURL(linkUriToUpdate.toURL()), currentLink);
 //                            if (!changeLinkResult) {
 //                                checkImdiApiResult(null, sourceURI);
 //                                return false;
 //                            }
                                 // todo: check how removeIMDILink and createIMDILink handles info links compared to changeIMDILink
                                 // Changed this to use setURL that has now been suggested but was previously advised against, in the hope of resolving the numerous errors with the api such as info links issues and resource data issues and bad url construction in links.
-                                currentLink.setURL(new mpi.util.OurURL(linkUriToUpdate.toURL()));
+                                currentLink.setURL(new OurURL(linkUriToUpdate.toURL()));
                                 //System.out.println("currentLink.getURL: " + currentLink.getURL());
                                 boolean changeLinkResult = api.changeIMDILink(nodDom, destinationUrl, currentLink);
                                 if (!changeLinkResult) {
@@ -261,7 +261,6 @@ public class ImdiUtils implements MetadataUtils {
                 }
                 return returnUriArray;
             }
-
         } catch (MalformedURLException exception) {
             bugCatcher.logError(exception);
             messageDialogHandler.addMessageDialogToQueue("Error reading links via the IMDI API", "Get Links");
