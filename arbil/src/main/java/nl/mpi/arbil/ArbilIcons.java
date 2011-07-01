@@ -258,6 +258,8 @@ public class ArbilIcons {
             } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
                 // no icon for this
                 iconsVector.add(fileIcon);
+	    } else if(mimeTypeForNode.contains("unknown")){
+		iconsVector.add(questionRedIcon);
             } else if (mimeTypeForNode.length() > 0) {
                 iconsVector.add(questionRedIcon);
                 bugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
