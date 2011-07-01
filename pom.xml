@@ -9,14 +9,14 @@
     <version>2.3-SNAPSHOT</version>
     <name>Arbil</name>
     <organization> 
-		<name>The Language Archive</name> 
-		<url>http://www.lat-mpi.eu/</url>
+	<name>The Language Archive</name> 
+	<url>http://www.lat-mpi.eu/</url>
     </organization>
     <scm>
-    	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
-  	</scm>
+	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
+    </scm>
     <properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
 	<plugins>
@@ -41,35 +41,35 @@
 			</manifest>
 		    </archive>
 		    <excludes>
-		    	<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
-		    	<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
-		    	<exclude>nl/mpi/arbil/resources/icons/*.ico</exclude>
-		    	<exclude>nl/mpi/arbil/resources/icons/*.icns</exclude>
-		    	<exclude>nl/mpi/arbil/ui/applet/**</exclude>
-			</excludes>
+			<exclude>nl/mpi/arbil/resources/**/readme.txt</exclude>
+			<exclude>nl/mpi/arbil/resources/icons/svg-files/**</exclude>
+			<exclude>nl/mpi/arbil/resources/icons/*.ico</exclude>
+			<exclude>nl/mpi/arbil/resources/icons/*.icns</exclude>
+			<exclude>nl/mpi/arbil/ui/applet/**</exclude>
+		    </excludes>
 		</configuration>
 	    </plugin>
 	    <!--copy fallback IMDI templates (call ant task) -->
 	    <plugin>
-			<artifactId>maven-antrun-plugin</artifactId>
-			<version>1.6</version>
-			<executions>
-			  <execution>
-				<phase>compile</phase>
-				<configuration>
-				  <target>
-				  	<property name="BUILDDIR" value="${project.build.outputDirectory}"/>
-				  	<ant antfile="arbil-getfallbackfiles.xml">
-					  	<target name="getFallbackFiles-x" />
-				  	</ant>
-				  </target>
-				</configuration>
-				<goals>
-				  <goal>run</goal>
-				</goals>
-			  </execution>
-			</executions>
-		  </plugin>
+		<artifactId>maven-antrun-plugin</artifactId>
+		<version>1.6</version>
+		<executions>
+		    <execution>
+			<phase>compile</phase>
+			<configuration>
+			    <target>
+				<property name="BUILDDIR" value="${project.build.outputDirectory}"/>
+				<ant antfile="arbil-getfallbackfiles.xml">
+				    <target name="getFallbackFiles-x" />
+				</ant>
+			    </target>
+			</configuration>
+			<goals>
+			    <goal>run</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
 	</plugins>
     </build>
     <dependencies>
@@ -101,8 +101,19 @@
 	<dependency>
 	    <groupId>nl.mpi</groupId>
 	    <artifactId>imdi-api</artifactId>
-	    <version>1.0.6</version>
+	    <version>1.1.2</version>
 	</dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>mpi-util</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>nl.mpi</groupId>
+            <artifactId>corpusstructure-api</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+	
 	<dependency>
 	    <groupId>junit</groupId>
 	    <artifactId>junit</artifactId>
@@ -128,11 +139,6 @@
 	    <groupId>xalan</groupId>
 	    <artifactId>xalan</artifactId>
 	    <version>2.6.0</version>
-	</dependency>
-	<dependency>
-	    <groupId>nl.mpi</groupId>
-	    <artifactId>corpusstructure</artifactId>
-	    <version>1.6.5.4</version>
 	</dependency>
 	<dependency>
 	    <groupId>commons-digester</groupId>
