@@ -863,28 +863,35 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	if (nodeNeedsSaveToDisk) {
 	    saveChangesToCache(false);
 	}
-	bumpHistory();
-	copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-	synchronized (getParentDomLockObject()) {
-	    System.out.println("deleting by corpus link");
-	    URI[] copusUriList = new URI[targetImdiNodes.length];
-	    for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
-		//                if (targetImdiNodes[nodeCounter].hasResource()) {
-		//                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getFullResourceURI(); // todo: should this resouce case be used here? maybe just the uri
-		//                } else {
-		copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
-		//                }
+	try {
+	    bumpHistory();
+	    copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+	    synchronized (getParentDomLockObject()) {
+		System.out.println("deleting by corpus link");
+		URI[] copusUriList = new URI[targetImdiNodes.length];
+		for (int nodeCounter = 0; nodeCounter < targetImdiNodes.length; nodeCounter++) {
+		    //                if (targetImdiNodes[nodeCounter].hasResource()) {
+		    //                    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getFullResourceURI(); // todo: should this resouce case be used here? maybe just the uri
+		    //                } else {
+		    copusUriList[nodeCounter] = targetImdiNodes[nodeCounter].getURI();
+		    //                }
+		}
+		metadataUtils.removeCorpusLink(this.getURI(), copusUriList);
+		this.getParentDomNode().loadArbilDom();
 	    }
-	    metadataUtils.removeCorpusLink(this.getURI(), copusUriList);
-	    this.getParentDomNode().loadArbilDom();
+	    //        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
+	    ////            currentChildNode.clearIcon();
+	    //            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
+	    //        }
+	    for (ArbilDataNode removedChild : targetImdiNodes) {
+		removedChild.removeFromAllContainers();
+	    }
+	} catch (IOException ex) {
+	    // Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
+	    bugCatcher.logError("I/O exception while deleting nodes from " + this.toString(), ex);
+	    messageDialogHandler.addMessageDialogToQueue("Could not delete nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
 	}
-	//        for (ImdiTreeObject currentChildNode : targetImdiNodes) {
-	////            currentChildNode.clearIcon();
-	//            ArbilTreeHelper.getSingleInstance().updateTreeNodeChildren(currentChildNode);
-	//        }
-	for (ArbilDataNode removedChild : targetImdiNodes) {
-	    removedChild.removeFromAllContainers();
-	}
+
 	this.getParentDomNode().clearIcon();
 	this.getParentDomNode().clearChildIcons();
 	clearIcon(); // this must be cleared so that the leaf / branch flag gets set
@@ -935,14 +942,18 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    if (nodeNeedsSaveToDisk) {
 		saveChangesToCache(true);
 	    }
-	    bumpHistory();
-	    copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
-	    synchronized (getParentDomLockObject()) {
-		return metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
+	    try {
+		bumpHistory();
+		copyLastHistoryToCurrent(); // bump history is normally used afteropen and before save, in this case we cannot use that order so we must make a copy
+		synchronized (getParentDomLockObject()) {
+		    return metadataUtils.addCorpusLink(this.getURI(), new URI[]{targetImdiNode.getURI()});
+		}
+	    } catch (IOException ex) {
+		// Usually renaming issue. Try block includes add corpus link because this should not be attempted if history saving failed.
+		bugCatcher.logError("I/O exception while moving node " + targetImdiNode.toString() + " to " + this.toString(), ex);
+		messageDialogHandler.addMessageDialogToQueue("Could not move nodes because an error occurred while saving history for node. See error log for details.", "Error while moving nodes");
+		return false;
 	    }
-	    //loadChildNodes(); // this must not be done here
-	    //            clearIcon(); // this must be cleared so that the leaf / branch flag gets set
-//            return true;
 	}
     }
 
@@ -993,7 +1004,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 				    if (JOptionPane.CANCEL_OPTION == messageDialogHandler.showDialogBox(
 					    "Some of the nodes to be copied contain unsaved changes.\nUnless they are saved, these changes will not be present in the resulting nodes. Continue anyway?", "Copying with unsaved changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 					return new ArrayList<ArbilDataNode>(0);
-				    } else{
+				    } else {
 					ignoreSaveChanges = true;
 				    }
 				}
@@ -1565,7 +1576,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     /*
      * Increment the history file so that a new current file can be saved without overwritting the old
      */
-    public void bumpHistory() {
+    public void bumpHistory() throws IOException {
 	// update the files version number
 	//TODO: the template add does not create a new history file
 	int versionCounter = 0;
@@ -1583,11 +1594,15 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    versionCounter--;
 	    File nextFile = new File(this.getFile().getAbsolutePath() + "." + versionCounter);
 	    if (versionCounter >= 0) {
-		nextFile.renameTo(lastFile);
 		System.out.println("renaming: " + nextFile + " : " + lastFile);
+		if (!nextFile.renameTo(lastFile)) {
+		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+		}
 	    } else {
-		headVersion.renameTo(lastFile);
 		System.out.println("renaming: " + headVersion + " : " + lastFile);
+		if (!headVersion.renameTo(lastFile)) {
+		    throw new IOException("Error while copying history files for metadata. Could not rename " + nextFile.toString() + " to " + lastFile.toString());
+		}
 	    }
 	}
     }
@@ -1606,6 +1621,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		}
 		outFile.write(buffer, 0, bytesread);
 	    }
+	    inputStream.close();
 	    outFile.close();
 	} catch (IOException iOException) {
 	    messageDialogHandler.addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
