@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -815,6 +816,11 @@ public class ImportExportDialog {
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 		    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
+		} catch(IOException ex){
+		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+		    totalErrors++;
+		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 		}
 		totalLoaded++;
 		progressFoundLabel.setText(progressFoundLabelText + (getList.size() + totalLoaded));
