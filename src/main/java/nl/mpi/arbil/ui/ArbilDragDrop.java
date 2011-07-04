@@ -512,9 +512,11 @@ public class ArbilDragDrop {
 		    && (selectionContainsArbilCorpus == false || selectionContainsImdiSession == false)) {
 		System.out.println("ok to move local IMDI");
 
+		boolean moveMultiple = draggedArbilNodes.length > 1;
 		boolean moveAll = false;
+		boolean continueMove = true;
 
-		for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
+		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
 		    System.out.println("dragged: " + currentNode.toString());
 		    if (!((ArbilDataNode) currentNode).isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode((ArbilDataNode) dropTargetUserObject, (ArbilDataNode) currentNode)) {
@@ -551,15 +553,16 @@ public class ArbilDragDrop {
 					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
 					    + /*" from " + ((DefaultMutableTreeNode) ancestorNode.getParent()).getUserObject().toString() +*/ " to " + targetNodeName,
 					    "Arbil",
-					    JOptionPane.YES_NO_OPTION,
+					    JOptionPane.DEFAULT_OPTION,
 					    JOptionPane.PLAIN_MESSAGE,
 					    null,
-					    (draggedArbilNodes.length <= 1 ? new Object[]{"Move", "Cancel"}
-					    : new Object[]{"Move", "Move all", "Cancel"}),
-					    "Cancel");
-				    moveAll = draggedArbilNodes.length > 1 && detailsOption == 1;
+					    (moveMultiple ? new Object[]{"Move", "Move all", "Skip", "Abort"}
+					    : new Object[]{"Move", "Cancel"}),
+					    moveMultiple ? "Skip" : "Cancel");
+				    moveAll = moveMultiple && detailsOption == 1;
+				    continueMove = !(moveMultiple && detailsOption == 3);
 				}
-				if (moveAll || detailsOption == 0) {
+				if (continueMove && (moveAll || detailsOption == 0)) {
 				    boolean addNodeResult = true;
 				    if (dropTargetUserObject instanceof ArbilDataNode) {
 					addNodeResult = ((ArbilDataNode) dropTargetUserObject).addCorpusLink(currentNode);
