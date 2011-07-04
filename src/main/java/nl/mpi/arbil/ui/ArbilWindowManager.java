@@ -137,15 +137,16 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openAboutPage() {
-	ArbilVersion linorgVersion = new ArbilVersion();
+	ArbilVersion arbilVersion = new ArbilVersion();
 	String messageString = "Archive Builder\n"
 		+ "A local tool for organising linguistic data.\n"
-		+ "Max Planck Institute for Psycholinguistics\n"
+		+ "Max Planck Institute for Psycholinguistics\n\n"
 		+ "Application design and programming by Peter Withers\n"
-		+ "Arbil also uses components of the IMDI API and Lamus Type Checker\n"
-		+ "Version: " + linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision + "\n"
-		+ linorgVersion.lastCommitDate + "\n"
-		+ "Compile Date: " + linorgVersion.compileDate + "\n";
+		+ "Arbil also uses components of the IMDI API and Lamus Type Checker\n\n"
+		+ "Version: " + arbilVersion.currentMajor + "." + arbilVersion.currentMinor + "." + arbilVersion.currentRevision + "\n"
+		+ arbilVersion.lastCommitDate + "\n"
+		+ "Compile Date: " + arbilVersion.compileDate + "\n\n"
+		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor");
 	JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
     }
 

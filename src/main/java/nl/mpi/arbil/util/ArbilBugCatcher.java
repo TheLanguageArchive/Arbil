@@ -4,6 +4,7 @@ import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,7 +58,30 @@ public class ArbilBugCatcher implements BugCatcher {
 
     public File getLogFile() {
 	ArbilVersion linorgVersion = new ArbilVersion();
-	return new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
+	File file = new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
+	if (!file.exists()) {
+	    startNewLogFile(file);
+	}
+	return file;
+    }
+
+    private static void startNewLogFile(File file) {
+	ArbilVersion arbilVersion = new ArbilVersion();
+	try {
+	    FileWriter errorLogFile = new FileWriter(file, false);
+	    errorLogFile.append(arbilVersion.applicationTitle + " error log" + System.getProperty("line.separator")
+		    + "Version: " + arbilVersion.currentMajor + "." + arbilVersion.currentMinor + "." + arbilVersion.currentRevision + System.getProperty("line.separator")
+		    + arbilVersion.lastCommitDate + System.getProperty("line.separator")
+		    + "Compile Date: " + arbilVersion.compileDate + System.getProperty("line.separator")
+		    + "Operating System: " + System.getProperty("os.name")+ " (" + System.getProperty("os.arch") + ") version "+ System.getProperty("os.version") + System.getProperty("line.separator")
+		    + "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor") + System.getProperty("line.separator")
+		    + "User: " + System.getProperty("user.name") + System.getProperty("line.separator")
+		    + "Log started: " + new Date().toString() + System.getProperty("line.separator"));
+	    errorLogFile.append("======================================================================" + System.getProperty("line.separator"));
+	    errorLogFile.close();
+	} catch (IOException ex) {
+	    System.err.println("failed to write to the error log: " + ex.getMessage());
+	}
     }
 
     public void grabApplicationShot() {
