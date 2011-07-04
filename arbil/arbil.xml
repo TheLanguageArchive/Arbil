@@ -102,6 +102,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                             <token key="TypeCheckVersion" value="${TypeCheckVersion}"/>
                             <token key="FilenameIdentifier" value="${arbil.filenameidentifier}"/>
                             <token key="ApplicationTitle" value="${arbil.application-title}"/>
+                            <token key="WineUsername" value="${user.name}"/>
                         </replacetokens>
                     </filterchain>
                 </copy>
