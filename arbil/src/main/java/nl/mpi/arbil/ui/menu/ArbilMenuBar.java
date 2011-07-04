@@ -68,6 +68,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenu viewMenu = new JMenu();
     static public JMenu windowMenu = new JMenu();
     private JMenuItem resetWindowsMenuItem = new JMenuItem();
+    private JMenuItem closeWindowsMenuItem = new JMenuItem();
     private JMenu optionsMenu = new JMenu();
     private JMenuItem pasteMenuItem = new JMenuItem();
     private JMenuItem printHelpMenuItem = new JMenuItem();
@@ -543,6 +544,7 @@ public class ArbilMenuBar extends JMenuBar {
 
     private void initWindowMenu() {
         windowMenu.setText("Window");
+	
 	resetWindowsMenuItem.setText("Reset windows");
 	resetWindowsMenuItem.addActionListener(new ActionListener() {
 
@@ -551,9 +553,21 @@ public class ArbilMenuBar extends JMenuBar {
 		ArbilWindowManager.getSingleInstance().resetWindows();
 	    }
 	});
+	
+	closeWindowsMenuItem.setText("Close all windows");
+	closeWindowsMenuItem.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		if(ArbilWindowManager.getSingleInstance().showConfirmDialogBox("Close all windows?","Close windows"))
+		ArbilWindowManager.getSingleInstance().closeAllWindows();
+	    }
+	});
+
+	windowMenu.add(closeWindowsMenuItem);
 	windowMenu.add(resetWindowsMenuItem);
 	windowMenu.add(new JSeparator());
-        this.add(windowMenu);
+        
+	this.add(windowMenu);
     }
 
     private void initHelpMenu() {
