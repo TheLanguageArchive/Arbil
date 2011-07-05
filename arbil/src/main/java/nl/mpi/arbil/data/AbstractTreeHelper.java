@@ -331,6 +331,10 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	    boolean result = componentBuilder.removeChildNodes(currentParent, (childNodeDeleteList.get(currentParent)).toArray(new String[]{}));
 	    if (result) {
+		// Invalidate all thumbnails for the parent node. If MediaFiles are deleted, this prevents the thumbnails to get 'shifted' 
+		// i.e. stick on the wrong note. This could perhaps be done a bit more sophisticated, it is not actually needed 
+		// unless MediaFiles are deleted
+		currentParent.invalidateThumbnails();
 		currentParent.reloadNode();
 	    } else {
 		messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");

@@ -1985,6 +1985,13 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public boolean isResourceSet() {
 	return resourceUrlField != null && resourceUrlField.getFieldValue().length() > 0;
     }
+    
+    public void invalidateThumbnails(){
+	thumbnailFile = null;
+	for(ArbilDataNode node:getChildArray()){
+	    node.invalidateThumbnails();
+	}
+    }
 //
 //    @Override
 //    public boolean equals(Object obj) {
