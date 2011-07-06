@@ -1621,6 +1621,7 @@ public class ImdiTreeObject implements Comparable {
                 }
                 outFile.write(buffer, 0, bytesread);
             }
+            inputStream.close();
             outFile.close();
         } catch (IOException iOException) {
             LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
