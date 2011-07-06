@@ -74,15 +74,20 @@ public class ImdiToHtmlConverter {
                 FileOutputStream outFile = new FileOutputStream(tempDependantFile);
                 //InputStream inputStream = this.getClass().getResourceAsStream("html/imdi-viewer/" + dependantFileString);
                 InputStream inputStream = this.getClass().getResourceAsStream("/nl/mpi/arbil/resources/xsl/" + dependantFileString);
-                int bufferLength = 1024 * 4;
-                byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
-                int bytesread = 0;
-                while (bytesread >= 0) {
-                    bytesread = inputStream.read(buffer);
-                    if (bytesread == -1) {
-                        break;
+                if(inputStream == null){
+                    GuiHelper.linorgBugCatcher.logError(new Exception("Inputstream null for " + dependantFileString));
+                } else{
+                    int bufferLength = 1024 * 4;
+                    byte[] buffer = new byte[bufferLength]; // make htis 1024*4 or something and read chunks not the whole file
+                    int bytesread = 0;
+                    while (bytesread >= 0) {
+                        bytesread = inputStream.read(buffer);
+                        if (bytesread == -1) {
+                            break;
+                        }
+                        outFile.write(buffer, 0, bytesread);
                     }
-                    outFile.write(buffer, 0, bytesread);
+                    inputStream.close();
                 }
                 outFile.close();
             } catch (IOException iOException) {
