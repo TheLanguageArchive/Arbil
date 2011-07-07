@@ -44,6 +44,7 @@ import nl.mpi.arbil.importexport.ShibbolethNegotiator;
  * @author Peter.Withers@mpi.nl
  */
 public class LinorgSessionStorage {
+    private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
 
     public File storageDirectory = null;
     private File localCacheDirectory = null;
@@ -792,5 +793,14 @@ public class LinorgSessionStorage {
 	    }
 	}
 	return downloadSucceeded;
+    }
+
+    public File getTypeCheckerConfig() {
+	File typeCheckerConfig = new File(storageDirectory, TYPECHECKER_CONFIG_FILENAME);
+	if (typeCheckerConfig.exists()) {
+	    return typeCheckerConfig;
+	} else {
+	    return null;
+	}
     }
 }
