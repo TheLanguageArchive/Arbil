@@ -62,6 +62,9 @@ public class ImdiToHtmlConverter {
     }
 
     private void copyDependancies(File destinationDirectory, boolean deleteOnExit) {
+        if(destinationDirectory == null){
+            GuiHelper.linorgBugCatcher.logError(new Exception("Destination directory is null"));
+        }
         // copy any dependent files from the jar
         String[] dependentFiles = {"imdi-viewer-open.gif", "imdi-viewer-closed.gif", "imdi-viewer.js", "additTooltip.js", "additPopup.js", "imdi-viewer.css", "additTooltip.css"};
 
