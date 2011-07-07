@@ -1975,4 +1975,11 @@ public class ImdiTreeObject implements Comparable {
         }
         return icon;
     }
+    
+    public void invalidateThumbnails(){
+	thumbnailFile = null;
+	for(ImdiTreeObject node:getChildArray()){
+	    node.invalidateThumbnails();
+	}
+    }
 }
