@@ -396,6 +396,7 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language.xml" DisplayName="Content Language" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Description.xml" DisplayName="Content Language Description" InsertBefore="Language" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Location.Region.xml" DisplayName="Location.Region" InsertBefore="Address" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms.xml" DisplayName="Anonyms" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Keys.Key.xml" DisplayName="MediaFile Key"  InsertBefore=""/>
