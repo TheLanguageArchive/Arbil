@@ -64,15 +64,18 @@ public class LinorgFavourites {
         }
         for (ImdiTreeObject currentImdiObject : imdiObjectArray) {
             if (currentImdiObject.isEmptyMetaNode()) {
-                // note: the way that favourites are shown in a table will not show meta nodes but their child nodes instead
-                setAsTempate = false;
-            }
-            if (setAsTempate) {
-                addAsFavourite(currentImdiObject.getURI());
+                // don't add this node, but do add its children (if there are any)
+                if (currentImdiObject.getChildArray().length > 0) {
+                    toggleFavouritesList(currentImdiObject.getChildArray(), true);
+                }
             } else {
-                removeFromFavourites(currentImdiObject.getURI());
-                // TODO: remove from any tables and update the tree roots
+                if (setAsTempate) {
+                    addAsFavourite(currentImdiObject.getURI());
+                } else {
+                    removeFromFavourites(currentImdiObject.getURI());
+                    // TODO: remove from any tables and update the tree roots
 //                currentImdiObject.setFavouriteStatus(false);
+                }
             }
         }
         return true;
