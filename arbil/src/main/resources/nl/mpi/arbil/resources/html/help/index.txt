@@ -13,6 +13,7 @@ Editing_Viewing/Searching.html
 Technical_Details/The Journal File.html
 Technical_Details/Error Logs.html
 Technical_Details/Templates.html
+Technical_Details/Custom Filetypes Configuration.html
 Working_Offline/What to do before going into the field.html
 Working_Offline/Making an off line copy.html
 Templates_and_Favourites/Templates.html
