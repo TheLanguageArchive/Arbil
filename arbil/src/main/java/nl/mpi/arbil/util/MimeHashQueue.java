@@ -17,6 +17,8 @@ import java.util.Hashtable;
 import java.util.Vector;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.bcarchive.typecheck.DeepFileType;
+import nl.mpi.bcarchive.typecheck.FileType;
 
 /**
  * Resource nodes can be added to this queue. A low priority thread then
@@ -33,13 +35,13 @@ public class MimeHashQueue {
     /**
      * @return the fileType
      */
-    private static synchronized mpi.bcarchive.typecheck.FileType getFileType() {
+    private static synchronized FileType getFileType() {
 	if (fileType == null) {
 	    try {
 		File configFile = sessionStorage.getTypeCheckerConfig();
 		if (configFile != null) {
 		    // User user's custom configuration
-		    fileType = new mpi.bcarchive.typecheck.FileType(configFile);
+		    fileType = new FileType(configFile);
 		}
 	    } catch (Exception ex) {
 		messageDialogHandler.addMessageDialogToQueue("A custom typechecker file types configuration was found. However, it cannot be processed, therefore the default configuration will be used.", "Type checker configuration error");
@@ -47,7 +49,7 @@ public class MimeHashQueue {
 	    }
 	    if (fileType == null) {
 		// Use default (included) configuration
-		fileType = new mpi.bcarchive.typecheck.FileType();
+		fileType = new FileType();
 	    }
 	    fileType._cmdlineMode = true; // Not preferred but we've got to find out what's causing the typechecker message: null issues
 	}
@@ -66,8 +68,8 @@ public class MimeHashQueue {
     private boolean checkResourcePermissions = true;
     private static boolean allowCookies = false; // this is a silly place for this and should find a better home, but the cookies are only dissabled for the permissions test in this class
     private Thread mimeHashQueueThread;
-    private static mpi.bcarchive.typecheck.FileType fileType;  //  used to check the file type
-    private static mpi.bcarchive.typecheck.DeepFileType deepFileType = new mpi.bcarchive.typecheck.DeepFileType();
+    private static FileType fileType;  //  used to check the file type
+    private static DeepFileType deepFileType = new DeepFileType();
     private static BugCatcher bugCatcher;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
@@ -366,7 +368,7 @@ public class MimeHashQueue {
 		} else if (fileAttribute.equals("MpiMimeType")) {
 		    autoValue = currentDataNode.mpiMimeType;
 		} else if (fileAttribute.equals("FileType")) {
-		    autoValue = mpi.bcarchive.typecheck.FileType.resultToMimeType(currentDataNode.typeCheckerMessage);
+		    autoValue = FileType.resultToMimeType(currentDataNode.typeCheckerMessage);
 		    // todo: consider checking that the mime type matches the node type such as written resource or media file, such that a server sending html (with 200 response) rather than a media file would be discovered, although that could only be detected for media files not written resources
 		    if (autoValue != null) {
 			int indexOfChar = autoValue.indexOf("/");
@@ -468,7 +470,7 @@ public class MimeHashQueue {
 			}
 //                    System.out.println("mpiMimeType: " + typeCheckerMessage);
 		    }
-		    mpiMimeType = mpi.bcarchive.typecheck.FileType.resultToMPIType(typeCheckerMessage);
+		    mpiMimeType = FileType.resultToMPIType(typeCheckerMessage);
 		} catch (Exception ioe) {
 //                bugCatcher.logError(ioe);
 		    System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
