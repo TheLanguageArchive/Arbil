@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import java.awt.HeadlessException;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -17,7 +16,6 @@ import java.util.Hashtable;
 import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -27,7 +25,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
-import nl.mpi.arbil.util.ArbilBugCatcher;
 
 /**
  * Document   :  ArbilDragDrop
@@ -476,15 +473,13 @@ public class ArbilDragDrop {
 	    Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
 	    System.out.println("to: " + dropTargetUserObject.toString());
+	    final ArbilDataNode dropTargetDataNode = (ArbilDataNode) dropTargetUserObject;
 	    //                     TODO: add drag to local corpus tree
 	    //                     TODO: consider adding a are you sure you want to move that node into this node ...
 	    //                     TODO: must prevent parent nodes being dragged into lower branches of itself
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
-		//TODO: this should also allow drop to the root node
-		//                        if (((ArbilDataNode) dropTargetUserObject).isImdiChild()) {
-		//                            dropTargetUserObject = ((ArbilDataNode) dropTargetUserObject).getParentDomNode();
-		//                        }
-		if (((ArbilDataNode) dropTargetUserObject).getParentDomNode().isCmdiMetaDataNode() || ((ArbilDataNode) dropTargetUserObject).getParentDomNode().isSession()/* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
+		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
+		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() || dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
 		    //TODO: for now we do not allow drag on to imdi child nodes
 		    if (selectionContainsArchivableLocalFile == true
 			    && selectionContainsLocalFile == true
@@ -497,8 +492,9 @@ public class ArbilDragDrop {
 			    && selectionContainsRemote == false) {
 			System.out.println("ok to add local file");
 			for (int draggedCounter = 0; draggedCounter < draggedArbilNodes.length; draggedCounter++) {
-			    System.out.println("dragged: " + draggedArbilNodes[draggedCounter].toString());
-			    new MetadataBuilder().requestAddNode((ArbilDataNode) dropTargetUserObject, "Resource", draggedArbilNodes[draggedCounter]);
+			    final ArbilDataNode currentArbilNode = draggedArbilNodes[draggedCounter];
+			    System.out.println("dragged: " + currentArbilNode.toString());
+			    new MetadataBuilder().requestAddNode(dropTargetDataNode, "Resource", currentArbilNode);
 			}
 			return true;
 		    }
@@ -519,7 +515,7 @@ public class ArbilDragDrop {
 		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
 		    System.out.println("dragged: " + currentNode.toString());
-		    if (!((ArbilDataNode) currentNode).isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode((ArbilDataNode) dropTargetUserObject, (ArbilDataNode) currentNode)) {
+		    if (!((ArbilDataNode) currentNode).isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, (ArbilDataNode) currentNode)) {
 			//((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
 			// check that the node has not been dragged into itself
@@ -537,7 +533,7 @@ public class ArbilDragDrop {
 			if (!draggedIntoSelf) {
 			    if (((ArbilDataNode) currentNode).isFavorite()) {
 				//  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
-				new MetadataBuilder().requestAddNode((ArbilDataNode) dropTargetUserObject, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
+				new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
 			    } else if (!(((ArbilDataNode) currentNode).isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(((ArbilDataNode) currentNode).getFile()))) {
 				importNodeList.add((ArbilDataNode) currentNode);
 			    } else {
@@ -565,7 +561,7 @@ public class ArbilDragDrop {
 				if (continueMove && (moveAll || detailsOption == 0)) {
 				    boolean addNodeResult = true;
 				    if (dropTargetUserObject instanceof ArbilDataNode) {
-					addNodeResult = ((ArbilDataNode) dropTargetUserObject).addCorpusLink(currentNode);
+					addNodeResult = (dropTargetDataNode).addCorpusLink(currentNode);
 				    } else {
 					addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
 				    }
@@ -598,7 +594,7 @@ public class ArbilDragDrop {
 		    try {
 			ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
 			if (dropTargetUserObject instanceof ArbilDataNode) {
-			    importExportDialog.setDestinationNode(((ArbilDataNode) dropTargetUserObject));
+			    importExportDialog.setDestinationNode((dropTargetDataNode));
 			}
 			importExportDialog.copyToCache(importNodeList);
 		    } catch (Exception e) {
@@ -613,7 +609,7 @@ public class ArbilDragDrop {
 		if (dropTargetUserObject instanceof ArbilDataNode) {
 		    // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
 //                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
-		    ((ArbilDataNode) dropTargetUserObject).reloadNode();
+		    (dropTargetDataNode).reloadNode();
 		} else {
 		    ArbilTreeHelper.getSingleInstance().applyRootLocations();
 		}
