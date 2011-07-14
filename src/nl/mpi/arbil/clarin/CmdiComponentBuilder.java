@@ -126,7 +126,7 @@ public class CmdiComponentBuilder {
             String targetXmlPath = imdiTreeObject.getURI().getFragment();
             if (targetXmlPath == null) {
                 // todo: consider making sure that the dom parent node always has a path
-                targetXmlPath = ".CMD.Components." + imdiTreeObject.getParentDomNode().nodeTemplate.loadedTemplateName;
+                targetXmlPath = ".CMD.Components." + imdiTreeObject.getParentDomNode().getNodeTemplate().loadedTemplateName;
             }
             System.out.println("insertResourceProxy: " + targetXmlPath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
@@ -366,9 +366,9 @@ public class CmdiComponentBuilder {
         // this node has already been saved in the metadatabuilder which called this
         // but lets check this again in case this gets called elsewhere and to make things consistant
         String elementName = favouriteImdiTreeObject.getURI().getFragment();
-        String insertBefore = destinationImdiTreeObject.nodeTemplate.getInsertBeforeOfTemplate(elementName);
+        String insertBefore = destinationImdiTreeObject.getNodeTemplate().getInsertBeforeOfTemplate(elementName);
         System.out.println("insertBefore: " + insertBefore);
-        int maxOccurs = destinationImdiTreeObject.nodeTemplate.getMaxOccursForTemplate(elementName);
+        int maxOccurs = destinationImdiTreeObject.getNodeTemplate().getMaxOccursForTemplate(elementName);
         System.out.println("maxOccurs: " + maxOccurs);
         if (destinationImdiTreeObject.getNeedsSaveToDisk(false)) {
             destinationImdiTreeObject.saveChangesToCache(true);
