@@ -3,8 +3,6 @@ package nl.mpi.arbil.userstorage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
