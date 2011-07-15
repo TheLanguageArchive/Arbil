@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -38,8 +39,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     private ArbilDataNode[] localCorpusNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] localFileNodes = new ArbilDataNode[]{};
     private ArbilDataNode[] favouriteNodes = new ArbilDataNode[]{};
-    Vector<DefaultMutableTreeNode> treeNodeSortQueue = new Vector<DefaultMutableTreeNode>(); // used in the tree node sort thread
-    boolean treeNodeSortQueueRunning = false; // used in the tree node sort thread
     private boolean showHiddenFilesInTree = false;
     private static MessageDialogHandler messageDialogHandler;
 
@@ -53,7 +52,6 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     protected abstract SessionStorage getSessionStorage();
-
 
     protected final void initTrees() {
 	initRootNodes();
@@ -87,7 +85,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
 	return favouritesTreeModel;
     }
-    
+
     @Override
     public int addDefaultCorpusLocations() {
 	HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
@@ -324,12 +322,13 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     protected void deleteNodesByChidXmlIdLink(Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList) {
-	for (ArbilDataNode currentParent : childNodeDeleteList.keySet()) {
+	for (Entry<ArbilDataNode, Vector<String>> deleteEntry : childNodeDeleteList.entrySet()) {
+	    ArbilDataNode currentParent = deleteEntry.getKey();
 	    System.out.println("deleting by child xml id link");
 	    // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
 	    //currentParent.deleteFromDomViaId(((Vector<String>) imdiChildNodeDeleteList.get(currentParent)).toArray(new String[]{}));
 	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-	    boolean result = componentBuilder.removeChildNodes(currentParent, (childNodeDeleteList.get(currentParent)).toArray(new String[]{}));
+	    boolean result = componentBuilder.removeChildNodes(currentParent, deleteEntry.getValue().toArray(new String[]{}));
 	    if (result) {
 		// Invalidate all thumbnails for the parent node. If MediaFiles are deleted, this prevents the thumbnails to get 'shifted' 
 		// i.e. stick on the wrong note. This could perhaps be done a bit more sophisticated, it is not actually needed 
@@ -344,9 +343,9 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     protected void deleteNodesByCorpusLink(Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
-	for (ArbilDataNode currentParent : dataNodesDeleteList.keySet()) {
+	for (Entry<ArbilDataNode, Vector<ArbilDataNode>> deleteEntry : dataNodesDeleteList.entrySet()) {
 	    System.out.println("deleting by corpus link");
-	    currentParent.deleteCorpusLink(((Vector<ArbilDataNode>) dataNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{}));
+	    deleteEntry.getKey().deleteCorpusLink(deleteEntry.getValue().toArray(new ArbilDataNode[]{}));
 	}
     }
 
