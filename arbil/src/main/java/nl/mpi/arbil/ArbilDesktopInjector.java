@@ -27,17 +27,21 @@ public class ArbilDesktopInjector extends ArbilInjector {
      */
     public static synchronized void injectHandlers() {
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
+	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	injectBugCatcher(bugCatcher);
 	
 	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
+	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
 	
 	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
+	ArbilSessionStorage.setWindowManager(windowManager);
 	injectWindowManager(windowManager);
 	
 	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
 	injectClipboardOwner(clipboardOwner);
 	
+	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
 	injectSessionStorage(sessionStorage);
 	

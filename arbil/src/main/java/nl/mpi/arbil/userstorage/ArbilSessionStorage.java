@@ -3,6 +3,8 @@ package nl.mpi.arbil.userstorage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
 import java.io.FileInputStream;
@@ -127,17 +129,26 @@ public class ArbilSessionStorage implements SessionStorage {
 	} else {
 	    try {
 		File testFile = File.createTempFile("testfile", ".tmp", storageDirectory);
-		testFile.createNewFile();
-		testFile.deleteOnExit();
-		if (!testFile.exists()) {
+		boolean success = testFile.exists();
+		if (!success) {
+		    success = testFile.createNewFile();
+		}
+		if (success) {
+		    testFile.deleteOnExit();
+		    success = testFile.exists();
+		    if (success) {
+			success = testFile.delete();
+		    }
+		}
+		if (!success) {
 		    // test the storage directory is writable and add a warning message box here if not
 		    messageDialogHandler.addMessageDialogToQueue("Could not write to the working directory.\nThere will be issues creating, editing and saving any file.", null);
 		}
-		testFile.delete();
 	    } catch (IOException exception) {
 		System.out.println(exception);
-		messageDialogHandler.addMessageDialogToQueue("Could not create a test file in the working directory\nThe application will now exit.", "Arbil Critical Error");
-		System.exit(-1);
+		bugCatcher.logError(exception);
+		messageDialogHandler.addMessageDialogToQueue("Could not create a test file in the working directory.", "Arbil Critical Error");
+		throw new RuntimeException("Exception while testing working directory writability", exception);
 	    }
 	}
 	trackTableSelection = loadBoolean("trackTableSelection", false);
@@ -526,8 +537,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	    out.write(currentString + "\r\n");
 	}
 	out.close();
-	destinationConfigFile.delete();
-	tempConfigFile.renameTo(destinationConfigFile);
+	if (destinationConfigFile.delete()) {
+	    if (!tempConfigFile.renameTo(destinationConfigFile)) {
+		messageDialogHandler.addMessageDialogToQueue("Error saving configuration to " + filename, "Error saving configuration");
+	    }
+	} else {
+	    messageDialogHandler.addMessageDialogToQueue("Could not write new configuration to " + filename, "Error saving configuration");
+	}
 //        try {
 //            Properties propertiesObject = new Properties();
 //            FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, filename + ".config"));
@@ -571,13 +587,21 @@ public class ArbilSessionStorage implements SessionStorage {
 
     private Properties getConfig() {
 	Properties propertiesObject = new Properties();
+	FileInputStream propertiesInStream = null;
 	try {
-	    FileInputStream propertiesInStream = new FileInputStream(new File(storageDirectory, "arbil.config"));
+	    propertiesInStream = new FileInputStream(new File(storageDirectory, "arbil.config"));
 	    propertiesObject.load(propertiesInStream);
-	    propertiesInStream.close();
 	} catch (IOException ioe) {
 	    // file not found so create the file
 	    saveConfig(propertiesObject);
+	} finally {
+	    if (propertiesInStream != null) {
+		try {
+		    propertiesInStream.close();
+		} catch (IOException ioe) {
+		    logError(ioe);
+		}
+	    }
 	}
 	return propertiesObject;
     }
@@ -590,6 +614,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		// Writing to an (encoding-specific) StreamWriter is not supported until 1.6
 		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
 		configObject.store(propertiesOutputStreamWriter, null);
+		propertiesOutputStreamWriter.close();
 	    } else {
 		configObject.store(propertiesOutputStream, null);
 	    }
@@ -658,7 +683,7 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Removes the cache path component from a path string and appends it to the destination directory.
-     * Then tests for and creates the directory structure in the destination directory if requred.
+     * Then tests for and creates the directory structure in the destination directory if required.
      * @param pathString Path of a file within the cache.
      * @param destinationDirectory Path of the destination directory.
      * @return The path of the file in the destination directory.
@@ -674,7 +699,10 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	File returnFile = new File(cachePath);
 	if (!returnFile.getParentFile().exists()) {
-	    returnFile.getParentFile().mkdirs();
+	    if (!returnFile.getParentFile().mkdirs()) {
+		logError(new Exception("Could not create directory structure for export of " + pathString));
+		return null;
+	    }
 	}
 	return returnFile;
     }
@@ -726,7 +754,10 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	File returnFile = new File(getCacheDirectory(), cachePath);
 	if (!returnFile.getParentFile().exists()) {
-	    returnFile.getParentFile().mkdirs();
+	    if (!returnFile.getParentFile().mkdirs()) {
+		logError(new Exception("Could not ccrate directory structure for saving " + pathString));
+		return null;
+	    }
 	}
 	return returnFile;
     }
@@ -775,11 +806,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
 		}
 		if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
-		    if (httpConnection == null) {
-			System.out.println("httpConnection is null, hence this is a local file and we should not have been testing the response code");
-		    } else {
-			System.out.println("non 200 response, skipping file");
-		    }
+		    System.out.println("non 200 response, skipping file");
 		} else {
 		    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
 		    tempFile.deleteOnExit();
@@ -806,9 +833,13 @@ public class ArbilSessionStorage implements SessionStorage {
 		    outFile.close();
 		    if (tempFile.length() > 0 && !abortFlag.abortDownload) { // TODO: this should check the file size on the server
 			if (destinationFile.exists()) {
-			    destinationFile.delete();
+			    if (!destinationFile.delete()) {
+				throw new Exception("Changes not saved. Could not delete old file " + destinationFile.toString());
+			    }
 			}
-			tempFile.renameTo(destinationFile);
+			if (!tempFile.renameTo(destinationFile)) {
+			    throw new Exception("Changes not saved. Could not rename temporary file to " + destinationFile.toString());
+			}
 			downloadSucceeded = true;
 		    }
 		    System.out.println("Downloaded: " + totalRead / (1024 * 1024) + " Mb");
