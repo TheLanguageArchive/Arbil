@@ -6,6 +6,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -491,8 +493,9 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 			MetadataReader.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
 			childLinks = childLinksTemp.toArray(new String[][]{});
 			//ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
-			for (ArbilDataNode currentNode : parentChildTree.keySet()) {
-			    //                        System.out.println("setting childArray on: " + currentNode.getUrlString());
+			for (Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
+			    ArbilDataNode currentNode = entry.getKey();
+			    // System.out.println("setting childArray on: " + currentNode.getUrlString());
 			    // save the old child array
 			    ArbilDataNode[] oldChildArray = currentNode.childArray;
 			    // set the new child array
@@ -715,7 +718,9 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
 	    File destinationDir = new File(currentFileName);
 	    if (!destinationDir.exists()) {
-		destinationDir.mkdir();
+		if (!destinationDir.mkdir()) {
+		    bugCatcher.logError(new Exception("Could not create directory " + destinationDir.getAbsolutePath()));
+		}
 	    }
 	    return destinationDir;
 	}
@@ -1542,34 +1547,65 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     }
 
     public boolean resurrectHistory(String historyVersion) {
+	InputStream historyFile = null;
+	OutputStream activeVersionFile = null;
 	try {
 	    if (historyVersion.equals(".x")) {
 		this.getFile().delete();
 		new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile());
 	    } else {
-		messageDialogHandler.offerUserToSaveChanges();
-		if (!new File(this.getFile().getAbsolutePath() + ".x").exists()) {
-		    this.getFile().renameTo(new File(this.getFile().getAbsolutePath() + ".x"));
-		} else {
-		    this.getFile().delete();
+		try {
+		    messageDialogHandler.offerUserToSaveChanges();
+		} catch (Exception e) {
+		    // user canceled the save action
+		    // todo: alert user that nothing was done
+		    return false;
 		}
-		InputStream hisoryFile = new FileInputStream(new File(this.getFile().getAbsolutePath() + historyVersion));
-		OutputStream activeVersionFile = new FileOutputStream(this.getFile(), true);
+		if (!new File(this.getFile().getAbsolutePath() + ".x").exists()) {
+		    if (!this.getFile().renameTo(new File(this.getFile().getAbsolutePath() + ".x"))) {
+			throw new IOException("Could not rename to history file: " + getFile().getAbsolutePath());
+		    }
+		} else {
+		    if (!this.getFile().delete()) {
+			throw new IOException("Could not delete history file: " + getFile().getAbsolutePath());
+		    }
+		}
+		historyFile = new FileInputStream(new File(this.getFile().getAbsolutePath() + historyVersion));
+		activeVersionFile = new FileOutputStream(this.getFile(), true);
 
 		byte[] copyBuffer = new byte[1024];
 		int len;
-		while ((len = hisoryFile.read(copyBuffer)) > 0) {
+		while ((len = historyFile.read(copyBuffer)) > 0) {
 		    activeVersionFile.write(copyBuffer, 0, len);
 		}
-		hisoryFile.close();
-		activeVersionFile.close();
+
 	    }
-	    ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
-	} catch (Exception e) {
-	    // user canceled the save action
-	    // todo: alert user that nothing was done
+	} catch (FileNotFoundException e) {
+	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "File not found");
+	    bugCatcher.logError(e);
 	    return false;
+	} catch (IOException e) {
+	    messageDialogHandler.addMessageDialogToQueue(e.getLocalizedMessage() + ". History may be broken for " + this.toString(), "Error while reading or writing to disk");
+	    bugCatcher.logError(e);
+	    return false;
+	} finally {
+	    if (null != historyFile) {
+		try {
+		    historyFile.close();
+		} catch (IOException ex) {
+		    bugCatcher.logError(ex);
+		}
+	    }
+	    if (null != activeVersionFile) {
+		try {
+		    activeVersionFile.close();
+		} catch (IOException ex) {
+		    bugCatcher.logError(ex);
+		}
+	    }
 	}
+	ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+
 	return true;
     }
 
@@ -1608,9 +1644,11 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     }
 
     private void copyLastHistoryToCurrent() {
+	FileOutputStream outFile = null;
+	InputStream inputStream = null;
 	try {
-	    FileOutputStream outFile = new FileOutputStream(this.getFile());
-	    InputStream inputStream = new FileInputStream(new File(this.getFile().getAbsolutePath() + ".0"));
+	    outFile = new FileOutputStream(this.getFile());
+	    inputStream = new FileInputStream(new File(this.getFile().getAbsolutePath() + ".0"));
 	    int bufferLength = 1024 * 4;
 	    byte[] buffer = new byte[bufferLength];
 	    int bytesread = 0;
@@ -1621,11 +1659,24 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		}
 		outFile.write(buffer, 0, bytesread);
 	    }
-	    inputStream.close();
-	    outFile.close();
 	} catch (IOException iOException) {
 	    messageDialogHandler.addMessageDialogToQueue("Could not copy file when recovering from the last history file.", "Recover History");
 	    bugCatcher.logError(iOException);
+	} finally {
+	    if (inputStream != null) {
+		try {
+		    inputStream.close();
+		} catch (IOException ex) {
+		    bugCatcher.logError(ex);
+		}
+	    }
+	    if (outFile != null) {
+		try {
+		    outFile.close();
+		} catch (IOException ex) {
+		    bugCatcher.logError(ex);
+		}
+	    }
 	}
     }
 
@@ -1985,10 +2036,10 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public boolean isResourceSet() {
 	return resourceUrlField != null && resourceUrlField.getFieldValue().length() > 0;
     }
-    
-    public void invalidateThumbnails(){
+
+    public void invalidateThumbnails() {
 	thumbnailFile = null;
-	for(ArbilDataNode node:getChildArray()){
+	for (ArbilDataNode node : getChildArray()) {
 	    node.invalidateThumbnails();
 	}
     }
