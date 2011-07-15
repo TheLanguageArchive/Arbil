@@ -15,7 +15,7 @@ import javax.swing.table.TableColumnModel;
  * Created on : 
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilFieldView implements Serializable {
+public class ArbilFieldView implements Serializable, Cloneable {
 
     private Vector hiddenColumns = new Vector();
     private Vector showOnlyColumns = new Vector();
@@ -51,6 +51,7 @@ public class ArbilFieldView implements Serializable {
         this.showOnlyColumns = showOnlyColumns;
     }
 
+    @Override
     public ArbilFieldView clone() {
         ArbilFieldView returnFieldView = new ArbilFieldView();
         returnFieldView.setAlwaysShowColumns((Vector) alwaysShowColumns.clone());

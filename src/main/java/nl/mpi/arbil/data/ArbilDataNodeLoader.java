@@ -160,12 +160,6 @@ public class ArbilDataNodeLoader {
 	return currentDataNode;
     }
 
-    public void releaseArbilDataNode(URI localUri) {
-//        imdiHashTable.remove(imdiUrlString); // TODO: implement this so that imdi files are not held in memory for ever
-	localUri = ArbilDataNode.normaliseURI(localUri);
-	System.out.println("-imdiHashTable.size: " + arbilHashTable.size());
-    }
-
     // return the node only if it has already been loaded otherwise return null
     public ArbilDataNode getArbilDataNodeOnlyIfLoaded(URI arbilUri) {
 //        String localUrlString = ImdiTreeObject.conformStringToUrl(imdiUrl).toString();

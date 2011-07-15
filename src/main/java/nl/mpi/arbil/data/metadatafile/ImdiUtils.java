@@ -32,7 +32,7 @@ public class ImdiUtils implements MetadataUtils {
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
     }
-    public static IMDIDom api = new IMDIDom();
+    public final static IMDIDom api = new IMDIDom();
 
     private boolean isCatalogue(URI sourceURI) {
         try {
