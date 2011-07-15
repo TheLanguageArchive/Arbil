@@ -35,7 +35,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
         
         initComponents();
-        PreviewSplitPanel previewSplitPanel = new PreviewSplitPanel();
+        PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
         mainSplitPane.setRightComponent(previewSplitPanel);
         ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
         mainSplitPane.setLeftComponent(arbilTreePanels);
