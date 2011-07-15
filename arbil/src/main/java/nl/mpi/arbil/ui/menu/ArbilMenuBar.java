@@ -49,7 +49,8 @@ import nl.mpi.arbil.ui.PreviewSplitPanel;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilMenuBar extends JMenuBar {
-
+    
+    final static public JMenu windowMenu = new JMenu();
     private JMenuItem saveFileMenuItem = new JMenuItem();
     private JMenuItem showChangedNodesMenuItem = new JMenuItem();
     private JCheckBoxMenuItem saveWindowsCheckBoxMenuItem = new JCheckBoxMenuItem();
@@ -66,7 +67,6 @@ public class ArbilMenuBar extends JMenuBar {
 //    private JMenu setStorageDirectoryMenu;
     private JMenu setCacheDirectoryMenu = new JMenu();
     private JMenu viewMenu = new JMenu();
-    static public JMenu windowMenu = new JMenu();
     private JMenuItem resetWindowsMenuItem = new JMenuItem();
     private JMenuItem closeWindowsMenuItem = new JMenuItem();
     private JMenu optionsMenu = new JMenu();
