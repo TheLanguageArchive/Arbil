@@ -24,7 +24,7 @@ public class ArbilApplet extends javax.swing.JApplet {
                     ArbilDesktopInjector.injectHandlers();
                     mainSplitPane = new javax.swing.JSplitPane();
                     getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
-                    previewSplitPanel = new PreviewSplitPanel();
+                    previewSplitPanel = PreviewSplitPanel.getInstance();
                     mainSplitPane.setRightComponent(previewSplitPanel);
                     arbilTreePanels = new ArbilTreePanels();
                     mainSplitPane.setLeftComponent(arbilTreePanels);

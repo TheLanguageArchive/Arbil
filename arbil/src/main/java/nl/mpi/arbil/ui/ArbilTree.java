@@ -150,13 +150,13 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	this.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
 
 	    public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-		if (PreviewSplitPanel.previewTableShown && PreviewSplitPanel.previewTable != null) {
-		    TableCellEditor currentCellEditor = PreviewSplitPanel.previewTable.getCellEditor(); // stop any editing so the changes get stored
+		if (PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
+		    TableCellEditor currentCellEditor = PreviewSplitPanel.getInstance().getPreviewTable().getCellEditor(); // stop any editing so the changes get stored
 		    if (currentCellEditor != null) {
 			currentCellEditor.stopCellEditing();
 		    }
-		    PreviewSplitPanel.previewTable.getArbilTableModel().removeAllArbilDataNodeRows();
-		    PreviewSplitPanel.previewTable.getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionDataNode());
+		    PreviewSplitPanel.getInstance().getPreviewTable().getArbilTableModel().removeAllArbilDataNodeRows();
+		    PreviewSplitPanel.getInstance().getPreviewTable().getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionDataNode());
 		}
 	    }
 	});
