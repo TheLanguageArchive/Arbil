@@ -296,30 +296,30 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
                 ArbilNodeSearchTerm currentTermPanel = (ArbilNodeSearchTerm) currentTermComponent;
                 boolean termPassedFilter = true;
                 // filter by the node type if entered
-                if (currentTermPanel.nodeType.equals("Corpus")) {
+                if (currentTermPanel.getNodeType().equals("Corpus")) {
                     termPassedFilter = dataNode.isCorpus();
-                } else if (currentTermPanel.nodeType.equals("Session")) {
+                } else if (currentTermPanel.getNodeType().equals("Session")) {
                     termPassedFilter = dataNode.isSession();
-                } else if (currentTermPanel.nodeType.equals("Catalogue")) {
+                } else if (currentTermPanel.getNodeType().equals("Catalogue")) {
                     termPassedFilter = dataNode.isCatalogue();
-                } else if (!currentTermPanel.nodeType.equals("All")) {
-                    termPassedFilter = dataNode.getUrlString().matches(".*" + currentTermPanel.nodeType + "\\(\\d*?\\)$");
+                } else if (!currentTermPanel.getNodeType().equals("All")) {
+                    termPassedFilter = dataNode.getUrlString().matches(".*" + currentTermPanel.getNodeType() + "\\(\\d*?\\)$");
                 }
-                if (currentTermPanel.searchFieldName.length() > 0) {
+                if (currentTermPanel.getSearchFieldName().length() > 0) {
                     // filter by the feild name and search string if entered
-                    termPassedFilter = termPassedFilter && (dataNode.containsFieldValue(currentTermPanel.searchFieldName, currentTermPanel.searchString));
-                } else if (currentTermPanel.searchString.length() > 0) {
+                    termPassedFilter = termPassedFilter && (dataNode.containsFieldValue(currentTermPanel.getSearchFieldName(), currentTermPanel.getSearchString()));
+                } else if (currentTermPanel.getSearchString().length() > 0) {
                     // filter by the search string if entered
-                    termPassedFilter = termPassedFilter && (dataNode.containsFieldValue(currentTermPanel.searchString));
+                    termPassedFilter = termPassedFilter && (dataNode.containsFieldValue(currentTermPanel.getSearchString()));
                 }
                 // invert based on the == / != selection
-                termPassedFilter = currentTermPanel.notEqual != termPassedFilter;
+                termPassedFilter = currentTermPanel.isNotEqual() != termPassedFilter;
                 // apply the and or booleans against the other search terms
-                if (!currentTermPanel.booleanAnd && nodePassedFilter) {
+                if (!currentTermPanel.isBooleanAnd() && nodePassedFilter) {
                     // we have moved into an OR block so if we already have a positive result then exit the term checking loop
                     break;
                 }
-                if (currentTermPanel.booleanAnd) {
+                if (currentTermPanel.isBooleanAnd()) {
                     nodePassedFilter = (nodePassedFilter && termPassedFilter);
                 } else {
                     nodePassedFilter = (nodePassedFilter || termPassedFilter);
