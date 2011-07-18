@@ -149,4 +149,37 @@
 	    <url>http://lux15.mpi.nl/nexus/content/groups/public/</url>
 	</repository>
     </repositories>
+<reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.7.2</version>
+        <configuration>
+                <forkMode>never</forkMode>
+            <argLine>-Dwt.headless</argLine>
+            <argLine>-Djava.awt.headless=true</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <configuration>
+          <findbugsXmlOutput>True</findbugsXmlOutput>
+          <threshold>Low</threshold>
+          <effort>Min</effort>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+
 </project>
