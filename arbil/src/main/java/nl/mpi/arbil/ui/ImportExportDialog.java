@@ -565,29 +565,28 @@ public class ImportExportDialog {
 	    }
 	}
     }
-
-    private void removeEmptyDirectoryPaths(File currentDirectory, File[] destinationFile) {
-	File[] childDirectories = currentDirectory.listFiles();
-	if (childDirectories != null && childDirectories.length == 1) {
-	    removeEmptyDirectoryPaths(childDirectories[0], destinationFile);
-	    if (childDirectories[0].isDirectory()) {
-		childDirectories[0].delete();
-	    }
-	} else {
-	    try {
-		File tempFile = destinationFile[0] = File.createTempFile("tmp-" + currentDirectory.getName(), "", exportDestinationDirectory);
-		destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
-		tempFile.delete();
-		if (!currentDirectory.renameTo(tempFile)) {
-//                    appendToTaskOutput("failed to tidy directory stucture");
-		} else {
-//                    appendToTaskOutput("tidy directory stucture done");
-		}
-	    } catch (Exception ex) {
-		GuiHelper.linorgBugCatcher.logError(ex);
-	    }
-	}
-    }
+//
+//    private void removeEmptyDirectoryPaths(File currentDirectory, File[] destinationFile) {
+//	File[] childDirectories = currentDirectory.listFiles();
+//	if (childDirectories != null && childDirectories.length == 1) {
+//	    removeEmptyDirectoryPaths(childDirectories[0], destinationFile);
+//	    if (childDirectories[0].isDirectory()) {
+//		childDirectories[0].delete();
+//	    }
+//	} else {
+//	    try {
+//		File tempFile = destinationFile[0] = File.createTempFile("tmp-" + currentDirectory.getName(), "", exportDestinationDirectory);
+//		destinationFile[1] = new File(exportDestinationDirectory, currentDirectory.getName());
+//		if (tempFile.delete()) {
+//		    if (!currentDirectory.renameTo(tempFile)) {
+//			GuiHelper.linorgBugCatcher.logError(new Exception("Error while renaming file"));
+//		    }
+//		}
+//	    } catch (Exception ex) {
+//		GuiHelper.linorgBugCatcher.logError(ex);
+//	    }
+//	}
+//    }
 //        private String getShallowestDirectory() {
 //        int childrenToLoad = 0, loadedChildren = 0;
 //        Enumeration selectedNodesEnum = selectedNodes.elements();
@@ -785,7 +784,9 @@ public class ImportExportDialog {
 				destinationNode.bumpHistory();
 			    }
 			    if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
-				currentRetrievableFile.destinationFile.getParentFile().mkdir();
+				if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
+				    GuiHelper.linorgBugCatcher.logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
+				}
 			    }
 			    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
 			    ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
@@ -816,7 +817,7 @@ public class ImportExportDialog {
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
 		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
 		    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
-		} catch(IOException ex){
+		} catch (IOException ex) {
 		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
 		    totalErrors++;
 		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
@@ -866,7 +867,9 @@ public class ImportExportDialog {
 				    retrievableLink.calculateUriFileName();
 				}
 				if (!retrievableLink.destinationFile.getParentFile().exists()) {
-				    retrievableLink.destinationFile.getParentFile().mkdirs();
+				    if (!retrievableLink.destinationFile.getParentFile().mkdirs()) {
+					GuiHelper.linorgBugCatcher.logError(new IOException("Could not create missing parent directory for " + retrievableLink.destinationFile));
+				    }
 				}
 				downloadFileLocation = retrievableLink.destinationFile;
 				resourceProgressLabel.setText(" ");
