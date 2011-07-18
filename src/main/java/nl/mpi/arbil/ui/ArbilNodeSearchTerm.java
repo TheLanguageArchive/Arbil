@@ -11,19 +11,19 @@ import java.awt.event.FocusListener;
  */
 public class ArbilNodeSearchTerm extends javax.swing.JPanel {
 
-    javax.swing.JPanel thisPanel = this;
-    ArbilNodeSearchPanel parentPanel;
+    private javax.swing.JPanel thisPanel = this;
+    private ArbilNodeSearchPanel parentPanel;
     private javax.swing.JComboBox notComboBox;
     private javax.swing.JComboBox booleanComboBox;
     private javax.swing.JComboBox nodeTypeComboBox;
     private javax.swing.JButton removeButton;
     private javax.swing.JTextField searchField;
     private javax.swing.JTextField searchColumn;
-    public boolean notEqual = false;
-    public boolean booleanAnd = false;
-    public String nodeType = "";
-    public String searchString = "";
-    public String searchFieldName = "";
+    private boolean notEqual = false;
+    private boolean booleanAnd = false;
+    private String nodeType = "";
+    private String searchString = "";
+    private String searchFieldName = "";
     private String columnFieldMessage = "<column (optional)>";
     private String valueFieldMessage = "<value (optional)>";
 
@@ -154,25 +154,95 @@ public class ArbilNodeSearchTerm extends javax.swing.JPanel {
 
     public void populateSearchTerm() {
         if (searchField.getText().equals(valueFieldMessage)) {
-            searchString = "";
+            setSearchString("");
         } else {
-            searchString = searchField.getText();
+            setSearchString(searchField.getText());
         }
         if (searchColumn.getText().equals(columnFieldMessage)) {
-            searchFieldName = "";
+            setSearchFieldName("");
         } else {
-            searchFieldName = searchColumn.getText();
+            setSearchFieldName(searchColumn.getText());
         }
-        nodeType = nodeTypeComboBox.getSelectedItem().toString();
+        setNodeType(nodeTypeComboBox.getSelectedItem().toString());
         if (booleanComboBox.isVisible()) {
-            booleanAnd = booleanComboBox.getSelectedItem().toString().equals("and");
+            setBooleanAnd(booleanComboBox.getSelectedItem().toString().equals("and"));
         } else {
-            booleanAnd = true;
+            setBooleanAnd(true);
         }
-        notEqual = notComboBox.getSelectedItem().toString().equals("!=");
+        setNotEqual(notComboBox.getSelectedItem().toString().equals("!="));
     }
 
     public void setBooleanVisible(boolean visibleValue) {
         booleanComboBox.setVisible(visibleValue);
+    }
+
+    /**
+     * @return the notEqual
+     */
+    public boolean isNotEqual() {
+	return notEqual;
+    }
+
+    /**
+     * @param notEqual the notEqual to set
+     */
+    public void setNotEqual(boolean notEqual) {
+	this.notEqual = notEqual;
+    }
+
+    /**
+     * @return the booleanAnd
+     */
+    public boolean isBooleanAnd() {
+	return booleanAnd;
+    }
+
+    /**
+     * @param booleanAnd the booleanAnd to set
+     */
+    public void setBooleanAnd(boolean booleanAnd) {
+	this.booleanAnd = booleanAnd;
+    }
+
+    /**
+     * @return the nodeType
+     */
+    public String getNodeType() {
+	return nodeType;
+    }
+
+    /**
+     * @param nodeType the nodeType to set
+     */
+    public void setNodeType(String nodeType) {
+	this.nodeType = nodeType;
+    }
+
+    /**
+     * @return the searchString
+     */
+    public String getSearchString() {
+	return searchString;
+    }
+
+    /**
+     * @param searchString the searchString to set
+     */
+    public void setSearchString(String searchString) {
+	this.searchString = searchString;
+    }
+
+    /**
+     * @return the searchFieldName
+     */
+    public String getSearchFieldName() {
+	return searchFieldName;
+    }
+
+    /**
+     * @param searchFieldName the searchFieldName to set
+     */
+    public void setSearchFieldName(String searchFieldName) {
+	this.searchFieldName = searchFieldName;
     }
 }
