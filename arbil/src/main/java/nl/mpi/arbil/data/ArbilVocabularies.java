@@ -224,7 +224,7 @@ public class ArbilVocabularies {
 	}
     }
 
-    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
+    private static class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
 	ArbilVocabulary collectedVocab;
 	ArbilVocabularyItem currentVocabItem = null;
@@ -237,11 +237,11 @@ public class ArbilVocabularies {
 	@Override
 	public void characters(char[] charArray, int start, int length) {
 	    if (currentVocabItem != null) {
-		String nodeContents = "";
+		StringBuilder nodeContents = new StringBuilder();
 		for (int charCounter = start; charCounter < start + length; charCounter++) {
-		    nodeContents = nodeContents + charArray[charCounter];
+		    nodeContents.append(charArray[charCounter]);
 		}
-		currentVocabItem.descriptionString = nodeContents;
+		currentVocabItem.descriptionString = nodeContents.toString();
 	    }
 	}
 

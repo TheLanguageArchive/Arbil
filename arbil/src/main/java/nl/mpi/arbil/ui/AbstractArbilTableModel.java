@@ -24,7 +24,9 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public abstract class AbstractArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer {
 
-    protected final static String[] SINGLE_NODE_VIEW_HEADINGS = new String[]{"Field Name", "Value"};
+    // NOTE: [] style arrays are not suitable for storing true constants
+    protected final static String SINGLE_NODE_VIEW_HEADING_NAME = "Field Name";
+    protected final static String SINGLE_NODE_VIEW_HEADING_VALUE = "Value";
     private boolean showIcons = false;
     private boolean sortReverse = false;
     private HashMap<String, ArbilField> filteredColumnNames = new HashMap<String, ArbilField>();

@@ -542,7 +542,8 @@ public class ArbilTable extends JTable {
 	java.awt.Point p = e.getPoint();
 	int rowIndex = rowAtPoint(p);
 	int colIndex = columnAtPoint(p);
-	int realColumnIndex = convertColumnIndexToModel(colIndex);
+	// int realColumnIndex = convertColumnIndexToModel(colIndex);
+	convertColumnIndexToModel(colIndex);
 	if (rowIndex >= 0 && colIndex >= 0) {
 	    tip = getTableCellContentAt(rowIndex, colIndex).toString();
 	    listToolTip.setTartgetObject(getTableCellContentAt(rowIndex, colIndex));

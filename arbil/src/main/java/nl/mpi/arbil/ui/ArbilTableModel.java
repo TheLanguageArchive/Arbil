@@ -232,11 +232,11 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	String csvSeparator = "\t"; // excel seems to work with tab but not comma
 	StringBuilder copiedString = new StringBuilder();
 	copiedString.append('\"');
-	copiedString.append(SINGLE_NODE_VIEW_HEADINGS[0].replace("\"", "\"\""));
+	copiedString.append(SINGLE_NODE_VIEW_HEADING_NAME.replace("\"", "\"\""));
 	copiedString.append('\"');
 	copiedString.append(csvSeparator);
 	copiedString.append('\"');
-	copiedString.append(SINGLE_NODE_VIEW_HEADINGS[1].replace("\"", "\"\""));
+	copiedString.append(SINGLE_NODE_VIEW_HEADING_VALUE.replace("\"", "\"\""));
 	copiedString.append('\"');
 	copiedString.append('\n'); // ...
 	boolean isFirstCol = true;
@@ -302,7 +302,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 		boolean singleNodeAxis = false;
 		String regexString = "[(\"^)($\")]";
 		System.out.println("regexString: " + (firstLine[0].replaceAll(regexString, "")));
-		if (firstLine[0].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADINGS[0]) && firstLine[1].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADINGS[1])) {
+		if (firstLine[0].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADING_NAME) && firstLine[1].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADING_VALUE) {
 		    singleNodeAxis = true;
 		}
 		if (!singleNodeAxis) {

@@ -51,7 +51,7 @@ private static SessionStorage sessionStorage;
         return null;
     }
 
-    public class CmdiProfile {
+    public static class CmdiProfile {
 
         public String id;
         public String description;

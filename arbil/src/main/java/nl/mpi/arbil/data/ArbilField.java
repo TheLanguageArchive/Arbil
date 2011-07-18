@@ -170,11 +170,9 @@ public class ArbilField implements Serializable {
 	String oldLanguageId = getLanguageId();
 	boolean valueChanged = false;
 	// this is expanded for readability
-	if (oldLanguageId == null && languageIdLocal == null) {
-	    valueChanged = false;
-	} else if (languageIdLocal == null && oldLanguageId != null) {
-	    valueChanged = true;
-	} else if (!languageIdLocal.equals(oldLanguageId)) {
+	if (languageIdLocal == null) {
+	    valueChanged = (oldLanguageId != null);
+        } else if (!languageIdLocal.equals(oldLanguageId)) {
 	    valueChanged = true;
 	}
 	if (valueChanged) {// if the value has changed then record it in the undo list and the journal

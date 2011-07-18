@@ -35,7 +35,7 @@ public class ArbilJournal {
 	Value, LanguageId, KeyName
     }
 
-    private class HistoryItem {
+    private static class HistoryItem {
 
 	ArbilField targetField;
 	String oldValue;
@@ -78,11 +78,11 @@ public class ArbilJournal {
 	return currentFieldChangeHistoryItem > 0;
     }
 
-    public boolean canRedo() {
+    public synchronized boolean canRedo() {
 	return fieldChangeHistory != null && currentFieldChangeHistoryItem < fieldChangeHistory.size();
     }
 
-    public void undoFromFieldChangeHistory() {
+    public synchronized void undoFromFieldChangeHistory() {
 	if (canUndo()) {
 	    HistoryItem changeHistoryItem = fieldChangeHistory.get(--currentFieldChangeHistoryItem);
 	    HistoryItem reversedHistoryItem = new HistoryItem();
@@ -94,14 +94,14 @@ public class ArbilJournal {
 	}
     }
 
-    public void redoFromFieldChangeHistory() {
+    public synchronized void redoFromFieldChangeHistory() {
 	if (canRedo()) {
 	    HistoryItem changeHistoryItem = fieldChangeHistory.get(currentFieldChangeHistoryItem++);
 	    makeChangeFromHistoryItem(changeHistoryItem);
 	}
     }
 
-    public void clearFieldChangeHistory() {
+    public synchronized void clearFieldChangeHistory() {
 	fieldChangeHistory = null;
 	currentFieldChangeHistoryItem = 0;
     }
@@ -140,16 +140,24 @@ public class ArbilJournal {
     // this is also use to record an import event
     public boolean saveJournalEntry(String imdiUrl, String imdiNodePath, String oldValue, String newValue, String eventType) {
 	boolean returnValue = false;
+        FileWriter journalFile = null;
 	try {
-	    FileWriter journalFile = new FileWriter(new File(sessionStorage.getStorageDirectory(), "linorgjornal.log"), true);
+	    journalFile = new FileWriter(new File(sessionStorage.getStorageDirectory(), "linorgjornal.log"), true);
 	    System.out.println("Journal: " + imdiUrl + "," + imdiNodePath + "," + oldValue + "," + newValue);
 	    journalFile.append("\"" + imdiUrl + imdiNodePath + "\",\"" + oldValue + "\",\"" + newValue + "\",\"" + eventType + "\"\n");
 	    journalFile.close();
+	    journalFile = null;
 	    returnValue = true;
 	} catch (Exception ex) {
 	    returnValue = false;
 	    bugCatcher.logError(ex);
 	    System.err.println("failed to write to the journal: " + ex.getMessage());
+	} finally {
+	    if (journalFile != null) try {
+	        journalFile.close();
+	    } catch (IOException ioe) {
+	        bugCatcher.logError(ioe);
+	    }
 	}
 	return (returnValue);
     }
