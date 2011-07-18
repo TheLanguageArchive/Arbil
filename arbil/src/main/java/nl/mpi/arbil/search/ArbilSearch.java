@@ -1,11 +1,14 @@
-package nl.mpi.arbil.data;
+package nl.mpi.arbil.search;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import nl.mpi.arbil.ui.ArbilNodeSearchTerm;
-import nl.mpi.arbil.ui.ArbilTableModel;
-import nl.mpi.arbil.ui.RemoteServerSearchTerm;
+import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.AbstractArbilTableModel;
+import nl.mpi.arbil.ui.RemoteServerSearchTermPanel;
 
 /**
  *
@@ -21,14 +24,14 @@ public class ArbilSearch {
     private int totalSearched;
     private int totalNodesToSearch = -1;
     
-    private ArbilTableModel resultsTableModel;
+    private AbstractArbilTableModel resultsTableModel;
     private ArbilDataNodeContainer container;
     private Collection<ArbilNode> selectedNodes;
     private Collection<ArbilNodeSearchTerm> nodeSearchTerms;
-    private RemoteServerSearchTerm remoteServerSearchTerm;
+    private RemoteServerSearchTermPanel remoteServerSearchTerm;
     private ArbilSearchListener listener;
 
-    public ArbilSearch(RemoteServerSearchTerm remoteServerSearchTerm, Collection<ArbilNode> selectedNodes, Collection<ArbilNodeSearchTerm> nodeSearchTerms, ArbilTableModel resultsTableModel, ArbilDataNodeContainer container, ArbilSearchListener listener) {
+    public ArbilSearch(RemoteServerSearchTermPanel remoteServerSearchTerm, Collection<ArbilNode> selectedNodes, Collection<ArbilNodeSearchTerm> nodeSearchTerms, AbstractArbilTableModel resultsTableModel, ArbilDataNodeContainer container, ArbilSearchListener listener) {
 	this.remoteServerSearchTerm = remoteServerSearchTerm;
 	this.selectedNodes = selectedNodes;
 	this.nodeSearchTerms = nodeSearchTerms;
