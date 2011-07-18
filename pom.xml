@@ -174,7 +174,7 @@
         <artifactId>findbugs-maven-plugin</artifactId>
         <configuration>
           <findbugsXmlOutput>True</findbugsXmlOutput>
-          <threshold>Low</threshold>
+          <threshold>Normal</threshold>
           <effort>Min</effort>
         </configuration>
       </plugin>
