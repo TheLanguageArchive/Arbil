@@ -13,7 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
-import nl.mpi.arbil.data.ArbilSearch;
+import nl.mpi.arbil.search.ArbilNodeSearchTerm;
+import nl.mpi.arbil.search.ArbilSearch;
 
 /**
  * Document   : ArbilNodeSearchPanel
@@ -31,7 +32,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private JProgressBar searchProgressBar;
     private JButton searchButton;
     private JButton stopButton;
-    private RemoteServerSearchTerm remoteServerSearchTerm = null;
+    private RemoteServerSearchTermPanel remoteServerSearchTerm = null;
     private ArbilSearch searchService;
 
     public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilNode[] localSelectedNodes) {
@@ -67,7 +68,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		try {
 		    System.out.println("adding new term");
 		    stopSearch();
-		    getSearchTermsPanel().add(new ArbilNodeSearchTerm(thisPanel));
+		    getSearchTermsPanel().add(new ArbilNodeSearchTermPanel(thisPanel));
 		    hideFirstBooleanOption();
 //                searchTermsPanel.revalidate();
 		} catch (Exception ex) {
@@ -124,10 +125,10 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    }
 	}
 	if (remoteSearch) {
-	    remoteServerSearchTerm = new RemoteServerSearchTerm(this);
+	    remoteServerSearchTerm = new RemoteServerSearchTermPanel(this);
 	    this.add(remoteServerSearchTerm);
 	}
-	searchTermsPanel.add(new ArbilNodeSearchTerm(this));
+	searchTermsPanel.add(new ArbilNodeSearchTermPanel(this));
     }
 
     private void initNodePanel() {
@@ -142,7 +143,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private void hideFirstBooleanOption() {
 	boolean firstTerm = true;
 	for (Component currentTermComp : searchTermsPanel.getComponents()) {
-	    ((ArbilNodeSearchTerm) currentTermComp).setBooleanVisible(!firstTerm);
+	    ((ArbilNodeSearchTermPanel) currentTermComp).setBooleanVisible(!firstTerm);
 	    firstTerm = false;
 	}
 	searchTermsPanel.revalidate();
@@ -187,8 +188,8 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    try {
 		ArrayList searchTerms = new ArrayList<ArbilNodeSearchTerm>(getComponentCount());
 		for (Component component : searchTermsPanel.getComponents()) {
-		    if (component instanceof ArbilNodeSearchTerm) {
-			searchTerms.add((ArbilNodeSearchTerm) component);
+		    if (component instanceof ArbilNodeSearchTermPanel) {
+			searchTerms.add((ArbilNodeSearchTermPanel) component);
 		    }
 		}
 
@@ -197,7 +198,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		prepareUI();
 
 		for (Component currentTermComp : searchTermsPanel.getComponents()) {
-		    ((ArbilNodeSearchTerm) currentTermComp).populateSearchTerm();
+		    ((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
 		}
 
 		searchService.splitLocalRemote();
