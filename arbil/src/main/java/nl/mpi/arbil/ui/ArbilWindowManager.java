@@ -65,12 +65,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private Hashtable windowStatesHashtable;
     public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
     public JFrame linorgFrame;
-    private final int defaultWindowX = 50;
-    private final int defaultWindowY = 50;
+    private final static int defaultWindowX = 50;
+    private final static int defaultWindowY = 50;
     private int nextWindowX = defaultWindowX;
     private int nextWindowY = defaultWindowY;
-    private final int nextWindowWidth = 800;
-    private final int nextWindowHeight = 600;
+    private final static int nextWindowWidth = 800;
+    private final static int nextWindowHeight = 600;
     float fontScale = 1;
     private Hashtable<String, String> messageDialogQueue = new Hashtable<String, String>();
     private boolean messagesCanBeShown = false;
@@ -169,12 +169,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox(titleText + " Destination Directory", true, false, false);
 		if (selectedFiles != null && selectedFiles.length > 0) {
 		    File destinationDirectory = selectedFiles[0];
-		    if (!destinationDirectory.exists()/* && parentDirectory.getParentFile().exists()*/) {
+		    boolean mkdirsOkay = true;
+		    if (destinationDirectory!=null && !destinationDirectory.exists()/* && parentDirectory.getParentFile().exists()*/) {
 			// create the directory provided that the parent directory exists
 			// ths is here due the the way the mac file select gui leads the user to type in a new directory name
-			destinationDirectory.mkdirs();
+			mkdirsOkay = destinationDirectory.mkdirs();
 		    }
-		    if (!destinationDirectory.exists()) {
+		    if (destinationDirectory==null || !mkdirsOkay || !destinationDirectory.exists()) {
 			JOptionPane.showMessageDialog(linorgFrame, "The export directory\n\"" + destinationDirectory + "\"\ndoes not exist.\nPlease select or create a directory.", titleText, JOptionPane.PLAIN_MESSAGE);
 		    } else {
 //                        if (!createdDirectory) {
@@ -186,7 +187,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //                                JOptionPane.showMessageDialog(LinorgWindowManager.getSingleInstance().linorgFrame, "Could not create the export directory + \'" + newDirectoryName + "\'", titleText, JOptionPane.PLAIN_MESSAGE);
 //                            }
 //                        }
-			if (destinationDirectory != null && destinationDirectory.exists()) {
+			if (destinationDirectory.exists()) {
 			    if (destinationDirectory.list().length == 0) {
 				fileSelectDone = true;
 				return destinationDirectory;

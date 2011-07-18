@@ -18,6 +18,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import java.util.Arrays;
 
 /**
  * Document   : ImageBoxRenderer
@@ -123,8 +124,9 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
         Font currentFont = targegGraphics.getFont();
         Font renderFont = new Font(currentFont.getFontName(), currentFont.getStyle(), 11);
         targegGraphics.setFont(renderFont);
+        BufferedReader bufferedReader = null;
         try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetURL.openStream()));
+            bufferedReader = new BufferedReader(new InputStreamReader(targetURL.openStream()));
             String textToDraw;
             while ((textToDraw = bufferedReader.readLine()) != null && outputHeight > linePosY) {
                 textToDraw = textToDraw.replaceAll("\\<.*?>", "");
@@ -139,6 +141,12 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             }
         } catch (Exception ex) {
             GuiHelper.linorgBugCatcher.logError(ex);
+        } finally {
+            if (bufferedReader != null) try {
+                bufferedReader.close();
+            } catch (IOException ioe) {
+                GuiHelper.linorgBugCatcher.logError(ioe);
+            }
         }
     }
 
@@ -168,6 +176,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             }
         }
         if (ffmpegFound) {
+            BufferedReader errorStreamReader = null;
             try {
                 File iconFile = File.createTempFile("arbil", ".jpg");
                 iconFile.deleteOnExit();
@@ -175,12 +184,13 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 String[] execString = new String[]{ffmpegPath, "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
                 Process launchedProcess = Runtime.getRuntime().exec(execString);
-                BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
                 String line;
-                while ((line = errorStreamReader.readLine()) != null) {
+                while ((line = errorStreamReader.readLine()) != null) { // read until EOF
 //                    ffmpegFound = false;
                     System.out.println("Launched process error stream: \"" + line + "\"");
                 }
+                // NOTE: We should also wait for launchedProcess to exit
                 iconFile.deleteOnExit();
                 if (iconFile.exists()) {
                     targetDataNode.thumbnailFile = iconFile;
@@ -190,6 +200,12 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
             } catch (IOException ex) {
                 ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
                 GuiHelper.linorgBugCatcher.logError(ex);
+            } finally {
+                if (errorStreamReader != null) try { // close pipeline
+                    errorStreamReader.close();
+                } catch (IOException ioe) {
+                    GuiHelper.linorgBugCatcher.logError(ioe);
+                }
             }
         }
     }
@@ -225,7 +241,7 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
                 File targetFile = getTargetFile(targetDataNode);
                 if (targetFile.exists()) {
                     String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
-                    System.out.println(execString);
+                    System.out.println(Arrays.toString(execString));
                     Process launchedProcess = Runtime.getRuntime().exec(execString);
                     BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
                     String line;

@@ -223,7 +223,7 @@ public class ArbilDragDrop {
 	    System.out.println("canImport: " + comp);
 	    currentDropTarget = null;
 	    dropAllowed = false;
-	    if (comp instanceof JTree) {
+	    if (comp instanceof JTree) { // better instanceof ArbilTree?
 		if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(comp)) {
 		    System.out.println("localcorpustree so can drop here");
 		    if (selectionContainsArchivableLocalFile
@@ -239,7 +239,7 @@ public class ArbilDragDrop {
 			    || selectionContainsArbilChild) {
 			System.out.println("dragged contents are acceptable");
 			currentDropTarget = comp; // store the source component for the tree node sensitive drop
-			dropAllowed = canDropToTarget((ArbilTree) comp);
+			dropAllowed = (comp instanceof ArbilTree) && canDropToTarget((ArbilTree) comp);
 			return true;
 		    }
 		}
@@ -538,6 +538,7 @@ public class ArbilDragDrop {
 				importNodeList.add((ArbilDataNode) currentNode);
 			    } else {
 				String targetNodeName = null;
+				// NOTE: FindBugs thinks this is always the case:
 				if (dropTargetUserObject instanceof ArbilNode) {
 				    targetNodeName = targetNode.getUserObject().toString();
 				}
@@ -601,11 +602,13 @@ public class ArbilDragDrop {
 			System.out.println(e.getMessage());
 		    }
 		}
+		// NOTE: Iterating over the entrySet (Map.Entry: Use getKey/getValue) would be faster
 		for (ArbilDataNode currentParent : arbilNodesDeleteList.keySet()) {
 		    System.out.println("deleting by corpus link");
 		    ArbilDataNode[] arbilNodeArray = ((Vector<ArbilDataNode>) arbilNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{});
 		    currentParent.deleteCorpusLink(arbilNodeArray);
 		}
+		// NOTE: FindBugs thinks this is always the case:
 		if (dropTargetUserObject instanceof ArbilDataNode) {
 		    // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
 //                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);

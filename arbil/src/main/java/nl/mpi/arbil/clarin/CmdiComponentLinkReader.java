@@ -32,14 +32,28 @@ public class CmdiComponentLinkReader {
         }
     }
 
-    public class CmdiResourceLink {
+    public static class CmdiResourceLink {
+
+        // NOTE: should the fields be final?
+        public CmdiResourceLink(String proxyId, String type, String ref) {
+            resourceProxyId = proxyId;
+            resourceType = type;
+            resourceRef = ref;
+        }
 
         public String resourceProxyId;
         public String resourceType;
         public String resourceRef;
     }
 
-    public class ResourceRelation {
+    public static class ResourceRelation {
+
+        // NOTE: should the fields be final?
+        public ResourceRelation(String type, String resource1, String resource2) {
+            relationType = type;
+            res1 = resource1;
+            res2 = resource2;
+        }
 
         String relationType;
         String res1;
@@ -98,10 +112,10 @@ public class CmdiComponentLinkReader {
             String resourceRef) {
         System.out.println("addResourceProxy: " + resourceProxyId + " : " + resourceType + " : " + resourceRef);
 
-        CmdiResourceLink cmdiProfile = new CmdiResourceLink();
-        cmdiProfile.resourceProxyId = resourceProxyId;
-        cmdiProfile.resourceType = resourceType;
-        cmdiProfile.resourceRef = resourceRef;
+        CmdiResourceLink cmdiProfile = new CmdiResourceLink(resourceProxyId, resourceType, resourceRef);
+        // cmdiProfile.resourceProxyId = resourceProxyId;
+        // cmdiProfile.resourceType = resourceType;
+        // cmdiProfile.resourceRef = resourceRef;
 
         cmdiResourceLinkArray.add(cmdiProfile);
     }
@@ -112,10 +126,10 @@ public class CmdiComponentLinkReader {
             String Res2) {
         System.out.println("addResourceRelation: " + RelationType + " : " + Res1 + " : " + Res2);
 
-        ResourceRelation resourceRelation = new ResourceRelation();
-        resourceRelation.relationType = RelationType;
-        resourceRelation.res1 = Res1;
-        resourceRelation.res2 = Res2;
+        ResourceRelation resourceRelation = new ResourceRelation(RelationType, Res1, Res2);
+        // resourceRelation.relationType = RelationType;
+        // resourceRelation.res1 = Res1;
+        // resourceRelation.res2 = Res2;
 
         cmdiResourceRelationArray.add(resourceRelation);
     }

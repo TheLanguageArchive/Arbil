@@ -58,7 +58,7 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
 
     @Override
     public String toString() {
-	String cellText = "";
+	StringBuilder cellText = new StringBuilder();
 	Arrays.sort(getContent(), new Comparator() {
 
 	    public int compare(Object o1, Object o2) {
@@ -69,12 +69,14 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
 	});
 	boolean hasAddedValues = false;
 	for (ArbilDataNode currentArbilDataNode : getContent()) {
-	    cellText = cellText + "[" + currentArbilDataNode.toString() + "],";
+	    if (hasAddedValues) {
+	        cellText.append(','); // before each non-first value
+            }
+	    cellText.append('[');
+	    cellText.append(currentArbilDataNode.toString());
+	    cellText.append(']');
 	    hasAddedValues = true;
 	}
-	if (hasAddedValues) {
-	    cellText = cellText.substring(0, cellText.length() - 1);
-	}
-	return (cellText);
+	return cellText.toString();
     }
 }

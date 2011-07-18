@@ -36,23 +36,26 @@ public class ArbilVersionChecker {
 	ArbilVersion linorgVersion = new ArbilVersion();
 	String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
 	File cachePath = sessionStorage.getSaveLocation("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt);
-	cachePath.delete();
+	if (cachePath.delete()) {
+	    System.out.println("Dropped old cache");
+        }
 	return this.checkForUpdate();
     }
 
     private boolean isLatestVersion() {
+        BufferedReader bufferedReader = null;
 	try {
 	    ArbilVersion linorgVersion = new ArbilVersion();
 	    int daysTillExpire = 1;
 	    //String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
 	    File cachePath = sessionStorage.updateCache(linorgVersion.currentVersionFile, daysTillExpire);
-	    BufferedReader bufferedReader = new BufferedReader(new FileReader(cachePath));
+	    bufferedReader = new BufferedReader(new FileReader(cachePath));
 	    String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
 //            System.out.println("currentRevision: " + localVersionString);
 	    System.out.println("currentRevision: " + linorgVersion.currentRevision);
 	    System.out.println("serverVersionString: " + serverVersionString);
-	    if (!serverVersionString.matches("[0-9]*")) {
+	    if (serverVersionString==null || !serverVersionString.matches("[0-9]*")) {
 		// ignore any strings that are not a number because it might be a 404 or other error page
 		return true;
 	    }
@@ -60,15 +63,22 @@ public class ArbilVersionChecker {
 	    return (linorgVersion.currentRevision.compareTo(serverVersionString) >= 0);
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
+	} finally {
+	    if (bufferedReader != null) try {
+	        bufferedReader.close();
+            } catch (IOException ioe) {
+                bugCatcher.logError(ioe);
+            }
 	}
 	return true;
     }
 
     private boolean doUpdate(String webstartUrlString) {
+        BufferedReader errorStreamReader = null;
 	try {
 	    //TODO: check the version of javaws before calling this
 	    Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", webstartUrlString});
-	    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+	    errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 	    String line;
 	    while ((line = errorStreamReader.readLine()) != null) {
 		System.out.println("Launched process error stream: \"" + line + "\"");
@@ -76,6 +86,12 @@ public class ArbilVersionChecker {
 	    return (0 == launchedProcess.waitFor());
 	} catch (Exception e) {
 	    e.printStackTrace();
+	} finally { // close pipeline when lauched process is done
+	    if (errorStreamReader != null) try {
+	        errorStreamReader.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
 	}
 	return false;
     }
