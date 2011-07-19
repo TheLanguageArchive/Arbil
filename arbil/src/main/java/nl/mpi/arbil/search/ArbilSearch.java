@@ -205,7 +205,7 @@ public class ArbilSearch {
 	//for (Component currentTermComponent : searchTermsPanel.getComponents()) {
 	for (ArbilNodeSearchTerm currentTermPanel : nodeSearchTerms) {
 	    boolean termPassedFilter = true;
-	    // filter by the node type if entered
+	    // filter by the node type if entered	    
 	    if (currentTermPanel.getNodeType().equals(ArbilNodeSearchTerm.NODE_TYPE_CORPUS)) {
 		termPassedFilter = dataNode.isCorpus();
 	    } else if (currentTermPanel.getNodeType().equals(ArbilNodeSearchTerm.NODE_TYPE_SESSION)) {

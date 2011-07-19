@@ -1,19 +1,24 @@
 package nl.mpi.arbil.wicket.model;
 
 import java.io.Serializable;
+import java.net.URI;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
+import nl.mpi.arbil.search.ArbilRemoteSearch;
+import nl.mpi.arbil.search.RemoteServerSearchTerm;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class SimpleNodeSearchTerm implements ArbilNodeSearchTerm, Serializable {
+public class SimpleNodeSearchTerm implements ArbilNodeSearchTerm, RemoteServerSearchTerm, Serializable {
 
     protected boolean notEqual = false;
     protected boolean booleanAnd = false;
     protected String nodeType = "";
     protected String searchString = "";
     protected String searchFieldName = "";
+    private String remoteSearchString = null;
 
     /**
      * @return the nodeType
@@ -83,5 +88,31 @@ public class SimpleNodeSearchTerm implements ArbilNodeSearchTerm, Serializable {
      */
     public void setSearchString(String searchString) {
 	this.searchString = searchString;
+    }
+
+    /**
+     * @return the remoteSearchString
+     */
+    public String getRemoteSearchString() {
+	return remoteSearchString;
+    }
+
+    /**
+     * @param remoteSearchString the remoteSearchString to set
+     */
+    public void setRemoteSearchString(String remoteSearchString) {
+	this.remoteSearchString = remoteSearchString;
+    }
+
+    public RemoteServerSearchTerm getRemoteServerSearchTerm() {
+	if (!(null == getRemoteSearchString() || "".equals(getRemoteSearchString()))) {
+	    return this;
+	} else {
+	    return null;
+	}
+    }
+
+    public URI[] getServerSearchResults(ArbilDataNode[] searchNodes) {
+	return new ArbilRemoteSearch().getServerSearchResults(getRemoteSearchString(), searchNodes);
     }
 }

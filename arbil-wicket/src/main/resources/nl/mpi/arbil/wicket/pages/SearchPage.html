@@ -7,42 +7,43 @@
 </head>
 <body>
     <h1>Arbil wicket test: search</h1>
-       
-    <wicket:link>
-	<a href="HomePage.html">Home</a> |     
-	<a href="SearchPage.html">Search</a>
-    </wicket:link>
 
-    <div>
-	
-	<div id="tableContainer" wicket:id="tableContainer">
-	    
-	    <h2>Search</h2>
-	    <p>Select a node and enter search terms</p>
-	    <form wicket:id="searchForm">
-		<select wicket:id="nodeType">
-		    <option>All</option>
-		</select>
+<wicket:link>
+    <a href="HomePage.html">Home</a> |     
+    <a href="SearchPage.html">Search</a>
+</wicket:link>
+
+<div>
+
+    <div id="tableContainer" wicket:id="tableContainer">
+
+	<h2>Search</h2>
+	<form wicket:id="searchForm">
+	    <p><span wicket:id="searchNodes">NODES</span></p>
+	    <input type="text" wicket:id="remoteSearchString" /><br />
+	    <select wicket:id="nodeType">
+		<option>All</option>
+	    </select>
 		Field: <input type="text" wicket:id="searchFieldName" />
 		Value: <input type="text" wicket:id="searchString" />
-		<input type="submit" value="Search" wicket:id="searchSubmit" />
-	    </form>
+	    <input type="submit" value="Search" wicket:id="searchSubmit" />
+	</form>
 
-	    <div wicket:id="tablePanel">
-	    </div>
-
-	</div>
-	
-	<div id="trees">
-	    <div class="remoteTree" wicket:id="remoteTree" >
-
-	    </div>
-
-	    <div class="localTree" wicket:id="localTree" >
-
-	    </div>
+	<div wicket:id="tablePanel">
 	</div>
 
     </div>
+
+    <div id="trees">
+	<div class="remoteTree" wicket:id="remoteTree" >
+
+	</div>
+
+	<div class="localTree" wicket:id="localTree" >
+
+	</div>
+    </div>
+
+</div>
 </body>
 </html>
