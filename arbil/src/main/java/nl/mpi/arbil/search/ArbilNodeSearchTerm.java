@@ -6,14 +6,24 @@ package nl.mpi.arbil.search;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public interface ArbilNodeSearchTerm {
+    public static final String BOOLEAN_AND = "and";
+    public static final String BOOLEAN_OR = "or";
 
-    static final String[] NODE_TYPES = new String[]{"All",
-	"Corpus", "Session", "Catalogue", "Actor", "Language", "MediaFile", "Source", "WrittenResource"
-    };
-    static final String[] BOOLEAN_TYPES = new String[]{"and", "or"};
-    String columnFieldMessage = "<column (optional)>";
-    String valueFieldMessage = "<value (optional)>";
-    
+    public static final String NODE_TYPE_ACTOR = "Actor";
+    public static final String NODE_TYPE_ALL = "All";
+    public static final String NODE_TYPE_CATALOGUE = "Catalogue";
+    public static final String NODE_TYPE_CORPUS = "Corpus";
+    public static final String NODE_TYPE_LANGUAGE = "Language";
+    public static final String NODE_TYPE_MEDIAFILE = "MediaFile";
+    public static final String NODE_TYPE_SESSION = "Session";
+    public static final String NODE_TYPE_SOURCE = "Source";
+    public static final String NODE_TYPE_WRITTENRESOURCE = "WrittenResource";
+
+    public static final String[] NODE_TYPES = new String[]{NODE_TYPE_ALL, NODE_TYPE_CORPUS, NODE_TYPE_SESSION, NODE_TYPE_CATALOGUE, NODE_TYPE_ACTOR, NODE_TYPE_LANGUAGE, NODE_TYPE_MEDIAFILE, NODE_TYPE_SOURCE, NODE_TYPE_WRITTENRESOURCE};
+    public static final String[] BOOLEAN_TYPES = new String[]{BOOLEAN_AND, BOOLEAN_OR};
+    public static String COLUMN_FIELD_MESSAGE = "<column (optional)>";
+    public static String VALUE_FIELD_MESSAGE = "<value (optional)>";
+
     /**
      * @return the nodeType
      */
