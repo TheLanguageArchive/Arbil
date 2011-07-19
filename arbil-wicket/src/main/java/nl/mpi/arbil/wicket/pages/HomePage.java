@@ -9,7 +9,6 @@ import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.tree.Tree;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 
@@ -40,7 +39,6 @@ public class HomePage extends WebPage {
 
 	// Create remote tree
 	TreeModel remoteTreeModel = ArbilWicketSession.get().getTreeHelper().getRemoteCorpusTreeModel();
-	TreeModel localTreeModel = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
 	remoteTree = new ArbilWicketTree("remoteTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(remoteTreeModel)) {
 
 	    @Override
@@ -52,6 +50,7 @@ public class HomePage extends WebPage {
 	add(remoteTree);
 
 	// Create local tree
+	TreeModel localTreeModel = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
 	localTree = new ArbilWicketTree("localTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(localTreeModel)) {
 
 	    @Override
@@ -63,10 +62,10 @@ public class HomePage extends WebPage {
 	add(localTree);
     }
 
-    private void onTreeNodeClicked(Tree tree, AjaxRequestTarget target) {
+    private void onTreeNodeClicked(ArbilWicketTree tree, AjaxRequestTarget target) {
 	ArbilWicketTableModel model = new ArbilWicketTableModel();
 	model.setShowIcons(true);
-	if (0 < model.addSelectedNodesToModel(tree.getTreeState())) {
+	if (0 < tree.addSelectedNodesToModel(model)) {
 	    // Nodes have been added to model. Show new table
 	    tablePanel = new ArbilWicketTablePanel("tablePanel", model);
 	    tableContainer.addOrReplace(tablePanel);

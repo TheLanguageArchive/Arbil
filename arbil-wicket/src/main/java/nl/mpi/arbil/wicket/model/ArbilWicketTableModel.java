@@ -3,12 +3,9 @@ package nl.mpi.arbil.wicket.model;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -18,7 +15,6 @@ import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldView;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
-import org.apache.wicket.markup.html.tree.ITreeState;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -40,39 +36,6 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     public ArbilWicketTableModel() {
 	super(new ArbilFieldView());
-    }
-
-    /**
-     * Adds selected nodes from a TreeState to the table model
-     * @param treeState
-     * @return Number of nodes added to the model 
-     */
-    public int addSelectedNodesToModel(ITreeState treeState) {
-	int rowCount = getRowCount();
-	Collection<Object> selected = treeState.getSelectedNodes();
-	if (selected.size() == 1) {
-	    // Single selection
-	    Object node = selected.iterator().next();
-	    if (node instanceof ArbilWicketTreeNode) {
-		addSingleArbilDataNode(((ArbilWicketTreeNode) node).getDataNode());
-	    } else {
-		return 0;
-	    }
-	} else {
-	    // Multiselect
-	    List displayNodes = new LinkedList<ArbilDataNode>();
-	    for (Object node : selected) {
-		if (node instanceof ArbilWicketTreeNode) {
-		    displayNodes.add(((ArbilWicketTreeNode) node).getDataNode());
-		}
-	    }
-	    if (displayNodes.isEmpty()) {
-		return 0;
-	    } else {
-		addArbilDataNodes(Collections.enumeration(displayNodes));
-	    }
-	}
-	return getRowCount() - rowCount;
     }
 
     // IDataProvider<ArbilDataNode> method implementations

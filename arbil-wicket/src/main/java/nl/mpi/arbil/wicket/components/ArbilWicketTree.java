@@ -1,10 +1,17 @@
 package nl.mpi.arbil.wicket.components;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
+import nl.mpi.arbil.wicket.model.ArbilWicketTreeNode;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.extensions.markup.html.tree.Tree;
@@ -57,5 +64,39 @@ public class ArbilWicketTree extends Tree {
 	} else {
 	    return super.newNodeIcon(parent, id, node);
 	}
+    }
+
+    /**
+     * Adds selected nodes from the tree's TreeState to a table model
+     * @param AbstractArbilTableModel Table model to add selected nodes to
+     * @return Number of nodes added to the model 
+     */
+    public int addSelectedNodesToModel(AbstractArbilTableModel tableModel) {
+	ITreeState treeState = getTreeState();
+	int rowCount = tableModel.getRowCount();
+	Collection<Object> selected = treeState.getSelectedNodes();
+	if (selected.size() == 1) {
+	    // Single selection
+	    Object node = selected.iterator().next();
+	    if (node instanceof ArbilWicketTreeNode) {
+		tableModel.addSingleArbilDataNode(((ArbilWicketTreeNode) node).getDataNode());
+	    } else {
+		return 0;
+	    }
+	} else {
+	    // Multiselect
+	    List displayNodes = new LinkedList<ArbilDataNode>();
+	    for (Object node : selected) {
+		if (node instanceof ArbilWicketTreeNode) {
+		    displayNodes.add(((ArbilWicketTreeNode) node).getDataNode());
+		}
+	    }
+	    if (displayNodes.isEmpty()) {
+		return 0;
+	    } else {
+		tableModel.addArbilDataNodes(Collections.enumeration(displayNodes));
+	    }
+	}
+	return tableModel.getRowCount() - rowCount;
     }
 }
