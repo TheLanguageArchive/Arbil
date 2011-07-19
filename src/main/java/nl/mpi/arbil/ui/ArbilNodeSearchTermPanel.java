@@ -21,8 +21,6 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
     private javax.swing.JButton removeButton;
     private javax.swing.JTextField searchField;
     private javax.swing.JTextField searchColumn;
-    private final static String COLUMN_FIELD_MESSAGE = "<column (optional)>";
-    private final static  String VALUE_FIELD_MESSAGE = "<value (optional)>";
     
     public ArbilNodeSearchTermPanel(ArbilNodeSearchPanel parentPanelLocal) {
 	parentPanel = parentPanelLocal;
@@ -160,7 +158,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 	}
 	setNodeType(nodeTypeComboBox.getSelectedItem().toString());
 	if (booleanComboBox.isVisible()) {
-	    setBooleanAnd(booleanComboBox.getSelectedItem().toString().equals("and"));
+	    setBooleanAnd(booleanComboBox.getSelectedItem().toString().equals(ArbilNodeSearchTerm.BOOLEAN_AND));
 	} else {
 	    setBooleanAnd(true);
 	}

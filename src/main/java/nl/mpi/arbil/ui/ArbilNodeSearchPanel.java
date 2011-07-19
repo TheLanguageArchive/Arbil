@@ -183,41 +183,10 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	@Override
 	public void run() {
 	    try {
-		ArrayList searchTerms = new ArrayList<ArbilNodeSearchTerm>(getComponentCount());
-		for (Component component : searchTermsPanel.getComponents()) {
-		    if (component instanceof ArbilNodeSearchTermPanel) {
-			searchTerms.add((ArbilNodeSearchTermPanel) component);
-		    }
-		}
-
-		searchService = new ArbilSearch(Arrays.asList(selectedNodes), searchTerms, remoteServerSearchTerm, resultsTableModel, ArbilNodeSearchPanel.this, this);
-
+		initSearchService();
 		prepareUI();
-
-		for (Component currentTermComp : searchTermsPanel.getComponents()) {
-		    ((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
-		}
-
-		searchService.splitLocalRemote();
-
-		if (remoteServerSearchTerm != null) {
-		    searchProgressBar.setIndeterminate(true);
-		    searchProgressBar.setString("connecting to server");
-
-		    searchService.fetchRemoteSearchResults();
-
-		    searchProgressBar.setString("");
-		    searchProgressBar.setIndeterminate(false);
-		}
-
-		searchService.searchLocalNodes();
-
-		if (searchService.isSearchStopped()) {
-		    searchProgressBar.setString("search canceled");
-		} else {
-		    // collect the max nodes found only if the search completed
-		    searchService.setTotalNodesToSearch(searchService.getTotalSearched());
-		}
+		populateSearchTerms();
+		executeSearch();
 	    } catch (Exception ex) {
 		GuiHelper.linorgBugCatcher.logError(ex);
 	    }
@@ -225,6 +194,45 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    // add the results to the table
 	    resultsTableModel.addArbilDataNodes(Collections.enumeration(searchService.getFoundNodes()));
 	    searchService.clearResults();
+	}
+
+	private void initSearchService() {
+	    ArrayList searchTerms = new ArrayList<ArbilNodeSearchTerm>(getComponentCount());
+	    for (Component component : searchTermsPanel.getComponents()) {
+		if (component instanceof ArbilNodeSearchTermPanel) {
+		    searchTerms.add((ArbilNodeSearchTermPanel) component);
+		}
+	    }
+	    searchService = new ArbilSearch(Arrays.asList(selectedNodes), searchTerms, remoteServerSearchTerm, resultsTableModel, ArbilNodeSearchPanel.this, this);
+	}
+
+	private void populateSearchTerms() {
+	    for (Component currentTermComp : searchTermsPanel.getComponents()) {
+		((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
+	    }
+	}
+
+	private void executeSearch() {
+	    searchService.splitLocalRemote();
+
+	    if (remoteServerSearchTerm != null) {
+		searchProgressBar.setIndeterminate(true);
+		searchProgressBar.setString("connecting to server");
+
+		searchService.fetchRemoteSearchResults();
+
+		searchProgressBar.setString("");
+		searchProgressBar.setIndeterminate(false);
+	    }
+
+	    searchService.searchLocalNodes();
+
+	    if (searchService.isSearchStopped()) {
+		searchProgressBar.setString("search canceled");
+	    } else {
+		// collect the max nodes found only if the search completed
+		searchService.setTotalNodesToSearch(searchService.getTotalSearched());
+	    }
 	}
 
 	private void finishUI() {
