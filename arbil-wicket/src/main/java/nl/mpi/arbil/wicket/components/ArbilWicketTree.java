@@ -72,12 +72,11 @@ public class ArbilWicketTree extends Tree {
      * @return Number of nodes added to the model 
      */
     public int addSelectedNodesToModel(AbstractArbilTableModel tableModel) {
-	ITreeState treeState = getTreeState();
 	int rowCount = tableModel.getRowCount();
-	Collection<Object> selected = treeState.getSelectedNodes();
-	if (selected.size() == 1) {
+	Collection<Object> selectedTreeNodes = getTreeState().getSelectedNodes();
+	if (selectedTreeNodes.size() == 1) {
 	    // Single selection
-	    Object node = selected.iterator().next();
+	    Object node = selectedTreeNodes.iterator().next();
 	    if (node instanceof ArbilWicketTreeNode) {
 		tableModel.addSingleArbilDataNode(((ArbilWicketTreeNode) node).getDataNode());
 	    } else {
@@ -85,12 +84,7 @@ public class ArbilWicketTree extends Tree {
 	    }
 	} else {
 	    // Multiselect
-	    List displayNodes = new LinkedList<ArbilDataNode>();
-	    for (Object node : selected) {
-		if (node instanceof ArbilWicketTreeNode) {
-		    displayNodes.add(((ArbilWicketTreeNode) node).getDataNode());
-		}
-	    }
+	    List displayNodes = getSelectedArbilDataNodes(selectedTreeNodes);
 	    if (displayNodes.isEmpty()) {
 		return 0;
 	    } else {
@@ -98,5 +92,20 @@ public class ArbilWicketTree extends Tree {
 	    }
 	}
 	return tableModel.getRowCount() - rowCount;
+    }
+
+    public List<ArbilDataNode> getSelectedNodes() {
+	Collection<Object> selected = getTreeState().getSelectedNodes();
+	return getSelectedArbilDataNodes(selected);
+    }
+
+    private List<ArbilDataNode> getSelectedArbilDataNodes(final Collection<Object> selectedTreeNodes) {
+	List displayNodes = new LinkedList<ArbilDataNode>();
+	for (Object node : selectedTreeNodes) {
+	    if (node instanceof ArbilWicketTreeNode) {
+		displayNodes.add(((ArbilWicketTreeNode) node).getDataNode());
+	    }
+	}
+	return displayNodes;
     }
 }

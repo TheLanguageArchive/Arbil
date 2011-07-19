@@ -6,8 +6,8 @@
     </wicket:link>
 </head>
 <body>
-    <h1>Arbil wicket test: home</h1>
-    
+    <h1>Arbil wicket test: search</h1>
+       
     <wicket:link>
 	<a href="HomePage.html">Home</a> |     
 	<a href="SearchPage.html">Search</a>
@@ -16,6 +16,17 @@
     <div>
 	
 	<div id="tableContainer" wicket:id="tableContainer">
+	    
+	    <h2>Search</h2>
+	    <p>Select a node and enter search terms</p>
+	    <form wicket:id="searchForm">
+		<select wicket:id="nodeType">
+		    <option>All</option>
+		</select>
+		Field: <input type="text" wicket:id="searchFieldName" />
+		Value: <input type="text" wicket:id="searchString" />
+		<input type="submit" value="Search" wicket:id="searchSubmit" />
+	    </form>
 
 	    <div wicket:id="tablePanel">
 	    </div>

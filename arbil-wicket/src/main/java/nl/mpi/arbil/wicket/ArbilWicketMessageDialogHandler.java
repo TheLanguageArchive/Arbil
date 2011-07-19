@@ -14,8 +14,8 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
     private final static Logger logger = LoggerFactory.getLogger(ArbilWicketMessageDialogHandler.class);
 
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
-	logger.info(String.format("Message: [%1$] %2$", messageTitle, messageString));
-	ArbilWicketSession.get().info(String.format("[%1$] %2$", messageTitle, messageString));
+	logger.info(String.format("Message: [%1$s] %2$s", messageTitle, messageString));
+	ArbilWicketSession.get().info(String.format("[%1$s] %2$s", messageTitle, messageString));
     }
 
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {
@@ -23,7 +23,7 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
     }
 
     public int showDialogBox(String message, String title, int optionType, int messageType) {
-	logger.info(String.format("Dialog box: [%1$] %2$", title, message));
+	logger.info(String.format("Dialog box: [%1$s] %2$s", title, message));
 	return 0;
     }
 
