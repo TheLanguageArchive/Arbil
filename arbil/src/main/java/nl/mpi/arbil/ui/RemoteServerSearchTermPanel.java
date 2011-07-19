@@ -62,7 +62,7 @@ public class RemoteServerSearchTermPanel extends JPanel implements RemoteServerS
     @Override
     public URI[] getServerSearchResults(ArbilDataNode[] arbilDataNodeArray) {
 	final String searchFieldText = searchField.getText();
-	if (searchFieldText.equals(valueFieldMessage) || searchFieldText.equals("")) {
+	if (ArbilRemoteSearch.isEmptyQuery(searchFieldText)) {
 	    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No remote search term provided, cannot search remotely", "Remote Search");
 	}
 

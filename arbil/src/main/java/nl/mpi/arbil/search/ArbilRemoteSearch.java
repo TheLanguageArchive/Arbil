@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,25 +23,31 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Logic for carrying out a search on a remote corpus
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilRemoteSearch {
-
+    
     protected String lastSearchString = null;
+    protected ArbilDataNode[] lastSearchNodes = null;
     protected URI[] searchResults = null;
-
-    public URI[] getServerSearchResults(final String searchFieldText, ArbilDataNode[] arbilDataNodeArray) {
-	if (searchFieldText.equals(RemoteServerSearchTerm.valueFieldMessage) || searchFieldText.equals("")) {
+    
+    public static boolean isEmptyQuery(String queryText) {
+	return RemoteServerSearchTerm.valueFieldMessage.equals(queryText) || "".equals(queryText);
+    }
+    
+    public URI[] getServerSearchResults(final String queryText, ArbilDataNode[] searchNodes) {
+	if (queryText == null || isEmptyQuery(queryText)) {
 	    return new URI[]{};
 	} else {
-	    if (searchFieldText.equals(lastSearchString)) {
+	    if (queryText.equals(lastSearchString) && Arrays.equals(searchNodes, lastSearchNodes)) {
 		System.out.println("remote search term unchanged, returning last server response");
 		return searchResults;
 	    } else {
 		ArrayList<URI> foundNodes = new ArrayList<URI>();
-		lastSearchString = searchFieldText;
-		for (String resultString : performSearch(lastSearchString, arbilDataNodeArray)) {
+		lastSearchString = queryText;
+		lastSearchNodes = searchNodes.clone();
+		for (String resultString : performSearch(lastSearchString, searchNodes)) {
 		    try {
 			foundNodes.add(new URI(resultString));
 		    } catch (URISyntaxException exception) {
@@ -52,7 +59,7 @@ public class ArbilRemoteSearch {
 	    }
 	}
     }
-
+    
     protected String[] performSearch(String searchString, ArbilDataNode[] arbilDataNodeArray) {
 	ArrayList<String> returnArray = new ArrayList<String>();
 	int maxResultNumber = 1000;
@@ -84,7 +91,7 @@ public class ArbilRemoteSearch {
 	}
 	return returnArray.toArray(new String[]{});
     }
-
+    
     private static String constructSearchQuery(ArbilDataNode[] arbilDataNodeArray, String searchString, int maxResultNumber) {
 	String encodedQuery;
 	try {
@@ -92,7 +99,7 @@ public class ArbilRemoteSearch {
 	} catch (UnsupportedEncodingException ex) {
 	    throw new RuntimeException(ex);
 	}
-
+	
 	String fullQueryString = RemoteServerSearchTerm.IMDI_SEARCH_BASE;
 	fullQueryString += "&num=" + maxResultNumber;
 	fullQueryString += "&query=" + encodedQuery;
@@ -111,7 +118,7 @@ public class ArbilRemoteSearch {
 	fullQueryString += "&returnType=xml";
 	return fullQueryString;
     }
-
+    
     private Document getSearchResults(String fullQueryString) throws SAXException, ParserConfigurationException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 	documentBuilderFactory.setValidating(false);

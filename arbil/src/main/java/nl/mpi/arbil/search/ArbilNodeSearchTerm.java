@@ -1,7 +1,8 @@
 package nl.mpi.arbil.search;
 
 /**
- *
+ * Search term that can be combined into a local or remote search
+ * @see nl.mpi.arbil.search.ArbilSearch
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public interface ArbilNodeSearchTerm {
