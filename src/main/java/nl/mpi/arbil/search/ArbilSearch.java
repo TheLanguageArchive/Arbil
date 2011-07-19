@@ -8,7 +8,6 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
-import nl.mpi.arbil.ui.RemoteServerSearchTermPanel;
 
 /**
  *
@@ -19,19 +18,26 @@ public class ArbilSearch {
     private ArrayList<ArbilNode> localSearchNodes = new ArrayList<ArbilNode>();
     private ArrayList<ArbilNode> remoteSearchNodes = new ArrayList<ArbilNode>();
     private ArrayList<ArbilNode> foundNodes = new ArrayList<ArbilNode>();
-
-    private boolean stopSearch = false;
+    private boolean searchStopped = false;
     private int totalSearched;
     private int totalNodesToSearch = -1;
-    
     private AbstractArbilTableModel resultsTableModel;
     private ArbilDataNodeContainer container;
     private Collection<ArbilNode> selectedNodes;
     private Collection<ArbilNodeSearchTerm> nodeSearchTerms;
-    private RemoteServerSearchTermPanel remoteServerSearchTerm;
+    private RemoteServerSearchTerm remoteServerSearchTerm;
     private ArbilSearchListener listener;
 
-    public ArbilSearch(RemoteServerSearchTermPanel remoteServerSearchTerm, Collection<ArbilNode> selectedNodes, Collection<ArbilNodeSearchTerm> nodeSearchTerms, AbstractArbilTableModel resultsTableModel, ArbilDataNodeContainer container, ArbilSearchListener listener) {
+    /**
+     * Vehicle for searching local & remote corpora
+     * @param selectedNodes
+     * @param nodeSearchTerms
+     * @param remoteServerSearchTerm
+     * @param resultsTableModel
+     * @param container
+     * @param listener 
+     */
+    public ArbilSearch(Collection<ArbilNode> selectedNodes, Collection<ArbilNodeSearchTerm> nodeSearchTerms, RemoteServerSearchTerm remoteServerSearchTerm, AbstractArbilTableModel resultsTableModel, ArbilDataNodeContainer container, ArbilSearchListener listener) {
 	this.remoteServerSearchTerm = remoteServerSearchTerm;
 	this.selectedNodes = selectedNodes;
 	this.nodeSearchTerms = nodeSearchTerms;
@@ -40,12 +46,12 @@ public class ArbilSearch {
 	this.listener = listener;
     }
 
-    public void setStopSearch(boolean stopSearch) {
-	this.stopSearch = stopSearch;
+    public void stopSearch() {
+	this.searchStopped = true;
     }
 
     public boolean isSearchStopped() {
-	return stopSearch;
+	return searchStopped;
     }
 
     public void splitLocalRemote() {
@@ -57,15 +63,15 @@ public class ArbilSearch {
 	    }
 	}
     }
-    
+
     public void searchLocalNodes() {
 	totalSearched = 0;
-	while (localSearchNodes.size() > 0 && !stopSearch) {
+	while (localSearchNodes.size() > 0 && !searchStopped) {
 	    Object currentElement = localSearchNodes.remove(0);
 	    if (currentElement instanceof ArbilNode) {
 		searchLocalNode((ArbilNode) currentElement);
 	    }
-	    if(listener != null){
+	    if (listener != null) {
 		listener.searchProgress(currentElement);
 	    }
 	}
@@ -200,8 +206,9 @@ public class ArbilSearch {
     public void setTotalNodesToSearch(int totalNodesToSearch) {
 	this.totalNodesToSearch = totalNodesToSearch;
     }
-    
-    public static interface ArbilSearchListener{
+
+    public static interface ArbilSearchListener {
+
 	/**
 	 * Called for each element in the search process.
 	 * @param currentElement  Listener needs to check whether it is actually a ArbilNode

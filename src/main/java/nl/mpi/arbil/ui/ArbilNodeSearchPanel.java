@@ -153,15 +153,12 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	System.out.println("stop search");
 	hideFirstBooleanOption();
 	if (searchService != null) {
-	    searchService.setStopSearch(true);
+	    searchService.stopSearch();
 	}
     }
 
     public void startSearch() {
 	System.out.println("start search");
-	if (searchService != null) {
-	    searchService.setStopSearch(false);
-	}
 	searchButton.setEnabled(false);
 	stopButton.setEnabled(true);
 	resultsTableModel.removeAllArbilDataNodeRows();
@@ -193,7 +190,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		    }
 		}
 
-		searchService = new ArbilSearch(remoteServerSearchTerm, Arrays.asList(selectedNodes), searchTerms, resultsTableModel, ArbilNodeSearchPanel.this, this);
+		searchService = new ArbilSearch(Arrays.asList(selectedNodes), searchTerms, remoteServerSearchTerm, resultsTableModel, ArbilNodeSearchPanel.this, this);
 
 		prepareUI();
 
@@ -256,9 +253,9 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		// todo: indicate how many metadata files searched rather than sub nodes
 		searchProgressBar.setString("searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + " found: " + searchService.getFoundNodes().size());
 	    }
-	    if (!parentFrame.isVisible()) {
+	    if (!parentFrame.isVisible() && searchService != null) {
 		// in the case that the user has closed the search window we want to stop the thread
-		searchService.setStopSearch(true);
+		searchService.stopSearch();
 	    }
 	}
     }
