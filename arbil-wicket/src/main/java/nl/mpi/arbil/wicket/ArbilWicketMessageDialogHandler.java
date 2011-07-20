@@ -15,7 +15,6 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
 	logger.info(String.format("Message: [%1$s] %2$s", messageTitle, messageString));
-	ArbilWicketSession.get().info(String.format("[%1$s] %2$s", messageTitle, messageString));
     }
 
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {

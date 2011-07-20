@@ -28,7 +28,11 @@ public class ArbilWicketRequestCycle extends WebRequestCycle {
     public static SessionStorage getSessionStorage() {
 	return sessionStorage.get();
     }
-    
+
+    /**
+     * 
+     * @return The session's TreeHelper local to this thread or it's parent
+     */
     public static TreeHelper getTreeHelper() {
 	return treeHelper.get();
     }

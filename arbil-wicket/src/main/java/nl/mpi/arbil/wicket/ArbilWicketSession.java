@@ -1,6 +1,5 @@
 package nl.mpi.arbil.wicket;
 
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.TreeHelper;
 import org.apache.wicket.Request;
