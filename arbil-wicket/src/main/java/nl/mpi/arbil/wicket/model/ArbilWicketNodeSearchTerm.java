@@ -11,7 +11,7 @@ import nl.mpi.arbil.search.RemoteServerSearchTerm;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class SimpleNodeSearchTerm implements ArbilNodeSearchTerm, RemoteServerSearchTerm, Serializable {
+public class ArbilWicketNodeSearchTerm implements ArbilNodeSearchTerm, RemoteServerSearchTerm, Serializable {
 
     protected boolean notEqual = false;
     protected boolean booleanAnd = false;
