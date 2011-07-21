@@ -13,6 +13,8 @@ import nl.mpi.arbil.wicket.components.ArbilWicketTree;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
+import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
+import nl.mpi.arbil.wicket.model.ArbilWicketSearchModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -24,7 +26,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class SearchPage extends WebPage {
-    
+
     private static final long serialVersionUID = 1L;
     private ArbilWicketTree remoteTree;
     private ArbilWicketTree localTree;
@@ -32,16 +34,16 @@ public class SearchPage extends WebPage {
     private WebMarkupContainer tablePanel;
     private ArbilWicketSearchForm searchForm;
     private ArbilWicketTree selectedTree = null;
-    
+
     public SearchPage(PageParameters parameters) {
 	super(parameters);
-	
+
 	ArbilWicketSession.get().getTreeHelper().applyRootLocations();
 	createTable();
 	createTrees();
 	createForm();
     }
-    
+
     private void createTable() {
 	tableContainer = new WebMarkupContainer("tableContainer");
 	tableContainer.setOutputMarkupId(true);
@@ -52,12 +54,12 @@ public class SearchPage extends WebPage {
 	tablePanel = new WebMarkupContainer("tablePanel");
 	tableContainer.add(tablePanel);
     }
-    
+
     private void createTrees() {
 	// Create remote tree
 	TreeModel remoteTreeModel = ArbilWicketSession.get().getTreeHelper().getRemoteCorpusTreeModel();
 	remoteTree = new ArbilWicketTree("remoteTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(remoteTreeModel)) {
-	    
+
 	    @Override
 	    protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode treeNode) {
 		onTreeNodeClicked(this, target);
@@ -69,7 +71,7 @@ public class SearchPage extends WebPage {
 	// Create local tree
 	TreeModel localTreeModel = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
 	localTree = new ArbilWicketTree("localTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(localTreeModel)) {
-	    
+
 	    @Override
 	    protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode treeNode) {
 		onTreeNodeClicked(this, target);
@@ -78,24 +80,24 @@ public class SearchPage extends WebPage {
 	localTree.getTreeState().expandNode(localTreeModel.getRoot());
 	add(localTree);
     }
-    
+
     private void onTreeNodeClicked(ArbilWicketTree tree, AjaxRequestTarget target) {
 	selectedTree = tree.getTreeState().getSelectedNodes().size() > 0 ? tree : null;
 	// refresh table container
 	target.addComponent(searchForm);
     }
-    
+
     private void createForm() {
-	ArbilNodeSearchTerm term = new ArbilWicketNodeSearchTerm();
+	ArbilWicketNodeSearchTerm term = new ArbilWicketNodeSearchTerm();
 	term.setNodeType(ArbilNodeSearchTerm.NODE_TYPE_ALL);
 	term.setBooleanAnd(true);
 	term.setNotEqual(false);
-	
-	searchForm = new ArbilWicketSearchForm("searchForm", new CompoundPropertyModel<ArbilWicketNodeSearchTerm>(term)) {
-	    
+
+	searchForm = new ArbilWicketSearchForm("searchForm", new ArbilWicketSearchModel(term)) {
+
 	    @Override
 	    protected void onSearchComplete(ArbilWicketTableModel model, AjaxRequestTarget target) {
-		
+
 		if (model.getRowCount() > 0) {
 		    tablePanel = new ArbilWicketTablePanel("tablePanel", model);
 		} else {
@@ -103,12 +105,12 @@ public class SearchPage extends WebPage {
 		    tablePanel = new WebMarkupContainer("tablePanel");
 		}
 		tableContainer.addOrReplace(tablePanel);
-		
+
 		if (target != null) {
 		    target.addComponent(tableContainer);
 		}
 	    }
-	    
+
 	    @Override
 	    protected Collection<ArbilDataNode> getSelectedNodes() {
 		if (selectedTree != null) {
@@ -117,18 +119,18 @@ public class SearchPage extends WebPage {
 		    return Collections.emptyList();
 		}
 	    }
-	    
+
 	    @Override
 	    protected boolean isNodesSelected() {
 		return selectedTree != null;
 	    }
-	    
+
 	    @Override
 	    protected boolean isRemote() {
 		return selectedTree == remoteTree;
 	    }
 	};
-	
+
 	searchForm.setOutputMarkupId(true);
 	tableContainer.add(searchForm);
     }

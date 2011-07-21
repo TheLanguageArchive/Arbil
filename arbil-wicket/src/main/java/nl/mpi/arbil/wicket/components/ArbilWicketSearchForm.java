@@ -1,21 +1,23 @@
 package nl.mpi.arbil.wicket.components;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.concurrent.locks.ReentrantLock;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
-import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
+import nl.mpi.arbil.wicket.model.ArbilWicketRemoteSearchTerm;
+import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
+import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.PropertyListView;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.wicketstuff.progressbar.ProgressBar;
@@ -26,7 +28,7 @@ import org.wicketstuff.progressbar.ProgressionModel;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTerm> {
+public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
     private final String searchLock = new String();
     private static final String SELECT_NODES_STRING = "Select a node and enter search terms";
@@ -37,19 +39,9 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
     private String progressMessage = null;
     private int progress = 0;
 
-    public ArbilWicketSearchForm(String id, IModel<ArbilWicketNodeSearchTerm> model) {
-	super(id, model);
-
-	add(new DropDownChoice<String>("nodeType", Arrays.asList(ArbilNodeSearchTerm.NODE_TYPES)));
-	add(new TextField("remoteSearchString") {
-
-	    @Override
-	    public boolean isVisible() {
-		return isRemote();
-	    }
-	});
-	add(new TextField("searchFieldName"));
-	add(new TextField("searchString"));
+    public ArbilWicketSearchForm(String id, IModel<ArbilWicketSearch> model) {
+	super(id);
+	setModel(new CompoundPropertyModel<ArbilWicketSearch>(model));
 
 	// Label that shows either the nodes selected for searchService or a string informing the user they should select one
 	add(new Label("searchNodes", new Model<String>() {
@@ -63,6 +55,28 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 		}
 	    }
 	}));
+
+	// Remote search term (only for remote searches)
+	add(new TextField("remoteSearchTerm") {
+
+	    @Override
+	    public boolean isVisible() {
+		return isRemote();
+	    }
+	});
+
+
+	// Collection of search terms
+	add(new PropertyListView<ArbilWicketNodeSearchTerm>("nodeSearchTerms",getModelObject().getNodeSearchTerms()) {
+
+	    @Override
+	    protected void populateItem(ListItem<ArbilWicketNodeSearchTerm> item) {
+		item.add(new DropDownChoice<String>("nodeType", Arrays.asList(ArbilNodeSearchTerm.NODE_TYPES)));
+
+		item.add(new TextField("searchFieldName"));
+		item.add(new TextField("searchString"));
+	    }
+	});
 
 	// 'Search' button
 	add(new AjaxButton("searchSubmit", this) {
@@ -135,7 +149,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 	progressbar.setVisible(false);
     }
 
-    private void performSearch(final ArbilWicketNodeSearchTerm searchTerm, AjaxRequestTarget target) {
+    private void performSearch(final ArbilWicketSearch searchTerm, AjaxRequestTarget target) {
 
 	if (null != searchTerm && isNodesSelected()) {
 	    if (resultsModel != null) {
@@ -144,7 +158,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 	    resultsModel = new ArbilWicketTableModel();
 
 	    synchronized (searchLock) {
-		searchService = new ArbilSearch(getSelectedNodes(), Collections.singleton(searchTerm), searchTerm.getRemoteServerSearchTerm(),
+		searchService = new ArbilSearch(getSelectedNodes(), searchTerm.getNodeSearchTerms(), new ArbilWicketRemoteSearchTerm(searchTerm.getRemoteSearchTerm()),
 			resultsModel, // as table model
 			resultsModel, // as DataNodeContainer
 			new ArbilSearch.ArbilSearchListener() {
@@ -188,7 +202,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 		    synchronized (searchLock) {
 			searchService = null;
 		    }
-		    
+
 		    resultsModel.resumeReload();
 		}
 	    }.start();

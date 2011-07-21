@@ -20,14 +20,19 @@
 	<h2>Search</h2>
 	<form wicket:id="searchForm">
 	    <p><span wicket:id="searchNodes">NODES</span></p>
-	    <input type="text" wicket:id="remoteSearchString" /><br />
-	    <select wicket:id="nodeType">
-		<option>All</option>
-	    </select>
+	    <input type="text" wicket:id="remoteSearchTerm" /><br />
+
+	    <div wicket:id="nodeSearchTerms">
+
+		<select wicket:id="nodeType">
+		    <option>All</option>
+		</select>
 		Field: <input type="text" wicket:id="searchFieldName" />
 		Value: <input type="text" wicket:id="searchString" />
+	    </div>
 	    <input type="submit" value="Search" wicket:id="searchSubmit" />
 	    <input type="submit" value="Stop" wicket:id="searchStop" />
+
 
 	    <div wicket:id="progress">[progress]</div>
 	</form>
