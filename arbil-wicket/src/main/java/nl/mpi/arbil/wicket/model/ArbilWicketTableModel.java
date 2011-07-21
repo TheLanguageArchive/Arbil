@@ -3,10 +3,12 @@ package nl.mpi.arbil.wicket.model;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
@@ -28,7 +30,9 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private transient Hashtable<String, ArbilDataNode> dataNodeHash;
-    private HashMap<String, URI> dataNodeUrisMap = new HashMap<String, URI>();
+    private Map<String, URI> dataNodeUrisMap = Collections.synchronizedMap(new HashMap<String, URI>());
+    private boolean reloadSuspended = false;
+    private boolean reloadRequestedWhileSuspended = false;
 
     public ArbilWicketTableModel(ArbilFieldView fieldView) {
 	super(fieldView);
@@ -74,6 +78,22 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 	dataNodeHash = null;
     }
 
+    public synchronized void suspendReload() {
+	if (!reloadSuspended) {
+	    reloadSuspended = true;
+	    reloadRequestedWhileSuspended = false;
+	}
+    }
+
+    public synchronized void resumeReload() {
+	if (reloadSuspended) {
+	    reloadSuspended = false;
+	    if (reloadRequestedWhileSuspended) {
+		requestReloadTableData();
+	    }
+	}
+    }
+
     // AbstractArbilTableModel method implementations
     @Override
     protected Hashtable<String, ArbilDataNode> getDataNodeHash() {
@@ -105,7 +125,7 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
     }
 
     @Override
-    protected void removeFromDataNodeHash(ArbilDataNode arbilDataNode) {
+    protected synchronized void removeFromDataNodeHash(ArbilDataNode arbilDataNode) {
 	super.removeFromDataNodeHash(arbilDataNode);
 	dataNodeUrisMap.remove(arbilDataNode.getUrlString());
     }
@@ -127,8 +147,14 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     @Override
     public void requestReloadTableData() {
-	// Synchronous table reload
-	reloadTableDataPrivate();
+	if (reloadSuspended) {
+	    synchronized (this) {
+		reloadRequestedWhileSuspended = true;
+	    }
+	} else {
+	    // Synchronous table reload
+	    reloadTableDataPrivate();
+	}
     }
 
     @Override
