@@ -11,11 +11,13 @@ import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -34,6 +36,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
     private static final String SELECT_NODES_STRING = "Select a node and enter search terms";
     private transient ArbilSearch searchService;
     private ArbilWicketTableModel resultsModel;
+    private ListView<ArbilWicketNodeSearchTerm> nodeSearchTerms;
     private AjaxButton stopButton;
     private ProgressBar progressbar;
     private String progressMessage = null;
@@ -65,18 +68,41 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	    }
 	});
 
+	final WebMarkupContainer nodeSearchTermsContainer = new WebMarkupContainer("nodeSearchTermsContainer");	
 
 	// Collection of search terms
-	add(new PropertyListView<ArbilWicketNodeSearchTerm>("nodeSearchTerms",getModelObject().getNodeSearchTerms()) {
+	nodeSearchTermsContainer.add(nodeSearchTerms = new PropertyListView<ArbilWicketNodeSearchTerm>("nodeSearchTerms", getModelObject().getNodeSearchTerms()) {
 
 	    @Override
-	    protected void populateItem(ListItem<ArbilWicketNodeSearchTerm> item) {
+	    protected void populateItem(final ListItem<ArbilWicketNodeSearchTerm> item) {
 		item.add(new DropDownChoice<String>("nodeType", Arrays.asList(ArbilNodeSearchTerm.NODE_TYPES)));
 
 		item.add(new TextField("searchFieldName"));
 		item.add(new TextField("searchString"));
+		item.add(new AjaxButton("removeNodeSearchTerm") {
+
+		    @Override
+		    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().remove(item.getModelObject());
+			nodeSearchTermsContainer.addOrReplace(nodeSearchTerms);
+			target.addComponent(nodeSearchTermsContainer);
+		    }
+		});
 	    }
 	});
+
+	nodeSearchTermsContainer.add(new AjaxButton("addNodeSearchTerm") {
+
+	    @Override
+	    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+		ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().add(newNodeSearchTerm());
+		nodeSearchTermsContainer.addOrReplace(nodeSearchTerms);
+		target.addComponent(nodeSearchTermsContainer);
+	    }
+	});
+
+	nodeSearchTermsContainer.setOutputMarkupId(true);
+	add(nodeSearchTermsContainer);
 
 	// 'Search' button
 	add(new AjaxButton("searchSubmit", this) {
@@ -208,6 +234,8 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	    }.start();
 	}
     }
+
+    protected abstract ArbilWicketNodeSearchTerm newNodeSearchTerm();
 
     protected abstract void onSearchComplete(ArbilWicketTableModel resultsTableModel, AjaxRequestTarget target);
 

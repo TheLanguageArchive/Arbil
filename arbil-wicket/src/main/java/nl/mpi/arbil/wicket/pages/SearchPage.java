@@ -88,12 +88,7 @@ public class SearchPage extends WebPage {
     }
 
     private void createForm() {
-	ArbilWicketNodeSearchTerm term = new ArbilWicketNodeSearchTerm();
-	term.setNodeType(ArbilNodeSearchTerm.NODE_TYPE_ALL);
-	term.setBooleanAnd(true);
-	term.setNotEqual(false);
-
-	searchForm = new ArbilWicketSearchForm("searchForm", new ArbilWicketSearchModel(term)) {
+	searchForm = new ArbilWicketSearchForm("searchForm", new ArbilWicketSearchModel(newNodeSearchTerm())) {
 
 	    @Override
 	    protected void onSearchComplete(ArbilWicketTableModel model, AjaxRequestTarget target) {
@@ -129,9 +124,22 @@ public class SearchPage extends WebPage {
 	    protected boolean isRemote() {
 		return selectedTree == remoteTree;
 	    }
+
+	    @Override
+	    protected ArbilWicketNodeSearchTerm newNodeSearchTerm() {
+		return SearchPage.this.newNodeSearchTerm();
+	    }
 	};
 
 	searchForm.setOutputMarkupId(true);
 	tableContainer.add(searchForm);
+    }
+
+    private ArbilWicketNodeSearchTerm newNodeSearchTerm() {
+	ArbilWicketNodeSearchTerm term = new ArbilWicketNodeSearchTerm();
+	term.setNodeType(ArbilNodeSearchTerm.NODE_TYPE_ALL);
+	term.setBooleanAnd(true);
+	term.setNotEqual(false);
+	return term;
     }
 }
