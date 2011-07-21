@@ -28,13 +28,14 @@ import org.wicketstuff.progressbar.ProgressionModel;
  */
 public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTerm> {
 
+    private final String searchLock = new String();
     private static final String SELECT_NODES_STRING = "Select a node and enter search terms";
     private transient ArbilSearch searchService;
-    private ProgressBar progressbar;
-    private String progessMessage = null;
-    private int progress = 0;
     private ArbilWicketTableModel resultsModel;
-    private final String progressLock = new String();
+    private AjaxButton stopButton;
+    private ProgressBar progressbar;
+    private String progressMessage = null;
+    private int progress = 0;
 
     public ArbilWicketSearchForm(String id, IModel<ArbilWicketNodeSearchTerm> model) {
 	super(id, model);
@@ -78,6 +79,21 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 	    }
 	});
 
+	// Stop button
+	add(stopButton = new AjaxButton("searchStop") {
+
+	    @Override
+	    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+		synchronized (searchLock) {
+		    if (searchService != null) {
+			searchService.stopSearch();
+		    }
+		}
+	    }
+	});
+	stopButton.setOutputMarkupId(true);
+	stopButton.setVisible(false);
+
 	// Progress bar
 	add(progressbar = new ProgressBar("progress", new ProgressionModel() {
 
@@ -87,21 +103,21 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 
 		    @Override
 		    public int getProgress() {
-			synchronized (progressLock) {
+			synchronized (searchLock) {
 			    return progress;
 			}
 		    }
 
 		    @Override
 		    public String getProgressMessage() {
-			synchronized (progressLock) {
-			    return progessMessage;
+			synchronized (searchLock) {
+			    return progressMessage;
 			}
 		    }
 
 		    @Override
 		    public boolean isDone() {
-			synchronized (progressLock) {
+			synchronized (searchLock) {
 			    return searchService == null;
 			}
 		    }
@@ -112,6 +128,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 	    @Override
 	    protected void onFinished(AjaxRequestTarget target) {
 		setVisible(false);
+		stopButton.setVisible(false);
 		onSearchComplete(resultsModel, target);
 	    }
 	});
@@ -119,20 +136,29 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
     }
 
     private void performSearch(final ArbilWicketNodeSearchTerm searchTerm, AjaxRequestTarget target) {
-	if (null != searchTerm && isNodesSelected()) {
 
-	    synchronized (progressLock) {
+	if (null != searchTerm && isNodesSelected()) {
+	    if (resultsModel != null) {
+		resultsModel.removeAllArbilDataNodeRows();
+	    }
+	    resultsModel = new ArbilWicketTableModel();
+
+	    synchronized (searchLock) {
 		searchService = new ArbilSearch(getSelectedNodes(), Collections.singleton(searchTerm), searchTerm.getRemoteServerSearchTerm(),
 			resultsModel, // as table model
 			resultsModel, // as DataNodeContainer
 			new ArbilSearch.ArbilSearchListener() {
 
 		    public void searchProgress(Object currentElement) {
-			synchronized (progressLock) {
+			synchronized (searchLock) {
 			    try {
-				progress = (100 * searchService.getTotalSearched()) / searchService.getTotalNodesToSearch();
-				progessMessage = "searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + " found: " + searchService.getFoundNodes().size();
-				progressLock.wait(10);
+				if (searchService.isSearchStopped()) {
+				    progressMessage = "Search stopped. Found: " + searchService.getFoundNodes().size();
+				} else {
+				    progress = (100 * searchService.getTotalSearched()) / searchService.getTotalNodesToSearch();
+				    progressMessage = "Searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + ". Found: " + searchService.getFoundNodes().size();
+				}
+				searchLock.wait(10);
 			    } catch (InterruptedException ex) {
 			    }
 			}
@@ -140,7 +166,10 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 		});
 	    }
 
+	    stopButton.setVisible(true);
+
 	    progress = 0;
+	    progressMessage = "Searching...";
 	    progressbar.setVisible(true);
 	    progressbar.start(target);
 
@@ -149,16 +178,18 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 
 		@Override
 		public void run() {
-		    resultsModel = new ArbilWicketTableModel();
+		    resultsModel.suspendReload();
 
 		    searchService.splitLocalRemote();
 		    if (isRemote()) {
 			searchService.fetchRemoteSearchResults();
 		    }
 		    searchService.searchLocalNodes();
-		    synchronized (progressLock) {
+		    synchronized (searchLock) {
 			searchService = null;
 		    }
+		    
+		    resultsModel.resumeReload();
 		}
 	    }.start();
 	}
