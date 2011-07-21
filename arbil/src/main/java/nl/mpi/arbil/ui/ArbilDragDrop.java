@@ -328,7 +328,7 @@ public class ArbilDragDrop {
 		return this;
 	    } else if (comp instanceof ArbilTable) {
 
-		draggedArbilNodes = ((ArbilTable) comp).getSelectedRowsFromTable();
+		draggedArbilNodes = ((ArbilTable) comp).getSelectedDataRowsFromTable().toArray(new ArbilDataNode[0]);
 		classifyTransferableContents();
 		return this;
 	    } else if (comp instanceof JList) {

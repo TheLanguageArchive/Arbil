@@ -50,8 +50,9 @@ import org.w3c.dom.Document;
  * Document   : ArbilDataNode formerly known as ImdiTreeObject
  * Created on :
  * @author Peter.Withers@mpi.nl
+ * @author Twan.Goosen@mpi.nl
  */
-public class ArbilDataNode implements ArbilNode, Comparable {
+public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
@@ -330,8 +331,8 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	boolean needsSaveToDisk = hasChangedFields() || hasDomIdAttribute;
 	if (isMetaDataNode() && !isChildNode()) {
 	    if (needsSaveToDisk == false) {
-		for (ArbilDataNode childNode : getAllChildren()) {
-		    if (childNode.nodeNeedsSaveToDisk) {
+		for (ArbilNode childNode : getAllChildren()) {
+		    if (childNode instanceof ArbilDataNode && ((ArbilDataNode) childNode).nodeNeedsSaveToDisk) {
 			needsSaveToDisk = true;
 		    }
 		}
@@ -653,8 +654,8 @@ public class ArbilDataNode implements ArbilNode, Comparable {
      * Calls getAllChildren(Vector<ArbilDataNode> allChildren) and returns the result as an array
      * @return an array of all the child nodes
      */
-    public ArbilDataNode[] getAllChildren() {
-	Vector<ArbilDataNode> allChildren = new Vector<ArbilDataNode>();
+    public ArbilNode[] getAllChildren() {
+	Vector<ArbilNode> allChildren = new Vector<ArbilNode>();
 	getAllChildren(allChildren);
 	return allChildren.toArray(new ArbilDataNode[]{});
     }
@@ -663,7 +664,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
      * Used to get all the Arbil child nodes (all levels) of a session or all the nodes contained in a corpus (one level only).
      * @param An empty vector, to which all the child nodes will be added.
      */
-    public void getAllChildren(Vector<ArbilDataNode> allChildren) {
+    public void getAllChildren(Vector<ArbilNode> allChildren) {
 	System.out.println("getAllChildren: " + this.getUrlString());
 	if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
 	    for (ArbilDataNode currentChild : childArray) {
@@ -1734,6 +1735,10 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	return nodeUri.toString();
     }
 
+    public String getHashKey() {
+	return getUrlString();
+    }
+
     public Object getParentDomLockObject() {
 	return getParentDomNode().domLockObjectPrivate;
     }
@@ -1965,7 +1970,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 
     public synchronized void removeFromAllContainers() {
 	// todo: this should also scan all child nodes and also remove them in the same way
-	for (ArbilDataNode currentChildNode : this.getAllChildren()) {
+	for (ArbilNode currentChildNode : this.getAllChildren()) {
 	    currentChildNode.removeFromAllContainers();
 	}
 	for (ArbilDataNodeContainer currentContainer : containersOfThisNode.toArray(new ArbilDataNodeContainer[]{})) {

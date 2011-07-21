@@ -35,6 +35,8 @@ import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilFieldsNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.ui.TemplateDialogue;
 import nl.mpi.arbil.ui.ArbilHelp;
 import nl.mpi.arbil.ui.ArbilTable;
@@ -140,14 +142,14 @@ public class ArbilMenuBar extends JMenuBar {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-                    ArrayList<ArbilDataNode> individualChangedNodes = new ArrayList<ArbilDataNode>();
+                    ArrayList<ArbilFieldsNode> individualChangedNodes = new ArrayList<ArbilFieldsNode>();
                     for (ArbilDataNode currentTestable : ArbilDataNodeLoader.getSingleInstance().getNodesNeedSave()) {
                         if (currentTestable.hasChangedFields()) {
                             individualChangedNodes.add(currentTestable);
                         }
-                        for (ArbilDataNode currentChildSaveable : currentTestable.getAllChildren()) {
-                            if (currentChildSaveable.hasChangedFields()) {
-                                individualChangedNodes.add(currentChildSaveable);
+                        for (ArbilNode currentChildSaveable : currentTestable.getAllChildren()) {
+                            if ((currentChildSaveable instanceof ArbilFieldsNode) && ((ArbilFieldsNode)currentChildSaveable).hasChangedFields()) {
+                                individualChangedNodes.add(((ArbilFieldsNode)currentChildSaveable));
                             }
                         }
                     }

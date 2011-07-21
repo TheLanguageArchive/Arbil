@@ -24,6 +24,7 @@ import javax.swing.table.TableCellEditor;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 
 /**
@@ -209,7 +210,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
     }
 
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode dataNode) {
         if (dataNode == this.dataNode) {
             clear();
             revalidate();
@@ -219,7 +220,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         }
     }
 
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
         reloadRunner.requestActionAndNotify();
     }
 

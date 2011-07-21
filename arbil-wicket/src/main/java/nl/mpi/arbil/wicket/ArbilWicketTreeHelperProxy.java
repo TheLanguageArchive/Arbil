@@ -4,6 +4,7 @@ import java.net.URI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -79,7 +80,7 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 	return getTreeHelper().isShowHiddenFilesInTree();
     }
 
-    public void jumpToSelectionInTree(boolean silent, ArbilDataNode cellDataNode) {
+    public void jumpToSelectionInTree(boolean silent, ArbilFieldsNode cellDataNode) {
 	getTreeHelper().jumpToSelectionInTree(silent, cellDataNode);
     }
 

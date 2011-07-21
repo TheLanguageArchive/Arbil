@@ -1,30 +1,43 @@
 package nl.mpi.arbil.wicket.model;
 
+import java.io.Serializable;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilNode;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilDataNodeModel extends LoadableDetachableModel<ArbilDataNode>{
+public class ArbilDataNodeModel extends LoadableDetachableModel<ArbilNode> {
 
     private URI uri;
-    
-    public ArbilDataNodeModel(ArbilDataNode dataNode){
+    private ArbilNode serializableNode;
+
+    public ArbilDataNodeModel(ArbilNode dataNode) {
 	super(dataNode);
-	this.uri = dataNode.getURI();
+	if (dataNode instanceof Serializable) {
+	    serializableNode = dataNode;
+	} else if (dataNode instanceof ArbilDataNode) {
+	    this.uri = ((ArbilDataNode) dataNode).getURI();
+	}
     }
-    
-    public ArbilDataNodeModel(URI uri){
+
+    public ArbilDataNodeModel(URI uri) {
 	super();
 	this.uri = uri;
     }
-    
+
     @Override
-    protected ArbilDataNode load() {
-	return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+    protected ArbilNode load() {
+	if (serializableNode != null) {
+	    return serializableNode;
+	} else if (uri != null) {
+	    return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+	} else {
+	    return null;
+	}
     }
 }

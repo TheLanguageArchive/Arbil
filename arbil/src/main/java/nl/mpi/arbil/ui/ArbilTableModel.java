@@ -14,6 +14,8 @@ import javax.swing.JLabel;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilFieldsNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -24,7 +26,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  */
 public class ArbilTableModel extends AbstractArbilTableModel {
 
-    private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
+    private Hashtable<String, ArbilFieldsNode> dataNodeHash = new Hashtable<String, ArbilFieldsNode>();
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
     private boolean widthsChanged = true;
@@ -62,7 +64,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	listModel.removeAllElements();
 	ImageBoxRenderer tempImageBoxRenderer = new ImageBoxRenderer();
 	for (int rowCounter = 0; rowCounter < data.length; rowCounter++) {
-	    ArbilDataNode currentRowDataNode = getDataNodeFromRow(rowCounter);
+	    ArbilFieldsNode currentRowDataNode = getDataNodeFromRow(rowCounter);
 	    if (currentRowDataNode != null) {
 		if (tempImageBoxRenderer.canDisplay(currentRowDataNode)) {
 		    if (!listModel.contains(currentRowDataNode)) {
@@ -120,15 +122,15 @@ public class ArbilTableModel extends AbstractArbilTableModel {
      * Data node is to be removed from the table
      * @param dataNode Data node that should be removed
      */
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
-	removeArbilDataNodes(new ArbilDataNode[]{dataNode});
+    public void dataNodeRemoved(ArbilNode dataNode) {
+	removeArbilDataNodes(new ArbilNode[]{dataNode});
     }
 
     /**
      * Data node is clearing its icon
      * @param dataNode Data node that is clearing its icon
      */
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestReloadTableData();
     }
 
@@ -149,7 +151,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     /**
      * @return the dataNodeHash
      */
-    protected Hashtable<String, ArbilDataNode> getDataNodeHash() {
+    protected Hashtable<String, ArbilFieldsNode> getDataNodeHash() {
 	return dataNodeHash;
     }
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("TableReload-" + this.hashCode(), 50) {
@@ -360,7 +362,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
 
     @Override
-    protected void removeArbilDataNode(ArbilDataNode arbilDataNode) {
+    protected void removeArbilDataNode(ArbilFieldsNode arbilDataNode) {
 	System.out.println("removing: " + arbilDataNode.toString());
 	listModel.removeElement(arbilDataNode);
 	super.removeArbilDataNode(arbilDataNode);

@@ -1,5 +1,6 @@
 package nl.mpi.arbil.wicket.model;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilFieldsNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldView;
@@ -27,8 +30,9 @@ import org.apache.wicket.model.Model;
 public class ArbilWicketTableModel extends AbstractArbilTableModel implements ISortableDataProvider<ArrayList<ArbilTableCell>> {
 
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
-    private transient Hashtable<String, ArbilDataNode> dataNodeHash;
+    private transient Hashtable<String, ArbilFieldsNode> dataNodeHash;
     private HashMap<String, URI> dataNodeUrisMap = new HashMap<String, URI>();
+    private HashMap<String, ArbilFieldsNode> serializableNodesHash = new HashMap<String, ArbilFieldsNode>();
 
     public ArbilWicketTableModel(ArbilFieldView fieldView) {
 	super(fieldView);
@@ -76,14 +80,17 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     // AbstractArbilTableModel method implementations
     @Override
-    protected Hashtable<String, ArbilDataNode> getDataNodeHash() {
+    protected Hashtable<String, ArbilFieldsNode> getDataNodeHash() {
 	loadDataNodeHash();
 	return dataNodeHash;
     }
 
     private void loadDataNodeHash() {
 	if (dataNodeHash == null) {
-	    dataNodeHash = new Hashtable<String, ArbilDataNode>();
+	    dataNodeHash = new Hashtable<String, ArbilFieldsNode>();
+	    for (Entry<String, ArbilFieldsNode> entry : serializableNodesHash.entrySet()) {
+		dataNodeHash.put(entry.getKey(), entry.getValue());
+	    }
 	    for (Entry<String, URI> entry : dataNodeUrisMap.entrySet()) {
 		dataNodeHash.put(entry.getKey(), ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, entry.getValue()));
 	    }
@@ -91,10 +98,14 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
     }
 
     @Override
-    protected synchronized void putInDataNodeHash(ArbilDataNode arbilDataNode) {
-	super.putInDataNodeHash(arbilDataNode);
-	// Note: this may be redundant, uri can be constructed from urlstring
-	dataNodeUrisMap.put(arbilDataNode.getUrlString(), arbilDataNode.getURI());
+    protected synchronized void putInDataNodeHash(ArbilFieldsNode node) {
+	super.putInDataNodeHash(node);
+	if (node instanceof Serializable) {
+	    serializableNodesHash.put(node.getHashKey(), node);
+	} else if (node instanceof ArbilDataNode) {
+	    // Note: this may be redundant, uri can be constructed from urlstring
+	    dataNodeUrisMap.put(node.getHashKey(), ((ArbilDataNode) node).getURI());
+	} // else log unsupported
     }
 
     @Override
@@ -105,9 +116,9 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
     }
 
     @Override
-    protected void removeFromDataNodeHash(ArbilDataNode arbilDataNode) {
-	super.removeFromDataNodeHash(arbilDataNode);
-	dataNodeUrisMap.remove(arbilDataNode.getUrlString());
+    protected void removeFromDataNodeHash(ArbilFieldsNode node) {
+	super.removeFromDataNodeHash(node);
+	dataNodeUrisMap.remove(node.getHashKey());
     }
 
     @Override
@@ -138,12 +149,12 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     // ArbilDataNodeContainer method implementations
     @Override
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestReloadTableData();
     }
 
     @Override
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode dataNode) {
 	requestReloadTableData();
     }
 

@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
+import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 
@@ -555,7 +557,7 @@ public class ArbilTable extends JTable {
     @Override
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
 	if (arbilTableModel.isHorizontalView()) {
-	    boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilDataNode);
+	    boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilFieldsNode);
 	    if (!arbilTableModel.isHorizontalView()) {
 		this.setRowSelectionAllowed(true);
 		this.setColumnSelectionAllowed(false);
@@ -647,8 +649,8 @@ public class ArbilTable extends JTable {
 		if (arbilTableModel.isHorizontalView() && getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION && getSelectedColumnCount() > 0) {
 		    // Entire row selected in horizontal view - try to open the long field editor for data node
 		    Object currentCellValue = getTableCellContentAt(currentRow, getSelectedColumns()[0]);
-		    if (currentCellValue instanceof ArbilDataNode) {
-			ArbilDataNode node = (ArbilDataNode) currentCellValue;
+		    if (currentCellValue instanceof ArbilFieldsNode) {
+			ArbilFieldsNode node = (ArbilFieldsNode) currentCellValue;
 			if (node.getFields().size() > 0) {
 			    // Get fields for the node
 			    List<ArbilField[]> fieldArrays = node.getFieldsSorted();
@@ -718,24 +720,37 @@ public class ArbilTable extends JTable {
 	ArbilWindowManager.getSingleInstance().openFloatingTableOnce(arbilTableModel.getSelectedDataNodes(selectedRows), null);
     }
 
-    public ArbilDataNode getDataNodeForSelection() {
+    public ArbilFieldsNode getDataNodeForSelection() {
 	Object cellValue = arbilTableModel.getValueAt(getSelectedRow(), getSelectedColumn());
-	ArbilDataNode cellDataNode = null;
+	ArbilFieldsNode cellDataNode = null;
 	if (cellValue instanceof ArbilField) {
 	    cellDataNode = ((ArbilField) cellValue).getParentDataNode();
 	} else if (cellValue instanceof ArbilField[]) {
 	    cellDataNode = ((ArbilField[]) cellValue)[0].getParentDataNode();
-	} else if (cellValue instanceof ArbilDataNode) {
-	    cellDataNode = (ArbilDataNode) cellValue;
+	} else if (cellValue instanceof ArbilFieldsNode) {
+	    cellDataNode = (ArbilFieldsNode) cellValue;
 	} else if (cellValue instanceof ArbilDataNode[]) {
 	    cellDataNode = ((ArbilDataNode[]) cellValue)[0];
+	}else if (cellValue instanceof ArbilFieldsNode[]) {
+	    cellDataNode = ((ArbilFieldsNode[]) cellValue)[0];
 	}
 	return cellDataNode;
     }
 
-    public ArbilDataNode[] getSelectedRowsFromTable() {
+    public ArbilFieldsNode[] getSelectedRowsFromTable() {
 	int[] selectedRows = this.getSelectedRows();
 	return arbilTableModel.getSelectedDataNodes(selectedRows);
+    }
+    
+    public Collection<ArbilDataNode> getSelectedDataRowsFromTable(){
+	ArbilFieldsNode[] nodes = getSelectedRowsFromTable();
+	ArrayList<ArbilDataNode> dataNodes = new ArrayList<ArbilDataNode>(nodes.length);
+	for(ArbilFieldsNode node:nodes){
+	    if(node instanceof ArbilDataNode){
+		dataNodes.add((ArbilDataNode)node);
+	    }
+	}
+	return dataNodes;
     }
 
     public void hideSelectedColumnsFromTable() {

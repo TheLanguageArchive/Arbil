@@ -169,9 +169,9 @@ public class MetadataBuilderTest {
             // loop over all the children and make sure any required values are set
             //gedcomImdiObject.loadImdiDom();
             //                          gedcomImdiObject.waitTillLoaded();
-            for (ArbilDataNode childNode : gedcomImdiObject.getAllChildren()) {
-                if (childNode != null) {
-                    Map<String, ArbilField[]> currentFields = childNode.getFields();
+            for (ArbilNode childNode : gedcomImdiObject.getAllChildren()) {
+                if (childNode instanceof ArbilFieldsNode) {
+                    Map<String, ArbilField[]> currentFields = ((ArbilFieldsNode)childNode).getFields();
                     if (currentFields != null) {
                         // populate any fields in the list provided
                         for (String[] currentFieldData : autoFields) {

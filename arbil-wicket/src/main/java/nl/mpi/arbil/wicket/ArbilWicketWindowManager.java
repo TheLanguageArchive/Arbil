@@ -6,6 +6,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -23,7 +24,7 @@ public class ArbilWicketWindowManager implements WindowManager {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    public void openFloatingTable(ArbilFieldsNode[] rowNodesArray, String frameTitle) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -31,7 +32,7 @@ public class ArbilWicketWindowManager implements WindowManager {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    public void openFloatingTableOnce(ArbilFieldsNode[] rowNodesArray, String frameTitle) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -14,12 +14,14 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
+import nl.mpi.arbil.data.ArbilFieldsNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**
- *
+ * @author Peter Withers <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class AbstractArbilTableModel extends AbstractTableModel implements ArbilDataNodeContainer {
@@ -55,7 +57,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public AbstractArbilTableModel() {
     }
 
-    public void addArbilDataNodes(ArbilDataNode[] nodesToAdd) {
+    public void addArbilDataNodes(ArbilFieldsNode[] nodesToAdd) {
 	for (int draggedCounter = 0; draggedCounter < nodesToAdd.length; draggedCounter++) {
 	    addArbilDataNode(nodesToAdd[draggedCounter]);
 	}
@@ -69,8 +71,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public void addArbilDataNodes(Enumeration nodesToAdd) {
 	while (nodesToAdd.hasMoreElements()) {
 	    Object currentObject = nodesToAdd.nextElement();
-	    if (currentObject instanceof ArbilDataNode) {
-		addArbilDataNode((ArbilDataNode) currentObject);
+	    if (currentObject instanceof ArbilFieldsNode) {
+		addArbilDataNode((ArbilFieldsNode) currentObject);
 	    }
 	}
 	requestReloadTableData();
@@ -82,7 +84,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	requestReloadTableData();
     }
 
-    public void addSingleArbilDataNode(ArbilDataNode arbilDataNode) {
+    public void addSingleArbilDataNode(ArbilFieldsNode arbilDataNode) {
 	addArbilDataNode(arbilDataNode);
 	requestReloadTableData();
     }
@@ -97,7 +99,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	fireTableDataChanged();
     }
 
-    public boolean containsArbilDataNode(ArbilDataNode findable) {
+    public boolean containsArbilDataNode(ArbilFieldsNode findable) {
 	if (findable == null) {
 	    return false;
 	}
@@ -125,20 +127,16 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      * Data node is clearing its icon
      * @param dataNode Data node that is clearing its icon
      */
-    public abstract void dataNodeIconCleared(ArbilDataNode dataNode);
+    public abstract void dataNodeIconCleared(ArbilNode dataNode);
 
     /**
      * Data node is to be removed from the table
      * @param dataNode Data node that should be removed
      */
-    public abstract void dataNodeRemoved(ArbilDataNode dataNode);
+    public abstract void dataNodeRemoved(ArbilNode dataNode);
 
     public int getArbilDataNodeCount() {
 	return getDataNodeHash().size();
-    }
-
-    public Enumeration getArbilDataNodes() {
-	return getDataNodeHash().elements();
     }
 
     public String[] getArbilDataNodesURLs() {
@@ -177,7 +175,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	Enumeration arbilRowsEnum = getDataNodeHash().elements();
 	while (arbilRowsEnum.hasMoreElements()) {
 	    //            Enumeration childEnum = .getChildEnum();
-	    for (ArbilDataNode currentChild : ((ArbilDataNode) arbilRowsEnum.nextElement()).getChildArray()) {
+	    for (ArbilNode currentChild : ((ArbilFieldsNode) arbilRowsEnum.nextElement()).getChildArray()) {
 		// TODO: maybe check the children for children before adding them to this list
 		String currentChildName = currentChild.toString();
 		if (!childNames.contains(currentChildName)) {
@@ -210,7 +208,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     /**
      * @return the dataNodeHash
      */
-    protected abstract Hashtable<String, ArbilDataNode> getDataNodeHash();
+    protected abstract Hashtable<String, ArbilFieldsNode> getDataNodeHash();
 
     public Vector getMatchingRows(int sampleRowNumber) {
 	System.out.println("MatchingRows for: " + sampleRowNumber);
@@ -238,8 +236,8 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	return getData().length;
     }
 
-    public ArbilDataNode[] getSelectedDataNodes(int[] selectedRows) {
-	ArbilDataNode[] selectedNodesArray = new ArbilDataNode[selectedRows.length];
+    public ArbilFieldsNode[] getSelectedDataNodes(int[] selectedRows) {
+	ArbilFieldsNode[] selectedNodesArray = new ArbilFieldsNode[selectedRows.length];
 	for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
 	    selectedNodesArray[selectedRowCounter] = getDataNodeFromRow(selectedRows[selectedRowCounter]);
 	}
@@ -249,10 +247,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     public ArbilTableCell getTableCellAt(int row, int col) {
 	return getData()[row][col];
     }
-    
+
     public Object getValueAt(int row, int col) {
 	try {
-	    return getTableCellAt(row,col);//.getContent();
+	    return getTableCellAt(row, col);//.getContent();
 	} catch (Exception e) {
 	    return null;
 	}
@@ -297,7 +295,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
     public void removeAllArbilDataNodeRows() {
 	for (Enumeration removableNodes = getDataNodeHash().elements(); removableNodes.hasMoreElements();) {
-	    ((ArbilDataNode) removableNodes.nextElement()).removeContainer(this);
+	    ((ArbilFieldsNode) removableNodes.nextElement()).removeContainer(this);
 	}
 	clearDataNodeHash();
 	filteredColumnNames.clear();
@@ -314,7 +312,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
     public void removeArbilDataNodeRows(int[] selectedRows) {
-	ArbilDataNode[] nodesToRemove = new ArbilDataNode[selectedRows.length];
+	ArbilFieldsNode[] nodesToRemove = new ArbilFieldsNode[selectedRows.length];
 	for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
 	    System.out.println("removing: " + selectedRowCounter);
 	    nodesToRemove[selectedRowCounter] = getDataNodeFromRow(selectedRows[selectedRowCounter]);
@@ -322,27 +320,27 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	removeArbilDataNodes(nodesToRemove);
     }
 
-    public void removeArbilDataNodes(ArbilDataNode[] nodesToRemove) {
-	for (ArbilDataNode arbilDataNode : nodesToRemove) {
-	    if (arbilDataNode != null) {
-		removeArbilDataNode(arbilDataNode);
+    public void removeArbilDataNodes(ArbilNode[] nodesToRemove) {
+	for (ArbilNode arbilNode : nodesToRemove) {
+	    if (arbilNode instanceof ArbilFieldsNode) {
+		removeArbilDataNode((ArbilFieldsNode) arbilNode);
 	    }
 	}
 	// refresh the table data
 	requestReloadTableData();
     }
 
-    protected void putInDataNodeHash(ArbilDataNode arbilDataNode) {
-	getDataNodeHash().put(arbilDataNode.getUrlString(), arbilDataNode);
+    protected void putInDataNodeHash(ArbilFieldsNode arbilDataNode) {
+	getDataNodeHash().put(arbilDataNode.getHashKey(), arbilDataNode);
     }
 
-    protected void removeArbilDataNode(ArbilDataNode arbilDataNode) {
+    protected void removeArbilDataNode(ArbilFieldsNode arbilDataNode) {
 	removeFromDataNodeHash(arbilDataNode);
 	arbilDataNode.removeContainer(this);
     }
 
-    protected void removeFromDataNodeHash(ArbilDataNode arbilDataNode) {
-	getDataNodeHash().remove(arbilDataNode.getUrlString());
+    protected void removeFromDataNodeHash(ArbilFieldsNode arbilDataNode) {
+	getDataNodeHash().remove(arbilDataNode.getHashKey());
     }
 
     public abstract void requestReloadTableData();
@@ -402,15 +400,15 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	requestReloadTableData();
     }
 
-    protected void addArbilDataNode(ArbilDataNode arbilDataNode) {
+    protected void addArbilDataNode(ArbilFieldsNode arbilDataNode) {
 	if (arbilDataNode != null) {
 	    // on start up the previous windows are loaded and the nodes will not be loaded hence they will have no fields, so we have to check for that here
-	    if (arbilDataNode.isDirectory() || (!arbilDataNode.getParentDomNode().isLoading() && arbilDataNode.isEmptyMetaNode())) {
+	    if (arbilDataNode.isDirectory() || (arbilDataNode instanceof ArbilDataNode && !((ArbilDataNode) arbilDataNode).getParentDomNode().isLoading() && arbilDataNode.isEmptyMetaNode())) {
 		// add child nodes if there are no fields ie actors node will add all the actors
 		// add child nodes if it is a directory
 		// this is non recursive and does not reload the table
-		for (ArbilDataNode currentChild : arbilDataNode.getChildArray()) {
-		    putInDataNodeHash(currentChild);
+		for (ArbilNode currentChild : arbilDataNode.getChildArray()) {
+		    putInDataNodeHash((ArbilFieldsNode) currentChild);
 		    currentChild.registerContainer(this);
 		}
 	    } else {
@@ -420,11 +418,11 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
-    protected ArbilDataNode getDataNodeFromRow(int rowNumber) {
+    protected ArbilFieldsNode getDataNodeFromRow(int rowNumber) {
 	// TODO: find error removing rows // look again here...
 	// if that the first column is the imdi node (ergo string and icon) use that to remove the row
-	if (getData()[rowNumber][0].getContent() instanceof ArbilDataNode) {
-	    return (ArbilDataNode) getData()[rowNumber][0].getContent();
+	if (getData()[rowNumber][0].getContent() instanceof ArbilFieldsNode) {
+	    return (ArbilFieldsNode) getData()[rowNumber][0].getContent();
 	} else if (getData()[rowNumber][0].getContent() instanceof ArbilField[]) {
 	    return ((ArbilField[]) getData()[rowNumber][getColumnNames().length - 1].getContent())[0].getParentDataNode();
 	} else {
@@ -439,17 +437,17 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     protected synchronized void reloadTableDataPrivate() { // with the queue this does not need to be synchronised but in this case it will not slow things too much
 	int previousColumnCount = getColumnCount();
 
-	ArbilDataNode[] tableRowsArbilArray = updateAllDataNodes();
+	ArbilFieldsNode[] tableRowsArbilArray = updateAllDataNodes();
 
 	updateViewOrientation(tableRowsArbilArray);
 	initTableData(tableRowsArbilArray, previousColumnCount);
     }
 
-    private ArbilDataNode[] updateAllDataNodes() {
-	ArbilDataNode[] returnArray = getDataNodeHash().values().toArray(new ArbilDataNode[]{});
+    private ArbilFieldsNode[] updateAllDataNodes() {
+	ArbilFieldsNode[] returnArray = getDataNodeHash().values().toArray(new ArbilFieldsNode[]{});
 	filteredColumnNames.clear();
 	int hiddenColumnCount = 0;
-	for (ArbilDataNode currentRowNode : returnArray) {
+	for (ArbilFieldsNode currentRowNode : returnArray) {
 	    for (ArbilField[] currentFieldArray : currentRowNode.getFields().values().toArray(new ArbilField[][]{})) {
 		for (ArbilField currentField : currentFieldArray) {
 		    String currentColumnName = currentField.getTranslateFieldName();
@@ -478,7 +476,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
     protected abstract void updateHiddenColumnsLabel(int hiddenColumnCount);
 
-    private void updateViewOrientation(ArbilDataNode[] tableRowsArbilArray) {
+    private void updateViewOrientation(ArbilFieldsNode[] tableRowsArbilArray) {
 	// set the view to either horizontal or vertical and set the default sort
 	boolean lastHorizontalView = isHorizontalView();
 	horizontalView = tableRowsArbilArray.length > 1;
@@ -497,7 +495,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
-    private void initTableData(ArbilDataNode[] tableRowsArbilArray, int previousColumnCount) {
+    private void initTableData(ArbilFieldsNode[] tableRowsArbilArray, int previousColumnCount) {
 	String[] columnNamesTemp; // will contain translated field names (for column headers)
 	String[] fieldNames; // will contain actual field names
 	ArbilTableCell[][] newData;
@@ -537,7 +535,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
 	    int rowCounter = 0;
 	    final int childColumnsIndex = columnNamesTemp.length - getChildColumnNames().size();
-	    for (ArbilDataNode currentNode : tableRowsArbilArray) {
+	    for (ArbilFieldsNode currentNode : tableRowsArbilArray) {
 		//                System.out.println("currentNode: " + currentNode.toString());
 		Hashtable<String, ArbilField[]> fieldsHash = currentNode.getFields();
 		if (isShowIcons()) {

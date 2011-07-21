@@ -12,6 +12,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilNode;
 import org.apache.wicket.markup.html.tree.ITreeStateListener;
 import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
@@ -137,7 +138,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
      * @param dataNode Data node that should be removed
      */
     @Override
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode dataNode) {
 	requestResort();
     }
 
@@ -146,7 +147,7 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
      * @param dataNode Data node that is clearing its icon
      */
     @Override
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
 	//requestResort();
     }
 

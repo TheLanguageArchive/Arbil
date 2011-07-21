@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import java.io.Serializable;
 import java.net.URI;
 
 /**
@@ -7,25 +8,29 @@ import java.net.URI;
  * Re-attaches using node URI
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
+public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilFieldsNode> {
 
-    private transient ArbilDataNode dataNode;
+    private transient ArbilFieldsNode dataNode;
+    private ArbilFieldsNode serializableDataNode = null;
     private URI contentUri;
 
-    public ArbilDataNodeTableCell(ArbilDataNode dataNode) {
+    public ArbilDataNodeTableCell(ArbilFieldsNode dataNode) {
 	setContent(dataNode);
-	if (dataNode != null) {
-	    contentUri = dataNode.getURI();
-	}
     }
 
     /**
      * @return the content
      */
     @Override
-    public ArbilDataNode getContent() {
-	if (dataNode == null && contentUri != null) {
-	    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUri);
+    public ArbilFieldsNode getContent() {
+	if (dataNode == null) {
+	    if (serializableDataNode != null) {
+		dataNode = serializableDataNode;
+	    } else {
+		if (contentUri != null) {
+		    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUri);
+		}
+	    }
 	}
 	return dataNode;
     }
@@ -34,13 +39,17 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
      * @param content the content to set
      */
     @Override
-    public final void setContent(ArbilDataNode content) {
+    public final void setContent(ArbilFieldsNode content) {
 	this.dataNode = content;
-	contentUri = content != null ? content.getURI() : null;
+	if (content instanceof Serializable) {
+	    serializableDataNode = content;
+	} else if (content instanceof ArbilDataNode) {
+	    contentUri = (content != null) ? ((ArbilDataNode) content).getURI() : null;
+	}
     }
 
     @Override
     public String toString() {
-	return dataNode.toString();
+	return dataNode == null ? null : dataNode.toString();
     }
 }

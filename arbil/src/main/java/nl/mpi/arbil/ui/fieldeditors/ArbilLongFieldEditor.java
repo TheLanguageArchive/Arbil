@@ -36,6 +36,7 @@ import nl.mpi.arbil.ui.ArbilTable;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
+import nl.mpi.arbil.data.ArbilNode;
 
 /**
  *  Document   : ArbilLongFieldEditor
@@ -402,7 +403,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
      * Data node is to be removed
      * @param dataNode Data node that should be removed
      */
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode dataNode) {
 	closeWindow();
     }
 
@@ -410,7 +411,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
      * Data node is clearing its icon
      * @param dataNode Data node that is clearing its icon
      */
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
 	updateEditor();
 	setParentFieldList();
 	setNavigationEnabled();

@@ -52,6 +52,7 @@ import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilNode;
 
 /**
@@ -970,11 +971,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
     }
 
-    public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    public void openFloatingTableOnce(ArbilFieldsNode[] rowNodesArray, String frameTitle) {
 	openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
     }
 
-    public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
+    public void openFloatingTable(ArbilFieldsNode[] rowNodesArray, String frameTitle) {
 	openFloatingTableGetModel(rowNodesArray, frameTitle, null, null);
     }
 
@@ -1014,26 +1015,29 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public ArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
-	HashSet<ArbilDataNode> tableNodes = new HashSet();
+	HashSet<ArbilFieldsNode> tableNodes = new HashSet<ArbilFieldsNode>();
 	for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
 //            try {
 	    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, rowNodesArray[arrayCounter]);
 	    tableNodes.add(currentNode);
-	    for (ArbilDataNode currentChildNode : currentNode.getAllChildren()) {
-		tableNodes.add(currentChildNode);
+	    for (ArbilNode currentChildNode : currentNode.getAllChildren()) {
+		if (currentChildNode instanceof ArbilFieldsNode) {
+		    tableNodes.add((ArbilFieldsNode) currentChildNode);
+		}
 	    }
 //            } catch (URISyntaxException ex) {
 //                GuiHelper.linorgBugCatcher.logError(ex);
 //            }
 	}
-	return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
+	return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilFieldsNode[]{}), frameTitle);
     }
 
-    public ArbilTableModel openFloatingTableOnceGetModel(ArbilDataNode[] rowNodesArray, String frameTitle) {
-	if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
+    public ArbilTableModel openFloatingTableOnceGetModel(ArbilFieldsNode[] rowNodesArray, String frameTitle) {
+	if (rowNodesArray.length == 1 && rowNodesArray[0] instanceof ArbilDataNode && ((ArbilDataNode) rowNodesArray[0]).isInfoLink) {
 	    try {
-		if (rowNodesArray[0].getUrlString().toLowerCase().endsWith(".html") || rowNodesArray[0].getUrlString().toLowerCase().endsWith(".txt")) {
-		    openUrlWindowOnce(rowNodesArray[0].toString(), rowNodesArray[0].getURI().toURL());
+		ArbilDataNode dataNode = (ArbilDataNode) rowNodesArray[0];
+		if (dataNode.getUrlString().toLowerCase().endsWith(".html") || dataNode.getUrlString().toLowerCase().endsWith(".txt")) {
+		    openUrlWindowOnce(rowNodesArray[0].toString(), dataNode.getURI().toURL());
 		    return null;
 		}
 	    } catch (MalformedURLException exception) {
@@ -1051,7 +1055,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    if (currentTableModel.getArbilDataNodeCount() == rowNodesArray.length) {
 			// first check that the number of nodes in the table matches
 			boolean tableMatches = true;
-			for (ArbilDataNode currentItem : rowNodesArray) {
+			for (ArbilFieldsNode currentItem : rowNodesArray) {
 			    // compare each node for a verbatim match
 			    if (!currentTableModel.containsArbilDataNode(currentItem)) {
 //                              // ignore this window because the nodes do not match
@@ -1085,7 +1089,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      * @param fieldView Field view to initialize table model with. If left null, the default field view will be used
      * @return Table model for newly created table window
      */
-    private ArbilTableModel openFloatingTableGetModel(ArbilDataNode[] rowNodesArray, String frameTitle, Component[] window, ArbilFieldView fieldView) {
+    private ArbilTableModel openFloatingTableGetModel(ArbilFieldsNode[] rowNodesArray, String frameTitle, Component[] window, ArbilFieldView fieldView) {
 	if (frameTitle == null) {
 	    if (rowNodesArray.length == 1) {
 		frameTitle = rowNodesArray[0].toString();

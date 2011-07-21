@@ -24,6 +24,7 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  * Document   : ArbilTreeHelper
  * Created on : 
  * @author Peter.Withers@mpi.nl
+ * @author Twan.Goosen@mpi.nl
  */
 public abstract class AbstractTreeHelper implements TreeHelper {
 
@@ -268,7 +269,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public abstract void deleteNodes(Object sourceObject);
 
     protected void determineNodesToDelete(TreePath[] nodePaths, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
-	Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
+	Vector<ArbilNode> dataNodesToRemove = new Vector<ArbilNode>();
 	for (TreePath currentNodePath : nodePaths) {
 	    if (currentNodePath != null) {
 		DefaultMutableTreeNode selectedTreeNode = (DefaultMutableTreeNode) currentNodePath.getLastPathComponent();
@@ -350,11 +351,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     @Override
-    public void jumpToSelectionInTree(boolean silent, ArbilDataNode cellDataNode) {
+    public void jumpToSelectionInTree(boolean silent, ArbilFieldsNode cellDataNode) {
 	System.out.println("jumpToSelectionInTree: " + cellDataNode);
-	if (cellDataNode != null) {
-	    cellDataNode.scrollToRequested = true;
-	    cellDataNode.clearIcon();
+	if (cellDataNode instanceof ArbilDataNode) {
+	    ((ArbilDataNode)cellDataNode).scrollToRequested = true;
+	    ((ArbilDataNode)cellDataNode).clearIcon();
 	} else {
 	    if (!silent) {
 		messageDialogHandler.addMessageDialogToQueue("The selected cell has no value or is not associated with a node in the tree", "Jump to in Tree");

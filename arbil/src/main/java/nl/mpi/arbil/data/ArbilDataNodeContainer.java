@@ -12,12 +12,12 @@ package nl.mpi.arbil.data;
 public interface ArbilDataNodeContainer {
     /**
      * Data node is to be removed from the container
-     * @param dataNode Data node that should be removed
+     * @param node Data node that should be removed
      */
-    public void dataNodeRemoved(ArbilDataNode dataNode);
+    public void dataNodeRemoved(ArbilNode node);
     /**
      * Data node is clearing its icon
-     * @param dataNode Data node that is clearing its icon
+     * @param node Data node that is clearing its icon
      */
-    public void dataNodeIconCleared(ArbilDataNode dataNode);
+    public void dataNodeIconCleared(ArbilNode node);
 }

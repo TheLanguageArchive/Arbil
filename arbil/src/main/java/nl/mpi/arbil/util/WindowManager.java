@@ -6,6 +6,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.ProgressMonitor;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilNode;
 
 /**
@@ -18,11 +19,11 @@ public interface WindowManager {
 
     void closeAllWindows();
     
-    void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle);
+    void openFloatingTable(ArbilFieldsNode[] rowNodesArray, String frameTitle);
 
     void openFloatingTableOnce(URI[] rowNodesArray, String frameTitle);
 
-    void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle);
+    void openFloatingTableOnce(ArbilFieldsNode[] rowNodesArray, String frameTitle);
 
     void openSearchTable(ArbilNode[] selectedNodes, String frameTitle);
     

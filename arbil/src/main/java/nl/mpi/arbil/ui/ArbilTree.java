@@ -390,7 +390,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
      * Data node is to be removed from this tree
      * @param dataNode Data node that should be removed
      */
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode dataNode) {
 	requestResort();
     }
 
@@ -398,7 +398,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
      * Data node is clearing its icon
      * @param dataNode Data node that is clearing its icon
      */
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestResort();
     }
     ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {

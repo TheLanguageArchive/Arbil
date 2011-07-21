@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nl.mpi.arbil.data;
 
 import java.util.Vector;
@@ -18,20 +13,22 @@ public interface ArbilNode {
      * Calls getAllChildren(Vector<ArbilDataNode> allChildren) and returns the result as an array
      * @return an array of all the child nodes
      */
-    ArbilDataNode[] getAllChildren();
+    ArbilNode[] getAllChildren();
 
     /**
      * Used to get all the Arbil child nodes (all levels) of a session or all the nodes contained in a corpus (one level only).
      * @param An empty vector, to which all the child nodes will be added.
      */
-    void getAllChildren(Vector<ArbilDataNode> allChildren);
+    void getAllChildren(Vector<ArbilNode> allChildren);
 
     /**
      * Gets an array of the children of this node.
      * @return An array of the next level child nodes.
      */
-    ArbilDataNode[] getChildArray();
+    ArbilNode[] getChildArray();
 
+    ArbilNode[] getChildNodesArray(String childType);
+    
     /**
      * Count the next level of child nodes. (non recursive)
      * @return An integer of the next level of child nodes including corpus links and Arbil child nodes.
@@ -107,4 +104,8 @@ public interface ArbilNode {
 
     boolean isLoading();
     boolean isDataLoaded();
+    
+    void removeFromAllContainers();
+    void registerContainer(ArbilDataNodeContainer containerToAdd);
+    void removeContainer(ArbilDataNodeContainer containerToRemove);
 }

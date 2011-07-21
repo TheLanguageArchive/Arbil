@@ -6,6 +6,7 @@ import java.util.Collection;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 
@@ -184,7 +185,7 @@ public class ArbilSearch {
 	    // add the child nodes
 	    if (currentNode.isLocal() || !currentNode.isCorpus()) {
 		// don't search remote corpus
-		for (ArbilDataNode currentChildNode : currentNode.getChildArray()) {
+		for (ArbilNode currentChildNode : currentNode.getChildArray()) {
 		    System.out.println("adding to search list: " + currentChildNode);
 		    if (container != null) {
 			currentChildNode.registerContainer(container); // this causes the node to be loaded

@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,8 +117,8 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	searchTermsPanel.setLayout(new BoxLayout(searchTermsPanel, BoxLayout.PAGE_AXIS));
 	// check if this search includes remote nodes
 	boolean remoteSearch = false;
-	for (ArbilNode arbilDataNode : selectedNodes) {
-	    if (!arbilDataNode.isLocal()) {
+	for (ArbilNode arbilNode : selectedNodes) {
+	    if (!arbilNode.isLocal()) {
 		remoteSearch = true;
 		break;
 	    }
@@ -272,15 +271,15 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
      * Data node is to be removed from the container
      * @param dataNode Data node that should be removed
      */
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode node) {
 	// Nothing to do, but this is implements  ArbilDataNodeContainer
     }
 
     /**
      * Data node is clearing its icon
-     * @param dataNode Data node that is clearing its icon
+     * @param node Data node that is clearing its icon
      */
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode node) {
 	// Nothing to do
     }
 }
