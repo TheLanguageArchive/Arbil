@@ -1,8 +1,10 @@
 package nl.mpi.arbil.wicket.components;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.locks.ReentrantLock;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
@@ -16,6 +18,9 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.wicketstuff.progressbar.ProgressBar;
+import org.wicketstuff.progressbar.Progression;
+import org.wicketstuff.progressbar.ProgressionModel;
 
 /**
  *
@@ -24,7 +29,12 @@ import org.apache.wicket.model.Model;
 public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTerm> {
 
     private static final String SELECT_NODES_STRING = "Select a node and enter search terms";
-    private ArbilSearch searchService;
+    private transient ArbilSearch searchService;
+    private ProgressBar progressbar;
+    private String progessMessage = null;
+    private int progress = 0;
+    private ArbilWicketTableModel resultsModel;
+    private final String progressLock = new String();
 
     public ArbilWicketSearchForm(String id, IModel<ArbilWicketNodeSearchTerm> model) {
 	super(id, model);
@@ -67,26 +77,90 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketNodeSearchTe
 		return isNodesSelected();
 	    }
 	});
+
+	// Progress bar
+	add(progressbar = new ProgressBar("progress", new ProgressionModel() {
+
+	    @Override
+	    protected Progression getProgression() {
+		return new Progression(0) {
+
+		    @Override
+		    public int getProgress() {
+			synchronized (progressLock) {
+			    return progress;
+			}
+		    }
+
+		    @Override
+		    public String getProgressMessage() {
+			synchronized (progressLock) {
+			    return progessMessage;
+			}
+		    }
+
+		    @Override
+		    public boolean isDone() {
+			synchronized (progressLock) {
+			    return searchService == null;
+			}
+		    }
+		};
+	    }
+	}) {
+
+	    @Override
+	    protected void onFinished(AjaxRequestTarget target) {
+		setVisible(false);
+		onSearchComplete(resultsModel, target);
+	    }
+	});
+	progressbar.setVisible(false);
     }
 
-    private void performSearch(ArbilWicketNodeSearchTerm searchTerm, AjaxRequestTarget target) {
-	Collection<ArbilDataNode> selectedNodes = getSelectedNodes();
+    private void performSearch(final ArbilWicketNodeSearchTerm searchTerm, AjaxRequestTarget target) {
 	if (null != searchTerm && isNodesSelected()) {
-	    ArbilWicketTableModel model = new ArbilWicketTableModel();
-	    searchService = new ArbilSearch(selectedNodes, Collections.singleton(searchTerm), searchTerm.getRemoteServerSearchTerm(),
-		    model, // as table model
-		    model, // as DataNodeContainer
-		    null); // no listener (for now)
 
-	    searchService.splitLocalRemote();
-	    if (isRemote()) {
-		searchService.fetchRemoteSearchResults();
+	    synchronized (progressLock) {
+		searchService = new ArbilSearch(getSelectedNodes(), Collections.singleton(searchTerm), searchTerm.getRemoteServerSearchTerm(),
+			resultsModel, // as table model
+			resultsModel, // as DataNodeContainer
+			new ArbilSearch.ArbilSearchListener() {
+
+		    public void searchProgress(Object currentElement) {
+			synchronized (progressLock) {
+			    try {
+				progress = (100 * searchService.getTotalSearched()) / searchService.getTotalNodesToSearch();
+				progessMessage = "searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + " found: " + searchService.getFoundNodes().size();
+				progressLock.wait(10);
+			    } catch (InterruptedException ex) {
+			    }
+			}
+		    }
+		});
 	    }
-	    searchService.searchLocalNodes();
-	    // Done. Remove searchService to indicate search is not active
-	    searchService = null;
 
-	    onSearchComplete(model, target);
+	    progress = 0;
+	    progressbar.setVisible(true);
+	    progressbar.start(target);
+
+	    // Search in separate thread so that ajax target can be sent
+	    new Thread() {
+
+		@Override
+		public void run() {
+		    resultsModel = new ArbilWicketTableModel();
+
+		    searchService.splitLocalRemote();
+		    if (isRemote()) {
+			searchService.fetchRemoteSearchResults();
+		    }
+		    searchService.searchLocalNodes();
+		    synchronized (progressLock) {
+			searchService = null;
+		    }
+		}
+	    }.start();
 	}
     }
 
