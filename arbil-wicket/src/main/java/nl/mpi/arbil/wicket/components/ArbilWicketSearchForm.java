@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -46,6 +47,15 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	super(id);
 	setModel(new CompoundPropertyModel<ArbilWicketSearch>(model));
 
+	addSearchNodesLabel();
+	addRemoteSearchTermField();
+	addNodeSearchTerms();
+	addSearchButton();
+	addStopButton();
+	addProgressBar();
+    }
+
+    private void addSearchNodesLabel() {
 	// Label that shows either the nodes selected for searchService or a string informing the user they should select one
 	add(new Label("searchNodes", new Model<String>() {
 
@@ -58,7 +68,9 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		}
 	    }
 	}));
+    }
 
+    private void addRemoteSearchTermField() {
 	// Remote search term (only for remote searches)
 	add(new TextField("remoteSearchTerm") {
 
@@ -67,25 +79,77 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		return isRemote();
 	    }
 	});
+    }
 
-	final WebMarkupContainer nodeSearchTermsContainer = new WebMarkupContainer("nodeSearchTermsContainer");	
+    private void addNodeSearchTerms() {
+	final WebMarkupContainer nodeSearchTermsContainer = new WebMarkupContainer("nodeSearchTermsContainer");
 
 	// Collection of search terms
 	nodeSearchTermsContainer.add(nodeSearchTerms = new PropertyListView<ArbilWicketNodeSearchTerm>("nodeSearchTerms", getModelObject().getNodeSearchTerms()) {
 
 	    @Override
 	    protected void populateItem(final ListItem<ArbilWicketNodeSearchTerm> item) {
+
+		addBooleanAnd("booleanAnd", item);
+		addNotEquals("notEqual", item);
+
 		item.add(new DropDownChoice<String>("nodeType", Arrays.asList(ArbilNodeSearchTerm.NODE_TYPES)));
 
 		item.add(new TextField("searchFieldName"));
 		item.add(new TextField("searchString"));
-		item.add(new AjaxButton("removeNodeSearchTerm") {
+
+		addRemoveButton("removeNodeSearchTerm", item);
+	    }
+
+	    private void addBooleanAnd(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
+		item.add(new DropDownChoice<Boolean>(id, Arrays.asList(new Boolean[]{true, false}), new IChoiceRenderer<Boolean>() {
+
+		    public Object getDisplayValue(Boolean object) {
+			return object ? ArbilNodeSearchTerm.BOOLEAN_AND : ArbilNodeSearchTerm.BOOLEAN_OR;
+		    }
+
+		    public String getIdValue(Boolean object, int index) {
+			return Boolean.toString(object);
+		    }
+		}) {
+
+		    @Override
+		    public boolean isVisible() {
+			// Don't show for first item
+			return ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().indexOf(item.getModelObject()) > 0;
+		    }
+		});
+	    }
+
+	    private void addNotEquals(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
+
+		item.add(new DropDownChoice<Boolean>(id, Arrays.asList(new Boolean[]{true, false}), new IChoiceRenderer<Boolean>() {
+
+		    public Object getDisplayValue(Boolean object) {
+			return object ? "Has not" : "Has";
+		    }
+
+		    public String getIdValue(Boolean object, int index) {
+			return Boolean.toString(object);
+		    }
+		}));
+	    }
+
+	    private void addRemoveButton(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
+
+		item.add(new AjaxButton(id) {
 
 		    @Override
 		    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 			ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().remove(item.getModelObject());
 			nodeSearchTermsContainer.addOrReplace(nodeSearchTerms);
 			target.addComponent(nodeSearchTermsContainer);
+		    }
+
+		    @Override
+		    public boolean isVisible() {
+			// Only show when there are multiple items
+			return ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().size() > 1;
 		    }
 		});
 	    }
@@ -103,7 +167,9 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
 	nodeSearchTermsContainer.setOutputMarkupId(true);
 	add(nodeSearchTermsContainer);
+    }
 
+    private void addSearchButton() {
 	// 'Search' button
 	add(new AjaxButton("searchSubmit", this) {
 
@@ -118,7 +184,9 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		return isNodesSelected();
 	    }
 	});
+    }
 
+    private void addStopButton() {
 	// Stop button
 	add(stopButton = new AjaxButton("searchStop") {
 
@@ -133,6 +201,9 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	});
 	stopButton.setOutputMarkupId(true);
 	stopButton.setVisible(false);
+    }
+
+    private void addProgressBar() {
 
 	// Progress bar
 	add(progressbar = new ProgressBar("progress", new ProgressionModel() {
@@ -195,7 +266,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 				if (searchService.isSearchStopped()) {
 				    progressMessage = "Search stopped. Found: " + searchService.getFoundNodes().size();
 				} else {
-				    progress = (100 * searchService.getTotalSearched()) / searchService.getTotalNodesToSearch();
+				    progress = (searchService.getTotalNodesToSearch() == 0) ? 0 : (100 * searchService.getTotalSearched()) / searchService.getTotalNodesToSearch();
 				    progressMessage = "Searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + ". Found: " + searchService.getFoundNodes().size();
 				}
 				searchLock.wait(10);
@@ -218,18 +289,19 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
 		@Override
 		public void run() {
-		    resultsModel.suspendReload();
+		    //resultsModel.suspendReload();
 
 		    searchService.splitLocalRemote();
 		    if (isRemote()) {
 			searchService.fetchRemoteSearchResults();
 		    }
 		    searchService.searchLocalNodes();
+		    //resultsModel.resumeReload();
+
 		    synchronized (searchLock) {
 			searchService = null;
 		    }
 
-		    resultsModel.resumeReload();
 		}
 	    }.start();
 	}
