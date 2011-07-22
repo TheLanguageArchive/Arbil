@@ -318,14 +318,12 @@ public class TreeHelper {
 		    Object userObject = selectedTreeNode.getUserObject();
 		    if (userObject instanceof ImdiTreeObject) {
 			ImdiTreeObject treeObject = (ImdiTreeObject) userObject;
-			if (treeObject.isEditable()) {
-			    if (treeObject.fileNotFound) {
-				toDeleteCount++;
-			    } else if (treeObject.isEmptyMetaNode()) {
-				toDeleteCount = toDeleteCount + treeObject.getChildCount();
-			    } else {
-				toDeleteCount++;
-			    }
+			if (treeObject.fileNotFound) {
+			    toDeleteCount++;
+			} else if (treeObject.isEmptyMetaNode()) {
+			    toDeleteCount = toDeleteCount + treeObject.getChildCount();
+			} else {
+			    toDeleteCount++;
 			}
 		    }
 		}
