@@ -20,7 +20,10 @@
 	<h2>Search</h2>
 	<form wicket:id="searchForm">
 	    <p><span wicket:id="searchNodes">NODES</span></p>
-	    <input type="text" wicket:id="remoteSearchTerm" /><br />
+	    <div wicket:id="remoteSearchTermContainer">
+		Remote search term:
+		<input type="text" wicket:id="remoteSearchTerm" /> (required)
+	    </div>
 
 	    <div wicket:id="nodeSearchTermsContainer">
 

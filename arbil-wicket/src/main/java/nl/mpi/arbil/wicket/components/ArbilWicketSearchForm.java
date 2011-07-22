@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket.components;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
@@ -71,14 +72,19 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
     }
 
     private void addRemoteSearchTermField() {
-	// Remote search term (only for remote searches)
-	add(new TextField("remoteSearchTerm") {
+
+	WebMarkupContainer remoteSearchTermContainer = new WebMarkupContainer("remoteSearchTermContainer") {
 
 	    @Override
 	    public boolean isVisible() {
 		return isRemote();
 	    }
-	});
+	};
+
+	// Remote search term (only for remote searches)
+	remoteSearchTermContainer.add(new TextField("remoteSearchTerm"));
+	add(remoteSearchTermContainer);
+
     }
 
     private void addNodeSearchTerms() {
@@ -141,7 +147,14 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
 		    @Override
 		    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-			ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().remove(item.getModelObject());
+			List<ArbilWicketNodeSearchTerm> searchTerms = ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms();
+			searchTerms.remove(item.getModelObject());
+			
+			// When leaving only one, make sure it has boolean AND
+			if(searchTerms.size() == 1){
+			    searchTerms.get(0).setBooleanAnd(true);
+			}
+			
 			nodeSearchTermsContainer.addOrReplace(nodeSearchTerms);
 			target.addComponent(nodeSearchTermsContainer);
 		    }
@@ -248,7 +261,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
     private void performSearch(final ArbilWicketSearch searchTerm, AjaxRequestTarget target) {
 
-	if (null != searchTerm && isNodesSelected()) {
+	if (null != searchTerm && isNodesSelected() && (!isRemote() || null != searchTerm.getRemoteSearchTerm())) {
 	    if (resultsModel != null) {
 		resultsModel.removeAllArbilDataNodeRows();
 	    }
