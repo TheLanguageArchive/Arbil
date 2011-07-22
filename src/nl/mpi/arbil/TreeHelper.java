@@ -308,7 +308,7 @@ public class TreeHelper {
 	System.out.println("deleteNode: " + sourceObject);
 	DefaultMutableTreeNode selectedTreeNode = null;
 	DefaultMutableTreeNode parentTreeNode = null;
-	if (sourceObject == arbilTreePanel.localCorpusTree) {
+	if (sourceObject == arbilTreePanel.localCorpusTree || sourceObject == arbilTreePanel.favouritesTree) {
 	    TreePath currentNodePaths[] = ((ImdiTree) sourceObject).getSelectionPaths();
 	    int toDeleteCount = 0;
 	    // count the number of nodes to delete

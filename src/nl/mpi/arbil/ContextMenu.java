@@ -1479,7 +1479,7 @@ public class ContextMenu {
 		viewSelectedNodesMenuItem.setText("View/Edit Selected");
 		addToFavouritesMenuItem.setText("Remove From Favourites List");
 		addToFavouritesMenuItem.setActionCommand("false");
-		deleteMenuItem.setEnabled(false);
+		deleteMenuItem.setVisible(nodeLevel > 2);
 	    } else {
 		addToFavouritesMenuItem.setVisible(leadSelectedTreeNode.isMetaDataNode());
 		addToFavouritesMenuItem.setEnabled(!leadSelectedTreeNode.isCorpus() && leadSelectedTreeNode.isMetaDataNode());
