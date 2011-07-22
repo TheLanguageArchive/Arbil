@@ -55,7 +55,7 @@ public class ImdiNodeSearchTerm extends javax.swing.JPanel {
 
         nodeTypeComboBox.setModel(
                 new javax.swing.DefaultComboBoxModel(new String[]{"All",
-                    "Corpus", "Session", "Catalogue", "Actor", "Language", "MediaFile", "Source", "WrittenResource"
+                    "Corpus", "Session", "Catalogue", "Actor", "Anonyms", "Content", "Language", "MediaFile", "Project", "Source", "WrittenResource"
                 }));
         nodeTypeComboBox.addActionListener(
                 new java.awt.event.ActionListener() {
