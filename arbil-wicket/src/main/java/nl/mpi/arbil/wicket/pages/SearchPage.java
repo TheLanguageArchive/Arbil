@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
-import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.wicket.components.ArbilWicketSearchForm;
@@ -13,13 +13,11 @@ import nl.mpi.arbil.wicket.components.ArbilWicketTree;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
-import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearchModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.model.CompoundPropertyModel;
 
 /**
  *
@@ -107,7 +105,7 @@ public class SearchPage extends WebPage {
 	    }
 
 	    @Override
-	    protected Collection<ArbilDataNode> getSelectedNodes() {
+	    protected Collection<ArbilNode> getSelectedNodes() {
 		if (selectedTree != null) {
 		    return selectedTree.getSelectedNodes();
 		} else {

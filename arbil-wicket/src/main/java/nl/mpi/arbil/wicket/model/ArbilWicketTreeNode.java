@@ -5,6 +5,7 @@ import java.net.URI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilNode;
 import org.apache.wicket.model.IDetachable;
 
 /**
@@ -26,7 +27,7 @@ public class ArbilWicketTreeNode extends DefaultMutableTreeNode implements IDeta
 	this.uri = uri;
     }
 
-    public synchronized ArbilDataNode getDataNode() {
+    public synchronized ArbilNode getDataNode() {
 	loadDataNode();
 	return dataNode;
     }

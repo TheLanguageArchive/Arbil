@@ -3,7 +3,7 @@ package nl.mpi.arbil.wicket.components;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
@@ -132,7 +132,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		item.add(new DropDownChoice<Boolean>(id, Arrays.asList(new Boolean[]{true, false}), new IChoiceRenderer<Boolean>() {
 
 		    public Object getDisplayValue(Boolean object) {
-			return object ? "Has not" : "Has";
+			return object ? "!=" : "==";
 		    }
 
 		    public String getIdValue(Boolean object, int index) {
@@ -324,7 +324,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
     protected abstract void onSearchComplete(ArbilWicketTableModel resultsTableModel, AjaxRequestTarget target);
 
-    protected abstract Collection<ArbilDataNode> getSelectedNodes();
+    protected abstract Collection<ArbilNode> getSelectedNodes();
 
     protected abstract boolean isRemote();
 
