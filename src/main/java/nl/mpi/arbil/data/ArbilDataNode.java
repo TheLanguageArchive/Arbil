@@ -1551,8 +1551,12 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	OutputStream activeVersionFile = null;
 	try {
 	    if (historyVersion.equals(".x")) {
-		this.getFile().delete();
-		new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile());
+		if (this.getFile().delete()) {
+		    if (!new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile()))
+		        throw new IOException("Could not rename history file '"+this.getFile().getAbsolutePath() + ".x'");
+                } else {
+                    throw new IOException("Could not delete old history file: " + this.getFile().getAbsolutePath());
+                }
 	    } else {
 		try {
 		    messageDialogHandler.offerUserToSaveChanges();

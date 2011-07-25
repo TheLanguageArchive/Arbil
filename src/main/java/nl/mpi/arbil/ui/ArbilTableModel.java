@@ -93,14 +93,16 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     // utility to join an array to a comma separated string
 
     private String joinArray(Object[] arrayToJoin) {
-	String joinedString = "";
+	StringBuilder joinedString = new StringBuilder();
+	boolean first = true;
 	for (Object currentArrayItem : arrayToJoin) {
-	    joinedString = joinedString + "," + currentArrayItem.toString();
+	    if (!first) {
+	        joinedString.append(',');
+            }
+	    first = false;
+	    joinedString.append(currentArrayItem.toString());
 	}
-	if (joinedString.length() > 1) {
-	    joinedString = joinedString.substring(1);
-	}
-	return joinedString;
+	return joinedString.toString();
     }
 
     public void copyHtmlEmbedTagToClipboard(int tableHeight, int tableWidth) {
@@ -158,6 +160,8 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     protected Hashtable<String, ArbilDataNode> getDataNodeHash() {
 	return dataNodeHash;
     }
+
+    // NOTE: ArbilActionBuffer is not serializable but ArbilTableModel should be!
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("TableReload-" + this.hashCode(), 50) {
 
 	@Override
@@ -192,7 +196,6 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
 
     public void copyArbilRows(int[] selectedRows) {
-	final StringBuilder copiedString = new StringBuilder();
 	int firstColumn = 0;
 	if (isShowIcons() && isHorizontalView()) {
 	    // horizontalView excludes icon display
@@ -200,6 +203,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	}
 	// add the headers
 	final int columnCount = getColumnCount();
+	final StringBuilder copiedString = new StringBuilder();
 	for (int selectedColCounter = firstColumn; selectedColCounter < columnCount; selectedColCounter++) {
 	    copiedString.append(CSV_QUOTE).append(getColumnName(selectedColCounter)).append(CSV_QUOTE);
 	    if (selectedColCounter < columnCount - 1) {
@@ -219,7 +223,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	    copiedString.append(CSV_NEWLINE);
 	}
 	//System.out.println("copiedString: " + this.get getCellSelectionEnabled());
-	System.out.println("copiedString: " + copiedString);
+	System.out.println("copiedString: " + copiedString.toString());
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	StringSelection stringSelection = new StringSelection(copiedString.toString());
 	clipboard.setContents(stringSelection, ArbilTableModel.clipboardOwner);
@@ -240,7 +244,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 	    copiedString.append(CSV_QUOTE).append(currentField.getFieldValue()).append(CSV_QUOTE);
 	    copiedString.append(CSV_NEWLINE);
 	}
-	System.out.println("copiedString: " + copiedString);
+	System.out.println("copiedString: " + copiedString.toString());
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	StringSelection stringSelection = new StringSelection(copiedString.toString());
 	clipboard.setContents(stringSelection, ArbilTableModel.clipboardOwner);

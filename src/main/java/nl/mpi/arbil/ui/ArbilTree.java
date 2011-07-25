@@ -112,14 +112,11 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	this.addTreeExpansionListener(new javax.swing.event.TreeExpansionListener() {
 
 	    public void treeExpanded(javax.swing.event.TreeExpansionEvent evt) {
-		DefaultMutableTreeNode parentNode = null;
 		if (evt.getPath() == null) {
 		    //There is no selection.
 		} else {
-		    parentNode = (DefaultMutableTreeNode) (evt.getPath().getLastPathComponent());
 		    // load imdi data if not already loaded
 		    ArbilTree.this.requestResort();
-//                    ArbilTreeHelper.getSingleInstance().addToSortQueue(parentNode);
 		}
 	    }
 
@@ -226,7 +223,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     public String getToolTipText(MouseEvent event) {
 	String tip = null;
 	java.awt.Point p = event.getPoint();
-	TreePath treePath = ((ArbilTree) event.getComponent()).getPathForLocation(p.x, p.y);
 	if (getRowForLocation(event.getX(), event.getY()) == -1) {
 	    listToolTip.setTartgetObject(null);
 	} else {
@@ -328,13 +324,11 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 //        }
 	boolean isExpanded = true;
 	ArbilDataNode[] childDataNodeArray = rootNodeChildren;
-	if (currentNode instanceof DefaultMutableTreeNode) {
-	    if (currentNode.getUserObject() instanceof ArbilDataNode) {
-		ArbilDataNode curentDataNode = (ArbilDataNode) currentNode.getUserObject();
-		if (curentDataNode != null) {
-		    childDataNodeArray = curentDataNode.getChildArray();
-		    isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
-		}
+	if (currentNode.getUserObject() instanceof ArbilDataNode) {
+	    ArbilDataNode curentDataNode = (ArbilDataNode) currentNode.getUserObject();
+	    if (curentDataNode != null) {
+		childDataNodeArray = curentDataNode.getChildArray();
+		isExpanded = this.isExpanded(new TreePath((currentNode).getPath()));
 	    }
 	}
 	Arrays.sort(childDataNodeArray);
@@ -401,12 +395,13 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     public void dataNodeIconCleared(ArbilDataNode dataNode) {
 	requestResort();
     }
+    // NOTE: This nameless ArbilActionBuffer class/object is not serializable, while ArbilTree is
     ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 50, 150) {
 
 	@Override
 	protected void executeAction() {
 	    sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
 	}
-    };
+    }; // ArbilActionBuffer
     private JListToolTip listToolTip = new JListToolTip();
 }

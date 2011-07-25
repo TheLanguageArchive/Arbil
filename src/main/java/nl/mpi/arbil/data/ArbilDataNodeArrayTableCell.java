@@ -41,24 +41,30 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
     }
 
     private void setURIs() {
-	assert dataNodes != null;
-	contentUris = new ArrayList<URI>(dataNodes.length);
-	for (ArbilDataNode node : dataNodes) {
-	    contentUris.add(node != null ? node.getURI() : null);
+	if (dataNodes == null) {
+	    contentUris = null;
+	} else {
+	    contentUris = new ArrayList<URI>(dataNodes.length);
+	    for (ArbilDataNode node : dataNodes) {
+		contentUris.add(node != null ? node.getURI() : null);
+	    }
 	}
     }
 
     private void loadNodes() {
-	assert contentUris != null;
-	dataNodes = new ArbilDataNode[contentUris.size()];
-	for (int i = 0; i < contentUris.size(); i++) {
-	    dataNodes[i] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUris.get(i));
+	if (contentUris == null) {
+	    dataNodes = null;
+	} else {
+	    dataNodes = new ArbilDataNode[contentUris.size()];
+	    for (int i = 0; i < contentUris.size(); i++) {
+		dataNodes[i] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUris.get(i));
+	    }
 	}
     }
 
     @Override
     public String toString() {
-	String cellText = "";
+	StringBuilder cellText = new StringBuilder();
 	Arrays.sort(getContent(), new Comparator() {
 
 	    public int compare(Object o1, Object o2) {
@@ -69,12 +75,14 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
 	});
 	boolean hasAddedValues = false;
 	for (ArbilDataNode currentArbilDataNode : getContent()) {
-	    cellText = cellText + "[" + currentArbilDataNode.toString() + "],";
+	    if (hasAddedValues) {
+		cellText.append(','); // before each non-first value
+	    }
+	    cellText.append('[');
+	    cellText.append(currentArbilDataNode.toString());
+	    cellText.append(']');
 	    hasAddedValues = true;
 	}
-	if (hasAddedValues) {
-	    cellText = cellText.substring(0, cellText.length() - 1);
-	}
-	return (cellText);
+	return cellText.toString();
     }
 }

@@ -83,7 +83,7 @@ public class MetadataBuilder {
                     if (destinationNode.getNodeTemplate().getMaxOccursForTemplate(nodeType) >= 0) {
                         System.out.println("adding to current node");
                         try {
-                            Document nodDom = nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+                            Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
                             if (nodDom == null) {
                                 messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
                             } else {
@@ -207,13 +207,9 @@ public class MetadataBuilder {
                         }
                         if (nodeType != null) {
                             String targetXmlPath = destinationNode.getURI().getFragment();
-                            if (nodeType == null) {
-                                messageDialogHandler.addMessageDialogToQueue("Cannot add this type of node", null);
-                            } else {
                                 System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName + " : " + favouriteUrlString + " : " + resourceUrl);
                                 processAddNodes(destinationNode, nodeType, targetXmlPath, nodeTypeDisplayName, favouriteUrlString, mimeType, resourceUrl);
                                 destinationNode.getParentDomNode().loadArbilDom();
-                            }
                         }
                     }
                 }
@@ -254,8 +250,6 @@ public class MetadataBuilder {
         // Get the newly created data node
         ArbilDataNode addedArbilNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
         if (addedArbilNode != null) {
-            if (favouriteUrlString != null) {
-            }
             if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
                 currentArbilNode.getParentDomNode().loadArbilDom();
             }
@@ -292,7 +286,7 @@ public class MetadataBuilder {
                 if (destinationNode.getNodeTemplate().isArbilChildNode(nodeType) || (resourceUri != null && destinationNode.isSession())) {
                     System.out.println("adding to current node");
                     try {
-                        Document nodDom = nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
+                        Document nodDom = ArbilComponentBuilder.getDocument(destinationNode.getURI());
                         if (nodDom == null) {
                             messageDialogHandler.addMessageDialogToQueue("The metadata file could not be opened", "Add Node");
                         } else {
