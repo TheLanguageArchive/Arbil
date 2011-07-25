@@ -24,6 +24,12 @@ import nl.mpi.arbil.util.MessageDialogHandler;
  */
 public class ArbilTableModel extends AbstractArbilTableModel {
 
+    public static final char CSV_NEWLINE = '\n';
+    public static final String CSV_SEPARATOR = "\t"; // excel seems to work with tab but not comma
+    public static final String CSV_DOUBLE_QUOTE = "\"\"";
+    public static final char CSV_QUOTE = '\"';
+    public static final String CSV_QUOTE_STRING = "\"";
+    
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
@@ -186,55 +192,53 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
 
     public void copyArbilRows(int[] selectedRows) {
-	String csvSeparator = "\t"; // excel seems to work with tab but not comma
-	String copiedString = "";
+	final StringBuilder copiedString = new StringBuilder();
 	int firstColumn = 0;
 	if (isShowIcons() && isHorizontalView()) {
 	    // horizontalView excludes icon display
 	    firstColumn = 1;
 	}
 	// add the headers
-	int columnCount = getColumnCount();
+	final int columnCount = getColumnCount();
 	for (int selectedColCounter = firstColumn; selectedColCounter < columnCount; selectedColCounter++) {
-	    copiedString = copiedString + "\"" + getColumnName(selectedColCounter) + "\"";
+	    copiedString.append(CSV_QUOTE).append(getColumnName(selectedColCounter)).append(CSV_QUOTE);
 	    if (selectedColCounter < columnCount - 1) {
-		copiedString = copiedString + csvSeparator;
+		copiedString.append(CSV_SEPARATOR);
 	    }
 	}
-	copiedString = copiedString + "\n";
+	copiedString.append(CSV_NEWLINE);
 	// add the cell data
 	for (int selectedRowCounter = 0; selectedRowCounter < selectedRows.length; selectedRowCounter++) {
 	    System.out.println("copying row: " + selectedRowCounter);
 	    for (int selectedColCounter = firstColumn; selectedColCounter < columnCount; selectedColCounter++) {
-		copiedString = copiedString + "\"" + data[selectedRows[selectedRowCounter]][selectedColCounter].toString().replace("\"", "\"\"") + "\"";
+		copiedString.append(CSV_QUOTE).append(data[selectedRows[selectedRowCounter]][selectedColCounter].toString().replace(CSV_QUOTE_STRING, CSV_DOUBLE_QUOTE)).append(CSV_QUOTE);
 		if (selectedColCounter < columnCount - 1) {
-		    copiedString = copiedString + csvSeparator;
+		    copiedString.append(CSV_SEPARATOR);
 		}
 	    }
-	    copiedString = copiedString + "\n";
+	    copiedString.append(CSV_NEWLINE);
 	}
 	//System.out.println("copiedString: " + this.get getCellSelectionEnabled());
 	System.out.println("copiedString: " + copiedString);
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-	StringSelection stringSelection = new StringSelection(copiedString);
+	StringSelection stringSelection = new StringSelection(copiedString.toString());
 	clipboard.setContents(stringSelection, ArbilTableModel.clipboardOwner);
     }
 
     public void copyArbilFields(ArbilField[] selectedCells) {
-	final String csvSeparator = "\t"; // excel seems to work with tab but not comma
 	StringBuilder copiedString = new StringBuilder();
-	copiedString.append('\"').append(SINGLE_NODE_VIEW_HEADING_NAME.replace("\"", "\"\"")).append('\"').append(csvSeparator);
-	copiedString.append('\"').append(SINGLE_NODE_VIEW_HEADING_VALUE.replace("\"", "\"\"")).append('\"');
-	copiedString.append('\n'); // ...
+	copiedString.append(CSV_QUOTE).append(SINGLE_NODE_VIEW_HEADING_NAME.replace(CSV_QUOTE_STRING, CSV_DOUBLE_QUOTE)).append(CSV_QUOTE).append(CSV_SEPARATOR);
+	copiedString.append(CSV_QUOTE).append(SINGLE_NODE_VIEW_HEADING_VALUE.replace(CSV_QUOTE_STRING, CSV_DOUBLE_QUOTE)).append(CSV_QUOTE);
+	copiedString.append(CSV_NEWLINE);
 	boolean isFirstCol = true;
 	for (ArbilField currentField : selectedCells) {
 	    if (!isFirstCol) {
-		copiedString.append(csvSeparator);
+		copiedString.append(CSV_SEPARATOR);
 		isFirstCol = false;
 	    }
-	    copiedString.append("\"").append(currentField.getTranslateFieldName()).append("\"" + csvSeparator);
-	    copiedString.append("\"").append(currentField.getFieldValue()).append("\"");
-	    copiedString.append("\n");
+	    copiedString.append(CSV_QUOTE).append(currentField.getTranslateFieldName()).append(CSV_QUOTE).append(CSV_SEPARATOR);
+	    copiedString.append(CSV_QUOTE).append(currentField.getFieldValue()).append(CSV_QUOTE);
+	    copiedString.append(CSV_NEWLINE);
 	}
 	System.out.println("copiedString: " + copiedString);
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -278,7 +282,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 		int deletingValuesCounter = 0;
 		String[] firstLine = clipBoardLines[0].split("\"\\t\"");
 		if (firstLine.length == 1) {
-		    firstLine = clipBoardLines[0].split("\t");
+		    firstLine = clipBoardLines[0].split(CSV_SEPARATOR);
 		}
 		boolean singleNodeAxis = false;
 		String regexString = "[(\"^)($\")]";
