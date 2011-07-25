@@ -1,7 +1,10 @@
 package nl.mpi.arbil;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -20,6 +23,7 @@ public abstract class ArbilTest {
     private SessionStorage sessionStorage;
     private MessageDialogHandler dialogHandler;
     private BugCatcher bugCatcher;
+    private Set<URI> localTreeItems;
 
     @After
     public void cleanUp() {
@@ -28,10 +32,18 @@ public abstract class ArbilTest {
 	}
 	sessionStorage = null;
 	treeHelper = null;
+	localTreeItems = null;
     }
 
-    protected void addToTreeFromResource(String resourceClassPath) throws URISyntaxException {
-	getTreeHelper().addLocation(getClass().getResource(resourceClassPath).toURI());
+    protected void addToLocalTreeFromResource(String resourceClassPath) throws URISyntaxException {
+	URI uri = getClass().getResource(resourceClassPath).toURI();
+
+	if (localTreeItems == null) {
+	    localTreeItems = new HashSet<URI>();
+	}
+	localTreeItems.add(uri);
+
+	getTreeHelper().addLocation(uri);
 	for (ArbilDataNode node : getTreeHelper().getLocalCorpusNodes()) {
 	    node.waitTillLoaded();
 	}
@@ -83,7 +95,13 @@ public abstract class ArbilTest {
     }
 
     protected SessionStorage newSessionStorage() {
-	return new MockSessionStorage();
+	return new MockSessionStorage() {
+
+	    @Override
+	    public boolean pathIsInFavourites(File fullTestFile) {
+		return localTreeItems.contains(fullTestFile.toURI());
+	    }
+	};
     }
 
     protected BugCatcher newBugCatcher() {
@@ -95,13 +113,15 @@ public abstract class ArbilTest {
     }
 
     static public boolean deleteDirectory(File path) {
-	if (path.exists()) {
+	if (path.exists() && path.isDirectory()) {
 	    File[] files = path.listFiles();
-	    for (int i = 0; i < files.length; i++) {
-		if (files[i].isDirectory()) {
-		    deleteDirectory(files[i]);
-		} else {
-		    files[i].delete();
+	    if (files != null) {
+		for (int i = 0; i < files.length; i++) {
+		    if (files[i].isDirectory()) {
+			deleteDirectory(files[i]);
+		    } else {
+			files[i].delete();
+		    }
 		}
 	    }
 	}

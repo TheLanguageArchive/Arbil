@@ -33,7 +33,7 @@ public class TreeHelperTest extends ArbilTest {
     @Test
     public void testLocationsList() throws Exception {
 	assertEquals(0, getTreeHelper().getLocalCorpusNodes().length);
-	addToTreeFromResource("/nl/mpi/arbil/data/testfiles/\u0131md\u0131test.imdi");
+	addToLocalTreeFromResource("/nl/mpi/arbil/data/testfiles/\u0131md\u0131test.imdi");
 	assertEquals(1, getTreeHelper().getLocalCorpusNodes().length);
 	assertFalse(getTreeHelper().getLocalCorpusNodes()[0].fileNotFound);
     }
