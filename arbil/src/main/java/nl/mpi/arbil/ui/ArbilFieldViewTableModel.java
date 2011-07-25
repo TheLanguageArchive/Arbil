@@ -43,10 +43,10 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
 	java.lang.String.class, /*java.lang.String.class,*/ java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
     };
     private int showOnlyEnabledCount = -1;
-    private final int showOnlyColumn = 1;
-    private final int fieldNameColumn = 0;
-    private final int hideColumn = 2;
-    private final int widthColumn = 3;
+    private static final int fieldNameColumn = 0;
+    private static final int showOnlyColumn = 1;
+    private static final int hideColumn = 2;
+    private static final int widthColumn = 3;
 
     @Override
     public Class getColumnClass(int columnIndex) {
@@ -76,11 +76,9 @@ public class ArbilFieldViewTableModel extends DefaultTableModel {
     @Override
     public void setValueAt(Object aValue, int row, int column) {
 	super.setValueAt(aValue, row, column);
-//        System.out.println("setValueAt showOnlyEnabledCount reset");
 	// clear the show only count to retrigger the checking process
 	showOnlyEnabledCount = -1;
-//                fireTableDataChanged();
-	boolean booleanState = aValue.equals(true);
+	boolean booleanState = Boolean.TRUE.equals(aValue);
 	String targetColumnName = getValueAt(row, fieldNameColumn).toString();
 	switch (column) {
 	    case showOnlyColumn:

@@ -49,7 +49,9 @@ public class ArbilBugCatcher implements BugCatcher {
 		    System.out.println("currentLogFileMatch: " + currentFile);
 		} else {
 		    System.out.println("deleting old log file: " + currentFile);
-		    new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), currentFile).delete();
+		    if (!new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), currentFile).delete()) {
+		        System.out.println("Did not delete old log file: " + currentFile);
+		    }
 		}
 	    }
 	}
@@ -91,10 +93,11 @@ public class ArbilBugCatcher implements BugCatcher {
 	    DecimalFormat myFormat = new DecimalFormat("000");
 	    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 	    String formattedDate = formatter.format(new Date());
-	    String formattedCount = myFormat.format(new Integer(captureCount));
+	    String formattedCount = myFormat.format(Integer.valueOf(captureCount));
 	    ImageIO.write(screenShot, "JPG", new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
 	    captureCount++;
 	} catch (Exception e) {
+	    System.err.println("Exception when creating screenshot: " + e);
 	}
     }
 
