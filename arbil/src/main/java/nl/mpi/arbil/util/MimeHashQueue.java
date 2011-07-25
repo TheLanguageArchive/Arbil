@@ -1,5 +1,6 @@
 package nl.mpi.arbil.util;
 
+import java.net.URISyntaxException;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
@@ -507,10 +508,11 @@ public class MimeHashQueue {
 	    String hashString = null;
 	    // TODO: add hashes for session links
 	    // TODO: organise a way to get the md5 sum of files on the server
+	    FileInputStream is = null;
 	    try {
 		MessageDigest digest = MessageDigest.getInstance("MD5");
 		StringBuilder hexString = new StringBuilder();
-		FileInputStream is = new FileInputStream(new File(fileUri));
+		is = new FileInputStream(new File(fileUri));
 		byte[] buff = new byte[1024];
 		byte[] md5sum;
 		int i = 0;
@@ -535,6 +537,14 @@ public class MimeHashQueue {
 //            bugCatcher.logMessage("getHash: " + targetFile);
 //            bugCatcher.logError("getHash: " + fileUrl, ex);
 		System.out.println("failed to created hash: " + ex.getMessage());
+	    } finally {
+		if (is != null) {
+		    try {
+			is.close();
+		    } catch (IOException ioe) {
+			System.out.println("Failed to close input stream for: " + fileUri);
+		    }
+		}
 	    }
 	    // store the url to node mapping. Note that; in the case of a resource line the session node is mapped against the resource url not the imdichildnode for the file
 //                urlToNodeHashtable.put(nodeLocation, this);
@@ -574,10 +584,17 @@ public class MimeHashQueue {
     }
 
     private static URI getNodeURI(ArbilDataNode dataNode) {
-	if (dataNode.hasResource()) {
+	if (dataNode.isResourceSet()) {
 	    return dataNode.getFullResourceURI();
 	} else {
-	    return dataNode.getURI();
+	    // Non-resource data node
+	    try {
+		// Remove fragment from URI to get reference to actual file
+		return new URI(dataNode.getURI().getScheme(), dataNode.getURI().getSchemeSpecificPart(), null);
+	    } catch (URISyntaxException ex) {
+		bugCatcher.logError(ex);
+		return null;
+	    }
 	}
     }
 
