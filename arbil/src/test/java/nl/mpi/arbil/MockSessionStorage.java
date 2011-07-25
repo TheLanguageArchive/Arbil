@@ -70,8 +70,20 @@ public class MockSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    /**
+     * Checks for the existance of the favourites directory exists and creates it if it does not.
+     * @return File pointing to the favourites directory
+     */
     public File getFavouritesDir() {
-	throw new UnsupportedOperationException("Not supported yet.");
+	File favDirectory = new File(getStorageDirectory(), "favourites"); // storageDirectory already has the file separator appended
+	boolean favDirExists = favDirectory.exists();
+	if (!favDirExists) {
+	    if (!favDirectory.mkdir()) {
+		log.severe("Could not create favourites directory");
+		return null;
+	    }
+	}
+	return favDirectory;
     }
 
     public String[] getLocationOptions() {
@@ -171,12 +183,37 @@ public class MockSessionStorage implements SessionStorage {
 	return null;
     }
 
-    public boolean pathIsInFavourites(File fullTestFile) {
-	throw new UnsupportedOperationException("Not supported yet.");
+    /**
+     * Tests if the a string points to a file that is in the favourites directory.
+     * @return Boolean
+     */
+    public boolean pathIsInFavourites(File fullTestFile) { //todo: test me
+	String favouritesString = "favourites";
+	int foundPos = fullTestFile.getPath().indexOf(favouritesString) + favouritesString.length();
+	if (foundPos == -1) {
+	    return false;
+	}
+	if (foundPos > fullTestFile.getPath().length()) {
+	    return false;
+	}
+	File testFile = new File(fullTestFile.getPath().substring(0, foundPos));
+	return testFile.equals(getFavouritesDir());
     }
 
+    /**
+     * Tests if the a string points to a flie that is in the cache directory.
+     * @return Boolean
+     */
     public boolean pathIsInsideCache(File fullTestFile) {
-	throw new UnsupportedOperationException("Not supported yet.");
+	File cacheDirectory = getCacheDirectory();
+	File testFile = fullTestFile;
+	while (testFile != null) {
+	    if (testFile.equals(cacheDirectory)) {
+		return true;
+	    }
+	    testFile = testFile.getParentFile();
+	}
+	return false;
     }
 
     public boolean replaceCacheCopy(String pathString) {
@@ -334,10 +371,17 @@ public class MockSessionStorage implements SessionStorage {
 	if (tempDir == null) {
 	    try {
 		tempDir = File.createTempFile("arbil", Long.toString(System.nanoTime()));
-		tempDir.delete();
-		tempDir.mkdir();
-		tempDir.deleteOnExit();
-		log.log(Level.INFO, "Create temp dir " + tempDir.getAbsolutePath());
+		if (tempDir.exists()) {
+		    if (!tempDir.delete()) {
+			throw new RuntimeException("Cannot create temp dir!");
+		    }
+		}
+		if (tempDir.mkdir()) {
+		    tempDir.deleteOnExit();
+		} else {
+		    throw new RuntimeException("Cannot create temp dir!");
+		}
+		log.log(Level.INFO, "Created temp dir {0}", tempDir.getAbsolutePath());
 	    } catch (IOException ex) {
 		log.log(Level.SEVERE, null, ex);
 	    }
