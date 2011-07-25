@@ -260,7 +260,7 @@ public class ControlledVocabularyComboBoxEditor extends ArbilFieldEditor impleme
 
             for (int i = 0; i < itemsCount; i++) {
                 String item = getItemAt(i);
-                if (item instanceof String) {
+                if (item != null) {
                     if (item.regionMatches(true, 0, text, 0, text.length())) {
                         previousMatch = i;
                         return i;

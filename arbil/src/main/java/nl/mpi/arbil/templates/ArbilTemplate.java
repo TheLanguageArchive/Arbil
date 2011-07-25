@@ -558,7 +558,9 @@ public class ArbilTemplate {
     public File getTemplateDirectory() {
         File currentTemplateDirectory = new File(ArbilTemplateManager.getSingleInstance().getTemplateDirectory(), loadedTemplateName);
         if (!currentTemplateDirectory.exists()) {
-            currentTemplateDirectory.mkdir();
+            if (!currentTemplateDirectory.mkdir()) {
+                throw new RuntimeException("Could not create template directory: " + currentTemplateDirectory);
+            }
         }
         return currentTemplateDirectory;
     }
@@ -566,7 +568,9 @@ public class ArbilTemplate {
     public File getTemplateComponentDirectory() {
         File currentTemplateComponentDirectory = new File(getTemplateDirectory(), "components");
         if (!currentTemplateComponentDirectory.exists()) {
-            currentTemplateComponentDirectory.mkdir();
+            if (!currentTemplateComponentDirectory.mkdir()) {
+                throw new RuntimeException("Could not create component template directory: " + currentTemplateComponentDirectory);
+            }
         }
         return currentTemplateComponentDirectory;
     }

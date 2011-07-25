@@ -475,12 +475,14 @@ public class ArbilComponentBuilder {
 	// make sure the target xpath has all the required parts
 	String[] cmdiComponentArray = cmdiComponentId.split("\\.");
 	String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
+	StringBuilder arrayPathParts = new StringBuilder();
 	for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
 	    System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
-	    targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
+	    arrayPathParts.append('.');
+	    arrayPathParts.append(cmdiComponentArray[pathPartCounter]);
 	}
 	// end path corrections
-	return targetXmlPath;
+	return targetXmlPath + arrayPathParts.toString();
     }
 
     /**

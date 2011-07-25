@@ -72,7 +72,9 @@ public class ArbilTemplateManager {
 	    sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/default.xml"), new File(componentsDirectory, "default.xml"), null, true, new DownloadAbortFlag(), null);
 	    // Make example-components directory
 	    File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
-	    examplesDirectory.mkdir(); // create the example components directory
+	    if (!examplesDirectory.mkdir()) { // create the example components directory
+	        bugCatcher.logError(new IOException("Could not create example components directory: " + examplesDirectory));
+	    }
 	    // copy example components from the jar file
 	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
 		sessionStorage.saveRemoteResource(MetadataReader.class.getResource("/nl/mpi/arbil/resources/templates/" + pathString[0]), new File(examplesDirectory, pathString[0]), null, true, new DownloadAbortFlag(), null);
@@ -161,7 +163,7 @@ public class ArbilTemplateManager {
 	return selectedTamplates;
     }
 
-    public class MenuItemData {
+    public static class MenuItemData {
 
 	public String menuText;
 	public String menuAction;
@@ -318,7 +320,9 @@ public class ArbilTemplateManager {
     public String[] getAvailableTemplates() {
 	File templatesDir = getTemplateDirectory();
 	if (!templatesDir.exists()) {
-	    templatesDir.mkdir();
+	    if (!templatesDir.mkdir()) {
+	        bugCatcher.logError(new IOException("Could not create template directory: " + templatesDir));
+	    }
 	}
 	ArrayList<String> templateList = new ArrayList<String>();
 	String[] templatesList = templatesDir.list();
