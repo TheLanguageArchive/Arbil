@@ -54,6 +54,29 @@ public class ArbilSearchTest extends ArbilTest {
 	assertEquals(0, search.getFoundNodes().size());
     }
 
+    @Test
+    public void testSearchFields() throws Exception {
+	// Add test session
+	addToLocalTreeFromResource("/nl/mpi/arbil/data/testfiles/test_session_1.imdi");
+
+	ArbilSearch search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_SESSION, "Name", "Test session title");
+	assertEquals(0, search.getFoundNodes().size());
+	search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_SESSION, "Title", "Test session title");
+	assertEquals(1, search.getFoundNodes().size());
+    }
+
+    @Test
+    public void testSearchToTableModel() throws Exception {
+	AbstractArbilTableModel model = createTableModel();
+	addToLocalTreeFromResource("/nl/mpi/arbil/data/testfiles/test_session_1.imdi");
+	ArbilSearch search = searchLocalTree(model, ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", "ataretw45w45");
+	assertEquals(0, search.getFoundNodes().size());
+	assertEquals(0, model.getRowCount());
+	search = searchLocalTree(model, ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", "Test session 1");
+	assertEquals(1, search.getFoundNodes().size());
+	assertEquals(1, model.getArbilDataNodeCount());
+    }
+
     private ArbilSearch searchLocalTree(String nodeType, String field, String searchString) {
 	return searchLocalTree(createTableModel(), nodeType, field, searchString);
     }
