@@ -98,7 +98,7 @@ public abstract class ArbilTest {
 	return new MockSessionStorage() {
 
 	    @Override
-	    public boolean pathIsInFavourites(File fullTestFile) {
+	    public boolean pathIsInsideCache(File fullTestFile) {
 		return localTreeItems.contains(fullTestFile.toURI());
 	    }
 	};
