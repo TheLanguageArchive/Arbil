@@ -19,7 +19,7 @@ import nl.mpi.arbil.data.ArbilVocabularyItem;
  */
 public class LanguageIdBox extends JComboBox {
 
-    public static int languageSelectWidth = 100;
+    public final static int languageSelectWidth = 100;
     static String defaultLanguageDropDownValue = "<select>";
 
     public LanguageIdBox(final ArbilField cellField, Rectangle parentCellRect) {

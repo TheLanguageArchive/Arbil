@@ -221,24 +221,24 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     }
 
     public void copyArbilFields(ArbilField[] selectedCells) {
-	String csvSeparator = "\t"; // excel seems to work with tab but not comma
-	String copiedString = "";
-	copiedString = copiedString + "\"" + SINGLE_NODE_VIEW_HEADINGS[0] + "\"" + csvSeparator;
-	copiedString = copiedString + "\"" + SINGLE_NODE_VIEW_HEADINGS[1] + "\"";
-	copiedString = copiedString + "\n";
+	final String csvSeparator = "\t"; // excel seems to work with tab but not comma
+	StringBuilder copiedString = new StringBuilder();
+	copiedString.append('\"').append(SINGLE_NODE_VIEW_HEADING_NAME.replace("\"", "\"\"")).append('\"').append(csvSeparator);
+	copiedString.append('\"').append(SINGLE_NODE_VIEW_HEADING_VALUE.replace("\"", "\"\"")).append('\"');
+	copiedString.append('\n'); // ...
 	boolean isFirstCol = true;
 	for (ArbilField currentField : selectedCells) {
 	    if (!isFirstCol) {
-		copiedString = copiedString + csvSeparator;
+		copiedString.append(csvSeparator);
 		isFirstCol = false;
 	    }
-	    copiedString = copiedString + "\"" + currentField.getTranslateFieldName() + "\"" + csvSeparator;
-	    copiedString = copiedString + "\"" + currentField.getFieldValue() + "\"";
-	    copiedString = copiedString + "\n";
+	    copiedString.append("\"").append(currentField.getTranslateFieldName()).append("\"" + csvSeparator);
+	    copiedString.append("\"").append(currentField.getFieldValue()).append("\"");
+	    copiedString.append("\n");
 	}
 	System.out.println("copiedString: " + copiedString);
 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-	StringSelection stringSelection = new StringSelection(copiedString);
+	StringSelection stringSelection = new StringSelection(copiedString.toString());
 	clipboard.setContents(stringSelection, ArbilTableModel.clipboardOwner);
     }
 
@@ -283,7 +283,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 		boolean singleNodeAxis = false;
 		String regexString = "[(\"^)($\")]";
 		System.out.println("regexString: " + (firstLine[0].replaceAll(regexString, "")));
-		if (firstLine[0].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADINGS[0]) && firstLine[1].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADINGS[1])) {
+		if (firstLine[0].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADING_NAME) && firstLine[1].replaceAll(regexString, "").equals(SINGLE_NODE_VIEW_HEADING_VALUE)) {
 		    singleNodeAxis = true;
 		}
 		if (!singleNodeAxis) {

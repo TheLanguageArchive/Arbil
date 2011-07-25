@@ -333,14 +333,30 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected final static int PRIORITY_MIDDLE = 50;
     protected final static int PRIORITY_BOTTOM = 100;
 
-    private class OrderedMenuItem implements Comparable<OrderedMenuItem> {
+    private static class OrderedMenuItem implements Comparable<OrderedMenuItem> {
+
+        private final JMenuItem menuItem;
+        private final Integer itemPriority;
 
         private OrderedMenuItem(int priority, JMenuItem item) {
             menuItem = item;
             itemPriority = Integer.valueOf(priority);
         }
-        private JMenuItem menuItem;
-        private Integer itemPriority;
+
+        /** hashCode has to match equals has to match compareTo */
+	@Override
+        public int hashCode() {
+            return itemPriority.hashCode();
+        }
+
+        /** OrderedMenuItem only used in List yet, but e.g. hashes need equals */
+	@Override
+        public boolean equals(final Object o) {
+            if (o instanceof OrderedMenuItem) {
+                return ( itemPriority.equals( ((OrderedMenuItem)o).itemPriority ) );
+            }
+            return false;
+        }
 
         public int compareTo(OrderedMenuItem o) {
             return itemPriority.compareTo(o.itemPriority);

@@ -483,7 +483,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	}
     }
 
-    private class lfeInputMap extends InputMap {
+    private static class lfeInputMap extends InputMap {
 
 	public lfeInputMap(InputMap parent) {
 	    super();
@@ -512,6 +512,8 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.CTRL_DOWN_MASK), "previousTab");
 	}
     }
+
+    // NOTE: Not serializable!
     private FocusListener editorFocusListener = new FocusListener() {
 
 	public void focusGained(FocusEvent e) {

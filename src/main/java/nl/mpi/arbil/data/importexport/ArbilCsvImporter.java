@@ -4,8 +4,10 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
@@ -61,8 +63,9 @@ public class ArbilCsvImporter {
     private void processCsvFile(File inputFile) {
         String csvHeaders[] = null;
         String fileType = ",";
+        BufferedReader bufferedReader = null;
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+            bufferedReader = new BufferedReader(new FileReader(inputFile));
             String currentLine = "";
             String remainderOfLastLine = "";
             StringTokenizer stringTokeniser = null;
@@ -114,8 +117,18 @@ public class ArbilCsvImporter {
                     }
                 }
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             bugCatcher.logError(ex);
+	} catch(ArbilMetadataException ex){
+	    bugCatcher.logError(ex);
+	} catch(RuntimeException ex){
+	    bugCatcher.logError(ex);
+        } finally {
+            if (bufferedReader != null) try {
+                bufferedReader.close();
+            } catch (IOException ioe) {
+                bugCatcher.logError(ioe);
+            }
         }
     }
 }

@@ -8,7 +8,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * Created on Aug 11, 2009, 11:08:48 AM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilNodeSorter implements Comparator {
+public class ArbilNodeSorter implements Comparator, java.io.Serializable {
+// FindBugs: Comparators w/o internal state are Serializable anyway, which
+// is good because objects made with such Comparators can stay Serializable
 
     public int compare(Object object1, Object object2) {
         Object userObject1;

@@ -113,16 +113,15 @@ public class ArbilHelp extends javax.swing.JPanel {
     public void setCurrentPage(String helpPage) {
         DefaultMutableTreeNode foundNode = findNode(rootContentsNode, helpPage);
         if (foundNode != null) {
-            if (foundNode instanceof DefaultMutableTreeNode) {
-                final TreePath targetTreePath = new TreePath(((DefaultMutableTreeNode) foundNode).getPath());
-                SwingUtilities.invokeLater(new Runnable() {
+            final TreePath targetTreePath = new TreePath(((DefaultMutableTreeNode) foundNode).getPath());
+            SwingUtilities.invokeLater(new Runnable() {
 
-                    public void run() {
-                        jTree1.scrollPathToVisible(targetTreePath);
-                        jTree1.setSelectionPath(targetTreePath);
-                    }
-                });
-            }
+                public void run() {
+                    jTree1.scrollPathToVisible(targetTreePath);
+                    jTree1.setSelectionPath(targetTreePath);
+                }
+
+            });
         }
     }
 
@@ -171,7 +170,7 @@ public class ArbilHelp extends javax.swing.JPanel {
         }
     }
 
-    class HelpNodeUserObject {
+    private static class HelpNodeUserObject {
 
         String nameString;
         URL helpURL;
@@ -181,6 +180,7 @@ public class ArbilHelp extends javax.swing.JPanel {
             helpURL = localHelpFile;
         }
 
+	@Override
         public String toString() {
             return nameString;
         }
@@ -225,7 +225,7 @@ public class ArbilHelp extends javax.swing.JPanel {
         }
     }
 
-    private class HelpTemplate {
+    private static class HelpTemplate {
         //<link media="handheld" type="text/css" href="/community/css/themes/mobile01.css" rel="stylesheet">
         String startHead = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"><html><head><title>";
         String startBody = "</title><STYLE TYPE=\"text/css\"><!-- .helpTitle { text-align: center; font-size:125%; background: #ede2cd; margin:0; padding:0; } .helpSubTitle { text-align: left; font-size:110%; background: #ede2cd; margin:0; padding:0; } .helpText { color:Black; font-family:Arial,Helvetica,sans-serif; font-size:100%; font-size-adjust:none; font-style:normal; font-variant:normal; font-weight:normal; line-height:1.25em; background: #F4F1EB; } --> </STYLE></head><body class=\"helpText\">";

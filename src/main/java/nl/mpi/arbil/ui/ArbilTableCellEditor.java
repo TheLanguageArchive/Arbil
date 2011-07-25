@@ -374,7 +374,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
             }
             return cellValue[selectedField];
         } else {
-            return cellValue;
+            return cellValue; // do we want to return the whole array here? without using clone?
         }
     }
 

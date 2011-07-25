@@ -1,16 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.data;
 
 import java.util.Comparator;
 
 /**
- *
+ * @author Peter Withers <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilFieldComparator implements Comparator<ArbilField> {
+public class ArbilFieldComparator implements Comparator<ArbilField>, java.io.Serializable {
+// NOTE: Comparators without state can be Serializable, makes them more useful.
 
     public int compare(ArbilField firstColumn, ArbilField secondColumn) {
         try {

@@ -190,9 +190,11 @@ public class MetadataReader {
     }
 
     private URI copyToDisk(URL sourceURL, File targetFile) {
+        InputStream in = null;
+        OutputStream out = null;
         try {
-            InputStream in = sourceURL.openStream();
-            OutputStream out = new FileOutputStream(targetFile);
+            in = sourceURL.openStream();
+            out = new FileOutputStream(targetFile);
 
             // Transfer bytes from in to out
             byte[] buf = new byte[1024];
@@ -201,12 +203,25 @@ public class MetadataReader {
                 out.write(buf, 0, len);
             }
             in.close();
+            in = null;
             out.flush();
             out.close();
+            out = null;
             return targetFile.toURI();
         } catch (Exception ex) {
             System.out.println("copyToDisk: " + ex);
             bugCatcher.logError(ex);
+        } finally {
+            if (in != null) try {
+                in.close();
+            } catch (IOException ioe) {
+                bugCatcher.logError(ioe);
+            }
+            if (out != null) try {
+                out.close();
+            } catch (IOException ioe2) {
+                bugCatcher.logError(ioe2);
+            }
         }
         return null;
     }
@@ -447,15 +462,16 @@ public class MetadataReader {
             // the last path component (.Language) will be removed later
             String[] targetXpathArray = targetXpath.split("\\)");
             String[] elementNameArray = elementName.split("\\)");
-            targetXpath = "";
+            StringBuilder targetXpathSB = new StringBuilder();
             for (int partCounter = 0; partCounter < elementNameArray.length; partCounter++) {
                 if (targetXpathArray.length > partCounter) {
-                    targetXpath = targetXpath + targetXpathArray[partCounter] + ")";
+                    targetXpathSB.append(targetXpathArray[partCounter]);
                 } else {
-                    targetXpath = targetXpath + elementNameArray[partCounter] + ")";
+                    targetXpathSB.append(elementNameArray[partCounter]);
                 }
+                targetXpathSB.append(')');
             }
-            targetXpath = targetXpath.replaceAll("\\)$", "");
+            targetXpath = targetXpathSB.toString().replaceAll("\\)$", "");
         }
         targetXpath = targetXpath.substring(0, targetXpath.lastIndexOf("."));
         return targetXpath;
