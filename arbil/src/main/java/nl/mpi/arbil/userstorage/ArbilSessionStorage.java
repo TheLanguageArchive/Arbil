@@ -605,9 +605,10 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     private void saveConfig(Properties configObject) {
+        FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
-	    FileOutputStream propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
+	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
 	    if (System.getProperty("java.version").startsWith("1.6")) { //TODO: should not break with 1.7 - better is check if method exists
 		// Writing to an (encoding-specific) StreamWriter is not supported until 1.6
 		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
@@ -619,6 +620,12 @@ public class ArbilSessionStorage implements SessionStorage {
 	    propertiesOutputStream.close();
 	} catch (IOException ioe) {
 	    logError(ioe);
+	} finally {
+	    if (propertiesOutputStream != null) try {
+	        propertiesOutputStream.close();
+            } catch (IOException ioe2) {
+                logError(ioe2);
+            }
 	}
     }
 
@@ -776,12 +783,15 @@ public class ArbilSessionStorage implements SessionStorage {
 	if (destinationFile.length() == 0) {
 	    // todo: check the file size on the server and maybe its date also
 	    // if the file is zero length then is presumably should either be replaced or the version in the jar used.
-	    destinationFile.delete();
+	    if (destinationFile.delete()) {
+	        System.out.println("Deleted zero length (!) file: "+destinationFile);
+	    }
 	}
 	String fileName = destinationFile.getName();
 	if (destinationFile.exists() && !expireCacheCopy && destinationFile.length() > 0) {
 	    System.out.println("this resource is already in the cache");
 	} else {
+	    FileOutputStream outFile = null;
 	    try {
 		URLConnection urlConnection = targetUrl.openConnection();
 		HttpURLConnection httpConnection = null;
@@ -809,7 +819,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
 		    tempFile.deleteOnExit();
 		    int bufferLength = 1024 * 3;
-		    FileOutputStream outFile = new FileOutputStream(tempFile); //targetUrlString
+		    outFile = new FileOutputStream(tempFile); //targetUrlString
 		    System.out.println("getting file");
 		    InputStream stream = urlConnection.getInputStream();
 		    byte[] buffer = new byte[bufferLength]; // make this 1024*4 or something and read chunks not the whole file
@@ -829,6 +839,7 @@ public class ArbilSessionStorage implements SessionStorage {
 			}
 		    }
 		    outFile.close();
+		    outFile = null;
 		    if (tempFile.length() > 0 && !abortFlag.abortDownload) { // TODO: this should check the file size on the server
 			if (destinationFile.exists()) {
 			    if (!destinationFile.delete()) {
@@ -845,6 +856,12 @@ public class ArbilSessionStorage implements SessionStorage {
 	    } catch (Exception ex) {
 		logError(ex);
 //                System.out.println(ex.getMessage());
+	    } finally {
+	        if (outFile != null) try {
+	            outFile.close();
+                } catch (IOException ioe) {
+                    logError(ioe);
+                }
 	    }
 	}
 	return downloadSucceeded;
