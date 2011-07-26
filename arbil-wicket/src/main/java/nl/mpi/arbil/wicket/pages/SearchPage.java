@@ -2,7 +2,6 @@ package nl.mpi.arbil.wicket.pages;
 
 import java.util.Collection;
 import java.util.Collections;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
@@ -11,23 +10,20 @@ import nl.mpi.arbil.wicket.components.ArbilWicketSearchForm;
 import nl.mpi.arbil.wicket.components.ArbilWicketTablePanel;
 import nl.mpi.arbil.wicket.components.ArbilWicketTree;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
-import nl.mpi.arbil.wicket.model.ArbilWicketTreeModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearchModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.WebPage;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class SearchPage extends WebPage {
+public class SearchPage extends TreePage {
 
     private static final long serialVersionUID = 1L;
     private ArbilWicketTree remoteTree;
-    private ArbilWicketTree localTree;
     private WebMarkupContainer tableContainer;
     private WebMarkupContainer tablePanel;
     private ArbilWicketSearchForm searchForm;
@@ -54,32 +50,12 @@ public class SearchPage extends WebPage {
     }
 
     private void createTrees() {
-	// Create remote tree
-	TreeModel remoteTreeModel = ArbilWicketSession.get().getTreeHelper().getRemoteCorpusTreeModel();
-	remoteTree = new ArbilWicketTree("remoteTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(remoteTreeModel)) {
-
-	    @Override
-	    protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode treeNode) {
-		onTreeNodeClicked(this, target);
-	    }
-	};
-	remoteTree.getTreeState().expandNode(remoteTreeModel.getRoot());
-	add(remoteTree);
-
-	// Create local tree
-	TreeModel localTreeModel = ArbilWicketSession.get().getTreeHelper().getLocalCorpusTreeModel();
-	localTree = new ArbilWicketTree("localTree", new ArbilWicketTreeModel.DetachableArbilWicketTreeModel(localTreeModel)) {
-
-	    @Override
-	    protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode treeNode) {
-		onTreeNodeClicked(this, target);
-	    }
-	};
-	localTree.getTreeState().expandNode(localTreeModel.getRoot());
-	add(localTree);
+	add(remoteTree = createRemoteTree());
+	add(createLocalTree());
     }
 
-    private void onTreeNodeClicked(ArbilWicketTree tree, AjaxRequestTarget target) {
+    @Override
+    protected void onTreeNodeClicked(ArbilWicketTree tree, TreeNode treeNode, AjaxRequestTarget target) {
 	selectedTree = tree.getTreeState().getSelectedNodes().size() > 0 ? tree : null;
 	// refresh table container
 	target.addComponent(searchForm);
