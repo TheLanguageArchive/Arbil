@@ -15,11 +15,18 @@ import org.apache.wicket.model.IDetachable;
 public class ArbilWicketTreeNode extends DefaultMutableTreeNode implements IDetachable, Serializable {
 
     private URI uri;
-    private transient ArbilDataNode dataNode;
-    
-    public ArbilWicketTreeNode(ArbilDataNode dataNode) {
-    this.dataNode = dataNode;
-	this.uri = dataNode.getURI();
+    private ArbilNode serializableNode;
+    private transient ArbilNode dataNode;
+
+    public ArbilWicketTreeNode(ArbilNode dataNode) {
+	this.dataNode = dataNode;
+	if (dataNode instanceof Serializable) {
+	    serializableNode = dataNode;
+	} else {
+	    if (dataNode instanceof ArbilDataNode) {
+		this.uri = ((ArbilDataNode) dataNode).getURI();
+	    }
+	}
 	setUserObject(dataNode);
     }
 
@@ -32,10 +39,15 @@ public class ArbilWicketTreeNode extends DefaultMutableTreeNode implements IDeta
 	return dataNode;
     }
 
-    private void loadDataNode() {
+    private synchronized void loadDataNode() {
 	if (dataNode == null) {
-	    assert (uri != null);
-	    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+	    if (serializableNode != null) {
+		dataNode = serializableNode;
+	    } else {
+		if (uri != null) {
+		    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+		}
+	    }
 	    setUserObject(dataNode);
 	}
     }
