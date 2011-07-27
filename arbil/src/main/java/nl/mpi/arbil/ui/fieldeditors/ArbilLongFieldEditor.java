@@ -243,9 +243,9 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(text, text, arbilFields[cellFieldIndex], fieldEditor);
 	    fieldEditor.setEditor(cvcbEditor);
 
-	    cvcbEditor.addFocusListener(editorFocusListener);
-	    cvcbEditor.setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(cvcbEditor.getInputMap()));
-	    cvcbEditor.setActionMap(new lfeActionMap(cvcbEditor.getActionMap()));
+	    cvcbEditor.getEditorComponent().addFocusListener(editorFocusListener);
+	    cvcbEditor.getTextField().setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(cvcbEditor.getTextField().getInputMap()));
+	    cvcbEditor.getTextField().setActionMap(new lfeActionMap(cvcbEditor.getTextField().getActionMap()));
 
 	    fieldEditor.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 	}
