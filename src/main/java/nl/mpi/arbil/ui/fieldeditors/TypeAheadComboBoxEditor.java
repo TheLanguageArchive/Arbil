@@ -44,6 +44,14 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusLi
      */
     protected abstract boolean isOpen();
 
+    /**
+     * Constructor. Call init() after this!
+     * @param editor Editor component
+     * @param initialValue Initial value for editor
+     * @param originalValue Original value for editor (will revert to this at escape)
+     * @param comboBox Combobox this will be editor for
+     * @see init()
+     */
     protected TypeAheadComboBoxEditor(JTextField editor, String initialValue, String originalValue, JComboBox comboBox) {
 	this.editor = editor;
 	if (comboBox != null) {
@@ -56,14 +64,14 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusLi
 	this.originalValue = originalValue;
     }
 
+    /**
+     * Initializes editor. Initializes key and focus listeners and the timer. Must be called in constructor! 
+     */
     protected final void init() {
 	getTextField().addKeyListener(this);
 	getTextField().addFocusListener(this);
 
 	initTypeaheadTimer();
-    }
-
-    public TypeAheadComboBoxEditor() {
     }
 
     public void addActionListener(ActionListener l) {
