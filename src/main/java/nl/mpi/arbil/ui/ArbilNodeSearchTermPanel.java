@@ -1,9 +1,11 @@
 package nl.mpi.arbil.ui;
 
+import java.awt.event.KeyEvent;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
 import javax.swing.JPanel;
 
 /**
@@ -79,6 +81,17 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		    searchField.setForeground(Color.lightGray);
 		}
 	    }
+	});
+	
+	searchField.addKeyListener(new KeyAdapter() {
+
+	    @Override
+	    public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_ENTER){
+		    parentPanel.startSearch();
+		}
+	    }
+	
 	});
 
 	searchColumn.getTextField().addFocusListener(new FocusListener() {
