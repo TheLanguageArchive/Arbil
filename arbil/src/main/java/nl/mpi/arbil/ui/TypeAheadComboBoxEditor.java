@@ -46,6 +46,14 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor {
      */
     protected abstract boolean isOpen();
 
+    protected boolean isItemsDeletable() {
+	return false;
+    }
+    
+    protected boolean deleteItem(Object item){
+	return false;
+    }
+
     /**
      * Constructor. Call init() after this!
      * @param editor Editor component
@@ -105,7 +113,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor {
     public JTextField getTextField() {
 	return editor;
     }
-    
+
     public void removeActionListener(ActionListener l) {
 	getTextField().removeActionListener(l);
     }
@@ -410,31 +418,33 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor {
 	});
 	typeaheadTimer.setRepeats(false);
     }
-    
     private final KeyListener keyListener = new KeyAdapter() {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-	    if (!comboBox.isPopupVisible()) {
-		comboBox.setPopupVisible(true);
+	    if (isItemsDeletable() && comboBox.isPopupVisible() && KeyEvent.SHIFT_DOWN_MASK == (e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) && e.getKeyCode() == KeyEvent.VK_DELETE) {
+		deleteItem(getItem());
 	    } else {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER || (isList() && e.getKeyChar() == ControlledVocabularyComboBoxEditor.SEPARATOR())) {
-		    // ENTER pressed or SEPARATOR in list field.
-		    // Autocomplete current item
-		    handleAutocompleteKey(e);
-		} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-		    getTextField().setText(originalValue);
-		} else if (e.isActionKey()) {
-		    // Navigate combo items
-		    handleNavigateComboKey(e);
+		if (!comboBox.isPopupVisible()) {
+		    comboBox.setPopupVisible(true);
 		} else {
-		    // Probably text entry
-		    handleTextEntryKey(e);
+		    if (e.getKeyCode() == KeyEvent.VK_ENTER || (isList() && e.getKeyChar() == ControlledVocabularyComboBoxEditor.SEPARATOR())) {
+			// ENTER pressed or SEPARATOR in list field.
+			// Autocomplete current item
+			handleAutocompleteKey(e);
+		    } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			getTextField().setText(originalValue);
+		    } else if (e.isActionKey()) {
+			// Navigate combo items
+			handleNavigateComboKey(e);
+		    } else {
+			// Probably text entry
+			handleTextEntryKey(e);
+		    }
 		}
 	    }
 	}
     };
-    
     private final FocusListener focusListener = new FocusListener() {
 
 	public void focusGained(FocusEvent e) {
@@ -444,7 +454,6 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor {
 	public void focusLost(FocusEvent e) {
 	}
     };
-    
     // Private members
     private JComboBox comboBox;
     private Timer typeaheadTimer;
