@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.StringTokenizer;
@@ -18,7 +19,7 @@ import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusListener, KeyListener {
+public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor {
 
     /**
      * Gets requested item from vocabulary by index
@@ -69,22 +70,14 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusLi
      * Initializes editor. Initializes key and focus listeners and the timer. Must be called in constructor! 
      */
     protected final void init() {
-	getTextField().addKeyListener(this);
-	getTextField().addFocusListener(this);
+	getTextField().addKeyListener(keyListener);
+	getTextField().addFocusListener(focusListener);
 
 	initTypeaheadTimer();
     }
 
     public void addActionListener(ActionListener l) {
 	getTextField().addActionListener(l);
-    }
-
-    // FOCUS LISTENERS
-    public void focusGained(FocusEvent e) {
-	startTypeaheadTimer(ControlledVocabularyComboBoxEditor.TYPEAHEAD_DELAY_SHORT());
-    }
-
-    public void focusLost(FocusEvent e) {
     }
 
     public String getCurrentValue() {
@@ -112,34 +105,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusLi
     public JTextField getTextField() {
 	return editor;
     }
-
-    public void keyPressed(KeyEvent e) {
-	if (!comboBox.isPopupVisible()) {
-	    comboBox.setPopupVisible(true);
-	} else {
-	    if (e.getKeyCode() == KeyEvent.VK_ENTER || (isList() && e.getKeyChar() == ControlledVocabularyComboBoxEditor.SEPARATOR())) {
-		// ENTER pressed or SEPARATOR in list field.
-		// Autocomplete current item
-		handleAutocompleteKey(e);
-	    } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-		getTextField().setText(originalValue);
-	    } else if (e.isActionKey()) {
-		// Navigate combo items
-		handleNavigateComboKey(e);
-	    } else {
-		// Probably text entry
-		handleTextEntryKey(e);
-	    }
-	}
-    }
-
-    // EDITOR KEY LISTENERS
-    public void keyReleased(KeyEvent e) {
-    }
-
-    public void keyTyped(KeyEvent e) {
-    }
-
+    
     public void removeActionListener(ActionListener l) {
 	getTextField().removeActionListener(l);
     }
@@ -444,16 +410,50 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusLi
 	});
 	typeaheadTimer.setRepeats(false);
     }
+    
+    private final KeyListener keyListener = new KeyAdapter() {
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+	    if (!comboBox.isPopupVisible()) {
+		comboBox.setPopupVisible(true);
+	    } else {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER || (isList() && e.getKeyChar() == ControlledVocabularyComboBoxEditor.SEPARATOR())) {
+		    // ENTER pressed or SEPARATOR in list field.
+		    // Autocomplete current item
+		    handleAutocompleteKey(e);
+		} else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+		    getTextField().setText(originalValue);
+		} else if (e.isActionKey()) {
+		    // Navigate combo items
+		    handleNavigateComboKey(e);
+		} else {
+		    // Probably text entry
+		    handleTextEntryKey(e);
+		}
+	    }
+	}
+    };
+    
+    private final FocusListener focusListener = new FocusListener() {
+
+	public void focusGained(FocusEvent e) {
+	    startTypeaheadTimer(ControlledVocabularyComboBoxEditor.TYPEAHEAD_DELAY_SHORT());
+	}
+
+	public void focusLost(FocusEvent e) {
+	}
+    };
+    
     // Private members
     private JComboBox comboBox;
     private Timer typeaheadTimer;
     private String originalValue;
-    private JTextField editor;   
+    private JTextField editor;
     /**
      * Flag indicating whether type ahead is in process
      */
     private boolean typingAhead = false;
-
     /**
      * Character that separates items in a list-type field
      */
@@ -463,8 +463,7 @@ public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, FocusLi
      */
     private static final int TYPEAHEAD_DELAY_SHORT = 200;
     private static final int TYPEAHEAD_DELAY_LONG = 1000;
-    
-    
+
     /**
      * @return Item separator. Can be overridden, default is comma
      */
