@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -79,6 +80,27 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 	}
     }
 
+    public static synchronized void removeOptions(Collection<String> options) {
+	try {
+	    Collection<String> existingOptions;
+	    String[] optionsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("searchFieldOptions");
+	    if (optionsArray != null) {
+		existingOptions = Arrays.asList(optionsArray);
+	    } else {
+		existingOptions = new ArrayList<String>(Arrays.asList(defaultOptions));
+	    }
+	    ArrayList<String> newOptions = new ArrayList<String>(existingOptions);
+	    for (String option : options) {
+		if (option != null && existingOptions.contains(option)) {
+		    newOptions.remove(option);
+		}
+	    }
+	    ArbilSessionStorage.getSingleInstance().saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
+	} catch (IOException ex) {
+	    GuiHelper.linorgBugCatcher.logError("Could not save search options", ex);
+	}
+    }
+
     public String getText() {
 	return typeAheadEditor.getCurrentValue();
     }
@@ -117,6 +139,23 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 	@Override
 	protected boolean isOpen() {
 	    return true;
+	}
+
+	@Override
+	protected boolean isItemsDeletable() {
+	    return true;
+	}
+
+	@Override
+	protected synchronized boolean deleteItem(Object item) {
+	    if (item instanceof String) {
+		if (options.remove((String) item)) {
+		    ArbilNodeSearchColumnComboBox.removeOptions(Collections.singleton((String) item));
+		    removeItem(item);
+		    return true;
+		}
+	    }
+	    return false;
 	}
     }
 }
