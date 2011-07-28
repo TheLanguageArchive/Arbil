@@ -530,12 +530,21 @@ public class ArbilSessionStorage implements SessionStorage {
 	File destinationConfigFile = new File(storageDirectory, filename + ".config");
 	File tempConfigFile = new File(storageDirectory, filename + ".config.tmp");
 
-	Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
-	for (String currentString : storableValue) {
-	    out.write(currentString + "\r\n");
+	Writer out = null;
+	try {
+	    out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempConfigFile), "UTF8"));
+	    for (String currentString : storableValue) {
+		out.write(currentString + "\r\n");
+	    }
+	} catch (IOException ex) {
+	    bugCatcher.logError(ex);
+	    throw ex;
+	} finally {
+	    if (out != null) {
+		out.close();
+	    }
 	}
-	out.close();
-	if (destinationConfigFile.delete()) {
+	if (!destinationConfigFile.exists() || destinationConfigFile.delete()) {
 	    if (!tempConfigFile.renameTo(destinationConfigFile)) {
 		messageDialogHandler.addMessageDialogToQueue("Error saving configuration to " + filename, "Error saving configuration");
 	    }
@@ -605,7 +614,7 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     private void saveConfig(Properties configObject) {
-        FileOutputStream propertiesOutputStream = null;
+	FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
 	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
@@ -621,11 +630,13 @@ public class ArbilSessionStorage implements SessionStorage {
 	} catch (IOException ioe) {
 	    logError(ioe);
 	} finally {
-	    if (propertiesOutputStream != null) try {
-	        propertiesOutputStream.close();
-            } catch (IOException ioe2) {
-                logError(ioe2);
-            }
+	    if (propertiesOutputStream != null) {
+		try {
+		    propertiesOutputStream.close();
+		} catch (IOException ioe2) {
+		    logError(ioe2);
+		}
+	    }
 	}
     }
 
@@ -784,7 +795,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    // todo: check the file size on the server and maybe its date also
 	    // if the file is zero length then is presumably should either be replaced or the version in the jar used.
 	    if (destinationFile.delete()) {
-	        System.out.println("Deleted zero length (!) file: "+destinationFile);
+		System.out.println("Deleted zero length (!) file: " + destinationFile);
 	    }
 	}
 	String fileName = destinationFile.getName();
@@ -857,11 +868,13 @@ public class ArbilSessionStorage implements SessionStorage {
 		logError(ex);
 //                System.out.println(ex.getMessage());
 	    } finally {
-	        if (outFile != null) try {
-	            outFile.close();
-                } catch (IOException ioe) {
-                    logError(ioe);
-                }
+		if (outFile != null) {
+		    try {
+			outFile.close();
+		    } catch (IOException ioe) {
+			logError(ioe);
+		    }
+		}
 	    }
 	}
 	return downloadSucceeded;
