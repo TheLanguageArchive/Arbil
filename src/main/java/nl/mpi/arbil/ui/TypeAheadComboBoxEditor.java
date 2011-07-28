@@ -1,4 +1,4 @@
-package nl.mpi.arbil.ui.fieldeditors;
+package nl.mpi.arbil.ui;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -12,6 +12,7 @@ import javax.swing.ComboBoxEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.Timer;
+import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
 
 /**
  *

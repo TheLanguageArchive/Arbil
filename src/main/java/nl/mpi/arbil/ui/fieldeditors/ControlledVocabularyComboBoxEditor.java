@@ -4,6 +4,7 @@
  */
 package nl.mpi.arbil.ui.fieldeditors;
 
+import nl.mpi.arbil.ui.TypeAheadComboBoxEditor;
 import javax.swing.JComboBox;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilVocabulary;
