@@ -8,6 +8,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.Serializable;
 import java.util.StringTokenizer;
 import javax.swing.ComboBoxEditor;
 import javax.swing.JComboBox;
@@ -19,7 +20,7 @@ import nl.mpi.arbil.ui.fieldeditors.ControlledVocabularyComboBoxEditor;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor {
+public abstract class TypeAheadComboBoxEditor implements ComboBoxEditor, Serializable {
 
     /**
      * Gets requested item from vocabulary by index
