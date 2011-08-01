@@ -12,11 +12,15 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  */
 public class ArbilDataNodeLoader {
 
-    private ArbilDataNodeLoaderThreadManager threadManager = new ArbilDataNodeLoaderThreadManager();
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
     static private ArbilDataNodeLoader singleInstance = null;
     private static SessionStorage sessionStorage;
+    private static LoaderThreadManager threadManager;
+
+    public static void setLoaderThreadManager(LoaderThreadManager loaderThreadManagerInstance) {
+	threadManager = loaderThreadManagerInstance;
+    }
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -125,8 +129,8 @@ public class ArbilDataNodeLoader {
 	    requestReload(currentDataNode);
 	}
     }
-    
-    public void startLoaderThreads(){
+
+    public void startLoaderThreads() {
 	threadManager.startLoaderThreads();
     }
 

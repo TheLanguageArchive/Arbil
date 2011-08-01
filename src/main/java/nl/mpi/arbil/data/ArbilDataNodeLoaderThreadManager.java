@@ -9,7 +9,7 @@ import nl.mpi.arbil.util.XsdChecker;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilDataNodeLoaderThreadManager {
+public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
 
     private final static int MAX_REMOTE_THREADS = 6;
     private final static int MAX_LOCAL_THREADS = 6;
@@ -30,6 +30,7 @@ public class ArbilDataNodeLoaderThreadManager {
 
     }
 
+    @Override
     public void addNodeToQueue(ArbilDataNode nodeToAdd) {
 	startLoaderThreads();
 	if (ArbilDataNode.isStringLocal(nodeToAdd.getUrlString())) {
@@ -49,7 +50,7 @@ public class ArbilDataNodeLoaderThreadManager {
 	}
     }
 
-    public ArbilDataNode getNodeFromQueue(Vector<ArbilDataNode> dataNodesQueue) {
+    private ArbilDataNode getNodeFromQueue(Vector<ArbilDataNode> dataNodesQueue) {
 	synchronized (dataNodesQueue) {
 	    if (dataNodesQueue.size() > 0) {
 		ArbilDataNode tempDataNode = dataNodesQueue.remove(0);
@@ -67,7 +68,8 @@ public class ArbilDataNodeLoaderThreadManager {
 	}
     }
 
-    synchronized protected void startLoaderThreads() {
+    @Override
+    synchronized public void startLoaderThreads() {
 	// start the remote imdi loader threads
 	while (isContinueThread() && remoteExecutor.getActiveCount() < MAX_REMOTE_THREADS()) {
 	    remoteExecutor.submit(new RemoteLoader());
@@ -82,6 +84,7 @@ public class ArbilDataNodeLoaderThreadManager {
     /**
      * @return the schemaCheckLocalFiles
      */
+    @Override
     public boolean isSchemaCheckLocalFiles() {
 	return schemaCheckLocalFiles;
     }
@@ -89,6 +92,7 @@ public class ArbilDataNodeLoaderThreadManager {
     /**
      * @param schemaCheckLocalFiles the schemaCheckLocalFiles to set
      */
+    @Override
     public void setSchemaCheckLocalFiles(boolean schemaCheckLocalFiles) {
 	this.schemaCheckLocalFiles = schemaCheckLocalFiles;
     }
@@ -103,6 +107,7 @@ public class ArbilDataNodeLoaderThreadManager {
     /**
      * @param continueThread the continueThread to set
      */
+    @Override
     public void setContinueThread(boolean continueThread) {
 	this.continueThread = continueThread;
     }
