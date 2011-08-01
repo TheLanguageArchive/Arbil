@@ -1,7 +1,9 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
+import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -18,6 +20,9 @@ public class ArbilTestInjector extends ArbilInjector {
     public static synchronized void injectHandlers() {
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 	injectBugCatcher(bugCatcher);
+	
+	final LoaderThreadManager loaderThreadManager = new ArbilDataNodeLoaderThreadManager();
+	injectLoaderThreadManager(loaderThreadManager);
 
 	final MessageDialogHandler messageDialogHandler = new MockDialogHandler();
 	injectDialogHandler(messageDialogHandler);
