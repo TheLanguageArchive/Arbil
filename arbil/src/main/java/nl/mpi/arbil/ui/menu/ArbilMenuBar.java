@@ -468,12 +468,12 @@ public class ArbilMenuBar extends JMenuBar {
         optionsMenu.add(checkResourcePermissionsCheckBoxMenuItem);
 
         schemaCheckLocalFiles.setText("Always check local metadata files for XML conformance");
-        schemaCheckLocalFiles.setSelected(ArbilDataNodeLoader.getSingleInstance().schemaCheckLocalFiles);
+        schemaCheckLocalFiles.setSelected(ArbilDataNodeLoader.getSingleInstance().isSchemaCheckLocalFiles());
         schemaCheckLocalFiles.setToolTipText("This option checks all local metadata files for XML conformance every time they are loaded. If the metadata file does not validate against the schema it will be highlighted red in the tree.");
         schemaCheckLocalFiles.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                ArbilDataNodeLoader.getSingleInstance().schemaCheckLocalFiles = schemaCheckLocalFiles.isSelected();
+                ArbilDataNodeLoader.getSingleInstance().setSchemaCheckLocalFiles(schemaCheckLocalFiles.isSelected());
                 ArbilSessionStorage.getSingleInstance().saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
             }
         });
