@@ -6,7 +6,12 @@ import java.util.concurrent.ThreadFactory;
 import nl.mpi.arbil.util.XsdChecker;
 
 /**
- *
+ * Manages the loader threads for loading ArbilDataNodes. Used by
+ * ArbilDataNodeLoader.
+ * 
+ * @see nl.mpi.arbil.data.ArbilDataNodeLoader
+ * 
+ * @author Peter Wither <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
