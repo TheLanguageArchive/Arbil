@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -50,6 +51,7 @@ public abstract class ArbilTest {
     }
 
     protected void inject() throws Exception {
+	ArbilTestInjector.injectLoaderThreadManager(new ArbilDataNodeLoaderThreadManager());
 	ArbilTestInjector.injectBugCatcher(getBugCatcher());
 	ArbilTestInjector.injectDialogHandler(getDialogHandler());
 	ArbilTestInjector.injectSessionStorage(getSessionStorage());

@@ -47,12 +47,12 @@ public class ArbilSearchTest extends ArbilTest {
 	assertEquals(0, search.getFoundNodes().size());
 
 	// Search for match
-	search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", "Test session");
-	assertEquals(2, search.getFoundNodes().size());
 	search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", NAME_TEST_SESSION_1);
 	assertEquals(1, search.getFoundNodes().size());
 	search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", NAME_TEST_SESSION_2);
 	assertEquals(1, search.getFoundNodes().size());
+	search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", "Test session");
+	assertEquals(2, search.getFoundNodes().size());
 
 	// Actor should not contain 'Twan' but not 'session'
 	search = searchLocalTree(ArbilNodeSearchTerm.NODE_TYPE_ACTOR, "", "Test Actor");
