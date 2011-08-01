@@ -9,10 +9,11 @@ import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
+import org.apache.wicket.Session;
 
 /**
  * Proxy for the ArbilWicketSessionStorage that is contained in the session that makes
- * the request. To be injected into native Arbil classes.
+ * the request. To be injected into Arbil core classes.
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
@@ -20,7 +21,7 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
     private SessionStorage getSessionStorage() {
 	// Session storage is retrieved from the request cycle. It is kept there because it gets
 	// stored in a thread local variable per request
-	return ArbilWicketRequestCycle.getSessionStorage();
+	return ArbilWicketSession.get().getSessionStorage();
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {

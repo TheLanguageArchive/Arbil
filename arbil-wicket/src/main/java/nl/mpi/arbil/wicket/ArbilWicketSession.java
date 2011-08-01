@@ -1,7 +1,10 @@
 package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
+import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.TreeHelper;
+import org.apache.wicket.Application;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
@@ -15,6 +18,7 @@ public class ArbilWicketSession extends WebSession {
     private SessionStorage sessionStorage;
     private TreeHelper treeHelper;
     private ArbilWicketApplication application;
+    private LoaderThreadManager loaderThreadManager;
 
     public ArbilWicketSession(ArbilWicketApplication application, Request request) {
 	super(request);
@@ -44,5 +48,16 @@ public class ArbilWicketSession extends WebSession {
 	    treeHelper = application.newTreeHelper(getSessionStorage());
 	}
 	return treeHelper;
+    }
+
+    /**
+     * 
+     * @return This session's LoaderThreadManager
+     */
+    public synchronized LoaderThreadManager getLoaderThreadManager() {
+	if (loaderThreadManager == null) {
+	    loaderThreadManager = application.newLoaderThreadManager(this);
+	}
+	return loaderThreadManager;
     }
 }
