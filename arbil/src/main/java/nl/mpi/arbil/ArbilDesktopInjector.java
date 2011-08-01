@@ -1,9 +1,9 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
-import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -33,6 +33,9 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
+	
+	final LoaderThreadManager loaderThreadManager = new ArbilDataNodeLoaderThreadManager();
+	injectLoaderThreadManager(loaderThreadManager);
 	
 	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
 	ArbilSessionStorage.setWindowManager(windowManager);

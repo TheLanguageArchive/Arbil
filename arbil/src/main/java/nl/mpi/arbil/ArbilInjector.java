@@ -16,6 +16,7 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
+import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
@@ -56,14 +57,20 @@ public abstract class ArbilInjector {
 	    WindowManager windowManager,
 	    SessionStorage sessionStorage,
 	    TreeHelper treeHelper,
+	    LoaderThreadManager loaderThreadManager,
 	    BugCatcher bugCatcher,
 	    ClipboardOwner clipboardOwner) {
+	injectLoaderThreadManager(loaderThreadManager);
 	injectSessionStorage(sessionStorage);
 	injectWindowManager(windowManager);
 	injectDialogHandler(messageDialogHandler);
 	injectTreeHelper(treeHelper);
 	injectBugCatcher(bugCatcher);
 	injectClipboardOwner(clipboardOwner);
+    }
+    
+    public static void injectLoaderThreadManager(LoaderThreadManager loaderThreadManager){
+	ArbilDataNodeLoader.setLoaderThreadManager(loaderThreadManager);
     }
 
     public static void injectClipboardOwner(ClipboardOwner clipboardOwner) {
