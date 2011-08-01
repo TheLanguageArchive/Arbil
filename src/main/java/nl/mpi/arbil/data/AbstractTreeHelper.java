@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -267,6 +268,18 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public abstract void deleteNodes(Object sourceObject);
 
+    public void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children) {
+	Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
+	Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();
+	for(ArbilDataNode child:children){
+	    determineDeleteFromParent(child, parent, childNodeDeleteList, dataNodesDeleteList);
+	}
+	// delete child nodes
+	deleteNodesByChidXmlIdLink(childNodeDeleteList);
+	// delete parent nodes
+	deleteNodesByCorpusLink(dataNodesDeleteList);
+    }
+
     protected void determineNodesToDelete(TreePath[] nodePaths, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
 	Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
 	for (TreePath currentNodePath : nodePaths) {
@@ -285,31 +298,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 			System.out.println("found parent to remove from");
 			ArbilDataNode parentDataNode = (ArbilDataNode) parentTreeNode.getUserObject();
 			ArbilDataNode childDataNode = (ArbilDataNode) selectedTreeNode.getUserObject();
-			if (childDataNode.isChildNode()) {
-			    // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
-			    if (!childNodeDeleteList.containsKey(childDataNode.getParentDomNode())) {
-				childNodeDeleteList.put(childDataNode.getParentDomNode(), new Vector());
-			    }
-			    if (childDataNode.isEmptyMetaNode()) {
-				for (ArbilDataNode metaChildNode : childDataNode.getChildArray()) {
-				    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
-				}
-			    }
-			    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
-			    childDataNode.removeFromAllContainers();
-			} else {
-			    // add the parent and the child node to the deletelist
-			    if (!dataNodesDeleteList.containsKey(parentDataNode)) {
-				dataNodesDeleteList.put(parentDataNode, new Vector());
-			    }
-			    dataNodesDeleteList.get(parentDataNode).add(childDataNode);
-			}
-			// remove the deleted node from the favourites list if it is an imdichild node
-			//                            if (userObject instanceof ImdiTreeObject) {
-			//                                if (((ImdiTreeObject) userObject).isImdiChild()){
-			//                                LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
-			//                                }
-			//                            }
+			determineDeleteFromParent(childDataNode, parentDataNode, childNodeDeleteList, dataNodesDeleteList);
 		    }
 		}
 		// todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
@@ -319,6 +308,34 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		((ArbilDataNode) userObject).getAllChildren(dataNodesToRemove);
 	    }
 	}
+    }
+
+    private void determineDeleteFromParent(ArbilDataNode childDataNode, ArbilDataNode parentDataNode, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+	if (childDataNode.isChildNode()) {
+	    // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
+	    if (!childNodeDeleteList.containsKey(childDataNode.getParentDomNode())) {
+		childNodeDeleteList.put(childDataNode.getParentDomNode(), new Vector());
+	    }
+	    if (childDataNode.isEmptyMetaNode()) {
+		for (ArbilDataNode metaChildNode : childDataNode.getChildArray()) {
+		    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(metaChildNode.getURI().getFragment());
+		}
+	    }
+	    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
+	    childDataNode.removeFromAllContainers();
+	} else {
+	    // add the parent and the child node to the deletelist
+	    if (!dataNodesDeleteList.containsKey(parentDataNode)) {
+		dataNodesDeleteList.put(parentDataNode, new Vector());
+	    }
+	    dataNodesDeleteList.get(parentDataNode).add(childDataNode);
+	}
+	// remove the deleted node from the favourites list if it is an imdichild node
+	//                            if (userObject instanceof ImdiTreeObject) {
+	//                                if (((ImdiTreeObject) userObject).isImdiChild()){
+	//                                LinorgTemplates.getSingleInstance().removeFromFavourites(((ImdiTreeObject) userObject).getUrlString());
+	//                                }
+	//                            }
     }
 
     protected void deleteNodesByChidXmlIdLink(Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList) {
