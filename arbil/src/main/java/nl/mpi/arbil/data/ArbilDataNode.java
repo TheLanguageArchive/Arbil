@@ -48,8 +48,9 @@ import org.w3c.dom.Document;
 
 /**
  * Document   : ArbilDataNode formerly known as ImdiTreeObject
- * Created on :
- * @author Peter.Withers@mpi.nl
+ * 
+ * @author Peter Withers <peter.withers@mpi.nl>
+ * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilDataNode implements ArbilNode, Comparable {
 
@@ -1028,8 +1029,19 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		} else {
 		    messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
 		}
-	    } else {
-		messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
+	    } else if (this.isMetaDataNode() || this.isSession()) {
+		// Get source node
+		ArbilDataNode templateDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		// Check if it can be contained by destination node
+		if (MetadataReader.getSingleInstance().nodeCanExistInNode(this, templateDataNode)) {
+		    // Add source to destination
+		    new MetadataBuilder().requestAddNode(this, templateDataNode.toString(), templateDataNode);
+		} else{
+		    // Invalid copy/paste...
+		    messageDialogHandler.addMessageDialogToQueue("Cannot add copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
+		}
+	    } else { // Not corpus, session or metadata
+		messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
 	    }
 	}
 	return nodesToAdd;
@@ -1552,11 +1564,12 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	try {
 	    if (historyVersion.equals(".x")) {
 		if (this.getFile().delete()) {
-		    if (!new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile()))
-		        throw new IOException("Could not rename history file '"+this.getFile().getAbsolutePath() + ".x'");
-                } else {
-                    throw new IOException("Could not delete old history file: " + this.getFile().getAbsolutePath());
-                }
+		    if (!new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile())) {
+			throw new IOException("Could not rename history file '" + this.getFile().getAbsolutePath() + ".x'");
+		    }
+		} else {
+		    throw new IOException("Could not delete old history file: " + this.getFile().getAbsolutePath());
+		}
 	    } else {
 		try {
 		    messageDialogHandler.offerUserToSaveChanges();
