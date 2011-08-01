@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -176,6 +177,10 @@ public class ArbilDragDrop {
 			return false; // nothing can be dropped to a catalogue
 		    } else if (currentLeadSelection.isSession()) {
 			if (selectionContainsArchivableLocalFile || (selectionContainsArbilChild && selectionContainsFavourite)) {
+			    return true;
+			}
+		    } else if (currentLeadSelection.isEmptyMetaNode()) {
+			if (selectionContainsArbilChild) {
 			    return true;
 			}
 		    } else if (currentLeadSelection.isChildNode()) {
@@ -542,9 +547,8 @@ public class ArbilDragDrop {
 				if (dropTargetUserObject instanceof ArbilNode) {
 				    targetNodeName = targetNode.getUserObject().toString();
 				}
-
 				int detailsOption = 1;
-//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
+				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
 				    detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
 					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
@@ -562,7 +566,20 @@ public class ArbilDragDrop {
 				if (continueMove && (moveAll || detailsOption == 0)) {
 				    boolean addNodeResult = true;
 				    if (dropTargetUserObject instanceof ArbilDataNode) {
-					addNodeResult = (dropTargetDataNode).addCorpusLink(currentNode);
+					if (dropTargetDataNode.isCorpus()) {
+					    addNodeResult = dropTargetDataNode.addCorpusLink(currentNode);
+					} else if (dropTargetDataNode.isEmptyMetaNode()) {
+					    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
+						try {
+						    // Add source to destination
+						    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
+						} catch (ArbilMetadataException ex) {
+						    GuiHelper.linorgBugCatcher.logError(ex);
+						    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
+						    addNodeResult = false;
+						}
+					    }
+					}
 				    } else {
 					addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
 				    }
@@ -604,9 +621,14 @@ public class ArbilDragDrop {
 		}
 		// NOTE: Iterating over the entrySet (Map.Entry: Use getKey/getValue) would be faster
 		for (ArbilDataNode currentParent : arbilNodesDeleteList.keySet()) {
-		    System.out.println("deleting by corpus link");
-		    ArbilDataNode[] arbilNodeArray = ((Vector<ArbilDataNode>) arbilNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{});
-		    currentParent.deleteCorpusLink(arbilNodeArray);
+		    Vector<ArbilDataNode> children = ((Vector<ArbilDataNode>) arbilNodesDeleteList.get(currentParent));
+		    if (currentParent.isCorpus()) {
+			System.out.println("deleting by corpus link");
+			ArbilDataNode[] arbilNodeArray = children.toArray(new ArbilDataNode[]{});
+			currentParent.deleteCorpusLink(arbilNodeArray);
+		    } else if (currentParent.isMetaDataNode()) {
+			ArbilTreeHelper.getSingleInstance().deleteChildNodes(currentParent, children);
+		    }
 		}
 		// NOTE: FindBugs thinks this is always the case:
 		if (dropTargetUserObject instanceof ArbilDataNode) {
