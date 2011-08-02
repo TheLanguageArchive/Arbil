@@ -43,4 +43,5 @@ public interface DataNodeLoader {
 
     void startLoaderThreads();
     
+    void stopLoaderThreads();
 }

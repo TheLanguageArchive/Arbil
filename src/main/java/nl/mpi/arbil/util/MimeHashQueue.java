@@ -34,4 +34,6 @@ public interface MimeHashQueue {
      */
     void startMimeHashQueueThread();
     
+    void stopMimeHashQueueThread();
+    
 }

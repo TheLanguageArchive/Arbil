@@ -83,6 +83,11 @@ public class DataNodeLoaderThreadManager {
 	    localExecutor.submit(new LocalLoader());
 	}
     }
+    
+    synchronized void stopLoaderThreads() {
+	remoteExecutor.shutdownNow();
+	localExecutor.shutdownNow();
+    }
 
     /**
      * @return the schemaCheckLocalFiles
