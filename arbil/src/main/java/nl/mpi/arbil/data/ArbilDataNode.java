@@ -125,6 +125,11 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
+    
+    private static MimeHashQueue mimeHashQueue;
+    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance){
+	mimeHashQueue = mimeHashQueueInstance;
+    }
 
     protected ArbilDataNode(URI localUri) {
 	containersOfThisNode = new Vector<ArbilDataNodeContainer>();
@@ -331,7 +336,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    mpiMimeType = null;
 	    thumbnailFile = null;
 	    typeCheckerMessage = null;
-	    MimeHashQueue.getSingleInstance().addToQueue(this);
+	    mimeHashQueue.addToQueue(this);
 	}
 	boolean needsSaveToDisk = hasChangedFields() || hasDomIdAttribute;
 	if (isMetaDataNode() && !isChildNode()) {
@@ -460,7 +465,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
 		if (!isMetaDataNode() && !isDirectory() && isLocal()) {
 		    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
-		    MimeHashQueue.getSingleInstance().addToQueue(this);
+		    mimeHashQueue.addToQueue(this);
 		    dataLoaded = true;
 		}
 		if (this.isDirectory()) {
@@ -1165,7 +1170,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 
 	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
 	    resourceUrlField = fieldToAdd;
-	    MimeHashQueue.getSingleInstance().addToQueue(this);
+	    mimeHashQueue.addToQueue(this);
 	}
     }
 

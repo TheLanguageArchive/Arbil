@@ -8,8 +8,10 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -44,6 +46,10 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
 	injectSessionStorage(sessionStorage);
+	
+	// DefaultMimeHashQueue gets injections from other injectors
+	final MimeHashQueue mimeHashQueue = ArbilMimeHashQueue.getSingleInstance();
+	injectMimeHashQueue(mimeHashQueue);
 	
 	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();

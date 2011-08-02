@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.ArbilVersionChecker;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -42,6 +41,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
 /**
  * ArbilMenuBar.java
@@ -454,13 +454,13 @@ public class ArbilMenuBar extends JMenuBar {
         });
         optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
 
-        checkResourcePermissionsCheckBoxMenuItem.setSelected(MimeHashQueue.getSingleInstance().isCheckResourcePermissions());
+        checkResourcePermissionsCheckBoxMenuItem.setSelected(ArbilMimeHashQueue.getSingleInstance().isCheckResourcePermissions());
         checkResourcePermissionsCheckBoxMenuItem.setText("Check permissions for remote resources");
         checkResourcePermissionsCheckBoxMenuItem.setToolTipText("This option checks the server permissions for remote resources and shows icons accordingly.");
         checkResourcePermissionsCheckBoxMenuItem.addItemListener(new java.awt.event.ItemListener() {
 
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                MimeHashQueue.getSingleInstance().setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
+                ArbilMimeHashQueue.getSingleInstance().setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
                 ArbilSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
                 ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
             }
