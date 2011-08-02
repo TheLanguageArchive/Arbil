@@ -28,5 +28,9 @@ public class ArbilWicketMimeHashQueueProxy implements MimeHashQueue{
     public void startMimeHashQueueThread() {
 	getMimeHashQueue().startMimeHashQueueThread();
     }
+
+    public void stopMimeHashQueueThread() {
+	getMimeHashQueue().stopMimeHashQueueThread();
+    }
     
 }

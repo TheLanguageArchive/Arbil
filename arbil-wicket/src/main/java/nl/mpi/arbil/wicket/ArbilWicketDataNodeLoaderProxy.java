@@ -71,5 +71,9 @@ public class ArbilWicketDataNodeLoaderProxy implements DataNodeLoader{
     public void startLoaderThreads() {
 	getDataNodeLoader().startLoaderThreads();
     }
+
+    public void stopLoaderThreads() {
+	getDataNodeLoader().stopLoaderThreads();
+    }
     
 }

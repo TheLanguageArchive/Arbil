@@ -116,6 +116,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
     @Override
     public void addToQueue(ArbilDataNode dataNode) {
 	System.out.println("MimeHashQueue addToQueue: " + dataNode.getUrlString());
+	startMimeHashQueueThread();
 	// TODO: when removing a directory from the local woking directories or deleting a resource all records of the file should be removed from the objects in this class to prevent bloating
 	if (((dataNode.isLocal() && !dataNode.isMetaDataNode() && !dataNode.isDirectory()) || (dataNode.isChildNode() && dataNode.hasResource()))) {
 //            System.out.println("addToQueue: " + getFilePath(imdiObject));
@@ -173,6 +174,11 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
     protected void afterExecuteThread(Runnable r, Throwable t) {
     }
+    
+    
+    public void stopMimeHashQueueThread(){
+	mimeHashQueueThreadExecutor.shutdownNow();
+    }
 
     /**
      * Runnable that processes the nodes in the hash queue
@@ -218,6 +224,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    }
 		} catch (InterruptedException ie) {
 		    bugCatcher.logError(ie);
+		    continueThread = false;
 		}
 	    }
 	}

@@ -128,6 +128,10 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     public void startLoaderThreads() {
 	threadManager.startLoaderThreads();
     }
+    
+    public void stopLoaderThreads(){
+	threadManager.stopLoaderThreads();
+    }
 
     @Override
     protected void finalize() throws Throwable {
