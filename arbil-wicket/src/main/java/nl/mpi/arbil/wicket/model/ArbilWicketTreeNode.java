@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.net.URI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import org.apache.wicket.model.IDetachable;
 
 /**
@@ -45,7 +45,7 @@ public class ArbilWicketTreeNode extends DefaultMutableTreeNode implements IDeta
 		dataNode = serializableNode;
 	    } else {
 		if (uri != null) {
-		    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+		    dataNode = ArbilWicketSession.get().getDataNodeLoader().getArbilDataNode(null, uri);
 		}
 	    }
 	    setUserObject(dataNode);

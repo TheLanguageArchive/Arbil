@@ -9,7 +9,6 @@ import javax.swing.JLabel;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.DownloadAbortFlag;
-import org.apache.wicket.Session;
 
 /**
  * Proxy for the ArbilWicketSessionStorage that is contained in the session that makes
@@ -19,8 +18,7 @@ import org.apache.wicket.Session;
 public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 
     private SessionStorage getSessionStorage() {
-	// Session storage is retrieved from the request cycle. It is kept there because it gets
-	// stored in a thread local variable per request
+	// Session storage is retrieved from the session - each session has its own
 	return ArbilWicketSession.get().getSessionStorage();
     }
 

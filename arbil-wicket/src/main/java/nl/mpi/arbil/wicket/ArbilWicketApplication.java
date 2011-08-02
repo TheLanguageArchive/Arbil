@@ -1,6 +1,8 @@
 package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.data.DefaultDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
@@ -51,12 +53,16 @@ public class ArbilWicketApplication extends WebApplication {
 	return new ArbilWicketTreeHelper(sessionStorage);
     }
 
+    DataNodeLoader newDataNodeLoader(ArbilWicketSession session) {
+	return new DefaultDataNodeLoader(newLoaderThreadManager(session));
+    }
+
     /**
      * 
      * @param session Session to set as session in any new loader thread (generally Session.get() will do)
      * @return New LoaderThreadManager instance
      */
-    public LoaderThreadManager newLoaderThreadManager(final Session session) {
+    private LoaderThreadManager newLoaderThreadManager(final Session session) {
 	return new ArbilDataNodeLoaderThreadManager() {
 
 	    @Override

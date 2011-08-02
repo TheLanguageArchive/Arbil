@@ -1,7 +1,8 @@
 package nl.mpi.arbil.wicket;
 
 import nl.mpi.arbil.ArbilInjector;
-import nl.mpi.arbil.data.LoaderThreadManager;
+import nl.mpi.arbil.data.DataNodeLoader;
+import nl.mpi.arbil.data.DefaultDataNodeLoader;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -23,18 +24,19 @@ public class ArbilWicketInjector extends ArbilInjector {
     private final static WindowManager windowManager = new ArbilWicketWindowManager();
     private final static SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
     private final static TreeHelper treeHelper = new ArbilWicketTreeHelperProxy();
-    private final static LoaderThreadManager loaderThreadManager = new ArbilWicketLoaderThreadManagerProxy();
+    private final static DataNodeLoader dataNodeLoader = new ArbilWicketDataNodeLoaderProxy();
 
     public static void injectHandlers() {	
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilSessionStorage.setWindowManager(windowManager);
+	DefaultDataNodeLoader.setSessionStorage(sessionStorage);
 
 	injectBugCatcher(bugCatcher);
 	injectDialogHandler(messageDialogHandler);
 	injectWindowManager(windowManager);
-	injectLoaderThreadManager(loaderThreadManager);
 	injectSessionStorage(sessionStorage);
+	injectDataNodeLoader(dataNodeLoader);
 	injectTreeHelper(treeHelper);
     }
 }

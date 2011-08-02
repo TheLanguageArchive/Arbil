@@ -2,7 +2,7 @@ package nl.mpi.arbil.wicket.model;
 
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 /**
@@ -25,6 +25,6 @@ public class ArbilDataNodeModel extends LoadableDetachableModel<ArbilDataNode>{
     
     @Override
     protected ArbilDataNode load() {
-	return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+	return ArbilWicketSession.get().getDataNodeLoader().getArbilDataNode(null, uri);
     }
 }

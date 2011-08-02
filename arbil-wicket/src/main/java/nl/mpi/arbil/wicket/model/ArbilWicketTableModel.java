@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldView;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.model.IModel;
@@ -105,7 +105,7 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 	if (dataNodeHash == null) {
 	    dataNodeHash = new Hashtable<String, ArbilDataNode>();
 	    for (Entry<String, URI> entry : dataNodeUrisMap.entrySet()) {
-		dataNodeHash.put(entry.getKey(), ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, entry.getValue()));
+		dataNodeHash.put(entry.getKey(), ArbilWicketSession.get().getDataNodeLoader().getArbilDataNode(null, entry.getValue()));
 	    }
 	}
     }
