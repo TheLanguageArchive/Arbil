@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket;
 
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
@@ -17,6 +18,7 @@ public class ArbilWicketSession extends WebSession {
     private TreeHelper treeHelper;
     private ArbilWicketApplication application;
     private DataNodeLoader dataNodeLoader;
+    private MimeHashQueue mimeHashQueue;
     
     public ArbilWicketSession(ArbilWicketApplication application, Request request) {
 	super(request);
@@ -53,5 +55,12 @@ public class ArbilWicketSession extends WebSession {
 	    dataNodeLoader = application.newDataNodeLoader(this);
 	}
 	return dataNodeLoader;
+    }
+    
+    public synchronized MimeHashQueue getMimeHashQueue(){
+	if(mimeHashQueue == null){
+	    mimeHashQueue = application.newMimeHashQueue(this);
+	}
+	return mimeHashQueue;
     }
 }

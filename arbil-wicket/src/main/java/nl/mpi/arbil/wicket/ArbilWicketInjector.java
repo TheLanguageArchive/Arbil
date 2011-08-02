@@ -6,7 +6,9 @@ import nl.mpi.arbil.data.DefaultDataNodeLoader;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -25,17 +27,25 @@ public class ArbilWicketInjector extends ArbilInjector {
     private final static SessionStorage sessionStorage = new ArbilWicketSessionStorageSessionProxy();
     private final static TreeHelper treeHelper = new ArbilWicketTreeHelperProxy();
     private final static DataNodeLoader dataNodeLoader = new ArbilWicketDataNodeLoaderProxy();
+    private final static MimeHashQueue mimeHashQueue = new ArbilWicketMimeHashQueueProxy();
 
     public static void injectHandlers() {	
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilSessionStorage.setWindowManager(windowManager);
+	
 	DefaultDataNodeLoader.setSessionStorage(sessionStorage);
+	
+	DefaultMimeHashQueue.setBugCatcher(bugCatcher);
+	DefaultMimeHashQueue.setDataNodeLoader(dataNodeLoader);
+	DefaultMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
+	DefaultMimeHashQueue.setSessionStorage(sessionStorage);
 
 	injectBugCatcher(bugCatcher);
 	injectDialogHandler(messageDialogHandler);
 	injectWindowManager(windowManager);
 	injectSessionStorage(sessionStorage);
+	injectMimeHashQueue(mimeHashQueue);
 	injectDataNodeLoader(dataNodeLoader);
 	injectTreeHelper(treeHelper);
     }

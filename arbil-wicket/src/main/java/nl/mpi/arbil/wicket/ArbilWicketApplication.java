@@ -5,6 +5,8 @@ import nl.mpi.arbil.data.DataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.DefaultMimeHashQueue;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.wicket.pages.HomePage;
 import org.apache.wicket.Application;
@@ -80,5 +82,11 @@ public class ArbilWicketApplication extends WebApplication {
 		Session.unset();
 	    }
 	};
+    }
+
+    MimeHashQueue newMimeHashQueue(final ArbilWicketSession session) {
+	MimeHashQueue newHashQueue = new DefaultMimeHashQueue();
+	newHashQueue.startMimeHashQueueThread();
+	return newHashQueue;
     }
 }
