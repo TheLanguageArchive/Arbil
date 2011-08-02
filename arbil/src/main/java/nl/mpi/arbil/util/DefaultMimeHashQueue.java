@@ -1,6 +1,7 @@
 package nl.mpi.arbil.util;
 
 import java.net.URISyntaxException;
+import java.util.concurrent.ThreadFactory;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.bcarchive.typecheck.DeepFileType;
@@ -71,7 +73,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 //    private Hashtable<String, ImdiTreeObject> currentlyLoadedImdiObjects;
     private boolean continueThread = false;
     private boolean checkResourcePermissions = true;
-    private Thread mimeHashQueueThread;
+    private ScheduledThreadPoolExecutor mimeHashQueueThreadExecutor;
     private static FileType fileType;  //  used to check the file type
     private static DeepFileType deepFileType = new DeepFileType();
     private static BugCatcher bugCatcher;
@@ -137,11 +139,39 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
      */
     @Override
     public synchronized void startMimeHashQueueThread() {
-	if (mimeHashQueueThread == null) {
-	    mimeHashQueueThread = new Thread(new MimeHashQueueRunner(), "MimeHashQueue");
-	    mimeHashQueueThread.setPriority(Thread.MIN_PRIORITY);
-	    mimeHashQueueThread.start();
+	if (mimeHashQueueThreadExecutor == null) {
+	    mimeHashQueueThreadExecutor = new ScheduledThreadPoolExecutor(1) {
+
+		@Override
+		protected void beforeExecute(Thread t, Runnable r) {
+		    beforeExecuteThread(t, r);
+		}
+
+		@Override
+		protected void afterExecute(Runnable r, Throwable t) {
+		    afterExecuteThread(r, t);
+		}
+
+		@Override
+		public ThreadFactory getThreadFactory() {
+		    return new ThreadFactory() {
+
+			public Thread newThread(Runnable r) {
+			    Thread mimeHashQueueThread = new Thread(r, "MimeHashQueue");
+			    mimeHashQueueThread.setPriority(Thread.MIN_PRIORITY);
+			    return mimeHashQueueThread;
+			}
+		    };
+		}
+	    };
+	    mimeHashQueueThreadExecutor.submit(new MimeHashQueueRunner());
 	}
+    }
+
+    protected void beforeExecuteThread(Thread t, Runnable r) {
+    }
+
+    protected void afterExecuteThread(Runnable r, Throwable t) {
     }
 
     /**
