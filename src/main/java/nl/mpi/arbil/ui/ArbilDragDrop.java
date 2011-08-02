@@ -176,7 +176,7 @@ public class ArbilDragDrop {
 		    } else if (currentLeadSelection.isCatalogue()) {
 			return false; // nothing can be dropped to a catalogue
 		    } else if (currentLeadSelection.isSession()) {
-			if (selectionContainsArchivableLocalFile || (selectionContainsArbilChild && selectionContainsFavourite)) {
+			if (selectionContainsArchivableLocalFile || selectionContainsArbilChild) {
 			    return true;
 			}
 		    } else if (currentLeadSelection.isEmptyMetaNode()) {
@@ -568,7 +568,8 @@ public class ArbilDragDrop {
 				    if (dropTargetUserObject instanceof ArbilDataNode) {
 					if (dropTargetDataNode.isCorpus()) {
 					    addNodeResult = dropTargetDataNode.addCorpusLink(currentNode);
-					} else if (dropTargetDataNode.isEmptyMetaNode()) {
+					} else if (dropTargetDataNode.isEmptyMetaNode() || dropTargetDataNode.isSession()) {
+					    // Dragging metadata node onto empty node
 					    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 						try {
 						    // Add source to destination
