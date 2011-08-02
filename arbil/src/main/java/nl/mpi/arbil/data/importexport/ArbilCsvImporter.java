@@ -9,8 +9,8 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -33,7 +33,10 @@ public class ArbilCsvImporter {
     public static void setBugCatcher(BugCatcher bugCatcherInstance){
         bugCatcher = bugCatcherInstance;
     }
-
+    private static DataNodeLoader dataNodeLoader;
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance){
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
     private ArbilDataNode destinationCorpusNode;
 
     public ArbilCsvImporter(ArbilDataNode destinationCorpusNodeLocal) {
@@ -101,7 +104,7 @@ public class ArbilCsvImporter {
                     }
                     if (!skipLine) {
                         String nodeType = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
-                        ArbilDataNode addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
+                        ArbilDataNode addedImdiObject = dataNodeLoader.getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
                         Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);

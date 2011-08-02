@@ -9,8 +9,8 @@ import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.ui.ArbilTree;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
@@ -25,7 +25,11 @@ public class ProfilePreview {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private static DataNodeLoader dataNodeLoader;
 
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
     public String schemaToTreeView(String uriString) {
 	String returnString = "";
 	//ArbilTemplateManager.getSingleInstance().getCmdiTemplate(returnString);
@@ -34,7 +38,7 @@ public class ProfilePreview {
 	    tempFile.deleteOnExit();
 	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	    URI addedNodePath = componentBuilder.createComponentFile(tempFile.toURI(), new URI(uriString), true);
-	    ArbilDataNode demoNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, addedNodePath);
+	    ArbilDataNode demoNode = dataNodeLoader.getArbilDataNode(null, addedNodePath);
 //            ImdiTreeObject demoNode = ImdiLoader.getSingleInstance().getImdiObject(null, new URI("http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"));
 	    demoNode.waitTillLoaded();
 	    //add(new LinkTree("tree", myTreeModel));

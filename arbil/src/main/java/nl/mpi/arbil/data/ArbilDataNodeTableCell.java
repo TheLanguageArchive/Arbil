@@ -11,6 +11,11 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
 
     private transient ArbilDataNode dataNode;
     private URI contentUri;
+    
+    private static DataNodeLoader dataNodeLoader;
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance){
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public ArbilDataNodeTableCell(ArbilDataNode dataNode) {
 	setContent(dataNode);
@@ -25,7 +30,7 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilDataNode> {
     @Override
     public ArbilDataNode getContent() {
 	if (dataNode == null && contentUri != null) {
-	    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUri);
+	    dataNode = dataNodeLoader.getArbilDataNode(null, contentUri);
 	}
 	return dataNode;
     }

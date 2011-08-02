@@ -35,6 +35,11 @@ public class ArbilField implements Serializable {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount) {
 	fieldOrder = fieldOrderLocal;
@@ -172,7 +177,7 @@ public class ArbilField implements Serializable {
 	// this is expanded for readability
 	if (languageIdLocal == null) {
 	    valueChanged = (oldLanguageId != null);
-        } else if (!languageIdLocal.equals(oldLanguageId)) {
+	} else if (!languageIdLocal.equals(oldLanguageId)) {
 	    valueChanged = true;
 	}
 	if (valueChanged) {// if the value has changed then record it in the undo list and the journal
@@ -380,8 +385,8 @@ public class ArbilField implements Serializable {
      * @return the parentDataNode
      */
     public synchronized ArbilDataNode getParentDataNode() {
-	if(parentDataNode == null && parentDataNodeURI != null){
-	    parentDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, parentDataNodeURI);
+	if (parentDataNode == null && parentDataNodeURI != null) {
+	    parentDataNode = dataNodeLoader.getArbilDataNode(null, parentDataNodeURI);
 	}
 	return parentDataNode;
     }

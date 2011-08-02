@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 
 /**
@@ -34,6 +34,11 @@ public class ArbilSearch {
     private Collection<? extends ArbilNodeSearchTerm> nodeSearchTerms;
     private RemoteServerSearchTerm remoteServerSearchTerm;
     private ArbilSearchListener listener;
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     /**
      * Constructor without data container or search listener
@@ -115,7 +120,7 @@ public class ArbilSearch {
 	if (remoteServerSearchTerm != null) {
 	    for (URI serverFoundUrl : remoteServerSearchTerm.getServerSearchResults(remoteSearchNodes.toArray(new ArbilDataNode[]{}))) {
 		System.out.println("remote node found: " + serverFoundUrl);
-		localSearchNodes.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, serverFoundUrl));
+		localSearchNodes.add(dataNodeLoader.getArbilDataNode(null, serverFoundUrl));
 	    }
 	}
     }
@@ -226,7 +231,7 @@ public class ArbilSearch {
 		    termPassedFilter = dataNode.containsFieldValue(currentTermPanel.getSearchString());
 		}
 	    }
-	    
+
 	    // invert based on the == / != selection
 	    termPassedFilter = currentTermPanel.isNotEqual() != termPassedFilter;
 	    // apply the and or booleans against the other search terms

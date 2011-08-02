@@ -1,7 +1,6 @@
 package nl.mpi.arbil.data;
 
 import java.util.Map;
-import java.util.Hashtable;
 import nl.mpi.arbil.util.XsdChecker;
 import java.util.ArrayList;
 import java.util.Enumeration;
