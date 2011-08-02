@@ -15,13 +15,13 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
     private static SessionStorage sessionStorage;
-    private LoaderThreadManager threadManager;
+    private DataNodeLoaderThreadManager threadManager;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
 
-    public DefaultDataNodeLoader(LoaderThreadManager loaderThreadManager) {
+    public DefaultDataNodeLoader(DataNodeLoaderThreadManager loaderThreadManager) {
 	System.out.println("ArbilDataNodeLoader init");
 	threadManager = loaderThreadManager;
 	threadManager.setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", threadManager.isSchemaCheckLocalFiles()));

@@ -8,7 +8,6 @@ package nl.mpi.arbil.data;
 public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
 
     static private ArbilDataNodeLoader singleInstance = null;
-    private static LoaderThreadManager threadManager;
         
     public static synchronized ArbilDataNodeLoader getSingleInstance() {
 	if (singleInstance == null) {
@@ -18,7 +17,7 @@ public class ArbilDataNodeLoader extends DefaultDataNodeLoader {
     }
 
     private ArbilDataNodeLoader(){
-	super(new ArbilDataNodeLoaderThreadManager());
+	super(new DataNodeLoaderThreadManager());
     }
 
 }

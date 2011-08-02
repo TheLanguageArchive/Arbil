@@ -2,10 +2,8 @@ package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
-import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
-import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
