@@ -54,11 +54,11 @@ public abstract class ArbilTest {
     }
 
     protected void inject() throws Exception {
-	ArbilTestInjector.injectMimeHashQueue(getMimeHashQueue());
 	ArbilTestInjector.injectBugCatcher(getBugCatcher());
 	ArbilTestInjector.injectDialogHandler(getDialogHandler());
 	ArbilTestInjector.injectSessionStorage(getSessionStorage());
 	ArbilTestInjector.injectDataNodeLoader(getDataNodeLoader());
+	ArbilTestInjector.injectMimeHashQueue(getMimeHashQueue());
 	ArbilTestInjector.injectTreeHelper(getTreeHelper());
     }
 
@@ -68,6 +68,10 @@ public abstract class ArbilTest {
     }
 
     protected MimeHashQueue getMimeHashQueue() {
+	ArbilMimeHashQueue.setBugCatcher(getBugCatcher());
+	ArbilMimeHashQueue.setMessageDialogHandler(getDialogHandler());
+	ArbilMimeHashQueue.setSessionStorage(getSessionStorage());
+	ArbilMimeHashQueue.setDataNodeLoader(getDataNodeLoader());
 	return ArbilMimeHashQueue.getSingleInstance();
     }
 

@@ -30,10 +30,12 @@ public class ArbilDesktopInjector extends ArbilInjector {
     public static synchronized void injectHandlers() {
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
+	ArbilMimeHashQueue.setBugCatcher(bugCatcher);
 	injectBugCatcher(bugCatcher);
 	
 	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
+	ArbilMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
 	
 	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
@@ -45,14 +47,15 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	ArbilMimeHashQueue.setSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
 	
-	// DefaultMimeHashQueue gets injections from other injectors
 	final MimeHashQueue mimeHashQueue = ArbilMimeHashQueue.getSingleInstance();
 	injectMimeHashQueue(mimeHashQueue);
 	
-	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
+	ArbilMimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
 	
 	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
