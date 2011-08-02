@@ -10,7 +10,7 @@ import nl.mpi.arbil.userstorage.SessionStorage;
  * Created on : Dec 30, 2008, 3:04:39 PM
  * @author Peter.Withers@mpi.nl 
  */
-public class AbstractDataNodeLoader implements DataNodeLoader {
+public class DefaultDataNodeLoader implements DataNodeLoader {
 
     private Hashtable<String, ArbilDataNode> arbilHashTable = new Hashtable<String, ArbilDataNode>();
     private Vector<ArbilDataNode> nodesNeedingSave = new Vector<ArbilDataNode>();
@@ -21,7 +21,7 @@ public class AbstractDataNodeLoader implements DataNodeLoader {
 	sessionStorage = sessionStorageInstance;
     }
 
-    protected AbstractDataNodeLoader(LoaderThreadManager loaderThreadManager) {
+    public DefaultDataNodeLoader(LoaderThreadManager loaderThreadManager) {
 	System.out.println("ArbilDataNodeLoader init");
 	threadManager = loaderThreadManager;
 	threadManager.setSchemaCheckLocalFiles(sessionStorage.loadBoolean("schemaCheckLocalFiles", threadManager.isSchemaCheckLocalFiles()));
