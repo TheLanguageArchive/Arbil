@@ -6,15 +6,15 @@ import java.util.concurrent.ThreadFactory;
 import nl.mpi.arbil.util.XsdChecker;
 
 /**
- * Manages the loader threads for loading ArbilDataNodes. Used by
- * ArbilDataNodeLoader.
+ * Manages the loader threads and queues for loading ArbilDataNodes. 
+ * Used by DataNodeLoader.
  * 
- * @see nl.mpi.arbil.data.ArbilDataNodeLoader
+ * @see nl.mpi.arbil.data.DataNodeLoader
  * 
  * @author Peter Wither <peter.withers@mpi.nl>
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
+public class DataNodeLoaderThreadManager {
 
     private final static int MAX_REMOTE_THREADS = 6;
     private final static int MAX_LOCAL_THREADS = 6;
@@ -28,14 +28,13 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
     private final Vector<ArbilDataNode> arbilLocalNodesToInit = new Vector<ArbilDataNode>();
     private boolean schemaCheckLocalFiles = false;
 
-    public ArbilDataNodeLoaderThreadManager() {
+    public DataNodeLoaderThreadManager() {
 	continueThread = true;
 	remoteLoaderThreadGroup = new ThreadGroup("RemoteLoaderThreads");
 	localLoaderThreadGroup = new ThreadGroup("LocalLoaderThreads");
 
     }
 
-    @Override
     public void addNodeToQueue(ArbilDataNode nodeToAdd) {
 	startLoaderThreads();
 	if (ArbilDataNode.isStringLocal(nodeToAdd.getUrlString())) {
@@ -73,7 +72,6 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
 	}
     }
 
-    @Override
     synchronized public void startLoaderThreads() {
 	// start the remote imdi loader threads
 	while (isContinueThread() && remoteExecutor.getActiveCount() < MAX_REMOTE_THREADS()) {
@@ -89,7 +87,6 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
     /**
      * @return the schemaCheckLocalFiles
      */
-    @Override
     public boolean isSchemaCheckLocalFiles() {
 	return schemaCheckLocalFiles;
     }
@@ -97,7 +94,6 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
     /**
      * @param schemaCheckLocalFiles the schemaCheckLocalFiles to set
      */
-    @Override
     public void setSchemaCheckLocalFiles(boolean schemaCheckLocalFiles) {
 	this.schemaCheckLocalFiles = schemaCheckLocalFiles;
     }
@@ -112,7 +108,6 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
     /**
      * @param continueThread the continueThread to set
      */
-    @Override
     public void setContinueThread(boolean continueThread) {
 	this.continueThread = continueThread;
     }
@@ -142,7 +137,6 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
 
 	ArbilDataNode currentArbilDataNode = null;
 
-	@Override
 	@SuppressWarnings("SleepWhileHoldingLock")
 	public void run() {
 	    while (isContinueThread() && !Thread.currentThread().isInterrupted()) {
@@ -175,7 +169,6 @@ public class ArbilDataNodeLoaderThreadManager implements LoaderThreadManager {
 
 	private ArbilDataNode currentArbilDataNode;
 
-	@Override
 	@SuppressWarnings("SleepWhileHoldingLock")
 	public void run() {
 	    while (isContinueThread() && !Thread.currentThread().isInterrupted()) {
