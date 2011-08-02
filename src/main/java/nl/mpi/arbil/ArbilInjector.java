@@ -41,6 +41,7 @@ import nl.mpi.arbil.util.ArbilVersionChecker;
 import nl.mpi.arbil.util.BinaryMetadataReader;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.DefaultMimeHashQueue;
 import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
@@ -85,8 +86,12 @@ public abstract class ArbilInjector {
 	ImportExportDialog.setDataNodeLoader(dataNodeLoader);
 	MetadataBuilder.setDataNodeLoader(dataNodeLoader);
 	MetadataReader.setDataNodeLoader(dataNodeLoader);
-	MimeHashQueue.setDataNodeLoader(dataNodeLoader);
+	DefaultMimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
+    }
+    
+    public static void injectMimeHashQueue(MimeHashQueue mimeHashQueue){
+	ArbilDataNode.setMimeHashQueue(mimeHashQueue);
     }
 
     public static void injectClipboardOwner(ClipboardOwner clipboardOwner) {
@@ -121,7 +126,7 @@ public abstract class ArbilInjector {
 	ImdiUtils.setBugCatcher(bugCatcher);
 	MetadataBuilder.setBugCatcher(bugCatcher);
 	MetadataReader.setBugCatcher(bugCatcher);
-	MimeHashQueue.setBugCatcher(bugCatcher);
+	DefaultMimeHashQueue.setBugCatcher(bugCatcher);
 	ShibbolethNegotiator.setBugCatcher(bugCatcher);
 	XsdChecker.setBugCatcher(bugCatcher);
     }
@@ -154,7 +159,7 @@ public abstract class ArbilInjector {
 	ImdiUtils.setMessageDialogHandler(messageDialogHandler);
 	MetadataBuilder.setMessageDialogHandler(messageDialogHandler);
 	MetadataReader.setMessageDialogHandler(messageDialogHandler);
-	MimeHashQueue.setMessageDialogHandler(messageDialogHandler);
+	DefaultMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
@@ -180,7 +185,7 @@ public abstract class ArbilInjector {
 	ProfilePreview.setSessionStorage(sessionStorage);
 	CmdiTemplate.setSessionStorage(sessionStorage);
 	ArbilFavourites.setSessionStorage(sessionStorage);
-	MimeHashQueue.setSessionStorage(sessionStorage);
+	DefaultMimeHashQueue.setSessionStorage(sessionStorage);
 	XsdChecker.setSessionStorage(sessionStorage);
 	ArbilVersionChecker.setSessionStorage(sessionStorage);
 	ArbilTemplateManager.setSessionStorage(sessionStorage);

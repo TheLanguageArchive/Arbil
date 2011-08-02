@@ -10,8 +10,10 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import org.junit.After;
 
@@ -20,13 +22,13 @@ import org.junit.After;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class ArbilTest {
-    
+
     private TreeHelper treeHelper;
     private SessionStorage sessionStorage;
     private MessageDialogHandler dialogHandler;
     private BugCatcher bugCatcher;
     private Set<URI> localTreeItems;
-    
+
     @After
     public void cleanUp() {
 	if (sessionStorage != null) {
@@ -36,90 +38,95 @@ public abstract class ArbilTest {
 	treeHelper = null;
 	localTreeItems = null;
     }
-    
+
     protected void addToLocalTreeFromResource(String resourceClassPath) throws URISyntaxException {
 	URI uri = getClass().getResource(resourceClassPath).toURI();
-	
+
 	if (localTreeItems == null) {
 	    localTreeItems = new HashSet<URI>();
 	}
 	localTreeItems.add(uri);
-	
+
 	getTreeHelper().addLocation(uri);
 	for (ArbilDataNode node : getTreeHelper().getLocalCorpusNodes()) {
 	    node.waitTillLoaded();
 	}
     }
-    
+
     protected void inject() throws Exception {
+	ArbilTestInjector.injectMimeHashQueue(getMimeHashQueue());
 	ArbilTestInjector.injectBugCatcher(getBugCatcher());
 	ArbilTestInjector.injectDialogHandler(getDialogHandler());
 	ArbilTestInjector.injectSessionStorage(getSessionStorage());
 	ArbilTestInjector.injectDataNodeLoader(getDataNodeLoader());
 	ArbilTestInjector.injectTreeHelper(getTreeHelper());
     }
-    
+
     protected synchronized DataNodeLoader getDataNodeLoader() {
 	ArbilDataNodeLoader.setSessionStorage(getSessionStorage());
 	return ArbilDataNodeLoader.getSingleInstance();
     }
-    
+
+    protected MimeHashQueue getMimeHashQueue() {
+	return ArbilMimeHashQueue.getSingleInstance();
+    }
+
     protected synchronized TreeHelper getTreeHelper() {
 	if (treeHelper == null) {
 	    treeHelper = newTreeHelper();
 	}
 	return treeHelper;
     }
-    
+
     protected synchronized SessionStorage getSessionStorage() {
 	if (sessionStorage == null) {
 	    sessionStorage = newSessionStorage();
 	}
 	return sessionStorage;
     }
-    
+
     protected synchronized BugCatcher getBugCatcher() {
 	if (bugCatcher == null) {
 	    bugCatcher = newBugCatcher();
 	}
 	return bugCatcher;
     }
-    
+
     protected synchronized MessageDialogHandler getDialogHandler() {
 	if (dialogHandler == null) {
 	    dialogHandler = newDialogHandler();
 	}
 	return dialogHandler;
     }
-    
+
     protected TreeHelper newTreeHelper() {
 	return new ArbilTreeHelper() {
-	    
+
 	    @Override
 	    protected SessionStorage getSessionStorage() {
 		return ArbilTest.this.getSessionStorage();
 	    }
 	};
     }
-    
+
     protected SessionStorage newSessionStorage() {
 	return new MockSessionStorage() {
-	    
+
 	    @Override
 	    public boolean pathIsInsideCache(File fullTestFile) {
 		return localTreeItems.contains(fullTestFile.toURI());
 	    }
 	};
     }
-    
+
     protected BugCatcher newBugCatcher() {
 	return new MockBugCatcher();
     }
-    
+
     protected MessageDialogHandler newDialogHandler() {
 	return new MockDialogHandler();
     }
-    
+
     static public boolean deleteDirectory(File path) {
 	if (path.exists() && path.isDirectory()) {
 	    File[] files = path.listFiles();
