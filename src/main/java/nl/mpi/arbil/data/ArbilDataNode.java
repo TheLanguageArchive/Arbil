@@ -120,6 +120,11 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     protected ArbilDataNode(URI localUri) {
 	containersOfThisNode = new Vector<ArbilDataNodeContainer>();
@@ -339,9 +344,9 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    }
 	    if (this.nodeNeedsSaveToDisk != needsSaveToDisk) {
 		if (needsSaveToDisk) {
-		    ArbilDataNodeLoader.getSingleInstance().addNodeNeedingSave(this);
+		    dataNodeLoader.addNodeNeedingSave(this);
 		} else {
-		    ArbilDataNodeLoader.getSingleInstance().removeNodesNeedingSave(this);
+		    dataNodeLoader.removeNodesNeedingSave(this);
 		}
 		this.nodeNeedsSaveToDisk = needsSaveToDisk;
 	    }
@@ -442,7 +447,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	////            if (getParentDomNode().isCorpus()) {
 	////                getParentDomNode().autoLoadChildNodes = true;
 	////            }
-	ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+	dataNodeLoader.requestReload(getParentDomNode());
 	//        }
     }
 
@@ -563,7 +568,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		    //                    System.out.println("nodeFile: " + nodeFile);
 		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
 		    URI childURI = dirLinkArray[linkCount].toURI();
-		    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(childURI);
+		    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
 		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
 			childLinksTemp.add(currentNode);
 		    }
@@ -1002,7 +1007,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	for (String clipBoardString : clipBoardStrings) {
 	    if (this.isCorpus()) {
 		if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
-		    ArbilDataNode clipboardNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		    ArbilDataNode clipboardNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
 		    if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
 			if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
 			    if (this.getFile().exists()) {
@@ -1031,12 +1036,12 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		}
 	    } else if (this.isMetaDataNode() || this.isSession()) {
 		// Get source node
-		ArbilDataNode templateDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
 		// Check if it can be contained by destination node
 		if (MetadataReader.getSingleInstance().nodeCanExistInNode(this, templateDataNode)) {
 		    // Add source to destination
 		    new MetadataBuilder().requestAddNode(this, templateDataNode.toString(), templateDataNode);
-		} else{
+		} else {
 		    // Invalid copy/paste...
 		    messageDialogHandler.addMessageDialogToQueue("Cannot add copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
 		}
@@ -1621,7 +1626,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		}
 	    }
 	}
-	ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+	dataNodeLoader.requestReload(getParentDomNode());
 
 	return true;
     }
@@ -1768,7 +1773,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		try {
 		    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
 		    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
-		    domParentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
+		    domParentNode = dataNodeLoader.getArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
 		    //                    System.out.println("nodeUri: " + nodeUri);
 		} catch (URISyntaxException ex) {
 		    bugCatcher.logError(ex);
@@ -1907,7 +1912,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
 	// Node is contained by some object so make sure it's fully loaded or at least loading
 	if (!getParentDomNode().dataLoaded && !isLoading()) {
-	    ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+	    dataNodeLoader.requestReload(getParentDomNode());
 	}
 	// Add to collection of containers for future messaging
 	if (containerToAdd != null) {

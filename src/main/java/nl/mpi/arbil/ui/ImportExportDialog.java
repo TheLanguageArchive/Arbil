@@ -45,6 +45,7 @@ import nl.mpi.arbil.data.metadatafile.MetadataUtils;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.util.TreeHelper;
 
@@ -109,6 +110,11 @@ public class ImportExportDialog {
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
 	JLabel currentLabel = new JLabel(selectedNode.toString(), selectedNode.getIcon(), JLabel.CENTER);
@@ -145,7 +151,7 @@ public class ImportExportDialog {
 	if (selectedFiles != null) {
 	    Vector importNodeVector = new Vector();
 	    for (File currentFile : selectedFiles) {
-		ArbilDataNode nodeToImport = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentFile.toURI());
+		ArbilDataNode nodeToImport = dataNodeLoader.getArbilDataNode(null, currentFile.toURI());
 		importNodeVector.add(nodeToImport);
 	    }
 	    copyToCache(importNodeVector);
@@ -739,7 +745,7 @@ public class ImportExportDialog {
 		}
 		if (exportDestinationDirectory == null) {
 		    File newNodeLocation = ArbilSessionStorage.getSingleInstance().getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
-		    finishedTopNodes.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
+		    finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 		}
 	    }
 
@@ -776,7 +782,7 @@ public class ImportExportDialog {
 				appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
 			    } else {
 			    }
-			    ArbilDataNode destinationNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
+			    ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
 			    if (destinationNode.getNeedsSaveToDisk(false)) {
 				destinationNode.saveChangesToCache(true);
 			    }
@@ -802,7 +808,7 @@ public class ImportExportDialog {
 				xsdErrors++;
 			    }
 			    if (replacingExitingFile) {
-				ArbilDataNodeLoader.getSingleInstance().requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
+				dataNodeLoader.requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
 			    }
 			}
 		    }
@@ -939,7 +945,7 @@ public class ImportExportDialog {
 
 	public void calculateTreeFileName(boolean lamusFriendly) {
 	    fileSuffix = sourceURI.toString().substring(sourceURI.toString().lastIndexOf("."));
-	    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, sourceURI);
+	    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNode(null, sourceURI);
 	    currentNode.waitTillLoaded();
 	    String fileNameString;
 	    if (currentNode.isMetaDataNode()) {

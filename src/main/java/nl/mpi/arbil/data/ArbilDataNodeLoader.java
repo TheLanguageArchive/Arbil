@@ -9,10 +9,6 @@ public class ArbilDataNodeLoader extends AbstractDataNodeLoader {
 
     static private ArbilDataNodeLoader singleInstance = null;
     private static LoaderThreadManager threadManager;
-
-    public static void setLoaderThreadManager(LoaderThreadManager loaderThreadManagerInstance) {
-	threadManager = loaderThreadManagerInstance;
-    }
         
     public static synchronized ArbilDataNodeLoader getSingleInstance() {
 	if (singleInstance == null) {
@@ -22,7 +18,7 @@ public class ArbilDataNodeLoader extends AbstractDataNodeLoader {
     }
 
     private ArbilDataNodeLoader(){
-	super(threadManager);
+	super(new ArbilDataNodeLoaderThreadManager());
     }
 
 }

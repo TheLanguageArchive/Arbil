@@ -53,7 +53,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     }
 
     protected abstract SessionStorage getSessionStorage();
+    private static DataNodeLoader dataNodeLoader;
 
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
     protected final void initTrees() {
 	initRootNodes();
 	initTreeModels();
@@ -105,7 +109,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 //                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"
 		}) {
 	    try {
-		remoteCorpusNodesSet.add(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(currentUrlString)));
+		remoteCorpusNodesSet.add(dataNodeLoader.getArbilDataNode(null, new URI(currentUrlString)));
 	    } catch (URISyntaxException ex) {
 		bugCatcher.logError(ex);
 	    }
@@ -173,7 +177,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		    failedLoads++;
 		} else {
 		    try {
-			ArbilDataNode currentTreeObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, currentLocation);
+			ArbilDataNode currentTreeObject = dataNodeLoader.getArbilDataNode(null, currentLocation);
 			if (currentTreeObject.isLocal()) {
 			    if (currentTreeObject.isFavorite()) {
 				favouriteNodesList.add(currentTreeObject);
@@ -221,7 +225,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public boolean addLocation(URI addedLocation) {
 	System.out.println("addLocation: " + addedLocation.toString());
 	// make sure the added location url matches that of the imdi node format
-	ArbilDataNode addedLocationObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, addedLocation);
+	ArbilDataNode addedLocationObject = dataNodeLoader.getArbilDataNode(null, addedLocation);
 	if (addedLocationObject != null) {
 	    saveLocations(new ArbilDataNode[]{addedLocationObject}, null);
 	    loadLocationsList();
@@ -242,7 +246,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     @Override
     public void removeLocation(URI removeLocation) {
 	System.out.println("removeLocation: " + removeLocation);
-	removeLocation(ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, removeLocation));
+	removeLocation(dataNodeLoader.getArbilDataNode(null, removeLocation));
     }
 
     private void reloadNodesInTree(DefaultMutableTreeNode parentTreeNode) {

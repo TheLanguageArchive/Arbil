@@ -14,6 +14,11 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
 
     private transient ArbilDataNode[] dataNodes;
     private ArrayList<URI> contentUris;
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public ArbilDataNodeArrayTableCell(ArbilDataNode[] dataNode) {
 	setContent(dataNode);
@@ -57,7 +62,7 @@ public class ArbilDataNodeArrayTableCell implements ArbilTableCell<ArbilDataNode
 	} else {
 	    dataNodes = new ArbilDataNode[contentUris.size()];
 	    for (int i = 0; i < contentUris.size(); i++) {
-		dataNodes[i] = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUris.get(i));
+		dataNodes[i] = dataNodeLoader.getArbilDataNode(null, contentUris.get(i));
 	    }
 	}
     }

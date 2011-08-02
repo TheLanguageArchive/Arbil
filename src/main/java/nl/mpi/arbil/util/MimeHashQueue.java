@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.bcarchive.typecheck.DeepFileType;
 import nl.mpi.bcarchive.typecheck.FileType;
@@ -32,7 +32,10 @@ import nl.mpi.bcarchive.typecheck.FileType;
  * @author Peter.Withers@mpi.nl
  */
 public class MimeHashQueue {
-
+    private static DataNodeLoader dataNodeLoader;
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance){
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
     /**
      * @return the fileType
      */
@@ -419,9 +422,9 @@ public class MimeHashQueue {
 			File currentFile = new File(new URI(currentDupPath));
 			if (currentFile.exists()) { // check that the file still exists and has the same mtime otherwise rescan
 			    // get the currently loaded imdiobjects for the paths
-			    ArbilDataNode currentDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
-			    if (currentDataNode != null) {
-				relevantDataNodes.add(currentDataNode);
+			    ArbilDataNode dataNode = dataNodeLoader.getArbilDataNodeOnlyIfLoaded(new URI(currentDupPath)); // TODO: is this the file uri or the node uri???
+			    if (dataNode != null) {
+				relevantDataNodes.add(dataNode);
 			    }
 			    if (sessionStorage.pathIsInsideCache(currentFile)) {
 				matchesInCache++;

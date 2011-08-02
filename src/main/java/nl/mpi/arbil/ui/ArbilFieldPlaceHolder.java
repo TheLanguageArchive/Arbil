@@ -3,7 +3,7 @@ package nl.mpi.arbil.ui;
 import java.io.Serializable;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.DataNodeLoader;
 
 /**
  * Used as blank in horizontal tables (grid view) in cells that represent
@@ -16,6 +16,11 @@ public class ArbilFieldPlaceHolder implements Serializable {
     private String fieldName;
     private transient ArbilDataNode arbilDataNode;
     private URI arbilDataNodeURI = null;
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public ArbilFieldPlaceHolder(String fieldName, ArbilDataNode dataNode) {
 	this.fieldName = fieldName;
@@ -31,7 +36,7 @@ public class ArbilFieldPlaceHolder implements Serializable {
 
     public ArbilDataNode getArbilDataNode() {
 	if (arbilDataNode == null && arbilDataNodeURI != null) {
-	    arbilDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, arbilDataNodeURI);
+	    arbilDataNode = dataNodeLoader.getArbilDataNode(null, arbilDataNodeURI);
 	}
 	return arbilDataNode;
     }

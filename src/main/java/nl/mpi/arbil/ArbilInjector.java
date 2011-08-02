@@ -8,15 +8,16 @@ import nl.mpi.arbil.clarin.profiles.ProfilePreview;
 import nl.mpi.arbil.data.AbstractTreeHelper;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
+import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilVocabularies;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.DocumentationLanguages;
 import nl.mpi.arbil.data.FieldChangeTriggers;
-import nl.mpi.arbil.data.LoaderThreadManager;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.data.importexport.ArbilCsvImporter;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
@@ -24,10 +25,12 @@ import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
+import nl.mpi.arbil.search.ArbilSearch;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.templates.ArbilTemplate;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
+import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
@@ -57,10 +60,10 @@ public abstract class ArbilInjector {
 	    WindowManager windowManager,
 	    SessionStorage sessionStorage,
 	    TreeHelper treeHelper,
-	    LoaderThreadManager loaderThreadManager,
+	    DataNodeLoader dataNodeLoader,
 	    BugCatcher bugCatcher,
 	    ClipboardOwner clipboardOwner) {
-	injectLoaderThreadManager(loaderThreadManager);
+	injectDataNodeLoader(dataNodeLoader);
 	injectSessionStorage(sessionStorage);
 	injectWindowManager(windowManager);
 	injectDialogHandler(messageDialogHandler);
@@ -69,8 +72,21 @@ public abstract class ArbilInjector {
 	injectClipboardOwner(clipboardOwner);
     }
     
-    public static void injectLoaderThreadManager(LoaderThreadManager loaderThreadManager){
-	ArbilDataNodeLoader.setLoaderThreadManager(loaderThreadManager);
+    public static void injectDataNodeLoader(DataNodeLoader dataNodeLoader){
+	AbstractTreeHelper.setDataNodeLoader(dataNodeLoader);
+	ArbilComponentBuilder.setDataNodeLoader(dataNodeLoader);
+	ArbilCsvImporter.setDataNodeLoader(dataNodeLoader);
+	ArbilDataNode.setDataNodeLoader(dataNodeLoader);
+	ArbilDataNodeTableCell.setDataNodeLoader(dataNodeLoader);
+	ArbilDataNodeArrayTableCell.setDataNodeLoader(dataNodeLoader);
+	ArbilField.setDataNodeLoader(dataNodeLoader);
+	ArbilFieldPlaceHolder.setDataNodeLoader(dataNodeLoader);
+	ArbilSearch.setDataNodeLoader(dataNodeLoader);
+	ImportExportDialog.setDataNodeLoader(dataNodeLoader);
+	MetadataBuilder.setDataNodeLoader(dataNodeLoader);
+	MetadataReader.setDataNodeLoader(dataNodeLoader);
+	MimeHashQueue.setDataNodeLoader(dataNodeLoader);
+	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
 
     public static void injectClipboardOwner(ClipboardOwner clipboardOwner) {
@@ -153,7 +169,6 @@ public abstract class ArbilInjector {
     public static void injectSessionStorage(SessionStorage sessionStorage) {
 	ArbilComponentBuilder.setSessionStorage(sessionStorage);
 	ArbilDataNode.setSessionStorage(sessionStorage);
-	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
 	ArbilEntityResolver.setSessionStorage(sessionStorage);
 	ArbilField.setSessionStorage(sessionStorage);
 	ArbilJournal.setSessionStorage(sessionStorage);

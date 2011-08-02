@@ -23,31 +23,36 @@ import org.xml.sax.SAXException;
  *  Author     : Peter Withers
  */
 public class MetadataBuilder {
-    
+
     private static MessageDialogHandler messageDialogHandler;
-    
+
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     private static BugCatcher bugCatcher;
-    
+
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
     }
     private static WindowManager windowManager;
-    
+
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
     private static SessionStorage sessionStorage;
-    
+
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
     private static TreeHelper treeHelper;
-    
+
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
     }
     private ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 
@@ -70,7 +75,7 @@ public class MetadataBuilder {
      */
     public boolean canAddChildNode(final ArbilDataNode destinationNode, final String nodeType) {
 	final String targetXmlPath = destinationNode.getURI().getFragment();
-	
+
 	synchronized (destinationNode.getParentDomLockObject()) {
 	    // Ignore CMDI metadata
 	    if (nodeType.startsWith(".") && destinationNode.isCmdiMetaDataNode()) {
@@ -116,7 +121,7 @@ public class MetadataBuilder {
 	    destinationNode.saveChangesToCache(true);
 	}
 	new Thread("requestAddNode") {
-	    
+
 	    @Override
 	    public void run() {
 		destinationNode.updateLoadingState(1);
@@ -158,7 +163,7 @@ public class MetadataBuilder {
      */
     private Thread creatAddAddableNodeThread(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) {
 	return new Thread("requestAddNode") {
-	    
+
 	    @Override
 	    public void run() {
 		try {
@@ -174,7 +179,7 @@ public class MetadataBuilder {
 	    }
 	};
     }
-    
+
     public void addNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	synchronized (destinationNode.getParentDomLockObject()) {
 	    if (addableNode.isMetaDataNode()) {
@@ -184,7 +189,7 @@ public class MetadataBuilder {
 	    }
 	}
     }
-    
+
     private void addNonMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	String nodeTypeDisplayName = nodeTypeDisplayNameLocal;
 	ArbilDataNode[] sourceArbilNodeArray;
@@ -220,13 +225,13 @@ public class MetadataBuilder {
 	    }
 	}
     }
-    
+
     private void addMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	URI addedNodeUri;
 	if (addableNode.getURI().getFragment() == null) {
 	    addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
 	    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
-	    ArbilDataNode addedNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
+	    ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	    new ArbilComponentBuilder().removeArchiveHandles(addedNode);
 	    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
 	    addedNode.loadArbilDom();
@@ -239,7 +244,7 @@ public class MetadataBuilder {
 	String newTableTitleString = "new " + addableNode + " in " + destinationNode;
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
     }
-    
+
     private void processAddNodes(ArbilDataNode currentArbilNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
 
 	// make title for imdi table
@@ -247,12 +252,12 @@ public class MetadataBuilder {
 	if (currentArbilNode.isMetaDataNode() && currentArbilNode.getFile().exists()) {
 	    newTableTitleString = newTableTitleString + " in " + currentArbilNode.toString();
 	}
-	
+
 	System.out.println("addQueue:-\nnodeType: " + nodeType + "\ntargetXmlPath: " + targetXmlPath + "\nnodeTypeDisplayName: " + nodeTypeDisplayName + "\nfavouriteUrlString: " + favouriteUrlString + "\nresourceUrl: " + resourceUri + "\nmimeType: " + mimeType);
 	// Create child node
 	URI addedNodeUri = addChildNode(currentArbilNode, nodeType, targetXmlPath, resourceUri, mimeType);
 	// Get the newly created data node
-	ArbilDataNode addedArbilNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(addedNodeUri);
+	ArbilDataNode addedArbilNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	if (addedArbilNode != null) {
 	    if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
 		currentArbilNode.getParentDomNode().loadArbilDom();

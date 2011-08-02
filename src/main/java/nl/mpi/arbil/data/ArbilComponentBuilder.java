@@ -65,6 +65,11 @@ public class ArbilComponentBuilder {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -314,9 +319,9 @@ public class ArbilComponentBuilder {
 
     public void testInsertFavouriteComponent() {
 	try {
-	    ArbilDataNode favouriteArbilDataNode1 = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
-	    ArbilDataNode favouriteArbilDataNode2 = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
-	    ArbilDataNode destinationArbilDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
+	    ArbilDataNode favouriteArbilDataNode1 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
+	    ArbilDataNode favouriteArbilDataNode2 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
+	    ArbilDataNode destinationArbilDataNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
 	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode1);
 	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode2);
 	} catch (URISyntaxException exception) {

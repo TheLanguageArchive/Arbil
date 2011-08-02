@@ -1,9 +1,9 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
-import nl.mpi.arbil.data.ArbilDataNodeLoaderThreadManager;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
-import nl.mpi.arbil.data.LoaderThreadManager;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
@@ -34,9 +34,6 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
 	
-	final LoaderThreadManager loaderThreadManager = new ArbilDataNodeLoaderThreadManager();
-	injectLoaderThreadManager(loaderThreadManager);
-	
 	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
 	ArbilSessionStorage.setWindowManager(windowManager);
 	injectWindowManager(windowManager);
@@ -47,6 +44,10 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
 	injectSessionStorage(sessionStorage);
+	
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
+	injectDataNodeLoader(dataNodeLoader);
 	
 	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
 	injectTreeHelper(treeHelper);
