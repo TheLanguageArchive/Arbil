@@ -1048,7 +1048,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		    new MetadataBuilder().requestAddNode(this, templateDataNode.toString(), templateDataNode);
 		} else {
 		    // Invalid copy/paste...
-		    messageDialogHandler.addMessageDialogToQueue("Cannot add copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
+		    messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
 		}
 	    } else { // Not corpus, session or metadata
 		messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
