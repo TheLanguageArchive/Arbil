@@ -391,21 +391,26 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Description.xml" DisplayName="Actor Description" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Keys.Key.xml" DisplayName="Actor Key" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language.xml" DisplayName="Actor Language" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor(x).Languages.Language(x).Description.xml" DisplayName="Actor Language Description" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Actors.Actor.xml" DisplayName="Actor" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Keys.Key.xml" DisplayName="Content Key" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language.xml" DisplayName="Content Language" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Languages.Language(x).Description.xml" DisplayName="Content Language Description" InsertBefore="Language" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Keys.Key.xml" DisplayName="Key" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Location.Region.xml" DisplayName="Location.Region" InsertBefore="Address" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms(x).Access.Description.xml" DisplayName="Anonyms Access Description" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms.xml" DisplayName="Anonyms" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source" />
-        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Description.xml" DisplayName="MediaFile Description"  InsertBefore="Keys"/>
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Keys.Key.xml" DisplayName="MediaFile Key"  InsertBefore=""/>
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Access.Description.xml" DisplayName="MediaFile Access Description" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Description.xml" DisplayName="Source Description" InsertBefore="Keys" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml" DisplayName="Source Key" InsertBefore="" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Access.Description.xml" DisplayName="Source Access Description" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source.xml" DisplayName="Source" InsertBefore="Anonyms" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Description.xml" DisplayName="WrittenResource Description" InsertBefore="Keys" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml" DisplayName="WrittenResource Key" InsertBefore="LexiconResource,LexiconComponent,Source,Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Access.Description.xml" DisplayName="WrittenResource Access Description" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource.xml" DisplayName="WrittenResource" InsertBefore="LexiconResource,LexiconComponent,Source,Anonyms" />
         <!--<TemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />-->
 
