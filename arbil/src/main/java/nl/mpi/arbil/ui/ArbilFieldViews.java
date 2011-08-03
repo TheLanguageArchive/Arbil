@@ -65,6 +65,7 @@ public class ArbilFieldViews {
 	} catch (Exception ex) {
 	    bugCatcher.logError("load savedFieldViews failed", ex);
 	    savedFieldViews = new Hashtable<String, ArbilFieldView>();
+	    createDefaultFieldViews();
 	}
 	try {
 	    currentGlobalViewName = ArbilSessionStorage.getSingleInstance().loadString("currentGlobalViewName");
@@ -74,24 +75,24 @@ public class ArbilFieldViews {
 	} catch (Exception ex) {
 	    bugCatcher.logError("load currentGlobalViewName failed ", ex);
 
-	    ArbilFieldView currentGlobalView = new ArbilFieldView();
-	    addArbilFieldView("All", currentGlobalView);
-	    currentGlobalViewName = "All";
+	    // Make sure there are field views
+	    if (savedFieldViews.isEmpty()) {
+		createDefaultFieldViews();
+	    }
+	    // Make first one global default
+	    currentGlobalViewName = savedFieldViews.keys().nextElement();
 
 	    ArbilSessionStorage.getSingleInstance().saveString("currentGlobalViewName", currentGlobalViewName);
-
-	    ArbilFieldView fewFieldView = new ArbilFieldView();
-	    fewFieldView.setShowOnlyColumns(new String[]{"Name", "Description", "Title"});
-	    addArbilFieldView("Minimal", fewFieldView);
-
-//            LinorgFieldView otherFieldView = new LinorgFieldView();
-//            otherFieldView.addHiddenColumn("name");
-//            otherFieldView.addHiddenColumn("description");
-//            otherFieldView.addHiddenColumn("title");
-//            otherFieldView.addHiddenColumn("date");
-//            otherFieldView.addHiddenColumn("language");
-//            addImdiFieldView("Other", otherFieldView);
 	}
+    }
+
+    private void createDefaultFieldViews() {
+	ArbilFieldView currentGlobalView = new ArbilFieldView();
+	addArbilFieldView("All", currentGlobalView);
+
+	ArbilFieldView fewFieldView = new ArbilFieldView();
+	fewFieldView.setShowOnlyColumns(new String[]{"Name", "Description", "Title"});
+	addArbilFieldView("Minimal", fewFieldView);
     }
 
     public void saveViewsToFile() {
