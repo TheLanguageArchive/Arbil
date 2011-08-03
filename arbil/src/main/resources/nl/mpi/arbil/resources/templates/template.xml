@@ -399,15 +399,20 @@
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Location.Region.xml" DisplayName="Location.Region" InsertBefore="Address" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Anonyms.xml" DisplayName="Anonyms" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile.xml" DisplayName="MediaFile" InsertBefore="WrittenResource,LexiconResource,LexiconComponent,Source,Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Description.xml" DisplayName="MediaFile Description"  InsertBefore="Keys"/>
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.MediaFile(x).Keys.Key.xml" DisplayName="MediaFile Key"  InsertBefore=""/>
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Description.xml" DisplayName="Source Description" InsertBefore="Keys" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source(x).Keys.Key.xml" DisplayName="Source Key" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.Source.xml" DisplayName="Source" InsertBefore="Anonyms" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Description.xml" DisplayName="WrittenResource Description" InsertBefore="Keys" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource(x).Keys.Key.xml" DisplayName="WrittenResource Key" InsertBefore="LexiconResource,LexiconComponent,Source,Anonyms" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.Resources.WrittenResource.xml" DisplayName="WrittenResource" InsertBefore="LexiconResource,LexiconComponent,Source,Anonyms" />
         <!--<TemplateComponent FileName="METATRANSCRIPT.Session.xml" DisplayName="Session" />-->
 
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Project.xml" DisplayName="Project" InsertBefore="Keys" MaxOccurs="1" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Project(x).Description.xml" DisplayName="Project Description" InsertBefore="" />
         <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content.xml" DisplayName="Content" InsertBefore="Actors" MaxOccurs="1" />
+        <TemplateComponent FileName="METATRANSCRIPT.Session.MDGroup.Content(x).Description.xml" DisplayName="Content Description" InsertBefore="" />
     </AvailableTemplateComponents>
     <FieldUsageDescriptions>
         <FieldUsage FieldPath=".METATRANSCRIPT.Session.Title" FieldDescription="The title of this session" />
