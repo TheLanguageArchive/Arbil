@@ -69,7 +69,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
     public boolean isInfoLink = false;
-    private String singletonMetadataNodeName = null;
+    private boolean singletonMetadataNode = false;
     private boolean nodeNeedsSaveToDisk;
     private String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
@@ -1476,7 +1476,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    lastNodeText = nodeText;
 	}
 
-	if (getSingletonMetadataNodeName() != null) {
+	if (isSingletonMetadataNode()) {
 	    StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
 	    if (nodeText != null && nodeText.length() > 0) {
 		nodeTextSB.append(" (").append(nodeText).append(")");
@@ -2104,16 +2104,16 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 //    }
 
     /**
-     * @return Name of meta node node is conflated with metanode because if it is singleton (e.g. Project, Content). Null if this does not apply.
+     * @return Whether node is conflated with metanode because if it is singleton (e.g. Project, Content). Null if this does not apply.
      */
-    public String getSingletonMetadataNodeName() {
-	return singletonMetadataNodeName;
+    public boolean isSingletonMetadataNode() {
+	return singletonMetadataNode;
     }
 
     /**
-     * @param singletonMetadataNodeName Name of meta node this node is conflated with metanode because it is singleton (e.g. Project, Content)
+     * @param singletonMetadataNodeName Whether this node is conflated with metanode because it is singleton (e.g. Project, Content)
      */
-    public void setSingletonMetadataNode(String singletonMetadataNodeName) {
-	this.singletonMetadataNodeName = singletonMetadataNodeName;
+    public void setSingletonMetadataNode(boolean singletonMetadataNodeName) {
+	this.singletonMetadataNode = singletonMetadataNodeName;
     }
 }
