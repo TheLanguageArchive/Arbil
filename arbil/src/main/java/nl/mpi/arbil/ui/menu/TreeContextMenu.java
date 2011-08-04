@@ -669,7 +669,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
 	    MetadataBuilder mdBuilder = new MetadataBuilder();
 
-	    for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject, false); menuItemName.hasMoreElements();) {
+	    for (Enumeration menuItemName = currentTemplate.listTypesFor(targetNodeUserObject); menuItemName.hasMoreElements();) {
 		final String[] currentField = (String[]) menuItemName.nextElement();
 		final String nodeText = currentField[0];
 		final String nodeType = currentField[1];

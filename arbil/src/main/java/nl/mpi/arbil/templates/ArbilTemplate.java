@@ -341,7 +341,7 @@ public class ArbilTemplate {
     }
 
     public Enumeration listTypesFor(Object targetNodeUserObject) {
-	return listTypesFor(targetNodeUserObject, true);
+	return listTypesFor(targetNodeUserObject, false);
     }
 
     /**
