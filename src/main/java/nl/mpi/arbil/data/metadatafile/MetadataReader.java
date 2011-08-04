@@ -605,7 +605,9 @@ public class MetadataReader {
 			    if (!parentChildTree.containsKey(metaNode)) {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
 			    }
-			    parentChildTree.get(parentNode).add(metaNode);
+			    if (maxOccurs != 1) {
+				parentChildTree.get(parentNode).add(metaNode);
+			    }
 			    // add brackets to conform with the imdi api notation
 			    siblingSpacer = "(" + (parentChildTree.get(metaNode).size() + 1) + ")";
 			} else {
@@ -626,10 +628,14 @@ public class MetadataReader {
 //                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
 			}
 			fullSubNodePath = fullSubNodePath + siblingSpacer;
-			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
-			if (metaNode != null) {
+			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));		
+			
+			if (metaNode != null && maxOccurs != 1) {
 			    parentChildTree.get(metaNode).add(subNode);
 			} else {
+			    if(maxOccurs == 1){
+				subNode.setSingletonMetadataNode(localName);
+			    }
 //                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
 			    parentChildTree.get(parentNode).add(subNode);
 			}

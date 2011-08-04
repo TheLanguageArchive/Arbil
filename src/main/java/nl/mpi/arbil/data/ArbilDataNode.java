@@ -69,6 +69,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
     public boolean isInfoLink = false;
+    private String singletonMetadataNodeName = null;
     private boolean nodeNeedsSaveToDisk;
     private String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
@@ -125,9 +126,9 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
-    
     private static MimeHashQueue mimeHashQueue;
-    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance){
+
+    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
 	mimeHashQueue = mimeHashQueueInstance;
     }
 
@@ -383,6 +384,15 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
 	    addField(mimeTypeField);
 	}
+    }
+
+    private String getNodeTypeNameFromUriFragment(String nodeFragmentName) {
+	if (nodeFragmentName == null) {
+	    return null;
+	}
+	nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
+	nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
+	return nodeFragmentName;
     }
 
     private void initNodeVariables() {
@@ -1413,8 +1423,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    String unamedText;
 	    String nodeFragmentName = this.getURI().getFragment();
 	    if (nodeFragmentName != null) {
-		nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
-		nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
+		nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
 		unamedText = nodeFragmentName;
 	    } else if (this.nodeTemplate != null) {
 		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
@@ -1425,7 +1434,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 		unamedText = "";
 	    }
 	    if (preferredNameFieldExists) {
-		nodeText = "unnamed (" + unamedText + ")";
+		nodeText = unamedText + " (unnamed)";
 	    } else {
 		nodeText = unamedText;
 	    }
@@ -1466,6 +1475,15 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	    }
 	    lastNodeText = nodeText;
 	}
+
+	if (getSingletonMetadataNodeName() != null) {
+	    StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
+	    if (nodeText != null && nodeText.length() > 0) {
+		nodeTextSB.append(" (").append(nodeText).append(")");
+	    }
+	    lastNodeText = nodeTextSB.toString();
+	}
+
 	if (lastNodeText.length() == 0) {
 	    lastNodeText = "                      ";
 	}
@@ -2084,4 +2102,18 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 //    public int hashCode() {
 //	return nodeUri.hashCode();
 //    }
+
+    /**
+     * @return Name of meta node node is conflated with metanode because if it is singleton (e.g. Project, Content). Null if this does not apply.
+     */
+    public String getSingletonMetadataNodeName() {
+	return singletonMetadataNodeName;
+    }
+
+    /**
+     * @param singletonMetadataNodeName Name of meta node this node is conflated with metanode because it is singleton (e.g. Project, Content)
+     */
+    public void setSingletonMetadataNode(String singletonMetadataNodeName) {
+	this.singletonMetadataNodeName = singletonMetadataNodeName;
+    }
 }

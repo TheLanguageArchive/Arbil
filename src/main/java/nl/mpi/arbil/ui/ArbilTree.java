@@ -332,45 +332,46 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	    }
 	}
 	Arrays.sort(childDataNodeArray);
+	DefaultTreeModel thisTreeModel = (DefaultTreeModel) treeModel;
 
 	if (!isExpanded) {
 	    currentNode.setAllowsChildren(childDataNodeArray.length > 0);
-	    ((DefaultTreeModel) treeModel).nodeChanged(currentNode);
+	    thisTreeModel.nodeChanged(currentNode);
 	} else {
 	    if (childDataNodeArray.length > 0) {
 		// never disable allows children when there are child nodes!
 		// but allows children must be set before nodes can be added (what on earth were they thinking!)
 		currentNode.setAllowsChildren(true);
-		((DefaultTreeModel) treeModel).nodeChanged(currentNode);
+		thisTreeModel.nodeChanged(currentNode);
 	    }
 	    for (int childIndex = 0; childIndex < childDataNodeArray.length; childIndex++) {
 		// search for an existing node and move it if required
-		for (int modelChildIndex = 0; modelChildIndex < ((DefaultTreeModel) treeModel).getChildCount(currentNode); modelChildIndex++) {
-		    if (((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, modelChildIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
+		for (int modelChildIndex = 0; modelChildIndex < thisTreeModel.getChildCount(currentNode); modelChildIndex++) {
+		    if (((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
 			if (childIndex != modelChildIndex) {
-			    DefaultMutableTreeNode shiftedNode = (DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, modelChildIndex);
-			    ((DefaultTreeModel) treeModel).removeNodeFromParent(shiftedNode);
-			    ((DefaultTreeModel) treeModel).insertNodeInto(shiftedNode, currentNode, childIndex);
+			    DefaultMutableTreeNode shiftedNode = (DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex);
+			    thisTreeModel.removeNodeFromParent(shiftedNode);
+			    thisTreeModel.insertNodeInto(shiftedNode, currentNode, childIndex);
 			} else {
-			    ((DefaultTreeModel) treeModel).nodeChanged((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, modelChildIndex));
+			    thisTreeModel.nodeChanged((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex));
 			}
 			break;
 		    }
 		}
 		// check if using an existing node failed and if so then add a new node
-		if (childIndex >= ((DefaultTreeModel) treeModel).getChildCount(currentNode) || !((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, childIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
+		if (childIndex >= thisTreeModel.getChildCount(currentNode) || !((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
 		    childDataNodeArray[childIndex].registerContainer(this);
 		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childDataNodeArray[childIndex]);
-		    ((DefaultTreeModel) treeModel).insertNodeInto(addableNode, currentNode, childIndex);
+		    thisTreeModel.insertNodeInto(addableNode, currentNode, childIndex);
 		}
 	    }
 	    // remove any extraneous nodes from the end
-	    for (int childIndex = ((DefaultTreeModel) treeModel).getChildCount(currentNode) - 1; childIndex >= childDataNodeArray.length; childIndex--) {
-		((DefaultTreeModel) treeModel).removeNodeFromParent(((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, childIndex)));
+	    for (int childIndex = thisTreeModel.getChildCount(currentNode) - 1; childIndex >= childDataNodeArray.length; childIndex--) {
+		thisTreeModel.removeNodeFromParent(((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)));
 	    }
-	    for (int childIndex = 0; childIndex < ((DefaultTreeModel) treeModel).getChildCount(currentNode); childIndex++) {
+	    for (int childIndex = 0; childIndex < thisTreeModel.getChildCount(currentNode); childIndex++) {
 		//for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
-		sortDescendentNodes((DefaultMutableTreeNode) ((DefaultTreeModel) treeModel).getChild(currentNode, childIndex));
+		sortDescendentNodes((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex));
 	    }
 	}
     }
