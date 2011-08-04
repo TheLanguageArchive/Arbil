@@ -746,6 +746,14 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	return tableFieldView;
     }
 
+    private String getOriginalValue(ArbilTableCell data) {
+	Object content = data.getContent();
+	if (content instanceof ArbilField) {
+	    return ((ArbilField) content).originalFieldValue;
+	}
+	return getRenderedText(data);
+    }
+
 //    private class TableRowComparator implements Comparator<ImdiField[]> {
     private class TableRowComparator implements Comparator {
 
@@ -760,10 +768,11 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 
 	//public int compare(ImdiField[] firstRowArray, ImdiField[] secondRowArray) {
 	public int compare(Object firstRowArray, Object secondRowArray) {
-	    if (sortColumn >= 0) {
+	    if (sortColumn >= 0) { // Sorted by actual values in a column
 		// (done by setting when the hor ver setting changes) need to add a check for horizontal view and -1 which is invalid
-		String baseValueA = getRenderedText(((ArbilTableCell[]) firstRowArray)[sortColumn]);
-		String comparedValueA = getRenderedText(((ArbilTableCell[]) secondRowArray)[sortColumn]);
+		String baseValueA = getOriginalValue(((ArbilTableCell[]) firstRowArray)[sortColumn]).toLowerCase();
+		String comparedValueA = getOriginalValue(((ArbilTableCell[]) secondRowArray)[sortColumn]).toLowerCase();
+
 		// TODO: add the second or more sort column
 //            if (!(baseValueA.equals(comparedValueA))) {
 //                return baseValueB.compareTo(comparedValueB);
@@ -775,7 +784,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		    returnValue = 1 - returnValue;
 		}
 		return returnValue;
-	    } else {
+	    } else { // Sorted by field order
 		try {
 //                    if (baseValueA != null && comparedValueA != null) { // if either id is null then check why it is being draw when it should be reloaded first
 		    int baseIntA = ((ArbilField) ((ArbilTableCell[]) firstRowArray)[1].getContent()).getFieldOrder();
