@@ -599,13 +599,15 @@ public class MetadataReader {
 			    pathUrlXpathSeparator = "#";
 			}
 			String siblingSpacer = "";
+			boolean isSingleton = false;
 			if (maxOccurs > 1 || maxOccurs == -1 || !(parentNode.getParentDomNode().nodeTemplate instanceof CmdiTemplate) /* this version of the metanode creation should always be run for imdi files */) {
+			    isSingleton = maxOccurs == 1;
 			    metaNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath));
 			    metaNode.setNodeText(childsMetaNode); // + "(" + localName + ")" + metaNodeImdiTreeObject.getURI().getFragment());
 			    if (!parentChildTree.containsKey(metaNode)) {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
 			    }
-			    if (maxOccurs != 1) {
+			    if (!isSingleton) {
 				parentChildTree.get(parentNode).add(metaNode);
 			    }
 			    // add brackets to conform with the imdi api notation
@@ -628,13 +630,13 @@ public class MetadataReader {
 //                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
 			}
 			fullSubNodePath = fullSubNodePath + siblingSpacer;
-			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));		
-			
-			if (metaNode != null && maxOccurs != 1) {
+			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
+
+			if (metaNode != null && !isSingleton) {
 			    parentChildTree.get(metaNode).add(subNode);
 			} else {
-			    if(maxOccurs == 1){
-				subNode.setSingletonMetadataNode(localName);
+			    if (isSingleton) {
+				subNode.setSingletonMetadataNode(true);
 			    }
 //                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
 			    parentChildTree.get(parentNode).add(subNode);
