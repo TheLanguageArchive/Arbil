@@ -10,8 +10,11 @@ import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
 import nl.mpi.arbil.wicket.model.ArbilWicketRemoteSearchTerm;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
+import org.apache.wicket.Application;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -143,20 +146,22 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
 	    private void addRemoveButton(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
 
-		item.add(new AjaxButton(id) {
+		item.add(new AjaxFallbackButton(id, ArbilWicketSearchForm.this) {
 
 		    @Override
 		    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 			List<ArbilWicketNodeSearchTerm> searchTerms = ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms();
 			searchTerms.remove(item.getModelObject());
-			
+
 			// When leaving only one, make sure it has boolean AND
-			if(searchTerms.size() == 1){
+			if (searchTerms.size() == 1) {
 			    searchTerms.get(0).setBooleanAnd(true);
 			}
-			
+
 			nodeSearchTermsContainer.addOrReplace(nodeSearchTerms);
-			target.addComponent(nodeSearchTermsContainer);
+			if (target != null) {
+			    target.addComponent(nodeSearchTermsContainer);
+			}
 		    }
 
 		    @Override
@@ -168,13 +173,15 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	    }
 	});
 
-	nodeSearchTermsContainer.add(new AjaxButton("addNodeSearchTerm") {
+	nodeSearchTermsContainer.add(new AjaxFallbackButton("addNodeSearchTerm", this) {
 
 	    @Override
 	    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 		ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms().add(newNodeSearchTerm());
 		nodeSearchTermsContainer.addOrReplace(nodeSearchTerms);
-		target.addComponent(nodeSearchTermsContainer);
+		if (target != null) {
+		    target.addComponent(nodeSearchTermsContainer);
+		}
 	    }
 	});
 
@@ -184,7 +191,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 
     private void addSearchButton() {
 	// 'Search' button
-	add(new AjaxButton("searchSubmit", this) {
+	add(new AjaxFallbackButton("searchSubmit", this) {
 
 	    @Override
 	    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
@@ -200,7 +207,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
     }
 
     private void addStopButton() {
-	// Stop button
+	// Stop button. Will only show in Ajax context (i.e. when progress bar shows)
 	add(stopButton = new AjaxButton("searchStop") {
 
 	    @Override
@@ -259,7 +266,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	progressbar.setVisible(false);
     }
 
-    private void performSearch(final ArbilWicketSearch searchTerm, AjaxRequestTarget target) {
+    public void performSearch(final ArbilWicketSearch searchTerm, AjaxRequestTarget target) {
 
 	if (null != searchTerm && isNodesSelected() && (!isRemote() || null != searchTerm.getRemoteSearchTerm())) {
 	    if (resultsModel != null) {
@@ -290,33 +297,48 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		});
 	    }
 
-	    stopButton.setVisible(true);
+	    if (target != null) {
+		stopButton.setVisible(true);
+		progress = 0;
+		progressMessage = "Searching...";
+		progressbar.setVisible(true);
+		progressbar.start(target);
+	    }
 
-	    progress = 0;
-	    progressMessage = "Searching...";
-	    progressbar.setVisible(true);
-	    progressbar.start(target);
+	    if (target == null) {
+		// Non-ajax. Search until complete, then call callback
+		searchNodes();
+		onSearchComplete(resultsModel, target);
+	    } else {
+		final Application app = getApplication();
+		final Session sess = getSession();
+		// Ajax, search in separate thread so that ajax target can be sent
+		new Thread() {
 
-	    // Search in separate thread so that ajax target can be sent
-	    new Thread() {
-
-		@Override
-		public void run() {
-		    //resultsModel.suspendReload();
-
-		    searchService.splitLocalRemote();
-		    if (isRemote()) {
-			searchService.fetchRemoteSearchResults();
+		    @Override
+		    public void run() {
+			// Set application and session in this thread, so session specific services can be resolved by data loader
+			Application.set(app);
+			Session.set(sess);
+			searchNodes();
+			Application.unset();
+			Session.unset();
 		    }
-		    searchService.searchLocalNodes();
-		    //resultsModel.resumeReload();
+		}.start();
+	    }
+	}
+    }
 
-		    synchronized (searchLock) {
-			searchService = null;
-		    }
+    private void searchNodes() {
+	searchService.splitLocalRemote();
+	if (isRemote()) {
+	    searchService.fetchRemoteSearchResults();
+	}
+	searchService.searchLocalNodes();
+	//resultsModel.resumeReload();
 
-		}
-	    }.start();
+	synchronized (searchLock) {
+	    searchService = null;
 	}
     }
 
