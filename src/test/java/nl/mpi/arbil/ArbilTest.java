@@ -39,7 +39,7 @@ public abstract class ArbilTest {
 	localTreeItems = null;
     }
 
-    protected void addToLocalTreeFromResource(String resourceClassPath) throws URISyntaxException {
+    protected void addToLocalTreeFromResource(String resourceClassPath) throws URISyntaxException, InterruptedException {
 	URI uri = getClass().getResource(resourceClassPath).toURI();
 
 	if (localTreeItems == null) {
@@ -50,6 +50,7 @@ public abstract class ArbilTest {
 	getTreeHelper().addLocation(uri);
 	for (ArbilDataNode node : getTreeHelper().getLocalCorpusNodes()) {
 	    node.waitTillLoaded();
+	    Thread.sleep(100);
 	}
     }
 
