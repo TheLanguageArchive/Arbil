@@ -11,6 +11,7 @@ import nl.mpi.arbil.wicket.components.ArbilWicketTablePanel;
 import nl.mpi.arbil.wicket.components.ArbilWicketTree;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
+import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearchModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -35,7 +36,7 @@ public class SearchPage extends TreePage {
 	ArbilWicketSession.get().getTreeHelper().applyRootLocations();
 	createTable();
 	createTrees();
-	createForm();
+	createForm(new ArbilWicketSearch(parameters, newNodeSearchTerm()));
     }
 
     private void createTable() {
@@ -61,8 +62,8 @@ public class SearchPage extends TreePage {
 	target.addComponent(searchForm);
     }
 
-    private void createForm() {
-	searchForm = new ArbilWicketSearchForm("searchForm", new ArbilWicketSearchModel(newNodeSearchTerm())) {
+    private void createForm(ArbilWicketSearch search) {
+	searchForm = new ArbilWicketSearchForm("searchForm", new ArbilWicketSearchModel(search)) {
 
 	    @Override
 	    protected void onSearchComplete(ArbilWicketTableModel model, AjaxRequestTarget target) {
