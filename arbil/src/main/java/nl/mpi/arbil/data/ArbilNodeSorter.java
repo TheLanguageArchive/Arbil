@@ -13,7 +13,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class ArbilNodeSorter implements Comparator, Serializable {
 
-    private final static Pattern endsInIntegerRegEx = Pattern.compile("[0-9]+$");
+    private final static Pattern NUMBERED_REGEX = Pattern.compile("[0-9]+");
 
     public int compare(Object object1, Object object2) {
 	Object userObject1;
@@ -47,16 +47,16 @@ public class ArbilNodeSorter implements Comparator, Serializable {
 	final String string2 = userObject2.toString();
 
 	// If both strings end in an integer, check if prefix is identical, then compare on basis of int values
-	final Matcher match1 = endsInIntegerRegEx.matcher(string1);
+	final Matcher match1 = NUMBERED_REGEX.matcher(string1);
 	if (match1.find()) {
 	    // See if prefix matches same area in string 2
 	    if (string1.regionMatches(0, string2, 0, match1.start())) {
 		// See if string 2 ends in integer as well, and check whether prefixes match completely
-		final Matcher match2 = endsInIntegerRegEx.matcher(string2);
+		final Matcher match2 = NUMBERED_REGEX.matcher(string2);
 		if (match2.find() && match1.start() == match2.start()) {
 		    // Get integer values and compare
 		    try {
-			return Integer.parseInt(string1.substring(match1.start())) - Integer.parseInt(string2.substring(match2.start()));
+			return Integer.parseInt(match1.group()) - Integer.parseInt(match2.group());
 		    } catch (NumberFormatException ex) {
 			// something gone wrong with the regex, revert to string comparison below
 		    }
