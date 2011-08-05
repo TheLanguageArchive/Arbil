@@ -9,8 +9,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FontMetrics;
-import java.util.Arrays;
-import java.util.Comparator;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
