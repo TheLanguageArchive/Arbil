@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -16,6 +17,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
+import nl.mpi.arbil.data.NumberedStringComparator;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**
@@ -755,7 +757,7 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
     }
 
 //    private class TableRowComparator implements Comparator<ImdiField[]> {
-    private class TableRowComparator implements Comparator {
+    private class TableRowComparator extends NumberedStringComparator implements Serializable {
 
 	int sortColumn = 0;
 	boolean sortReverse = false;
@@ -779,7 +781,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 //            } else {
 //                return baseValueA.compareTo(comparedValueA);
 //            }
-		int returnValue = baseValueA.compareTo(comparedValueA);
+		Integer returnValue = compareNumberedStrings(baseValueA, comparedValueA);
+		if (returnValue == null) {
+		    returnValue = baseValueA.compareTo(comparedValueA);
+		}
 		if (sortReverse) {
 		    returnValue = 1 - returnValue;
 		}
