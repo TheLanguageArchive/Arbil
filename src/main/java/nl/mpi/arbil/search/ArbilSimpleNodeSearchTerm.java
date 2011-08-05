@@ -83,4 +83,45 @@ public class ArbilSimpleNodeSearchTerm implements ArbilNodeSearchTerm, Serializa
     public void setSearchString(String searchString) {
 	this.searchString = searchString;
     }
+
+    @Override
+    protected ArbilSimpleNodeSearchTerm clone() {
+	ArbilSimpleNodeSearchTerm clone = new ArbilSimpleNodeSearchTerm();
+	copyTo(clone);
+	return clone;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (obj == this) {
+	    return true;
+	} else if (obj instanceof ArbilSimpleNodeSearchTerm) {
+	    return ((ArbilSimpleNodeSearchTerm) obj).getNodeType().equals(getNodeType())
+		    && ((ArbilSimpleNodeSearchTerm) obj).getSearchFieldName().equals(getSearchFieldName())
+		    && ((ArbilSimpleNodeSearchTerm) obj).getSearchString().equals(getSearchString())
+		    && ((ArbilSimpleNodeSearchTerm) obj).isBooleanAnd() == isBooleanAnd()
+		    && ((ArbilSimpleNodeSearchTerm) obj).isNotEqual() == isNotEqual();
+	} else {
+	    return false;
+	}
+    }
+
+    @Override
+    public int hashCode() {
+	int hash = 3;
+	hash = 79 * hash + (this.notEqual ? 1 : 0);
+	hash = 79 * hash + (this.booleanAnd ? 1 : 0);
+	hash = 79 * hash + (this.nodeType != null ? this.nodeType.hashCode() : 0);
+	hash = 79 * hash + (this.searchString != null ? this.searchString.hashCode() : 0);
+	hash = 79 * hash + (this.searchFieldName != null ? this.searchFieldName.hashCode() : 0);
+	return hash;
+    }
+
+    public void copyTo(ArbilSimpleNodeSearchTerm clone) {
+	clone.setBooleanAnd(isBooleanAnd());
+	clone.setNodeType(getNodeType());
+	clone.setNotEqual(isNotEqual());
+	clone.setSearchFieldName(getSearchFieldName());
+	clone.setSearchString(getSearchString());
+    }
 }
