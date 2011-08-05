@@ -96,13 +96,21 @@ public class ArbilSimpleNodeSearchTerm implements ArbilNodeSearchTerm, Serializa
 	if (obj == this) {
 	    return true;
 	} else if (obj instanceof ArbilSimpleNodeSearchTerm) {
-	    return ((ArbilSimpleNodeSearchTerm) obj).getNodeType().equals(getNodeType())
-		    && ((ArbilSimpleNodeSearchTerm) obj).getSearchFieldName().equals(getSearchFieldName())
-		    && ((ArbilSimpleNodeSearchTerm) obj).getSearchString().equals(getSearchString())
+	    return stringsEqual(((ArbilSimpleNodeSearchTerm) obj).getNodeType(), (getNodeType()))
+		    && stringsEqual(((ArbilSimpleNodeSearchTerm) obj).getSearchFieldName(), (getSearchFieldName()))
+		    && stringsEqual(((ArbilSimpleNodeSearchTerm) obj).getSearchString(), (getSearchString()))
 		    && ((ArbilSimpleNodeSearchTerm) obj).isBooleanAnd() == isBooleanAnd()
 		    && ((ArbilSimpleNodeSearchTerm) obj).isNotEqual() == isNotEqual();
 	} else {
 	    return false;
+	}
+    }
+
+    private static boolean stringsEqual(String a, String b) {
+	if (a == null) {
+	    return b == null;
+	} else {
+	    return a.equals(b);
 	}
     }
 
