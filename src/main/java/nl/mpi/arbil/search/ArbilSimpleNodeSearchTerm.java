@@ -85,7 +85,7 @@ public class ArbilSimpleNodeSearchTerm implements ArbilNodeSearchTerm, Serializa
     }
 
     @Override
-    protected ArbilSimpleNodeSearchTerm clone() {
+    public ArbilSimpleNodeSearchTerm clone() {
 	ArbilSimpleNodeSearchTerm clone = new ArbilSimpleNodeSearchTerm();
 	copyTo(clone);
 	return clone;
