@@ -1,5 +1,6 @@
 package nl.mpi.arbil.wicket.model;
 
+import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import org.apache.wicket.model.Model;
 
 /**
@@ -12,7 +13,7 @@ public class ArbilWicketSearchModel extends Model<ArbilWicketSearch> {
 	super(new ArbilWicketSearch());
     }
     
-    public ArbilWicketSearchModel(ArbilWicketNodeSearchTerm term){
+    public ArbilWicketSearchModel(ArbilNodeSearchTerm term){
 	super(new ArbilWicketSearch(term));
     }
     

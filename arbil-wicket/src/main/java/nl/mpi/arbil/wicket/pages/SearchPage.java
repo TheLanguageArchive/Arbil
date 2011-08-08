@@ -5,12 +5,12 @@ import java.util.Collections;
 import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
+import nl.mpi.arbil.search.ArbilSimpleNodeSearchTerm;
 import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.wicket.components.ArbilWicketSearchForm;
 import nl.mpi.arbil.wicket.components.ArbilWicketTablePanel;
 import nl.mpi.arbil.wicket.components.ArbilWicketTree;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
-import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearchModel;
 import org.apache.wicket.PageParameters;
@@ -101,7 +101,7 @@ public class SearchPage extends TreePage {
 	    }
 
 	    @Override
-	    protected ArbilWicketNodeSearchTerm newNodeSearchTerm() {
+	    protected ArbilNodeSearchTerm newNodeSearchTerm() {
 		return SearchPage.this.newNodeSearchTerm();
 	    }
 	};
@@ -110,8 +110,8 @@ public class SearchPage extends TreePage {
 	tableContainer.add(searchForm);
     }
 
-    private ArbilWicketNodeSearchTerm newNodeSearchTerm() {
-	ArbilWicketNodeSearchTerm term = new ArbilWicketNodeSearchTerm();
+    private ArbilSimpleNodeSearchTerm newNodeSearchTerm() {
+	ArbilSimpleNodeSearchTerm term = new ArbilSimpleNodeSearchTerm();
 	term.setNodeType(ArbilNodeSearchTerm.NODE_TYPE_ALL);
 	term.setBooleanAnd(true);
 	term.setNotEqual(false);

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
+import nl.mpi.arbil.search.ArbilSimpleNodeSearchTerm;
 import org.apache.wicket.PageParameters;
 
 /**
@@ -21,29 +22,29 @@ public class ArbilWicketSearch implements Serializable {
     public final static String PARAM_SEARCH_EQUALS_NOT = "NOT";
     public final static String PARAM_SEARCH_REMOTE_TERM = "remoteTerm";
     
-    private List<ArbilWicketNodeSearchTerm> nodeSearchTerms;
+    private List<ArbilNodeSearchTerm> nodeSearchTerms;
     private String remoteSearchTerm;
 
-    public ArbilWicketSearch(List<ArbilWicketNodeSearchTerm> nodeSearchTerms, String remoteSearchTerm) {
+    public ArbilWicketSearch(List<ArbilNodeSearchTerm> nodeSearchTerms, String remoteSearchTerm) {
 	this.nodeSearchTerms = nodeSearchTerms;
 	this.remoteSearchTerm = remoteSearchTerm;
     }
 
     public ArbilWicketSearch() {
-	this(new ArrayList<ArbilWicketNodeSearchTerm>(), null);
+	this(new ArrayList<ArbilNodeSearchTerm>(), null);
     }
 
-    public ArbilWicketSearch(ArbilWicketNodeSearchTerm term) {
+    public ArbilWicketSearch(ArbilNodeSearchTerm term) {
 	this();
 	this.nodeSearchTerms.add(term);
     }
     
-    public ArbilWicketSearch(PageParameters parameters, ArbilWicketNodeSearchTerm defaultNodeSearchTerm){
+    public ArbilWicketSearch(PageParameters parameters, ArbilSimpleNodeSearchTerm defaultNodeSearchTerm){
 	this();
 	setFromPageParameters(parameters, defaultNodeSearchTerm);
     }
 
-    public ArbilWicketSearch(ArbilWicketNodeSearchTerm term, String remoteSearchString) {
+    public ArbilWicketSearch(ArbilNodeSearchTerm term, String remoteSearchString) {
 	this(term);
 	this.remoteSearchTerm = remoteSearchString;
     }
@@ -51,14 +52,14 @@ public class ArbilWicketSearch implements Serializable {
     /**
      * @return the nodeSearchTerms
      */
-    public List<ArbilWicketNodeSearchTerm> getNodeSearchTerms() {
+    public List<ArbilNodeSearchTerm> getNodeSearchTerms() {
 	return nodeSearchTerms;
     }
 
     /**
      * @param nodeSearchTerms the nodeSearchTerms to set
      */
-    public void setNodeSearchTerms(List<ArbilWicketNodeSearchTerm> nodeSearchTerms) {
+    public void setNodeSearchTerms(List<ArbilNodeSearchTerm> nodeSearchTerms) {
 	this.nodeSearchTerms = nodeSearchTerms;
     }
 
@@ -81,7 +82,7 @@ public class ArbilWicketSearch implements Serializable {
      * @param parameters PageParemeters to set search from. Use parameter names as defined by the constants in this class
      * @return Whether applicable parameters have been detected and applied
      */
-    public final void setFromPageParameters(PageParameters parameters, ArbilWicketNodeSearchTerm defaultNodeSearchTerm) {
+    public final void setFromPageParameters(PageParameters parameters, ArbilSimpleNodeSearchTerm defaultNodeSearchTerm) {
 	int termCount = 0;
 
 	// Get remote search term (only one per search)
@@ -119,7 +120,7 @@ public class ArbilWicketSearch implements Serializable {
 	if (termCount > 0) {
 	    for (int i = 0; i < termCount; i++) {
 		// Construct a search term for the parameters
-		ArbilWicketNodeSearchTerm nodeSearchTerm = defaultNodeSearchTerm.clone();
+		ArbilSimpleNodeSearchTerm nodeSearchTerm = defaultNodeSearchTerm.clone();
 		// Set value
 		if (values != null && values.length > i) {
 		    nodeSearchTerm.setSearchString(values[i]);

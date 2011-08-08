@@ -6,7 +6,6 @@ import java.util.List;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSearch;
-import nl.mpi.arbil.wicket.model.ArbilWicketNodeSearchTerm;
 import nl.mpi.arbil.wicket.model.ArbilWicketRemoteSearchTerm;
 import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
@@ -41,7 +40,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
     private static final String SELECT_NODES_STRING = "Select a node and enter search terms";
     private transient ArbilSearch searchService;
     private ArbilWicketTableModel resultsModel;
-    private ListView<ArbilWicketNodeSearchTerm> nodeSearchTerms;
+    private ListView<ArbilNodeSearchTerm> nodeSearchTerms;
     private AjaxButton stopButton;
     private ProgressBar progressbar;
     private String progressMessage = null;
@@ -94,10 +93,10 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	final WebMarkupContainer nodeSearchTermsContainer = new WebMarkupContainer("nodeSearchTermsContainer");
 
 	// Collection of search terms
-	nodeSearchTermsContainer.add(nodeSearchTerms = new PropertyListView<ArbilWicketNodeSearchTerm>("nodeSearchTerms", getModelObject().getNodeSearchTerms()) {
+	nodeSearchTermsContainer.add(nodeSearchTerms = new PropertyListView<ArbilNodeSearchTerm>("nodeSearchTerms", getModelObject().getNodeSearchTerms()) {
 
 	    @Override
-	    protected void populateItem(final ListItem<ArbilWicketNodeSearchTerm> item) {
+	    protected void populateItem(final ListItem<ArbilNodeSearchTerm> item) {
 
 		addBooleanAnd("booleanAnd", item);
 		addNotEquals("notEqual", item);
@@ -110,7 +109,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		addRemoveButton("removeNodeSearchTerm", item);
 	    }
 
-	    private void addBooleanAnd(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
+	    private void addBooleanAnd(String id, final ListItem<ArbilNodeSearchTerm> item) {
 		item.add(new DropDownChoice<Boolean>(id, Arrays.asList(new Boolean[]{true, false}), new IChoiceRenderer<Boolean>() {
 
 		    public Object getDisplayValue(Boolean object) {
@@ -130,7 +129,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		});
 	    }
 
-	    private void addNotEquals(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
+	    private void addNotEquals(String id, final ListItem<ArbilNodeSearchTerm> item) {
 
 		item.add(new DropDownChoice<Boolean>(id, Arrays.asList(new Boolean[]{true, false}), new IChoiceRenderer<Boolean>() {
 
@@ -144,13 +143,13 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 		}));
 	    }
 
-	    private void addRemoveButton(String id, final ListItem<ArbilWicketNodeSearchTerm> item) {
+	    private void addRemoveButton(String id, final ListItem<ArbilNodeSearchTerm> item) {
 
 		item.add(new AjaxFallbackButton(id, ArbilWicketSearchForm.this) {
 
 		    @Override
 		    protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-			List<ArbilWicketNodeSearchTerm> searchTerms = ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms();
+			List<ArbilNodeSearchTerm> searchTerms = ArbilWicketSearchForm.this.getModelObject().getNodeSearchTerms();
 			searchTerms.remove(item.getModelObject());
 
 			// When leaving only one, make sure it has boolean AND
@@ -346,7 +345,7 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	}
     }
 
-    protected abstract ArbilWicketNodeSearchTerm newNodeSearchTerm();
+    protected abstract ArbilNodeSearchTerm newNodeSearchTerm();
 
     protected abstract void onSearchComplete(ArbilWicketTableModel resultsTableModel, AjaxRequestTarget target);
 
