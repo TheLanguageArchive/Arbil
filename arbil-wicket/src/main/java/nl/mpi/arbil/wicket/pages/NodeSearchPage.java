@@ -25,19 +25,28 @@ import org.slf4j.LoggerFactory;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class NodeSearchPage extends WebPage {
+    public final static String PARAM_NODEURI = "nodeURI";
+    /**
+     * Include doSearch parameter to immediately initiate search. This will by default hide the form
+     */
+    public final static String PARAM_DO_SEARCH = "doSearch";
+    /**
+     * To show the form when having doSearch parameter, include showForm parameter
+     */
+    public static final String PARAM_SHOW_FORM = "showForm";
 
     private static Logger logger = LoggerFactory.getLogger(NodeSearchPage.class);
     private WebMarkupContainer tableContainer;
     private WebMarkupContainer tablePanel;
     private ArbilWicketSearchForm searchForm;
     private ArbilDataNodeModel selectedNodeModel = null;
-
+    
     public NodeSearchPage(PageParameters parameters) {
 	super(parameters);
 	createTable();
 	createForm(new ArbilWicketSearch(parameters, newNodeSearchTerm()));
-	if (parameters.containsKey("nodeURI")) {
-	    String nodeURI = parameters.getString("nodeURI");
+	if (parameters.containsKey(PARAM_NODEURI)) {
+	    String nodeURI = parameters.getString(PARAM_NODEURI);
 	    try {
 		selectedNodeModel = new ArbilDataNodeModel(new URI(nodeURI));
 		if (selectedNodeModel.getObject() != null) {
@@ -51,7 +60,18 @@ public class NodeSearchPage extends WebPage {
 		selectedNodeModel = null;
 	    }
 	}
-	// TODO: add optional parameter to execute search immediately, and (optionally) hide search form so only results get shown
+
+	if(parameters.containsKey(PARAM_DO_SEARCH)){
+	    initSearch(parameters.containsKey(PARAM_SHOW_FORM));
+	}
+    }
+
+    /**
+     * Initiates search without showing search form
+     */
+    private void initSearch(boolean showForm) {
+	searchForm.setVisible(showForm);
+	searchForm.performSearch(null);
     }
 
     private void createTable() {

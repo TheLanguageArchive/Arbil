@@ -266,7 +266,11 @@ public abstract class ArbilWicketSearchForm extends Form<ArbilWicketSearch> {
 	progressbar.setVisible(false);
     }
 
-    public void performSearch(final ArbilWicketSearch searchTerm, AjaxRequestTarget target) {
+    public void performSearch(AjaxRequestTarget target) {
+	performSearch(getModelObject(), target);
+    }
+
+    private void performSearch(final ArbilWicketSearch searchTerm, AjaxRequestTarget target) {
 
 	if (null != searchTerm && isNodesSelected() && (!isRemote() || null != searchTerm.getRemoteSearchTerm())) {
 	    if (resultsModel != null) {
