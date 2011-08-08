@@ -18,6 +18,7 @@ public class ArbilField implements Serializable {
     private String translatedPath = null;
     private String fieldValue = "";
     public String originalFieldValue = fieldValue;
+    private String cvUrlString;
     private int fieldOrder = -1;
     private ArbilVocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
@@ -201,7 +202,7 @@ public class ArbilField implements Serializable {
 //        System.out.println("getSiblingField: " + pathString);
 	for (ArbilField[] tempField : getParentDataNode().getFields().values().toArray(new ArbilField[][]{})) {
 //            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
-	    if (tempField[0].getFullXmlPath().equals(pathString)) {
+	    if (tempField[0].getFullXmlPath().equals(pathString) || tempField[0].getGenericFullXmlPath().equals(pathString)) {
 		return tempField;
 	    }
 	}
@@ -230,6 +231,7 @@ public class ArbilField implements Serializable {
 	originalLanguageId = languageId;
 	keyName = keyNameLocal;
 	originalKeyName = keyName;
+	this.cvUrlString = cvUrlString;
 	// set for the vocabulary type
 	hasVocabularyType = false;
 	if (cvType != null) {
@@ -251,6 +253,10 @@ public class ArbilField implements Serializable {
 		hasVocabularyType = true;
 	    }
 	}
+	loadVocabulary();
+    }
+
+    public void loadVocabulary() {
 	if (hasVocabularyType) {
 	    if (cvUrlString != null && cvUrlString.length() > 0) {
 		fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
