@@ -19,6 +19,8 @@ public class ArbilWicketSearch implements Serializable {
     public final static String PARAM_SEARCH_OPERATOR = "operators";
     public final static String PARAM_SEARCH_EQUALS = "equals";
     public final static String PARAM_SEARCH_EQUALS_NOT = "NOT";
+    public final static String PARAM_SEARCH_REMOTE_TERM = "remoteTerm";
+    
     private List<ArbilWicketNodeSearchTerm> nodeSearchTerms;
     private String remoteSearchTerm;
 
@@ -82,6 +84,11 @@ public class ArbilWicketSearch implements Serializable {
     public final void setFromPageParameters(PageParameters parameters, ArbilWicketNodeSearchTerm defaultNodeSearchTerm) {
 	int termCount = 0;
 
+	// Get remote search term (only one per search)
+	if(parameters.containsKey(PARAM_SEARCH_REMOTE_TERM)){
+	    setRemoteSearchTerm(parameters.getString(PARAM_SEARCH_REMOTE_TERM));
+	}
+	
 	// Get arrays for parameter types
 	String[] values = null;
 	if (parameters.containsKey(PARAM_SEARCH_VALUE)) {
