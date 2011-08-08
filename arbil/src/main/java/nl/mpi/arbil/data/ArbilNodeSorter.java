@@ -1,5 +1,6 @@
 package nl.mpi.arbil.data;
 
+import nl.mpi.arbil.util.NumberedStringComparator;
 import java.io.Serializable;
 import javax.swing.tree.DefaultMutableTreeNode;
 

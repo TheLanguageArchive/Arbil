@@ -17,7 +17,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
-import nl.mpi.arbil.data.NumberedStringComparator;
+import nl.mpi.arbil.util.NumberedStringComparator;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**

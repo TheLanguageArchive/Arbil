@@ -139,7 +139,7 @@ public class ArbilComponentBuilder {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
 //            <ResourceProxy id="a_text">
-//                <ResourceType>Resource</ResourceType>
+//                <ResourceType mimetype="audio/x-mpeg4">Resource</ResourceType>
 //                <ResourceRef>bla.txt</ResourceRef>
 //            </ResourceProxy>
 	    String targetXmlPath = arbilDataNode.getURI().getFragment();

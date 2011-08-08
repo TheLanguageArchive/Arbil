@@ -1,4 +1,4 @@
-package nl.mpi.arbil.data;
+package nl.mpi.arbil.util;
 
 import java.util.Comparator;
 import java.util.regex.Matcher;
@@ -29,19 +29,25 @@ public abstract class NumberedStringComparator implements Comparator {
 		// See if string 2 ends in integer as well, and check whether prefixes match completely
 		final Matcher match2 = getPattern().matcher(string2);
 		if (match2.find() && match1.start() == match2.start()) {
-		    // Get integer values and compare
-		    try {
-			return Integer.parseInt(match1.group()) - Integer.parseInt(match2.group());
-		    } catch (NumberFormatException ex) {
-			// something gone wrong with the regex, revert to string comparison below
+		    if (match1.end() == match2.end()) {
+			// Matches are of same length, so we can do an ordinary string comparison 
+			// (I suppose this is cheaper than parsing integers)
+			return match1.group().compareToIgnoreCase(match2.group());
+		    } else {
+			// Get integer values and compare
+			try {
+			    return Integer.parseInt(match1.group()) - Integer.parseInt(match2.group());
+			} catch (NumberFormatException ex) {
+			    // something gone wrong with the regex, revert to caller's method of comparison
+			}
 		    }
 		}
 	    }
 	}
 	return null;
     }
-    
-    protected Pattern getPattern(){
+
+    protected Pattern getPattern() {
 	return PATTERN;
     }
 }
