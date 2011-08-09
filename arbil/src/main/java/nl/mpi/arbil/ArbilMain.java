@@ -14,15 +14,16 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 
 /*
- * LinorgView.java
+ * ArbilMain.java
  * This version uses only a JFrame and does not require additional dependencies
  * Created on 23 September 2008, 17:23
  * @author Peter.Withers@mpi.nl
+ * @author Twan.Goosen@mpi.nl
  */
 public class ArbilMain extends javax.swing.JFrame {
 
-    protected javax.swing.JSplitPane mainSplitPane;
-    protected ArbilMenuBar arbilMenuBar;
+    private javax.swing.JSplitPane mainSplitPane;
+    private ArbilMenuBar arbilMenuBar;
 //    static boolean updateViaJavaws = false;
 
     /**
@@ -135,13 +136,11 @@ public class ArbilMain extends javax.swing.JFrame {
 	    }
 	} catch (ClassNotFoundException ex) {
 	    // Application class not found - not on a Mac or not supported for some other reason. Fail silently.
-	    return;
 	}
     }
 
     private void initMacQuitHandler(Class applicationClass, Object application) throws IllegalArgumentException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, InvocationTargetException {
-	// Create quitHandler
-	InvocationHandler quitHandlerInvocationHandler = new InvocationHandler() {
+	initMacHandler(applicationClass, application, "com.apple.eawt.QuitHandler", "setQuitHandler", new InvocationHandler() {
 
 	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		if (method.getName().equals("handleQuitRequestWith")) {
@@ -160,27 +159,33 @@ public class ArbilMain extends javax.swing.JFrame {
 		}
 		return null;
 	    }
-	};
-	Class quitHandlerInterface = Class.forName("com.apple.eawt.QuitHandler");
-	Object quitHandler = Proxy.newProxyInstance(quitHandlerInterface.getClassLoader(), new Class[]{quitHandlerInterface}, quitHandlerInvocationHandler);
-	// Add to application
-	Method addQuitHandlerMethod = applicationClass.getMethod("setQuitHandler", quitHandlerInterface);
-	addQuitHandlerMethod.invoke(application, quitHandler);
+	});
     }
 
     private void initMacAboutHandler(Class applicationClass, Object application) throws IllegalArgumentException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, InvocationTargetException {
-	// Create quitHandler
-	InvocationHandler aboutHandlerInvocationHandler = new InvocationHandler() {
+	initMacHandler(applicationClass, application, "com.apple.eawt.AboutHandler", "setAboutHandler", new InvocationHandler() {
 
 	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		ArbilWindowManager.getSingleInstance().openAboutPage();
 		return null;
 	    }
-	};
-	Class aboutHandlerInterface = Class.forName("com.apple.eawt.AboutHandler");
-	Object aboutHandler = Proxy.newProxyInstance(aboutHandlerInterface.getClassLoader(), new Class[]{aboutHandlerInterface}, aboutHandlerInvocationHandler);
-	// Add to application
-	Method addAboutHandlerMethod = applicationClass.getMethod("setAboutHandler", aboutHandlerInterface);
-	addAboutHandlerMethod.invoke(application, aboutHandler);
+	});
+    }
+
+    /**
+     * Sets a MacOS application handler
+     * @param applicationClass Application class (com.apple.eawt.Application)
+     * @param application Application instance
+     * @param interfaceName Name of handler interface
+     * @param setMethodName Name of method on application that sets the handler
+     * @param invocationHandler Invocation handler that does the work for application handler
+     */
+    private static void initMacHandler(Class applicationClass, Object application, String interfaceName, String setMethodName, InvocationHandler invocationHandler) throws IllegalArgumentException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, InvocationTargetException {
+	// Get class for named interface
+	Class handlerInterface = Class.forName(interfaceName);
+	// Create dynamic proxy using specified invocation handler
+	Object handler = Proxy.newProxyInstance(handlerInterface.getClassLoader(), new Class[]{handlerInterface}, invocationHandler);
+	// Set on specified application using specified method
+	applicationClass.getMethod(setMethodName, handlerInterface).invoke(application, handler);
     }
 }
