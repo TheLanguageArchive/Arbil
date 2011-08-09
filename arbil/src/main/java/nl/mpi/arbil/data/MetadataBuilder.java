@@ -302,6 +302,7 @@ public class MetadataBuilder {
 			    addedNodePath = MetadataReader.getSingleInstance().insertFromTemplate(destinationNode.getNodeTemplate(), destinationNode.getURI(), destinationNode.getSubDirectory(), nodeType, targetXmlPath, nodDom, resourceUri, mimeType);
 			    destinationNode.bumpHistory();
 			    ArbilComponentBuilder.savePrettyFormatting(nodDom, destinationNode.getFile());
+			    dataNodeLoader.requestReload(destinationNode);
 			}
 		    } catch (ParserConfigurationException ex) {
 			bugCatcher.logError(ex);
