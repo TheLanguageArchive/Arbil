@@ -227,7 +227,7 @@ public class ArbilComponentBuilder {
 		    // todo: search for and remove any reource links referenced by this node or its sub nodes
 		    Node documentNode = selectSingleNode(targetDocument, currentNodePath);
 		    //System.out.println("documentNode: " + documentNode);
-		    System.out.println("documentNodeName: " + documentNode.getNodeName());
+		    System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
 		    selectedNodes.add(documentNode);
 
 		}
