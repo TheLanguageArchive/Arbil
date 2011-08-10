@@ -36,6 +36,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
+import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 
@@ -553,7 +554,7 @@ public class ArbilTable extends JTable {
     @Override
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
 	if (arbilTableModel.isHorizontalView()) {
-	    boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilDataNode);
+	    boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilDataNodeTableCell);
 	    if (!arbilTableModel.isHorizontalView()) {
 		this.setRowSelectionAllowed(true);
 		this.setColumnSelectionAllowed(false);
