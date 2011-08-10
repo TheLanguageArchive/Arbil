@@ -253,7 +253,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <manifest>
                 <attribute name="Main-Class" value="nl.mpi.arbil.ArbilMain"/>
                 <!--TODO: (currently removed due to inclusion in the installer for windows) consider preventing the imagemagick jar being on the class path for windows due to the effect it might have on other os -->
-                <attribute name="Class-Path" value="lib/mpi-util-1.0.0.jar lib/corpusstructure-api-1.7.3.jar lib/imdi-api-1.1.2.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.7.1.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar lib/xbean.jar lib/commons-digester-2.0.jar lib/commons-logging-1.1.jar lib/commons-beanutils-1.8.0.jar lib/xmlpublic.jar" />
+                <attribute name="Class-Path" value="lib/mpi-util-1.0.0.jar lib/corpusstructure-api-1.7.3.jar lib/imdi-api-1.1.2.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar lib/bcprov-jdk15-143.jar lib/slcshttps_jdk15_v0.2.jar lib/xbean.jar lib/commons-digester-2.0.jar lib/commons-logging-1.1.jar lib/commons-beanutils-1.8.0.jar lib/xmlpublic.jar" />
                 <!--<attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/saxon8.jar lib/saxon8-dom.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar" />-->
                 <!-- <attribute name="Class-Path" value="lib/corpusstructure.jar lib/imdiapi.jar lib/log4j-1.2.14.jar lib/${TypeCheckVersion} lib/xalan-2.6.0.jar lib/xercesImpl-2.9.0.jar"/> -->
             </manifest>
@@ -275,7 +275,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
                     <file name="saxon8-xqj.jar" />
                     <file name="saxon-dom-8.7.jar" />
                     <file name="log4j-1.2.9.jar" />
-                    <file name="xalan-2.7.0.jar" />                    
+                    <file name="xalan-2.6.0.jar" />                    
                     <file name="xercesImpl-2.9.0.jar" />
                     -->
                     <!--
@@ -431,7 +431,7 @@ public class ArbilVersion {
         <scp file="${OUTPUTDIR}/lib/saxon8.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/saxon8-dom.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/${TypeCheckVersion}" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
-        <scp file="${OUTPUTDIR}/lib/xalan-2.7.1.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
+        <scp file="${OUTPUTDIR}/lib/xalan-2.6.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/xercesImpl-2.9.0.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/bcprov-jdk15-143.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
         <scp file="${OUTPUTDIR}/lib/slcshttps_jdk15_v0.2.jar" todir="${lux09.user}:${lux09.pw}@lux17.mpi.nl:/lat/apache/htdocs/arbil/lib/"/>
