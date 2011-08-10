@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.ui.menu;
 
 import java.awt.Component;
@@ -9,7 +5,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import javax.swing.JMenuItem;
@@ -292,6 +287,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
         addItemCategory(CATEGORY_REMOTE_CORPUS);
         addItemCategory(CATEGORY_WORKING_DIR);
         addItemCategory(CATEGORY_TABLE_CELL);
+        addItemCategory(CATEGORY_TABLE_ROW);
         addItemCategory(CATEGORY_ADD_FAVOURITES);
 
         addItemCategory(CATEGORY_DISK);
@@ -328,6 +324,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected final static String CATEGORY_REMOTE_CORPUS = "remote corpus";
     protected final static String CATEGORY_WORKING_DIR = "working dir";
     protected final static String CATEGORY_TABLE_CELL = "table cell";
+    protected final static String CATEGORY_TABLE_ROW = "table row";
     protected final static String CATEGORY_IMPORT = "import";
     protected final static int PRIORITY_TOP = 0;
     protected final static int PRIORITY_MIDDLE = 50;

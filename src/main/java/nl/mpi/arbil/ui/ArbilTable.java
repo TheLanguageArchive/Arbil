@@ -554,7 +554,7 @@ public class ArbilTable extends JTable {
     @Override
     public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
 	if (arbilTableModel.isHorizontalView()) {
-	    boolean rowSelection = (arbilTableModel.getValueAt(rowIndex, columnIndex) instanceof ArbilDataNodeTableCell);
+	    boolean rowSelection = (arbilTableModel.getTableCellContentAt(rowIndex, columnIndex) instanceof ArbilDataNode);
 	    if (!arbilTableModel.isHorizontalView()) {
 		this.setRowSelectionAllowed(true);
 		this.setColumnSelectionAllowed(false);
@@ -718,7 +718,7 @@ public class ArbilTable extends JTable {
     }
 
     public ArbilDataNode getDataNodeForSelection() {
-	Object cellValue = arbilTableModel.getValueAt(getSelectedRow(), getSelectedColumn());
+	Object cellValue = arbilTableModel.getTableCellContentAt(getSelectedRow(), getSelectedColumn());
 	ArbilDataNode cellDataNode = null;
 	if (cellValue instanceof ArbilField) {
 	    cellDataNode = ((ArbilField) cellValue).getParentDataNode();

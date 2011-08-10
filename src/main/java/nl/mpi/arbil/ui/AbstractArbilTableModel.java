@@ -263,6 +263,15 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	}
     }
 
+    public Object getTableCellContentAt(int row, int col) {
+	Object tableCell = getValueAt(row, col);
+	if (tableCell instanceof ArbilTableCell) {
+	    return ((ArbilTableCell) tableCell).getContent();
+	} else {
+	    return null;
+	}
+    }
+
     public void hideColumn(int columnIndex) {
 	System.out.println("hideColumn: " + columnIndex);
 	// TODO: hide column
