@@ -204,7 +204,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <getLibFile fileName="saxon8.jar"/>
         <getLibFile fileName="saxon8-dom.jar"/>
         <getLibFile fileName="${TypeCheckVersion}"/>
-        <getLibFile fileName="xalan-2.7.1.jar"/>
+        <getLibFile fileName="xalan-2.6.0.jar"/>
         <getLibFile fileName="xercesImpl-2.9.0.jar"/>
         <getLibFile fileName="bcprov-jdk15-143.jar"/>
         <getLibFile fileName="slcshttps_jdk15_v0.2.jar"/>
