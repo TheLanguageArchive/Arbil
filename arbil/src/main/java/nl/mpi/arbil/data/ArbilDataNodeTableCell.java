@@ -33,7 +33,7 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilFieldsNode> {
 		dataNode = serializableDataNode;
 	    } else {
 		if (contentUri != null) {
-		    dataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, contentUri);
+		    dataNode = dataNodeLoader.getArbilDataNode(null, contentUri);
 		}
 	    }
 	}
