@@ -7,14 +7,16 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.util.Hashtable;
-import java.util.Vector;
 import javax.swing.ProgressMonitor;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import nl.mpi.arbil.util.DownloadAbortFlag;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.WindowManager;
 import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  * Document   : ArbilVocabularies
@@ -199,9 +201,9 @@ public class ArbilVocabularies {
 	    ArbilVocabulary vocabulary = new ArbilVocabulary(vocabRemoteUrl);
 	    vocabulariesTable.put(vocabRemoteUrl, vocabulary);
 	    try {
-		javax.xml.parsers.SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
-		javax.xml.parsers.SAXParser saxParser = saxParserFactory.newSAXParser();
-		org.xml.sax.XMLReader xmlReader = saxParser.getXMLReader();
+		final SAXParserFactory saxParserFactory = javax.xml.parsers.SAXParserFactory.newInstance();
+		final SAXParser saxParser = saxParserFactory.newSAXParser();
+		final XMLReader xmlReader = saxParser.getXMLReader();
 		xmlReader.setFeature("http://xml.org/sax/features/validation", false);
 		xmlReader.setFeature("http://xml.org/sax/features/namespaces", true);
 		///////////////////////////////////////////////////////////////////////
@@ -224,10 +226,10 @@ public class ArbilVocabularies {
 	}
     }
 
-    private class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
+    private static class SaxVocabularyHandler extends org.xml.sax.helpers.DefaultHandler {
 
-	ArbilVocabulary collectedVocab;
-	ArbilVocabularyItem currentVocabItem = null;
+	private ArbilVocabulary collectedVocab;
+	private ArbilVocabularyItem currentVocabItem = null;
 
 	public SaxVocabularyHandler(ArbilVocabulary vocabList) {
 	    super();
@@ -237,11 +239,11 @@ public class ArbilVocabularies {
 	@Override
 	public void characters(char[] charArray, int start, int length) {
 	    if (currentVocabItem != null) {
-		String nodeContents = "";
+		StringBuilder nodeContents = new StringBuilder();
 		for (int charCounter = start; charCounter < start + length; charCounter++) {
-		    nodeContents = nodeContents + charArray[charCounter];
+		    nodeContents.append(charArray[charCounter]);
 		}
-		currentVocabItem.descriptionString = nodeContents;
+		currentVocabItem.descriptionString = nodeContents.toString();
 	    }
 	}
 

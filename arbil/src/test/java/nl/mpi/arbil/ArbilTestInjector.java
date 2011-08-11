@@ -1,7 +1,9 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
+import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -30,6 +32,10 @@ public class ArbilTestInjector extends ArbilInjector {
 
 	final SessionStorage sessionStorage = new MockSessionStorage();
 	ArbilTestInjector.injectSessionStorage(sessionStorage);
+
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
+	injectDataNodeLoader(dataNodeLoader);
 
 	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
 	injectTreeHelper(treeHelper);

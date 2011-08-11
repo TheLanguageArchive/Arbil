@@ -4,11 +4,13 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataBuilder;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -31,7 +33,10 @@ public class ArbilCsvImporter {
     public static void setBugCatcher(BugCatcher bugCatcherInstance){
         bugCatcher = bugCatcherInstance;
     }
-
+    private static DataNodeLoader dataNodeLoader;
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance){
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
     private ArbilDataNode destinationCorpusNode;
 
     public ArbilCsvImporter(ArbilDataNode destinationCorpusNodeLocal) {
@@ -61,8 +66,9 @@ public class ArbilCsvImporter {
     private void processCsvFile(File inputFile) {
         String csvHeaders[] = null;
         String fileType = ",";
+        BufferedReader bufferedReader = null;
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
+            bufferedReader = new BufferedReader(new FileReader(inputFile));
             String currentLine = "";
             String remainderOfLastLine = "";
             StringTokenizer stringTokeniser = null;
@@ -98,7 +104,7 @@ public class ArbilCsvImporter {
                     }
                     if (!skipLine) {
                         String nodeType = MetadataReader.imdiPathSeparator + "METATRANSCRIPT" + MetadataReader.imdiPathSeparator + "Session";
-                        ArbilDataNode addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
+                        ArbilDataNode addedImdiObject = dataNodeLoader.getArbilDataNode(null, new MetadataBuilder().addChildNode(destinationCorpusNode, nodeType, null, null, null));
                         addedImdiObject.waitTillLoaded();
                         Hashtable<String, ArbilField[]> addedNodesFields = addedImdiObject.getFields();
                         String[] currentLineArray = currentLine.split(fileType);
@@ -114,8 +120,18 @@ public class ArbilCsvImporter {
                     }
                 }
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             bugCatcher.logError(ex);
+	} catch(ArbilMetadataException ex){
+	    bugCatcher.logError(ex);
+	} catch(RuntimeException ex){
+	    bugCatcher.logError(ex);
+        } finally {
+            if (bufferedReader != null) try {
+                bufferedReader.close();
+            } catch (IOException ioe) {
+                bugCatcher.logError(ioe);
+            }
         }
     }
 }

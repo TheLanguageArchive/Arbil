@@ -1,9 +1,11 @@
 package nl.mpi.arbil.ui;
 
+import java.awt.event.KeyEvent;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
 import javax.swing.JPanel;
 
 /**
@@ -20,15 +22,15 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
     private javax.swing.JComboBox nodeTypeComboBox;
     private javax.swing.JButton removeButton;
     private javax.swing.JTextField searchField;
-    private javax.swing.JTextField searchColumn;
+    private ArbilNodeSearchColumnComboBox searchColumn;
     
     public ArbilNodeSearchTermPanel(ArbilNodeSearchPanel parentPanelLocal) {
 	parentPanel = parentPanelLocal;
 	nodeTypeComboBox = new javax.swing.JComboBox();
 	searchField = new javax.swing.JTextField(VALUE_FIELD_MESSAGE);
 	searchField.setForeground(Color.lightGray);
-	searchColumn = new javax.swing.JTextField(COLUMN_FIELD_MESSAGE);
-	searchColumn.setForeground(Color.lightGray);
+	searchColumn = new ArbilNodeSearchColumnComboBox(COLUMN_FIELD_MESSAGE,"");
+	searchColumn.getTextField().setForeground(Color.lightGray);
 	notComboBox = new javax.swing.JComboBox();
 	booleanComboBox = new javax.swing.JComboBox();
 	removeButton = new javax.swing.JButton();
@@ -80,25 +82,36 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		}
 	    }
 	});
+	
+	searchField.addKeyListener(new KeyAdapter() {
 
-	searchColumn.addFocusListener(new FocusListener() {
+	    @Override
+	    public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_ENTER){
+		    parentPanel.startSearch();
+		}
+	    }
+	
+	});
+
+	searchColumn.getTextField().addFocusListener(new FocusListener() {
 
 	    public void focusGained(FocusEvent e) {
 		if (searchColumn.getText().equals(COLUMN_FIELD_MESSAGE)) {
 		    searchColumn.setText("");
-		    searchColumn.setForeground(Color.BLACK);
+		    searchColumn.getTextField().setForeground(Color.BLACK);
 		}
 	    }
 
 	    public void focusLost(FocusEvent e) {
 		if (searchColumn.getText().length() == 0) {
 		    searchColumn.setText(COLUMN_FIELD_MESSAGE);
-		    searchColumn.setForeground(Color.lightGray);
+		    searchColumn.getTextField().setForeground(Color.lightGray);
 		}
 	    }
 	});
 
-	searchColumn.addKeyListener(new java.awt.event.KeyAdapter() {
+	searchColumn.getTextField().addKeyListener(new java.awt.event.KeyAdapter() {
 
 	    @Override
 	    public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -164,11 +177,16 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 	}
 	setNotEqual(notComboBox.getSelectedItem().toString().equals("!="));
     }
+    
+    public void addCurrentSearchColumnOption(){
+	if(searchFieldName != null && !"".equals(searchFieldName)){
+	    searchColumn.addOption(searchFieldName);
+	}
+    }
 
     public void setBooleanVisible(boolean visibleValue) {
 	booleanComboBox.setVisible(visibleValue);
-    }
-    
+    }    
     
     protected boolean notEqual = false;
     protected boolean booleanAnd = false;

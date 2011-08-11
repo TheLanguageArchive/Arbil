@@ -48,8 +48,9 @@ import org.w3c.dom.Document;
 
 /**
  * Document   : ArbilDataNode formerly known as ImdiTreeObject
- * Created on :
- * @author Peter.Withers@mpi.nl
+ * 
+ * @author Peter Withers <peter.withers@mpi.nl>
+ * @author Twan Goosen <twan.goosen@mpi.nl>
  * @author Twan.Goosen@mpi.nl
  */
 public class ArbilDataNode implements ArbilFieldsNode, Comparable {
@@ -69,6 +70,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
     public int matchesLocalFileSystem;
     public boolean fileNotFound;
     public boolean isInfoLink = false;
+    private boolean singletonMetadataNode = false;
     private boolean nodeNeedsSaveToDisk;
     private String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
@@ -119,6 +121,16 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
+    private static MimeHashQueue mimeHashQueue;
+
+    public static void setMimeHashQueue(MimeHashQueue mimeHashQueueInstance) {
+	mimeHashQueue = mimeHashQueueInstance;
     }
 
     protected ArbilDataNode(URI localUri) {
@@ -326,7 +338,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	    mpiMimeType = null;
 	    thumbnailFile = null;
 	    typeCheckerMessage = null;
-	    MimeHashQueue.getSingleInstance().addToQueue(this);
+	    mimeHashQueue.addToQueue(this);
 	}
 	boolean needsSaveToDisk = hasChangedFields() || hasDomIdAttribute;
 	if (isMetaDataNode() && !isChildNode()) {
@@ -339,9 +351,9 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	    }
 	    if (this.nodeNeedsSaveToDisk != needsSaveToDisk) {
 		if (needsSaveToDisk) {
-		    ArbilDataNodeLoader.getSingleInstance().addNodeNeedingSave(this);
+		    dataNodeLoader.addNodeNeedingSave(this);
 		} else {
-		    ArbilDataNodeLoader.getSingleInstance().removeNodesNeedingSave(this);
+		    dataNodeLoader.removeNodesNeedingSave(this);
 		}
 		this.nodeNeedsSaveToDisk = needsSaveToDisk;
 	    }
@@ -373,6 +385,15 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	    //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
 	    addField(mimeTypeField);
 	}
+    }
+
+    private String getNodeTypeNameFromUriFragment(String nodeFragmentName) {
+	if (nodeFragmentName == null) {
+	    return null;
+	}
+	nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
+	nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
+	return nodeFragmentName;
     }
 
     private void initNodeVariables() {
@@ -442,7 +463,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	////            if (getParentDomNode().isCorpus()) {
 	////                getParentDomNode().autoLoadChildNodes = true;
 	////            }
-	ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+	dataNodeLoader.requestReload(getParentDomNode());
 	//        }
     }
 
@@ -455,7 +476,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 		initNodeVariables(); // this might be run too often here but it must be done in the loading thread and it also must be done when the object is created
 		if (!isMetaDataNode() && !isDirectory() && isLocal()) {
 		    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
-		    MimeHashQueue.getSingleInstance().addToQueue(this);
+		    mimeHashQueue.addToQueue(this);
 		    dataLoaded = true;
 		}
 		if (this.isDirectory()) {
@@ -563,7 +584,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 		    //                    System.out.println("nodeFile: " + nodeFile);
 		    //                    System.out.println("dirLinkArray[linkCount]: " + dirLinkArray[linkCount]);
 		    URI childURI = dirLinkArray[linkCount].toURI();
-		    ArbilDataNode currentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(childURI);
+		    ArbilDataNode currentNode = dataNodeLoader.getArbilDataNodeWithoutLoading(childURI);
 		    if (treeHelper.isShowHiddenFilesInTree() || !currentNode.getFile().isHidden()) {
 			childLinksTemp.add(currentNode);
 		    }
@@ -1002,7 +1023,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	for (String clipBoardString : clipBoardStrings) {
 	    if (this.isCorpus()) {
 		if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
-		    ArbilDataNode clipboardNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		    ArbilDataNode clipboardNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
 		    if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
 			if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
 			    if (this.getFile().exists()) {
@@ -1029,8 +1050,19 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 		} else {
 		    messageDialogHandler.addMessageDialogToQueue("Pasted string is not and IMDI file", null);
 		}
-	    } else {
-		messageDialogHandler.addMessageDialogToQueue("Only corpus branches can be pasted into at this stage", null);
+	    } else if (this.isMetaDataNode() || this.isSession()) {
+		// Get source node
+		ArbilDataNode templateDataNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
+		// Check if it can be contained by destination node
+		if (MetadataReader.getSingleInstance().nodeCanExistInNode(this, templateDataNode)) {
+		    // Add source to destination
+		    new MetadataBuilder().requestAddNode(this, templateDataNode.toString(), templateDataNode);
+		} else {
+		    // Invalid copy/paste...
+		    messageDialogHandler.addMessageDialogToQueue("Cannot copy '" + templateDataNode.toString() + "' to '" + this.toString() + "'", "Cannot copy");
+		}
+	    } else { // Not corpus, session or metadata
+		messageDialogHandler.addMessageDialogToQueue("Nodes of this type cannot be pasted into at this stage", null);
 	    }
 	}
 	return nodesToAdd;
@@ -1149,7 +1181,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 
 	if (fieldToAdd.xmlPath.endsWith(".ResourceLink") && fieldToAdd.getParentDataNode().isChildNode()/* && fieldToAdd.parentImdi.getUrlString().contains("MediaFile")*/) {
 	    resourceUrlField = fieldToAdd;
-	    MimeHashQueue.getSingleInstance().addToQueue(this);
+	    mimeHashQueue.addToQueue(this);
 	}
     }
 
@@ -1392,8 +1424,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	    String unamedText;
 	    String nodeFragmentName = this.getURI().getFragment();
 	    if (nodeFragmentName != null) {
-		nodeFragmentName = nodeFragmentName.substring(nodeFragmentName.lastIndexOf(".") + 1);
-		nodeFragmentName = nodeFragmentName.replaceAll("\\(\\d+\\)", "");
+		nodeFragmentName = getNodeTypeNameFromUriFragment(nodeFragmentName);
 		unamedText = nodeFragmentName;
 	    } else if (this.nodeTemplate != null) {
 		//            if (this.getNodeTemplate().preferredNameFields.length == 0) {
@@ -1404,7 +1435,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 		unamedText = "";
 	    }
 	    if (preferredNameFieldExists) {
-		nodeText = "unnamed (" + unamedText + ")";
+		nodeText = unamedText + " (unnamed)";
 	    } else {
 		nodeText = unamedText;
 	    }
@@ -1445,6 +1476,15 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	    }
 	    lastNodeText = nodeText;
 	}
+
+	if (isSingletonMetadataNode()) {
+	    StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
+	    if (nodeText != null && nodeText.length() > 0) {
+		nodeTextSB.append(" (").append(nodeText).append(")");
+	    }
+	    lastNodeText = nodeTextSB.toString();
+	}
+
 	if (lastNodeText.length() == 0) {
 	    lastNodeText = "                      ";
 	}
@@ -1552,8 +1592,13 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 	OutputStream activeVersionFile = null;
 	try {
 	    if (historyVersion.equals(".x")) {
-		this.getFile().delete();
-		new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile());
+		if (this.getFile().delete()) {
+		    if (!new File(this.getFile().getAbsolutePath() + ".x").renameTo(this.getFile())) {
+			throw new IOException("Could not rename history file '" + this.getFile().getAbsolutePath() + ".x'");
+		    }
+		} else {
+		    throw new IOException("Could not delete old history file: " + this.getFile().getAbsolutePath());
+		}
 	    } else {
 		try {
 		    messageDialogHandler.offerUserToSaveChanges();
@@ -1605,7 +1650,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 		}
 	    }
 	}
-	ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+	dataNodeLoader.requestReload(getParentDomNode());
 
 	return true;
     }
@@ -1756,7 +1801,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 		try {
 		    //domParentImdi = ImdiLoader.getSingleInstance().getImdiObject(null, new URI(nodeUri.getScheme(), nodeUri.getUserInfo(), nodeUri.getHost(), nodeUri.getPort(), nodeUri.getPath(), nodeUri.getQuery(), null /* fragment removed */));
 		    // the uri is created via the uri(string) constructor to prevent re-url-encoding the url
-		    domParentNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
+		    domParentNode = dataNodeLoader.getArbilDataNode(null, new URI(nodeUri.toString().split("#")[0] /* fragment removed */));
 		    //                    System.out.println("nodeUri: " + nodeUri);
 		} catch (URISyntaxException ex) {
 		    bugCatcher.logError(ex);
@@ -1895,7 +1940,7 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
 	// Node is contained by some object so make sure it's fully loaded or at least loading
 	if (!getParentDomNode().dataLoaded && !isLoading()) {
-	    ArbilDataNodeLoader.getSingleInstance().requestReload(getParentDomNode());
+	    dataNodeLoader.requestReload(getParentDomNode());
 	}
 	// Add to collection of containers for future messaging
 	if (containerToAdd != null) {
@@ -2062,4 +2107,18 @@ public class ArbilDataNode implements ArbilFieldsNode, Comparable {
 //    public int hashCode() {
 //	return nodeUri.hashCode();
 //    }
+
+    /**
+     * @return Whether node is conflated with metanode because if it is singleton (e.g. Project, Content). Null if this does not apply.
+     */
+    public boolean isSingletonMetadataNode() {
+	return singletonMetadataNode;
+    }
+
+    /**
+     * @param singletonMetadataNodeName Whether this node is conflated with metanode because it is singleton (e.g. Project, Content)
+     */
+    public void setSingletonMetadataNode(boolean singletonMetadataNodeName) {
+	this.singletonMetadataNode = singletonMetadataNodeName;
+    }
 }

@@ -244,9 +244,9 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    ControlledVocabularyComboBoxEditor cvcbEditor = new ControlledVocabularyComboBoxEditor(text, text, arbilFields[cellFieldIndex], fieldEditor);
 	    fieldEditor.setEditor(cvcbEditor);
 
-	    cvcbEditor.addFocusListener(editorFocusListener);
-	    cvcbEditor.setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(cvcbEditor.getInputMap()));
-	    cvcbEditor.setActionMap(new lfeActionMap(cvcbEditor.getActionMap()));
+	    cvcbEditor.getEditorComponent().addFocusListener(editorFocusListener);
+	    cvcbEditor.getTextField().setInputMap(JComponent.WHEN_FOCUSED, new lfeInputMap(cvcbEditor.getTextField().getInputMap()));
+	    cvcbEditor.getTextField().setActionMap(new lfeActionMap(cvcbEditor.getTextField().getActionMap()));
 
 	    fieldEditor.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 	}
@@ -484,7 +484,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	}
     }
 
-    private class lfeInputMap extends InputMap {
+    private static class lfeInputMap extends InputMap {
 
 	public lfeInputMap(InputMap parent) {
 	    super();
@@ -513,6 +513,8 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.CTRL_DOWN_MASK), "previousTab");
 	}
     }
+
+    // NOTE: Not serializable!
     private FocusListener editorFocusListener = new FocusListener() {
 
 	public void focusGained(FocusEvent e) {

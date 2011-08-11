@@ -60,7 +60,7 @@ public class CmdiTemplate extends ArbilTemplate {
     String nameSpaceString;
     String filterString[] = {".CMD.Resources.", ".CMD.Header."};
 
-    private class ArrayListGroup {
+    private static class ArrayListGroup {
 
 	public ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
 	public ArrayList<String[]> addableComponentPathsList = new ArrayList<String[]>();

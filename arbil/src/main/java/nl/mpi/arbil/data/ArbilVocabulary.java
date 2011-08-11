@@ -9,7 +9,6 @@ public class ArbilVocabulary implements Serializable {
     private Vector<ArbilVocabularyItem> vocabularyItems = new Vector<ArbilVocabularyItem>();
 //        this VocabularyRedirect code has been replaced by the templates
 //        public String vocabularyRedirectField = null; // the sibling imdi field that changes this vocabularies location
-    public String vocabularyUrlRedirected = null; // the url of the vocabulary indicated by the value of the vocabularyRedirectField
     private String vocabularyUrl = null;
 
     public ArbilVocabulary(String locationUrl) {
@@ -38,7 +37,6 @@ public class ArbilVocabulary implements Serializable {
     }
 
     public String resolveFollowUpUrl(String folowUpString) {
-        vocabularyUrlRedirected = folowUpString;
         String vocabUrlDirectory = vocabularyUrl.substring(0, vocabularyUrl.lastIndexOf("/") + 1);
         System.out.println("vocabUrlDirectory: " + vocabUrlDirectory);
         return (vocabUrlDirectory + folowUpString);

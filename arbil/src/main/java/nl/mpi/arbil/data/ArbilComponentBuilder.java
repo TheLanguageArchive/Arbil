@@ -65,6 +65,11 @@ public class ArbilComponentBuilder {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public static Document getDocument(URI inputUri) throws ParserConfigurationException, SAXException, IOException {
 	DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -134,7 +139,7 @@ public class ArbilComponentBuilder {
 //    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 //        <ResourceProxyList>
 //            <ResourceProxy id="a_text">
-//                <ResourceType>Resource</ResourceType>
+//                <ResourceType mimetype="audio/x-mpeg4">Resource</ResourceType>
 //                <ResourceRef>bla.txt</ResourceRef>
 //            </ResourceProxy>
 	    String targetXmlPath = arbilDataNode.getURI().getFragment();
@@ -177,7 +182,8 @@ public class ArbilComponentBuilder {
 		    for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
 			String localName = childNode.getNodeName();
 			if ("ResourceType".equals(localName)) {
-			    childNode.setTextContent(resourceNode.mpiMimeType);
+			    ((Element)childNode).setAttribute("mimetype", resourceNode.mpiMimeType);
+			    childNode.setTextContent("Resource");
 			}
 			if ("ResourceRef".equals(localName)) {
 			    childNode.setTextContent(resourceNode.getUrlString());
@@ -221,7 +227,7 @@ public class ArbilComponentBuilder {
 		    // todo: search for and remove any reource links referenced by this node or its sub nodes
 		    Node documentNode = selectSingleNode(targetDocument, currentNodePath);
 		    //System.out.println("documentNode: " + documentNode);
-		    System.out.println("documentNodeName: " + documentNode.getNodeName());
+		    System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
 		    selectedNodes.add(documentNode);
 
 		}
@@ -314,9 +320,9 @@ public class ArbilComponentBuilder {
 
     public void testInsertFavouriteComponent() {
 	try {
-	    ArbilDataNode favouriteArbilDataNode1 = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
-	    ArbilDataNode favouriteArbilDataNode2 = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
-	    ArbilDataNode destinationArbilDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
+	    ArbilDataNode favouriteArbilDataNode1 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor"));
+	    ArbilDataNode favouriteArbilDataNode2 = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/favourites/fav-784841449583527834.imdi#.METATRANSCRIPT.Session.MDGroup.Actors.Actor(2)"));
+	    ArbilDataNode destinationArbilDataNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI("file:/Users/petwit/.arbil/imdicache/20100527141926/20100527141926.imdi"));
 	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode1);
 	    insertFavouriteComponent(destinationArbilDataNode, favouriteArbilDataNode2);
 	} catch (URISyntaxException exception) {
@@ -475,12 +481,14 @@ public class ArbilComponentBuilder {
 	// make sure the target xpath has all the required parts
 	String[] cmdiComponentArray = cmdiComponentId.split("\\.");
 	String[] targetXmlPathArray = targetXmlPath.replaceAll("\\(\\d+\\)", "").split("\\.");
+	StringBuilder arrayPathParts = new StringBuilder();
 	for (int pathPartCounter = targetXmlPathArray.length; pathPartCounter < cmdiComponentArray.length - 1; pathPartCounter++) {
 	    System.out.println("adding missing path component: " + cmdiComponentArray[pathPartCounter]);
-	    targetXmlPath = targetXmlPath + "." + cmdiComponentArray[pathPartCounter];
+	    arrayPathParts.append('.');
+	    arrayPathParts.append(cmdiComponentArray[pathPartCounter]);
 	}
 	// end path corrections
-	return targetXmlPath;
+	return targetXmlPath + arrayPathParts.toString();
     }
 
     /**

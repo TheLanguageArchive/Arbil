@@ -185,6 +185,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		initSearchService();
 		prepareUI();
 		populateSearchTerms();
+		saveColumnOptions();
 		executeSearch();
 	    } catch (Exception ex) {
 		GuiHelper.linorgBugCatcher.logError(ex);
@@ -209,6 +210,15 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	    for (Component currentTermComp : searchTermsPanel.getComponents()) {
 		((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
 	    }
+	}
+
+	private void saveColumnOptions() {
+	    ArrayList<String> columns = new ArrayList<String>(searchTermsPanel.getComponentCount());
+	    for (Component currentTermComp : searchTermsPanel.getComponents()) {
+		((ArbilNodeSearchTermPanel) currentTermComp).addCurrentSearchColumnOption();
+		columns.add(((ArbilNodeSearchTermPanel) currentTermComp).searchFieldName);
+	    }
+	    ArbilNodeSearchColumnComboBox.addOptions(columns);
 	}
 
 	private void executeSearch() {

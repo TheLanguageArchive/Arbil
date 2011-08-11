@@ -5,9 +5,9 @@ import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
-import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
 /*
  * ArbilApplet2.java
@@ -27,7 +27,7 @@ public class ArbilApplet2 extends JApplet {
         mainSplitPane.setLeftComponent(arbilTreePanels);
         mainSplitPane.setRightComponent(previewSplitPanel);
         arbilMenuBar = new ArbilMenuBar(previewSplitPanel, this);
-        MimeHashQueue.setAllowCookies(true);
+        ArbilMimeHashQueue.setAllowCookies(true);
         add(mainSplitPane, java.awt.BorderLayout.CENTER);
         setJMenuBar(arbilMenuBar);
 

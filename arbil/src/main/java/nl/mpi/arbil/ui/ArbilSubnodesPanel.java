@@ -302,7 +302,7 @@ public class ArbilSubnodesPanel extends JPanel implements ArbilDataNodeContainer
         }
     }
     /**
-     * Action buffer for reloading the panel
+     * Action buffer for reloading the panel (NOTE: Not serializable!)
      */
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("SubnodePanelReload-" + this.hashCode(), 150) {
 

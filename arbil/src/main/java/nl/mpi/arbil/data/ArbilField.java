@@ -18,6 +18,7 @@ public class ArbilField implements Serializable {
     private String translatedPath = null;
     private String fieldValue = "";
     public String originalFieldValue = fieldValue;
+    private String cvUrlString;
     private int fieldOrder = -1;
     private ArbilVocabulary fieldVocabulary = null;
     private boolean hasVocabularyType = false;
@@ -34,6 +35,11 @@ public class ArbilField implements Serializable {
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
+    }
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
     }
 
     public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount) {
@@ -170,10 +176,8 @@ public class ArbilField implements Serializable {
 	String oldLanguageId = getLanguageId();
 	boolean valueChanged = false;
 	// this is expanded for readability
-	if (oldLanguageId == null && languageIdLocal == null) {
-	    valueChanged = false;
-	} else if (languageIdLocal == null && oldLanguageId != null) {
-	    valueChanged = true;
+	if (languageIdLocal == null) {
+	    valueChanged = (oldLanguageId != null);
 	} else if (!languageIdLocal.equals(oldLanguageId)) {
 	    valueChanged = true;
 	}
@@ -198,7 +202,7 @@ public class ArbilField implements Serializable {
 //        System.out.println("getSiblingField: " + pathString);
 	for (ArbilField[] tempField : getParentDataNode().getFields().values().toArray(new ArbilField[][]{})) {
 //            System.out.println("tempField[0].getFullXmlPath(): " + tempField[0].getFullXmlPath());
-	    if (tempField[0].getFullXmlPath().equals(pathString)) {
+	    if (tempField[0].getFullXmlPath().equals(pathString) || tempField[0].getGenericFullXmlPath().equals(pathString)) {
 		return tempField;
 	    }
 	}
@@ -227,6 +231,7 @@ public class ArbilField implements Serializable {
 	originalLanguageId = languageId;
 	keyName = keyNameLocal;
 	originalKeyName = keyName;
+	this.cvUrlString = cvUrlString;
 	// set for the vocabulary type
 	hasVocabularyType = false;
 	if (cvType != null) {
@@ -248,6 +253,10 @@ public class ArbilField implements Serializable {
 		hasVocabularyType = true;
 	    }
 	}
+	loadVocabulary();
+    }
+
+    public void loadVocabulary() {
 	if (hasVocabularyType) {
 	    if (cvUrlString != null && cvUrlString.length() > 0) {
 		fieldVocabulary = ArbilVocabularies.getSingleInstance().getVocabulary(this, cvUrlString);
@@ -382,8 +391,8 @@ public class ArbilField implements Serializable {
      * @return the parentDataNode
      */
     public synchronized ArbilDataNode getParentDataNode() {
-	if(parentDataNode == null && parentDataNodeURI != null){
-	    parentDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, parentDataNodeURI);
+	if (parentDataNode == null && parentDataNodeURI != null) {
+	    parentDataNode = dataNodeLoader.getArbilDataNode(null, parentDataNodeURI);
 	}
 	return parentDataNode;
     }

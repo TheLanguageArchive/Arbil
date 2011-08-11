@@ -3,7 +3,7 @@ package nl.mpi.arbil.ui;
 import java.io.Serializable;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.ArbilFieldsNode;
 
 /**
@@ -18,6 +18,11 @@ public class ArbilFieldPlaceHolder implements Serializable {
     private transient ArbilFieldsNode arbilFieldsNode;
     private ArbilFieldsNode serializableNode;
     private URI arbilDataNodeURI = null;
+    private static DataNodeLoader dataNodeLoader;
+
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public ArbilFieldPlaceHolder(String fieldName, ArbilFieldsNode dataNode) {
 	this.fieldName = fieldName;
@@ -40,7 +45,7 @@ public class ArbilFieldPlaceHolder implements Serializable {
 	    if (serializableNode != null) {
 		arbilFieldsNode = serializableNode;
 	    } else if (arbilDataNodeURI != null) {
-		arbilFieldsNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, arbilDataNodeURI);
+		arbilFieldsNode = dataNodeLoader.getArbilDataNode(null, arbilDataNodeURI);
 	    }
 	}
 	return arbilFieldsNode;

@@ -1,15 +1,17 @@
 package nl.mpi.arbil;
 
 import java.awt.datatransfer.ClipboardOwner;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilTreeHelper;
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import nl.mpi.arbil.util.WindowManager;
 
@@ -28,10 +30,12 @@ public class ArbilDesktopInjector extends ArbilInjector {
     public static synchronized void injectHandlers() {
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
+	ArbilMimeHashQueue.setBugCatcher(bugCatcher);
 	injectBugCatcher(bugCatcher);
 	
 	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
+	ArbilMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
 	
 	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
@@ -43,7 +47,16 @@ public class ArbilDesktopInjector extends ArbilInjector {
 	
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	ArbilMimeHashQueue.setSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
+	
+	final MimeHashQueue mimeHashQueue = ArbilMimeHashQueue.getSingleInstance();
+	injectMimeHashQueue(mimeHashQueue);
+	
+	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
+	ArbilMimeHashQueue.setDataNodeLoader(dataNodeLoader);
+	injectDataNodeLoader(dataNodeLoader);
 	
 	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
 	injectTreeHelper(treeHelper);

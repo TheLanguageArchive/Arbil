@@ -3,9 +3,9 @@ package nl.mpi.arbil.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
@@ -36,23 +36,28 @@ public class ArbilVersionChecker {
 	ArbilVersion linorgVersion = new ArbilVersion();
 	String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
 	File cachePath = sessionStorage.getSaveLocation("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt);
-	cachePath.delete();
+	if (cachePath.delete()) {
+	    System.out.println("Dropped old version file");
+        } else{
+	    messageDialogHandler.addMessageDialogToQueue("Could not write to storage directory. Update check failed!", "Error");
+	}
 	return this.checkForUpdate();
     }
 
     private boolean isLatestVersion() {
+        BufferedReader bufferedReader = null;
 	try {
 	    ArbilVersion linorgVersion = new ArbilVersion();
 	    int daysTillExpire = 1;
 	    //String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
 	    File cachePath = sessionStorage.updateCache(linorgVersion.currentVersionFile, daysTillExpire);
-	    BufferedReader bufferedReader = new BufferedReader(new FileReader(cachePath));
+	    bufferedReader = new BufferedReader(new FileReader(cachePath));
 	    String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
 //            System.out.println("currentRevision: " + localVersionString);
 	    System.out.println("currentRevision: " + linorgVersion.currentRevision);
 	    System.out.println("serverVersionString: " + serverVersionString);
-	    if (!serverVersionString.matches("[0-9]*")) {
+	    if (serverVersionString==null || !serverVersionString.matches("[0-9]*")) {
 		// ignore any strings that are not a number because it might be a 404 or other error page
 		return true;
 	    }
@@ -60,22 +65,35 @@ public class ArbilVersionChecker {
 	    return (linorgVersion.currentRevision.compareTo(serverVersionString) >= 0);
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
+	} finally {
+	    if (bufferedReader != null) try {
+	        bufferedReader.close();
+            } catch (IOException ioe) {
+                bugCatcher.logError(ioe);
+            }
 	}
 	return true;
     }
 
     private boolean doUpdate(String webstartUrlString) {
+        BufferedReader errorStreamReader = null;
 	try {
 	    //TODO: check the version of javaws before calling this
 	    Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", webstartUrlString});
-	    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+	    errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
 	    String line;
 	    while ((line = errorStreamReader.readLine()) != null) {
 		System.out.println("Launched process error stream: \"" + line + "\"");
 	    }
 	    return (0 == launchedProcess.waitFor());
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    bugCatcher.logError(e);
+	} finally { // close pipeline when lauched process is done
+	    if (errorStreamReader != null) try {
+	        errorStreamReader.close();
+            } catch (IOException ioe) {
+                bugCatcher.logError(ioe);
+            }
 	}
 	return false;
     }
@@ -89,7 +107,7 @@ public class ArbilVersionChecker {
 		messageDialogHandler.addMessageDialogToQueue("There was an error restarting the application.\nThe update will take effect next time the application is restarted.", null);
 	    }
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    bugCatcher.logError(e);
 	}
     }
 
@@ -103,6 +121,7 @@ public class ArbilVersionChecker {
 	    } else {
 		new Thread("checkForUpdate") {
 
+		    @Override
 		    public void run() {
 			messageDialogHandler.addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
 		    }
@@ -127,6 +146,7 @@ public class ArbilVersionChecker {
 	//if (last check date not today)
 	new Thread("checkForAndUpdateViaJavaws") {
 
+	    @Override
 	    public void run() {
 		String webstartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
 //                System.out.println(webStartUrlString);

@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.data.ArbilTreeHelper;
@@ -13,6 +14,7 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.util.Hashtable;
+import java.util.Map.Entry;
 import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -175,7 +177,11 @@ public class ArbilDragDrop {
 		    } else if (currentLeadSelection.isCatalogue()) {
 			return false; // nothing can be dropped to a catalogue
 		    } else if (currentLeadSelection.isSession()) {
-			if (selectionContainsArchivableLocalFile || (selectionContainsArbilChild && selectionContainsFavourite)) {
+			if (selectionContainsArchivableLocalFile || selectionContainsArbilChild) {
+			    return true;
+			}
+		    } else if (currentLeadSelection.isEmptyMetaNode()) {
+			if (selectionContainsArbilChild) {
 			    return true;
 			}
 		    } else if (currentLeadSelection.isChildNode()) {
@@ -239,7 +245,7 @@ public class ArbilDragDrop {
 			    || selectionContainsArbilChild) {
 			System.out.println("dragged contents are acceptable");
 			currentDropTarget = comp; // store the source component for the tree node sensitive drop
-			dropAllowed = canDropToTarget((ArbilTree) comp);
+			dropAllowed = (comp instanceof ArbilTree) && canDropToTarget((ArbilTree) comp);
 			return true;
 		    }
 		}
@@ -538,12 +544,12 @@ public class ArbilDragDrop {
 				importNodeList.add((ArbilDataNode) currentNode);
 			    } else {
 				String targetNodeName = null;
+				// NOTE: FindBugs thinks this is always the case:
 				if (dropTargetUserObject instanceof ArbilNode) {
 				    targetNodeName = targetNode.getUserObject().toString();
 				}
-
 				int detailsOption = 1;
-//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
+				//                                        if (draggedTreeNodes[draggedCounter].getUserObject())
 				if (!moveAll) {
 				    detailsOption = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
 					    "Move " + draggedTreeNodes[draggedCounter].getUserObject().toString()
@@ -559,38 +565,14 @@ public class ArbilDragDrop {
 				    continueMove = !(moveMultiple && detailsOption == 3);
 				}
 				if (continueMove && (moveAll || detailsOption == 0)) {
-				    boolean addNodeResult = true;
-				    if (dropTargetUserObject instanceof ArbilDataNode) {
-					addNodeResult = (dropTargetDataNode).addCorpusLink(currentNode);
-				    } else {
-					addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
-				    }
-				    if (addNodeResult) {
-					if (draggedTreeNodes[draggedCounter] != null) {
-					    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
-						System.out.println("dragged from root");
-						ArbilTreeHelper.getSingleInstance().removeLocation(currentNode);
-						ArbilTreeHelper.getSingleInstance().applyRootLocations();
-					    } else {
-						ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
-						System.out.println("removeing from parent: " + parentNode);
-						// add the parent and the child node to the deletelist
-						if (!arbilNodesDeleteList.containsKey(parentNode)) {
-						    arbilNodesDeleteList.put(parentNode, new Vector());
-						}
-						arbilNodesDeleteList.get(parentNode).add(currentNode);
-					    }
-					}
-				    } else {
-					GuiHelper.linorgBugCatcher.logError("Could not add node " + currentNode.toString() + " to target " + dropTargetUserObject.toString(), null);
-				    }
+				    doMoveLocalNodes(dropTargetUserObject, dropTargetDataNode, currentNode, draggedCounter, arbilNodesDeleteList);
 				}
 			    }
 			}
 		    }
 		}
 		if (importNodeList.size() > 0) {
-//                                  TODO: finish this import code
+//                                  TODO: finish this import code (TG 2/8/2011: ??)
 		    try {
 			ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
 			if (dropTargetUserObject instanceof ArbilDataNode) {
@@ -601,11 +583,8 @@ public class ArbilDragDrop {
 			System.out.println(e.getMessage());
 		    }
 		}
-		for (ArbilDataNode currentParent : arbilNodesDeleteList.keySet()) {
-		    System.out.println("deleting by corpus link");
-		    ArbilDataNode[] arbilNodeArray = ((Vector<ArbilDataNode>) arbilNodesDeleteList.get(currentParent)).toArray(new ArbilDataNode[]{});
-		    currentParent.deleteCorpusLink(arbilNodeArray);
-		}
+		deleteMovedNodesOriginals(arbilNodesDeleteList);
+		// NOTE: FindBugs thinks this is always the case:
 		if (dropTargetUserObject instanceof ArbilDataNode) {
 		    // TODO: this save is required to prevent user data loss, but the save and reload process may not really be required here
 //                                        ((ArbilDataNode) dropTargetUserObject).saveChangesToCache(false);
@@ -616,6 +595,64 @@ public class ArbilDragDrop {
 		return true;
 	    }
 	    return false;
+	}
+
+	private void doMoveLocalNodes(Object dropTargetUserObject, final ArbilDataNode dropTargetDataNode, final ArbilDataNode currentNode, int draggedCounter, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) {
+	    boolean addNodeResult = true;
+	    if (dropTargetUserObject instanceof ArbilDataNode) {
+		if (dropTargetDataNode.isCorpus()) {
+		    addNodeResult = dropTargetDataNode.addCorpusLink(currentNode);
+		} else if (dropTargetDataNode.isEmptyMetaNode() || dropTargetDataNode.isSession()) {
+		    // Dragging metadata node onto empty node
+		    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
+			try {
+			    // Add source to destination
+			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
+			} catch (ArbilMetadataException ex) {
+			    GuiHelper.linorgBugCatcher.logError(ex);
+			    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
+			    addNodeResult = false;
+			}
+		    }
+		}
+	    } else {
+		addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
+	    }
+	    if (addNodeResult) {
+		if (draggedTreeNodes[draggedCounter] != null) {
+		    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
+			System.out.println("dragged from root");
+			ArbilTreeHelper.getSingleInstance().removeLocation(currentNode);
+			ArbilTreeHelper.getSingleInstance().applyRootLocations();
+		    } else {
+			ArbilDataNode parentNode = (ArbilDataNode) ((DefaultMutableTreeNode) draggedTreeNodes[draggedCounter].getParent()).getUserObject();
+			System.out.println("removeing from parent: " + parentNode);
+			// add the parent and the child node to the deletelist
+			if (!arbilNodesDeleteList.containsKey(parentNode)) {
+			    arbilNodesDeleteList.put(parentNode, new Vector());
+			}
+			arbilNodesDeleteList.get(parentNode).add(currentNode);
+		    }
+		}
+	    } else {
+		GuiHelper.linorgBugCatcher.logError("Could not add node " + currentNode.toString() + " to target " + dropTargetUserObject.toString(), null);
+	    }
+	}
+
+	private void deleteMovedNodesOriginals(Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) {
+	    for (Entry<ArbilDataNode, Vector<ArbilDataNode>> entry : arbilNodesDeleteList.entrySet()) {
+		final ArbilDataNode currentParent = entry.getKey();
+		final Vector<ArbilDataNode> children = entry.getValue();
+		if (currentParent.isCorpus()) {
+		    // Removing sessions from corpus
+		    System.out.println("deleting by corpus link");
+		    ArbilDataNode[] arbilNodeArray = children.toArray(new ArbilDataNode[]{});
+		    currentParent.deleteCorpusLink(arbilNodeArray);
+		} else if (currentParent.isMetaDataNode()) {
+		    // Removing metadata nodes from session
+		    ArbilTreeHelper.getSingleInstance().deleteChildNodes(currentParent, children);
+		}
+	    }
 	}
 
 	public Object getTransferData(DataFlavor flavor) {

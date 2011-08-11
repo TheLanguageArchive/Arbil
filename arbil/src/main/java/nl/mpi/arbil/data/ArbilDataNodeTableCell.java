@@ -13,6 +13,11 @@ public class ArbilDataNodeTableCell implements ArbilTableCell<ArbilFieldsNode> {
     private transient ArbilFieldsNode dataNode;
     private ArbilFieldsNode serializableDataNode = null;
     private URI contentUri;
+    
+    private static DataNodeLoader dataNodeLoader;
+    public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance){
+	dataNodeLoader = dataNodeLoaderInstance;
+    }
 
     public ArbilDataNodeTableCell(ArbilFieldsNode dataNode) {
 	setContent(dataNode);

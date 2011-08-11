@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -120,32 +121,39 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     }
 
     private void drawFileText(Graphics2D targegGraphics, URL targetURL) {
-	int linePosY = textStartY;
-	targegGraphics.setBackground(Color.white);
-	targegGraphics.clearRect(0, 0, outputWidth, outputHeight);
-	targegGraphics.setColor(Color.BLACK);
-	targegGraphics.drawRect(0, 0, outputWidth - 1, outputHeight - 1);
-	targegGraphics.setColor(Color.DARK_GRAY);
-	Font currentFont = targegGraphics.getFont();
-	Font renderFont = new Font(currentFont.getFontName(), currentFont.getStyle(), 11);
-	targegGraphics.setFont(renderFont);
-	try {
-	    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(targetURL.openStream()));
-	    String textToDraw;
-	    while ((textToDraw = bufferedReader.readLine()) != null && outputHeight > linePosY) {
-		textToDraw = textToDraw.replaceAll("\\<.*?>", "");
-		textToDraw = textToDraw.replaceAll("^\\\\[^ ]*", "");
-		textToDraw = textToDraw.replaceAll("\\s+", " ");
-		textToDraw = textToDraw.trim();
-		if (textToDraw.length() > 0) {
-		    double lineHeight = targegGraphics.getFont().getStringBounds(textToDraw, targegGraphics.getFontRenderContext()).getHeight();
-		    linePosY = linePosY + (int) lineHeight;
-		    targegGraphics.drawString(textToDraw, textStartX + 2, linePosY);
-		}
-	    }
-	} catch (Exception ex) {
-	    GuiHelper.linorgBugCatcher.logError(ex);
-	}
+        int linePosY = textStartY;
+        targegGraphics.setBackground(Color.white);
+        targegGraphics.clearRect(0, 0, outputWidth, outputHeight);
+        targegGraphics.setColor(Color.BLACK);
+        targegGraphics.drawRect(0, 0, outputWidth - 1, outputHeight - 1);
+        targegGraphics.setColor(Color.DARK_GRAY);
+        Font currentFont = targegGraphics.getFont();
+        Font renderFont = new Font(currentFont.getFontName(), currentFont.getStyle(), 11);
+        targegGraphics.setFont(renderFont);
+        BufferedReader bufferedReader = null;
+        try {
+            bufferedReader = new BufferedReader(new InputStreamReader(targetURL.openStream()));
+            String textToDraw;
+            while ((textToDraw = bufferedReader.readLine()) != null && outputHeight > linePosY) {
+                textToDraw = textToDraw.replaceAll("\\<.*?>", "");
+                textToDraw = textToDraw.replaceAll("^\\\\[^ ]*", "");
+                textToDraw = textToDraw.replaceAll("\\s+", " ");
+                textToDraw = textToDraw.trim();
+                if (textToDraw.length() > 0) {
+                    double lineHeight = targegGraphics.getFont().getStringBounds(textToDraw, targegGraphics.getFontRenderContext()).getHeight();
+                    linePosY = linePosY + (int) lineHeight;
+                    targegGraphics.drawString(textToDraw, textStartX + 2, linePosY);
+                }
+            }
+        } catch (Exception ex) {
+            GuiHelper.linorgBugCatcher.logError(ex);
+        } finally {
+            if (bufferedReader != null) try {
+                bufferedReader.close();
+            } catch (IOException ioe) {
+                GuiHelper.linorgBugCatcher.logError(ioe);
+            }
+        }
     }
 
     private File getTargetFile(ArbilDataNode targetDataNode) {
@@ -159,45 +167,53 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
     }
 
     private void createVideoThumbnail(ArbilDataNode targetDataNode) {
-	if (ffmpegPath == null) {
-	    // todo: replaces this with a parameter or a properties file
-	    for (String currentPath : searchPathArray) {
-		for (String currentSuffix : new String[]{".exe", ""}) {
-		    ffmpegPath = currentPath + "ffmpeg" + currentSuffix;
-		    if (new File(ffmpegPath).exists()) {
-			break;
-		    }
-		}
-		if (new File(ffmpegPath).exists()) {
-		    break;
-		}
-	    }
-	}
-	if (ffmpegFound) {
-	    try {
-		File iconFile = File.createTempFile("arbil", ".jpg");
-		iconFile.deleteOnExit();
-		File targetFile = getTargetFile(targetDataNode);
-		String[] execString = new String[]{ffmpegPath, "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
+        if (ffmpegPath == null) {
+            // todo: replaces this with a parameter or a properties file
+            for (String currentPath : searchPathArray) {
+                for (String currentSuffix : new String[]{".exe", ""}) {
+                    ffmpegPath = currentPath + "ffmpeg" + currentSuffix;
+                    if (new File(ffmpegPath).exists()) {
+                        break;
+                    }
+                }
+                if (new File(ffmpegPath).exists()) {
+                    break;
+                }
+            }
+        }
+        if (ffmpegFound) {
+            BufferedReader errorStreamReader = null;
+            try {
+                File iconFile = File.createTempFile("arbil", ".jpg");
+                iconFile.deleteOnExit();
+                File targetFile = getTargetFile(targetDataNode);
+                String[] execString = new String[]{ffmpegPath, "-itsoffset", "-4", "-i", targetFile.getCanonicalPath(), "-vframes", "1", "-s", outputWidth + "x" + outputHeight, iconFile.getAbsolutePath()};
 //                System.out.println(execString);
-		Process launchedProcess = Runtime.getRuntime().exec(execString);
-		BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
-		String line;
-		while ((line = errorStreamReader.readLine()) != null) {
+                Process launchedProcess = Runtime.getRuntime().exec(execString);
+                errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                String line;
+                while ((line = errorStreamReader.readLine()) != null) { // read until EOF
 //                    ffmpegFound = false;
-		    System.out.println("Launched process error stream: \"" + line + "\"");
-		}
-		iconFile.deleteOnExit();
-		if (iconFile.exists()) {
-		    targetDataNode.thumbnailFile = iconFile;
-		}
+                    System.out.println("Launched process error stream: \"" + line + "\"");
+                }
+                // NOTE: We should also wait for launchedProcess to exit
+                iconFile.deleteOnExit();
+                if (iconFile.exists()) {
+                    targetDataNode.thumbnailFile = iconFile;
+                }
 //        /data1/apps/ffmpeg-deb/usr/bin/ffmpeg
 //            ffmpeg  -itsoffset -4  -i test.avi -vcodec mjpeg -vframes 1 -an -f rawvideo -s 320x240 test.jpg
-	    } catch (IOException ex) {
-		ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
-		GuiHelper.linorgBugCatcher.logError(ex);
-	    }
-	}
+            } catch (IOException ex) {
+                ffmpegFound = false; //todo this is not getting hit when ffmpeg is not available
+                GuiHelper.linorgBugCatcher.logError(ex);
+            } finally {
+                if (errorStreamReader != null) try { // close pipeline
+                    errorStreamReader.close();
+                } catch (IOException ioe) {
+                    GuiHelper.linorgBugCatcher.logError(ioe);
+                }
+            }
+        }
     }
 
     private void createImageThumbnail(ArbilDataNode targetDataNode) {
@@ -210,32 +226,32 @@ public class ImageBoxRenderer extends JLabel implements ListCellRenderer {
 //                GuiHelper.linorgBugCatcher.logError(ex);
 //            }
 //        }
-	if (imageMagickPath == null) {
-	    // todo: replaces this process with a parameter or a properties file so that the jnlp version can benifit from the installed version
-	    for (String currentPath : searchPathArray) {
-		for (String currentSuffix : new String[]{".exe", ""}) {
-		    imageMagickPath = currentPath + "convert" + currentSuffix;
-		    if (new File(imageMagickPath).exists()) {
-			break;
-		    }
-		}
-		if (new File(imageMagickPath).exists()) {
-		    break;
-		}
-	    }
-	}
-	if (imageMagickFound) {
-	    try {
-		File iconFile = File.createTempFile("arbil", ".jpg");
-		iconFile.deleteOnExit();
-		File targetFile = getTargetFile(targetDataNode);
-		if (targetFile.exists()) {
-		    String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
-		    System.out.println(execString);
-		    Process launchedProcess = Runtime.getRuntime().exec(execString);
-		    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
-		    String line;
-		    while ((line = errorStreamReader.readLine()) != null) {
+        if (imageMagickPath == null) {
+            // todo: replaces this process with a parameter or a properties file so that the jnlp version can benifit from the installed version
+            for (String currentPath : searchPathArray) {
+                for (String currentSuffix : new String[]{".exe", ""}) {
+                    imageMagickPath = currentPath + "convert" + currentSuffix;
+                    if (new File(imageMagickPath).exists()) {
+                        break;
+                    }
+                }
+                if (new File(imageMagickPath).exists()) {
+                    break;
+                }
+            }
+        }
+        if (imageMagickFound) {
+            try {
+                File iconFile = File.createTempFile("arbil", ".jpg");
+                iconFile.deleteOnExit();
+                File targetFile = getTargetFile(targetDataNode);
+                if (targetFile.exists()) {
+                    String[] execString = new String[]{imageMagickPath, "-define", "jpeg:size=" + outputWidth * 2 + "x" + outputHeight * 2, targetFile.getCanonicalPath(), "-auto-orient", "-thumbnail", outputWidth + "x" + outputHeight, "-unsharp", "0x.5", iconFile.getAbsolutePath()};
+                    System.out.println(Arrays.toString(execString));
+                    Process launchedProcess = Runtime.getRuntime().exec(execString);
+                    BufferedReader errorStreamReader = new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream()));
+                    String line;
+                    while ((line = errorStreamReader.readLine()) != null) {
 //                    ffmpegFound = false;
 			System.out.println("Launched process error stream: \"" + line + "\"");
 		    }
