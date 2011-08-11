@@ -1,42 +1,77 @@
 package nl.mpi.arbil.wicket.pages;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
-import javax.swing.tree.TreeNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
 import nl.mpi.arbil.search.ArbilSimpleNodeSearchTerm;
-import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.wicket.components.ArbilWicketSearchForm;
 import nl.mpi.arbil.wicket.components.ArbilWicketTablePanel;
-import nl.mpi.arbil.wicket.components.ArbilWicketTree;
-import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
+import nl.mpi.arbil.wicket.model.ArbilDataNodeModel;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearch;
 import nl.mpi.arbil.wicket.model.ArbilWicketSearchModel;
+import nl.mpi.arbil.wicket.model.ArbilWicketTableModel;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.WebPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class SearchPage extends TreePage {
+public class NodeSearchPage extends WebPage {
+    public final static String PARAM_NODEURI = "nodeURI";
+    /**
+     * Include doSearch parameter to immediately initiate search. This will by default hide the form
+     */
+    public final static String PARAM_DO_SEARCH = "doSearch";
+    /**
+     * To show the form when having doSearch parameter, include showForm parameter
+     */
+    public static final String PARAM_SHOW_FORM = "showForm";
 
-    private static final long serialVersionUID = 1L;
-    private ArbilWicketTree remoteTree;
+    private static Logger logger = LoggerFactory.getLogger(NodeSearchPage.class);
     private WebMarkupContainer tableContainer;
     private WebMarkupContainer tablePanel;
     private ArbilWicketSearchForm searchForm;
-    private ArbilWicketTree selectedTree = null;
-
-    public SearchPage(PageParameters parameters) {
+    private ArbilDataNodeModel selectedNodeModel = null;
+    
+    public NodeSearchPage(PageParameters parameters) {
 	super(parameters);
-
-	ArbilWicketSession.get().getTreeHelper().applyRootLocations();
 	createTable();
-	createTrees();
 	createForm(new ArbilWicketSearch(parameters, newNodeSearchTerm()));
+	if (parameters.containsKey(PARAM_NODEURI)) {
+	    String nodeURI = parameters.getString(PARAM_NODEURI);
+	    try {
+		selectedNodeModel = new ArbilDataNodeModel(new URI(nodeURI));
+		if (selectedNodeModel.getObject() != null) {
+		    selectedNodeModel.waitTillLoaded();
+		} else {
+		    logger.error("nodeURI with URI " + nodeURI + "could not be loaded");
+		    selectedNodeModel = null;
+		}
+	    } catch (URISyntaxException ex) {
+		logger.error("Invalid nodeURI supplied: " + nodeURI, ex);
+		selectedNodeModel = null;
+	    }
+	}
+
+	if(parameters.containsKey(PARAM_DO_SEARCH)){
+	    initSearch(parameters.containsKey(PARAM_SHOW_FORM));
+	}
+    }
+
+    /**
+     * Initiates search without showing search form
+     */
+    private void initSearch(boolean showForm) {
+	searchForm.setVisible(showForm);
+	searchForm.performSearch(null);
     }
 
     private void createTable() {
@@ -48,18 +83,6 @@ public class SearchPage extends TreePage {
 	// Empty placeholder for table panel until searchService is performed
 	tablePanel = new WebMarkupContainer("tablePanel");
 	tableContainer.add(tablePanel);
-    }
-
-    private void createTrees() {
-	add(remoteTree = createRemoteTree());
-	add(createLocalTree());
-    }
-
-    @Override
-    protected void onTreeNodeClicked(ArbilWicketTree tree, TreeNode treeNode, AjaxRequestTarget target) {
-	selectedTree = tree.getTreeState().getSelectedNodes().size() > 0 ? tree : null;
-	// refresh table container
-	target.addComponent(searchForm);
     }
 
     private void createForm(ArbilWicketSearch search) {
@@ -83,8 +106,8 @@ public class SearchPage extends TreePage {
 
 	    @Override
 	    protected Collection<ArbilNode> getSelectedNodes() {
-		if (selectedTree != null) {
-		    return selectedTree.getSelectedNodes();
+		if (selectedNodeModel != null) {
+		    return Collections.singleton((ArbilNode) selectedNodeModel.getObject());
 		} else {
 		    return Collections.emptyList();
 		}
@@ -92,17 +115,17 @@ public class SearchPage extends TreePage {
 
 	    @Override
 	    protected boolean isNodesSelected() {
-		return selectedTree != null;
+		return selectedNodeModel != null;
 	    }
 
 	    @Override
 	    protected boolean isRemote() {
-		return selectedTree == remoteTree;
+		return selectedNodeModel != null && !selectedNodeModel.getObject().isLocal();
 	    }
 
 	    @Override
 	    protected ArbilNodeSearchTerm newNodeSearchTerm() {
-		return SearchPage.this.newNodeSearchTerm();
+		return NodeSearchPage.this.newNodeSearchTerm();
 	    }
 	};
 

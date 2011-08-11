@@ -2,6 +2,7 @@ package nl.mpi.arbil.wicket;
 
 import java.io.File;
 import nl.mpi.arbil.util.MessageDialogHandler;
+import org.apache.wicket.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
 	logger.info(String.format("Message: [%1$s] %2$s", messageTitle, messageString));
+	Session.get().info(String.format("Message: [%1$s] %2$s", messageTitle, messageString));
     }
 
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {
@@ -23,6 +25,7 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 
     public int showDialogBox(String message, String title, int optionType, int messageType) {
 	logger.info(String.format("Dialog box: [%1$s] %2$s", title, message));
+	Session.get().info(String.format("Message: [%1$s] %2$s", title, message));
 	return 0;
     }
 

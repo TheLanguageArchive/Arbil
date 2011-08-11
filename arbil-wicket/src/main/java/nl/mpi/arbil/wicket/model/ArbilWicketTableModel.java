@@ -4,18 +4,20 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldView;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.model.IModel;
@@ -31,7 +33,9 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private transient Hashtable<String, ArbilFieldsNode> dataNodeHash;
-    private HashMap<String, URI> dataNodeUrisMap = new HashMap<String, URI>();
+    private Map<String, URI> dataNodeUrisMap = Collections.synchronizedMap(new HashMap<String, URI>());
+    private boolean reloadSuspended = false;
+    private boolean reloadRequestedWhileSuspended = false;
     private HashMap<String, ArbilFieldsNode> serializableNodesHash = new HashMap<String, ArbilFieldsNode>();
 
     public ArbilWicketTableModel(ArbilFieldView fieldView) {
@@ -78,6 +82,22 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 	dataNodeHash = null;
     }
 
+    public synchronized void suspendReload() {
+	if (!reloadSuspended) {
+	    reloadSuspended = true;
+	    reloadRequestedWhileSuspended = false;
+	}
+    }
+
+    public synchronized void resumeReload() {
+	if (reloadSuspended) {
+	    reloadSuspended = false;
+	    if (reloadRequestedWhileSuspended) {
+		requestReloadTableData();
+	    }
+	}
+    }
+
     // AbstractArbilTableModel method implementations
     @Override
     protected Hashtable<String, ArbilFieldsNode> getDataNodeHash() {
@@ -92,7 +112,7 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 		dataNodeHash.put(entry.getKey(), entry.getValue());
 	    }
 	    for (Entry<String, URI> entry : dataNodeUrisMap.entrySet()) {
-		dataNodeHash.put(entry.getKey(), ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, entry.getValue()));
+		dataNodeHash.put(entry.getKey(), ArbilWicketSession.get().getDataNodeLoader().getArbilDataNode(null, entry.getValue()));
 	    }
 	}
     }
@@ -138,8 +158,14 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     @Override
     public void requestReloadTableData() {
-	// Synchronous table reload
-	reloadTableDataPrivate();
+	if (reloadSuspended) {
+	    synchronized (this) {
+		reloadRequestedWhileSuspended = true;
+	    }
+	} else {
+	    // Synchronous table reload
+	    reloadTableDataPrivate();
+	}
     }
 
     @Override

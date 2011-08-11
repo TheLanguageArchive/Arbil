@@ -3,7 +3,7 @@ package nl.mpi.arbil.wicket.model;
 import java.io.Serializable;
 import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import nl.mpi.arbil.data.ArbilNode;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -35,9 +35,16 @@ public class ArbilDataNodeModel extends LoadableDetachableModel<ArbilNode> {
 	if (serializableNode != null) {
 	    return serializableNode;
 	} else if (uri != null) {
-	    return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, uri);
+	    return ArbilWicketSession.get().getDataNodeLoader().getArbilDataNode(null, uri);
 	} else {
 	    return null;
 	}
+    }
+
+    public boolean waitTillLoaded() {
+	if (getObject() instanceof ArbilDataNode) {
+	    return ((ArbilDataNode) getObject()).waitTillLoaded();
+	}
+	return getObject() != null;
     }
 }

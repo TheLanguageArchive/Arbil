@@ -1,6 +1,8 @@
 package nl.mpi.arbil.wicket;
 
+import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.MimeHashQueue;
 import nl.mpi.arbil.util.TreeHelper;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
@@ -15,7 +17,9 @@ public class ArbilWicketSession extends WebSession {
     private SessionStorage sessionStorage;
     private TreeHelper treeHelper;
     private ArbilWicketApplication application;
-
+    private DataNodeLoader dataNodeLoader;
+    private MimeHashQueue mimeHashQueue;
+    
     public ArbilWicketSession(ArbilWicketApplication application, Request request) {
 	super(request);
 	this.application = application;
@@ -44,5 +48,19 @@ public class ArbilWicketSession extends WebSession {
 	    treeHelper = application.newTreeHelper(getSessionStorage());
 	}
 	return treeHelper;
+    }
+
+    public synchronized DataNodeLoader getDataNodeLoader(){
+	if(dataNodeLoader == null){
+	    dataNodeLoader = application.newDataNodeLoader(this);
+	}
+	return dataNodeLoader;
+    }
+    
+    public synchronized MimeHashQueue getMimeHashQueue(){
+	if(mimeHashQueue == null){
+	    mimeHashQueue = application.newMimeHashQueue(this);
+	}
+	return mimeHashQueue;
     }
 }

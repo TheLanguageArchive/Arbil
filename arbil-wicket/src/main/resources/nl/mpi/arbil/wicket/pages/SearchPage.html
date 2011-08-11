@@ -2,7 +2,7 @@
     <head>  
         <title>Arbil wicket test</title>
     <wicket:link>
-	<link rel="stylesheet" type="text/css" href="Pages.css"/>
+	<link rel="stylesheet" type="text/css" href="TreePage.css"/>
     </wicket:link>
 </head>
 <body>
@@ -20,13 +20,43 @@
 	<h2>Search</h2>
 	<form wicket:id="searchForm">
 	    <p><span wicket:id="searchNodes">NODES</span></p>
-	    <input type="text" wicket:id="remoteSearchString" /><br />
-	    <select wicket:id="nodeType">
-		<option>All</option>
-	    </select>
+	    <div wicket:id="remoteSearchTermContainer">
+		Remote search term:
+		<input type="text" wicket:id="remoteSearchTerm" /> (required)
+	    </div>
+
+	    <div wicket:id="nodeSearchTermsContainer">
+
+		<div wicket:id="nodeSearchTerms">
+
+		    <div class="nodeSearchTerm">
+
+			<select wicket:id="booleanAnd">
+			    <option>AND</option>
+			</select>
+
+			<select wicket:id="notEqual">
+			    <option>Has</option>
+			</select>
+
+			<select wicket:id="nodeType">
+			    <option>All</option>
+			</select>
+
 		Field: <input type="text" wicket:id="searchFieldName" />
 		Value: <input type="text" wicket:id="searchString" />
+			<input type="submit" value="Remove" wicket:id="removeNodeSearchTerm" />
+
+		    </div>
+
+		</div>
+
+		<input type="submit" value="Add term" wicket:id="addNodeSearchTerm" />
+
+	    </div>
 	    <input type="submit" value="Search" wicket:id="searchSubmit" />
+	    <input type="submit" value="Stop" wicket:id="searchStop" />
+
 
 	    <div wicket:id="progress">[progress]</div>
 	</form>

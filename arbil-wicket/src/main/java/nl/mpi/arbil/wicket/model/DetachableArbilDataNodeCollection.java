@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
-import nl.mpi.arbil.data.ArbilDataNodeLoader;
+import nl.mpi.arbil.wicket.ArbilWicketSession;
 import org.apache.wicket.model.IDetachable;
 
 /**
@@ -60,7 +60,7 @@ public class DetachableArbilDataNodeCollection implements Serializable, IDetacha
 	return ImmutableList.copyOf(Lists.transform(nodeURIs, new Function<URI, ArbilDataNode>() {
 
 	    public ArbilDataNode apply(URI f) {
-		return ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, f);
+		return ArbilWicketSession.get().getDataNodeLoader().getArbilDataNode(null, f);
 	    }
 	}));
     }

@@ -12,15 +12,14 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
 
 /**
  * Proxy for the ArbilWicketSessionStorage that is contained in the session that makes
- * the request. To be injected into native Arbil classes.
+ * the request. To be injected into Arbil core classes.
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 
     private SessionStorage getSessionStorage() {
-	// Session storage is retrieved from the request cycle. It is kept there because it gets
-	// stored in a thread local variable per request
-	return ArbilWicketRequestCycle.getSessionStorage();
+	// Session storage is retrieved from the session - each session has its own
+	return ArbilWicketSession.get().getSessionStorage();
     }
 
     public void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles) {

@@ -78,7 +78,12 @@ public class ArbilWicketTree extends Tree {
 	    // Single selection
 	    Object node = selectedTreeNodes.iterator().next();
 	    if (node instanceof ArbilWicketTreeNode) {
-		tableModel.addSingleArbilDataNode(((ArbilWicketTreeNode) node).getDataNode());
+		ArbilNode arbilNode = ((ArbilWicketTreeNode) node).getDataNode();
+		if (arbilNode instanceof ArbilDataNode) {
+		    tableModel.addSingleArbilDataNode((ArbilDataNode) arbilNode);
+		} else {
+		    return 0;
+		}
 	    } else {
 		return 0;
 	    }
@@ -94,12 +99,12 @@ public class ArbilWicketTree extends Tree {
 	return tableModel.getRowCount() - rowCount;
     }
 
-    public List<ArbilDataNode> getSelectedNodes() {
+    public List<ArbilNode> getSelectedNodes() {
 	Collection<Object> selected = getTreeState().getSelectedNodes();
 	return getSelectedArbilDataNodes(selected);
     }
 
-    private List<ArbilDataNode> getSelectedArbilDataNodes(final Collection<Object> selectedTreeNodes) {
+    private List<ArbilNode> getSelectedArbilDataNodes(final Collection<Object> selectedTreeNodes) {
 	List displayNodes = new LinkedList<ArbilDataNode>();
 	for (Object node : selectedTreeNodes) {
 	    if (node instanceof ArbilWicketTreeNode) {

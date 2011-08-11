@@ -1,12 +1,10 @@
 package nl.mpi.arbil.wicket.components;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Locale;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
 import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
@@ -47,7 +45,7 @@ public class ArbilWicketDataTable extends DefaultDataTable<ArrayList<ArbilTableC
 	if (content instanceof Object[] || content instanceof ArbilField) {
 	    return true;
 	} else if (content instanceof ArbilField[]) {
-	    ArbilDataNode parentObject = ((ArbilField[]) content)[0].getParentDataNode();
+	    ArbilNode parentObject = ((ArbilField[]) content)[0].getParentDataNode();
 	    // check that the field id exists and that the file is in the local cache or in the favourites not loose on a drive, as the determinator of editability
 	    return !parentObject.isLoading() && parentObject.isEditable() && parentObject.isMetaDataNode(); // todo: consider limiting editing to files withing the cache only
 	} else {
