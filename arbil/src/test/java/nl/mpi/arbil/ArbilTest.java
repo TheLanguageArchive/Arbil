@@ -49,8 +49,10 @@ public abstract class ArbilTest {
 
 	getTreeHelper().addLocation(uri);
 	for (ArbilDataNode node : getTreeHelper().getLocalCorpusNodes()) {
-	    node.waitTillLoaded();
-	    Thread.sleep(100);
+	    while (!node.isDataLoaded()) {
+		node.waitTillLoaded();
+		Thread.sleep(100);
+	    }
 	}
     }
 

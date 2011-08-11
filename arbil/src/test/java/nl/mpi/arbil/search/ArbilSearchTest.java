@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import nl.mpi.arbil.ArbilTest;
-import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import org.junit.Before;
