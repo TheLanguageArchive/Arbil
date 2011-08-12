@@ -573,16 +573,15 @@ public class MetadataReader {
 		}
 
 		// get the xml node id
-		NamedNodeMap attributesMap = childNode.getAttributes();
-		if (attributesMap != null) {
-		    removeImdiNodeIds(attributesMap, parentNode);
+		if (childNodeAttributes != null) {
+		    removeImdiNodeIds(childNodeAttributes, parentNode);
 		}
 
 		if (fullNodePath.length() == 0) {
-		    getClarinTemplate(childNode, parentNode, attributesMap);
+		    getClarinTemplate(childNode, parentNode, childNodeAttributes);
 		}
 		if (childNode.getLocalName().equals("Corpus")) {
-		    getImdiCatalogue(attributesMap, parentNode, childLinks, parentChildTree);
+		    getImdiCatalogue(childNodeAttributes, parentNode, childLinks, parentChildTree);
 		}
 		String siblingNodePath = nodePath + MetadataReader.imdiPathSeparator + localName;
 		String fullSubNodePath = fullNodePath + MetadataReader.imdiPathSeparator + localName;
@@ -674,7 +673,7 @@ public class MetadataReader {
 		    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
 		} else {
 		    // for a branch, just check if there are referenced resources to add
-		    addReferencedResources(parentNode, parentChildTree, attributesMap, childLinks, destinationNode);
+		    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
 		}
 		nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
 	    }
