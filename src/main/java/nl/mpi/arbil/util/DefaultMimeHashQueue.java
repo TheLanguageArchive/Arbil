@@ -174,9 +174,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
     protected void afterExecuteThread(Runnable r, Throwable t) {
     }
-    
-    
-    public void stopMimeHashQueueThread(){
+
+    public void stopMimeHashQueueThread() {
 	mimeHashQueueThreadExecutor.shutdownNow();
     }
 
@@ -472,63 +471,6 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    }
 	}
 
-	private String[] getMimeType(URI fileUri) {
-//        System.out.println("getMimeType: " + fileUrl);
-	    String mpiMimeType;
-	    String typeCheckerMessage;
-	    // here we also want to check the magic number but the mpi api has a function similar to that so we
-	    // use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
-	    // because the api uses null to indicate non archivable we cant return other strings
-	    mpiMimeType = null;//"unreadable";
-	    typeCheckerMessage = null;
-	    boolean deep = false;
-	    if (!new File(fileUri).exists()) {
-//            System.out.println("File does not exist: " + fileUrl);
-	    } else {
-		InputStream inputStream = null;
-		try {
-		    // this will choke on strings that look url encoded but are not. because it erroneously decodes them
-		    inputStream = fileUri.toURL().openStream();
-		    if (inputStream != null) {
-//                    String pamperUrl = fileUrl.getFile().replace("//", "/");
-			// Node that the type checker will choke if the path includes "//"
-			if (deep) {
-			    typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
-			} else {
-			    typeCheckerMessage = getFileType().checkStream(inputStream, fileUri.toString());
-			}
-//                    System.out.println("mpiMimeType: " + typeCheckerMessage);
-		    }
-		    mpiMimeType = FileType.resultToMPIType(typeCheckerMessage);
-		} catch (Exception ioe) {
-//                bugCatcher.logError(ioe);
-		    System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
-		    bugCatcher.logError(ioe);
-		    if (typeCheckerMessage == null) {
-			typeCheckerMessage = "I/O Exception: " + ioe.getMessage();
-		    }
-		} finally {
-		    if (inputStream != null) {
-			try {
-			    inputStream.close();
-			} catch (IOException ex) {
-			    bugCatcher.logError(ex);
-			}
-		    }
-		}
-		System.out.println(mpiMimeType);
-	    }
-	    String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
-	    // if non null then it is an archivable file type
-//        if (mpiMimeType != null) {
-	    knownMimeTypes.put(fileUri.toString(), resultArray);
-//        } else {
-	    // because the api uses null to indicate non archivable we cant return other strings
-	    //knownMimeTypes.put(filePath, "nonarchivable");
-//        }
-	    return resultArray;
-	}
-
 	private String getHash(URI fileUri, URI nodeUri) {
 	    long startTime = System.currentTimeMillis();
 	    System.out.println("getHash: " + fileUri);
@@ -628,6 +570,63 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
     private static String getFileSizeString(File targetFile) {
 	return (targetFile.length() / 1024) + "KB";
+    }
+
+    public String[] getMimeType(URI fileUri) {
+//        System.out.println("getMimeType: " + fileUrl);
+	String mpiMimeType;
+	String typeCheckerMessage;
+	// here we also want to check the magic number but the mpi api has a function similar to that so we
+	// use the mpi.api to get the mime type of the file, if the mime type is not a valid archive format the api will return null
+	// because the api uses null to indicate non archivable we cant return other strings
+	mpiMimeType = null;//"unreadable";
+	typeCheckerMessage = null;
+	boolean deep = false;
+	if (!new File(fileUri).exists()) {
+//            System.out.println("File does not exist: " + fileUrl);
+	} else {
+	    InputStream inputStream = null;
+	    try {
+		// this will choke on strings that look url encoded but are not. because it erroneously decodes them
+		inputStream = fileUri.toURL().openStream();
+		if (inputStream != null) {
+//                    String pamperUrl = fileUrl.getFile().replace("//", "/");
+		    // Node that the type checker will choke if the path includes "//"
+		    if (deep) {
+			typeCheckerMessage = deepFileType.checkStream(inputStream, fileUri.toString());
+		    } else {
+			typeCheckerMessage = getFileType().checkStream(inputStream, fileUri.toString());
+		    }
+//                    System.out.println("mpiMimeType: " + typeCheckerMessage);
+		}
+		mpiMimeType = FileType.resultToMPIType(typeCheckerMessage);
+	    } catch (Exception ioe) {
+//                bugCatcher.logError(ioe);
+		System.out.println("Cannot read file at URL: " + fileUri + " ioe: " + ioe.getMessage());
+		bugCatcher.logError(ioe);
+		if (typeCheckerMessage == null) {
+		    typeCheckerMessage = "I/O Exception: " + ioe.getMessage();
+		}
+	    } finally {
+		if (inputStream != null) {
+		    try {
+			inputStream.close();
+		    } catch (IOException ex) {
+			bugCatcher.logError(ex);
+		    }
+		}
+	    }
+	    System.out.println(mpiMimeType);
+	}
+	String[] resultArray = new String[]{mpiMimeType, typeCheckerMessage};
+	// if non null then it is an archivable file type
+//        if (mpiMimeType != null) {
+	knownMimeTypes.put(fileUri.toString(), resultArray);
+//        } else {
+	// because the api uses null to indicate non archivable we cant return other strings
+	//knownMimeTypes.put(filePath, "nonarchivable");
+//        }
+	return resultArray;
     }
 
     /**

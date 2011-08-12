@@ -4,6 +4,7 @@
  */
 package nl.mpi.arbil.util;
 
+import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 
 /**
@@ -33,7 +34,8 @@ public interface MimeHashQueue {
      * Makes sure the mime hash queue thread is started
      */
     void startMimeHashQueueThread();
-    
+
     void stopMimeHashQueueThread();
-    
+
+    String[] getMimeType(URI fileUri);
 }
