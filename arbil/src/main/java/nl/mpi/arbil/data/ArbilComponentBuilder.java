@@ -184,8 +184,12 @@ public class ArbilComponentBuilder {
 		    for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
 			String localName = childNode.getNodeName();
 			if ("ResourceType".equals(localName)) {
-			    ((Element) childNode).setAttribute("mimetype", resourceNode.mpiMimeType);
-			    childNode.setTextContent("Resource");
+			    if (resourceNode.isMetaDataNode()) {
+				childNode.setTextContent("Metadata");
+			    } else {
+				((Element) childNode).setAttribute("mimetype", resourceNode.mpiMimeType);
+				childNode.setTextContent("Resource");
+			    }
 			}
 			if ("ResourceRef".equals(localName)) {
 			    childNode.setTextContent(resourceNode.getUrlString());

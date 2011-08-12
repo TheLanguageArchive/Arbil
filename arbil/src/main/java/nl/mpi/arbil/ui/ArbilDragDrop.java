@@ -24,6 +24,7 @@ import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
@@ -614,6 +615,11 @@ public class ArbilDragDrop {
 			    addNodeResult = false;
 			}
 		    }
+		} else if (dropTargetDataNode.isCmdiMetaDataNode()) {
+		    // Add as ResourceProxy
+		    new ArbilComponentBuilder().insertResourceProxy(dropTargetDataNode, currentNode);
+		} else {
+		    addNodeResult = false;
 		}
 	    } else {
 		addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
