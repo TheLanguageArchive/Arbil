@@ -26,6 +26,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
+import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -50,6 +51,7 @@ import org.xml.sax.SAXException;
  */
 public class ArbilComponentBuilder {
 
+    public static final String RESOURCE_ID_PREFIX = "res_";
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -152,7 +154,7 @@ public class ArbilComponentBuilder {
 //            String nodeFragment = "";
 
 	    // geerate a uuid for new resource
-	    String resourceProxyId = UUID.randomUUID().toString();
+	    String resourceProxyId = RESOURCE_ID_PREFIX + UUID.randomUUID().toString();
 	    try {
 		// load the schema
 		SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
@@ -166,12 +168,12 @@ public class ArbilComponentBuilder {
 //                    }
 
 			Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
-			Node previousRefNode = documentNode.getAttributes().getNamedItem("ref");
+			Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
 			if (previousRefNode != null) {
-			    String previousRefValue = documentNode.getAttributes().getNamedItem("ref").getNodeValue();
+			    String previousRefValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
 			    // todo: remove old resource nodes that this one overwrites
 			}
-			((Element) documentNode).setAttribute("ref", resourceProxyId);
+			((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, resourceProxyId);
 		    } catch (TransformerException exception) {
 			bugCatcher.logError(exception);
 			return null;
@@ -182,7 +184,7 @@ public class ArbilComponentBuilder {
 		    for (Node childNode = addedResourceNode.getFirstChild(); childNode != null; childNode = childNode.getNextSibling()) {
 			String localName = childNode.getNodeName();
 			if ("ResourceType".equals(localName)) {
-			    ((Element)childNode).setAttribute("mimetype", resourceNode.mpiMimeType);
+			    ((Element) childNode).setAttribute("mimetype", resourceNode.mpiMimeType);
 			    childNode.setTextContent("Resource");
 			}
 			if ("ResourceRef".equals(localName)) {

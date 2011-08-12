@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -42,6 +41,7 @@ import org.apache.xmlbeans.XmlOptions;
  */
 public class CmdiTemplate extends ArbilTemplate {
 
+    public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
