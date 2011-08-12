@@ -225,6 +225,9 @@ public class XsdChecker extends JSplitPane {
 		    }
 		}
 	    }
+	    final String checkingString = "Checking, please wait...\n\n";
+	    final int checkingOffset = doc.getLength();
+	    doc.insertString(checkingOffset, checkingString, styleNormal);
 
 	    Validator validator = createValidator(schemaURL);
 	    CustomErrorHandler errorHandler = new CustomErrorHandler(imdiFile);
@@ -240,6 +243,8 @@ public class XsdChecker extends JSplitPane {
 		doc.insertString(doc.getLength(), xmlFile.getSystemId() + " is NOT valid\n", styleError);
 		doc.insertString(doc.getLength(), "Reason: " + e.getLocalizedMessage() + "\n", styleError);
 	    }
+	    doc.remove(checkingOffset, checkingString.length());
+
 	}
     }
 
@@ -261,7 +266,18 @@ public class XsdChecker extends JSplitPane {
 	}
     }
 
-    public void checkXML(ArbilDataNode imdiObject) {
+    public void checkXML(final ArbilDataNode dataNode) {
+	Runnable checkXmlRunner = new Runnable() {
+
+	    public void run() {
+		doCheckXML(dataNode);
+	    }
+	};
+	Thread thread = new Thread(checkXmlRunner);
+	thread.start();
+    }
+
+    private void doCheckXML(ArbilDataNode imdiObject) {
 	encounteredAdditionalErrors = false;
 	try {
 	    doc.insertString(doc.getLength(), "Checking the IMDI file conformance to the XSD\nThere are three types or messages: ", styleNormal);
@@ -271,7 +287,10 @@ public class XsdChecker extends JSplitPane {
 	    doc.insertString(doc.getLength(), "Fatal Errors." + "\n\n", styleFatalError);
 
 //            doc.insertString(doc.getLength(), "Exporting imdi file to remove the id attributes\n", styleNormal);
-	    alternateCheck(imdiObject.getFile(), imdiObject.getURI());
+	    synchronized (imdiObject) {
+		alternateCheck(imdiObject.getFile(), imdiObject.getURI());
+	    }
+
 	    try {
 		fileViewPane.setPage(imdiObject.getURI().toURL());
 	    } catch (Exception ex) {
