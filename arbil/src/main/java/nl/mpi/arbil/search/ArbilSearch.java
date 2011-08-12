@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
-import nl.mpi.arbil.data.ArbilFieldsNode;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
