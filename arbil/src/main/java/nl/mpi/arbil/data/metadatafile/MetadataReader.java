@@ -563,6 +563,7 @@ public class MetadataReader {
 	// add the fields and nodes
 	for (Node childNode = startNode; childNode != null; childNode = childNode.getNextSibling()) {
 	    String localName = childNode.getLocalName();
+	    NamedNodeMap childNodeAttributes = childNode.getAttributes();
 	    if (localName != null) {
 		if ((nodePath + MetadataReader.imdiPathSeparator + localName).equals(".CMD.Header")) {
 		    continue;
@@ -668,8 +669,12 @@ public class MetadataReader {
 		} else {
 		    siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
 		}
-		if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { // is a leaf not a branch
-		    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, childNode, parentNode, childLinks, parentChildTree, shouldAddCurrent);
+		if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { 
+		    // is a leaf not a branch
+		    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
+		} else {
+		    // for a branch, just check if there are referenced resources to add
+		    addReferencedResources(parentNode, parentChildTree, attributesMap, childLinks, destinationNode);
 		}
 		nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
 	    }
@@ -691,7 +696,7 @@ public class MetadataReader {
 	} // end get the xml node id
     }
 
-    private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, Node childNode, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, boolean shouldAddCurrent) {
+    private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
 	// is a leaf not a branch
 	//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
 	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
@@ -703,15 +708,14 @@ public class MetadataReader {
 	//                nodeCounter++;
 	//System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 	//            }
-	NamedNodeMap namedNodeMap = childNode.getAttributes();
-	if (namedNodeMap != null) {
-	    String cvType = getNamedAttributeValue(namedNodeMap, "Type");
-	    String cvUrlString = getNamedAttributeValue(namedNodeMap, "Link");
-	    String languageId = getNamedAttributeValue(namedNodeMap, "LanguageId");
+	if (childNodeAttributes != null) {
+	    String cvType = getNamedAttributeValue(childNodeAttributes, "Type");
+	    String cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
+	    String languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
 	    if (languageId == null) {
-		languageId = getNamedAttributeValue(namedNodeMap, "xml:lang");
+		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
 	    }
-	    String keyName = getNamedAttributeValue(namedNodeMap, "Name");
+	    String keyName = getNamedAttributeValue(childNodeAttributes, "Name");
 	    fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
 	    if (fieldToAdd.xmlPath.endsWith("Description")) {
 		if (cvUrlString != null && cvUrlString.length() > 0) {
@@ -725,19 +729,7 @@ public class MetadataReader {
 		    descriptionLinkNode.addField(fieldToAdd);
 		}
 	    }
-	    String clarinRefId = getNamedAttributeValue(namedNodeMap, "ref");
-	    if (clarinRefId != null && clarinRefId.length() > 0) {
-		System.out.println("clarinRefId: " + clarinRefId);
-		CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
-		if (cmdiComponentLinkReader != null) {
-		    URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
-		    if (clarinLink != null) {
-			clarinLink = parentNode.getURI().resolve(clarinLink);
-			childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-			parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(clarinLink));
-		    }
-		}
-	    }
+	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
 	}
 	if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
 	    //                System.out.println("Adding: " + fieldToAdd);
@@ -777,6 +769,22 @@ public class MetadataReader {
 	//            }
 	fieldToAdd.finishLoading();
 	return nodeOrderCounter;
+    }
+
+    private void addReferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, Vector<String[]> childLinks, ArbilDataNode destinationNode) {
+	String clarinRefId = getNamedAttributeValue(childNodeAttributes, "ref");
+	if (clarinRefId != null && clarinRefId.length() > 0) {
+	    System.out.println("clarinRefId: " + clarinRefId);
+	    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
+	    if (cmdiComponentLinkReader != null) {
+		URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
+		if (clarinLink != null) {
+		    clarinLink = parentNode.getURI().resolve(clarinLink);
+		    childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
+		    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(clarinLink));
+		}
+	    }
+	}
     }
 
     private String determineParentPath(ArbilDataNode parentNode) {
