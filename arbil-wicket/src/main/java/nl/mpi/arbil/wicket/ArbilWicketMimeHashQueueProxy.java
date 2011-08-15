@@ -1,5 +1,6 @@
 package nl.mpi.arbil.wicket;
 
+import java.net.URI;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.MimeHashQueue;
 
@@ -31,6 +32,10 @@ public class ArbilWicketMimeHashQueueProxy implements MimeHashQueue{
 
     public void stopMimeHashQueueThread() {
 	getMimeHashQueue().stopMimeHashQueueThread();
+    }
+
+    public String[] getMimeType(URI fileUri) {
+	return getMimeHashQueue().getMimeType(fileUri);
     }
     
 }
