@@ -668,7 +668,7 @@ public class MetadataReader {
 		} else {
 		    siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
 		}
-		if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) { 
+		if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) {
 		    // is a leaf not a branch
 		    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
 		} else {
@@ -771,16 +771,21 @@ public class MetadataReader {
     }
 
     private void addReferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, Vector<String[]> childLinks, ArbilDataNode destinationNode) {
-	String clarinRefId = getNamedAttributeValue(childNodeAttributes, "ref");
-	if (clarinRefId != null && clarinRefId.length() > 0) {
-	    System.out.println("clarinRefId: " + clarinRefId);
+	String clarinRefIds = getNamedAttributeValue(childNodeAttributes, "ref");
+	if (clarinRefIds != null && clarinRefIds.length() > 0) {
+	    System.out.println("clarinRefIds: " + clarinRefIds);
 	    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
 	    if (cmdiComponentLinkReader != null) {
-		URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(clarinRefId);
-		if (clarinLink != null) {
-		    clarinLink = parentNode.getURI().resolve(clarinLink);
-		    childLinks.add(new String[]{clarinLink.toString(), clarinRefId});
-		    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(clarinLink));
+		for (String refId : clarinRefIds.split(" ")) {
+		    refId = refId.trim();
+		    if (refId.length() > 0) {
+			URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(refId);
+			if (clarinLink != null) {
+			    clarinLink = parentNode.getURI().resolve(clarinLink);
+			    childLinks.add(new String[]{clarinLink.toString(), refId});
+			    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(clarinLink));
+			}
+		    }
 		}
 	    }
 	}

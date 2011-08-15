@@ -170,10 +170,14 @@ public class ArbilComponentBuilder {
 			Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
 			Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
 			if (previousRefNode != null) {
+			    // Element already has resource proxy reference(s)
 			    String previousRefValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
-			    // todo: remove old resource nodes that this one overwrites
+			    // Append new id to previous value(s)
+			    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, previousRefValue + " " + resourceProxyId);
+			} else {
+			    // Just set new id as reference
+			    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, resourceProxyId);
 			}
-			((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, resourceProxyId);
 		    } catch (TransformerException exception) {
 			bugCatcher.logError(exception);
 			return null;
