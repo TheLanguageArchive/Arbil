@@ -47,6 +47,7 @@ public class XsdChecker extends JSplitPane {
 	bugCatcher = bugCatcherInstance;
     }
     private static SessionStorage sessionStorage;
+    private ArbilResourceResolver resourceResolver = new ArbilResourceResolver();
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -83,8 +84,11 @@ public class XsdChecker extends JSplitPane {
 
     private Validator createValidator(URL schemaFile) throws Exception /*SAXException, ParserConfigurationException*/ {
 	SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+	schemaFactory.setResourceResolver(resourceResolver);
 	Schema schema = schemaFactory.newSchema(schemaFile);
-	return schema.newValidator();
+	Validator validator = schema.newValidator();
+	validator.setResourceResolver(resourceResolver);
+	return validator;
     }
 
     private URL getXsd(File imdiFile, URI xmlFileUrl) {
