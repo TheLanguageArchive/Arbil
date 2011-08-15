@@ -31,7 +31,7 @@
         <jar href="lib/saxon8.jar" download="eager"/>
         <jar href="lib/saxon8-dom.jar" download="eager"/>
         <jar href="lib/@TypeCheckVersion@" download="eager"/>
-        <jar href="lib/xalan-2.6.0.jar" download="eager"/>
+        <jar href="lib/xalan-2.7.1.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
         <jar href="lib/bcprov-jdk15-143.jar" download="eager"/>
         <jar href="lib/slcshttps_jdk15_v0.2.jar" download="eager"/>
