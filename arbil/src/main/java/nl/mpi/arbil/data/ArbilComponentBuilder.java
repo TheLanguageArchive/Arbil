@@ -156,10 +156,14 @@ public class ArbilComponentBuilder {
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
 
-	    // geerate a uuid for new resource
-	    String resourceProxyId = getExistingResourceProxyId(arbilDataNode, resourceNode);
-	    boolean newResourceProxy = resourceProxyId == null;
+	    String resourceProxyId = null;
+	    CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().cmdiComponentLinkReader;
+	    if (linkReader != null) {
+		resourceProxyId = linkReader.getProxyId(resourceNode.getUrlString());
+	    }
+	    boolean newResourceProxy = (resourceProxyId == null);
 	    if (newResourceProxy) {
+		// generate a uuid for new resource
 		resourceProxyId = RESOURCE_ID_PREFIX + UUID.randomUUID().toString();
 	    }
 	    try {
@@ -206,17 +210,17 @@ public class ArbilComponentBuilder {
 	//                        targetXmlPath = ".CMD.Components";
 	//                    }
 
-				Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
-				Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
-				if (previousRefNode != null) {
-				    // Element already has resource proxy reference(s)
-				    String previousRefValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
-				    // Append new id to previous value(s)
-				    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, previousRefValue + " " + resourceProxyId);
-				} else {
-				    // Just set new id as reference
-				    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, resourceProxyId);
-				}
+	Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
+	Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
+	if (previousRefNode != null) {
+	    // Element already has resource proxy reference(s)
+	    String previousRefValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
+	    // Append new id to previous value(s)
+	    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, previousRefValue + " " + resourceProxyId);
+	} else {
+	    // Just set new id as reference
+	    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, resourceProxyId);
+	}
     }
 
     private void addNewResourceProxy(Document targetDocument, SchemaType schemaType, String resourceProxyId, ArbilDataNode resourceNode) throws ArbilMetadataException, DOMException {
@@ -236,18 +240,6 @@ public class ArbilComponentBuilder {
 		childNode.setTextContent(resourceNode.getUrlString());
 	    }
 	}
-    }
-
-    private String getExistingResourceProxyId(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
-	CmdiComponentLinkReader linkReader = arbilDataNode.getParentDomNode().cmdiComponentLinkReader;
-	if (linkReader != null) {
-	    for (CmdiResourceLink resourceLink : linkReader.cmdiResourceLinkArray) {
-		if (resourceLink.resourceRef.equals(resourceNode.getUrlString())) {
-		    return resourceLink.resourceProxyId;
-		}
-	    }
-	}
-	return null;
     }
 
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]) {
@@ -1006,6 +998,8 @@ public class ArbilComponentBuilder {
 		SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{XmlObject.Factory.parse(inputStream, xmlOptions)}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
 		// there can only be a single root node so we just get the first one, note that the IMDI schema specifies two (METATRANSCRIPT and VocabularyDef)
 		return sts.documentTypes()[0];
+	    } catch (IOException e) {
+		bugCatcher.logError(e);
 	    } finally {
 		inputStream.close();
 	    }
