@@ -40,7 +40,6 @@
         <jar href="lib/commons-logging-1.1.jar" download="eager"/>
         <jar href="lib/commons-beanutils-1.8.0.jar" download="eager"/>
         <jar href="lib/xmlpublic.jar" download="eager"/>
-        <jar href="lib/xml-resolver-1.2.jar" download="eager"/>
         <!-- these prperties are now set in the main class<property name="apple.laf.useScreenMenuBar" value="true"/>
         <property name="apple.awt.graphics.UseQuartz" value="true"/>
         <property name="sun.swing.enableImprovedDragGesture" value="true"/>-->
