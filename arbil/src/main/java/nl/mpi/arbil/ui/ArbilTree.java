@@ -46,6 +46,7 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     private static BugCatcher bugCatcher;
+    private ArbilTable customPreviewTable = null;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
@@ -64,6 +65,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
         treeHelper = treeHelperInstance;
+    }
+
+    public void setCustomPreviewTable(ArbilTable customPreviewTable) {
+        this.customPreviewTable = customPreviewTable;
     }
 
     public ArbilTree() {
@@ -147,13 +152,18 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         this.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
 
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                if (PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
-                    TableCellEditor currentCellEditor = PreviewSplitPanel.getInstance().getPreviewTable().getCellEditor(); // stop any editing so the changes get stored
+                ArbilTable targetPreviewTable = customPreviewTable;
+                if (targetPreviewTable == null && PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
+                    // if a custom preview table has not been set then check for the application wide preview table and use that if it is enabled
+                    targetPreviewTable = PreviewSplitPanel.getInstance().getPreviewTable();
+                }
+                if (targetPreviewTable != null) {
+                    TableCellEditor currentCellEditor = targetPreviewTable.getCellEditor(); // stop any editing so the changes get stored
                     if (currentCellEditor != null) {
                         currentCellEditor.stopCellEditing();
                     }
-                    PreviewSplitPanel.getInstance().getPreviewTable().getArbilTableModel().removeAllArbilDataNodeRows();
-                    PreviewSplitPanel.getInstance().getPreviewTable().getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionDataNode());
+                    targetPreviewTable.getArbilTableModel().removeAllArbilDataNodeRows();
+                    targetPreviewTable.getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionDataNode());
                 }
             }
         });
