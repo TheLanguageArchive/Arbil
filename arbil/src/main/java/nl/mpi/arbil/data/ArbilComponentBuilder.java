@@ -11,7 +11,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,7 +29,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
-import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -141,17 +142,7 @@ public class ArbilComponentBuilder {
     public URI insertResourceProxy(ArbilDataNode arbilDataNode, ArbilDataNode resourceNode) {
 	// there is no need to save the node at this point because metadatabuilder has already done so
 	synchronized (arbilDataNode.getParentDomLockObject()) {
-//    <.CMD.Resources.ResourceProxyList.ResourceProxy>
-//        <ResourceProxyList>
-//            <ResourceProxy id="a_text">
-//                <ResourceType mimetype="audio/x-mpeg4">Resource</ResourceType>
-//                <ResourceRef>bla.txt</ResourceRef>
-//            </ResourceProxy>
-	    String targetXmlPath = arbilDataNode.getURI().getFragment();
-	    if (targetXmlPath == null) {
-		// todo: consider making sure that the dom parent node always has a path
-		targetXmlPath = ".CMD.Components." + arbilDataNode.getParentDomNode().nodeTemplate.loadedTemplateName;
-	    }
+	    String targetXmlPath = getTargetXmlPath(arbilDataNode);
 	    System.out.println("insertResourceProxy: " + targetXmlPath);
 //            File cmdiNodeFile = imdiTreeObject.getFile();
 //            String nodeFragment = "";
@@ -167,8 +158,6 @@ public class ArbilComponentBuilder {
 		resourceProxyId = RESOURCE_ID_PREFIX + UUID.randomUUID().toString();
 	    }
 	    try {
-		// load the schema
-		SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
 		// load the dom
 		Document targetDocument = getDocument(arbilDataNode.getURI());
 		// insert the new section
@@ -181,6 +170,8 @@ public class ArbilComponentBuilder {
 		    }
 //                printoutDocument(targetDocument);
 		    if (newResourceProxy) {
+			// load the schema
+			SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
 			addNewResourceProxy(targetDocument, schemaType, resourceProxyId, resourceNode);
 		    }
 		} catch (Exception exception) {
@@ -203,6 +194,21 @@ public class ArbilComponentBuilder {
 	    }
 	    return arbilDataNode.getURI();
 	}
+    }
+
+    private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
+	//    <.CMD.Resources.ResourceProxyList.ResourceProxy>
+	//        <ResourceProxyList>
+	//            <ResourceProxy id="a_text">
+	//                <ResourceType mimetype="audio/x-mpeg4">Resource</ResourceType>
+	//                <ResourceRef>bla.txt</ResourceRef>
+	//            </ResourceProxy>
+	String targetXmlPath = arbilDataNode.getURI().getFragment();
+	if (targetXmlPath == null) {
+	    // todo: consider making sure that the dom parent node always has a path
+	    targetXmlPath = ".CMD.Components." + arbilDataNode.getParentDomNode().nodeTemplate.loadedTemplateName;
+	}
+	return targetXmlPath;
     }
 
     private void insertResourceProxyReference(Document targetDocument, String targetXmlPath, String resourceProxyId) throws TransformerException, DOMException {
@@ -240,6 +246,65 @@ public class ArbilComponentBuilder {
 		childNode.setTextContent(resourceNode.getUrlString());
 	    }
 	}
+    }
+
+    public boolean removeResourceProxyReferences(ArbilDataNode parent, Collection<String> resourceProxyReferences) {
+	synchronized (parent.getParentDomLockObject()) {
+	    CmdiComponentLinkReader linkReader = parent.getCmdiComponentLinkReader();
+	    if (linkReader == null) {
+		// We do need (and expect) and link reader here...
+		return false;
+	    }
+
+	    HashSet<String> resourceProxyIds = new HashSet<String>(resourceProxyReferences.size());
+	    for (String reference : resourceProxyReferences) {
+		resourceProxyIds.add(linkReader.getProxyId(reference));
+	    }
+	    String targetXmlPath = getTargetXmlPath(parent);
+	    System.out.println("removeResourceProxyReferences: " + targetXmlPath);
+	    try {
+		Document targetDocument = getDocument(parent.getURI());
+		// insert the new section
+		try {
+		    Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
+		    Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
+		    if (previousRefNode != null) {
+			// Get old references
+			String previousRefsValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
+			// Create new reference set excluding the ones to be removed
+			StringBuilder newRefsValueSB = new StringBuilder();
+			for (String ref : previousRefsValue.split(" ")) {
+			    ref = ref.trim();
+			    if (ref.length() > 0 && !resourceProxyIds.contains(ref)) {
+				newRefsValueSB.append(ref).append(" ");
+			    }
+			}
+			String newRefsValue = newRefsValueSB.toString().trim();
+			if (newRefsValue.length() == 0) {
+			    // No remaining references, remove ref attribute
+			    ((Element) documentNode).removeAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
+			} else {
+			    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, newRefsValue);
+			}
+		    }
+		} catch (TransformerException exception) {
+		    bugCatcher.logError(exception);
+		    return false;
+		}
+		// bump the history
+		parent.bumpHistory();
+		// save the dom
+		savePrettyFormatting(targetDocument, parent.getFile()); // note that we want to make sure that this gets saved even without changes because we have bumped the history ant there will be no file otherwise
+		return true;
+	    } catch (IOException exception) {
+		bugCatcher.logError(exception);
+	    } catch (ParserConfigurationException exception) {
+		bugCatcher.logError(exception);
+	    } catch (SAXException exception) {
+		bugCatcher.logError(exception);
+	    }
+	}
+	return false;
     }
 
     public boolean removeChildNodes(ArbilDataNode arbilDataNode, String nodePaths[]) {

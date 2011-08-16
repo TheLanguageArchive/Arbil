@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -58,6 +61,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
+
     protected final void initTrees() {
 	initRootNodes();
 	initTreeModels();
@@ -273,10 +277,11 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public abstract void deleteNodes(Object sourceObject);
 
     public void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children) {
-	Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
-	Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();
-	for(ArbilDataNode child:children){
-	    determineDeleteFromParent(child, parent, childNodeDeleteList, dataNodesDeleteList);
+	Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, List<ArbilDataNode>>();
+	Map<ArbilDataNode, List<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, List<String>>();
+	Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
+	for (ArbilDataNode child : children) {
+	    determineDeleteFromParent(child, parent, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList);
 	}
 	// delete child nodes
 	deleteNodesByChidXmlIdLink(childNodeDeleteList);
@@ -284,7 +289,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	deleteNodesByCorpusLink(dataNodesDeleteList);
     }
 
-    protected void determineNodesToDelete(TreePath[] nodePaths, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+    protected void determineNodesToDelete(TreePath[] nodePaths, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList) {
 	Vector<ArbilDataNode> dataNodesToRemove = new Vector<ArbilDataNode>();
 	for (TreePath currentNodePath : nodePaths) {
 	    if (currentNodePath != null) {
@@ -292,6 +297,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		Object userObject = selectedTreeNode.getUserObject();
 		System.out.println("trying to delete: " + userObject);
 		if (currentNodePath.getPath().length == 2) {
+		    // In locations list (i.e. child of root node)
 		    System.out.println("removing by location");
 		    removeLocation((ArbilDataNode) selectedTreeNode.getUserObject());
 		    applyRootLocations();
@@ -302,7 +308,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 			System.out.println("found parent to remove from");
 			ArbilDataNode parentDataNode = (ArbilDataNode) parentTreeNode.getUserObject();
 			ArbilDataNode childDataNode = (ArbilDataNode) selectedTreeNode.getUserObject();
-			determineDeleteFromParent(childDataNode, parentDataNode, childNodeDeleteList, dataNodesDeleteList);
+			determineDeleteFromParent(childDataNode, parentDataNode, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList);
 		    }
 		}
 		// todo: this fixes some of the nodes left after a delete EXCEPT; for example, the "actors" node when all the actors are deleted
@@ -314,7 +320,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
     }
 
-    private void determineDeleteFromParent(ArbilDataNode childDataNode, ArbilDataNode parentDataNode, Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
+    private void determineDeleteFromParent(ArbilDataNode childDataNode, ArbilDataNode parentDataNode, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList) {
 	if (childDataNode.isChildNode()) {
 	    // there is a risk of the later deleted nodes being outof sync with the xml, so we add them all to a list and delete all at once before the node is reloaded
 	    if (!childNodeDeleteList.containsKey(childDataNode.getParentDomNode())) {
@@ -327,8 +333,15 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	    childNodeDeleteList.get(childDataNode.getParentDomNode()).add(childDataNode.getURI().getFragment());
 	    childDataNode.removeFromAllContainers();
+	} else if (parentDataNode.isCmdiMetaDataNode()) {
+	    // CMDI link
+	    if (!cmdiLinksDeleteList.containsKey(parentDataNode)) {
+		cmdiLinksDeleteList.put(parentDataNode, new ArrayList<ArbilDataNode>());
+	    }
+	    cmdiLinksDeleteList.get(parentDataNode).add(childDataNode);
 	} else {
-	    // add the parent and the child node to the deletelist
+	    // Not a child node or CMDI resource, ergo corpus child
+	    // Add the parent and the child node to the deletelist
 	    if (!dataNodesDeleteList.containsKey(parentDataNode)) {
 		dataNodesDeleteList.put(parentDataNode, new Vector());
 	    }
@@ -342,8 +355,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	//                            }
     }
 
-    protected void deleteNodesByChidXmlIdLink(Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList) {
-	for (Entry<ArbilDataNode, Vector<String>> deleteEntry : childNodeDeleteList.entrySet()) {
+    protected void deleteNodesByChidXmlIdLink(Map<ArbilDataNode, List<String>> childNodeDeleteList) {
+	for (Entry<ArbilDataNode, List<String>> deleteEntry : childNodeDeleteList.entrySet()) {
 	    ArbilDataNode currentParent = deleteEntry.getKey();
 	    System.out.println("deleting by child xml id link");
 	    // TODO: There is an issue when deleting child nodes that the remaining nodes xml path (x) will be incorrect as will the xmlnode id hence the node in a table may be incorrect after a delete
@@ -363,10 +376,25 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	}
     }
 
-    protected void deleteNodesByCorpusLink(Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList) {
-	for (Entry<ArbilDataNode, Vector<ArbilDataNode>> deleteEntry : dataNodesDeleteList.entrySet()) {
+    protected void deleteNodesByCorpusLink(Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList) {
+	for (Entry<ArbilDataNode, List<ArbilDataNode>> deleteEntry : dataNodesDeleteList.entrySet()) {
 	    System.out.println("deleting by corpus link");
 	    deleteEntry.getKey().deleteCorpusLink(deleteEntry.getValue().toArray(new ArbilDataNode[]{}));
+	}
+    }
+
+    protected void deleteCmdiLinks(Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinks) {
+	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	for (Entry<ArbilDataNode, List<ArbilDataNode>> deleteEntry : cmdiLinks.entrySet()) {
+	    ArrayList<String> references = new ArrayList<String>(deleteEntry.getValue().size());
+	    for (ArbilDataNode node : deleteEntry.getValue()) {
+		references.add(node.getUrlString());
+	    }
+	    if (componentBuilder.removeResourceProxyReferences(deleteEntry.getKey(), references)) {
+		deleteEntry.getKey().reloadNode();
+	    } else {
+		messageDialogHandler.addMessageDialogToQueue("Error deleting node, check the log file via the help menu for more information.", "Delete Node");
+	    }
 	}
     }
 
