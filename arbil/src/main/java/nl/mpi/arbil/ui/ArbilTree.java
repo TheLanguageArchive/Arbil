@@ -9,6 +9,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -47,6 +49,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     private static BugCatcher bugCatcher;
     private ArbilTable customPreviewTable = null;
+    private boolean clearSelectionOnFocusLost = false;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
         bugCatcher = bugCatcherInstance;
@@ -69,6 +72,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     public void setCustomPreviewTable(ArbilTable customPreviewTable) {
         this.customPreviewTable = customPreviewTable;
+    }
+
+    public void setClearSelectionOnFocusLost(boolean clearSelectionOnFocusLost) {
+        this.clearSelectionOnFocusLost = clearSelectionOnFocusLost;
     }
 
     public ArbilTree() {
@@ -152,18 +159,19 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         this.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
 
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
-                ArbilTable targetPreviewTable = customPreviewTable;
-                if (targetPreviewTable == null && PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
-                    // if a custom preview table has not been set then check for the application wide preview table and use that if it is enabled
-                    targetPreviewTable = PreviewSplitPanel.getInstance().getPreviewTable();
-                }
-                if (targetPreviewTable != null) {
-                    TableCellEditor currentCellEditor = targetPreviewTable.getCellEditor(); // stop any editing so the changes get stored
-                    if (currentCellEditor != null) {
-                        currentCellEditor.stopCellEditing();
-                    }
-                    targetPreviewTable.getArbilTableModel().removeAllArbilDataNodeRows();
-                    targetPreviewTable.getArbilTableModel().addSingleArbilDataNode(((ArbilTree) evt.getSource()).getLeadSelectionDataNode());
+                putSelectionIntoPreviewTable();
+            }
+        });
+        
+        this.addFocusListener(new FocusListener() {
+
+            public void focusGained(FocusEvent e) {
+                putSelectionIntoPreviewTable();
+            }
+
+            public void focusLost(FocusEvent e) {
+                if (clearSelectionOnFocusLost) {
+                    ArbilTree.this.clearSelection();
                 }
             }
         });
@@ -175,6 +183,22 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         // enable drag and drop
         ArbilDragDrop.getSingleInstance().addDrag(this);
         ((DefaultTreeModel) treeModel).setAsksAllowsChildren(true);
+    }
+
+    private void putSelectionIntoPreviewTable() {
+        ArbilTable targetPreviewTable = customPreviewTable;
+        if (targetPreviewTable == null && PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
+            // if a custom preview table has not been set then check for the application wide preview table and use that if it is enabled
+            targetPreviewTable = PreviewSplitPanel.getInstance().getPreviewTable();
+        }
+        if (targetPreviewTable != null) {
+            TableCellEditor currentCellEditor = targetPreviewTable.getCellEditor(); // stop any editing so the changes get stored
+            if (currentCellEditor != null) {
+                currentCellEditor.stopCellEditing();
+            }
+            targetPreviewTable.getArbilTableModel().removeAllArbilDataNodeRows();
+            targetPreviewTable.getArbilTableModel().addSingleArbilDataNode(ArbilTree.this.getLeadSelectionDataNode());
+        }
     }
 
     private void treeMousePressedReleased(java.awt.event.MouseEvent evt) {
