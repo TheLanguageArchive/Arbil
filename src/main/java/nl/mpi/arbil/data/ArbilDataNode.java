@@ -2116,4 +2116,11 @@ public class ArbilDataNode implements ArbilNode, Comparable {
     public void setSingletonMetadataNode(boolean singletonMetadataNodeName) {
 	this.singletonMetadataNode = singletonMetadataNodeName;
     }
+
+    /**
+     * @return the cmdiComponentLinkReader
+     */
+    public CmdiComponentLinkReader getCmdiComponentLinkReader() {
+	return getParentDomNode().cmdiComponentLinkReader;
+    }
 }

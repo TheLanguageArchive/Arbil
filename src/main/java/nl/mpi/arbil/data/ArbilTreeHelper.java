@@ -2,8 +2,9 @@ package nl.mpi.arbil.data;
 
 import java.awt.Component;
 import java.net.URI;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -116,19 +117,22 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 		    + " This will also save any pending changes to disk.", "Delete",
 		    JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 		// make lists of nodes to delete
-		Hashtable<ArbilDataNode, Vector<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
-		Hashtable<ArbilDataNode, Vector<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, Vector<String>>();
-		determineNodesToDelete(currentNodePaths, childNodeDeleteList, dataNodesDeleteList);
+		Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
+		Map<ArbilDataNode, List<String>> childNodeDeleteList = new HashMap<ArbilDataNode, List<String>>();
+		Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
+		determineNodesToDelete(currentNodePaths, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList);
 		// delete child nodes
 		deleteNodesByChidXmlIdLink(childNodeDeleteList);
 		// delete parent nodes
 		deleteNodesByCorpusLink(dataNodesDeleteList);
+		// delete CMDI link nodes
+		deleteCmdiLinks(cmdiLinksDeleteList);
 	    }
 	} else {
 	    System.out.println("cannot delete from this tree");
 	}
     }
-    
+
     public void addLocationGui(URI addableLocation) {
 	if (!addLocation(addableLocation)) {
 	    // alert the user when the node already exists and cannot be added again
