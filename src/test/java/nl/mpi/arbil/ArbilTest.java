@@ -1,8 +1,13 @@
 package nl.mpi.arbil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
 import java.util.HashSet;
 import java.util.Set;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -28,6 +33,7 @@ public abstract class ArbilTest {
     private MessageDialogHandler dialogHandler;
     private BugCatcher bugCatcher;
     private Set<URI> localTreeItems;
+    private DataNodeLoader dataNodeLoader;
 
     @After
     public void cleanUp() {
@@ -40,18 +46,78 @@ public abstract class ArbilTest {
     }
 
     protected void addToLocalTreeFromResource(String resourceClassPath) throws URISyntaxException, InterruptedException {
-	URI uri = getClass().getResource(resourceClassPath).toURI();
+	addToLocalTreeFromURI(uriFromResource(resourceClassPath));
+    }
 
+    protected void addToLocalTreeFromURI(URI uri) throws InterruptedException, URISyntaxException {
 	if (localTreeItems == null) {
 	    localTreeItems = new HashSet<URI>();
 	}
 	localTreeItems.add(uri);
 
 	getTreeHelper().addLocation(uri);
+
 	for (ArbilDataNode node : getTreeHelper().getLocalCorpusNodes()) {
-	    node.waitTillLoaded();
-	    Thread.sleep(100);
+	    waitForNodeToLoad(node);
 	}
+    }
+
+    protected static void waitForNodeToLoad(ArbilDataNode node) {
+	while (node.isLoading() || !node.isDataLoaded()) {
+	    try {
+		Thread.sleep(100);
+		node.waitTillLoaded();
+	    } catch (InterruptedException ex) {
+	    }
+	}
+	try {
+	    Thread.sleep(100);
+	} catch (InterruptedException ex) {
+	}
+    }
+
+    protected URI uriFromResource(String resourceClassPath) throws URISyntaxException {
+	return getClass().getResource(resourceClassPath).toURI();
+    }
+
+    protected ArbilDataNode dataNodeFromUri(String uriString) throws URISyntaxException {
+	return dataNodeFromUri(new URI(uriString));
+    }
+
+    protected ArbilDataNode dataNodeFromUri(URI uri) {
+	ArbilDataNode dataNode = getDataNodeLoader().getArbilDataNode(this, uri);
+	waitForNodeToLoad(dataNode);
+	return dataNode;
+    }
+
+    protected ArbilDataNode dataNodeFromResource(String resourceClassPath) throws URISyntaxException {
+	return dataNodeFromUri(uriFromResource(resourceClassPath));
+    }
+
+    protected URI copyOfResource(URI uri) throws FileNotFoundException, IOException {
+	File in = new File(uri);
+	File out = new File(in.getParentFile(), System.currentTimeMillis() + in.getName());
+	if (out.exists()) {
+	    if (!out.delete()) {
+		throw new IOException("File already exists");
+	    }
+	}
+	FileChannel inChannel = new FileInputStream(in).getChannel();
+	FileChannel outChannel = new FileOutputStream(out).getChannel();
+	try {
+	    inChannel.transferTo(0, inChannel.size(), outChannel);
+	} catch (IOException e) {
+	    throw e;
+	} finally {
+	    if (inChannel != null) {
+		inChannel.close();
+	    }
+	    if (outChannel != null) {
+		outChannel.close();
+	    }
+	}
+	out.deleteOnExit();
+	return out.toURI();
     }
 
     protected void inject() throws Exception {
