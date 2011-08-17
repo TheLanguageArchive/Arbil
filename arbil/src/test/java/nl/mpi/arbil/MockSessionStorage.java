@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
@@ -95,7 +96,28 @@ public class MockSessionStorage implements SessionStorage {
     }
 
     public URI getOriginatingUri(URI locationInCacheURI) {
-	throw new UnsupportedOperationException("Not supported yet.");
+	URI returnUri = null;
+	String uriPath = locationInCacheURI.getPath();
+//        System.out.println("pathIsInsideCache" + storageDirectory + " : " + fullTestFile);
+	System.out.println("uriPath: " + uriPath);
+	int foundPos = uriPath.indexOf("imdicache");
+	if (foundPos == -1) {
+	    foundPos = uriPath.indexOf("ArbilWorkingFiles");
+	    if (foundPos == -1) {
+		return null;
+	    }
+	}
+	uriPath = uriPath.substring(foundPos);
+	String[] uriParts = uriPath.split("/", 4);
+	try {
+	    if (uriParts[1].toLowerCase().equals("http")) {
+		returnUri = new URI(uriParts[1], uriParts[2], "/" + uriParts[3], null); // [0] will be "imdicache"
+		System.out.println("returnUri: " + returnUri);
+	    }
+	} catch (URISyntaxException urise) {
+	    log.severe(urise.toString());
+	}
+	return returnUri;
     }
 
     /**
@@ -327,7 +349,7 @@ public class MockSessionStorage implements SessionStorage {
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
+    public synchronized File updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
 	File targetFile = getSaveLocation(pathString);
 	boolean fileNeedsUpdate = !targetFile.exists();
 	if (!fileNeedsUpdate) {
@@ -356,6 +378,15 @@ public class MockSessionStorage implements SessionStorage {
      * @return The path of the file in the cache.
      */
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+
+	if (pathString.equals("http://www.w3.org/2001/xml.xsd")) {
+	    try {
+		return new File(getClass().getResource("/nl/mpi/arbil/data/xml.xsd").toURI());
+	    } catch (URISyntaxException ex) {
+		log.warning("Could not get local resource for " + pathString);
+	    }
+	}
+
 	// to expire the files in the cache set the expireCacheCopy flag.
 	File cachePath = getSaveLocation(pathString);
 	try {
@@ -367,7 +398,7 @@ public class MockSessionStorage implements SessionStorage {
     }
     private File tempDir;
 
-    public File getStorageDirectory() {
+    public synchronized File getStorageDirectory() {
 	if (tempDir == null) {
 	    try {
 		tempDir = File.createTempFile("arbil", Long.toString(System.nanoTime()));
