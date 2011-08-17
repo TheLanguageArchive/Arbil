@@ -716,6 +716,28 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	}
 	return null;
     }
+    
+
+    /**
+     * Recursively checks all subnodes and their URI fragments, tries to find a match to the provided path
+     * @param path Path to match
+     * @return Matching child node, if found. Otherwise null
+     */
+    public ArbilDataNode getChildByPath(String path) {
+	if (childArray != null && childArray.length > 0) {
+	    for (ArbilDataNode child : childArray) {
+		if (child.getURI() != null && path.equals(child.getURI().getFragment())) {
+		    return child;
+		} else {
+		    ArbilDataNode childMatch = child.getChildByPath(path);
+		    if (childMatch != null) {
+			return childMatch;
+		    }
+		}
+	    }
+	}
+	return null;
+    }
 
     public ArbilTemplate getNodeTemplate() {
 	if (nodeTemplate != null && !this.isCorpus()) {
@@ -1357,7 +1379,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	}
     }
 
-    public boolean isLoading() {
+    public synchronized boolean isLoading() {
 	return getParentDomNode().isLoadingCount > 0;
     }
 
@@ -1789,7 +1811,7 @@ public class ArbilDataNode implements ArbilNode, Comparable {
      * Only relevant for imdi child nodes.
      * @return ArbilDataNode
      */
-    public ArbilDataNode getParentDomNode() {
+    public synchronized ArbilDataNode getParentDomNode() {
 	//        System.out.println("nodeUri: " + nodeUri);
 	if (domParentNode == null) {
 	    if (nodeUri.getFragment() != null) {
