@@ -1,11 +1,127 @@
 ARBIL 2.3.x RELEASE NOTES
 ----------------------------------------
-Date: $Date$ 
-Revision: $Revision$ (this means that the descriptions below apply to Arbil 2.3.x with x >= $Revision$)
+$Date$ 
+$Revision$ (this means that the descriptions below apply to Arbil 2.3.x with x >= revision)
+
+Contacts:
+- Peter Withers (peter.withers@mpi.nl)
+- Twan Goosen (twan.goosen@mpi.nl)
+----------------------------------------
+
+Below is an overview of changes in Arbil since the previous minor version (Arbil 2.2). Where 
+applicable, related ticket numbers from TRAC are included at the end of the description.
 
 ** ADDITIONS **
 
+The following functionality has been added to Arbil:
+
+- SEARCH: The 'column' field in the search window is now a drop-down that will contain a list of
+previously entered column names, as well as a number of pre-defined common values. Users can add any
+column name to this list as well as remove arbitrary items. (#574, #633)
+
+- TABLES: Individual columns in table views can be optionally set to a fixed width. This can be used
+on arbitrary open tables (and will be kept across sessions) as well as in saved column views. (#678)
+
+- CONTROLLED VOCABULARIES: Editing controlled vocabulary fields (e.g. 'Genre') has been extended
+with 'type-ahead' (autocomplete) functionality, both for single value and list vocabularies. (#584)
+
+- CONTROLLED VOCABULARIES: In the table view and long field editor, an icon is shown indicating the
+type of vocabulary (open/closed, single value/list) on the field.
+
+- EDIT ALL METADATA: A new context menu option 'Edit/view all metadata' is available for metadata
+files in the tree view (except for Corpus and Session nodes). It opens a window containing tables 
+for the selected node all of its subnodes in an hierarchical view. (#603)
+
+- TYPECHECKER CONFIGURATION: A custom typechecker filetypes configuration can be used by putting a
+filetypes.txt file in the Arbil working directory. It will then automatically be used instead of the
+internal default configuration (#905).
+
+- WINDOWS: A new option 'Close all windows' in the Windows menu on the menu bar closes all floating
+windows on the application workspace at once. (#570)
+
+
 ** CHANGES **
+
+These parts of the Arbil functionality have changed:
+
+- SEARCH: The 'search' options is now also available in the context menu on the local corpus node in
+the tree view. This means that one can now easily search through all data in the local corpus at 
+once. (#68)
+
+- METADATA STRUCTURE: Metadata nodes can now be moved between metada files using drag/drop (#658)
+- TABLE MENU: 'Save changes' has been added to the table context menu if it there are changes to
+be saved. (#596)
+
+- TABLE ORDERING: Tables can be sorted according to field order, field name or field value. In the
+latter case, the table is now sorted by the value stored on disk and not the actual value to prevent
+the rows from jumping after an edit that causes a change in the alphabetical order. (#948)
+
+- LONG FIELD EDITOR: The long field editor (LFE) now has 'previous' and 'next' buttons that allow the
+user to quickly navigate the fields of a given node in a single LFE window. (#622)
+
+- LONG FIELD EDITOR: The LFE can now be opened on a selected node in the tree view. It will open on
+the first field; the user can then use the previous and next buttons to navigate the fields.
+
+- CMDI SCHEMA: Several schema changes in CMDI (Clarin Metadata Infrastructure) are now reflected in
+Arbil so that it generates valid metadata instance files.
+
+- RESOURCE LINK: Resources with no specified resource link no longer get the 'file not found' icon
+type (a red diagonal line) but rather a non-specified mark (a red question mark). (#676)
+
+- NODE SORTING: Nodes that contain a numeral value in their displayed name (e.g. Node1, Node2)
+are now sorted by the value of this numeral if they are otherwise equal. So Node10 follows Node2
+even though character-by-character the latter comes first. This applies to the tree views as well
+as tables. (#557)
 
 ** FIXES **
 
+Among other, mostly minor, bugfixes, the following issues have been resolved:
+
+- MOVING METADATA FILES: When moving multiple metadata files between corpus nodes by drag and drop,
+a bug would cause metadata files to 'disappear' (i.e. be removed from the source corpus but not
+linked to the destination) on some platforms. This has been resolved. (#925)
+
+- FAVOURITES: Favourites of a subnode type (e.g. an Actor) could not be dragged onto their matching
+parent node (e.g. Actors), but instead had to be dragged onto the root node of the file (Session).
+This has been resolved. (#942)
+
+- TREE MENU: Subnodes that are not allowed to be added to a given node according to te schema appear
+as disabled in the 'Add' submenu of the context menu on nodes in the tree. (#111)
+
+- WINDOWS: The state of floating windows (tables, search results, subnode views) as well as docked
+components is stored across sessions including size and position. (#33)
+
+- CHARACTERS IN FILENAME: Including files with non-ASCII characters in their filename used to cause
+issues on some platforms. This has been fixed. (#782)
+
+- QUIT ON MacOS: Arbil now fully supports native methods for exiting the applications on MacOS. This
+means that using the 'Quit' option on the application menu or pression CMD-Q will ask for 
+confirmation if there are unsaved changes and store the application state before actually quiting.
+(#600, MacOS only)
+
+- CMDI RESOURCES: When resource are added to CMDI metadata files, this is now also visible in the
+tree view. The resources can be added and deleted. Multiple references to a single resource result
+in a single resource proxy being referenced multiple times (rather than copies of the same 
+resource). (#979)
+
+- IMDI: FOLLOW-UP VOCABULARIES: When selecting a Genre on Content, the proper Subgenre options are 
+now shown. (#6)
+
+- IMDI: MULTIPLE VALUES: Multiple values are now possible for Location.Region and all Description
+fields.
+
+** KNOWN ISSUES **
+
+- CMDI: CONTROLLED VOCABULARIES: If the CV provides descriptions, they are not used as display value
+where they should. (#997)
+
+- CMDI: DATA CATEGORIES: Field descriptions should be retrieved from ISOcat but currently are not.
+(#595)
+
+- IMPORT RESOURCES: Resources that are protected and require authentication can currently not be
+imported into the local corpus since the authentication mechanism is broken. (#679)
+
+- PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
+
+- STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
+could cause the application to terminate unexpectedly.
