@@ -112,6 +112,9 @@ fields.
 
 ** KNOWN ISSUES **
 
+Among others, the following issues have been described and will be addressed in future version of
+Arbil:
+
 - CMDI: CONTROLLED VOCABULARIES: If the CV provides descriptions, they are not used as display value
 where they should. (#997)
 
@@ -121,7 +124,12 @@ where they should. (#997)
 - IMPORT RESOURCES: Resources that are protected and require authentication can currently not be
 imported into the local corpus since the authentication mechanism is broken. (#679)
 
+- SHOW IMDI FORMATTED: When showing an IMDI metadata file 'IMDI formatted', the formatting does
+not look as expected. (#899)
+
 - PERFORMANCE: After importing (certain) corpus nodes, CPU load gets and stays high. (#929)
 
 - STABILITY: During search, memory usage may exceed the limits of the Java virtual machine which
 could cause the application to terminate unexpectedly.
+
+
