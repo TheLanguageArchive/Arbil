@@ -1,0 +1,11 @@
+ARBIL 2.3.x RELEASE NOTES
+----------------------------------------
+Date: $Date$ 
+Revision: $Revision$ (this means that the descriptions below apply to Arbil 2.3.x with x >= $Revision$)
+
+** ADDITIONS **
+
+** CHANGES **
+
+** FIXES **
+
