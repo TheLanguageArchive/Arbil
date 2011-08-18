@@ -33,13 +33,9 @@ public abstract class ArbilTest {
     private MessageDialogHandler dialogHandler;
     private BugCatcher bugCatcher;
     private Set<URI> localTreeItems;
-    private DataNodeLoader dataNodeLoader;
 
     @After
     public void cleanUp() {
-	if (sessionStorage != null) {
-	    deleteDirectory(sessionStorage.getStorageDirectory());
-	}
 	sessionStorage = null;
 	treeHelper = null;
 	localTreeItems = null;

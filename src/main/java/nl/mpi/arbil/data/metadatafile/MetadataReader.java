@@ -26,6 +26,7 @@ import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
@@ -774,16 +775,24 @@ public class MetadataReader {
 	String clarinRefIds = getNamedAttributeValue(childNodeAttributes, "ref");
 	if (clarinRefIds != null && clarinRefIds.length() > 0) {
 	    System.out.println("clarinRefIds: " + clarinRefIds);
-	    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getParentDomNode().cmdiComponentLinkReader;
+	    CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getCmdiComponentLinkReader();
 	    if (cmdiComponentLinkReader != null) {
 		for (String refId : clarinRefIds.split(" ")) {
 		    refId = refId.trim();
 		    if (refId.length() > 0) {
-			URI clarinLink = cmdiComponentLinkReader.getLinkUrlString(refId);
+			CmdiResourceLink clarinLink = cmdiComponentLinkReader.getResourceLink(refId);
 			if (clarinLink != null) {
-			    clarinLink = parentNode.getURI().resolve(clarinLink);
-			    childLinks.add(new String[]{clarinLink.toString(), refId});
-			    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(clarinLink));
+			    try {
+				URI linkURI = clarinLink.getLinkUri();
+				if (linkURI != null) {
+				    linkURI = parentNode.getURI().resolve(linkURI);
+				    childLinks.add(new String[]{clarinLink.toString(), refId});
+				    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI));
+				    clarinLink.addReferencingNode();
+				}
+			    } catch (URISyntaxException ex) {
+				bugCatcher.logError("Error while reading resource link. Link not added: " + clarinLink.resourceRef, ex);
+			    }
 			}
 		    }
 		}
