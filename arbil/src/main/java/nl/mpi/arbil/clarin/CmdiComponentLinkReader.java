@@ -42,6 +42,40 @@ public class CmdiComponentLinkReader {
 	public final String resourceProxyId;
 	public final String resourceType;
 	public final String resourceRef;
+	private int referencingNodes;
+
+	/**
+	 * To be called whenever a reference of this resource link is found
+	 */
+	public synchronized void addReferencingNode() {
+	    referencingNodes++;
+	}
+
+	/**
+	 * To be called whenever a reference of this resource link is removed (without reloading)
+	 */ 
+	public synchronized void removeReferencingNode() {
+	    referencingNodes--;
+	}
+
+	/**
+	 * 
+	 * @return Number of references to the resource registered
+	 */
+	public synchronized int getReferencingNodesCount() {
+	    return referencingNodes;
+	}
+
+	public URI getLinkUri() throws URISyntaxException {
+	    if (resourceRef != null && resourceRef.length() > 0) {
+		if (resourceRef.startsWith("hdl://")) {
+		    return new URI(resourceRef.replace("hdl://", "http://hdl.handle.net/"));
+		} else {
+		    return new URI(resourceRef);
+		}
+	    }
+	    return null;
+	}
     }
 
     public static class ResourceRelation {
@@ -61,19 +95,21 @@ public class CmdiComponentLinkReader {
     }
 
     public URI getLinkUrlString(String resourceId) {
+	CmdiResourceLink cmdiResourceLink = getResourceLink(resourceId);
+	if (cmdiResourceLink != null) {
+	    try {
+		return cmdiResourceLink.getLinkUri();
+	    } catch (URISyntaxException urise) {
+		bugCatcher.logError(urise);
+	    }
+	}
+	return null;
+    }
+
+    public CmdiResourceLink getResourceLink(String resourceId) {
 	for (CmdiResourceLink cmdiResourceLink : cmdiResourceLinkArray) {
 	    if (cmdiResourceLink.resourceProxyId.equals(resourceId)) {
-		try {
-		    if (cmdiResourceLink.resourceRef != null && cmdiResourceLink.resourceRef.length() > 0) {
-			if (cmdiResourceLink.resourceRef.startsWith("hdl://")) {
-			    return new URI(cmdiResourceLink.resourceRef.replace("hdl://", "http://hdl.handle.net/"));
-			} else {
-			    return new URI(cmdiResourceLink.resourceRef);
-			}
-		    }
-		} catch (URISyntaxException urise) {
-		    bugCatcher.logError(urise);
-		}
+		return cmdiResourceLink;
 	    }
 	}
 	return null;

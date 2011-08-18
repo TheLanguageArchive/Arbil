@@ -29,6 +29,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
@@ -196,6 +197,13 @@ public class ArbilComponentBuilder {
 	}
     }
 
+    private String[] convertImdiPathToXPathOptions(String targetXpath) {
+	// convert the syntax inherited from the imdi api into xpath
+	// Because most imdi files use a name space syntax we need to try both queries
+	return new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
+
+    }
+
     private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
 	//    <.CMD.Resources.ResourceProxyList.ResourceProxy>
 	//        <ResourceProxyList>
@@ -291,6 +299,18 @@ public class ArbilComponentBuilder {
 		    bugCatcher.logError(exception);
 		    return false;
 		}
+
+		// Check whether proxy can be deleted
+		for (String id : resourceProxyIds) {
+		    CmdiResourceLink link = linkReader.getResourceLink(id);
+		    if (link.getReferencingNodesCount() == 1) {
+			// There was only one reference to this proxy and we deleted it, so remove the proxy
+			if(!removeResourceProxy(targetDocument, id)){
+			    messageDialogHandler.addMessageDialogToQueue("Failed to remove ", "Warning");
+			}
+		    }
+		}
+
 		// bump the history
 		parent.bumpHistory();
 		// save the dom
@@ -302,6 +322,33 @@ public class ArbilComponentBuilder {
 		bugCatcher.logError(exception);
 	    } catch (SAXException exception) {
 		bugCatcher.logError(exception);
+	    }
+	}
+	return false;
+    }
+
+    /**
+     * Removes the resource proxy with the specified id from the document. 
+     * Note: THIS DOES NOT CHECK WHETHER THERE ARE ANY REFERENCES LEFT
+     * @param document Document to remove resource proxy from
+     * @param resourceProxyId Unique id (id="xyz") of resource proxy element
+     * @return Whether resource proxy was removed successfully
+     */
+    private boolean removeResourceProxy(Document document, String resourceProxyId) {
+	String[] xpaths = convertImdiPathToXPathOptions(".CMD.Resources.ResourceProxyList.ResourceProxy[@id='" + resourceProxyId + "']");
+	// Look for ResourceProxy node with specified id
+	for (String xpath : xpaths) {
+	    try {
+		Node proxyNode = org.apache.xpath.XPathAPI.selectSingleNode(document, xpath);
+		if (proxyNode != null) {
+		    // Node found. Remove from parent
+		    proxyNode.getParentNode().removeChild(proxyNode);
+		    return true;
+		}
+	    } catch (TransformerException ex) {
+		bugCatcher.logError("Exception while finding for removel resource proxy with id " + resourceProxyId, ex);
+	    } catch (DOMException ex) {
+		bugCatcher.logError("Exception while trying to remove resource proxy with id " + resourceProxyId, ex);
 	    }
 	}
 	return false;
@@ -738,9 +785,7 @@ public class ArbilComponentBuilder {
     }
 
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
-	// convert the syntax inherited from the imdi api into xpath
-	// Because most imdi files use a name space syntax we need to try both queries
-	String tempXpathArray[] = new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
+	String tempXpathArray[] = convertImdiPathToXPathOptions(targetXpath);
 	for (String tempXpath : tempXpathArray) {
 	    tempXpath = tempXpath.replaceAll("\\(", "[");
 	    tempXpath = tempXpath.replaceAll("\\)", "]");
@@ -924,53 +969,6 @@ public class ArbilComponentBuilder {
 	    return canInsertNode(documentNode, addedNode, maxOccurs);
 	}
 	return true;
-    }
-
-    private boolean _canInsertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
-	SchemaProperty foundProperty = null;
-	String strippedXpath = null;
-	if (targetXpath == null) {
-	    documentNode = documentNode.getParentNode();
-	} else {
-	    try {
-		// test profile book is a good sample to test for errors; if you add Authors description from the root of the node it will cause a schema error but if you add from the author it is valid
-		documentNode = selectSingleNode(targetDocument, targetXpath);
-	    } catch (TransformerException exception) {
-		bugCatcher.logError(exception);
-		return false;
-	    }
-	    strippedXpath = targetXpath.replaceAll("\\(\\d+\\)", "");
-	}
-	// at this point we have the xml node that the user acted on but next must get any additional nodes with the next section
-	System.out.println("strippedXpath: " + strippedXpath);
-	for (String currentPathComponent : xsdPath.split("\\.")) {
-	    if (currentPathComponent.length() > 0) {
-		// get the starting point in the schema
-		foundProperty = null;
-		for (SchemaProperty schemaProperty : schemaType.getProperties()) {
-		    String currentName = schemaProperty.getName().getLocalPart();
-		    if (foundProperty == null) {
-			if (currentPathComponent.equals(currentName)) {
-			    foundProperty = schemaProperty;
-			}
-		    }
-		}
-		if (foundProperty == null) {
-		    throw new ArbilMetadataException("failed to find the path in the schema: " + currentPathComponent);
-		} else {
-		    schemaType = foundProperty.getType();
-		}
-	    }
-	}
-	Node addedNode = constructXml(foundProperty, xsdPath, targetDocument, null, documentNode, false);
-
-	int maxOccurs;
-	if (foundProperty.getMaxOccurs() != null) {
-	    maxOccurs = foundProperty.getMaxOccurs().intValue();
-	} else {
-	    maxOccurs = -1;
-	}
-	return canInsertNode(documentNode, addedNode, maxOccurs);
     }
 
     public static String convertNodeToNodePath(Document targetDocument, Node documentNode, String targetXmlPath) {
