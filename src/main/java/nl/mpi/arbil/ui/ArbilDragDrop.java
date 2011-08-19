@@ -599,31 +599,34 @@ public class ArbilDragDrop {
 	}
 
 	private void doMoveLocalNodes(Object dropTargetUserObject, final ArbilDataNode dropTargetDataNode, final ArbilDataNode currentNode, int draggedCounter, Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList) {
-	    boolean addNodeResult = true;
+	    boolean addNodeResult = false;
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
 		if (dropTargetDataNode.isCorpus()) {
 		    addNodeResult = dropTargetDataNode.addCorpusLink(currentNode);
-		} else if (dropTargetDataNode.isEmptyMetaNode() || dropTargetDataNode.isSession()) {
+		} else if (!dropTargetDataNode.isCmdiMetaDataNode() && (dropTargetDataNode.isEmptyMetaNode() || dropTargetDataNode.isSession())) {
 		    // Dragging metadata node onto empty node
 		    if (MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			try {
 			    // Add source to destination
 			    new MetadataBuilder().addNode(dropTargetDataNode, currentNode.toString(), currentNode);
+			    addNodeResult = true;
 			} catch (ArbilMetadataException ex) {
 			    GuiHelper.linorgBugCatcher.logError(ex);
 			    ArbilWindowManager.getSingleInstance().addMessageDialogToQueue(ex.getLocalizedMessage(), "Insert node error");
-			    addNodeResult = false;
 			}
 		    }
 		} else if (dropTargetDataNode.isCmdiMetaDataNode()) {
-		    // Add as ResourceProxy
-		    new ArbilComponentBuilder().insertResourceProxy(dropTargetDataNode, currentNode);
-		} else {
-		    addNodeResult = false;
+		    if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
+			//TODO insert cmdi
+		    } else {
+			// Add as ResourceProxy
+			addNodeResult = null != new ArbilComponentBuilder().insertResourceProxy(dropTargetDataNode, currentNode);
+		    }
 		}
 	    } else {
 		addNodeResult = ArbilTreeHelper.getSingleInstance().addLocation(currentNode.getURI());
 	    }
+
 	    if (addNodeResult) {
 		if (draggedTreeNodes[draggedCounter] != null) {
 		    if (draggedTreeNodes[draggedCounter].getParent().equals(draggedTreeNodes[draggedCounter].getRoot())) {
