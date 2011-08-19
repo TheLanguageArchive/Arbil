@@ -71,9 +71,6 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     public void loadTemplate(String nameSpaceStringLocal) {
-	// testing only
-//        new TestAnnotationsReader().Test();
-	//super.readTemplate(new File(""), "template_cmdi");
 	vocabularyHashTable = new Hashtable<String, ArbilVocabulary>();
 	nameSpaceString = nameSpaceStringLocal;
 	// construct the template from the XSD
@@ -85,11 +82,6 @@ public class CmdiTemplate extends ArbilTemplate {
 	    } else {
 		loadedTemplateName = nameSpaceString.substring(nameSpaceString.lastIndexOf("/") + 1);
 	    }
-
-	    // create a temp file of the read template data so that it can be compared to a hand made version
-//            File debugTempFile = File.createTempFile("templatetext", ".tmp");
-//            debugTempFile.deleteOnExit();
-//            BufferedWriter debugTemplateFileWriter = new BufferedWriter(new FileWriter(debugTempFile));
 
 	    ArrayListGroup arrayListGroup = new ArrayListGroup();
 	    URI xsdUri = new URI(nameSpaceString);
@@ -114,49 +106,9 @@ public class CmdiTemplate extends ArbilTemplate {
 		preferredNameFields[nameFieldCounter] = tempSortableArray[nameFieldCounter][0];
 	    }
 	    // end sort and construct the preferredNameFields array
-
-//            if (preferredNameFields.length < 1) {
-//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No preferred field names have been specified, some nodes will not display correctly", "Clarin Profile Error");
-//            }
-//            if (fieldUsageArray.length < 1) {
-//                LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("No field descriptions have been provided in the profile, as a result no information about each fields intended use can be provided to users of this profile", "Clarin Profile Error");
-//            }
-	    for (String[] currentArray : templatesArray) {
-		//System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-//                debugTemplateFileWriter.write("<TemplateComponent FileName=\"" + currentArray[0] + "\" DisplayName=\"" + currentArray[1] + "\" />\r\n");
-	    }
-	    for (String[] currentArray : childNodePaths) {
-		//System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-//                debugTemplateFileWriter.write("<ChildNodePath ChildPath=\"" + currentArray[0] + "\" SubNodeName=\"" + currentArray[1] + "\" />\r\n");
-	    }
-	    for (String[] currentArray : resourceNodePaths) {
-		//System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-//                debugTemplateFileWriter.write("<ResourceNodePath RefPath=\"" + currentArray[0] + "\" RefNodeName=\"" + currentArray[1] + "\" />\r\n");
-	    }
-	    for (String[] currentArray : fieldConstraints) {
-		//System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-//                debugTemplateFileWriter.write("<FieldConstraint FieldPath=\"" + currentArray[0] + "\" Constraint=\"" + currentArray[1] + "\" />\r\n");
-	    }
-	    for (String currentArray : preferredNameFields) {
-		//System.out.println("loadTemplate: " + currentArray);
-		// node that this is not a FieldsShortName but a full field path but the code now supports both while the xml file implies only short
-//                debugTemplateFileWriter.write("<TreeNodeNameField FieldsShortName==\"" + currentArray + "\" />\r\n");
-	    }
-	    for (String[] currentArray : fieldUsageArray) {
-		//System.out.println("loadTemplate: " + currentArray[1] + ":" + currentArray[0]);
-//                debugTemplateFileWriter.write("<FieldUsage FieldPath=\"" + currentArray[0] + "\" FieldDescription=\"" + currentArray[1] + "\" />\r\n");
-	    }
-//            debugTemplateFileWriter.close();
-	    // lanunch the hand made template and the generated template for viewing
-//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce(nameSpaceString, debugTempFile.toURL());
-//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template_cmdi.xml"));
-//            LinorgWindowManager.getSingleInstance().openUrlWindowOnce("templatejar", CmdiTemplate.class.getResource("/nl/mpi/arbil/resources/templates/template.xml"));
 	} catch (URISyntaxException urise) {
 	    bugCatcher.logError(urise);
 	}
-//        catch (IOException urise) {
-//            GuiHelper.linorgBugCatcher.logError(urise);
-//        }
 	// this should be adequate for cmdi templates
 	//templatesArray = childNodePaths;
 	// TODO: complete these
@@ -320,18 +272,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, String pathString) {
-//        System.out.println("sub element count: " + pathString.split("\\.").length);
-//        System.out.println("sub element list: " + pathString);
-//        if (pathString.split("\\.").length > 20) {
-//            // todo: look into recursion issue
-//            return 0;
-//        }
-//        System.out.println("constructXml: " + pathString);
-//        if (pathString.startsWith(".CMD.Components.test-profile-book.Authors.Author.")) {
-//            System.out.println("Author");
-//        }
-//        System.out.println("schemaType: " + schemaType.getName());
+    private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString) {
 	int childCount = 0;
 //        boolean hasMultipleElementsInOneNode = false;
 	int subNodeCount = 0;
@@ -342,7 +283,6 @@ public class CmdiTemplate extends ArbilTemplate {
 	SchemaParticle topParticle = schemaType.getContentModel();
 	searchForAnnotations(topParticle, pathString, arrayListGroup);
 	// end search for annotations
-
 	SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
 //        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
 	int currentNodeChildCount = 0;
@@ -420,7 +360,7 @@ public class CmdiTemplate extends ArbilTemplate {
 //            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
 		if (canHaveMultiple && subNodeCount > 0) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
-		    arrayListGroup.childNodePathsList.add(new String[]{currentPathString, currentNodeMenuName});
+		    arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
 		}// else if (canHaveMultiple) {
 //                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
 //                }
@@ -475,7 +415,6 @@ public class CmdiTemplate extends ArbilTemplate {
     private void saveAnnotationData(SchemaLocalElement schemaLocalElement, String nodePath, ArrayListGroup arrayListGroup) {
 	SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
 	if (schemaAnnotation != null) {
-//            System.out.println("getAttributes length: " + schemaAnnotation.getAttributes().length);
 	    for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
 		System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
 		//Annotation: {ann}documentation : the title of the book
