@@ -29,8 +29,8 @@ with 'type-ahead' (autocomplete) functionality, both for single value and list v
 type of vocabulary (open/closed, single value/list) on the field.
 
 - EDIT ALL METADATA: A new context menu option 'Edit/view all metadata' is available for metadata
-files in the tree view (except for Corpus and Session nodes). It opens a window containing tables 
-for the selected node all of its subnodes in an hierarchical view. (#603)
+files in the tree view (except for Corpus nodes). It opens a window containing tables for the 
+selected node all of its subnodes in an hierarchical view. (#603)
 
 - TYPECHECKER CONFIGURATION: A custom typechecker filetypes configuration can be used by putting a
 filetypes.txt file in the Arbil working directory. It will then automatically be used instead of the
