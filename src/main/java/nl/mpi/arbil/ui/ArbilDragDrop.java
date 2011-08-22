@@ -104,6 +104,7 @@ public class ArbilDragDrop {
 	DataFlavor flavors[] = {dataNodeFlavour};
 	ArbilDataNode[] draggedArbilNodes;
 	DefaultMutableTreeNode[] draggedTreeNodes;
+	private boolean selectionDraggedFromLocalCorpus = false;
 	private boolean selectionContainsArchivableLocalFile = false;
 	private boolean selectionContainsLocalFile = false;
 	private boolean selectionContainsLocalDirectory = false;
@@ -295,6 +296,7 @@ public class ArbilDragDrop {
 	    dragStartMilliSeconds = System.currentTimeMillis();
 	    draggedArbilNodes = null;
 	    draggedTreeNodes = null;
+	    selectionDraggedFromLocalCorpus = false;
 	    selectionContainsArchivableLocalFile = false;
 	    selectionContainsLocalFile = false;
 	    selectionContainsLocalDirectory = false;
@@ -413,6 +415,7 @@ public class ArbilDragDrop {
 		    }
 		}
 	    }
+	    selectionDraggedFromLocalCorpus = draggedFromLocalCorpus();
 	}
 
 	@Override
@@ -473,6 +476,13 @@ public class ArbilDragDrop {
 	    }
 	}
 
+	private boolean draggedFromLocalCorpus() {
+	    if (draggedTreeNodes.length > 0) {
+		return draggedTreeNodes[0].getRoot() == ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel().getRoot();
+	    }
+	    return false;
+	}
+
 	private boolean importToLocalTree(ArbilTree dropTree) {
 	    // Drop on local corpus
 	    DefaultMutableTreeNode targetNode = ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
@@ -486,7 +496,8 @@ public class ArbilDragDrop {
 	    //                     TODO: must prevent parent nodes being dragged into lower branches of itself
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
 		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
-		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() || dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
+		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() && !selectionDraggedFromLocalCorpus
+			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
 		    //TODO: for now we do not allow drag on to imdi child nodes
 		    if (selectionContainsArchivableLocalFile == true
 			    && selectionContainsLocalFile == true
@@ -507,8 +518,9 @@ public class ArbilDragDrop {
 		    }
 		}
 	    }
-	    // allow drop to the root node wich will not be an ArbilDataNode
-	    if (selectionContainsArchivableLocalFile == false
+	    // TODO allow drop to the root node wich will not be an ArbilDataNode
+
+	    if ((selectionContainsArchivableLocalFile == false || selectionDraggedFromLocalCorpus)
 		    // selectionContainsLocalFile == true &&
 		    && selectionContainsLocalDirectory == false
 		    && selectionContainsArbilResource == false
@@ -522,7 +534,7 @@ public class ArbilDragDrop {
 		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
 		    System.out.println("dragged: " + currentNode.toString());
-		    if (!((ArbilDataNode) currentNode).isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, (ArbilDataNode) currentNode)) {
+		    if (!currentNode.isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			//((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
 			// check that the node has not been dragged into itself
@@ -538,11 +550,11 @@ public class ArbilDragDrop {
 			// todo: test for dragged to parent session
 
 			if (!draggedIntoSelf) {
-			    if (((ArbilDataNode) currentNode).isFavorite()) {
+			    if (currentNode.isFavorite()) {
 				//  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
 				new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
-			    } else if (!(((ArbilDataNode) currentNode).isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(((ArbilDataNode) currentNode).getFile()))) {
-				importNodeList.add((ArbilDataNode) currentNode);
+			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentNode.getFile()))) {
+				importNodeList.add(currentNode);
 			    } else {
 				String targetNodeName = null;
 				// NOTE: FindBugs thinks this is always the case:
@@ -619,8 +631,9 @@ public class ArbilDragDrop {
 		    if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
 			//TODO insert cmdi
 		    } else {
+			ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 			// Add as ResourceProxy
-			addNodeResult = null != new ArbilComponentBuilder().insertResourceProxy(dropTargetDataNode, currentNode);
+			addNodeResult = null != arbilComponentBuilder.insertResourceProxy(dropTargetDataNode, currentNode);
 		    }
 		}
 	    } else {

@@ -174,6 +174,9 @@ public class ArbilComponentBuilder {
 			// load the schema
 			SchemaType schemaType = getFirstSchemaType(arbilDataNode.getNodeTemplate().templateFile);
 			addNewResourceProxy(targetDocument, schemaType, resourceProxyId, resourceNode);
+		    } else {
+			// Increase counter for referencing nodes
+			linkReader.getResourceLink(resourceProxyId).addReferencingNode();
 		    }
 		} catch (Exception exception) {
 		    bugCatcher.logError(exception);
@@ -198,9 +201,13 @@ public class ArbilComponentBuilder {
     }
 
     private String[] convertImdiPathToXPathOptions(String targetXpath) {
-	// convert the syntax inherited from the imdi api into xpath
-	// Because most imdi files use a name space syntax we need to try both queries
-	return new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
+	if (targetXpath == null) {
+	    return null;
+	} else {
+	    // convert the syntax inherited from the imdi api into xpath
+	    // Because most imdi files use a name space syntax we need to try both queries
+	    return new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
+	}
 
     }
 
@@ -303,9 +310,10 @@ public class ArbilComponentBuilder {
 		// Check whether proxy can be deleted
 		for (String id : resourceProxyIds) {
 		    CmdiResourceLink link = linkReader.getResourceLink(id);
-		    if (link.getReferencingNodesCount() == 1) {
+		    link.removeReferencingNode();
+		    if (link.getReferencingNodesCount() == 0) {
 			// There was only one reference to this proxy and we deleted it, so remove the proxy
-			if(!removeResourceProxy(targetDocument, id)){
+			if (!removeResourceProxy(targetDocument, id)) {
 			    messageDialogHandler.addMessageDialogToQueue("Failed to remove ", "Warning");
 			}
 		    }
@@ -369,9 +377,11 @@ public class ArbilComponentBuilder {
 		    System.out.println("removeChildNodes: " + currentNodePath);
 		    // todo: search for and remove any reource links referenced by this node or its sub nodes
 		    Node documentNode = selectSingleNode(targetDocument, currentNodePath);
-		    //System.out.println("documentNode: " + documentNode);
-		    System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
-		    selectedNodes.add(documentNode);
+		    if (documentNode != null) {
+			//System.out.println("documentNode: " + documentNode);
+			System.out.println("documentNodeName: " + documentNode != null ? documentNode.getNodeName() : "<null>");
+			selectedNodes.add(documentNode);
+		    }
 
 		}
 		// delete all the nodes now that the xpath is no longer relevant
@@ -786,15 +796,17 @@ public class ArbilComponentBuilder {
 
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
 	String tempXpathArray[] = convertImdiPathToXPathOptions(targetXpath);
-	for (String tempXpath : tempXpathArray) {
-	    tempXpath = tempXpath.replaceAll("\\(", "[");
-	    tempXpath = tempXpath.replaceAll("\\)", "]");
+	if (tempXpathArray != null) {
+	    for (String tempXpath : tempXpathArray) {
+		tempXpath = tempXpath.replaceAll("\\(", "[");
+		tempXpath = tempXpath.replaceAll("\\)", "]");
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
-	    System.out.println("tempXpath: " + tempXpath);
-	    // find the target node of the xml
-	    Node returnNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
-	    if (returnNode != null) {
-		return returnNode;
+		System.out.println("tempXpath: " + tempXpath);
+		// find the target node of the xml
+		Node returnNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+		if (returnNode != null) {
+		    return returnNode;
+		}
 	    }
 	}
 	bugCatcher.logError(new Exception("Xpath issue, no node found for: " + targetXpath));
