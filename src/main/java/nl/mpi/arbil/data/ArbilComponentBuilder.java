@@ -221,7 +221,7 @@ public class ArbilComponentBuilder {
 	String targetXmlPath = arbilDataNode.getURI().getFragment();
 	if (targetXmlPath == null) {
 	    // todo: consider making sure that the dom parent node always has a path
-	    targetXmlPath = ".CMD.Components." + arbilDataNode.getParentDomNode().nodeTemplate.loadedTemplateName;
+	    targetXmlPath = ".CMD.Components.*[1]";// + arbilDataNode.getParentDomNode().nodeTemplate.loadedTemplateName;
 	}
 	return targetXmlPath;
     }

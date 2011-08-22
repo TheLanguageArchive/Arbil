@@ -512,6 +512,10 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 			Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
 			// load the fields from the imdi file
 			MetadataReader.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
+			if (isCmdiMetaDataNode()) {
+			    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
+			    MetadataReader.getSingleInstance().addUnreferencedResources(this, parentChildTree, childLinksTemp);
+			}
 			childLinks = childLinksTemp.toArray(new String[][]{});
 			//ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
 			for (Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
@@ -716,7 +720,6 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	}
 	return null;
     }
-    
 
     /**
      * Recursively checks all subnodes and their URI fragments, tries to find a match to the provided path
