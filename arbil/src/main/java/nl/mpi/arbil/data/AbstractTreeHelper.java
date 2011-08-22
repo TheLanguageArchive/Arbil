@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -277,8 +276,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
     public abstract void deleteNodes(Object sourceObject);
 
     public void deleteChildNodes(ArbilDataNode parent, Collection<ArbilDataNode> children) {
-	Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new Hashtable<ArbilDataNode, List<ArbilDataNode>>();
-	Map<ArbilDataNode, List<String>> childNodeDeleteList = new Hashtable<ArbilDataNode, List<String>>();
+	Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
+	Map<ArbilDataNode, List<String>> childNodeDeleteList = new HashMap<ArbilDataNode, List<String>>();
 	Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList = new HashMap<ArbilDataNode, List<ArbilDataNode>>();
 	for (ArbilDataNode child : children) {
 	    determineDeleteFromParent(child, parent, childNodeDeleteList, dataNodesDeleteList, cmdiLinksDeleteList);
@@ -287,6 +286,8 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	deleteNodesByChidXmlIdLink(childNodeDeleteList);
 	// delete parent nodes
 	deleteNodesByCorpusLink(dataNodesDeleteList);
+	// delete cmdi links
+	deleteCmdiLinks(cmdiLinksDeleteList);
     }
 
     protected void determineNodesToDelete(TreePath[] nodePaths, Map<ArbilDataNode, List<String>> childNodeDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> dataNodesDeleteList, Map<ArbilDataNode, List<ArbilDataNode>> cmdiLinksDeleteList) {
