@@ -477,7 +477,7 @@ public class ArbilDragDrop {
 	}
 
 	private boolean draggedFromLocalCorpus() {
-	    if (draggedTreeNodes.length > 0) {
+	    if (draggedTreeNodes != null && draggedTreeNodes.length > 0) {
 		return draggedTreeNodes[0].getRoot() == ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel().getRoot();
 	    }
 	    return false;
