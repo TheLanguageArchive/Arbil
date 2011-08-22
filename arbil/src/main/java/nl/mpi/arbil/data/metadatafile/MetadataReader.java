@@ -781,21 +781,42 @@ public class MetadataReader {
 		    refId = refId.trim();
 		    if (refId.length() > 0) {
 			CmdiResourceLink clarinLink = cmdiComponentLinkReader.getResourceLink(refId);
-			if (clarinLink != null) {
-			    try {
-				URI linkURI = clarinLink.getLinkUri();
-				if (linkURI != null) {
-				    linkURI = parentNode.getURI().resolve(linkURI);
-				    childLinks.add(new String[]{clarinLink.toString(), refId});
-				    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI));
-				    clarinLink.addReferencingNode();
-				}
-			    } catch (URISyntaxException ex) {
-				bugCatcher.logError("Error while reading resource link. Link not added: " + clarinLink.resourceRef, ex);
-			    }
-			}
+			addResourceLinkNode(parentNode, destinationNode, parentChildTree, clarinLink, childLinks);
 		    }
 		}
+	    }
+	}
+    }
+
+    /**
+     * Add all unreferenced resources in a document to the parent node
+     * @param parentNode Parent node, to which resources will be added
+     * @param parentChildTree Parent-child tree that is constructed
+     * @param childLinks Child links collection that is constructed
+     */
+    public void addUnreferencedResources(ArbilDataNode parentNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Vector<String[]> childLinks) {
+	CmdiComponentLinkReader cmdiComponentLinkReader = parentNode.getCmdiComponentLinkReader();
+	if (cmdiComponentLinkReader != null) {
+	    for (CmdiResourceLink link : cmdiComponentLinkReader.cmdiResourceLinkArray) {
+		if (link.getReferencingNodesCount() == 0) {
+		    addResourceLinkNode(parentNode, parentNode, parentChildTree, link, childLinks);
+		}
+	    }
+	}
+    }
+
+    private void addResourceLinkNode(ArbilDataNode parentNode, ArbilDataNode destinationNode, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, CmdiResourceLink clarinLink, Vector<String[]> childLinks) {
+	if (clarinLink != null) {
+	    try {
+		URI linkURI = clarinLink.getLinkUri();
+		if (linkURI != null) {
+		    linkURI = parentNode.getURI().resolve(linkURI);
+		    childLinks.add(new String[]{clarinLink.toString(), clarinLink.resourceProxyId});
+		    parentChildTree.get(destinationNode).add(dataNodeLoader.getArbilDataNodeWithoutLoading(linkURI));
+		    clarinLink.addReferencingNode();
+		}
+	    } catch (URISyntaxException ex) {
+		bugCatcher.logError("Error while reading resource link. Link not added: " + clarinLink.resourceRef, ex);
 	    }
 	}
     }
