@@ -3,7 +3,6 @@ package nl.mpi.arbil.ui;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
