@@ -692,8 +692,10 @@ public class ArbilDataNode implements ArbilNode, Comparable {
 	System.out.println("getAllChildren: " + this.getUrlString());
 	if (this.isSession() || this.isCatalogue() || this.isChildNode() || this.isCmdiMetaDataNode()) {
 	    for (ArbilDataNode currentChild : childArray) {
-		currentChild.getAllChildren(allChildren);
-		allChildren.add(currentChild);
+		if (currentChild != this) { // Should not happen but prevent looping by self reference
+		    currentChild.getAllChildren(allChildren);
+		    allChildren.add(currentChild);
+		}
 	    }
 	}
     }
