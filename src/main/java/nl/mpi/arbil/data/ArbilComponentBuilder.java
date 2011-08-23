@@ -212,16 +212,10 @@ public class ArbilComponentBuilder {
     }
 
     private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
-	//    <.CMD.Resources.ResourceProxyList.ResourceProxy>
-	//        <ResourceProxyList>
-	//            <ResourceProxy id="a_text">
-	//                <ResourceType mimetype="audio/x-mpeg4">Resource</ResourceType>
-	//                <ResourceRef>bla.txt</ResourceRef>
-	//            </ResourceProxy>
 	String targetXmlPath = arbilDataNode.getURI().getFragment();
 	if (targetXmlPath == null) {
-	    // todo: consider making sure that the dom parent node always has a path
-	    targetXmlPath = ".CMD.Components.*[1]";// + arbilDataNode.getParentDomNode().nodeTemplate.loadedTemplateName;
+	    // Get the root CMD Component
+	    targetXmlPath = ".CMD.Components.*[1]";
 	}
 	return targetXmlPath;
     }

@@ -630,10 +630,15 @@ public class ArbilDragDrop {
 		} else if (dropTargetDataNode.isCmdiMetaDataNode()) {
 		    if (currentNode.isMetaDataNode() && !currentNode.isCmdiMetaDataNode()) {
 			//TODO: Add support for converting IMDI to CMDI. Should also be possible to add IMDI as 'dead' resource
-			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Moving IMDI metadata to CMDI metadata files is currently not supported","Not supported");
+			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Moving IMDI metadata to CMDI metadata files is currently not supported", "Not supported");
 		    } else {
 			if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
 			    //TODO insert cmdi
+			    try {
+				addNodeResult = null != new ArbilComponentBuilder().insertFavouriteComponent(dropTargetDataNode, currentNode);
+			    } catch (ArbilMetadataException ex) {
+				addNodeResult = false;
+			    }
 			} else {
 			    ArbilComponentBuilder arbilComponentBuilder = new ArbilComponentBuilder();
 			    // Add as ResourceProxy
