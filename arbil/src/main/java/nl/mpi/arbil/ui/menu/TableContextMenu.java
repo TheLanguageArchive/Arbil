@@ -218,7 +218,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    // TODO: change this to copy to selected rows
-		    if (!(table.arbilTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
+		    if (!(table.arbilTableModel.getTableCellContentAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
 		    } else if (0 == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + table.arbilTableModel.getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.arbilTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			table.arbilTableModel.copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
