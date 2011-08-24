@@ -189,7 +189,7 @@ public class ArbilSearch {
 	    // add the child nodes
 	    if (currentNode.isLocal() || !currentNode.isCorpus()) {
 		// don't search remote corpus
-		for (ArbilDataNode currentChildNode : currentNode.getChildArray()) {
+		for (ArbilNode currentChildNode : currentNode.getChildArray()) {
 		    System.out.println("adding to search list: " + currentChildNode);
 		    if (container != null) {
 			currentChildNode.registerContainer(container); // this causes the node to be loaded
