@@ -30,7 +30,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     public static final String CSV_DOUBLE_QUOTE = "\"\"";
     public static final char CSV_QUOTE = '\"';
     public static final String CSV_QUOTE_STRING = "\"";
-    
+
     private Hashtable<String, ArbilDataNode> dataNodeHash = new Hashtable<String, ArbilDataNode>();
     private ArbilTableCell[][] data = new ArbilTableCell[0][0];
     private DefaultListModel listModel = new DefaultListModel(); // used by the image display panel
@@ -130,7 +130,11 @@ public class ArbilTableModel extends AbstractArbilTableModel {
      * @param dataNode Data node that should be removed
      */
     public void dataNodeRemoved(ArbilNode dataNode) {
-        removeArbilDataNodes(new ArbilDataNode[]{(ArbilDataNode) dataNode});
+        if (dataNode instanceof ArbilDataNode) {
+            removeArbilDataNodes(new ArbilDataNode[]{(ArbilDataNode) dataNode});
+        } else {
+            throw new UnsupportedOperationException("Cannot remove an ArbilNode from the table");
+        }
     }
 
     /**
@@ -161,7 +165,7 @@ public class ArbilTableModel extends AbstractArbilTableModel {
     protected Hashtable<String, ArbilDataNode> getDataNodeHash() {
         return dataNodeHash;
     }
-    
+
     // NOTE: ArbilActionBuffer is not serializable but ArbilTableModel should be!
     private ArbilActionBuffer reloadRunner = new ArbilActionBuffer("TableReload-" + this.hashCode(), 50) {
 
