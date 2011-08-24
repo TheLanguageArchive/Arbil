@@ -157,11 +157,11 @@ public class ArbilSearchTest extends ArbilTest {
 	    }
 
 	    @Override
-	    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+	    public void dataNodeIconCleared(ArbilNode dataNode) {
 	    }
 
 	    @Override
-	    public void dataNodeRemoved(ArbilDataNode dataNode) {
+	    public void dataNodeRemoved(ArbilNode dataNode) {
 	    }
 
 	    @Override
