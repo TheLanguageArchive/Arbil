@@ -8,112 +8,112 @@ import javax.swing.ImageIcon;
  *
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public abstract class ArbilRootNode implements ArbilNode {
+public abstract class ArbilRootNode extends ArbilNode {
 
     private String name;
     private ImageIcon icon;
     private boolean local;
 
     protected ArbilRootNode(String name, ImageIcon icon, boolean local) {
-	this.name = name;
-	this.icon = icon;
-	this.local = local;
+        this.name = name;
+        this.icon = icon;
+        this.local = local;
     }
 
     @Override
     public String toString() {
-	return name;
+        return name;
     }
 
     public ImageIcon getIcon() {
-	return icon;
+        return icon;
     }
 
     public ArbilDataNode[] getAllChildren() {
-	return getChildArray();
+        throw new UnsupportedOperationException();
     }
 
     public void getAllChildren(Vector<ArbilDataNode> allChildren) {
-	allChildren.addAll(Arrays.asList(getChildArray()));
+        throw new UnsupportedOperationException();
     }
 
     public int getChildCount() {
-	return getChildArray().length;
+        return getChildArray().length;
     }
 
     public boolean hasCatalogue() {
-	return false;
+        return false;
     }
 
     public boolean hasHistory() {
-	return false;
+        return false;
     }
 
     public boolean hasLocalResource() {
-	return false;
+        return false;
     }
 
     public boolean hasResource() {
-	return false;
+        return false;
     }
 
     public boolean isArchivableFile() {
-	return false;
+        return false;
     }
 
     public boolean isCatalogue() {
-	return false;
+        return false;
     }
 
     public boolean isChildNode() {
-	return false;
+        return false;
     }
 
     public boolean isCmdiMetaDataNode() {
-	return false;
+        return false;
     }
 
     public boolean isCorpus() {
-	return false;
+        return false;
     }
 
     public boolean isDirectory() {
-	return false;
+        return false;
     }
 
     public boolean isEditable() {
-	return false;
+        return false;
     }
 
     public boolean isEmptyMetaNode() {
-	return false;
+        return false;
     }
 
     public boolean isFavorite() {
-	return false;
+        return false;
     }
 
     public boolean isLocal() {
-	return this.local;
+        return this.local;
     }
 
     public boolean isMetaDataNode() {
-	return false;
+        return false;
     }
 
     public boolean isResourceSet() {
-	return false;
+        return false;
     }
 
     public boolean isSession() {
-	return false;
+        return false;
     }
 
     public boolean isLoading() {
-	return false;
+        return false;
     }
 
     public boolean isDataLoaded() {
-	return true;
+        return true;
     }
 }
