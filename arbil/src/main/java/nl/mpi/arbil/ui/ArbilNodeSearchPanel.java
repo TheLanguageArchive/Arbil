@@ -34,6 +34,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     private JButton stopButton;
     private RemoteServerSearchTermPanel remoteServerSearchTerm = null;
     private ArbilSearch searchService;
+    private Thread searchThread = null;
 
     public ArbilNodeSearchPanel(JInternalFrame parentFrameLocal, ArbilTableModel resultsTableModelLocal, ArbilNode[] localSelectedNodes) {
 	parentFrame = parentFrameLocal;
@@ -157,7 +158,22 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
     }
 
-    public void startSearch() {
+    public void waitForSearch() {
+	synchronized (searchThreadLock) {
+	    while (searchThread != null && searchThread.isAlive()) {
+		try {
+		    searchThreadLock.wait(1000);
+		} catch (InterruptedException ie) {
+		}
+	    }
+	}
+    }
+
+    public synchronized void startSearch() {
+	if (searchThread != null && searchThread.isAlive()) {
+	    stopSearch();
+	    waitForSearch();
+	}
 	System.out.println("start search");
 	searchButton.setEnabled(false);
 	stopButton.setEnabled(true);
@@ -166,9 +182,9 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     }
 
     private void performSearch() {
-	Thread thread = new Thread(new SearchThread(), "performSearch");
-	thread.setPriority(Thread.NORM_PRIORITY - 1);
-	thread.start();
+	searchThread = new Thread(new SearchThread(), "performSearch");
+	searchThread.setPriority(Thread.NORM_PRIORITY - 1);
+	searchThread.start();
     }
 
     /**
@@ -177,24 +193,28 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     public JPanel getSearchTermsPanel() {
 	return searchTermsPanel;
     }
+    private final Object searchThreadLock = new Object();
 
     private class SearchThread implements Runnable, ArbilSearch.ArbilSearchListener {
 
 	@Override
 	public void run() {
-	    try {
-		initSearchService();
-		prepareUI();
-		populateSearchTerms();
-		saveColumnOptions();
-		executeSearch();
-	    } catch (Exception ex) {
-		GuiHelper.linorgBugCatcher.logError(ex);
+	    synchronized (searchThreadLock) {
+		try {
+		    initSearchService();
+		    prepareUI();
+		    populateSearchTerms();
+		    saveColumnOptions();
+		    executeSearch();
+		} catch (Exception ex) {
+		    GuiHelper.linorgBugCatcher.logError(ex);
+		}
+		finishUI();
+		// add the results to the table
+		resultsTableModel.addArbilDataNodes(Collections.enumeration(searchService.getFoundNodes()));
+		searchService.clearResults();
+		searchThreadLock.notifyAll();
 	    }
-	    finishUI();
-	    // add the results to the table
-	    resultsTableModel.addArbilDataNodes(Collections.enumeration(searchService.getFoundNodes()));
-	    searchService.clearResults();
 	}
 
 	private void initSearchService() {
@@ -272,7 +292,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 		searchProgressBar.setString("searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + " found: " + searchService.getFoundNodes().size());
 	    }
 	    if (!parentFrame.isVisible() && searchService != null) {
-		// in the case that the user has closed the search window we want to stop the thread
+		// in the case that the user has closed the search window we want to stop the searchThread
 		searchService.stopSearch();
 	    }
 	}
