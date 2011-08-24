@@ -14,6 +14,7 @@ import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilFieldComparator;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.data.DefaultArbilTableCell;
 import nl.mpi.arbil.util.NumberedStringComparator;
@@ -129,13 +130,13 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      * Data node is clearing its icon
      * @param dataNode Data node that is clearing its icon
      */
-    public abstract void dataNodeIconCleared(ArbilDataNode dataNode);
+    public abstract void dataNodeIconCleared(ArbilNode dataNode);
 
     /**
      * Data node is to be removed from the table
      * @param dataNode Data node that should be removed
      */
-    public abstract void dataNodeRemoved(ArbilDataNode dataNode);
+    public abstract void dataNodeRemoved(ArbilNode dataNode);
 
     public int getArbilDataNodeCount() {
 	return getDataNodeHash().size();
