@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
@@ -272,7 +273,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    private int constructXml(SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString) {
+    private int constructXml(final SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString) {
 	int childCount = 0;
 //        boolean hasMultipleElementsInOneNode = false;
 	int subNodeCount = 0;
@@ -470,26 +471,34 @@ public class CmdiTemplate extends ArbilTemplate {
 
 	    for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
 //                System.out.println("Value List: " + anySimpleType.getStringValue());
+//
+//		if (schemaType.getContentModel() != null) {
+//		    for (SchemaParticle particle : schemaType.getContentModel().getParticleChildren()) {
+//			SchemaAnnotation ann = ((SchemaLocalElement) particle).getAnnotation();
+//		    }
+//		}
+
 		vocabulary.addEntry(anySimpleType.getStringValue(), null);
 		// todo: get the ann:label
 //
-//                SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaType;
-//                        SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
-//        if (schemaAnnotation != null) {
+////              SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaType;
+////              SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
+//		SchemaAnnotation schemaAnnotation = schemaType.getAnnotation();
+//		if (schemaAnnotation != null) {
 ////            System.out.println("getAttributes length: " + schemaAnnotation.getAttributes().length);
-//            for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
-//                System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
-//                //Annotation: {ann}documentation : the title of the book
-//                //Annotation: {ann}displaypriority : 1
-//                // todo: the url here could be removed provided that it does not make it to unspecific
+//		    for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
+//			System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+//			//Annotation: {ann}documentation : the title of the book
+//			//Annotation: {ann}displaypriority : 1
+//			// todo: the url here could be removed provided that it does not make it to unspecific
 ////                if ("{http://www.clarin.eu}displaypriority".equals(annotationAttribute.getName().toString())) {
 ////                    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
 ////                }
 ////                if ("{http://www.clarin.eu}documentation".equals(annotationAttribute.getName().toString())) {
 ////                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
 ////                }
-//            }
-//        }
+//		    }
+//		}
 
 
 //                <item AppInfo="Central Sudanic languages"
@@ -597,7 +606,9 @@ public class CmdiTemplate extends ArbilTemplate {
 //        }
 //    }
     public static void main(String args[]) {
+	ArbilDesktopInjector.injectHandlers();
+	new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");
 //        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
-	new CmdiTemplate().loadTemplate("file:/Users/petwit/Desktop/LocalProfiles/clarin.eu_annotation-test_1272022528355.xsd");
+//	new CmdiTemplate().loadTemplate("file:/Users/petwit/Desktop/LocalProfiles/clarin.eu_annotation-test_1272022528355.xsd");
     }
 }
