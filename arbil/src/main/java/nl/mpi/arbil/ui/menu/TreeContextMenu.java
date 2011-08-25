@@ -68,8 +68,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 	showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
 	viewSelectedNodesMenuItem.setText("View Selected");
-	viewSelectedSubnodesMenuItem.setText(leadSelectedTreeNode.isEditable() ? "Edit all Metadata" : "View all Metadata");
-	editInLongFieldEditor.setText(leadSelectedTreeNode.getParentDomNode().isEditable() ? "Edit in Long Field Editor" : "View in Long Field Editor");
+	viewSelectedSubnodesMenuItem.setText(leadSelectedTreeNode != null && leadSelectedTreeNode.isEditable() ? "Edit all Metadata" : "View all Metadata");
+	editInLongFieldEditor.setText(leadSelectedTreeNode != null && leadSelectedTreeNode.getParentDomNode().isEditable() ? "Edit in Long Field Editor" : "View in Long Field Editor");
 //        mergeWithFavouritesMenu.setEnabled(false);
 	deleteMenuItem.setEnabled(true);
 
