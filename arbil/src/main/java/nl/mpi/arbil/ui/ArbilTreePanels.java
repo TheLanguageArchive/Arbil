@@ -29,6 +29,11 @@ public class ArbilTreePanels extends javax.swing.JSplitPane {
         localDirectoryTree = new ArbilTree();
         localCorpusTree = new ArbilTree();
         favouritesTree = new ArbilTree();
+        // enable drag and drop
+        ArbilDragDrop.getSingleInstance().addDrag(remoteCorpusTree);
+        ArbilDragDrop.getSingleInstance().addDrag(localDirectoryTree);
+        ArbilDragDrop.getSingleInstance().addDrag(localCorpusTree);
+        ArbilDragDrop.getSingleInstance().addDrag(favouritesTree);
 
         remoteCorpusTree.setModel(ArbilTreeHelper.getSingleInstance().getRemoteCorpusTreeModel());
         remoteCorpusScrollPane.setViewportView(remoteCorpusTree);
