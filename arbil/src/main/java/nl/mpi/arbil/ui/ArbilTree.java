@@ -80,6 +80,12 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     }
 
     public ArbilTree() {
+        init();
+        // enable drag and drop
+        ArbilDragDrop.getSingleInstance().addDrag(this);
+    }
+
+    protected final void init() {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
 //                public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -182,12 +188,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
         ToolTipManager.sharedInstance().registerComponent(this);
         // enable the tree icons
         this.setCellRenderer(new ArbilTreeRenderer());
-        // enable drag and drop
-        ArbilDragDrop.getSingleInstance().addDrag(this);
         ((DefaultTreeModel) treeModel).setAsksAllowsChildren(true);
     }
 
-    private void putSelectionIntoPreviewTable() {
+    protected void putSelectionIntoPreviewTable() {
         ArbilTable targetPreviewTable = customPreviewTable;
         if (targetPreviewTable == null && PreviewSplitPanel.isPreviewTableShown() && PreviewSplitPanel.getInstance().getPreviewTable() != null) {
             // if a custom preview table has not been set then check for the application wide preview table and use that if it is enabled
