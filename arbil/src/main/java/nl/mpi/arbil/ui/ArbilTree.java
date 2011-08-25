@@ -80,12 +80,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     }
 
     public ArbilTree() {
-        init();
-        // enable drag and drop
-        ArbilDragDrop.getSingleInstance().addDrag(this);
-    }
-
-    protected final void init() {
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
 //                public void mouseClicked(java.awt.event.MouseEvent evt) {
