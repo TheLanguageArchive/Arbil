@@ -85,7 +85,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		// show the cell only menu items
 		matchingCellsMenuItem.setVisible(true);
 	    }
-	    jumpToNodeInTreeMenuItem.setVisible(true);
+	    jumpToNodeInTreeMenuItem.setVisible(false); // TODO: if functional, set to true here!
 	    clearCellColoursMenuItem.setVisible(true);
 	}
 	if (table.getParent().getParent().getParent().getParent() instanceof ArbilSplitPanel) {
