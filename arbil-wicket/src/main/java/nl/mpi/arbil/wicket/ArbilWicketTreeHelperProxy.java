@@ -4,6 +4,7 @@ import java.net.URI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -43,7 +44,7 @@ public class ArbilWicketTreeHelperProxy implements TreeHelper{
 	return getTreeHelper().getFavouritesTreeModel();
     }
 
-    public ArbilDataNode[] getLocalCorpusNodes() {
+    public ArbilNode[] getLocalCorpusNodes() {
 	return getTreeHelper().getLocalCorpusNodes();
     }
 

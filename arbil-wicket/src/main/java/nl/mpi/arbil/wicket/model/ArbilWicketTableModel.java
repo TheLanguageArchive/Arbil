@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import nl.mpi.arbil.data.ArbilDataNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.AbstractArbilTableModel;
 import nl.mpi.arbil.ui.ArbilFieldView;
@@ -164,12 +165,12 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 
     // ArbilDataNodeContainer method implementations
     @Override
-    public void dataNodeIconCleared(ArbilDataNode dataNode) {
+    public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestReloadTableData();
     }
 
     @Override
-    public void dataNodeRemoved(ArbilDataNode dataNode) {
+    public void dataNodeRemoved(ArbilNode dataNode) {
 	requestReloadTableData();
     }
 
