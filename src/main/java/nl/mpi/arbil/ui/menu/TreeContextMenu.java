@@ -68,8 +68,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 	showAddLocationsTasks = selectionCount == 1 && nodeLevel == 1;
 
 	viewSelectedNodesMenuItem.setText("View Selected");
-	viewSelectedSubnodesMenuItem.setText("View/edit all Metadata");
-	editInLongFieldEditor.setText("View/edit in Long Field Editor");
+	viewSelectedSubnodesMenuItem.setText(leadSelectedTreeNode != null && leadSelectedTreeNode.isEditable() ? "Edit all Metadata" : "View all Metadata");
+	editInLongFieldEditor.setText(leadSelectedTreeNode != null && leadSelectedTreeNode.getParentDomNode().isEditable() ? "Edit in Long Field Editor" : "View in Long Field Editor");
 //        mergeWithFavouritesMenu.setEnabled(false);
 	deleteMenuItem.setEnabled(true);
 
@@ -160,22 +160,21 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_NODE, PRIORITY_TOP, viewSelectedNodesMenuItem);
 
-	viewSelectedSubnodesMenuItem.addActionListener(new ActionListener() {
-
-	    public void actionPerformed(ActionEvent e) {
-		viewSelectedSubnodes();
-	    }
-	});
-	addItem(CATEGORY_NODE, PRIORITY_TOP + 1, viewSelectedSubnodesMenuItem);
-
-
 	editInLongFieldEditor.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
 		startLongFieldEditor();
 	    }
 	});
-	addItem(CATEGORY_NODE, PRIORITY_TOP + 2, editInLongFieldEditor);
+	addItem(CATEGORY_NODE, PRIORITY_TOP + 1, editInLongFieldEditor);
+
+	viewSelectedSubnodesMenuItem.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		viewSelectedSubnodes();
+	    }
+	});
+	addItem(CATEGORY_NODE, PRIORITY_TOP + 2, viewSelectedSubnodesMenuItem);
 
 	deleteMenuItem.setText("Delete");
 	deleteMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -661,7 +660,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 		addMenu.add(addMenuItem);
 	    }
 	}
-	
+
 	// For all data nodes, get list of allowed types and add them to the menu
 
 	if (targetNodeUserObject instanceof ArbilDataNode) {
