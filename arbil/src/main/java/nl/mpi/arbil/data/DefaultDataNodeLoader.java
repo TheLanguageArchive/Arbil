@@ -70,11 +70,11 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 //                    System.out.println("cause the parent node to be loaded");
 		    // cause the parent node to be loaded
 		    currentDataNode.getParentDomNode();
-		} else if (ArbilDataNode.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
+		} else if (MetadataFormat.isPathMetadata(currentDataNode.getUrlString()) || ArbilDataNode.isPathHistoryFile(currentDataNode.getUrlString())) {
 		    currentDataNode.updateLoadingState(+1);
 		    threadManager.addNodeToQueue(currentDataNode);
 //                    System.out.println("+imdiHashTable.size: " + arbilHashTable.size());
-		} else if (!ArbilDataNode.isPathMetadata(currentDataNode.getUrlString())) {
+		} else if (!MetadataFormat.isPathMetadata(currentDataNode.getUrlString())) {
 //                    currentImdiObject.clearIcon(); // do not do this
 		}
 	    }
