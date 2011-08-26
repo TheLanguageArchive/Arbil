@@ -49,7 +49,7 @@ import nl.mpi.arbil.util.WindowManager;
 public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     private static BugCatcher bugCatcher;
-    private ArbilTable customPreviewTable = null;
+    protected ArbilTable customPreviewTable = null;
     private boolean clearSelectionOnFocusLost = false;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
