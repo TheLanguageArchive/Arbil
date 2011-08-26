@@ -27,7 +27,7 @@ public class MetadataFormat {
         }
     }
     private final static ArrayList<FormatType> knownFormats = new ArrayList<FormatType>(Arrays.asList(new FormatType[]{
-                new FormatType(".imdi", "", null, false),
+                new FormatType(".imdi", "", null, true),
                 new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
                 new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().unLockedIcon, false)}));
 
@@ -40,13 +40,18 @@ public class MetadataFormat {
 //        return singleInstance;
 //    }
     public static boolean isPathImdi(String urlString) {
-        return urlString.endsWith(".imdi");
+        for (FormatType formatType : knownFormats) {
+            if (urlString.endsWith(formatType.suffixString)) {
+                return formatType.isImdi;
+            }
+        }
+        return false;
     }
 
     public static boolean isPathCmdi(String urlString) {
         for (FormatType formatType : knownFormats) {
             if (urlString.endsWith(formatType.suffixString)) {
-                return true;
+                return !formatType.isImdi;
             }
         }
         return false;
