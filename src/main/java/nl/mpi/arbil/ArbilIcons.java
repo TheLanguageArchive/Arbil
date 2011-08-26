@@ -49,7 +49,6 @@ public class ArbilIcons {
 //    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusserverlocal16x16c.png"));
     private ImageIcon questionRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/question-red.png"));
     public ImageIcon dataIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
-    public ImageIcon dataCollectionIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/datacollection.png"));
     public ImageIcon fieldIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
 //    private ImageIcon server16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
@@ -236,10 +235,7 @@ public class ArbilIcons {
 	String mimeTypeForNode = arbilNode.getAnyMimeType();
 	if (arbilNode.isMetaDataNode()) {
 	    if (arbilNode.isChildNode()) {
-		if(arbilNode.isContainerNode()){
-		    iconsVector.add(dataCollectionIcon);
-		}
-		else if (arbilNode.isEmptyMetaNode()) {
+		if (arbilNode.isEmptyMetaNode()) {
 		    iconsVector.add(dataemptyIcon);
 		} else {
 		    iconsVector.add(dataIcon);
