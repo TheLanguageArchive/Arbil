@@ -59,6 +59,7 @@ public class ArbilIcons {
 //    private ImageIcon directoryclosed16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directoryclosed16x16.png"));
     public ImageIcon sessionColorIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color.png"));
     public ImageIcon clarinIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/clarinE.png"));
+    public ImageIcon kinOathIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/KinOath-16.png"));
     public ImageIcon catalogueColorIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/catalogue.png"));
     private ImageIcon exclamationBlueIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-blue.png"));
 //    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-serverlocal.png"));
@@ -237,10 +238,9 @@ public class ArbilIcons {
         String mimeTypeForNode = arbilNode.getAnyMimeType();
         if (arbilNode.isMetaDataNode()) {
             if (arbilNode.isChildNode()) {
-		if(arbilNode.isContainerNode()){
-		    iconsVector.add(dataCollectionIcon);
-		}
-		else if (arbilNode.isEmptyMetaNode()) {
+                if (arbilNode.isContainerNode()) {
+                    iconsVector.add(dataCollectionIcon);
+                } else if (arbilNode.isEmptyMetaNode()) {
                     iconsVector.add(dataemptyIcon);
                 } else {
                     iconsVector.add(dataIcon);
