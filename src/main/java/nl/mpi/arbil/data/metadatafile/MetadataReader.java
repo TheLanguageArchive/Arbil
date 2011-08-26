@@ -635,6 +635,7 @@ public class MetadataReader {
 
 			if (metaNode != null && !isSingleton) {
 			    parentChildTree.get(metaNode).add(subNode);
+			    metaNode.setContainerNode(true);
 			} else {
 			    if (isSingleton) {
 				subNode.setSingletonMetadataNode(true);
