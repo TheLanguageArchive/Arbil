@@ -29,7 +29,7 @@ public class MetadataFormat {
     private final static ArrayList<FormatType> knownFormats = new ArrayList<FormatType>(Arrays.asList(new FormatType[]{
                 new FormatType(".imdi", "", null, true),
                 new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
-                new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().unLockedIcon, false)}));
+                new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().kinOathIcon, false)}));
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
