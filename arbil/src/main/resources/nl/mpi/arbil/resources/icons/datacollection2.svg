@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg3039"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   width="16"
+   height="16"
+   sodipodi:docname="datacollection.svg"
+   inkscape:export-filename="/Users/petwit/Documents/SharedInVirtualBox/mpi-co-svn-mpi-nl/LAT/Arbil/trunk/arbil/src/main/resources/nl/mpi/arbil/resources/icons/datacollection.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <metadata
+     id="metadata3045">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3043" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1178"
+     id="namedview3041"
+     showgrid="false"
+     inkscape:snap-grids="true"
+     inkscape:zoom="36.5"
+     inkscape:cx="1.1139437"
+     inkscape:cy="7.6639506"
+     inkscape:window-x="1280"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg3039" />
+  <image
+     width="5.8183875"
+     height="5.8183875"
+     xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAOlJREFU OI2lk1muhiAMRj+mlRiIW1KQxRkNe4KlMN0njQOYP7l9LD2ntAFSa8V/gn4dEkIqIeSzQ1dwBb8k TcEBMMYghPiUvARHIecc8zxjWRZwzrsS2oO11hjHEcMwwBjTldAWbIyBUuosklJCa92U0GtCCAFr LaSUr1mVUpimCYyxm+Q2QikFMcYXfIQQApTe10YBoNZKACDnDOccvPcvOISAdV3PBgdz6o5ESgn7 viOEcMLee2zbhpTSrRYAyPMpX5dprUWMEc65JtwUXCVCCJRSkHNuwl3BVfIc8Rndv3AFevDnDX6N PybyeZCvlpdyAAAAAElFTkSuQmCC "
+     id="image3047"
+     x="10.17592"
+     y="8.7040206e-08" />
+  <image
+     y="10.181613"
+     x="10.219178"
+     id="image3060"
+     xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAOlJREFU OI2lk1muhiAMRj+mlRiIW1KQxRkNe4KlMN0njQOYP7l9LD2ntAFSa8V/gn4dEkIqIeSzQ1dwBb8k TcEBMMYghPiUvARHIecc8zxjWRZwzrsS2oO11hjHEcMwwBjTldAWbIyBUuosklJCa92U0GtCCAFr LaSUr1mVUpimCYyxm+Q2QikFMcYXfIQQApTe10YBoNZKACDnDOccvPcvOISAdV3PBgdz6o5ESgn7 viOEcMLee2zbhpTSrRYAyPMpX5dprUWMEc65JtwUXCVCCJRSkHNuwl3BVfIc8Rndv3AFevDnDX6N PybyeZCvlpdyAAAAAElFTkSuQmCC "
+     height="5.8183875"
+     width="5.8183875" />
+  <image
+     width="12.438356"
+     height="12.438356"
+     xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAOlJREFU OI2lk1muhiAMRj+mlRiIW1KQxRkNe4KlMN0njQOYP7l9LD2ntAFSa8V/gn4dEkIqIeSzQ1dwBb8k TcEBMMYghPiUvARHIecc8zxjWRZwzrsS2oO11hjHEcMwwBjTldAWbIyBUuosklJCa92U0GtCCAFr LaSUr1mVUpimCYyxm+Q2QikFMcYXfIQQApTe10YBoNZKACDnDOccvPcvOISAdV3PBgdz6o5ESgn7 viOEcMLee2zbhpTSrRYAyPMpX5dprUWMEc65JtwUXCVCCJRSkHNuwl3BVfIc8Rndv3AFevDnDX6N PybyeZCvlpdyAAAAAElFTkSuQmCC "
+     id="image3062"
+     x="1.1064699e-07"
+     y="1.8082188" />
+</svg>
