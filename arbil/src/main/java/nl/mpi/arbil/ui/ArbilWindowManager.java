@@ -147,7 +147,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		+ arbilVersion.lastCommitDate + "\n"
 		+ "Compile Date: " + arbilVersion.compileDate + "\n\n"
 		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor");
-	JOptionPane.showMessageDialog(linorgFrame, messageString, "About Arbil", JOptionPane.PLAIN_MESSAGE);
+	JOptionPane.showMessageDialog(linorgFrame, messageString, "About " + arbilVersion.applicationTitle , JOptionPane.PLAIN_MESSAGE);
     }
 
     public void offerUserToSaveChanges() throws Exception {
