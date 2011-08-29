@@ -1,7 +1,8 @@
 package nl.mpi.arbil.data;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArraySet;
 import javax.swing.ImageIcon;
 import nl.mpi.arbil.ArbilIcons;
 
@@ -14,22 +15,22 @@ public class MetadataFormat {
 
     static class FormatType {
 
-        boolean isImdi;
-        String suffixString;
-        String metadataStartXpath;
-        ImageIcon imageIcon;
+	private boolean isImdi;
+	private String suffixString;
+	private String metadataStartXpath;
+	private ImageIcon imageIcon;
 
-        public FormatType(String suffixString, String metadataStartXpath, ImageIcon imageIcon, boolean isImdi) {
-            this.isImdi = isImdi;
-            this.suffixString = suffixString;
-            this.metadataStartXpath = metadataStartXpath;
-            this.imageIcon = imageIcon;
-        }
+	public FormatType(String suffixString, String metadataStartXpath, ImageIcon imageIcon, boolean isImdi) {
+	    this.isImdi = isImdi;
+	    this.suffixString = suffixString;
+	    this.metadataStartXpath = metadataStartXpath;
+	    this.imageIcon = imageIcon;
+	}
     }
-    private final static ArrayList<FormatType> knownFormats = new ArrayList<FormatType>(Arrays.asList(new FormatType[]{
-                new FormatType(".imdi", "", null, true),
-                new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
-                new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().kinOathIcon, false)}));
+    private final static Collection<FormatType> knownFormats = new CopyOnWriteArraySet<FormatType>(Arrays.asList(new FormatType[]{
+		new FormatType(".imdi", "", null, true),
+		new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
+		new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().kinOathIcon, false)}));
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
@@ -40,42 +41,42 @@ public class MetadataFormat {
 //        return singleInstance;
 //    }
     public static boolean isPathImdi(String urlString) {
-        for (FormatType formatType : knownFormats) {
-            if (urlString.endsWith(formatType.suffixString)) {
-                return formatType.isImdi;
-            }
-        }
-        return false;
+	for (FormatType formatType : knownFormats) {
+	    if (urlString.endsWith(formatType.suffixString)) {
+		return formatType.isImdi;
+	    }
+	}
+	return false;
     }
 
     public static boolean isPathCmdi(String urlString) {
-        for (FormatType formatType : knownFormats) {
-            if (urlString.endsWith(formatType.suffixString)) {
-                return !formatType.isImdi;
-            }
-        }
-        return false;
+	for (FormatType formatType : knownFormats) {
+	    if (urlString.endsWith(formatType.suffixString)) {
+		return !formatType.isImdi;
+	    }
+	}
+	return false;
     }
 
     public static ImageIcon getFormatIcon(String urlString) {
-        for (FormatType formatType : knownFormats) {
-            if (urlString.endsWith(formatType.suffixString)) {
-                return formatType.imageIcon;
-            }
-        }
-        return null;
+	for (FormatType formatType : knownFormats) {
+	    if (urlString.endsWith(formatType.suffixString)) {
+		return formatType.imageIcon;
+	    }
+	}
+	return null;
     }
 
     public static String getMetadataStartPath(String urlString) {
-        for (FormatType formatType : knownFormats) {
-            if (urlString.endsWith(formatType.suffixString)) {
-                return formatType.metadataStartXpath;
-            }
-        }
-        return null;
+	for (FormatType formatType : knownFormats) {
+	    if (urlString.endsWith(formatType.suffixString)) {
+		return formatType.metadataStartXpath;
+	    }
+	}
+	return null;
     }
 
     static public boolean isPathMetadata(String urlString) {
-        return isPathImdi(urlString) || isPathCmdi(urlString); // change made for clarin
+	return isPathImdi(urlString) || isPathCmdi(urlString); // change made for clarin
     }
 }
