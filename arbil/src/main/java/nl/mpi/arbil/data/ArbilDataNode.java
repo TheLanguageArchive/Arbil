@@ -433,6 +433,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	isDirectory = false;
 	icon = null;
 	nodeEnabled = true;
+	singletonMetadataNode = false;
+	containerNode = false;
 	//        isLoadingCount = true;
 	if (nodeUri != null) {
 	    if (!isMetaDataNode() && isLocal()) {
@@ -533,18 +535,13 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     private void updateMetadataChildNodes() throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
 	Document nodDom = ArbilComponentBuilder.getDocument(this.getURI());
-	Vector<String[]> childLinksTemp = new Vector<String[]>();
 	Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new Hashtable<ArbilDataNode, HashSet<ArbilDataNode>>();
-	loadMetadataChildNodes(nodDom, childLinksTemp, parentChildTree);
-	if (isCmdiMetaDataNode()) {
-	    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
-	    MetadataReader.getSingleInstance().addUnreferencedResources(this, parentChildTree, childLinksTemp);
-	}
-	childLinks = childLinksTemp.toArray(new String[][]{});
+	childLinks = loadMetadataChildNodes(nodDom, parentChildTree);
 	checkRemovedChildNodes(parentChildTree);
     }
 
-    private void loadMetadataChildNodes(Document nodDom, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
+    private String[][] loadMetadataChildNodes(Document nodDom, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
+	Vector<String[]> childLinks = new Vector<String[]>();
 	Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
 	// get the metadata format information required to read this nodes metadata
 	final String metadataStartPath = MetadataFormat.getMetadataStartPath(nodeUri.getPath());
@@ -562,6 +559,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 	// load the fields from the imdi file
 	MetadataReader.getSingleInstance().iterateChildNodes(this, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+	if (isCmdiMetaDataNode()) {
+	    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
+	    MetadataReader.getSingleInstance().addUnreferencedResources(this, parentChildTree, childLinks);
+	}
+	return childLinks.toArray(new String[][]{});
     }
 
     private void checkRemovedChildNodes(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
