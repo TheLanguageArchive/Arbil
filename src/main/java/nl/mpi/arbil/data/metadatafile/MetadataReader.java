@@ -548,15 +548,25 @@ public class MetadataReader {
 	}
     }
 
+    /**
+     * loop all nodes;
+     * each end node becomes a field;
+     * any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode;
+     * the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
+     * @param parentNode
+     * @param childLinks
+     * @param startNode
+     * @param nodePath
+     * @param fullNodePath
+     * @param parentChildTree
+     * @param siblingNodePathCounter
+     * @param nodeOrderCounter
+     * @return 
+     */
     public int iterateChildNodes(ArbilDataNode parentNode, Vector<String[]> childLinks, Node startNode, String nodePath, String fullNodePath,
 	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree //, Hashtable<ImdiTreeObject, ImdiField[]> readFields
 	    , Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) {
 	//        System.out.println("iterateChildNodes: " + nodePath);
-	//loop all nodes
-	// each end node becomes a field
-	// any node that passes pathIsChildNode becomes a subnode in a node named by the result string of pathIsChildNode
-	// the id of the node that passes pathIsChildNode is stored in the subnode to allow for deletion from the dom if needed
-
 	if (!parentChildTree.containsKey(parentNode)) {
 	    parentChildTree.put(parentNode, new HashSet<ArbilDataNode>());
 	}
