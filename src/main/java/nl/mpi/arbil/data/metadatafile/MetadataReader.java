@@ -619,24 +619,13 @@ public class MetadataReader {
 				parentChildTree.put(metaNode, new HashSet<ArbilDataNode>());
 			    }
 			    if (!isSingleton) {
+				// Add metanode to tree
 				parentChildTree.get(parentNode).add(metaNode);
 			    }
 			    // add brackets to conform with the imdi api notation
 			    siblingSpacer = "(" + (parentChildTree.get(metaNode).size() + 1) + ")";
 			} else {
-			    // todo: this might need to be revisited
-			    // this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
-			    int siblingCount = 1;
-			    for (ArbilDataNode siblingNode : parentChildTree.get(parentNode)) {
-				String siblingPath = siblingNode.getURI().getFragment();
-				if (siblingPath != null) {
-				    siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
-				    siblingPath = siblingPath.replaceAll("\\(\\d+\\)", "");
-				    if (localName.equals(siblingPath)) {
-					siblingCount++;
-				    }
-				}
-			    }
+			    int siblingCount = countSiblings(parentChildTree, parentNode, localName);
 			    siblingSpacer = "(" + siblingCount + ")";
 //                            LinorgWindowManager.getSingleInstance().addMessageDialogToQueue(localName + " : " + childsMetaNode + " : " + maxOccurs, "filtered metanode");
 			}
@@ -644,13 +633,11 @@ public class MetadataReader {
 			ArbilDataNode subNode = dataNodeLoader.getArbilDataNodeWithoutLoading(new URI(parentNode.getURI().toString() + pathUrlXpathSeparator + siblingNodePath + siblingSpacer));
 
 			if (metaNode != null && !isSingleton) {
+			    // Add subnode to metanode
 			    parentChildTree.get(metaNode).add(subNode);
 			    metaNode.setContainerNode(true);
 			} else {
-			    if (isSingleton) {
-				subNode.setSingletonMetadataNode(true);
-			    }
-//                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
+			    // Add subnode directly to parent
 			    parentChildTree.get(parentNode).add(subNode);
 			}
 			//                parentNode.attachChildNode(metaNodeImdiTreeObject);
@@ -667,30 +654,56 @@ public class MetadataReader {
 		} else {
 		    destinationNode = parentNode;
 		}
-
-		NodeList childNodes = childNode.getChildNodes();
-		boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
-			|| (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
-
-		String fieldValue = (childNodes.getLength() == 1) ? childNodes.item(0).getTextContent() : "";
-
-		// calculate the xpath index for multiple fields like description
-		if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
-		    siblingNodePathCounter.put(fullSubNodePath, 0);
-		} else {
-		    siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
-		}
-		if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) {
-		    // is a leaf not a branch
-		    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
-		} else {
-		    // for a branch, just check if there are referenced resources to add
-		    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
-		}
-		nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+		nodeOrderCounter = enterChildNodesRecursion(parentNode, childLinks, childNode, childNodeAttributes, destinationNode, localName,
+			parentNodePath, siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
 	    }
 	}
 	return nodeOrderCounter;
+    }
+
+    /**
+     * Updates counters and enters recursive iteration for child nodes. 
+     * Also adds referenced resources to the tree
+     */
+    private int enterChildNodesRecursion(ArbilDataNode parentNode, Vector<String[]> childLinks, Node childNode, NamedNodeMap childNodeAttributes,
+	    ArbilDataNode destinationNode, String localName, String parentNodePath, String siblingNodePath, String fullSubNodePath,
+	    Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, Hashtable<String, Integer> siblingNodePathCounter, int nodeOrderCounter) throws DOMException {
+	NodeList childNodes = childNode.getChildNodes();
+	boolean shouldAddCurrent = ((childNodes.getLength() == 0 && localName != null)
+		|| (childNodes.getLength() == 1 && childNodes.item(0).getNodeType() == Node.TEXT_NODE));
+	// calculate the xpath index for multiple fields like description
+	if (!siblingNodePathCounter.containsKey(fullSubNodePath)) {
+	    siblingNodePathCounter.put(fullSubNodePath, 0);
+	} else {
+	    siblingNodePathCounter.put(fullSubNodePath, siblingNodePathCounter.get(fullSubNodePath) + 1);
+	}
+	if (parentNode.getParentDomNode().getNodeTemplate().pathIsEditableField(parentNodePath + siblingNodePath)) {
+	    // is a leaf not a branch
+	    final String fieldValue = (childNodes.getLength() == 1) ? childNodes.item(0).getTextContent() : "";
+	    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
+	} else {
+	    // for a branch, just check if there are referenced resources to add
+	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
+	}
+	nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+	return nodeOrderCounter;
+    }
+
+    private int countSiblings(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, ArbilDataNode parentNode, String localName) {
+	// todo: this might need to be revisited
+	// this version of the metanode code is for cmdi nodes only and only when there can only be one node instance
+	int siblingCount = 1;
+	for (ArbilDataNode siblingNode : parentChildTree.get(parentNode)) {
+	    String siblingPath = siblingNode.getURI().getFragment();
+	    if (siblingPath != null) {
+		siblingPath = siblingPath.substring(siblingPath.lastIndexOf(".") + 1);
+		siblingPath = siblingPath.replaceAll("\\(\\d+\\)", "");
+		if (localName.equals(siblingPath)) {
+		    siblingCount++;
+		}
+	    }
+	}
+	return siblingCount;
     }
 
     private void removeImdiNodeIds(NamedNodeMap attributesMap, ArbilDataNode parentNode) {
