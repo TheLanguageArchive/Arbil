@@ -11,8 +11,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
@@ -34,6 +39,12 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xpath.XPathAPI;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * CmdiTemplate.java
@@ -58,8 +69,10 @@ public class CmdiTemplate extends ArbilTemplate {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
-    String nameSpaceString;
-    String filterString[] = {".CMD.Resources.", ".CMD.Header."};
+    private String nameSpaceString;
+    private String filterString[] = {".CMD.Resources.", ".CMD.Header."};
+    private File schemaFile = null;
+    private Document schemaDocument;
 
     private static class ArrayListGroup {
 
@@ -241,7 +254,6 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
-	File schemaFile;
 	if (xsdFile.getScheme().equals("file")) {
 	    schemaFile = new File(xsdFile);
 	} else {
@@ -462,14 +474,76 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
+    private synchronized Document getSchemaDocument() {
+	if (schemaDocument == null) {
+	    try {
+		// Parse schema document
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setValidating(false);
+		documentBuilderFactory.setNamespaceAware(true);
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		schemaDocument = documentBuilder.parse(schemaFile);
+	    } catch (IOException ex) {
+		bugCatcher.logError("Error while parsing schema", ex);
+	    } catch (ParserConfigurationException ex) {
+		bugCatcher.logError("Error while parsing schema", ex);
+	    } catch (SAXException ex) {
+		bugCatcher.logError("Error while parsing schema", ex);
+	    }
+	}
+	return schemaDocument;
+    }
+
+    /**
+     * 
+     * @param vocabularyName Name of the vocabulary in the profile schema
+     * @return HashMap that has [value => label] mapping for the vocabulary
+     * @throws TransformerException Thrown on node selection through XPathAPI if transformation fails
+     */
+    private HashMap<String, String> getDescriptionsForVocabulary(String vocabularyName) throws TransformerException {
+	// Get document node (should not be null)
+	Document schemaDoc = getSchemaDocument();
+	if (schemaDoc == null) {
+	    return null;
+	} else {
+	    // Find all enumeration values within the vocabulary
+	    NodeList enumNodes = XPathAPI.selectNodeList(getSchemaDocument(), "//*[@name='" + vocabularyName + "']//xs:restriction/xs:enumeration");
+	    HashMap<String, String> descriptions = new HashMap<String, String>(enumNodes.getLength());
+	    for (int i = 0; i < enumNodes.getLength(); i++) {
+		NamedNodeMap attMap = enumNodes.item(i).getAttributes();
+		// Look for label
+		Node labelNode = attMap.getNamedItem("ann:label");
+		if (labelNode != null) {
+		    // Map label on value
+		    Node valueNode = attMap.getNamedItem("value");
+		    if (valueNode != null) {
+			descriptions.put(valueNode.getTextContent(), labelNode.getTextContent());
+		    }
+		}
+	    }
+	    return descriptions;
+	}
+    }
+
     private void readControlledVocabularies(SchemaType schemaType, String nodePath) {
-	if (schemaType.getEnumerationValues() != null) {
+	XmlAnySimpleType[] enumerationValues = schemaType.getEnumerationValues();
+
+	if (enumerationValues != null && enumerationValues.length > 0) {
 //            System.out.println("Controlled Vocabulary: " + schemaType.toString());
 //            System.out.println("Controlled Vocabulary: " + schemaType.getName());
 
 	    ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
+	    HashMap<String, String> descriptions = null;
+	    try {
+		descriptions = getDescriptionsForVocabulary(schemaType.getBaseType().getName().getLocalPart());
+	    } catch (Exception ex) {
+		// Fall back to using just the values, no descriptions
+		bugCatcher.logError(ex);
+	    }
+
 	    for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
+		String entryCode = anySimpleType.getStringValue();
 //                System.out.println("Value List: " + anySimpleType.getStringValue());
 //
 //		if (schemaType.getContentModel() != null) {
@@ -478,7 +552,13 @@ public class CmdiTemplate extends ArbilTemplate {
 //		    }
 //		}
 
-		vocabulary.addEntry(anySimpleType.getStringValue(), null);
+		String description = descriptions == null ? null : descriptions.get(entryCode);
+
+		if (description == null) {
+		    vocabulary.addEntry(entryCode, null);
+		} else {
+		    vocabulary.addEntry(description, entryCode);
+		}
 		// todo: get the ann:label
 //
 ////              SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaType;
