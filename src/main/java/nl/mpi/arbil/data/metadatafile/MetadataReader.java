@@ -639,6 +639,7 @@ public class MetadataReader {
 			} else {
 			    // Add subnode directly to parent
 			    parentChildTree.get(parentNode).add(subNode);
+			    subNode.setSingletonMetadataNode(isSingleton);
 			}
 			//                parentNode.attachChildNode(metaNodeImdiTreeObject);
 			//                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);
