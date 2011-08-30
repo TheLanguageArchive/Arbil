@@ -2,6 +2,7 @@ package nl.mpi.arbil.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.MouseListener;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,5 +51,13 @@ public class ArbilIconCellPanel extends JPanel {
         // When layout is done, check whether the icon should be shown (depending on current width)
         iconLabel.setVisible(getWidth() >= minWidthForIcon + icon.getIconWidth());
         super.doLayout();
+    }
+    
+    public void addIconMouseListener(MouseListener mouseListener){
+	iconLabel.addMouseListener(mouseListener);
+    }
+    
+    public void removeIconMouseListener(MouseListener mouseListener){
+	iconLabel.removeMouseListener(mouseListener);
     }
 }
