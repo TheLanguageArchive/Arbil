@@ -1135,7 +1135,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 			FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
 			currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
 			currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
-			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValue();
+			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
 			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
 			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
 			fieldUpdateRequests.add(currentFieldUpdateRequest);
