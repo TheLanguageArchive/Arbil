@@ -71,7 +71,6 @@ public class CmdiTemplate extends ArbilTemplate {
     }
     private String nameSpaceString;
     private String filterString[] = {".CMD.Resources.", ".CMD.Header."};
-    private File schemaFile = null;
     private Document schemaDocument;
 
     private static class ArrayListGroup {
@@ -254,6 +253,7 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
+	File schemaFile;
 	if (xsdFile.getScheme().equals("file")) {
 	    schemaFile = new File(xsdFile);
 	} else {
@@ -482,7 +482,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		documentBuilderFactory.setValidating(false);
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		schemaDocument = documentBuilder.parse(schemaFile);
+		schemaDocument = documentBuilder.parse(templateFile);
 	    } catch (IOException ex) {
 		bugCatcher.logError("Error while parsing schema", ex);
 	    } catch (ParserConfigurationException ex) {
