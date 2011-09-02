@@ -270,6 +270,8 @@ public class ArbilDragDrop {
 			return true;
 		    }
 		}
+	    } else if (comp instanceof ArbilTable) {
+		return ((ArbilTable) comp).isAllowNodeDrop();
 	    } else {
 		// search through al the parent nodes to see if we can find a drop target
 		dropAllowed = (null != findArbilDropableTarget(comp));

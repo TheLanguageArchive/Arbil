@@ -41,7 +41,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	    copySelectedRowsMenuItem.setVisible(true);
 	    pasteIntoSelectedRowsMenuItem.setVisible(true);
 	    openInLongFieldEditorMenuItem.setVisible(true);
-	    if (table.arbilTableModel.isHorizontalView()) {
+	    if (table.getArbilTableModel().isHorizontalView()) {
 		viewSelectedRowsMenuItem.setVisible(true);
 		matchingRowsMenuItem.setVisible(true);
 		removeSelectedRowsMenuItem.setVisible(true);
@@ -75,7 +75,7 @@ public class TableContextMenu extends ArbilContextMenu {
 	if (table.getSelectedRow() != -1 && table.getSelectedColumn() != -1) {
 	    // add a divider for the cell functions
 	    //cellMenuDivider.setVisible(true);
-	    if (table.arbilTableModel.isHorizontalView() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+	    if (table.getArbilTableModel().isHorizontalView() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
 		copyCellToColumnMenuItem.setVisible(true);
 		hideSelectedColumnsMenuItem.setVisible(true);
 	    }
@@ -218,10 +218,10 @@ public class TableContextMenu extends ArbilContextMenu {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    // TODO: change this to copy to selected rows
-		    if (!(table.arbilTableModel.getTableCellContentAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
+		    if (!(table.getArbilTableModel().getTableCellContentAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof ArbilField)) {
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Cannot copy this type of field", "Copy Cell to Whole Column");
-		    } else if (0 == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + table.arbilTableModel.getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.arbilTableModel.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
-			table.arbilTableModel.copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
+		    } else if (0 == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "About to replace all values in column \"" + table.getArbilTableModel().getColumnName(table.getSelectedColumn()) + "\"\nwith the value \"" + table.getArbilTableModel().getValueAt(table.getSelectedRow(), table.getSelectedColumn()) + "\"\n(<multiple values> will not be affected)", "Copy cell to whole column", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+			table.getArbilTableModel().copyCellToColumn(table.getSelectedRow(), table.getSelectedColumn());
 		    }
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
@@ -235,7 +235,7 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.arbilTableModel.highlightMatchingCells(table.getSelectedRow(), table.getSelectedColumn());
+		    table.getArbilTableModel().highlightMatchingCells(table.getSelectedRow(), table.getSelectedColumn());
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
 		}
@@ -247,7 +247,7 @@ public class TableContextMenu extends ArbilContextMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    table.arbilTableModel.clearCellColours();
+		    table.getArbilTableModel().clearCellColours();
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
 		}
