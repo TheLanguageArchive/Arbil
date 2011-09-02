@@ -145,7 +145,7 @@ public class ArbilVocabularies {
 		// todo: check that genre /subgenre are being linked correctly
 		ArbilField[] tempField = originatingArbilField.getSiblingField(vocabularyRedirectField);
 		if (tempField != null) {
-		    String redirectFieldString = tempField[0].toString();
+		    String redirectFieldString = tempField[0].getFieldValue();
 		    // TODO: this may need to put the (\d) back into the (x) as is done for the FieldChangeTriggers
 		    ArbilVocabulary tempVocabulary = tempField[0].getVocabulary();
 		    ArbilVocabularyItem redirectFieldVocabItem = tempVocabulary.findVocabularyItem(redirectFieldString);
