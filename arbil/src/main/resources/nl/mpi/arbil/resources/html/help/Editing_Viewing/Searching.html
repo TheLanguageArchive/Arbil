@@ -1,6 +1,36 @@
 <!-- 
     Document   : Searching
     Created on : Mar 13, 2009, 4:49:23 PM
-    Author     : Peter.Withers@mpi.nl
+    Author     : Peter.Withers@mpi.nl, Twan.Goosen@mpi.nl
 -->
-Searching
+
+<b>Searching the local corpus</b> <br/><br/>
+
+<p>To search within the local corpus, first select the node(s) in the local corpus to search in. Selecting the local corpus nodes will
+    result in searching the entire local corpus.</p>
+<br/>
+<p>Right click any of the selected nodes and select 'Search' from the context menu. A new window named 'Search' will open.</p>
+<br/>
+<p>Create one or more search clauses by specifying:
+
+    <ul>
+	<li>A node type (default 'All' will search across all node types)</li>
+	<li>(Optional) A column name. This is the column name in the multi-node table view or the field 
+	    name as it appears in the single node table view. Previously entered column names are available from the drop down menu
+	    on this field. To remove one of the options, select it and, while the drop-down is showing, press SHIFT-Delete</li>
+	<li>(Optional) A field value. Nodes will only match if any of the fields (or the field specified through column name) contains the
+	    specified value. If left empty, any node of the specified type will match.</li>
+	<li>Equality. This specifies whether search should return only matches (==) or only non-matches (!=).</li>
+    </ul>
+    
+Add search clauses using the '+' buttons and choose either 'And' or 'Or' combination.
+</p>
+<br/>
+<p>Press search and wait for search to complete. The results will be shown in a table view below the search panel.</p>
+<br/>
+
+<b>Searching the remote corpus</b><br/><br/>
+<p>Searching the remote corpus differs in local search in that it requires a <em>remote server search term</em>. This search term will 
+    determine the initial phase of search, which returns all sessions that, in any field, match the specified term. Then, then specified
+    search clauses (as described above) will be applied to narrow down search.
+</p>
