@@ -36,7 +36,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
-import nl.mpi.arbil.data.ArbilDataNodeTableCell;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 
@@ -47,8 +46,13 @@ import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
  */
 public class ArbilTable extends JTable {
 
-    public ArbilTableModel arbilTableModel;
-    JListToolTip listToolTip = new JListToolTip();
+    public final static int MIN_COLUMN_WIDTH = 50;
+    public final static int MAX_COLUMN_WIDTH = 300;
+    private ArbilTableModel arbilTableModel;
+    private JListToolTip listToolTip = new JListToolTip();
+    private int lastColumnCount = -1;
+    private int lastRowCount = -1;
+    private int lastColumnPreferedWidth = 0;
 
     public ArbilTable(ArbilTableModel localArbilTableModel, String frameTitle) {
 	arbilTableModel = localArbilTableModel;
@@ -433,12 +437,6 @@ public class ArbilTable extends JTable {
 	}
 	return super.getRowHeight();
     }
-    int lastColumnCount = -1;
-    int lastRowCount = -1;
-    int lastColumnPreferedWidth = 0;
-    int totalPreferedWidth = 0;
-    public final static int MIN_COLUMN_WIDTH = 50;
-    public final static int MAX_COLUMN_WIDTH = 300;
 
     public void setColumnWidths() {
 	// resize the columns only if the number of columns or rows have changed
@@ -512,7 +510,6 @@ public class ArbilTable extends JTable {
 		lastColumnPreferedWidth = currentWidth;
 		//                    this.getColumnModel().getColumn(columnCounter).setWidth(currentWidth);
 	    }
-	    totalPreferedWidth = totalColumnWidth;
 	    if (this.getParent().getWidth() > totalColumnWidth) {
 		setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 	    } else {
