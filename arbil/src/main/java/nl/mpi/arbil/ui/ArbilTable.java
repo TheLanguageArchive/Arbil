@@ -53,6 +53,7 @@ public class ArbilTable extends JTable {
     private int lastColumnCount = -1;
     private int lastRowCount = -1;
     private int lastColumnPreferedWidth = 0;
+    protected boolean allowNodeDrop = true;
 
     public ArbilTable(ArbilTableModel localArbilTableModel, String frameTitle) {
 	arbilTableModel = localArbilTableModel;
@@ -802,5 +803,23 @@ public class ArbilTable extends JTable {
     public Object getTableCellContentAt(int row, int col) {
 	ArbilTableCell cell = getTableCellAt(row, col);
 	return cell != null ? cell.getContent() : null;
+    }
+
+    /**
+     * Whether tables allows nodes to be dropped on it
+     *
+     * @return the value of allowNodeDrop
+     */
+    public boolean isAllowNodeDrop() {
+	return allowNodeDrop;
+    }
+
+    /**
+     * Set whether tables allows nodes to be dropped on it
+     *
+     * @param allowNodeDrop new value of allowNodeDrop
+     */
+    public void setAllowNodeDrop(boolean allowNodeDrop) {
+	this.allowNodeDrop = allowNodeDrop;
     }
 }
