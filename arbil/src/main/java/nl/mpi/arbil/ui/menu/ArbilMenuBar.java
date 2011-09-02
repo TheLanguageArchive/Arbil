@@ -558,7 +558,7 @@ public class ArbilMenuBar extends JMenuBar {
     private void initWindowMenu() {
 	windowMenu.setText("Window");
 
-	resetWindowsMenuItem.setText("Reset windows");
+	resetWindowsMenuItem.setText("Reset window locations");
 	resetWindowsMenuItem.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
