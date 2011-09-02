@@ -492,11 +492,12 @@ public class ArbilDragDrop {
 	    Vector<ArbilDataNode> importNodeList = new Vector<ArbilDataNode>();
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
 	    System.out.println("to: " + dropTargetUserObject.toString());
-	    final ArbilDataNode dropTargetDataNode = (ArbilDataNode) dropTargetUserObject;
+	    ArbilDataNode dropTargetDataNode = null;
 	    //                     TODO: add drag to local corpus tree
 	    //                     TODO: consider adding a are you sure you want to move that node into this node ...
 	    //                     TODO: must prevent parent nodes being dragged into lower branches of itself
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
+		dropTargetDataNode = (ArbilDataNode) dropTargetUserObject;
 		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
 		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() && !selectionDraggedFromLocalCorpus
 			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
@@ -520,7 +521,6 @@ public class ArbilDragDrop {
 		    }
 		}
 	    }
-	    // TODO allow drop to the root node wich will not be an ArbilDataNode
 
 	    if ((selectionContainsArchivableLocalFile == false || selectionDraggedFromLocalCorpus)
 		    // selectionContainsLocalFile == true &&
@@ -536,7 +536,7 @@ public class ArbilDragDrop {
 		for (int draggedCounter = 0; continueMove && draggedCounter < draggedArbilNodes.length; draggedCounter++) {
 		    final ArbilDataNode currentNode = draggedArbilNodes[draggedCounter];
 		    System.out.println("dragged: " + currentNode.toString());
-		    if (!currentNode.isChildNode() || MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
+		    if (!currentNode.isChildNode() || dropTargetDataNode != null && MetadataReader.getSingleInstance().nodeCanExistInNode(dropTargetDataNode, currentNode)) {
 			//((ArbilDataNode) dropTargetUserObject).requestAddNode(GuiHelper.imdiSchema.getNodeTypeFromMimeType(draggedImdiObjects[draggedCounter].mpiMimeType), "Resource", null, draggedImdiObjects[draggedCounter].getUrlString(), draggedImdiObjects[draggedCounter].mpiMimeType);
 
 			// check that the node has not been dragged into itself
@@ -552,7 +552,7 @@ public class ArbilDragDrop {
 			// todo: test for dragged to parent session
 
 			if (!draggedIntoSelf) {
-			    if (currentNode.isFavorite()) {
+			    if (currentNode.isFavorite() && dropTargetDataNode != null) {
 				//  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
 				new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
 			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentNode.getFile()))) {
@@ -587,12 +587,11 @@ public class ArbilDragDrop {
 		    }
 		}
 		if (importNodeList.size() > 0) {
-//                                  TODO: finish this import code (TG 2/8/2011: ??)
 		    try {
 			ImportExportDialog importExportDialog = new ImportExportDialog(dropTree);
 			if (dropTargetUserObject instanceof ArbilDataNode) {
 			    importExportDialog.setDestinationNode((dropTargetDataNode));
-			}
+			} // otherwise assume local corpus root node
 			importExportDialog.copyToCache(importNodeList);
 		    } catch (Exception e) {
 			System.out.println(e.getMessage());
