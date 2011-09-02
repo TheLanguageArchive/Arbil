@@ -33,9 +33,9 @@ public class DefaultArbilTableCell<T> implements ArbilTableCell<T> {
     @Override
     public String toString() {
 	// Contents of types ArbilDataNode and ArbilDataNode[] should be in their respective implementations of ArbilTableCell
-	 if (content instanceof ArbilField[]) {
+	if (content instanceof ArbilField[]) {
 	    return "<multiple values>";
-	} else if (content instanceof ArbilField && ((ArbilField) content).isRequiredField() && ((ArbilField) content).toString().length() == 0) {
+	} else if (content instanceof ArbilField && ((ArbilField) content).isRequiredField() && ((ArbilField) content).getFieldValue().length() == 0) {
 	    //super.setForeground(Color.RED);
 	    return "<required field>";
 	} else if (content instanceof ArbilField && !((ArbilField) content).fieldValueValidates()) {
