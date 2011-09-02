@@ -77,8 +77,8 @@ as tables. (#557)
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
 
-- MOVING METADATA FILES: When moving multiple metadata files between corpus nodes by drag and drop,
-a bug would cause metadata files to 'disappear' (i.e. be removed from the source corpus but not
+- MOVING SESSIONS: When moving multiple sessions between corpus nodes by drag and drop,
+a bug would cause sessions to 'disappear' (i.e. be removed from the source corpus but not
 linked to the destination) on some platforms. This has been resolved. (#925)
 
 - FAVOURITES: Favourites of a subnode type (e.g. an Actor) could not be dragged onto their matching
