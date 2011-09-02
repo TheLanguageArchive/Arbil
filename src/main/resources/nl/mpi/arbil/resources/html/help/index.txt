@@ -4,7 +4,7 @@ Editing_Viewing/Adding a resource file to a session.html
 Editing_Viewing/Moving sessions.html
 Editing_Viewing/Highlighting cells.html
 Editing_Viewing/Subnodes in a Table Cell.html
-Editing_Viewing/Track Table Selection in the Tree.html
+#Editing_Viewing/Track Table Selection in the Tree.html
 Editing_Viewing/Icons.html
 Editing_Viewing/Adding a corpus branch.html
 Editing_Viewing/Adding a new session.html
