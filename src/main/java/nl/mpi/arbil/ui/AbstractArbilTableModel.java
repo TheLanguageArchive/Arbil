@@ -691,10 +691,10 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 		if (currentFeildPath != null) {
 		    for (int rowCounter = 0; rowCounter < dataTemp.length; rowCounter++) {
 			for (int colCounter = 0; colCounter < dataTemp[rowCounter].length; colCounter++) {
-			    if (dataTemp[rowCounter][colCounter] instanceof ArbilField && dataTemp[rowCounter][colCounter] != null) {
-				String fullXmlPath = ((ArbilField) dataTemp[rowCounter][colCounter]).getFullXmlPath();
+			    if (dataTemp[rowCounter][colCounter] != null && dataTemp[rowCounter][colCounter].getContent() instanceof ArbilField) {
+				String fullXmlPath = ((ArbilField) dataTemp[rowCounter][colCounter].getContent()).getFullXmlPath();
 				if (fullXmlPath != null && fullXmlPath.equals(currentFeildPath)
-					|| ((ArbilField) dataTemp[rowCounter][colCounter]).getFullXmlPath().equals(currentFeildPath.replaceFirst("\\(1\\)$", ""))) {
+					|| ((ArbilField) dataTemp[rowCounter][colCounter].getContent()).getFullXmlPath().equals(currentFeildPath.replaceFirst("\\(1\\)$", ""))) {
 				    cellColourTemp[rowCounter][colCounter] = new Color(0xDDCCFF);
 //                                if (dataTemp[rowCounter][0] instanceof String)
 				}
