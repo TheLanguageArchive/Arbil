@@ -94,8 +94,10 @@ class JListToolTip extends JToolTip {
             StringBuilder sb = new StringBuilder();
             sb.append(tempObject.isVocabularyOpen()?"Open vocabulary":"Closed vocabulary");
             if(tempObject.isVocabularyList()){
-                sb.append(" list");
-            }
+                sb.append(" list. To enter multiple values, insert a comma (,) between separate entries.");
+            } else{
+		sb.append(". Only one value can be entered.");
+	    }
             addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) tempObject));
         }
     }
