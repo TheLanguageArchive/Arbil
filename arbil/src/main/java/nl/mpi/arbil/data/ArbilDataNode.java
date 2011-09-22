@@ -1412,6 +1412,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    return "unknown";
 	}
     }
+    
+    public boolean isNodeTextDetermined(){
+	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
+    }
 
     public String refreshStringValue() {
 	if (isLoading()) {
