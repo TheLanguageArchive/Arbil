@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import javax.swing.tree.TreeModel;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -16,10 +15,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
@@ -29,7 +24,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
@@ -57,7 +51,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     private static BugCatcher bugCatcher;
     protected ArbilTable customPreviewTable = null;
     private boolean clearSelectionOnFocusLost = false;
-    private HashMap<ArbilNode, TreeNode> treeNodeMap = new HashMap<ArbilNode, TreeNode>();
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
@@ -84,32 +77,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     public void setClearSelectionOnFocusLost(boolean clearSelectionOnFocusLost) {
 	this.clearSelectionOnFocusLost = clearSelectionOnFocusLost;
-    }
-
-    @Override
-    public void setModel(TreeModel newModel) {
-	// If model already set with ArbilNode root node (unlikely), remove this as container and remove from map
-	if (getModel() != null) {
-	    if (getModel().getRoot() instanceof DefaultMutableTreeNode) {
-		Object rootUserObject = ((DefaultMutableTreeNode) getModel().getRoot()).getUserObject();
-		if (rootUserObject instanceof ArbilNode) {
-		    treeNodeMap.remove((ArbilNode) rootUserObject);
-		    ((ArbilNode) rootUserObject).removeContainer(this);
-		}
-	    }
-	}
-
-	// Do default model setting
-	super.setModel(newModel);
-
-	// If model has ArbilRootNode root object, add it to map and register as container
-	if (newModel.getRoot() instanceof DefaultMutableTreeNode) {
-	    Object rootUserObject = ((DefaultMutableTreeNode) newModel.getRoot()).getUserObject();
-	    if (rootUserObject instanceof ArbilNode) {
-		treeNodeMap.put((ArbilNode) rootUserObject, (TreeNode) newModel.getRoot());
-		((ArbilNode) rootUserObject).registerContainer(this);
-	    }
-	}
     }
 
     public ArbilTree() {
@@ -412,9 +379,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		thisTreeModel.nodeChanged(currentNode);
 	    }
 	    for (int childIndex = 0; childIndex < childDataNodeArray.length; childIndex++) {
+		final ArbilNode currentDataNode = childDataNodeArray[childIndex];
 		// search for an existing node and move it if required
 		for (int modelChildIndex = 0; modelChildIndex < thisTreeModel.getChildCount(currentNode); modelChildIndex++) {
-		    if (((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
+		    if (((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex)).getUserObject().equals(currentDataNode)) {
 			if (childIndex != modelChildIndex) {
 			    DefaultMutableTreeNode shiftedNode = (DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex);
 			    thisTreeModel.removeNodeFromParent(shiftedNode);
@@ -426,20 +394,18 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		    }
 		}
 		// check if using an existing node failed and if so then add a new node
-		if (childIndex >= thisTreeModel.getChildCount(currentNode) || !((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
-		    childDataNodeArray[childIndex].registerContainer(this);
-		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childDataNodeArray[childIndex]);
+		if (childIndex >= thisTreeModel.getChildCount(currentNode) || !((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)).getUserObject().equals(currentDataNode)) {
+		    currentDataNode.registerContainer(this);
+		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(currentDataNode);
 		    thisTreeModel.insertNodeInto(addableNode, currentNode, childIndex);
-		    treeNodeMap.put(childDataNodeArray[childIndex], addableNode);
+		    nodeAdded(addableNode, currentDataNode);
 		}
 	    }
 	    // remove any extraneous nodes from the end
 	    for (int childIndex = thisTreeModel.getChildCount(currentNode) - 1; childIndex >= childDataNodeArray.length; childIndex--) {
 		final DefaultMutableTreeNode toRemove = (DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex);
 		thisTreeModel.removeNodeFromParent(toRemove);
-		if (toRemove.getUserObject() instanceof ArbilNode) {
-		    treeNodeMap.remove((ArbilNode) toRemove.getUserObject());
-		}
+		nodeRemoved(toRemove);
 	    }
 	    for (int childIndex = 0; childIndex < thisTreeModel.getChildCount(currentNode); childIndex++) {
 		//for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
@@ -447,6 +413,13 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	    }
 	}
     }
+
+    protected void nodeAdded(DefaultMutableTreeNode addableNode, ArbilNode addedDataNode) {
+    }
+
+    protected void nodeRemoved(final DefaultMutableTreeNode toRemove) {
+    }
+    
     public ArbilNode[] rootNodeChildren;
 
     public void requestResort() {
@@ -468,7 +441,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestResort();
     }
-    private final Object sortRunnerLock = new Object();
+    protected final Object sortRunnerLock = new Object();
     // NOTE: This nameless ArbilActionBuffer class/object is not serializable, while ArbilTree is
     private final ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 100, 150, sortRunnerLock) {
 
@@ -480,117 +453,11 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     private JListToolTip listToolTip = new JListToolTip();
 
     /**
-     * A new child node has been added to the destination node. Tries to expand tree to show the new node and select it.
+     * A new child node has been added to the destination node.
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */
     public void dataNodeChildAdded(final ArbilNode destination, final ArbilNode newNode) {
-	// Find treeNode for destination ArbilNode
-	final TreeNode destinationNode = treeNodeMap.get(destination);
-	if (destinationNode != null) {
-	    // Find path from destination node to the newly added node
-	    List<ArbilNode> nodePath = createArbilNodePath(destination, newNode);
-	    if (nodePath != null) {
-		// Create a tree path from this node path
-		TreePath newNodePath = findTreePathForNodePath(destinationNode, nodePath);
-		// Select the new node
-		setSelectionPath(newNodePath);
-		scrollPathToVisible(newNodePath);
-	    }
-	}
-    }
-
-    /**
-     * Takes arbil node path and maps to TreePath starting mapping from specified root tree node
-     * @param rootTreeNode TreeNode to start with
-     * @param arbilNodePath Path of arbil nodes that correspond to children of rootTreeNode
-     * @return TreePath (from tree root) for the arbilNodePath
-     */
-    private TreePath findTreePathForNodePath(final TreeNode rootTreeNode, List<ArbilNode> arbilNodePath) {
-	// Create root tree path
-	TreePath treePath = createTreePathForTreeNode(rootTreeNode);
-	// Start mapping node path to tree path
-	for (ArbilNode currentTargetNode : arbilNodePath) {
-	    // Expand current node so children will become available...
-	    expandPath(treePath);
-	    // ...and give the sort runner some time to react to the expansion before proceeding...
-	    synchronized (sortRunnerLock) {
-		try {
-		    sortRunnerLock.wait(250);
-		} catch (InterruptedException ex) {
-		}
-	    }
-	    treePath = extendTreePathWithChildNode(treePath, currentTargetNode);
-	}
-	return treePath;
-    }
-
-    /**
-     * Extends a tree path by adding the TreeNode that has a specified ArbilNode as user object
-     * @param treePath TreePath to extend
-     * @param currentTargetNode
-     * @return Extend tree path (if target not found, returns original)
-     */
-    private TreePath extendTreePathWithChildNode(TreePath treePath, ArbilNode currentTargetNode) {
-	// Get current tree node
-	final Object lastPathComponent = treePath.getLastPathComponent();
-	if (lastPathComponent instanceof TreeNode) {
-	    final TreeNode currentTreeNode = (TreeNode) lastPathComponent;
-	    // Traverse current node children to find match for target node
-	    for (int i = 0; i < currentTreeNode.getChildCount(); i++) {
-		TreeNode currentTreeNodeChild = currentTreeNode.getChildAt(i);
-		if (currentTreeNodeChild instanceof DefaultMutableTreeNode) {
-		    // Check if tree node has current target arbil node as user object
-		    if (((DefaultMutableTreeNode) currentTreeNodeChild).getUserObject().equals(currentTargetNode)) {
-			// Extend tree path and continue to next child
-			treePath = treePath.pathByAddingChild(currentTreeNodeChild);
-			break;
-		    }
-		}
-	    }
-	}
-	return treePath;
-    }
-
-    /**
-     * 
-     * @param treeNode
-     * @return Complete treepath for the specified treeNode
-     */
-    private static TreePath createTreePathForTreeNode(TreeNode treeNode) {
-	ArrayList pathList = new ArrayList();
-	TreeNode node = treeNode;
-	// Construct tree path
-	while (node != null) {
-	    pathList.add(node);
-	    node = node.getParent();
-	}
-	Collections.reverse(pathList);
-	return new TreePath(pathList.toArray());
-    }
-
-    /**
-     * Creates list that represents path from a root node to a target node (not including root node)
-     * @param rootNode Departure node
-     * @param targetNode Target node
-     * @return List starting at first child of rootnode on path and ending with targetnode, or null if not found
-     */
-    private static List<ArbilNode> createArbilNodePath(final ArbilNode rootNode, final ArbilNode targetNode) {
-	for (ArbilNode child : rootNode.getChildArray()) {
-	    if (child.equals(targetNode)) {
-		// This child is the target node, path consists of single node
-		return Collections.singletonList(targetNode);
-	    } else {
-		final List<ArbilNode> childList = createArbilNodePath(child, targetNode);
-		if (childList != null) {
-		    // Target found in child path, append to child and return
-		    final LinkedList<ArbilNode> list = new LinkedList<ArbilNode>();
-		    list.add(child);
-		    list.addAll(childList);
-		    return list;
-		}
-	    }
-	}
-	return null;
+	// Do nothing... (in contrast to ArbilTrackingTree!)
     }
 }
