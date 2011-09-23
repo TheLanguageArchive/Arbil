@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import javax.swing.tree.TreeModel;
 import nl.mpi.arbil.ui.menu.TreeContextMenu;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -83,6 +84,32 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 
     public void setClearSelectionOnFocusLost(boolean clearSelectionOnFocusLost) {
 	this.clearSelectionOnFocusLost = clearSelectionOnFocusLost;
+    }
+
+    @Override
+    public void setModel(TreeModel newModel) {
+	// If model already set with ArbilNode root node (unlikely), remove this as container and remove from map
+	if (getModel() != null) {
+	    if (getModel().getRoot() instanceof DefaultMutableTreeNode) {
+		Object rootUserObject = ((DefaultMutableTreeNode) getModel().getRoot()).getUserObject();
+		if (rootUserObject instanceof ArbilNode) {
+		    treeNodeMap.remove((ArbilNode) rootUserObject);
+		    ((ArbilNode) rootUserObject).removeContainer(this);
+		}
+	    }
+	}
+
+	// Do default model setting
+	super.setModel(newModel);
+
+	// If model has ArbilRootNode root object, add it to map and register as container
+	if (newModel.getRoot() instanceof DefaultMutableTreeNode) {
+	    Object rootUserObject = ((DefaultMutableTreeNode) newModel.getRoot()).getUserObject();
+	    if (rootUserObject instanceof ArbilNode) {
+		treeNodeMap.put((ArbilNode) rootUserObject, (TreeNode) newModel.getRoot());
+		((ArbilNode) rootUserObject).registerContainer(this);
+	    }
+	}
     }
 
     public ArbilTree() {
@@ -350,16 +377,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	    clipboard.setContents(stringSelection, clipboardOwner);
 	    System.out.println("copied: \n" + copiedNodeUrls);
 	}
-    }
-//    public void scrollToNode(String imdiUrlString) {
-//        System.out.println("scrollToNode: " + imdiUrlString);
-//        // get imdi object 
-//        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
-//        scrollToNode(targetImdiNode);
-//    }
-
-    private void sortTree() {
-	sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
     }
 
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode/*, TreePath[] selectedPaths*/) {
