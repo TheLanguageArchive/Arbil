@@ -138,6 +138,13 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
      */
     public abstract void dataNodeRemoved(ArbilNode dataNode);
 
+    /**
+     * A new child node has been added to the destination node
+     * @param destination Node to which a node has been added
+     * @param newNode The newly added node
+     */
+    public abstract void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode);
+
     public int getArbilDataNodeCount() {
 	return getDataNodeHash().size();
     }

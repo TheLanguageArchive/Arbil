@@ -9,11 +9,11 @@ import javax.swing.ImageIcon;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public abstract class ArbilNode {
-
+    
     protected Vector<ArbilDataNodeContainer> /*<Component>*/ containersOfThisNode;
-
+    
     public ArbilNode() {
-        containersOfThisNode = new Vector<ArbilDataNodeContainer>();
+	containersOfThisNode = new Vector<ArbilDataNodeContainer>();
     }
 
     /**
@@ -53,20 +53,20 @@ public abstract class ArbilNode {
      * @param containerToAdd Object that should be regarded as containing this node
      */
     public void registerContainer(ArbilDataNodeContainer containerToAdd) {
-        // Add to collection of containers for future messaging
-        if (containerToAdd != null) {
-            if (!containersOfThisNode.contains(containerToAdd)) {
-                containersOfThisNode.add(containerToAdd);
-            }
-        }
+	// Add to collection of containers for future messaging
+	if (containerToAdd != null) {
+	    if (!containersOfThisNode.contains(containerToAdd)) {
+		containersOfThisNode.add(containerToAdd);
+	    }
+	}
     }
-
+    
     public ArbilDataNodeContainer[] getRegisteredContainers() {
-        if (containersOfThisNode != null && containersOfThisNode.size() > 0) {
-            return containersOfThisNode.toArray(new ArbilDataNodeContainer[0]);
-        } else {
-            return new ArbilDataNodeContainer[]{};
-        }
+	if (containersOfThisNode != null && containersOfThisNode.size() > 0) {
+	    return containersOfThisNode.toArray(new ArbilDataNodeContainer[0]);
+	} else {
+	    return new ArbilDataNodeContainer[]{};
+	}
     }
 
     /**
@@ -74,13 +74,19 @@ public abstract class ArbilNode {
      * @param containerToRemove The container to be removed from the list.
      */
     public void removeContainer(ArbilDataNodeContainer containerToRemove) {
-        // TODO: make sure that containers are removed when a node is removed from the tree, otherwise memory will not get freed
-        //        System.out.println("de registerContainer: " + containerToRemove);
-        containersOfThisNode.remove(containerToRemove);
+	// TODO: make sure that containers are removed when a node is removed from the tree, otherwise memory will not get freed
+	//        System.out.println("de registerContainer: " + containerToRemove);
+	containersOfThisNode.remove(containerToRemove);
     }
-
+    
+    public void triggerNodeAdded(ArbilNode addedNode) {
+	for (ArbilDataNodeContainer container : getRegisteredContainers()) {
+	    container.dataNodeChildAdded(this, addedNode);
+	}	
+    }
+    
     public abstract boolean hasCatalogue();
-
+    
     public abstract boolean hasHistory();
 
     /**
@@ -101,7 +107,7 @@ public abstract class ArbilNode {
      * @return boolean
      */
     public abstract boolean isArchivableFile();
-
+    
     public abstract boolean isCatalogue();
 
     /**
@@ -109,13 +115,13 @@ public abstract class ArbilNode {
      * @return boolean
      */
     public abstract boolean isChildNode();
-
+    
     public abstract boolean isCmdiMetaDataNode();
-
+    
     public abstract boolean isCorpus();
-
+    
     public abstract boolean isDirectory();
-
+    
     public abstract boolean isEditable();
 
     /**
@@ -123,21 +129,21 @@ public abstract class ArbilNode {
      * @return boolean
      */
     public abstract boolean isEmptyMetaNode();
-
+    
     public abstract boolean isFavorite();
-
+    
     public abstract boolean isLocal();
-
+    
     public abstract boolean isMetaDataNode();
 
     /**
      * @return Whether a resource URI has been set for this node
      */
     public abstract boolean isResourceSet();
-
+    
     public abstract boolean isSession();
-
+    
     public abstract boolean isLoading();
-
+    
     public abstract boolean isDataLoaded();
 }

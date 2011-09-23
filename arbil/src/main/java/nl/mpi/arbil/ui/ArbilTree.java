@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
@@ -24,6 +25,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
@@ -414,6 +416,37 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		sortDescendentNodes((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex));
 	    }
 	}
+	scrollToRequestedRecursively(currentNode);
+    }
+
+    public void scrollToRequestedRecursively(TreeNode currentNode) {
+	for (int i = 0; i < currentNode.getChildCount(); i++) {
+	    scrollToRequestedRecursively(currentNode.getChildAt(i));
+	}
+	scrollToRequested(currentNode);
+    }
+
+    public void scrollToRequested(TreeNode currentNode) {
+	if (currentNode instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) currentNode).getUserObject() instanceof ArbilDataNode) {
+	    ArbilDataNode dataNode = (ArbilDataNode) ((DefaultMutableTreeNode) currentNode).getUserObject();
+	    if (dataNode.scrollToRequested) {
+		try {
+		    ArrayList list = new ArrayList();
+		    TreeNode node = currentNode;
+		    // Construct tree path
+		    while (node != null) {
+			list.add(node);
+			node = node.getParent();
+		    }
+		    Collections.reverse(list);
+		    TreePath path = new TreePath(list.toArray());
+		    setSelectionPath(path);
+		    scrollPathToVisible(path);
+		} finally {
+		    dataNode.scrollToRequested = false;
+		}
+	    }
+	}
     }
     public ArbilNode[] rootNodeChildren;
 
@@ -445,4 +478,14 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	}
     }; // ArbilActionBuffer
     private JListToolTip listToolTip = new JListToolTip();
+
+    /**
+     * A new child node has been added to the destination node
+     * @param destination Node to which a node has been added
+     * @param newNode The newly added node
+     */
+    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
+	// TODO!
+	System.out.println(newNode.toString());
+    }
 }
