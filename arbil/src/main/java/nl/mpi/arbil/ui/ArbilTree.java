@@ -451,8 +451,9 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestResort();
     }
+    private final Object sortRunnerLock = new Object();
     // NOTE: This nameless ArbilActionBuffer class/object is not serializable, while ArbilTree is
-    private final ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 100, 150) {
+    private final ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 100, 150, sortRunnerLock) {
 
 	@Override
 	protected void executeAction() {
@@ -493,22 +494,40 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	TreePath treePath = createTreePathForTreeNode(rootTreeNode);
 	// Start mapping node path to tree path
 	for (ArbilNode currentTargetNode : arbilNodePath) {
-	    // Expand current node so children will become available
+	    // Expand current node so children will become available...
 	    expandPath(treePath);
-	    // Get current tree node
-	    final Object lastPathComponent = treePath.getLastPathComponent();
-	    if (lastPathComponent instanceof TreeNode) {
-		final TreeNode currentTreeNode = (TreeNode) lastPathComponent;
-		// Traverse current node children to find match for target node
-		for (int i = 0; i < currentTreeNode.getChildCount(); i++) {
-		    TreeNode currentTreeNodeChild = currentTreeNode.getChildAt(i);
-		    if (currentTreeNodeChild instanceof DefaultMutableTreeNode) {
-			// Check if tree node has current target arbil node as user object
-			if (((DefaultMutableTreeNode) currentTreeNodeChild).getUserObject().equals(currentTargetNode)) {
-			    // Extend tree path and continue to next child
-			    treePath = treePath.pathByAddingChild(currentTreeNodeChild);
-			    break;
-			}
+	    // ...and give the sort runner some time to react to the expansion before proceeding...
+	    synchronized (sortRunnerLock) {
+		try {
+		    sortRunnerLock.wait(250);
+		} catch (InterruptedException ex) {
+		}
+	    }
+	    treePath = extendTreePathWithChildNode(treePath, currentTargetNode);
+	}
+	return treePath;
+    }
+
+    /**
+     * Extends a tree path by adding the TreeNode that has a specified ArbilNode as user object
+     * @param treePath TreePath to extend
+     * @param currentTargetNode
+     * @return Extend tree path (if target not found, returns original)
+     */
+    private TreePath extendTreePathWithChildNode(TreePath treePath, ArbilNode currentTargetNode) {
+	// Get current tree node
+	final Object lastPathComponent = treePath.getLastPathComponent();
+	if (lastPathComponent instanceof TreeNode) {
+	    final TreeNode currentTreeNode = (TreeNode) lastPathComponent;
+	    // Traverse current node children to find match for target node
+	    for (int i = 0; i < currentTreeNode.getChildCount(); i++) {
+		TreeNode currentTreeNodeChild = currentTreeNode.getChildAt(i);
+		if (currentTreeNodeChild instanceof DefaultMutableTreeNode) {
+		    // Check if tree node has current target arbil node as user object
+		    if (((DefaultMutableTreeNode) currentTreeNodeChild).getUserObject().equals(currentTargetNode)) {
+			// Extend tree path and continue to next child
+			treePath = treePath.pathByAddingChild(currentTreeNodeChild);
+			break;
 		    }
 		}
 	    }
