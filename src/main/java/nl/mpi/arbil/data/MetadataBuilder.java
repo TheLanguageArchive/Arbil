@@ -259,17 +259,17 @@ public class MetadataBuilder {
 	// Get the newly created data node
 	ArbilDataNode addedArbilNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	if (addedArbilNode != null) {
-	    addedArbilNode.getParentDomNode().updateLoadingState(+1);
+	    currentArbilNode.getParentDomNode().updateLoadingState(+1);
 	    try {
+		addedArbilNode.scrollToRequested = true;
 		if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
 		    currentArbilNode.getParentDomNode().loadArbilDom();
 		}
 		if (currentArbilNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
 		    addedArbilNode.getParentDomNode().loadArbilDom();
 		}
-		addedArbilNode.scrollToRequested = true;
 	    } finally {
-		addedArbilNode.getParentDomNode().updateLoadingState(-1);
+		currentArbilNode.getParentDomNode().updateLoadingState(-1);
 	    }
 	}
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
