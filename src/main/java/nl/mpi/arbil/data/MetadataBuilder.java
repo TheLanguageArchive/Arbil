@@ -270,6 +270,7 @@ public class MetadataBuilder {
 		}
 	    } finally {
 		addedArbilNode.getParentDomNode().updateLoadingState(-1);
+		currentArbilNode.getParentDomNode().triggerNodeAdded(addedArbilNode);
 	    }
 	}
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);

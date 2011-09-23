@@ -313,4 +313,13 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
     public void dataNodeIconCleared(ArbilNode dataNode) {
 	// Nothing to do
     }
+
+    /**
+     * A new child node has been added to the destination node
+     * @param destination Node to which a node has been added
+     * @param newNode The newly added node
+     */
+    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
+	// Nothing to do
+    }
 }

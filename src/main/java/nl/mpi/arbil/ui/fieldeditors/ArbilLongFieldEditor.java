@@ -417,6 +417,15 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	setNavigationEnabled();
     }
 
+    /**
+     * A new child node has been added to the destination node
+     * @param destination Node to which a node has been added
+     * @param newNode The newly added node
+     */
+    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
+	// Nothing to do(?)
+    }
+
     private synchronized void changeTab(int d) {
 	final int index;
 	if (d > 0) {
@@ -513,7 +522,6 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, KeyEvent.CTRL_DOWN_MASK), "previousTab");
 	}
     }
-
     // NOTE: Not serializable!
     private FocusListener editorFocusListener = new FocusListener() {
 
