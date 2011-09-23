@@ -16,6 +16,9 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.JTree;
@@ -53,6 +56,7 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     private static BugCatcher bugCatcher;
     protected ArbilTable customPreviewTable = null;
     private boolean clearSelectionOnFocusLost = false;
+    private HashMap<ArbilNode, TreeNode> treeNodeMap = new HashMap<ArbilNode, TreeNode>();
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
@@ -354,6 +358,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 //        scrollToNode(targetImdiNode);
 //    }
 
+    private void sortTree() {
+	sortDescendentNodes((DefaultMutableTreeNode) ArbilTree.this.getModel().getRoot());
+    }
+
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode/*, TreePath[] selectedPaths*/) {
 	if (rootNodeChildren == null) {
 	    return;
@@ -405,46 +413,20 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		    childDataNodeArray[childIndex].registerContainer(this);
 		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childDataNodeArray[childIndex]);
 		    thisTreeModel.insertNodeInto(addableNode, currentNode, childIndex);
+		    treeNodeMap.put(childDataNodeArray[childIndex], addableNode);
 		}
 	    }
 	    // remove any extraneous nodes from the end
 	    for (int childIndex = thisTreeModel.getChildCount(currentNode) - 1; childIndex >= childDataNodeArray.length; childIndex--) {
-		thisTreeModel.removeNodeFromParent(((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)));
+		final DefaultMutableTreeNode toRemove = (DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex);
+		thisTreeModel.removeNodeFromParent(toRemove);
+		if (toRemove.getUserObject() instanceof ArbilNode) {
+		    treeNodeMap.remove((ArbilNode) toRemove.getUserObject());
+		}
 	    }
 	    for (int childIndex = 0; childIndex < thisTreeModel.getChildCount(currentNode); childIndex++) {
 		//for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
 		sortDescendentNodes((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex));
-	    }
-	}
-	scrollToRequestedRecursively(currentNode);
-    }
-
-    public void scrollToRequestedRecursively(TreeNode currentNode) {
-	for (int i = 0; i < currentNode.getChildCount(); i++) {
-	    scrollToRequestedRecursively(currentNode.getChildAt(i));
-	}
-	scrollToRequested(currentNode);
-    }
-
-    public void scrollToRequested(TreeNode currentNode) {
-	if (currentNode instanceof DefaultMutableTreeNode && ((DefaultMutableTreeNode) currentNode).getUserObject() instanceof ArbilDataNode) {
-	    ArbilDataNode dataNode = (ArbilDataNode) ((DefaultMutableTreeNode) currentNode).getUserObject();
-	    if (dataNode.scrollToRequested) {
-		try {
-		    ArrayList list = new ArrayList();
-		    TreeNode node = currentNode;
-		    // Construct tree path
-		    while (node != null) {
-			list.add(node);
-			node = node.getParent();
-		    }
-		    Collections.reverse(list);
-		    TreePath path = new TreePath(list.toArray());
-		    setSelectionPath(path);
-		    scrollPathToVisible(path);
-		} finally {
-		    dataNode.scrollToRequested = false;
-		}
 	    }
 	}
     }
@@ -480,12 +462,99 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     private JListToolTip listToolTip = new JListToolTip();
 
     /**
-     * A new child node has been added to the destination node
+     * A new child node has been added to the destination node. Tries to expand tree to show the new node and select it.
      * @param destination Node to which a node has been added
      * @param newNode The newly added node
      */
-    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
-	// TODO!
-	System.out.println(newNode.toString());
+    public void dataNodeChildAdded(final ArbilNode destination, final ArbilNode newNode) {
+	// Find treeNode for destination ArbilNode
+	final TreeNode destinationNode = treeNodeMap.get(destination);
+	if (destinationNode != null) {
+	    // Find path from destination node to the newly added node
+	    List<ArbilNode> nodePath = createArbilNodePath(destination, newNode);
+	    if (nodePath != null) {
+		// Create a tree path from this node path
+		TreePath newNodePath = findTreePathForNodePath(destinationNode, nodePath);
+		// Select the new node
+		setSelectionPath(newNodePath);
+		scrollPathToVisible(newNodePath);
+	    }
+	}
+    }
+
+    /**
+     * Takes arbil node path and maps to TreePath starting mapping from specified root tree node
+     * @param rootTreeNode TreeNode to start with
+     * @param arbilNodePath Path of arbil nodes that correspond to children of rootTreeNode
+     * @return TreePath (from tree root) for the arbilNodePath
+     */
+    private TreePath findTreePathForNodePath(final TreeNode rootTreeNode, List<ArbilNode> arbilNodePath) {
+	// Create root tree path
+	TreePath treePath = createTreePathForTreeNode(rootTreeNode);
+	// Start mapping node path to tree path
+	for (ArbilNode currentTargetNode : arbilNodePath) {
+	    // Expand current node so children will become available
+	    expandPath(treePath);
+	    // Get current tree node
+	    final Object lastPathComponent = treePath.getLastPathComponent();
+	    if (lastPathComponent instanceof TreeNode) {
+		final TreeNode currentTreeNode = (TreeNode) lastPathComponent;
+		// Traverse current node children to find match for target node
+		for (int i = 0; i < currentTreeNode.getChildCount(); i++) {
+		    TreeNode currentTreeNodeChild = currentTreeNode.getChildAt(i);
+		    if (currentTreeNodeChild instanceof DefaultMutableTreeNode) {
+			// Check if tree node has current target arbil node as user object
+			if (((DefaultMutableTreeNode) currentTreeNodeChild).getUserObject().equals(currentTargetNode)) {
+			    // Extend tree path and continue to next child
+			    treePath = treePath.pathByAddingChild(currentTreeNodeChild);
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+	return treePath;
+    }
+
+    /**
+     * 
+     * @param treeNode
+     * @return Complete treepath for the specified treeNode
+     */
+    private static TreePath createTreePathForTreeNode(TreeNode treeNode) {
+	ArrayList pathList = new ArrayList();
+	TreeNode node = treeNode;
+	// Construct tree path
+	while (node != null) {
+	    pathList.add(node);
+	    node = node.getParent();
+	}
+	Collections.reverse(pathList);
+	return new TreePath(pathList.toArray());
+    }
+
+    /**
+     * Creates list that represents path from a root node to a target node (not including root node)
+     * @param rootNode Departure node
+     * @param targetNode Target node
+     * @return List starting at first child of rootnode on path and ending with targetnode, or null if not found
+     */
+    private static List<ArbilNode> createArbilNodePath(final ArbilNode rootNode, final ArbilNode targetNode) {
+	for (ArbilNode child : rootNode.getChildArray()) {
+	    if (child.equals(targetNode)) {
+		// This child is the target node, path consists of single node
+		return Collections.singletonList(targetNode);
+	    } else {
+		final List<ArbilNode> childList = createArbilNodePath(child, targetNode);
+		if (childList != null) {
+		    // Target found in child path, append to child and return
+		    final LinkedList<ArbilNode> list = new LinkedList<ArbilNode>();
+		    list.add(child);
+		    list.addAll(childList);
+		    return list;
+		}
+	    }
+	}
+	return null;
     }
 }
