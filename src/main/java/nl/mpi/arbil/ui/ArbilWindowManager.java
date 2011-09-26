@@ -91,6 +91,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
     }
     
+    public void setMessagesCanBeShown(boolean messagesCanBeShown) {
+        // this should be set to true whent the main window has been shown, before this stage of loading messages should not be shown
+        this.messagesCanBeShown = messagesCanBeShown;
+    }
+
     public void loadGuiState(JFrame linorgFrameLocal) {
 	linorgFrame = linorgFrameLocal;
 	try {
@@ -442,7 +447,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    helpComponent.setCurrentPage(ArbilHelp.INTRODUCTION_PAGE);
 	}
 	startKeyListener();
-	messagesCanBeShown = true;
+        setMessagesCanBeShown(true);
 	showMessageDialogQueue();
     }
 
