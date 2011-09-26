@@ -104,7 +104,7 @@ public class ArbilTableCellRenderer extends DefaultTableCellRenderer {
 	if (cellObject == null) {
 	    return super.toString();
 	} else {
-	    if (getCellContent() instanceof ArbilField && ((ArbilField) getCellContent()).isRequiredField() && ((ArbilField) getCellContent()).toString().length() == 0) {
+	    if (getCellContent() instanceof ArbilField && ((ArbilField) getCellContent()).isRequiredField() && ((ArbilField) getCellContent()).getFieldValue().length() == 0) {
 		super.setForeground(Color.RED);
 	    } else if (getCellContent() instanceof ArbilField && !((ArbilField) getCellContent()).fieldValueValidates()) {
 		super.setForeground(Color.RED);

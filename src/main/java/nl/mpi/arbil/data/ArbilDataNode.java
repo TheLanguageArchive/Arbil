@@ -1099,47 +1099,47 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * the caller is responsible for reloading the node if that is required
      */
     public void saveChangesToCache(boolean updateUI) {
-        if (this != getParentDomNode()) {
-            //        if (this.isImdiChild()) {
-            getParentDomNode().saveChangesToCache(updateUI);
-            return;
-        }
-        System.out.println("saveChangesToCache");
-        ArbilJournal.getSingleInstance().clearFieldChangeHistory();
-        if (!this.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */) {
-            System.out.println("should not try to save remote files");
-            return;
-        }
-        ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
-        Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
-        getAllFields(allFields);
-        for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
-            {
-                ArbilField[] currentFieldArray = fieldsEnum.nextElement();
-                for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
-                    ArbilField currentField = currentFieldArray[fieldCounter];
-                    if (currentField.fieldNeedsSaveToDisk()) {
-                        FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
-                        currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
-                        currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
-                        currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValue();
-                        currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
-                        currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
-                        fieldUpdateRequests.add(currentFieldUpdateRequest);
-                    }
-                }
-            }
-        }
-        ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
-        boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
-        if (!result) {
-            messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
-        } else {
-            this.nodeNeedsSaveToDisk = false;
-            //            // update the icon to indicate the change
-            //            setImdiNeedsSaveToDisk(null, false);
-        }
-        //        clearIcon(); this is called by setImdiNeedsSaveToDisk
+	if (this != getParentDomNode()) {
+	    //        if (this.isImdiChild()) {
+	    getParentDomNode().saveChangesToCache(updateUI);
+	    return;
+	}
+	System.out.println("saveChangesToCache");
+	ArbilJournal.getSingleInstance().clearFieldChangeHistory();
+	if (!this.isLocal() /*nodeUri.getScheme().toLowerCase().startsWith("http") */) {
+	    System.out.println("should not try to save remote files");
+	    return;
+	}
+	ArrayList<FieldUpdateRequest> fieldUpdateRequests = new ArrayList<FieldUpdateRequest>();
+	Vector<ArbilField[]> allFields = new Vector<ArbilField[]>();
+	getAllFields(allFields);
+	for (Enumeration<ArbilField[]> fieldsEnum = allFields.elements(); fieldsEnum.hasMoreElements();) {
+	    {
+		ArbilField[] currentFieldArray = fieldsEnum.nextElement();
+		for (int fieldCounter = 0; fieldCounter < currentFieldArray.length; fieldCounter++) {
+		    ArbilField currentField = currentFieldArray[fieldCounter];
+		    if (currentField.fieldNeedsSaveToDisk()) {
+			FieldUpdateRequest currentFieldUpdateRequest = new FieldUpdateRequest();
+			currentFieldUpdateRequest.keyNameValue = currentField.getKeyName();
+			currentFieldUpdateRequest.fieldOldValue = currentField.originalFieldValue;
+			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
+			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
+			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+			fieldUpdateRequests.add(currentFieldUpdateRequest);
+		    }
+		}
+	    }
+	}
+	ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
+	boolean result = componentBuilder.setFieldValues(this, fieldUpdateRequests.toArray(new FieldUpdateRequest[]{}));
+	if (!result) {
+	    messageDialogHandler.addMessageDialogToQueue("Error saving changes to disk, check the log file via the help menu for more information.", "Save");
+	} else {
+	    this.nodeNeedsSaveToDisk = false;
+	    //            // update the icon to indicate the change
+	    //            setImdiNeedsSaveToDisk(null, false);
+	}
+	//        clearIcon(); this is called by setImdiNeedsSaveToDisk
     }
 
     /**

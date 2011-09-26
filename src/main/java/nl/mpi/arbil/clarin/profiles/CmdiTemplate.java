@@ -11,8 +11,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
@@ -34,6 +39,12 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xpath.XPathAPI;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * CmdiTemplate.java
@@ -58,8 +69,10 @@ public class CmdiTemplate extends ArbilTemplate {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
-    String nameSpaceString;
-    String filterString[] = {".CMD.Resources.", ".CMD.Header."};
+    private String nameSpaceString;
+    private String filterString[] = {".CMD.Resources.", ".CMD.Header."};
+    private File schemaFile = null;
+    private Document schemaDocument;
 
     private static class ArrayListGroup {
 
@@ -241,7 +254,6 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
-	File schemaFile;
 	if (xsdFile.getScheme().equals("file")) {
 	    schemaFile = new File(xsdFile);
 	} else {
@@ -462,149 +474,93 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    private void readControlledVocabularies(SchemaType schemaType, String nodePath) {
-	if (schemaType.getEnumerationValues() != null) {
-//            System.out.println("Controlled Vocabulary: " + schemaType.toString());
-//            System.out.println("Controlled Vocabulary: " + schemaType.getName());
+    private synchronized Document getSchemaDocument() {
+	if (schemaDocument == null) {
+	    try {
+		// Parse schema document
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setValidating(false);
+		documentBuilderFactory.setNamespaceAware(true);
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		schemaDocument = documentBuilder.parse(schemaFile);
+	    } catch (IOException ex) {
+		bugCatcher.logError("Error while parsing schema", ex);
+	    } catch (ParserConfigurationException ex) {
+		bugCatcher.logError("Error while parsing schema", ex);
+	    } catch (SAXException ex) {
+		bugCatcher.logError("Error while parsing schema", ex);
+	    }
+	}
+	return schemaDocument;
+    }
 
+    /**
+     * 
+     * Gets labels for vocabulary enumerations like:
+     * 
+     * <xs:enumeration	value="csu"
+     *			dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001" 
+     *			ann:label="Central Sudanic languages"/>
+     * 
+     * @param vocabularyName Name of the vocabulary in the profile schema
+     * @return HashMap that has [value => label] mapping for the vocabulary
+     * @throws TransformerException Thrown on node selection through XPathAPI if transformation fails
+     */
+    private HashMap<String, String> getDescriptionsForVocabulary(String vocabularyName) throws TransformerException {
+	// Get document node (should not be null)
+	Document schemaDoc = getSchemaDocument();
+	if (schemaDoc == null) {
+	    return null;
+	} else {
+	    // Find all enumeration values within the vocabulary
+	    NodeList enumNodes = XPathAPI.selectNodeList(getSchemaDocument(), "//*[@name='" + vocabularyName + "']//xs:restriction/xs:enumeration");
+	    HashMap<String, String> descriptions = new HashMap<String, String>(enumNodes.getLength());
+	    for (int i = 0; i < enumNodes.getLength(); i++) {
+		NamedNodeMap attMap = enumNodes.item(i).getAttributes();
+		// Look for label
+		Node labelNode = attMap.getNamedItem("ann:label");
+		if (labelNode != null) {
+		    // Map label on value
+		    Node valueNode = attMap.getNamedItem("value");
+		    if (valueNode != null) {
+			descriptions.put(valueNode.getTextContent(), labelNode.getTextContent());
+		    }
+		}
+	    }
+	    return descriptions;
+	}
+    }
+
+    private void readControlledVocabularies(SchemaType schemaType, String nodePath) {
+	XmlAnySimpleType[] enumerationValues = schemaType.getEnumerationValues();
+
+	if (enumerationValues != null && enumerationValues.length > 0) {
 	    ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
 
+	    HashMap<String, String> descriptions = null;
+	    try {
+		// Get descriptions (ann:label attributes on vocabulary enumeration elements)
+		descriptions = getDescriptionsForVocabulary(schemaType.getBaseType().getName().getLocalPart());
+	    } catch (Exception ex) {
+		// Fall back to using just the values, no descriptions
+		bugCatcher.logError(ex);
+	    }
+
 	    for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
-//                System.out.println("Value List: " + anySimpleType.getStringValue());
-//
-//		if (schemaType.getContentModel() != null) {
-//		    for (SchemaParticle particle : schemaType.getContentModel().getParticleChildren()) {
-//			SchemaAnnotation ann = ((SchemaLocalElement) particle).getAnnotation();
-//		    }
-//		}
+		String entryCode = anySimpleType.getStringValue();
+		String description = descriptions == null ? null : descriptions.get(entryCode);
 
-		vocabulary.addEntry(anySimpleType.getStringValue(), null);
-		// todo: get the ann:label
-//
-////              SchemaLocalElement schemaLocalElement = (SchemaLocalElement) schemaType;
-////              SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
-//		SchemaAnnotation schemaAnnotation = schemaType.getAnnotation();
-//		if (schemaAnnotation != null) {
-////            System.out.println("getAttributes length: " + schemaAnnotation.getAttributes().length);
-//		    for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
-//			System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
-//			//Annotation: {ann}documentation : the title of the book
-//			//Annotation: {ann}displaypriority : 1
-//			// todo: the url here could be removed provided that it does not make it to unspecific
-////                if ("{http://www.clarin.eu}displaypriority".equals(annotationAttribute.getName().toString())) {
-////                    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
-////                }
-////                if ("{http://www.clarin.eu}documentation".equals(annotationAttribute.getName().toString())) {
-////                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
-////                }
-//		    }
-//		}
-
-
-//                <item AppInfo="Central Sudanic languages"
-//                ConceptLink="http://cdb.iso.org/lg/CDB-00138674-001">csu</item>
-//
-//                used to be transformed into:
-//
-//                <xs:enumeration value="csu"
-//                dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001">
-//                     <xs:annotation>
-//                      <xs:appinfo>Central Sudanic languages</xs:appinfo>
-//                     </xs:annotation>
-//                </xs:enumeration>
-//
-//                and now it becomes:
-//
-//                <xs:enumeration value="csu"
-//                dcr:datcat="http://cdb.iso.org/lg/CDB-00138674-001" ann:label="Central
-//                Sudanic languages"/>
-
+		if (description == null) {
+		    vocabulary.addEntry(entryCode, null);
+		} else {
+		    vocabulary.addEntry(description, entryCode);
+		}
 	    }
 	    System.out.println("vocabularyHashTable.put: " + nodePath);
 	    vocabularyHashTable.put(nodePath, vocabulary);
 	}
     }
 
-//    public static void printPropertyInfo(SchemaProperty p) {
-//        System.out.println("Property name=\"" + p.getName() + "\", type=\"" + p.getType().getName()
-//                + "\", maxOccurs=\""
-//                + (p.getMaxOccurs() != null ? p.getMaxOccurs().toString() : "unbounded") + "\"");
-//    }
-//    public void getAnnotations(SchemaType schemaType) {
-//        SchemaParticle typeParticle = schemaType.getContentModel();
-//        if (typeParticle == null) {
-//            return;
-//        }
-//        SchemaParticle[] childParts =
-//                typeParticle.getParticleChildren();
-//        if (childParts == null) {
-//            return;
-//        }
-//        for (SchemaParticle part : childParts) {
-//            /* I know my property is of element type */
-//            if (part.getParticleType() == SchemaParticle.ELEMENT) {
-////                if (part.getName().equals(prop.getName())) {
-//                SchemaAnnotation ann = ((SchemaLocalElement) schemaType.getContentModel()).getAnnotation();
-//                System.out.println("SchemaAnnotation: " + ann);
-//
-//                System.out.println("SchemaLocalElement: " + ((SchemaLocalElement) part).getAnnotation());
-////                }
-//            }
-//        }
-//    }
-//
-//    public void getAnnotations(SchemaType schemaType, SchemaProperty prop) {
-//        SchemaParticle typeParticle = schemaType.getContentModel();
-//        if (typeParticle == null) {
-//            //return null;
-//        }
-//        SchemaParticle[] childParts =
-//                typeParticle.getParticleChildren();
-//        if (childParts == null) {
-//            //return null;
-//        }
-//        for (SchemaParticle part : childParts) {
-//            /* I know my property is of element type */
-//            if (part.getParticleType() == SchemaParticle.ELEMENT) {
-//                if (part.getName().equals(prop.getName())) {
-//                    System.out.println("SchemaLocalElement: " + ((SchemaLocalElement) part).getAnnotation());
-//                }
-//            }
-//        }
-//    }
-//
-//    public void navigateParticle(SchemaParticle p) {
-//        switch (p.getParticleType()) {
-//            case SchemaParticle.ALL:
-//            case SchemaParticle.CHOICE:
-//            case SchemaParticle.SEQUENCE:
-//                // These are "container" particles, so iterate over their children
-//                SchemaParticle[] children = p.getParticleChildren();
-//                for (int i = 0; i < children.length; i++) {
-//                    navigateParticle(children[i]);
-//                }
-//                break;
-//            case SchemaParticle.ELEMENT:
-//                printElementInfo((SchemaLocalElement) p);
-//                break;
-//            default:
-//            // There can also be "wildcards" corresponding to <xs:any> elements in the Schema
-//        }
-//    }
-//
-//    public void printElementInfo(SchemaLocalElement e) {
-//        System.out.println("Element name=\"" + e.getName() + "\", type=\"" + e.getType().getName()
-//                + "\", maxOccurs=\""
-//                + (e.getMaxOccurs() != null ? e.getMaxOccurs().toString() : "unbounded") + "\"");
-//        SchemaAnnotation annotation = e.getAnnotation();
-//        if (annotation != null) {
-//            SchemaAnnotation.Attribute[] att = annotation.getAttributes();
-//            if (att != null && att.length > 0) {
-//                System.out.println("  Annotation: " + att[0].getName() + "=\""
-//                        + att[0].getValue() + "\"");
-//            }
-//        }
-//    }
     public static void main(String args[]) {
 	ArbilDesktopInjector.injectHandlers();
 	new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");

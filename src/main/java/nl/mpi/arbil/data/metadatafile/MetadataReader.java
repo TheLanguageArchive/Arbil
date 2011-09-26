@@ -636,11 +636,9 @@ public class MetadataReader {
 			if (metaNode != null && !isSingleton) {
 			    parentChildTree.get(metaNode).add(subNode);
 			} else {
-			    if (isSingleton) {
-				subNode.setSingletonMetadataNode(true);
-			    }
 //                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
 			    parentChildTree.get(parentNode).add(subNode);
+			    subNode.setSingletonMetadataNode(isSingleton);
 			}
 			//                parentNode.attachChildNode(metaNodeImdiTreeObject);
 			//                metaNodeImdiTreeObject.attachChildNode(subNodeImdiTreeObject);

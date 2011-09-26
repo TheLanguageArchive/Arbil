@@ -127,6 +127,20 @@ public class ArbilField implements Serializable {
 	return fieldValue;
     }
 
+    /**
+     * 
+     * @return The value of the field as it should be represented in the XML (e.g. item code rather than display name)
+     */
+    public String getFieldValueForXml() {
+	if (hasVocabulary()) {
+	    ArbilVocabularyItem vocabularyItem = getVocabulary().findVocabularyItem(getFieldValue());
+	    if (vocabularyItem != null) {
+		return vocabularyItem.getValue();
+	    }
+	}
+	return getFieldValue();
+    }
+
     // returns the full xml path with the path indexes replaced by x's
     public String getGenericFullXmlPath() {
 	return getFullXmlPath().replaceAll("\\(\\d*?\\)", "(x)").replaceFirst("\\(x\\)$", "");
@@ -273,6 +287,14 @@ public class ArbilField implements Serializable {
 //                System.out.println("strippedXmlPath: " + strippedXmlPath);
 		fieldVocabulary = getParentDataNode().getParentDomNode().nodeTemplate.getFieldVocabulary(strippedXmlPath);
 	    }
+	}
+	if (fieldVocabulary != null) {
+	    // Vocabulary loaded, check if field value is a code - if so, set to display name. Conversion back to code on
+	    // saving is done in getFieldValueForXml()
+	    ArbilVocabularyItem vocabItem = fieldVocabulary.getVocabularyItemByCode(fieldValue);
+	    if (vocabItem != null) {
+		fieldValue = vocabItem.getDisplayValue();
+	    } // otherwise item is not known as a code, use value as presented
 	}
     }
 
