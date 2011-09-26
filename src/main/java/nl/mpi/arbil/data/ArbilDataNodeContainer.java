@@ -20,4 +20,11 @@ public interface ArbilDataNodeContainer {
      * @param dataNode Data node that is clearing its icon
      */
     public void dataNodeIconCleared(ArbilNode dataNode);
+    
+    /**
+     * A new child node has been added to the destination node
+     * @param destination Node to which a node has been added
+     * @param newNode The newly added node
+     */
+    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newChildNode);
 }

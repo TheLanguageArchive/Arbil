@@ -345,12 +345,6 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	    System.out.println("copied: \n" + copiedNodeUrls);
 	}
     }
-//    public void scrollToNode(String imdiUrlString) {
-//        System.out.println("scrollToNode: " + imdiUrlString);
-//        // get imdi object 
-//        ImdiTreeObject targetImdiNode = GuiHelper.imdiLoader.getImdiObject(null, imdiUrlString);
-//        scrollToNode(targetImdiNode);
-//    }
 
     private void sortDescendentNodes(DefaultMutableTreeNode currentNode/*, TreePath[] selectedPaths*/) {
 	if (rootNodeChildren == null) {
@@ -385,9 +379,10 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		thisTreeModel.nodeChanged(currentNode);
 	    }
 	    for (int childIndex = 0; childIndex < childDataNodeArray.length; childIndex++) {
+		final ArbilNode currentDataNode = childDataNodeArray[childIndex];
 		// search for an existing node and move it if required
 		for (int modelChildIndex = 0; modelChildIndex < thisTreeModel.getChildCount(currentNode); modelChildIndex++) {
-		    if (((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
+		    if (((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex)).getUserObject().equals(currentDataNode)) {
 			if (childIndex != modelChildIndex) {
 			    DefaultMutableTreeNode shiftedNode = (DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, modelChildIndex);
 			    thisTreeModel.removeNodeFromParent(shiftedNode);
@@ -399,15 +394,18 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 		    }
 		}
 		// check if using an existing node failed and if so then add a new node
-		if (childIndex >= thisTreeModel.getChildCount(currentNode) || !((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)).getUserObject().equals(childDataNodeArray[childIndex])) {
-		    childDataNodeArray[childIndex].registerContainer(this);
-		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(childDataNodeArray[childIndex]);
+		if (childIndex >= thisTreeModel.getChildCount(currentNode) || !((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)).getUserObject().equals(currentDataNode)) {
+		    currentDataNode.registerContainer(this);
+		    DefaultMutableTreeNode addableNode = new DefaultMutableTreeNode(currentDataNode);
 		    thisTreeModel.insertNodeInto(addableNode, currentNode, childIndex);
+		    nodeAdded(addableNode, currentDataNode);
 		}
 	    }
 	    // remove any extraneous nodes from the end
 	    for (int childIndex = thisTreeModel.getChildCount(currentNode) - 1; childIndex >= childDataNodeArray.length; childIndex--) {
-		thisTreeModel.removeNodeFromParent(((DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex)));
+		final DefaultMutableTreeNode toRemove = (DefaultMutableTreeNode) thisTreeModel.getChild(currentNode, childIndex);
+		thisTreeModel.removeNodeFromParent(toRemove);
+		nodeRemoved(toRemove);
 	    }
 	    for (int childIndex = 0; childIndex < thisTreeModel.getChildCount(currentNode); childIndex++) {
 		//for (Enumeration<DefaultMutableTreeNode> childTreeNodeEnum = currentNode.children(); childTreeNodeEnum.hasMoreElements();) {
@@ -415,6 +413,13 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	    }
 	}
     }
+
+    protected void nodeAdded(DefaultMutableTreeNode addableNode, ArbilNode addedDataNode) {
+    }
+
+    protected void nodeRemoved(final DefaultMutableTreeNode toRemove) {
+    }
+    
     public ArbilNode[] rootNodeChildren;
 
     public void requestResort() {
@@ -436,8 +441,9 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
     public void dataNodeIconCleared(ArbilNode dataNode) {
 	requestResort();
     }
+    protected final Object sortRunnerLock = new Object();
     // NOTE: This nameless ArbilActionBuffer class/object is not serializable, while ArbilTree is
-    private final ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 100, 150) {
+    private final ArbilActionBuffer sortRunner = new ArbilActionBuffer("ArbilTree sort thread", 100, 150, sortRunnerLock) {
 
 	@Override
 	protected void executeAction() {
@@ -445,4 +451,13 @@ public class ArbilTree extends JTree implements ArbilDataNodeContainer {
 	}
     }; // ArbilActionBuffer
     private JListToolTip listToolTip = new JListToolTip();
+
+    /**
+     * A new child node has been added to the destination node.
+     * @param destination Node to which a node has been added
+     * @param newNode The newly added node
+     */
+    public void dataNodeChildAdded(final ArbilNode destination, final ArbilNode newNode) {
+	// Do nothing... (in contrast to ArbilTrackingTree!)
+    }
 }

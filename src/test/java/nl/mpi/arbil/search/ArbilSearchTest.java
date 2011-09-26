@@ -165,6 +165,10 @@ public class ArbilSearchTest extends ArbilTest {
 	    }
 
 	    @Override
+	    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
+	    }
+
+	    @Override
 	    public void requestReloadTableData() {
 	    }
 

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.ArbilMetadataException;
@@ -260,16 +261,23 @@ public class MetadataBuilder {
 	ArbilDataNode addedArbilNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	if (addedArbilNode != null) {
 	    addedArbilNode.getParentDomNode().updateLoadingState(+1);
+	    ArbilNode destinationNode = currentArbilNode.getParentDomNode();
 	    try {
 		addedArbilNode.scrollToRequested = true;
 		if (currentArbilNode.getFile().exists()) { // if this is a root node request then the target node will not have a file to reload
 		    currentArbilNode.getParentDomNode().loadArbilDom();
+		} else {
+		    // Root node request, destination node should be corpus root node
+		    destinationNode = getLocalCorpusRootNode(destinationNode);
 		}
 		if (currentArbilNode.getParentDomNode() != addedArbilNode.getParentDomNode()) {
 		    addedArbilNode.getParentDomNode().loadArbilDom();
 		}
 	    } finally {
 		addedArbilNode.getParentDomNode().updateLoadingState(-1);
+		if (destinationNode != null) {
+		    destinationNode.triggerNodeAdded(addedArbilNode);
+		}
 	    }
 	}
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
@@ -349,5 +357,16 @@ public class MetadataBuilder {
 	    destinationNode.updateLoadingState(-1);
 	}
 	return addedNodePath;
+    }
+
+    private ArbilNode getLocalCorpusRootNode(ArbilNode destinationNode) {
+	Object localTreeRoot = treeHelper.getLocalCorpusTreeModel().getRoot();
+	if (localTreeRoot instanceof DefaultMutableTreeNode) {
+	    Object userObject = ((DefaultMutableTreeNode) localTreeRoot).getUserObject();
+	    if (userObject instanceof ArbilRootNode) {
+		destinationNode = (ArbilRootNode) userObject;
+	    }
+	}
+	return destinationNode;
     }
 }
