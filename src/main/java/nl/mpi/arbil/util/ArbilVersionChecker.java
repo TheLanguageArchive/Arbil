@@ -134,8 +134,7 @@ public class ArbilVersionChecker {
 
     public boolean hasWebStartUrl() {
 	System.out.println("hasWebStartUrl");
-	//System.setProperty("nl.mpi.arbil.webstartUpdateUrl", "http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-testing.jnlp");
-	String webstartUpdateUrl = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+	String webstartUpdateUrl = System.getProperty("nl.mpi.webstartUpdateUrl");
 	System.out.println("webstartUpdateUrl: " + webstartUpdateUrl);
 	return null != webstartUpdateUrl;
     }
@@ -146,7 +145,7 @@ public class ArbilVersionChecker {
 
 	    @Override
 	    public void run() {
-		String webstartUrlString = System.getProperty("nl.mpi.arbil.webstartUpdateUrl");
+		String webstartUrlString = System.getProperty("nl.mpi.webstartUpdateUrl");
 //                System.out.println(webStartUrlString);
 		{
 		    if (webstartUrlString != null && !isLatestVersion()) {
