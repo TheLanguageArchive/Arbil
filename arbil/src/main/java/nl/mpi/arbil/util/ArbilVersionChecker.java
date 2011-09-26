@@ -34,8 +34,7 @@ public class ArbilVersionChecker {
 
     public boolean forceUpdateCheck() {
 	ArbilVersion linorgVersion = new ArbilVersion();
-	String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
-	File cachePath = sessionStorage.getSaveLocation("http://www.mpi.nl/tg/j2se/jnlp/arbil/" + currentVersionTxt);
+	File cachePath = sessionStorage.getSaveLocation(linorgVersion.currentVersionFile);
 	if (cachePath.delete()) {
 	    System.out.println("Dropped old version file");
         } else{
@@ -49,7 +48,6 @@ public class ArbilVersionChecker {
 	try {
 	    ArbilVersion linorgVersion = new ArbilVersion();
 	    int daysTillExpire = 1;
-	    //String currentVersionTxt = "arbil-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-current.txt";
 	    File cachePath = sessionStorage.updateCache(linorgVersion.currentVersionFile, daysTillExpire);
 	    bufferedReader = new BufferedReader(new FileReader(cachePath));
 	    String serverVersionString = bufferedReader.readLine();
