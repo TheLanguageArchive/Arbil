@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataFormat;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
 
 /**
@@ -19,7 +20,13 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilIcons {
 
-    public ImageIcon linorgIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/" + new ArbilVersion().applicationIconName));
+    private static ApplicationVersionManager versionManager;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
+    }
+    
+    public ImageIcon linorgIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/" + versionManager.getApplicationVersion().applicationIconName));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));

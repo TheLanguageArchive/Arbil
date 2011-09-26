@@ -1,7 +1,7 @@
 package nl.mpi.arbil;
 
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.util.ArbilVersionChecker;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -24,7 +24,6 @@ public class ArbilMain extends javax.swing.JFrame {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
-//    static boolean updateViaJavaws = false;
 
     /**
      * @param args the command line arguments
@@ -46,7 +45,8 @@ public class ArbilMain extends javax.swing.JFrame {
     }
 
     public ArbilMain() {
-	ArbilDesktopInjector.injectHandlers();
+	final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
+	ArbilDesktopInjector.injectHandlers(versionManager);
 
 	this.addWindowListener(new WindowAdapter() {
 
@@ -68,14 +68,14 @@ public class ArbilMain extends javax.swing.JFrame {
 	mainSplitPane.setDividerLocation(0.25);
 
 	ArbilWindowManager.getSingleInstance().loadGuiState(this);
-	setTitle(new ArbilVersion().applicationTitle + " " + new ArbilVersion().compileDate);
+	setTitle(versionManager.getApplicationVersion().applicationTitle + " " + versionManager.getApplicationVersion().compileDate);
 	setIconImage(ArbilIcons.getSingleInstance().linorgIcon.getImage());
 	// load the templates and populate the templates menu
 	setVisible(true);
 	ArbilWindowManager.getSingleInstance().openIntroductionPage();
 
 	if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
-	    new ArbilVersionChecker().checkForUpdate();
+	    versionManager.checkForUpdate();
 	}
 
 	initMacApplicationHandlers();

@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilVocabularies;
-import nl.mpi.arbil.util.ArbilVersionChecker;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ImportExportDialog;
@@ -30,7 +30,6 @@ import javax.swing.JSeparator;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.table.TableCellEditor;
-import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -41,6 +40,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
 /**
@@ -104,7 +104,13 @@ public class ArbilMenuBar extends JMenuBar {
 	    return !isMacOsMenu();
 	}
     };
+    
+    private static ApplicationVersionManager versionManager;
 
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
+    }
+    
     public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal) {
 	containerApplet = containerAppletLocal;
 	previewSplitPanel = previewSplitPanelLocal;
@@ -653,9 +659,9 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    if (!new ArbilVersionChecker().forceUpdateCheck()) {
-			ArbilVersion linorgVersion = new ArbilVersion();
-			String versionString = linorgVersion.currentMajor + "." + linorgVersion.currentMinor + "." + linorgVersion.currentRevision;
+		    if (!versionManager.forceUpdateCheck()) {
+			ApplicationVersion appVersion = versionManager.getApplicationVersion();
+			String versionString = appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision;
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("No updates found, current version is " + versionString, "Check for Updates");
 		    }
 		} catch (Exception ex) {
