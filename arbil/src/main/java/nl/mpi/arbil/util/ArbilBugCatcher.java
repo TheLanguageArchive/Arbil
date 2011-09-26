@@ -124,7 +124,6 @@ public class ArbilBugCatcher implements BugCatcher {
 
     public void logError(String messageString, Exception exception) {
 	try {
-	    ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	    System.err.println(messageString);
 	    if (exception != null) {
 		System.err.println("exception: " + exception.getMessage());
@@ -134,8 +133,7 @@ public class ArbilBugCatcher implements BugCatcher {
 //            System.out.println("logCatch: " + messageString);
 	    errorLogFile.append(messageString + System.getProperty("line.separator"));
 	    errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
-	    errorLogFile.append("Compile Date: " + appVersion.compileDate + System.getProperty("line.separator"));
-	    errorLogFile.append("Current Revision: " + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + System.getProperty("line.separator"));
+	    appendVersionInformation(errorLogFile);
 	    if (exception != null) {
 		errorLogFile.append("Exception Message: " + exception.getMessage() + System.getProperty("line.separator"));
 		StackTraceElement[] stackTraceElements = exception.getStackTrace();
@@ -148,5 +146,11 @@ public class ArbilBugCatcher implements BugCatcher {
 	} catch (Exception ex) {
 	    System.err.println("failed to write to the error log: " + ex.getMessage());
 	}
+    }
+
+    protected void appendVersionInformation(FileWriter errorLogFile) throws IOException {
+	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+	errorLogFile.append("Compile Date: " + appVersion.compileDate + System.getProperty("line.separator"));
+	errorLogFile.append("Current Revision: " + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + System.getProperty("line.separator"));
     }
 }
