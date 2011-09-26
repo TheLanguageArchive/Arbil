@@ -174,6 +174,10 @@ public class ArbilWicketTableModel extends AbstractArbilTableModel implements IS
 	requestReloadTableData();
     }
 
+    @Override
+    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
+    }
+
     public ISortState getSortState() {
 	return sortState;
     }

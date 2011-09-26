@@ -142,6 +142,10 @@ public class ArbilWicketTreeModel extends DefaultTreeModel implements ArbilDataN
 	requestResort();
     }
 
+    @Override
+    public void dataNodeChildAdded(ArbilNode destination, ArbilNode newNode) {
+    }
+
     /**
      * Data node is clearing its icon
      * @param dataNode Data node that is clearing its icon
