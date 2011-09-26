@@ -5,7 +5,6 @@ import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.templates.ArbilTemplate;
-import nl.mpi.arbil.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,6 +31,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.clarin.profiles.CmdiTemplate;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersion;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import org.w3c.dom.*;
@@ -71,6 +72,11 @@ public class MetadataReader {
 
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
+    }
+    private static ApplicationVersionManager versionManager;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
     }
 
     private MetadataReader() {
@@ -171,7 +177,7 @@ public class MetadataReader {
 		NamedNodeMap metatranscriptAttributes = linkNode.getAttributes();
 
 		// Set the arbil version to the present version
-		ArbilVersion currentVersion = new ArbilVersion();
+		ApplicationVersion currentVersion = versionManager.getApplicationVersion();
 		String arbilVersionString = "Arbil." + currentVersion.currentMajor + "." + currentVersion.currentMinor + "." + currentVersion.currentRevision;
 
 		//                todo: the template must be stored at this point

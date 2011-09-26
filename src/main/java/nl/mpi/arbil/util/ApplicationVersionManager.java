@@ -10,11 +10,11 @@ import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
- * Document   : ArbilVersionChecker
+ * Document   : ApplicationVersionManager
  * Created on : Mar 11, 2009, 10:13:10 AM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilVersionChecker {
+public class ApplicationVersionManager {
 
     private static MessageDialogHandler messageDialogHandler;
 
@@ -31,50 +31,63 @@ public class ArbilVersionChecker {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+    private ApplicationVersion applicationVersion;
+    
+    /**
+     * 
+     * @param appVersion Version information to use
+     */
+    public ApplicationVersionManager(ApplicationVersion appVersion) {
+	this.applicationVersion = appVersion;
+    }
+
+    public ApplicationVersion getApplicationVersion() {
+	return applicationVersion;
+    }
 
     public boolean forceUpdateCheck() {
-	ArbilVersion linorgVersion = new ArbilVersion();
-	File cachePath = sessionStorage.getSaveLocation(linorgVersion.currentVersionFile);
+	File cachePath = sessionStorage.getSaveLocation(applicationVersion.currentVersionFile);
 	if (cachePath.delete()) {
 	    System.out.println("Dropped old version file");
-        } else{
+	} else {
 	    messageDialogHandler.addMessageDialogToQueue("Could not write to storage directory. Update check failed!", "Error");
 	}
 	return this.checkForUpdate();
     }
 
     private boolean isLatestVersion() {
-        BufferedReader bufferedReader = null;
+	BufferedReader bufferedReader = null;
 	try {
-	    ArbilVersion linorgVersion = new ArbilVersion();
 	    int daysTillExpire = 1;
-	    File cachePath = sessionStorage.updateCache(linorgVersion.currentVersionFile, daysTillExpire);
+	    File cachePath = sessionStorage.updateCache(applicationVersion.currentVersionFile, daysTillExpire);
 	    bufferedReader = new BufferedReader(new FileReader(cachePath));
 	    String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
 //            System.out.println("currentRevision: " + localVersionString);
-	    System.out.println("currentRevision: " + linorgVersion.currentRevision);
+	    System.out.println("currentRevision: " + applicationVersion.currentRevision);
 	    System.out.println("serverVersionString: " + serverVersionString);
-	    if (serverVersionString==null || !serverVersionString.matches("[0-9]*")) {
+	    if (serverVersionString == null || !serverVersionString.matches("[0-9]*")) {
 		// ignore any strings that are not a number because it might be a 404 or other error page
 		return true;
 	    }
 	    // either exact or greater version matches will be considered correct because there will be cases where the txt file is older than the jar
-	    return (linorgVersion.currentRevision.compareTo(serverVersionString) >= 0);
+	    return (applicationVersion.currentRevision.compareTo(serverVersionString) >= 0);
 	} catch (Exception ex) {
 	    bugCatcher.logError(ex);
 	} finally {
-	    if (bufferedReader != null) try {
-	        bufferedReader.close();
-            } catch (IOException ioe) {
-                bugCatcher.logError(ioe);
-            }
+	    if (bufferedReader != null) {
+		try {
+		    bufferedReader.close();
+		} catch (IOException ioe) {
+		    bugCatcher.logError(ioe);
+		}
+	    }
 	}
 	return true;
     }
 
     private boolean doUpdate(String webstartUrlString) {
-        BufferedReader errorStreamReader = null;
+	BufferedReader errorStreamReader = null;
 	try {
 	    //TODO: check the version of javaws before calling this
 	    Process launchedProcess = Runtime.getRuntime().exec(new String[]{"javaws", "-import", webstartUrlString});
@@ -87,11 +100,13 @@ public class ArbilVersionChecker {
 	} catch (Exception e) {
 	    bugCatcher.logError(e);
 	} finally { // close pipeline when lauched process is done
-	    if (errorStreamReader != null) try {
-	        errorStreamReader.close();
-            } catch (IOException ioe) {
-                bugCatcher.logError(ioe);
-            }
+	    if (errorStreamReader != null) {
+		try {
+		    errorStreamReader.close();
+		} catch (IOException ioe) {
+		    bugCatcher.logError(ioe);
+		}
+	    }
 	}
 	return false;
     }
@@ -110,9 +125,6 @@ public class ArbilVersionChecker {
     }
 
     public boolean checkForUpdate() {
-//        if (new ArbilMenuBar().saveApplicationState())
-	// todo:        check for save required, note that this is probablay done in the on start check
-//        {
 	if (!isLatestVersion()) {
 	    if (this.hasWebStartUrl()) {
 		this.checkForAndUpdateViaJavaws();
@@ -150,7 +162,7 @@ public class ArbilVersionChecker {
 		{
 		    if (webstartUrlString != null && !isLatestVersion()) {
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("There is a new version available.\nPlease go to the website and update via the download link.", null);
-			switch (messageDialogHandler.showDialogBox("There is a new version available\nDo you want to update now?", "Arbil", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
+			switch (messageDialogHandler.showDialogBox("There is a new version available\nDo you want to update now?", applicationVersion.applicationTitle, JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)) {
 			    case JOptionPane.NO_OPTION:
 				break;
 			    case JOptionPane.YES_OPTION:

@@ -16,30 +16,30 @@ import nl.mpi.arbil.ui.PreviewSplitPanel;
 public class ArbilApplet extends javax.swing.JApplet {
 
     public void init() {
-        //System.setProperty("sun.swing.enableImprovedDragGesture", "true");
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
+	//System.setProperty("sun.swing.enableImprovedDragGesture", "true");
+	try {
+	    SwingUtilities.invokeAndWait(new Runnable() {
 
-                public void run() {
-                    ArbilDesktopInjector.injectHandlers();
-                    mainSplitPane = new javax.swing.JSplitPane();
-                    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
-                    previewSplitPanel = PreviewSplitPanel.getInstance();
-                    mainSplitPane.setRightComponent(previewSplitPanel);
-                    arbilTreePanels = new ArbilTreePanels();
-                    mainSplitPane.setLeftComponent(arbilTreePanels);
-                    previewSplitPanel.setPreviewPanel(true);
-                    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this);
-                    setJMenuBar(arbilMenuBar);
+		public void run() {
+		    ArbilDesktopInjector.injectHandlers();
+		    mainSplitPane = new javax.swing.JSplitPane();
+		    getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
+		    previewSplitPanel = PreviewSplitPanel.getInstance();
+		    mainSplitPane.setRightComponent(previewSplitPanel);
+		    arbilTreePanels = new ArbilTreePanels();
+		    mainSplitPane.setLeftComponent(arbilTreePanels);
+		    previewSplitPanel.setPreviewPanel(true);
+		    ArbilMenuBar arbilMenuBar = new ArbilMenuBar(previewSplitPanel, ArbilApplet.this);
+		    setJMenuBar(arbilMenuBar);
 //                  LinorgWindowManager.getSingleInstance().setComponents(this);
-                    ArbilWindowManager.getSingleInstance().openIntroductionPage();
-                    arbilTreePanels.setDefaultTreePaneSize();
-                    previewSplitPanel.setDividerLocation(0.3);
-                }
-            });
-        } catch (Exception ex) {
-            new ArbilBugCatcher().logError(ex);
-        }
+		    ArbilWindowManager.getSingleInstance().openIntroductionPage();
+		    arbilTreePanels.setDefaultTreePaneSize();
+		    previewSplitPanel.setDividerLocation(0.3);
+		}
+	    });
+	} catch (Exception ex) {
+	    new ArbilBugCatcher().logError(ex);
+	}
     }
 
     public void start() {
