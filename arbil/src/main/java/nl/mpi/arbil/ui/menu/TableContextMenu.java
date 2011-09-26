@@ -85,7 +85,8 @@ public class TableContextMenu extends ArbilContextMenu {
 		// show the cell only menu items
 		matchingCellsMenuItem.setVisible(true);
 	    }
-	    jumpToNodeInTreeMenuItem.setVisible(false); // TODO: if functional, set to true here!
+	    
+	    jumpToNodeInTreeMenuItem.setVisible(false);// to enable for local: setVisible(leadSelectedTreeNode.isLocal());
 	    clearCellColoursMenuItem.setVisible(true);
 	}
 	if (table.getParent().getParent().getParent().getParent() instanceof ArbilSplitPanel) {
@@ -311,7 +312,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	});
-	jumpToNodeInTreeMenuItem.setEnabled(false);
+	jumpToNodeInTreeMenuItem.setEnabled(true);
 
 	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 10, openInLongFieldEditorMenuItem);
 	addItem(CATEGORY_TABLE_CELL, PRIORITY_TOP + 15, hideSelectedColumnsMenuItem);
