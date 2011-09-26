@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
