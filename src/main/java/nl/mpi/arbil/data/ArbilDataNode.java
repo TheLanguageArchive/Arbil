@@ -62,7 +62,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 
     public MetadataUtils metadataUtils;
     public ArbilTemplate nodeTemplate;
-    private boolean debugOn = false;
     private Hashtable<String, ArbilField[]> fieldHashtable; //// TODO: this should be changed to a vector or contain an array so that duplicate named fields can be stored ////
     private ArbilDataNode[] childArray = new ArbilDataNode[0];
     private boolean dataLoaded;
@@ -81,7 +80,6 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     private String nodeText, lastNodeText = NODE_LOADING_TEXT;
     //    private boolean nodeTextChanged = false;
     private URI nodeUri;
-    private boolean resourceSet;
     private boolean containerNode = false;
     public ArbilField resourceUrlField;
     public CmdiComponentLinkReader cmdiComponentLinkReader = null;
