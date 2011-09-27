@@ -127,6 +127,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
 	    synchronized (dataNodeQueue) {
 		if (!dataNodeQueue.contains(dataNode)) {
+		    dataNode.setTypeCheckerState(TypeCheckerState.IN_QUEUE);
 //                imdiObject.updateLoadingState(+1); // Loading state change dissabled due to performance issues when offline
 		    dataNodeQueue.add(dataNode);
 		    dataNodeQueue.notifyAll();
@@ -241,6 +242,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		synchronized (dataNodeQueue) {
 		    currentDataNode = dataNodeQueue.remove(0);
 		}
+		currentDataNode.setTypeCheckerState(TypeCheckerState.IN_PROCESS);
 		//System.out.println("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
 		if (!currentDataNode.isMetaDataNode()) {
 		    System.out.println("checking file and exif");
@@ -253,6 +255,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    checkMimeTypeForCurrentNode();
 		}
 //                        currentImdiObject.updateLoadingState(-1); // Loading state change dissabled due to performance issues when offline
+		if (!currentDataNode.getTypeCheckerState().equals(TypeCheckerState.ERROR)) {
+		    currentDataNode.setTypeCheckerState(TypeCheckerState.CHECKED);
+		}
 		currentDataNode.clearIcon();
 	    }
 	}
