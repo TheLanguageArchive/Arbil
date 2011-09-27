@@ -28,8 +28,8 @@
         <jar href="lib/imdi-api-1.1.2.jar" download="eager"/>
 	<jar href="lib/mpi-util-1.0.0.jar" download="eager"/>
         <jar href="lib/log4j-1.2.14.jar" download="eager"/>
-        <jar href="lib/saxon8.jar" download="eager"/>
-        <jar href="lib/saxon8-dom.jar" download="eager"/>
+        <jar href="lib/saxon-8.7.jar" download="eager"/>
+        <jar href="lib/saxon-dom-8.7.jar" download="eager"/>
         <jar href="lib/@TypeCheckVersion@" download="eager"/>
         <jar href="lib/xalan-2.7.1.jar" download="eager"/>
         <jar href="lib/xercesImpl-2.9.0.jar" download="eager"/>
