@@ -105,7 +105,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
-    private static String NODE_LOADING_TEXT = "loading node...";
+    private final static String NODE_LOADING_TEXT = "loading node...";
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
