@@ -99,6 +99,9 @@ means that using the 'Quit' option on the application menu or pression CMD-Q wil
 confirmation if there are unsaved changes and store the application state before actually quiting.
 (#600, MacOS only)
 
+- CMDI: CONTROLLED VOCABULARIES: If the CV provides descriptions, they are used as display value,
+while the actual value (e.g. code) is written to the XML. (#997)
+
 - CMDI RESOURCES: When resource are added to CMDI metadata files, this is now also visible in the
 tree view. The resources can be added and deleted. Multiple references to a single resource result
 in a single resource proxy being referenced multiple times (rather than copies of the same 
@@ -114,9 +117,6 @@ fields.
 
 Among others, the following issues have been described and will be addressed in future version of
 Arbil:
-
-- CMDI: CONTROLLED VOCABULARIES: If the CV provides descriptions, they are not used as display value
-where they should. (#997)
 
 - CMDI: DATA CATEGORIES: Field descriptions should be retrieved from ISOcat but currently are not.
 (#595)
