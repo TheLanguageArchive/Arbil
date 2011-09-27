@@ -46,6 +46,7 @@ import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 import nl.mpi.arbil.util.TreeHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -69,6 +70,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public String hashString;
     public String mpiMimeType = null;
     public String typeCheckerMessage;
+    private TypeCheckerState typeCheckerState = TypeCheckerState.UNCHECKED;
     public int matchesInCache;
     public int matchesRemote;
     public int matchesLocalFileSystem;
@@ -2163,5 +2165,19 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public CmdiComponentLinkReader getCmdiComponentLinkReader() {
 	return getParentDomNode().cmdiComponentLinkReader;
+    }
+
+    /**
+     * @return the typeCheckerState
+     */
+    public TypeCheckerState getTypeCheckerState() {
+	return typeCheckerState;
+    }
+
+    /**
+     * @param typeCheckerState the typeCheckerState to set
+     */
+    public void setTypeCheckerState(TypeCheckerState typeCheckerState) {
+	this.typeCheckerState = typeCheckerState;
     }
 }
