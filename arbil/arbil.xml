@@ -311,7 +311,7 @@ public class ArbilVersion extends ApplicationVersion {
      */
     public ArbilVersion() {
     	applicationTitle = "${arbil.application-title}";
-    	applicationIconName = "${arbil.icon-file-name}.png";
+    	applicationIconName = "/nl/mpi/arbil/resources/icons/${arbil.icon-file-name}.png";
     	currentMajor = "${arbil.current.major}";
     	currentMinor = "${arbil.current.minor}";
     	currentRevision = "${arbil.current.revision}";
