@@ -9,7 +9,7 @@ public class ArbilVersion extends ApplicationVersion {
      */
     public ArbilVersion() {
     	applicationTitle = "Arbil (pretesting)";
-    	applicationIconName = "arbil-pretesting128x128.png";
+    	applicationIconName = "/nl/mpi/arbil/resources/icons/arbil-pretesting128x128.png";
     	currentMajor = "2";
     	currentMinor = "4";
     	currentRevision = "26497";
