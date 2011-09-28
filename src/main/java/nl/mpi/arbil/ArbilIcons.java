@@ -12,6 +12,7 @@ import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
  * Document   : ArbilIcons
@@ -307,12 +308,18 @@ public class ArbilIcons {
             iconsVector.add(UIManager.getIcon("FileView.directoryIcon"));
         } else {
             iconsVector.add(fileIcon);
+	    if(!arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)){
+		// File has not been type checked, indicate with question mark icon
+		iconsVector.add(questionRedIcon);
+	    }
         }
         // add missing file icon
         if ((arbilNode.fileNotFound || arbilNode.resourceFileNotFound())) {
             if (arbilNode.isResourceSet()) {
+		// Resource is set but file not found, this is an error
                 iconsVector.add(missingRedIcon);
             } else {
+		// Resource has not been set, therefore 'not found', this is a different case
                 iconsVector.add(questionRedIcon);
             }
         }
