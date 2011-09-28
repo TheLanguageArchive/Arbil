@@ -257,7 +257,6 @@ public class MetadataReader {
 		return formatType[1];
 	    }
 	}
-	messageDialogHandler.addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"", "Add Resource");
 	return null;
     }
 

@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui.menu;
 
 import java.awt.Component;
+import java.awt.HeadlessException;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import javax.swing.JSeparator;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
+import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 
@@ -111,19 +113,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    String titleString = "Override Type Checker Decision";
-		    String messageString = "The type checker does not recognise the selected file/s, which means that they\nare not an archivable type. This action will override that decision and allow you\nto add the file/s to a session, as either media or written resources,\nhowever it might not be possible to import the result to the copus server.";
-		    String[] optionStrings = {"WrittenResource", "MediaFile", "Cancel"};
-		    int userSelection = JOptionPane.showOptionDialog(ArbilWindowManager.getSingleInstance().linorgFrame.getContentPane(), messageString, titleString, JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, optionStrings, optionStrings[2]);
-		    if (optionStrings[userSelection].equals("WrittenResource") || optionStrings[userSelection].equals("MediaFile")) {
-			for (ArbilDataNode currentNode : selectedTreeNodes) {
-			    if (currentNode.mpiMimeType == null) {
-				currentNode.mpiMimeType = "Manual/" + optionStrings[userSelection];
-				currentNode.typeCheckerMessage = "Manually overridden (might not be compatible with the archive)";
-				currentNode.clearIcon();
-			    }
-			}
-		    }
+		    new ImdiUtils().overrideTypecheckerDecision(selectedTreeNodes);
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
 		}
