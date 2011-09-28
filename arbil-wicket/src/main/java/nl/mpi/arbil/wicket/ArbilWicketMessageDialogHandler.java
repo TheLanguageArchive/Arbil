@@ -29,6 +29,12 @@ public class ArbilWicketMessageDialogHandler implements MessageDialogHandler {
 	return 0;
     }
 
+    public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
+	logger.info(String.format("Dialog box: [%1$s] %2$s | %3$s", title, message, options.toString()));
+	Session.get().info(String.format("Message: [%1$s] %2$s | %3$s", title, message, options.toString()));
+	return 0;
+    }
+
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
 	logger.info("showFileSelectBox");
 	throw new UnsupportedOperationException("Not supported yet.");
