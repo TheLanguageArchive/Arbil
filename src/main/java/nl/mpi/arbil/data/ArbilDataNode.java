@@ -1111,7 +1111,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      * Previous imdi files are renamed and kept as a history.
      * the caller is responsible for reloading the node if that is required
      */
-    public void saveChangesToCache(boolean updateUI) {
+    public synchronized void saveChangesToCache(boolean updateUI) {
 	if (this != getParentDomNode()) {
 	    //        if (this.isImdiChild()) {
 	    getParentDomNode().saveChangesToCache(updateUI);
