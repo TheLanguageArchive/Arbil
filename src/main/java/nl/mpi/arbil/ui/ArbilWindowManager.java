@@ -1176,6 +1176,22 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public int showDialogBox(String message, String title, int optionType, int messageType) {
         return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
     }
+    
+    /**
+     *
+     * @param message Message of the dialog
+     * @param title Title of the dialog
+     * @param optionType Option type, one of the constants of JOptionPane
+     * @param messageType Message type, one of the constants of JOptionPane
+     * @param options Dialog options to show
+     * @param initialValue Value of options to select initially (default option)
+     * @return One of the JOptionPane constants indicating the chosen option
+     *
+     * @see javax.swing.JOptionPane
+     */
+    public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
+        return JOptionPane.showOptionDialog(linorgFrame, message, title, optionType, messageType, null, options, initialValue);
+    }
 
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
         return new ProgressMonitor(desktopPane, message, note, min, max);

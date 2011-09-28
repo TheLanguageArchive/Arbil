@@ -27,6 +27,11 @@ public class MockDialogHandler implements MessageDialogHandler {
 	return 0;
     }
 
+    public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
+	logMessage(title, message + " " + options.toString());
+	return 0;
+    }
+
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
 	logMessage(titleText, null);
 	return null;

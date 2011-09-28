@@ -13,7 +13,8 @@ public interface MessageDialogHandler {
     boolean showConfirmDialogBox(String messageString, String messageTitle);
 
     int showDialogBox(String message, String title, int optionType, int messageType);
-
+    int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue);
+    
     File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles);
 
     File showEmptyExportDirectoryDialogue(String titleText);

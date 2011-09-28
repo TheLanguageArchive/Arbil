@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.parsers.ParserConfigurationException;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.data.metadatafile.ImdiUtils;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -210,6 +212,9 @@ public class MetadataBuilder {
 		String mimeType = null;
 		if (currentArbilNode.isArchivableFile() && !currentArbilNode.isMetaDataNode()) {
 		    nodeType = MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+		    if (nodeType == null) {
+			nodeType = handleUnknownMimetype(currentArbilNode);
+		    }
 		    resourceUrl = currentArbilNode.getURI();
 		    mimeType = currentArbilNode.mpiMimeType;
 		    nodeTypeDisplayName = "Resource";
@@ -225,6 +230,31 @@ public class MetadataBuilder {
 		}
 	    }
 	}
+    }
+
+    /**
+     * 
+     * @param currentArbilNode
+     * @return Manual nodetype, if set. Otherwise null
+     */
+    private String handleUnknownMimetype(ArbilDataNode currentArbilNode) {
+	if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox("There is no controlled vocabulary for either Written Resource or Media File that match \"" 
+		+ currentArbilNode.mpiMimeType  + "\".\n"
+		+"This probably means that the file is not archivable. However, you can proceed by manually selecting the resource type.\n\n"
+		+"Do you want to proceed?\n\nWARNING: Doing this will not guarantee that your data will be uploadable to the corpus server!",
+		"Add Resource",
+		JOptionPane.YES_NO_OPTION,
+		JOptionPane.PLAIN_MESSAGE)) {
+	    String originalMime = currentArbilNode.mpiMimeType;
+	    currentArbilNode.mpiMimeType = null;
+	    if (new ImdiUtils().overrideTypecheckerDecision(new ArbilDataNode[]{currentArbilNode})) {
+		// Try again
+		return MetadataReader.getSingleInstance().getNodeTypeFromMimeType(currentArbilNode.mpiMimeType);
+	    } else {
+		currentArbilNode.mpiMimeType = originalMime;
+	    }
+	}
+	return null;
     }
 
     private void addMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
