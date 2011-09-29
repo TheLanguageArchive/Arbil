@@ -765,6 +765,9 @@ public class ImportExportDialog {
                             journalActionString = "export";
                         }
                         MetadataUtils currentMetdataUtil = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
+			if(currentMetdataUtil == null){
+			    throw new ArbilMetadataException("Metadata format could not be determined");
+			}
                         ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
                         URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
                         if (linksUriArray != null) {
