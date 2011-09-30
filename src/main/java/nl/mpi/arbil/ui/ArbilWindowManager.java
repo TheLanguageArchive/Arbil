@@ -60,7 +60,7 @@ import nl.mpi.arbil.data.ArbilNode;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
-    
+
     private Hashtable<String, Component[]> windowList = new Hashtable<String, Component[]>();
     private Hashtable windowStatesHashtable;
     public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
@@ -76,7 +76,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private boolean messagesCanBeShown = false;
     boolean showMessageThreadrunning = false;
     static private ArbilWindowManager singleInstance = null;
-    
+
     static synchronized public ArbilWindowManager getSingleInstance() {
 //        System.out.println("LinorgWindowManager getSingleInstance");
 	if (singleInstance == null) {
@@ -84,13 +84,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	return singleInstance;
     }
-    
+
     private ArbilWindowManager() {
 	desktopPane = new JDesktopPane();
 	desktopPane.setBackground(new java.awt.Color(204, 204, 204));
 	ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
     }
-    
+
     public void loadGuiState(JFrame linorgFrameLocal) {
 	linorgFrame = linorgFrameLocal;
 	try {
@@ -109,7 +109,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		// start up iconified is just too confusing to the user
 		linorgFrame.setExtendedState(JFrame.NORMAL);
 	    }
-	    
+
 	    if (windowStatesHashtable.containsKey("ScreenDeviceCount")) {
 		int screenDeviceCount = ((Integer) windowStatesHashtable.get("ScreenDeviceCount"));
 		if (screenDeviceCount > GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length) {
@@ -135,7 +135,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	// set the split pane positions
 	loadSplitPlanes(linorgFrame.getContentPane().getComponent(0));
     }
-    
+
     public void openAboutPage() {
 	ArbilVersion arbilVersion = new ArbilVersion();
 	String messageString = "Archive Builder\n"
@@ -149,7 +149,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor");
 	JOptionPane.showMessageDialog(linorgFrame, messageString, "About " + arbilVersion.applicationTitle, JOptionPane.PLAIN_MESSAGE);
     }
-    
+
     public void offerUserToSaveChanges() throws Exception {
 	if (ArbilDataNodeLoader.getSingleInstance().nodesNeedSave()) {
 	    if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ArbilWindowManager.getSingleInstance().linorgFrame,
@@ -161,7 +161,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	}
     }
-    
+
     public File showEmptyExportDirectoryDialogue(String titleText) {
 	boolean fileSelectDone = false;
 	try {
@@ -208,7 +208,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	return null;
     }
-    
+
     public File[] showFileSelectBox(String titleText, boolean directorySelectOnly, boolean multipleSelect, boolean requireMetadataFiles) {
 	// test for os: if mac or file then awt else for other and directory use swing
 	// save/load last directory accoring to the title of the dialogue
@@ -221,7 +221,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    workingDirectory = new File(workingDirectoryPathString);
 	}
 	File lastUsedWorkingDirectory;
-	
+
 	File[] returnFile;
 	boolean isMac = true; // TODO: set this correctly
 	boolean useAtwSelect = false; //directorySelectOnly && isMac && !multipleSelect;
@@ -234,7 +234,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    FileDialog fileDialog = new FileDialog(linorgFrame);
 	    if (requireMetadataFiles) {
 		fileDialog.setFilenameFilter(new FilenameFilter() {
-		    
+
 		    public boolean accept(File dir, String name) {
 			return name.toLowerCase().endsWith(".imdi");
 		    }
@@ -243,7 +243,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    fileDialog.setDirectory(workingDirectory.getAbsolutePath());
 	    fileDialog.setVisible(true);
 	    String selectedFile = fileDialog.getFile();
-	    
+
 	    lastUsedWorkingDirectory = new File(fileDialog.getDirectory());
 	    if (selectedFile != null) {
 		returnFile = new File[]{new File(selectedFile)};
@@ -254,27 +254,41 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    JFileChooser fileChooser = new JFileChooser();
 	    if (requireMetadataFiles) {
 		FileFilter imdiFileFilter = new FileFilter() {
-		    
+
 		    public String getDescription() {
 			return "IMDI";
 		    }
-		    
+
 		    @Override
 		    public boolean accept(File selectedFile) {
 			// the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field
 			return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".imdi")));
 		    }
 		};
+		FileFilter cmdiFileFilter = new FileFilter() {
+
+		    public String getDescription() {
+			return "CMDI";
+		    }
+
+		    @Override
+		    public boolean accept(File selectedFile) {
+			// the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field 
+			return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".cmdi")));
+		    }
+		};
 		fileChooser.addChoosableFileFilter(imdiFileFilter);
+		fileChooser.addChoosableFileFilter(cmdiFileFilter);
+		fileChooser.setFileFilter(imdiFileFilter);
 	    }
 	    if (directorySelectOnly) {
 		// this filter is only cosmetic but gives the user an indication of what to select
 		FileFilter imdiFileFilter = new FileFilter() {
-		    
+
 		    public String getDescription() {
 			return "Directories";
 		    }
-		    
+
 		    @Override
 		    public boolean accept(File selectedFile) {
 			return (selectedFile.exists() && selectedFile.isDirectory());
@@ -311,7 +325,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	ArbilSessionStorage.getSingleInstance().saveString("fileSelect." + titleText, lastUsedWorkingDirectory.getAbsolutePath());
 	return returnFile;
     }
-    
+
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {
 	if (messageTitle == null) {
 	    messageTitle = "Arbil";
@@ -324,7 +338,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    return false;
 	}
     }
-    
+
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
 	if (messageTitle == null) {
 	    messageTitle = "Arbil";
@@ -336,7 +350,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	messageDialogQueue.put(messageTitle, messageString);
 	showMessageDialogQueue();
     }
-    
+
     private void applyWindowDefaults(JInternalFrame currentInternalFrame) {
 	int tempWindowWidth, tempWindowHeight;
 	if (desktopPane.getWidth() > nextWindowWidth) {
@@ -353,7 +367,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    tempWindowHeight = 100;
 	}
 	currentInternalFrame.setSize(tempWindowWidth, tempWindowHeight);
-	
+
 	currentInternalFrame.setClosable(true);
 	currentInternalFrame.setIconifiable(true);
 	currentInternalFrame.setMaximizable(true);
@@ -377,11 +391,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    nextWindowY = 0;
 	}
     }
-    
+
     private synchronized void showMessageDialogQueue() {
 	if (!showMessageThreadrunning) {
 	    new Thread("showMessageThread") {
-		
+
 		public void run() {
 		    try {
 			sleep(100);
@@ -403,7 +417,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }.start();
 	}
     }
-    
+
     public void openIntroductionPage() {
 	// open the introduction page
 	// TODO: always get this page from the server if available, but also save it for off line use
@@ -432,7 +446,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //        openUrlWindowOnce("Features/Known Bugs", destinationUrl);
 
 	initWindows();
-	
+
 	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()) {
 	    System.out.println("no local locations found, showing help window");
 	    ArbilHelp helpComponent = ArbilHelp.getSingleInstance();
@@ -492,7 +506,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    } else if (windowState.windowType == ArbilWindowState.ArbilWindowType.subnodesPanel) {
 			openFloatingSubnodesWindowOnce(imdiObjectsArray[0], currentWindowName, window);
 		    }
-		    
+
 		    if (window[0] != null) {
 			// Set size of new window from saved state
 			if (windowState.size != null) {
@@ -513,7 +527,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    System.out.println("load windowStates failed: " + ex.getMessage());
 	}
     }
-    
+
     public void loadSplitPlanes(Component targetComponent) {
 	//System.out.println("loadSplitPlanes: " + targetComponent);
 	if (targetComponent instanceof JSplitPane) {
@@ -540,7 +554,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	}
     }
-    
+
     public void saveSplitPlanes(Component targetComponent) {
 	//System.out.println("saveSplitPlanes: " + targetComponent);
 	if (targetComponent instanceof JSplitPane) {
@@ -573,13 +587,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	}
     }
-    
+
     public void saveWindowStates() {
 	// loop windowList and make a hashtable of window names with a vector of the imdinodes displayed, then save the hashtable
 	try {
 	    // collect the main window size and position for saving
 	    windowStatesHashtable.put("linorgFrameBounds", linorgFrame.getBounds());
-	    
+
 	    windowStatesHashtable.put("ScreenDeviceCount", GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length);
 	    windowStatesHashtable.put("linorgFrameExtendedState", linorgFrame.getExtendedState());
 	    // collect the split pane positions for saving
@@ -593,7 +607,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    //(Hashtable) windowList.clone();
 	    for (Enumeration windowNamesEnum = windowList.keys(); windowNamesEnum.hasMoreElements();) {
 		ArbilWindowState windowState = new ArbilWindowState();
-		
+
 		String currentWindowName = windowNamesEnum.nextElement().toString();
 		System.out.println("currentWindowName: " + currentWindowName);
 		// set the value of the windowListHashtable to be the imdi urls rather than the windows
@@ -610,13 +624,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 				// if this table has no nodes then don't save it
 				if (0 < ((ArbilSplitPanel) currentComponent).arbilTable.getRowCount()) {
-				    
+
 				    ArbilTable table = ((ArbilSplitPanel) currentComponent).arbilTable;
 
 				    // Store field view (columns shown + widths)
 				    table.updateStoredColumnWidhts();
 				    windowState.fieldView = table.getArbilTableModel().getFieldView();
-				    
+
 				    Vector currentNodesVector = new Vector(Arrays.asList(table.getArbilTableModel().getArbilDataNodesURLs()));
 				    windowState.currentNodes = currentNodesVector;
 				    System.out.println("saved");
@@ -640,14 +654,14 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	    // save the windows
 	    ArbilSessionStorage.getSingleInstance().saveObject(windowListHashtable, "openWindows");
-	    
+
 	    System.out.println("saved windowStates");
 	} catch (Exception ex) {
 	    GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println("save windowStates exception: " + ex.getMessage());
 	}
     }
-    
+
     private String addWindowToList(String windowName, final JInternalFrame windowFrame) {
 	int instanceCount = 0;
 	String currentWindowName = windowName;
@@ -660,7 +674,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	windowFrame.setName(currentWindowName);
 	windowMenuItem.setActionCommand(currentWindowName);
 	windowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-	    
+
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    focusWindow(evt.getActionCommand());
@@ -670,7 +684,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	});
 	windowFrame.addInternalFrameListener(new InternalFrameAdapter() {
-	    
+
 	    @Override
 	    public void internalFrameClosed(InternalFrameEvent e) {
 		String windowName = e.getInternalFrame().getName();
@@ -698,7 +712,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	return currentWindowName;
     }
-    
+
     public void stopEditingInCurrentWindow() {
 	// when saving make sure the current editing table or long field editor saves its data first
 	Component focusedComponent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
@@ -709,7 +723,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    focusedComponent = focusedComponent.getParent();
 	}
     }
-    
+
     public void closeAllWindows() {
 	for (JInternalFrame focusedWindow : desktopPane.getAllFrames()) {
 	    if (focusedWindow != null) {
@@ -724,7 +738,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	desktopPane.repaint();
     }
-    
+
     public JInternalFrame focusWindow(String windowName) {
 	if (windowList.containsKey(windowName)) {
 	    Object windowObject = ((Component[]) windowList.get(windowName))[0];
@@ -741,7 +755,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	return null;
     }
-    
+
     private void startKeyListener() {
 
 //        desktopPane.addKeyListener(new KeyAdapter() {
@@ -758,7 +772,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 //        });
 
 	Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-	    
+
 	    public void eventDispatched(AWTEvent e) {
 		boolean isKeybordRepeat = false;
 		if (e instanceof KeyEvent) {
@@ -875,21 +889,21 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }
 	}, AWTEvent.KEY_EVENT_MASK);
     }
-    
+
     public JInternalFrame createWindow(String windowTitle, Component contentsComponent) {
 	JInternalFrame currentInternalFrame = new javax.swing.JInternalFrame();
 	currentInternalFrame.setLayout(new BorderLayout());
 	//        GuiHelper.arbilDragDrop.addTransferHandler(currentInternalFrame);
 	currentInternalFrame.add(contentsComponent, BorderLayout.CENTER);
 	windowTitle = addWindowToList(windowTitle, currentInternalFrame);
-	
+
 	currentInternalFrame.setTitle(windowTitle);
 	currentInternalFrame.setToolTipText(windowTitle);
 	currentInternalFrame.setName(windowTitle);
-	
+
 	applyWindowDefaults(currentInternalFrame);
-	
-	
+
+
 	desktopPane.add(currentInternalFrame, 0);
 	try {
 	    // prevent the frame focus process consuming mouse events that should be recieved by the jtable etc.
@@ -901,27 +915,27 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
 	// Add frame listener that puts windows with negative y-positions back on the desktop pane
 	currentInternalFrame.addInternalFrameListener(new InternalFrameAdapter() {
-	    
+
 	    @Override
 	    public void internalFrameDeactivated(InternalFrameEvent e) {
 		fixLocation(e.getInternalFrame());
 	    }
-	    
+
 	    @Override
 	    public void internalFrameActivated(InternalFrameEvent e) {
 		fixLocation(e.getInternalFrame());
 	    }
-	    
+
 	    private void fixLocation(final JInternalFrame frame) {
 		if (frame.getLocation().getY() < 0) {
 		    frame.setLocation(new Point((int) frame.getLocation().getX(), 0));
 		}
 	    }
 	});
-	
+
 	return currentInternalFrame;
     }
-    
+
     public JEditorPane openUrlWindowOnce(String frameTitle, URL locationUrl) {
 	JEditorPane htmlDisplay = new JEditorPane();
 	htmlDisplay.setEditable(false);
@@ -935,7 +949,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    GuiHelper.linorgBugCatcher.logError(ex);
 //            System.out.println(ex.getMessage());
 	}
-	
+
 	JInternalFrame existingWindow = focusWindow(frameTitle);
 	if (existingWindow == null) {
 //            return openUrlWindow(frameTitle, htmlDisplay);
@@ -948,7 +962,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	return htmlDisplay;
     }
-    
+
     public void openSearchTable(ArbilNode[] selectedNodes, String frameTitle) {
 	// Create tabel with model and split panel to show it in
 	ArbilTableModel resultsTableModel = new ArbilTableModel();
@@ -967,19 +981,19 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	tablePanel.addFocusListener(searchFrame);
 	searchFrame.pack();
     }
-    
+
     public void openFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
 	openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
     }
-    
+
     public void openFloatingTableOnce(ArbilDataNode[] rowNodesArray, String frameTitle) {
 	openFloatingTableOnceGetModel(rowNodesArray, frameTitle);
     }
-    
+
     public void openFloatingTable(ArbilDataNode[] rowNodesArray, String frameTitle) {
 	openFloatingTableGetModel(rowNodesArray, frameTitle, null, null);
     }
-    
+
     public ArbilTableModel openFloatingTableOnceGetModel(URI[] rowNodesArray, String frameTitle) {
 	ArbilDataNode[] tableNodes = new ArbilDataNode[rowNodesArray.length];
 	ArrayList<String> fieldPathsToHighlight = new ArrayList<String>();
@@ -1014,7 +1028,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	targetTableModel.highlightMatchingFieldPaths(fieldPathsToHighlight.toArray(new String[]{}));
 	return targetTableModel;
     }
-    
+
     public ArbilTableModel openAllChildNodesInFloatingTableOnce(URI[] rowNodesArray, String frameTitle) {
 	HashSet<ArbilDataNode> tableNodes = new HashSet();
 	for (int arrayCounter = 0; arrayCounter < rowNodesArray.length; arrayCounter++) {
@@ -1030,7 +1044,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
 	return openFloatingTableOnceGetModel(tableNodes.toArray(new ArbilDataNode[]{}), frameTitle);
     }
-    
+
     public ArbilTableModel openFloatingTableOnceGetModel(ArbilDataNode[] rowNodesArray, String frameTitle) {
 	if (rowNodesArray.length == 1 && rowNodesArray[0] != null && rowNodesArray[0].isInfoLink) {
 	    try {
@@ -1102,11 +1116,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	arbilSplitPanel.setSplitDisplay();
 	JInternalFrame tableFrame = this.createWindow(frameTitle, arbilSplitPanel);
 	arbilSplitPanel.addFocusListener(tableFrame);
-	
+
 	if (window != null && window.length > 0) {
 	    window[0] = tableFrame;
 	}
-	
+
 	return arbilTableModel;
     }
 
@@ -1121,7 +1135,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    openFloatingSubnodesWindowOnce(arbilDataNode, arbilDataNode.toString(), null);
 	}
     }
-    
+
     private void openFloatingSubnodesWindowOnce(ArbilDataNode arbilDataNode, String frameTitle, Component[] window) {
 	// Check if no subnodes window is opened with the same data node as top level node yet
 
@@ -1139,7 +1153,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		}
 	    }
 	}
-	
+
 	ArbilSubnodesScrollPane scrollPane = new ArbilSubnodesScrollPane(arbilDataNode);
 	JInternalFrame tableFrame = createWindow(frameTitle, scrollPane);
 	tableFrame.addInternalFrameListener(scrollPane.getInternalFrameListener());
@@ -1164,19 +1178,19 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public int showDialogBox(String message, String title, int optionType, int messageType) {
 	return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
     }
-    
+
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
 	return new ProgressMonitor(desktopPane, message, note, min, max);
     }
-    
+
     public JFrame getMainFrame() {
 	return linorgFrame;
     }
-    
+
     public boolean askUserToSaveChanges(String entityName) {
 	return showConfirmDialogBox("This action will save all pending changes on " + entityName + " to disk. Continue?", "Save to disk?");
     }
-    
+
     private Point fixLocation(Point location) {
 	if (location.getY() < 0) {
 	    location.move((int) location.getX(), Math.max(0, (int) location.getY()));

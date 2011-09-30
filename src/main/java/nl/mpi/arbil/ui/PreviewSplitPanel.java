@@ -2,10 +2,14 @@ package nl.mpi.arbil.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.Transferable;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.TransferHandler;
 import javax.swing.table.TableCellEditor;
 
 /**
@@ -38,10 +42,34 @@ public class PreviewSplitPanel extends javax.swing.JSplitPane {
 	previewHiddenColumnLabel = new javax.swing.JLabel(" ");
 	previewTable = new ArbilTable(new ArbilTableModel(), "Preview");
 	previewTable.getArbilTableModel().setHiddenColumnsLabel(previewHiddenColumnLabel);
+	initCopyPaste();
+
 	rightScrollPane = new JScrollPane(previewTable);
 	previewPanel = new JPanel(new java.awt.BorderLayout());
 	previewPanel.add(rightScrollPane, BorderLayout.CENTER);
 	previewPanel.add(previewHiddenColumnLabel, BorderLayout.SOUTH);
+    }
+
+    private void initCopyPaste() {
+	previewTable.setDragEnabled(false);
+	previewTable.setTransferHandler(new TransferHandler() {
+
+	    @Override
+	    public boolean importData(JComponent comp, Transferable t) {
+		// Import is always from clipboard (no drag in preview table)
+		if (comp instanceof ArbilTable) {
+		    ((ArbilTable) comp).pasteIntoSelectedTableRowsFromClipBoard();
+		}
+		return false;
+	    }
+
+	    @Override
+	    public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException {
+		if (comp instanceof ArbilTable) {
+		    ((ArbilTable) comp).copySelectedTableRowsToClipBoard();
+		}
+	    }
+	});
     }
 
     public void setPreviewPanel(boolean showPreview) {

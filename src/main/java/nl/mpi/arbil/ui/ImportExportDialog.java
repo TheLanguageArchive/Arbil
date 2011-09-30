@@ -749,98 +749,101 @@ public class ImportExportDialog {
 		}
 	    }
 
-	    private void copyFile(RetrievableFile currentRetrievableFile, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, ArrayList<URI> getList, XsdChecker xsdChecker) {
-		try {
-		    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
-			String journalActionString;
-			if (exportDestinationDirectory == null) {
-			    currentRetrievableFile.calculateUriFileName();
-			    journalActionString = "import";
-			} else {
-			    if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
-				currentRetrievableFile.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
-			    } else {
-				currentRetrievableFile.calculateUriFileName();
-			    }
-			    journalActionString = "export";
+            private void copyFile(RetrievableFile currentRetrievableFile, Hashtable<URI, RetrievableFile> seenFiles, ArrayList<URI> doneList, ArrayList<URI> getList, XsdChecker xsdChecker) {
+                try {
+                    if (!doneList.contains(currentRetrievableFile.sourceURI)) {
+                        String journalActionString;
+                        if (exportDestinationDirectory == null) {
+                            currentRetrievableFile.calculateUriFileName();
+                            journalActionString = "import";
+                        } else {
+                            if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
+                                currentRetrievableFile.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
+                            } else {
+                                currentRetrievableFile.calculateUriFileName();
+                            }
+                            journalActionString = "export";
+                        }
+                        MetadataUtils currentMetdataUtil = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
+			if(currentMetdataUtil == null){
+			    throw new ArbilMetadataException("Metadata format could not be determined");
 			}
-			MetadataUtils currentMetdataUtil = ArbilDataNode.getMetadataUtils(currentRetrievableFile.sourceURI.toString());
-			ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
-			URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
-			if (linksUriArray != null) {
-			    copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
-			}
-			boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && overwriteCheckBox.isSelected();
-			if (currentRetrievableFile.destinationFile.exists()) {
-			    totalExisting++;
-			}
-			if (currentRetrievableFile.destinationFile.exists() && !overwriteCheckBox.isSelected()) {
-			    appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
-			    appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-			} else {
-			    if (replacingExitingFile) {
-				appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-			    } else {
-			    }
-			    ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
-			    if (destinationNode.getNeedsSaveToDisk(false)) {
-				destinationNode.saveChangesToCache(true);
-			    }
-			    if (destinationNode.hasHistory()) {
-				destinationNode.bumpHistory();
-			    }
-			    if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
-				if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
-				    GuiHelper.linorgBugCatcher.logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
-				}
-			    }
-			    currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
-			    ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
-			    String checkerResult;
-			    checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile, currentRetrievableFile.sourceURI);
-			    if (checkerResult != null) {
-				xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
-				xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
-				System.out.println("checkerResult: " + checkerResult);
-				xmlOutput.append(checkerResult + "\n");
-				xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
-				validationErrors.add(currentRetrievableFile.sourceURI);
-				xsdErrors++;
-			    }
-			    if (replacingExitingFile) {
-				dataNodeLoader.requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
-			    }
-			}
-		    }
-		} catch (ArbilMetadataException ex) {
-		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
-		    totalErrors++;
-		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
-		} catch (MalformedURLException ex) {
-		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
-		    totalErrors++;
-		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
-		    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
-		} catch (IOException ex) {
-		    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
-		    totalErrors++;
-		    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
-		    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
-		}
-		totalLoaded++;
-		progressFoundLabel.setText(progressFoundLabelText + (getList.size() + totalLoaded));
-		progressProcessedLabel.setText(progressProcessedLabelText + totalLoaded);
-		progressAlreadyInCacheLabel.setText(progressAlreadyInCacheLabelText + totalExisting);
-		progressFailedLabel.setText(progressFailedLabelText + totalErrors);
-		progressXmlErrorsLabel.setText(progressXmlErrorsLabelText + xsdErrors);
-		resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
-		progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
-		if (testFreeSpace) {
-		    testFreeSpace();
-		}
-	    }
+                        ArrayList<URI[]> uncopiedLinks = new ArrayList<URI[]>();
+                        URI[] linksUriArray = currentMetdataUtil.getCorpusLinks(currentRetrievableFile.sourceURI);
+                        if (linksUriArray != null) {
+                            copyLinks(linksUriArray, seenFiles, currentRetrievableFile, getList, uncopiedLinks);
+                        }
+                        boolean replacingExitingFile = currentRetrievableFile.destinationFile.exists() && overwriteCheckBox.isSelected();
+                        if (currentRetrievableFile.destinationFile.exists()) {
+                            totalExisting++;
+                        }
+                        if (currentRetrievableFile.destinationFile.exists() && !overwriteCheckBox.isSelected()) {
+                            appendToTaskOutput(currentRetrievableFile.sourceURI.toString());
+                            appendToTaskOutput("Destination already exists, skipping file: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                        } else {
+                            if (replacingExitingFile) {
+                                appendToTaskOutput("Replaced: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                            } else {
+                            }
+                            ArbilDataNode destinationNode = dataNodeLoader.getArbilDataNodeWithoutLoading(currentRetrievableFile.destinationFile.toURI());
+                            if (destinationNode.getNeedsSaveToDisk(false)) {
+                                destinationNode.saveChangesToCache(true);
+                            }
+                            if (destinationNode.hasHistory()) {
+                                destinationNode.bumpHistory();
+                            }
+                            if (!currentRetrievableFile.destinationFile.getParentFile().exists()) {
+                                if (!currentRetrievableFile.destinationFile.getParentFile().mkdir()) {
+                                    GuiHelper.linorgBugCatcher.logError(new IOException("Could not create missing parent directory for " + currentRetrievableFile.destinationFile));
+                                }
+                            }
+                            currentMetdataUtil.copyMetadataFile(currentRetrievableFile.sourceURI, currentRetrievableFile.destinationFile, uncopiedLinks.toArray(new URI[][]{}), true);
+                            ArbilJournal.getSingleInstance().saveJournalEntry(currentRetrievableFile.destinationFile.getAbsolutePath(), "", currentRetrievableFile.sourceURI.toString(), "", journalActionString);
+                            String checkerResult;
+                            checkerResult = xsdChecker.simpleCheck(currentRetrievableFile.destinationFile, currentRetrievableFile.sourceURI);
+                            if (checkerResult != null) {
+                                xmlOutput.append(currentRetrievableFile.sourceURI.toString() + "\n");
+                                xmlOutput.append("destination path: " + currentRetrievableFile.destinationFile.getAbsolutePath());
+                                System.out.println("checkerResult: " + checkerResult);
+                                xmlOutput.append(checkerResult + "\n");
+                                xmlOutput.setCaretPosition(xmlOutput.getText().length() - 1);
+                                validationErrors.add(currentRetrievableFile.sourceURI);
+                                xsdErrors++;
+                            }
+                            if (replacingExitingFile) {
+                                dataNodeLoader.requestReloadOnlyIfLoaded(currentRetrievableFile.destinationFile.toURI());
+                            }
+                        }
+                    }
+                } catch (ArbilMetadataException ex) {
+                    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+                    totalErrors++;
+                    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+                    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI + " (" + ex.getMessage() + ")");
+                } catch (MalformedURLException ex) {
+                    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+                    totalErrors++;
+                    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+                    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
+                    System.out.println("Error getting links from: " + currentRetrievableFile.sourceURI);
+                } catch (IOException ex) {
+                    GuiHelper.linorgBugCatcher.logError(currentRetrievableFile.sourceURI.toString(), ex);
+                    totalErrors++;
+                    metaDataCopyErrors.add(currentRetrievableFile.sourceURI);
+                    appendToTaskOutput("Unable to process the file: " + currentRetrievableFile.sourceURI);
+                }
+                totalLoaded++;
+                progressFoundLabel.setText(progressFoundLabelText + (getList.size() + totalLoaded));
+                progressProcessedLabel.setText(progressProcessedLabelText + totalLoaded);
+                progressAlreadyInCacheLabel.setText(progressAlreadyInCacheLabelText + totalExisting);
+                progressFailedLabel.setText(progressFailedLabelText + totalErrors);
+                progressXmlErrorsLabel.setText(progressXmlErrorsLabelText + xsdErrors);
+                resourceCopyErrorsLabel.setText(resourceCopyErrorsLabelText + resourceCopyErrors);
+                progressBar.setString(totalLoaded + "/" + (getList.size() + totalLoaded) + " (" + (totalErrors + xsdErrors + resourceCopyErrors) + " errors)");
+                if (testFreeSpace) {
+                    testFreeSpace();
+                }
+            }
 
 	    private void copyLinks(URI[] linksUriArray, Hashtable<URI, RetrievableFile> seenFiles, RetrievableFile currentRetrievableFile, ArrayList<URI> getList, ArrayList<URI[]> uncopiedLinks) throws MalformedURLException {
 		for (int linkCount = 0; linkCount < linksUriArray.length && !stopSearch; linkCount++) {
