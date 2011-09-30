@@ -41,6 +41,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xpath.XPathAPI;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -200,17 +201,6 @@ public class ArbilComponentBuilder {
 	}
     }
 
-    private String[] convertImdiPathToXPathOptions(String targetXpath) {
-	if (targetXpath == null) {
-	    return null;
-	} else {
-	    // convert the syntax inherited from the imdi api into xpath
-	    // Because most imdi files use a name space syntax we need to try both queries
-	    return new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
-	}
-
-    }
-
     private String getTargetXmlPath(ArbilDataNode arbilDataNode) {
 	String targetXmlPath = arbilDataNode.getURI().getFragment();
 	if (targetXmlPath == null) {
@@ -337,21 +327,31 @@ public class ArbilComponentBuilder {
      * @return Whether resource proxy was removed successfully
      */
     private boolean removeResourceProxy(Document document, String resourceProxyId) {
-	String[] xpaths = convertImdiPathToXPathOptions(".CMD.Resources.ResourceProxyList.ResourceProxy[@id='" + resourceProxyId + "']");
 	// Look for ResourceProxy node with specified id
-	for (String xpath : xpaths) {
-	    try {
-		Node proxyNode = org.apache.xpath.XPathAPI.selectSingleNode(document, xpath);
-		if (proxyNode != null) {
-		    // Node found. Remove from parent
-		    proxyNode.getParentNode().removeChild(proxyNode);
-		    return true;
-		}
-	    } catch (TransformerException ex) {
-		bugCatcher.logError("Exception while finding for removel resource proxy with id " + resourceProxyId, ex);
-	    } catch (DOMException ex) {
-		bugCatcher.logError("Exception while trying to remove resource proxy with id " + resourceProxyId, ex);
+	Node proxyNode = getResourceProxyNode(document, resourceProxyId);
+	if (proxyNode != null) {
+	    // Node found. Remove from parent
+	    proxyNode.getParentNode().removeChild(proxyNode);
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
+    public boolean updateResourceProxyReference(Document document, String resourceProxyId, URI referenceURI) {
+	return updateResourceProxyReference(document, resourceProxyId, referenceURI.toString());
+    }
+
+    public boolean updateResourceProxyReference(Document document, String resourceProxyId, String reference) {
+	try {
+	    // Look for ResourceProxy node with specified id
+	    Node resourceRefNode = selectSingleNode(document, getPathForResourceProxynode(resourceProxyId) + ".ResourceRef");
+	    if (resourceRefNode != null) {
+		resourceRefNode.setTextContent(reference);
+		return true;
 	    }
+	} catch (TransformerException ex) {
+	    bugCatcher.logError(ex);
 	}
 	return false;
     }
@@ -761,7 +761,7 @@ public class ArbilComponentBuilder {
     private static void removeImdiDomIds(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@id]|/:METATRANSCRIPT//*[@id]";
 	try {
-	    NodeList domIdNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
+	    NodeList domIdNodeList = XPathAPI.selectNodeList(targetDocument, handleXpath);
 	    for (int nodeCounter = 0; nodeCounter < domIdNodeList.getLength(); nodeCounter++) {
 		Node domIdNode = domIdNodeList.item(nodeCounter);
 		if (domIdNode != null) {
@@ -776,7 +776,7 @@ public class ArbilComponentBuilder {
     private void removeArchiveHandles(Document targetDocument) {
 	String handleXpath = "/:METATRANSCRIPT[@ArchiveHandle]|/:METATRANSCRIPT//*[@ArchiveHandle]";
 	try {
-	    NodeList archiveHandleNodeList = org.apache.xpath.XPathAPI.selectNodeList(targetDocument, handleXpath);
+	    NodeList archiveHandleNodeList = XPathAPI.selectNodeList(targetDocument, handleXpath);
 	    for (int nodeCounter = 0; nodeCounter < archiveHandleNodeList.getLength(); nodeCounter++) {
 		Node archiveHandleNode = archiveHandleNodeList.item(nodeCounter);
 		if (archiveHandleNode != null) {
@@ -788,6 +788,25 @@ public class ArbilComponentBuilder {
 	}
     }
 
+    /**
+     * Looks up CMD/Resources/ResourceProxyList/ResourceProxy node with resourceProxyId
+     * @param document
+     * @param resourceProxyId
+     * @return ProxyNode, if found (first if multiple found (should not occur)); otherwise null
+     */
+    private Node getResourceProxyNode(Document document, String resourceProxyId) {
+	try {
+	    return selectSingleNode(document, getPathForResourceProxynode(resourceProxyId));
+	} catch (TransformerException ex) {
+	    bugCatcher.logError("Exception while finding for removal resource proxy with id " + resourceProxyId, ex);
+	}
+	return null;
+    }
+
+    private String getPathForResourceProxynode(String resourceProxyId) {
+	return ".CMD.Resources.ResourceProxyList.ResourceProxy[@id='" + resourceProxyId + "']";
+    }
+
     private Node selectSingleNode(Document targetDocument, String targetXpath) throws TransformerException {
 	String tempXpathArray[] = convertImdiPathToXPathOptions(targetXpath);
 	if (tempXpathArray != null) {
@@ -797,7 +816,7 @@ public class ArbilComponentBuilder {
 //            tempXpath = "/CMD/Components/Session/MDGroup/Actors";
 		System.out.println("tempXpath: " + tempXpath);
 		// find the target node of the xml
-		Node returnNode = org.apache.xpath.XPathAPI.selectSingleNode(targetDocument, tempXpath);
+		Node returnNode = XPathAPI.selectSingleNode(targetDocument, tempXpath);
 		if (returnNode != null) {
 		    return returnNode;
 		}
@@ -805,6 +824,17 @@ public class ArbilComponentBuilder {
 	}
 	bugCatcher.logError(new Exception("Xpath issue, no node found for: " + targetXpath));
 	return null;
+    }
+
+    private String[] convertImdiPathToXPathOptions(String targetXpath) {
+	if (targetXpath == null) {
+	    return null;
+	} else {
+	    // convert the syntax inherited from the imdi api into xpath
+	    // Because most imdi files use a name space syntax we need to try both queries
+	    return new String[]{targetXpath.replaceAll("\\.", "/"), targetXpath.replaceAll("\\.", "/:")};
+	}
+
     }
 
     private Node insertSectionToXpath(Document targetDocument, Node documentNode, SchemaType schemaType, String targetXpath, String xsdPath) throws ArbilMetadataException {
