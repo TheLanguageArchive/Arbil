@@ -82,9 +82,13 @@ public class CmdiUtils implements MetadataUtils {
 	    // Traverse links
 	    for (CmdiResourceLink link : links) {
 		try {
-		    final URI linkUri = link.getLinkUri();
+		    URI linkUri = link.getLinkUri();
 		    if (ArbilDataNode.isPathCmdi(linkUri.toString())) {
 			// Link is CMDI metadata, include in result
+			if (!linkUri.isAbsolute()) {
+			    // Resolve to absolute path
+			    linkUri = nodeURI.resolve(linkUri);
+			}
 			returnUriList.add(linkUri);
 		    }
 		} catch (URISyntaxException ex) {
