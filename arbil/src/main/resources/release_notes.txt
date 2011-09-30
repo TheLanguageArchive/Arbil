@@ -107,6 +107,9 @@ tree view. The resources can be added and deleted. Multiple references to a sing
 in a single resource proxy being referenced multiple times (rather than copies of the same 
 resource). (#979)
 
+- IMPORT/EXPORT: CMDI metadata files can now be exported and (re-)imported
+with links (resource proxies) being preserved.
+
 - IMDI: FOLLOW-UP VOCABULARIES: When selecting a Genre on Content, the proper Subgenre options are 
 now shown. (#6)
 
