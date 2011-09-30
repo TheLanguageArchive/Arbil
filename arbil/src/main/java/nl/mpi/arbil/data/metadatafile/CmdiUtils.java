@@ -3,9 +3,13 @@ package nl.mpi.arbil.data.metadatafile;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import javax.xml.parsers.ParserConfigurationException;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
+import nl.mpi.arbil.clarin.CmdiComponentLinkReader.CmdiResourceLink;
 import nl.mpi.arbil.data.ArbilComponentBuilder;
+import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.util.BugCatcher;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -29,9 +33,29 @@ public class CmdiUtils implements MetadataUtils {
 
     public boolean copyMetadataFile(URI sourceURI, File destinationFile, URI[][] linksToUpdate, boolean updateLinks) {
 	try {
-	    //ArbilComponentBuilder cmdiComponentBuilder = new ArbilComponentBuilder();
+	    ArbilComponentBuilder componentBuilder = new ArbilComponentBuilder();
 	    Document document = ArbilComponentBuilder.getDocument(sourceURI);
-	    // todo: update links
+
+	    // Update all links that need updating in document
+	    CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	    ArrayList<CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(sourceURI);
+	    if (links != null) {
+		for (CmdiResourceLink link : links) {
+		    String ref = link.resourceRef;
+		    // Compare to links to update
+		    for (URI[] updatableLink : linksToUpdate) {
+			if (updatableLink[0].toString().equals(ref)) {
+			    // Found: try to update. First relativize reference URI.
+			    URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
+			    if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
+				bugCatcher.logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+			    }
+			    break;
+			}
+		    }
+		}
+	    }
+	    // Write to disk
 	    ArbilComponentBuilder.savePrettyFormatting(document, destinationFile);
 	    return true;
 	} catch (IOException e) {
@@ -44,14 +68,30 @@ public class CmdiUtils implements MetadataUtils {
 	return false;
     }
 
+    /**
+     * Returns all ResourceLinks in the specified file that are CMDI metadata instances
+     * @param nodeURI
+     * @return 
+     */
     public URI[] getCorpusLinks(URI nodeURI) {
-	// todo: return links and consider implications of it
-//        CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
-//        ArrayList<CmdiResourceLink> currentLinks = cmdiComponentLinkReader.readLinks(nodeURI);
 	ArrayList<URI> returnUriList = new ArrayList<URI>();
-//        for (CmdiResourceLink currentCmdiResourceLink : currentLinks) {
-//            returnUriList.add(cmdiComponentLinkReader.getLinkUrlString(currentCmdiResourceLink.resourceProxyId));
-//        }
+	// Get resource links in file
+	CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	ArrayList<CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(nodeURI);
+	if (links != null) {
+	    // Traverse links
+	    for (CmdiResourceLink link : links) {
+		try {
+		    final URI linkUri = link.getLinkUri();
+		    if (ArbilDataNode.isPathCmdi(linkUri.toString())) {
+			// Link is CMDI metadata, include in result
+			returnUriList.add(linkUri);
+		    }
+		} catch (URISyntaxException ex) {
+		    bugCatcher.logError("Invalid link URI found in " + nodeURI.toString(), ex);
+		}
+	    }
+	}
 	return returnUriList.toArray(new URI[]{});
     }
 
