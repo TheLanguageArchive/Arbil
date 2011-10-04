@@ -266,24 +266,26 @@ public class ArbilComponentBuilder {
 		// insert the new section
 		try {
 		    Node documentNode = selectSingleNode(targetDocument, targetXmlPath);
-		    Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
-		    if (previousRefNode != null) {
-			// Get old references
-			String previousRefsValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
-			// Create new reference set excluding the ones to be removed
-			StringBuilder newRefsValueSB = new StringBuilder();
-			for (String ref : previousRefsValue.split(" ")) {
-			    ref = ref.trim();
-			    if (ref.length() > 0 && !resourceProxyIds.contains(ref)) {
-				newRefsValueSB.append(ref).append(" ");
+		    if (documentNode != null) { // Node is not there, nothing to check
+			Node previousRefNode = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
+			if (previousRefNode != null) {
+			    // Get old references
+			    String previousRefsValue = documentNode.getAttributes().getNamedItem(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE).getNodeValue();
+			    // Create new reference set excluding the ones to be removed
+			    StringBuilder newRefsValueSB = new StringBuilder();
+			    for (String ref : previousRefsValue.split(" ")) {
+				ref = ref.trim();
+				if (ref.length() > 0 && !resourceProxyIds.contains(ref)) {
+				    newRefsValueSB.append(ref).append(" ");
+				}
 			    }
-			}
-			String newRefsValue = newRefsValueSB.toString().trim();
-			if (newRefsValue.length() == 0) {
-			    // No remaining references, remove ref attribute
-			    ((Element) documentNode).removeAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
-			} else {
-			    ((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, newRefsValue);
+			    String newRefsValue = newRefsValueSB.toString().trim();
+			    if (newRefsValue.length() == 0) {
+				// No remaining references, remove ref attribute
+				((Element) documentNode).removeAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE);
+			    } else {
+				((Element) documentNode).setAttribute(CmdiTemplate.RESOURCE_REFERENCE_ATTRIBUTE, newRefsValue);
+			    }
 			}
 		    }
 		} catch (TransformerException exception) {
