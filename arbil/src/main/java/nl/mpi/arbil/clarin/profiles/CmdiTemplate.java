@@ -550,7 +550,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		String entryCode = anySimpleType.getStringValue();
 		String description = descriptions == null ? null : descriptions.get(entryCode);
 
-		if (description == null) {
+		if (description == null || description.length() == 0) {
 		    vocabulary.addEntry(entryCode, null);
 		} else {
 		    vocabulary.addEntry(description, entryCode);
