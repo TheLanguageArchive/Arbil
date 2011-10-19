@@ -505,15 +505,11 @@ public class ArbilDragDrop {
 	    Hashtable<ArbilDataNode, Vector<ArbilDataNode>> arbilNodesDeleteList = new Hashtable<ArbilDataNode, Vector<ArbilDataNode>>();
 	    System.out.println("to: " + dropTargetUserObject.toString());
 	    ArbilDataNode dropTargetDataNode = null;
-	    //                     TODO: add drag to local corpus tree
-	    //                     TODO: consider adding a are you sure you want to move that node into this node ...
-	    //                     TODO: must prevent parent nodes being dragged into lower branches of itself
 	    if (dropTargetUserObject instanceof ArbilDataNode) {
 		dropTargetDataNode = (ArbilDataNode) dropTargetUserObject;
 		// Media files can be dropped onto CMDI's and on IMDI root Resources nodes
 		if (dropTargetDataNode.getParentDomNode().isCmdiMetaDataNode() && !selectionDraggedFromLocalCorpus
 			|| dropTargetDataNode.isSession() || ".METATRANSCRIPT.Session.Resources.MediaFile".equals(dropTargetDataNode.getURI().getFragment()) /* || ((ArbilDataNode) dropTargetUserObject).isImdiChild()*/) {
-		    //TODO: for now we do not allow drag on to imdi child nodes
 		    if (selectionContainsArchivableLocalFile == true
 			    && selectionContainsLocalFile == true
 			    && selectionContainsLocalDirectory == false
@@ -565,6 +561,7 @@ public class ArbilDragDrop {
 
 			if (!draggedIntoSelf) {
 			    if (currentNode.isFavorite()) {
+				// Favourite dropped on local tree 
 				if (dropTargetDataNode == null) {
 				    // Dropped to local corpus root node
 				    new MetadataBuilder().requestAddRootNode(currentNode, ((ArbilDataNode) currentNode).toString());
@@ -572,8 +569,10 @@ public class ArbilDragDrop {
 				    new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
 				}
 			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentNode.getFile()))) {
+				// External file dropped on local tree; import file(s)
 				importNodeList.add(currentNode);
 			    } else {
+				// Moving file within local corpus
 				String targetNodeName = null;
 				// NOTE: FindBugs thinks this is always the case:
 				if (dropTargetUserObject instanceof ArbilNode) {
