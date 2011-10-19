@@ -28,6 +28,7 @@ import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.util.TreeHelper;
 
 /**
  * Document   :  ArbilDragDrop
@@ -145,8 +146,8 @@ public class ArbilDragDrop {
 		    // allow import to local tree if no nodes are selected
 		    // allow drop to the root node if it is an import
 		    System.out.println("local corpus tree check");
-		    // todo: enable drag to rootnode from favourites but this change also needs to be done in the context menu
-		    return (!selectionContainsFavourite && (selectionContainsArbilCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession || selectionContainsCmdiMetadata));
+		    return ((selectionContainsFavourite && !draggedNodesContainsChildNode()) // Non-child nodes can be dragged from favourites to local corpus root
+			    || selectionContainsArbilCorpus || selectionContainsImdiCatalogue || selectionContainsImdiSession || selectionContainsCmdiMetadata);
 		}
 		System.out.println("no tree check");
 		return false;
@@ -485,6 +486,17 @@ public class ArbilDragDrop {
 	    return false;
 	}
 
+	private boolean draggedNodesContainsChildNode() {
+	    if (draggedTreeNodes != null) {
+		for (DefaultMutableTreeNode node : draggedTreeNodes) {
+		    if (node.getUserObject() instanceof ArbilNode && ((ArbilNode) node.getUserObject()).isChildNode()) {
+			return true;
+		    }
+		}
+	    }
+	    return false;
+	}
+
 	private boolean importToLocalTree(ArbilTree dropTree) {
 	    // Drop on local corpus
 	    DefaultMutableTreeNode targetNode = ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeSingleSelection();
@@ -552,9 +564,13 @@ public class ArbilDragDrop {
 			// todo: test for dragged to parent session
 
 			if (!draggedIntoSelf) {
-			    if (currentNode.isFavorite() && dropTargetDataNode != null) {
-				//  todo: this does not allow the adding of favourites to the root node, note that that would need to be changed in the add menu also
-				new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
+			    if (currentNode.isFavorite()) {
+				if (dropTargetDataNode == null) {
+				    // Dropped to local corpus root node
+				    new MetadataBuilder().requestAddRootNode(currentNode, ((ArbilDataNode) currentNode).toString());
+				} else {
+				    new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
+				}
 			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentNode.getFile()))) {
 				importNodeList.add(currentNode);
 			    } else {

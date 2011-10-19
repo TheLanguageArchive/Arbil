@@ -70,6 +70,16 @@ public class MetadataBuilder {
     }
 
     /**
+     * Requests to add a node on basis of a given existing node to the local corpus
+     * @param nodeType Name of node type
+     * @param addableNode Node to base new node on
+     */
+    public void requestAddRootNode(final ArbilDataNode addableNode, final String nodeTypeDisplayNameLocal) {
+	// Start new thread to add the node to its destination
+	creatAddAddableNodeThread(null, nodeTypeDisplayNameLocal, addableNode).start();
+    }
+
+    /**
      * Checks whether the destinationNode in its current state supports adding a node of the specified type
      * 
      * @param destinationNode Proposed destination node
@@ -170,14 +180,20 @@ public class MetadataBuilder {
 	    @Override
 	    public void run() {
 		try {
-		    destinationNode.updateLoadingState(1);
-		    addNode(destinationNode, nodeTypeDisplayNameLocal, addableNode);
+		    if (destinationNode != null) {
+			destinationNode.updateLoadingState(1);
+			addNode(destinationNode, nodeTypeDisplayNameLocal, addableNode);
+		    } else {
+			addNodeToRoot(nodeTypeDisplayNameLocal, addableNode);
+		    }
 		} catch (ArbilMetadataException exception) {
 		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		} catch (UnsupportedOperationException exception) {
 		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		} finally {
-		    destinationNode.updateLoadingState(-1);
+		    if (destinationNode != null) {
+			destinationNode.updateLoadingState(-1);
+		    }
 		}
 	    }
 	};
@@ -191,6 +207,15 @@ public class MetadataBuilder {
 		addNonMetaDataNode(destinationNode, nodeTypeDisplayNameLocal, addableNode);
 	    }
 	}
+    }
+
+    public void addNodeToRoot(final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
+	if (addableNode.isMetaDataNode()) {
+	    addMetaDataNode(null, nodeTypeDisplayNameLocal, addableNode);
+	} else {
+	    addNonMetaDataNode(null, nodeTypeDisplayNameLocal, addableNode);
+	}
+
     }
 
     private void addNonMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
@@ -238,10 +263,10 @@ public class MetadataBuilder {
      * @return Manual nodetype, if set. Otherwise null
      */
     private String handleUnknownMimetype(ArbilDataNode currentArbilNode) {
-	if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox("There is no controlled vocabulary for either Written Resource or Media File that match \"" 
-		+ currentArbilNode.mpiMimeType  + "\".\n"
-		+"This probably means that the file is not archivable. However, you can proceed by manually selecting the resource type.\n\n"
-		+"Do you want to proceed?\n\nWARNING: Doing this will not guarantee that your data will be uploadable to the corpus server!",
+	if (JOptionPane.YES_OPTION == messageDialogHandler.showDialogBox("There is no controlled vocabulary for either Written Resource or Media File that match \""
+		+ currentArbilNode.mpiMimeType + "\".\n"
+		+ "This probably means that the file is not archivable. However, you can proceed by manually selecting the resource type.\n\n"
+		+ "Do you want to proceed?\n\nWARNING: Doing this will not guarantee that your data will be uploadable to the corpus server!",
 		"Add Resource",
 		JOptionPane.YES_NO_OPTION,
 		JOptionPane.PLAIN_MESSAGE)) {
@@ -260,19 +285,36 @@ public class MetadataBuilder {
     private void addMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	URI addedNodeUri;
 	if (addableNode.getURI().getFragment() == null) {
-	    addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
+	    if (destinationNode != null) {
+		addedNodeUri = sessionStorage.getNewArbilFileName(destinationNode.getSubDirectory(), addableNode.getURI().getPath());
+	    } else {
+		addedNodeUri = sessionStorage.getNewArbilFileName(sessionStorage.getSaveLocation(""), addableNode.getURI().getPath());
+	    }
 	    ArbilDataNode.getMetadataUtils(addableNode.getURI().toString()).copyMetadataFile(addableNode.getURI(), new File(addedNodeUri), null, true);
 	    ArbilDataNode addedNode = dataNodeLoader.getArbilDataNodeWithoutLoading(addedNodeUri);
 	    new ArbilComponentBuilder().removeArchiveHandles(addedNode);
-	    destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+	    if (destinationNode == null) {
+		// Destination node null means add to tree root
+		treeHelper.addLocation(addedNodeUri);
+		treeHelper.applyRootLocations();
+	    } else {
+		destinationNode.metadataUtils.addCorpusLink(destinationNode.getURI(), new URI[]{addedNodeUri});
+	    }
 	    addedNode.loadArbilDom();
 	    addedNode.scrollToRequested = true;
 	} else {
+	    if (destinationNode == null) {
+		// Cannot add subnode to local corpus tree root
+		bugCatcher.logError(new Exception("Attempt to add child node to local corpus root"));
+		return;
+	    }
 	    addedNodeUri = arbilComponentBuilder.insertFavouriteComponent(destinationNode, addableNode);
 	    new ArbilComponentBuilder().removeArchiveHandles(destinationNode);
 	}
-	destinationNode.getParentDomNode().loadArbilDom();
-	String newTableTitleString = "new " + addableNode + " in " + destinationNode;
+	if (destinationNode != null) {
+	    destinationNode.getParentDomNode().loadArbilDom();
+	}
+	String newTableTitleString = "new " + addableNode + (destinationNode == null ? "" : (" in " + destinationNode));
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
     }
 
