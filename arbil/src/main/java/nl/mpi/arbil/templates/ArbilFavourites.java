@@ -5,8 +5,9 @@ import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import java.io.File;
 import java.net.URI;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
+import javax.swing.tree.DefaultMutableTreeNode;
+import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -39,7 +40,6 @@ public class ArbilFavourites {
     public static void setTreeHelper(TreeHelper treeHelperInstance) {
 	treeHelper = treeHelperInstance;
     }
-
     //    private Hashtable<String, ImdiTreeObject> userFavourites;
     static private ArbilFavourites singleInstance = null;
 
@@ -159,14 +159,27 @@ public class ArbilFavourites {
     public Enumeration listFavouritesFor(Object targetNodeUserObject) {
 	System.out.println("listFavouritesFor: " + targetNodeUserObject);
 	Vector<String[]> validFavourites = new Vector<String[]>();
-	if (targetNodeUserObject instanceof ArbilDataNode) {
-	    ArbilDataNode targetImdiObject = (ArbilDataNode) targetNodeUserObject;
-	    boolean targetIsCorpus = targetImdiObject.isCorpus();
-	    boolean targetIsSession = targetImdiObject.isSession();
-	    boolean targetIsImdiChild = targetImdiObject.isChildNode();
+	if (targetNodeUserObject instanceof ArbilNode) {
+	    ArbilDataNode targetImdiObject = null;
+
+	    boolean targetIsDataNode = (targetNodeUserObject instanceof ArbilDataNode);
+	    boolean targetIsLocalCorpusRoot;
+	    if (targetIsDataNode) {
+		targetImdiObject = (ArbilDataNode) targetNodeUserObject;
+		targetIsLocalCorpusRoot = false;
+	    } else {
+		targetIsLocalCorpusRoot = targetNodeUserObject == ((DefaultMutableTreeNode) treeHelper.getLocalCorpusTreeModel().getRoot()).getUserObject();
+	    }
+
+	    boolean targetIsCorpus = targetIsDataNode && targetImdiObject.isCorpus();
+	    boolean targetIsSession = targetIsDataNode && targetImdiObject.isSession();
+	    boolean targetIsImdiChild = targetIsDataNode && targetImdiObject.isChildNode();
 	    for (ArbilDataNode currentFavouritesObject : treeHelper.getFavouriteNodes()) {
 		boolean addThisFavourites = false;
-		if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
+		if (targetIsLocalCorpusRoot) {
+		    // Local corpus root can only contain non-child nodes
+		    addThisFavourites = !currentFavouritesObject.isChildNode();
+		} else if (targetIsCorpus && !currentFavouritesObject.isChildNode()) {
 		    addThisFavourites = true;
 		} else if (targetIsSession && currentFavouritesObject.isChildNode()) {
 		    addThisFavourites = MetadataReader.getSingleInstance().nodeCanExistInNode(targetImdiObject, currentFavouritesObject);
