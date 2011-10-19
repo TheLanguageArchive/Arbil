@@ -649,7 +649,6 @@ public class ArbilDragDrop {
 			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Moving IMDI metadata to CMDI metadata files is currently not supported", "Not supported");
 		    } else {
 			if (currentNode.isCmdiMetaDataNode() && currentNode.isChildNode()) {
-			    //TODO insert cmdi
 			    try {
 				addNodeResult = null != new ArbilComponentBuilder().insertFavouriteComponent(dropTargetDataNode, currentNode);
 			    } catch (ArbilMetadataException ex) {
