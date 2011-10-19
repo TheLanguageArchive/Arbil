@@ -512,6 +512,9 @@ public class ArbilComponentBuilder {
 		    destinationXpath = favouriteXpathTrimmed.replaceFirst("\\.[^.]+$", "");
 		}
 		System.out.println("destinationXpath: " + destinationXpath);
+
+		destinationXpath = alignDestinationPathWithTarget(destinationXpath, destinationArbilDataNode);
+
 		Node destinationNode = selectSingleNode(destinationDocument, destinationXpath);
 		Node selectedNode = selectSingleNode(favouriteDocument, favouriteXpathTrimmed);
 		Node importedNode = destinationDocument.importNode(selectedNode, true);
@@ -558,6 +561,49 @@ public class ArbilComponentBuilder {
 	    bugCatcher.logError(exception);
 	}
 	return returnUri;
+    }
+
+    /**
+     * Aligns a destination path for a favourite with the target path (fragment) within the target node
+     * 
+     * Fixes issue reported in https://trac.mpi.nl/ticket/1157
+     * 
+     * @param destinationXpath Destination path as provided by the favourite
+     * @param destinationArbilDataNode target node
+     * @return Aligned XPath, or original if could not be aligned
+     */
+    private String alignDestinationPathWithTarget(String destinationXpath, ArbilDataNode destinationArbilDataNode) {
+	String targetFragment = destinationArbilDataNode.getURI().getFragment();
+	if (targetFragment != null) { // If null, it's the document root
+
+	    // If container node, we want to know the actual level to add to, so remove container part from path
+	    if (destinationArbilDataNode.isContainerNode()) {
+		targetFragment = targetFragment.substring(0, targetFragment.lastIndexOf("."));
+	    }
+
+	    // Canonicalize both destination path and target fragment
+	    String destinationXpathGeneric = destinationXpath.replaceAll("\\(\\d+\\)", "(x)");
+	    String targetFragmentGeneric = targetFragment.replaceAll("\\(\\d+\\)", "(x)");
+
+	    // Do they match up? Destination should begin with target
+	    if (destinationXpathGeneric.startsWith(targetFragmentGeneric)) {
+		// Convert target fragment back into regular expression for matching with destination path
+		final String commonPartRegEx = targetFragmentGeneric.replaceAll("\\(x\\)", "\\\\(\\\\d+\\\\)");
+		String[] destinationXpathParts = destinationXpath.split(commonPartRegEx);
+		if (destinationXpathParts.length == 0) {
+		    // Complete match
+		    destinationXpath = targetFragment;
+		} else if (destinationXpathParts.length == 2) {
+		    // Combine targetFragment with remainder from destination path
+		    destinationXpath = targetFragment + destinationXpathParts[1];
+		} else {
+		    // Should not happen, either exact match or remainder
+		    messageDialogHandler.addMessageDialogToQueue("Unexpected relation between source and target paths. See error log for details.", "Insert node");
+		    bugCatcher.logError("destinationXpath: " + destinationXpath + "\ntargetFragment: " + targetFragment, null);
+		}
+	    }
+	}
+	return destinationXpath;
     }
 
     public static boolean canInsertNode(Node destinationNode, Node addableNode, int maxOccurs) {
