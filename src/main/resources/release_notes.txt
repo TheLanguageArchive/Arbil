@@ -36,6 +36,10 @@ selected node all of its subnodes in an hierarchical view. (#603)
 filetypes.txt file in the Arbil working directory. It will then automatically be used instead of the
 internal default configuration (#905).
 
+- RESOURCE MIME TYPES: If the mime type of a file is unknown, and Arbil can therefore not determine
+the type of the resource (in case of IMDI), the user is prestented with a dialog to determine 
+whether the resource is a MediaFile or WrittenResource (#1031)
+
 - WINDOWS: A new option 'Close all windows' in the Windows menu on the menu bar closes all floating
 windows on the application workspace at once. (#570)
 
@@ -76,6 +80,9 @@ are now sorted by the value of this numeral if they are otherwise equal. So Node
 even though character-by-character the latter comes first. This applies to the tree views as well
 as tables. (#557)
 
+- TREE VIEW: 'Container' nodes (nodes that do not carry actual data but combine subnodes of a common
+type) are now visually distinghuishable from other empty nodes (#1009).
+
 ** FIXES **
 
 Among other, mostly minor, bugfixes, the following issues have been resolved:
@@ -87,6 +94,10 @@ linked to the destination) on some platforms. This has been resolved. (#925)
 - FAVOURITES: Favourites of a subnode type (e.g. an Actor) could not be dragged onto their matching
 parent node (e.g. Actors), but instead had to be dragged onto the root node of the file (Session).
 This has been resolved. (#942)
+
+- FAVOURITES: Some favourites could not be dragged onto a local corpus node even if it accepts the
+favourite's node type, or the favourite would end up below the wrong subnode. This has been resolved
+(#1157)
 
 - TREE MENU: Subnodes that are not allowed to be added to a given node according to te schema appear
 as disabled in the 'Add' submenu of the context menu on nodes in the tree. (#111)
