@@ -101,10 +101,9 @@ public class TreeContextMenu extends ArbilContextMenu {
 		    importCsvMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
 		    importBranchMenuItem.setVisible(leadSelectedTreeNode.isCorpus());
 		    reImportBranchMenuItem.setVisible(leadSelectedTreeNode.archiveHandle != null && !leadSelectedTreeNode.isChildNode());
-
-		    // set up the favourites menu
-		    addFromFavouritesMenu.setVisible(true);
 		}
+		// set up the favourites menu
+		addFromFavouritesMenu.setVisible(true);
 	    }
 	    if (tree == ArbilTreeHelper.getSingleInstance().getArbilTreePanel().localDirectoryTree) {
 		removeLocalDirectoryMenuItem.setVisible(showRemoveLocationsTasks);
@@ -311,7 +310,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
 
-	if (leadSelectedTreeNode != null && leadSelectedTreeNode.isEmptyMetaNode()) {
+	if (leadSelectedTreeNode != null && leadSelectedTreeNode.isContainerNode()) {
 	    addToFavouritesMenuItem.setText("Add Children To Favourites List");
 	} else {
 	    addToFavouritesMenuItem.setText("Add To Favourites List");
@@ -741,7 +740,12 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     public void initAddFromFavouritesMenu() {
 	addFromFavouritesMenu.removeAll();
-	for (Enumeration menuItemName = ArbilFavourites.getSingleInstance().listFavouritesFor(leadSelectedTreeNode); menuItemName.hasMoreElements();) {
+	Object targetObject = leadSelectedTreeNode;
+	if (targetObject == null) {
+	    // No lead selected tree node, so pass local corpus root node
+	    targetObject = ((DefaultMutableTreeNode) ArbilTreeHelper.getSingleInstance().getLocalCorpusTreeModel().getRoot()).getUserObject();
+	}
+	for (Enumeration menuItemName = ArbilFavourites.getSingleInstance().listFavouritesFor(targetObject); menuItemName.hasMoreElements();) {
 	    String[] currentField = (String[]) menuItemName.nextElement();
 //            System.out.println("MenuText: " + currentField[0]);
 //            System.out.println("ActionCommand: " + currentField[1]);
@@ -759,6 +763,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 			ArbilDataNode templateDataNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, ArbilDataNode.conformStringToUrl(favouriteUrlString));
 			if (leadSelectedTreeNode != null) {
 			    new MetadataBuilder().requestAddNode(leadSelectedTreeNode, ((JMenuItem) evt.getSource()).getText(), templateDataNode);
+			} else {
+			    new MetadataBuilder().requestAddRootNode(templateDataNode, ((JMenuItem) evt.getSource()).getText());
 			}
 //                    treeHelper.getImdiChildNodes(targetNode);
 //                    String addedNodeUrlString = treeHelper.addImdiChildNode(targetNode, linorgFavourites.getNodeType(imdiTemplateUrlString), ((JMenuItem) evt.getSource()).getText());

@@ -251,7 +251,6 @@ public class MetadataReader {
 		return formatType[1];
 	    }
 	}
-	messageDialogHandler.addMessageDialogToQueue("There is no controlled vocabulary for either Written Resource or Media File that match \"" + mimeType + "\"", "Add Resource");
 	return null;
     }
 
@@ -635,6 +634,7 @@ public class MetadataReader {
 
 			if (metaNode != null && !isSingleton) {
 			    parentChildTree.get(metaNode).add(subNode);
+			    metaNode.setContainerNode(true);
 			} else {
 //                            subNodeImdiTreeObject.setNodeText(childsMetaNode + "(" + localName + ")" + subNodeImdiTreeObject.getURI().getFragment());
 			    parentChildTree.get(parentNode).add(subNode);

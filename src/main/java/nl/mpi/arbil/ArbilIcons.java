@@ -299,8 +299,10 @@ public class ArbilIcons {
 	// add missing file icon
 	if ((arbilNode.fileNotFound || arbilNode.resourceFileNotFound())) {
 	    if (arbilNode.isResourceSet()) {
+		// Resource is set but file not found, this is an error
 		iconsVector.add(missingRedIcon);
 	    } else {
+		// Resource has not been set, therefore 'not found', this is a different case
 		iconsVector.add(questionRedIcon);
 	    }
 	}

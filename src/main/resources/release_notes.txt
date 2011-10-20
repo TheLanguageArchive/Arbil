@@ -39,6 +39,9 @@ internal default configuration (#905).
 - WINDOWS: A new option 'Close all windows' in the Windows menu on the menu bar closes all floating
 windows on the application workspace at once. (#570)
 
+- FAVOURITES: Applicable favourites can now added to the local corpus root node, either by drag and
+drop or through the 'Add from Favourites' submenu in the context menu of the local corpus root node
+(#1159).
 
 ** CHANGES **
 
