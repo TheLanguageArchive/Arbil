@@ -310,7 +310,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 	});
 	addItem(CATEGORY_ADD_FAVOURITES, PRIORITY_MIDDLE, addFromFavouritesMenu);
 
-	if (leadSelectedTreeNode != null && leadSelectedTreeNode.isEmptyMetaNode()) {
+	if (leadSelectedTreeNode != null && leadSelectedTreeNode.isContainerNode()) {
 	    addToFavouritesMenuItem.setText("Add Children To Favourites List");
 	} else {
 	    addToFavouritesMenuItem.setText("Add To Favourites List");
