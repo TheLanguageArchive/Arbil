@@ -419,7 +419,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//            }
 	//        }
 	fieldHashtable = new Hashtable<String, ArbilField[]>();
-        dataLoaded = false;
+	dataLoaded = false;
 	hashString = null;
 	//mpiMimeType = null;
 	matchesInCache = 0;
@@ -483,16 +483,16 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		if (!isMetaDataNode() && !isDirectory() && isLocal()) {
 		    // if it is an not imdi or a loose file but not a direcotry then get the md5sum
 		    mimeHashQueue.addToQueue(this);
-                    dataLoaded = true;
+		    dataLoaded = true;
 		}
 		if (this.isDirectory()) {
 		    getDirectoryLinks();
-                    dataLoaded = true;
+		    dataLoaded = true;
 		    //            clearIcon();
 		}
 		if (isMetaDataNode()) {
 		    loadMetadataDom();
-                    dataLoaded = true;
+		    dataLoaded = true;
 		}
 	    }
 	}
@@ -1412,8 +1412,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    return "unknown";
 	}
     }
-    
-    public boolean isNodeTextDetermined(){
+
+    public boolean isNodeTextDetermined() {
 	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
     }
 
@@ -1524,7 +1524,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 
 	if (isContainerNode()) {
-	    lastNodeText = "[" + lastNodeText + "]";
+	    lastNodeText = String.format("%1$s (%2$d)", lastNodeText, getChildCount());
 	} else if (isSingletonMetadataNode()) {
 	    StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
 	    if (nodeText != null && nodeText.length() > 0) {
