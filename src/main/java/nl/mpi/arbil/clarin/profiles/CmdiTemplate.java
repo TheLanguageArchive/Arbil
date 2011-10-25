@@ -13,10 +13,13 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
@@ -44,7 +47,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * CmdiTemplate.java
@@ -54,6 +59,10 @@ import org.xml.sax.SAXException;
 public class CmdiTemplate extends ArbilTemplate {
 
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
+    public final static int DATCAT_CACHE_EXPIRY_DAYS = 100;
+    public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
+    public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
+    private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -72,6 +81,8 @@ public class CmdiTemplate extends ArbilTemplate {
     private String nameSpaceString;
     private String filterString[] = {".CMD.Resources.", ".CMD.Header."};
     private Document schemaDocument;
+    private Map<String, String> dataCategoriesMap;
+    private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
 
     private static class ArrayListGroup {
 
@@ -81,6 +92,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	public ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
 	public ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
 	public ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
+	public Map<String, String> dataCategoriesMap = Collections.synchronizedMap(new HashMap<String, String>());
     }
 
     public void loadTemplate(String nameSpaceStringLocal) {
@@ -104,6 +116,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    resourceNodePaths = arrayListGroup.resourceNodePathsList.toArray(new String[][]{});
 	    fieldConstraints = arrayListGroup.fieldConstraintList.toArray(new String[][]{});
 	    fieldUsageArray = arrayListGroup.fieldUsageDescriptionList.toArray(new String[][]{});
+	    dataCategoriesMap = arrayListGroup.dataCategoriesMap;
 	    makeGuiNamesUnique();
 
 	    // sort and construct the preferredNameFields array
@@ -257,7 +270,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	if (xsdFile.getScheme().equals("file")) {
 	    schemaFile = new File(xsdFile);
 	} else {
-	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), 100);
+	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS);
 	}
 	templateFile = schemaFile; // store the template file for later use such as adding child nodes
 	try {
@@ -430,14 +443,18 @@ public class CmdiTemplate extends ArbilTemplate {
 	if (schemaAnnotation != null) {
 	    for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
 		System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+		final String annotationName = annotationAttribute.getName().toString();
 		//Annotation: {ann}documentation : the title of the book
 		//Annotation: {ann}displaypriority : 1
 		// todo: the url here could be removed provided that it does not make it to unspecific
-		if ("{http://www.clarin.eu}displaypriority".equals(annotationAttribute.getName().toString())) {
+		if ("{http://www.clarin.eu}displaypriority".equals(annotationName)) {
 		    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
 		}
-		if ("{http://www.clarin.eu}documentation".equals(annotationAttribute.getName().toString())) {
+		if ("{http://www.clarin.eu}documentation".equals(annotationName)) {
 		    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
+		}
+		if ("{http://www.isocat.org/ns/dcr}datcat".equals(annotationName)) {
+		    arrayListGroup.dataCategoriesMap.put(nodePath, annotationAttribute.getValue());
 		}
 	    }
 	}
@@ -559,6 +576,65 @@ public class CmdiTemplate extends ArbilTemplate {
 	    System.out.println("vocabularyHashTable.put: " + nodePath);
 	    vocabularyHashTable.put(nodePath, vocabulary);
 	}
+    }
+
+    @Override
+    public String getHelpStringForField(String fieldName) {
+	fieldName = fieldName.replaceAll("\\([0-9]+\\)\\.", ".");
+	// First try using documentation from CMDI. This is stored in fieldUsageArray, super implementation gets this
+	String fieldUsageString = getFieldUsageStringForField(fieldName);
+	if (fieldUsageString != null) {
+	    return fieldUsageString;
+	} else {
+	    // Get description from data category definition
+	    String datCat = dataCategoriesMap.get(fieldName);
+	    if (datCat != null) {
+		// Create description request URI for datcat URI
+		return getDescriptionForDataCategory(datCat);
+	    } else {
+		return "No usage description found in this template for: " + fieldName;
+	    }
+	}
+    }
+
+    private String getDescriptionForDataCategory(String dcUri) {
+	if (dataCategoryDescriptionMap.containsKey(dcUri)) {
+	    // Read description from DCIF only once per session
+	    return dataCategoryDescriptionMap.get(dcUri);
+	} else {
+	    // Read description from DCIF
+	    try {
+		String description = readDescriptionForDataCategory(dcUri);
+		if (description != null) {
+		    dataCategoryDescriptionMap.put(dcUri, description);
+		    return description;
+		}
+	    } catch (ParserConfigurationException ex) {
+		bugCatcher.logError(ex);
+	    } catch (SAXException ex) {
+		bugCatcher.logError(ex);
+	    } catch (IOException ex) {
+		bugCatcher.logError(ex);
+	    }
+	    return "Data category: <" + dcUri + ">. No description available. See error log for details.";
+	}
+    }
+
+    /**
+     * Reads the description for a given data category (identified by dcUri) from its DCIF
+     * @param dcUri URI that identifies the data category
+     * @return Description string found in DCIF. Null if none found.
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException 
+     */
+    private String readDescriptionForDataCategory(String dcUri) throws ParserConfigurationException, SAXException, IOException {
+	String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
+	File datCatFile = sessionStorage.updateCache(datCatURI, DATCAT_CACHE_EXPIRY_DAYS);
+	SAXParser parser = parserFactory.newSAXParser();
+	DataCategoryDescriptionHandler handler = new DataCategoryDescriptionHandler();
+	parser.parse(datCatFile, handler);
+	return handler.getDescription();
     }
 
     public static void main(String args[]) {
