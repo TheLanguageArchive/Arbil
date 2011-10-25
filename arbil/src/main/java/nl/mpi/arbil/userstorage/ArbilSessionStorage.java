@@ -758,7 +758,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
 	    }
 	}
-	String cachePath = pathString.replace(":/", "/").replace("//", "/");
+	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/');
 	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
 	    cachePath = cachePath.replace(":", "_");
 	}
@@ -804,29 +804,9 @@ public class ArbilSessionStorage implements SessionStorage {
 	} else {
 	    FileOutputStream outFile = null;
 	    try {
-		URLConnection urlConnection = targetUrl.openConnection();
-		HttpURLConnection httpConnection = null;
-		if (urlConnection instanceof HttpURLConnection) {
-		    httpConnection = (HttpURLConnection) urlConnection;
-//                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
-		    if (shibbolethNegotiator != null) {
-			httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
-//                            // work around for resources being https when under shiboleth
-//                            // try https after http failed
-//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-//                            System.out.println("trying https");
-//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
-//                            urlConnection = targetUrl.openConnection();
-//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        }
-		    }
-		    //h.setFollowRedirects(false);
-		    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-		}
-		if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
-		    System.out.println("non 200 response, skipping file");
-		} else {
+		URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator);
+
+		if (urlConnection != null) {
 		    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
 		    tempFile.deleteOnExit();
 		    int bufferLength = 1024 * 3;
@@ -878,6 +858,52 @@ public class ArbilSessionStorage implements SessionStorage {
 	    }
 	}
 	return downloadSucceeded;
+    }
+
+    /**
+     * Opens connection to resource at target url. Follows redirects if required
+     * @param resourceUrl
+     * @param shibbolethNegotiator
+     * @return Connection to resource. Null if response code not ok (not 200 after optional redirects)
+     * @throws IOException 
+     */
+    private URLConnection openResourceConnection(URL resourceUrl, ShibbolethNegotiator shibbolethNegotiator) throws IOException {
+	URLConnection urlConnection = resourceUrl.openConnection();
+	HttpURLConnection httpConnection = null;
+	if (urlConnection instanceof HttpURLConnection) {
+	    httpConnection = (HttpURLConnection) urlConnection;
+//                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
+	    if (shibbolethNegotiator != null) {
+		httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
+//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
+//                            // work around for resources being https when under shiboleth
+//                            // try https after http failed
+//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+//                            System.out.println("trying https");
+//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
+//                            urlConnection = targetUrl.openConnection();
+//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
+//                        }
+	    }
+	    //h.setFollowRedirects(false);
+	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+	}
+
+	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
+	    if (httpConnection.getResponseCode() == 307) {
+		// Redirect. Get new location.
+		String redirectLocation = httpConnection.getHeaderField("Location");
+		if (redirectLocation != null && redirectLocation.length() > 0) {
+		    System.out.println("307, redirect to " + redirectLocation);
+		    return openResourceConnection(new URL(redirectLocation), shibbolethNegotiator);
+		}
+	    } else {
+		System.out.println("non 200 response, skipping file");
+	    }
+	    return null;
+	} else {
+	    return urlConnection;
+	}
     }
 
     /**
