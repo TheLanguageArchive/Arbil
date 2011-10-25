@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import nl.mpi.arbil.ArbilIcons;
@@ -200,12 +201,28 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 
     private JComponent createFieldDescription(int cellFieldIndex) {
 	// Create actual description textarea
-	JTextArea fieldDescription = null;
-	fieldDescription = new JTextArea();
+	final JTextArea fieldDescription = new JTextArea();
 	fieldDescription.setLineWrap(true);
 	fieldDescription.setEditable(false);
 	fieldDescription.setOpaque(false);
-	fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[cellFieldIndex].getFullXmlPath()));
+
+	final String fullXmlPath = arbilFields[cellFieldIndex].getFullXmlPath();
+
+	// Start separate thread to get the help string as this may involve a http request and parsing, don't want to wait for that...
+	new Thread() {
+
+	    @Override
+	    public void run() {
+		final String helpString = parentArbilDataNode.getNodeTemplate().getHelpStringForField(fullXmlPath);
+		// Set field description on event dispatching thread
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    public void run() {
+			fieldDescription.setText(helpString);
+		    }
+		});
+	    }
+	}.start();
 
 	JComponent component = fieldDescription;
 	// Try to find an icon for the field
