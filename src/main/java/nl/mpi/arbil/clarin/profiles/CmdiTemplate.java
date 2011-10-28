@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -374,7 +377,7 @@ public class CmdiTemplate extends ArbilTemplate {
     private void readElementAttributes(SchemaType currentSchemaType, ArrayListGroup arrayListGroup, String currentPathString, String currentNodeMenuName, String localName) {
 	boolean hasResourceAttribute = false;
 	for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
-	    final String attributeName = getAttributePathSection(attributesProperty.getName());
+	    final String attributeName = getAttributePathSection(attributesProperty.getName().getNamespaceURI(), attributesProperty.getName().getLocalPart());
 	    if (attributeName.equals(RESOURCE_REFERENCE_ATTRIBUTE)) {
 		hasResourceAttribute = true;
 	    }
@@ -388,19 +391,25 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    public static String getAttributePathSection(QName attrName) {
-	final String nsURI = attrName.getNamespaceURI();
+    public static String getAttributePathSection(String nsURI, String localPart) {
 	if (nsURI != null && nsURI.length() > 0) {
+	    try {
+		// URLEncode and replace dots so dots, slashes and colons in string won't interfer with node path structure
+		nsURI = URLEncoder.encode(nsURI, "UTF-8").replace(".", "%2E");
+	    } catch (UnsupportedEncodingException ex) {
+		bugCatcher.logError(ex);
+		return null;
+	    }
 	    StringBuilder attributeNameSb = new StringBuilder("{");
 	    attributeNameSb.append(nsURI);
 	    attributeNameSb.append("}");
-	    return attributeNameSb.append(attrName.getLocalPart()).toString();
+	    return attributeNameSb.append(localPart).toString();
 	}
 
-	return attrName.getLocalPart();
+	return localPart;
     }
-
 //    SchemaParticle topParticle = schemaType.getContentModel();
+
     private void searchForAnnotations(SchemaParticle schemaParticle, String nodePathBase, ArrayListGroup arrayListGroup) {
 //        System.out.println("searchForAnnotations" + nodePath);
 	if (schemaParticle != null) {
@@ -639,6 +648,30 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     /**
+     * Decodes namespace URI in attribute path section
+     * @param pathSection
+     * @return 
+     */
+    private String decodeAttributePathSection(String pathSection) {
+	// Look for namespace section in attribute
+	final int nsURIStart = pathSection.indexOf("{");
+	if (nsURIStart >= 0) {
+	    final int nsURIEnd = pathSection.indexOf("}", nsURIStart);
+	    try {
+		// Decode namespace
+		final String decodedURI = URLDecoder.decode(pathSection.substring(nsURIStart, nsURIEnd + 1), "UTF-8");
+		// Put back together
+		return new StringBuilder(pathSection.substring(0, nsURIStart)).append(decodedURI).append(pathSection.substring(nsURIEnd + 1)).toString();
+	    } catch (UnsupportedEncodingException ex) {
+		bugCatcher.logError(ex);
+		return null;
+	    }
+	} else {
+	    return pathSection;
+	}
+    }
+
+    /**
      * 
      * @param pathTokens Path tokens, assuming that pathIsAttribute(pathTokens)
      * @return Whether this is an editable attribute
@@ -649,7 +682,9 @@ public class CmdiTemplate extends ArbilTemplate {
 	    return false;
 	}
 
-	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].toLowerCase());
+	return !RESERVED_ATTRIBUTES.contains(
+		decodeAttributePathSection( // decode namespace uri part
+		pathTokens[pathTokens.length - 1].substring(1))); // remove @
     }
 
     public static void main(String args[]) {
