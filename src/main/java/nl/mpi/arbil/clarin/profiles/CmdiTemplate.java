@@ -382,8 +382,10 @@ public class CmdiTemplate extends ArbilTemplate {
 		hasResourceAttribute = true;
 	    }
 	    if (!RESERVED_ATTRIBUTES.contains(attributeName)) {
-		String insertBefore = "";
-		arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString + ".@" + attributeName, currentNodeMenuName + "." + attributeName, insertBefore, "1"});
+		final String insertBefore = "";
+		final String attributePath = currentPathString + ".@" + attributeName;
+		final String displayName = currentNodeMenuName + "." + attributeName.replaceAll("\\{.*\\}", "");
+		arrayListGroup.addableComponentPathsList.add(new String[]{attributePath, displayName, insertBefore, "1"});
 	    }
 	}
 	if (hasResourceAttribute) {
