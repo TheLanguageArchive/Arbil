@@ -921,12 +921,14 @@ public class ArbilComponentBuilder {
 	System.out.println("strippedXpath: " + strippedXpath);
 	for (String currentPathComponent : xsdPath.split("\\.")) {
 	    if (currentPathComponent.length() > 0) {
-		System.out.println("currentPathComponent: " + currentPathComponent);
-		//System.out.println("documentNode: " + documentNode.getChildNodes());
-		// get the starting point in the schema
 		foundProperty = null;
 		for (SchemaProperty schemaProperty : schemaType.getProperties()) {
-		    String currentName = schemaProperty.getName().getLocalPart();
+		    String currentName;
+		    if (schemaProperty.isAttribute()) {
+			currentName = CmdiTemplate.getAttributePathSection(schemaProperty.getName().getNamespaceURI(), schemaProperty.getName().getLocalPart());
+		    } else {
+			currentName = schemaProperty.getName().getLocalPart();
+		    }
 		    //System.out.println("currentName: " + currentName);
 		    if (foundProperty == null) {
 			if (schemaProperty.isAttribute()
@@ -942,7 +944,6 @@ public class ArbilComponentBuilder {
 			    } else {
 				insertBefore = insertBefore + "," + currentName;
 			    }
-			    System.out.println("insertBefore: " + insertBefore);
 			}
 		    }
 		}
@@ -950,35 +951,7 @@ public class ArbilComponentBuilder {
 		    throw new ArbilMetadataException("failed to find the path in the schema: " + currentPathComponent);
 		} else {
 		    schemaType = foundProperty.getType();
-		    System.out.println("foundProperty: " + foundProperty.getName().getLocalPart());
 		}
-		// get the starting node in the xml document
-		// TODO: this will not navigate to the nth child node when the xpath is provided
-		//if (foundNode != null) {
-		//    // keep the last node found in the chain
-
-//                if (strippedXpath != null && strippedXpath.startsWith("." + currentPathComponent)) {
-//                    strippedXpath = strippedXpath.substring(currentPathComponent.length() + 1);
-//                    System.out.println("strippedXpath: " + strippedXpath);
-//                } else {
-//                    Node childNode = documentNode.getFirstChild();
-//                    while (childNode != null) {
-//                        System.out.println("childNode: " + childNode.getNodeName());
-//                        if (currentPathComponent.equals(childNode.getNodeName())) {
-//                            System.out.println("found existing: " + currentPathComponent);
-//                            documentNode = childNode;
-//                            break;
-//                        } else {
-//                            childNode = childNode.getNextSibling();
-//                        }
-//                    }
-//                    if (documentNode != childNode) {
-//                        System.out.println("Adding destination node: " + currentPathComponent);
-//                        System.out.println("Into: " + documentNode.getNodeName());
-//                        documentNode = (Node) appendNode(targetDocument, null, documentNode, foundProperty);
-////                        throw new Exception("failed to find the node path in the document: " + currentPathComponent);
-//                    }
-//                }
 	    }
 	}
 //        System.out.println("Adding marker node");
@@ -1032,7 +1005,12 @@ public class ArbilComponentBuilder {
 	    if (currentPathComponent.length() > 0) {
 		foundProperty = null;
 		for (SchemaProperty schemaProperty : schemaType.getProperties()) {
-		    String currentName = schemaProperty.getName().getLocalPart();
+		    String currentName;
+		    if (schemaProperty.isAttribute()) {
+			currentName = CmdiTemplate.getAttributePathSection(schemaProperty.getName().getNamespaceURI(), schemaProperty.getName().getLocalPart());
+		    } else {
+			currentName = schemaProperty.getName().getLocalPart();
+		    }
 		    //System.out.println("currentName: " + currentName);
 		    if (foundProperty == null) {
 			if (schemaProperty.isAttribute()
