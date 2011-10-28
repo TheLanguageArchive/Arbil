@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -62,11 +60,16 @@ import org.xml.sax.SAXException;
 public class CmdiTemplate extends ArbilTemplate {
 
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
+    /**
+     * Attributes that are reserved by CMDI and should show up as editable. 
+     * Namespace URI's should appear encoded in this list
+     */
     public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
-	    RESOURCE_REFERENCE_ATTRIBUTE,
-	    "componentId",
-	    "ComponentId",
-	    "{http://www.w3.org/XML/1998/namespace}lang"));
+	    RESOURCE_REFERENCE_ATTRIBUTE, // resource proxy ref attribute
+	    "componentId", // componentId
+	    "ComponentId", // componentId, alternate spelling in some profiles
+	    String.format("{%1$s}lang", encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")) // {http://www.w3.org/XML/1998/namespace}lang
+	    ));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
     public final static int DATCAT_CACHE_EXPIRY_DAYS = 100;
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
@@ -395,13 +398,7 @@ public class CmdiTemplate extends ArbilTemplate {
 
     public static String getAttributePathSection(String nsURI, String localPart) {
 	if (nsURI != null && nsURI.length() > 0) {
-	    try {
-		// URLEncode and replace dots so dots, slashes and colons in string won't interfer with node path structure
-		nsURI = URLEncoder.encode(nsURI, "UTF-8").replace(".", "%2E");
-	    } catch (UnsupportedEncodingException ex) {
-		bugCatcher.logError(ex);
-		return null;
-	    }
+	    nsURI = encodeNsUriForAttributePath(nsURI);
 	    StringBuilder attributeNameSb = new StringBuilder("{");
 	    attributeNameSb.append(nsURI);
 	    attributeNameSb.append("}");
@@ -410,8 +407,22 @@ public class CmdiTemplate extends ArbilTemplate {
 
 	return localPart;
     }
-//    SchemaParticle topParticle = schemaType.getContentModel();
 
+    /**
+     * URLEncode and replace dots so dots, slashes and colons in string won't interfer with node path structure
+     * @param nsURI
+     * @return Encoded nsURI
+     */
+    private static String encodeNsUriForAttributePath(String nsURI) {
+	try {
+	    return URLEncoder.encode(nsURI, "UTF-8").replace(".", "%2E");
+	} catch (UnsupportedEncodingException ex) {
+	    bugCatcher.logError(ex);
+	    return null;
+	}
+    }
+
+//    SchemaParticle topParticle = schemaType.getContentModel();
     private void searchForAnnotations(SchemaParticle schemaParticle, String nodePathBase, ArrayListGroup arrayListGroup) {
 //        System.out.println("searchForAnnotations" + nodePath);
 	if (schemaParticle != null) {
@@ -650,43 +661,17 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     /**
-     * Decodes namespace URI in attribute path section
-     * @param pathSection
-     * @return 
-     */
-    private String decodeAttributePathSection(String pathSection) {
-	// Look for namespace section in attribute
-	final int nsURIStart = pathSection.indexOf("{");
-	if (nsURIStart >= 0) {
-	    final int nsURIEnd = pathSection.indexOf("}", nsURIStart);
-	    try {
-		// Decode namespace
-		final String decodedURI = URLDecoder.decode(pathSection.substring(nsURIStart, nsURIEnd + 1), "UTF-8");
-		// Put back together
-		return new StringBuilder(pathSection.substring(0, nsURIStart)).append(decodedURI).append(pathSection.substring(nsURIEnd + 1)).toString();
-	    } catch (UnsupportedEncodingException ex) {
-		bugCatcher.logError(ex);
-		return null;
-	    }
-	} else {
-	    return pathSection;
-	}
-    }
-
-    /**
      * 
      * @param pathTokens Path tokens, assuming that pathIsAttribute(pathTokens)
      * @return Whether this is an editable attribute
      */
     private boolean pathIsEditableAttribute(String[] pathTokens) {
-	if (pathTokens.length == 3) {
+	if (pathTokens.length <= 3) {
 	    // Root level attributes are not editable. E.g. {"","CMD","@CMDVersion"}
 	    return false;
 	}
 
-	return !RESERVED_ATTRIBUTES.contains(
-		decodeAttributePathSection( // decode namespace uri part
-		pathTokens[pathTokens.length - 1].substring(1))); // remove @
+	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].substring(1)); // remove @
     }
 
     public static void main(String args[]) {
