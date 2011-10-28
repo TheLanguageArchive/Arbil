@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -57,9 +59,14 @@ import org.xml.sax.SAXException;
 public class CmdiTemplate extends ArbilTemplate {
 
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
+    public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
+	    RESOURCE_REFERENCE_ATTRIBUTE,
+	    "componentId",
+	    "ComponentId",
+	    "{http://www.w3.org/XML/1998/namespace}lang"));
+    public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
     public final static int DATCAT_CACHE_EXPIRY_DAYS = 100;
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
-    public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
     private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
 
@@ -91,6 +98,12 @@ public class CmdiTemplate extends ArbilTemplate {
 	public ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
 	public ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
 	public Map<String, String> dataCategoriesMap = Collections.synchronizedMap(new HashMap<String, String>());
+    }
+
+    private static class ElementCardinality {
+
+	public int maxOccurs;
+	public boolean canHaveMultiple;
     }
 
     public void loadTemplate(String nameSpaceStringLocal) {
@@ -308,7 +321,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	searchForAnnotations(topParticle, pathString, arrayListGroup);
 	// end search for annotations
 	SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
-//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
+	//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
 	int currentNodeChildCount = 0;
 	for (SchemaProperty schemaProperty : schemaPropertyArray) {
 	    childCount++;
@@ -317,98 +330,74 @@ public class CmdiTemplate extends ArbilTemplate {
 	    String currentNodeMenuName;
 	    if (localName != null) {
 		currentNodeChildCount++;
-
-		// while keeping the .cmd.components part filter out all unrequired path component for use in the menus
-//            if (currentHasMultipleNodes || filterString.startsWith(currentPathString)) {
-//                currentNodeMenuName = nodeMenuName + "." + localName;
-//            } else {
-//                currentNodeMenuName = nodeMenuName;
-//            }
-//                  currentNodeMenuName = localName;
-//            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-		int maxOccurs;
-		boolean canHaveMultiple = true;
-		if (schemaProperty.getMaxOccurs() == null) {
-		    // absence of the max occurs also means multiple
-		    maxOccurs = -1;
-		    canHaveMultiple = true;
-		    // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
-		} else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
-		    maxOccurs = -1;
-		    canHaveMultiple = true;
-		} else {
-		    // store the max occurs for use in the add menu etc
-		    maxOccurs = schemaProperty.getMaxOccurs().intValue();
-		    canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
-		}
-		if (!canHaveMultiple) {
-		    // todo: limit the number of instances that can be added to a xml file basedon the max bounds
-		    canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
-		}
-//            boolean hasSubNodes = false;
-		// start: temp code for extracting all field names
-//                System.out.println("Found template element: " + currentPathString);
-//                boolean foundEntry = false;
-//                for (String[] currentEntry : arrayListGroup.fieldUsageDescriptionList) {
-//                    if (currentPathString.startsWith(currentEntry[0])) {
-//                        currentEntry[0] = currentPathString;
-//                        foundEntry = true;
-//                        break;
-//                    }
-//                }
-//                if (!foundEntry) {
-//                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{currentPathString, ""});
-//                }
-		// end: temp code for extracting all field names
+		ElementCardinality cardinality = determineElementCardinality(schemaProperty);
 		SchemaType currentSchemaType = schemaProperty.getType();
-//            String nodeMenuNameForChild;
-//            if (canHaveMultiple) {
-//                // reset the node menu name when traversing through into a subnode
-//                nodeMenuNameForChild = localName;
-////                nodeMenuName = nodeMenuName + "." + localName;
-//            } else {
-//                nodeMenuName = nodeMenuName + "." + localName;
-//                nodeMenuNameForChild = nodeMenuName;
-//            }
-//            nodeMenuNameForChild = "";
 		currentNodeMenuName = localName;
-		// boolean childHasMultipleElementsInOneNode =
 		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString);
-//            if (!hasMultipleElementsInOneNode) {
-//                hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
-//            }
-
-//            System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
-
-//            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-//            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
-		if (canHaveMultiple && subNodeCount > 0) {
+		if (cardinality.canHaveMultiple) {
+		    if (subNodeCount > 0) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
-		    arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
-		}// else if (canHaveMultiple) {
-//                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
-//                }
-		if (canHaveMultiple) {
-		    String insertBefore = "";
-		    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(maxOccurs)});
-		}
-		boolean hasResourceAttribute = false;
-		for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
-		    if (attributesProperty.getName().getLocalPart().equals("ref")) {
-			hasResourceAttribute = true;
-			break;
+			arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
 		    }
+		    String insertBefore = "";
+		    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(cardinality.maxOccurs)});
 		}
-		if (hasResourceAttribute) {
-		    arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
-		}
+		readElementAttributes(currentSchemaType, arrayListGroup, currentPathString, currentNodeMenuName, localName);
 	    }
 	}
-//        if (childCount > 1) {
-//            hasMultipleElementsInOneNode = true;
-//        }
 	subNodeCount = subNodeCount + currentNodeChildCount;
 	return subNodeCount;
+    }
+
+    private ElementCardinality determineElementCardinality(SchemaProperty schemaProperty) {
+	ElementCardinality cardinality = new ElementCardinality();
+	if (schemaProperty.getMaxOccurs() == null) {
+	    // absence of the max occurs also means multiple
+	    cardinality.maxOccurs = -1;
+	    cardinality.canHaveMultiple = true;
+	    // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
+	} else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
+	    cardinality.maxOccurs = -1;
+	    cardinality.canHaveMultiple = true;
+	} else {
+	    // store the max occurs for use in the add menu etc
+	    cardinality.maxOccurs = schemaProperty.getMaxOccurs().intValue();
+	    cardinality.canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
+	}
+	if (!cardinality.canHaveMultiple) {
+	    // todo: limit the number of instances that can be added to a xml file basedon the max bounds
+	    cardinality.canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
+	}
+	return cardinality;
+    }
+
+    private void readElementAttributes(SchemaType currentSchemaType, ArrayListGroup arrayListGroup, String currentPathString, String currentNodeMenuName, String localName) {
+	boolean hasResourceAttribute = false;
+	for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
+	    final String attributeName = getAttributePathSection(attributesProperty.getName());
+	    if (attributeName.equals(RESOURCE_REFERENCE_ATTRIBUTE)) {
+		hasResourceAttribute = true;
+	    }
+	    if (!RESERVED_ATTRIBUTES.contains(attributeName)) {
+		String insertBefore = "";
+		arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString + ".@" + attributeName, currentNodeMenuName + "." + attributeName, insertBefore, "1"});
+	    }
+	}
+	if (hasResourceAttribute) {
+	    arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
+	}
+    }
+
+    public static String getAttributePathSection(QName attrName) {
+	final String nsURI = attrName.getNamespaceURI();
+	if (nsURI != null && nsURI.length() > 0) {
+	    StringBuilder attributeNameSb = new StringBuilder("{");
+	    attributeNameSb.append(nsURI);
+	    attributeNameSb.append("}");
+	    return attributeNameSb.append(attrName.getLocalPart()).toString();
+	}
+
+	return attrName.getLocalPart();
     }
 
 //    SchemaParticle topParticle = schemaType.getContentModel();
@@ -635,10 +624,44 @@ public class CmdiTemplate extends ArbilTemplate {
 	return handler.getDescription();
     }
 
+    @Override
+    public boolean pathIsEditableField(String nodePath) {
+	String[] pathTokens = nodePath.split("\\.");
+	if (pathIsAttribute(pathTokens)) {
+	    return pathIsEditableAttribute(pathTokens);
+	} else {
+	    return super.pathIsEditableField(nodePath);
+	}
+    }
+
+    private boolean pathIsAttribute(String[] pathTokens) {
+	return pathTokens.length > 0 && pathTokens[pathTokens.length - 1].startsWith("@");
+    }
+
+    /**
+     * 
+     * @param pathTokens Path tokens, assuming that pathIsAttribute(pathTokens)
+     * @return Whether this is an editable attribute
+     */
+    private boolean pathIsEditableAttribute(String[] pathTokens) {
+	if (pathTokens.length == 3) {
+	    // Root level attributes are not editable. E.g. {"","CMD","@CMDVersion"}
+	    return false;
+	}
+
+	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].toLowerCase());
+    }
+
     public static void main(String args[]) {
 	ArbilDesktopInjector.injectHandlers();
-	new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");
+	CmdiTemplate template = new CmdiTemplate();
+	template.loadTemplate("file:///Users/twagoo/Downloads/imdi-profile-instance-attr.xsd");
+
+	System.out.println(template.pathIsEditableField(".CMD.Components.imdi-profile-instance-attr.Session-attr.Name.elementAttribute"));
+
+	//new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");
 //        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
 //	new CmdiTemplate().loadTemplate("file:/Users/petwit/Desktop/LocalProfiles/clarin.eu_annotation-test_1272022528355.xsd");
+
     }
 }

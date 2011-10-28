@@ -42,6 +42,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xpath.XPathAPI;
+import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -659,7 +660,15 @@ public class ArbilComponentBuilder {
 	    addedNode = destinationNode.insertBefore(addableNode, insertBeforeNode);
 	} else {
 	    System.out.println("inserting");
-	    addedNode = destinationNode.appendChild(addableNode);
+	    if (addableNode instanceof Attr) {
+		if (destinationNode instanceof Element) {
+		    addedNode = ((Element) destinationNode).setAttributeNode((Attr) addableNode);
+		} else {
+		    throw new ArbilMetadataException("Cannot insert attribute in node of this type: " + destinationNode.getNodeName());
+		}
+	    } else {
+		addedNode = destinationNode.appendChild(addableNode);
+	    }
 	}
 	return addedNode;
     }
@@ -768,6 +777,7 @@ public class ArbilComponentBuilder {
 		try {
 		    return canInsertSectionToXpath(targetDocument, targetDocument.getFirstChild(), schemaType, targetXmlPath, cmdiComponentId);
 		} catch (ArbilMetadataException exception) {
+		    bugCatcher.logError(exception);
 		    messageDialogHandler.addMessageDialogToQueue(exception.getLocalizedMessage(), "Insert node error");
 		    return false;
 		}
@@ -778,6 +788,9 @@ public class ArbilComponentBuilder {
 		bugCatcher.logError(exception);
 		return false;
 	    } catch (SAXException exception) {
+		bugCatcher.logError(exception);
+		return false;
+	    } catch (DOMException exception) {
 		bugCatcher.logError(exception);
 		return false;
 	    }
@@ -916,7 +929,9 @@ public class ArbilComponentBuilder {
 		    String currentName = schemaProperty.getName().getLocalPart();
 		    //System.out.println("currentName: " + currentName);
 		    if (foundProperty == null) {
-			if (currentPathComponent.equals(currentName)) {
+			if (schemaProperty.isAttribute()
+				? currentPathComponent.equals("@" + currentName)
+				: currentPathComponent.equals(currentName)) {
 			    foundProperty = schemaProperty;
 			    insertBefore = "";
 			}
@@ -982,8 +997,12 @@ public class ArbilComponentBuilder {
 	}
 	System.out.println("maxOccurs: " + maxOccurs);
 	if (insertBefore.length() > 0 || maxOccurs != -1) {
-	    try {
+	    if (addedNode instanceof Attr) {
+		((Element) documentNode).removeAttributeNode((Attr) addedNode);
+	    } else {
 		documentNode.removeChild(addedNode);
+	    }
+	    try {
 		insertNodeInOrder(documentNode, addedNode, insertBefore, maxOccurs);
 	    } catch (TransformerException exception) {
 		throw new ArbilMetadataException(exception.getMessage());
@@ -1016,7 +1035,9 @@ public class ArbilComponentBuilder {
 		    String currentName = schemaProperty.getName().getLocalPart();
 		    //System.out.println("currentName: " + currentName);
 		    if (foundProperty == null) {
-			if (currentPathComponent.equals(currentName)) {
+			if (schemaProperty.isAttribute()
+				? currentPathComponent.equals("@" + currentName)
+				: currentPathComponent.equals(currentName)) {
 			    foundProperty = schemaProperty;
 			    insertBefore = "";
 			}
@@ -1049,7 +1070,11 @@ public class ArbilComponentBuilder {
 	}
 	System.out.println("maxOccurs: " + maxOccurs);
 	if (insertBefore.length() > 0 || maxOccurs != -1) {
-	    documentNode.removeChild(addedNode);
+	    if (addedNode instanceof Attr) {
+		((Element) documentNode).removeAttributeNode((Attr) addedNode);
+	    } else {
+		documentNode.removeChild(addedNode);
+	    }
 	    return canInsertNode(documentNode, addedNode, maxOccurs);
 	}
 	return true;
@@ -1068,6 +1093,9 @@ public class ArbilComponentBuilder {
 	}
 	// get the current node name
 	String nodeFragment = documentNode.getNodeName();
+	if (documentNode instanceof Attr) {
+	    nodeFragment = "@" + nodeFragment;
+	}
 	String nodePathString = targetXmlPath + "." + nodeFragment + "(" + siblingCouter + ")";
 
 //        String nodePathString = "";
@@ -1172,7 +1200,24 @@ public class ArbilComponentBuilder {
 	constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null, addDummyData);
     }
 
-    private Element appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
+    private Node appendNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
+	if (schemaProperty.isAttribute()) {
+	    return appendAttributeNode(workingDocument, nameSpaceUri, (Element) parentElement, schemaProperty, addDummyData);
+	} else {
+	    return appendElementNode(workingDocument, nameSpaceUri, parentElement, schemaProperty, addDummyData);
+	}
+    }
+
+    private Attr appendAttributeNode(Document workingDocument, String nameSpaceUri, Element parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
+	Attr currentAttribute = workingDocument.createAttributeNS(schemaProperty.getName().getNamespaceURI(), schemaProperty.getName().getLocalPart());
+	if (schemaProperty.getDefaultText() != null) {
+	    currentAttribute.setNodeValue(schemaProperty.getDefaultText());
+	}
+	parentElement.setAttributeNode(currentAttribute);
+	return currentAttribute;
+    }
+
+    private Element appendElementNode(Document workingDocument, String nameSpaceUri, Node parentElement, SchemaProperty schemaProperty, boolean addDummyData) {
 //        Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd", schemaProperty.getName().getLocalPart());
 	Element currentElement = workingDocument.createElementNS("http://www.clarin.eu/cmd/", schemaProperty.getName().getLocalPart());
 	SchemaType currentSchemaType = schemaProperty.getType();
@@ -1201,7 +1246,7 @@ public class ArbilComponentBuilder {
 	String currentPathString = pathString + "." + currentSchemaProperty.getName().getLocalPart();
 	System.out.println("Found Element: " + currentPathString);
 	SchemaType currentSchemaType = currentSchemaProperty.getType();
-	Element currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty, addDummyData);
+	Node currentElement = appendNode(workingDocument, nameSpaceUri, parentElement, currentSchemaProperty, addDummyData);
 	returnNode = currentElement;
 	//System.out.println("printSchemaType " + schemaType.toString());
 //        for (SchemaType schemaSubType : schemaType.getAnonymousTypes()) {
