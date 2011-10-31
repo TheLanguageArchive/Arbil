@@ -19,7 +19,8 @@ private static SessionStorage sessionStorage;
     }
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
     // todo: move this url into the config file
-    String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
+    String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles?mdEditor=true";
+    //String profilesUrlString = "http://localhost:8080/ComponentRegistry/rest/registry/profiles?mdEditor=true";
 //    String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles";
     //String profilesUrlString = "http://lux16.mpi.nl/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1264758016524/xsd";
     //"http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles"
@@ -95,7 +96,7 @@ private static SessionStorage sessionStorage;
         progressBar.setValue(0);
     }
 
-    public void loadProfiles() {
+    public final void loadProfiles() {
         File profileXmlFile = sessionStorage.updateCache(profilesUrlString, 10);
         try {
             Digester digester = new Digester();
