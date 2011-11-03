@@ -690,8 +690,37 @@ public class MetadataReader {
 	} else {
 	    // for a branch, just check if there are referenced resources to add
 	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
+
+	    if (childNodeAttributes != null) {
+		if (parentNode.isCmdiMetaDataNode()) {
+		    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+			Node attrNode = childNodeAttributes.item(i);
+			String attrName = CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+			String attrPath = siblingNodePath + ".@" + attrName;
+			String fullAttrPath = fullSubNodePath + ".@" + attrName;
+			if (!siblingNodePathCounter.containsKey(fullAttrPath)) {
+			    siblingNodePathCounter.put(fullAttrPath, 0);
+			}
+			if (parentNode.getNodeTemplate().pathIsEditableField(fullAttrPath)) {
+			    nodeOrderCounter = addEditableField(nodeOrderCounter,
+				    destinationNode,
+				    attrPath, //siblingNodePath,
+				    attrNode.getNodeValue(),
+				    siblingNodePathCounter,
+				    fullAttrPath, //fullSubNodePath,
+				    parentNode,
+				    childLinks,
+				    parentChildTree,
+				    childNodeAttributes,
+				    true);
+			}
+		    }
+		}
+	    }
 	}
+
 	nodeOrderCounter = iterateChildNodes(destinationNode, childLinks, childNode.getFirstChild(), siblingNodePath, fullSubNodePath, parentChildTree, siblingNodePathCounter, nodeOrderCounter);
+
 	return nodeOrderCounter;
     }
 

@@ -24,6 +24,7 @@ public class ArbilField implements Serializable {
     private boolean hasVocabularyType = false;
     private boolean vocabularyIsOpen;
     private boolean vocabularyIsList;
+    private boolean attributeField;
     private String keyName = null;
     private String originalKeyName = null;
     private String languageId = null;
@@ -49,6 +50,7 @@ public class ArbilField implements Serializable {
 	originalFieldValue = fieldValue;
 	xmlPath = tempPath;
 	siblingCount = tempSiblingCount;
+	attributeField = tempPath.matches("^.*\\.@[^.]*$"); // last section should start with .@
     }
 
 //private String originalValue = null;
@@ -210,6 +212,10 @@ public class ArbilField implements Serializable {
 
     public ArbilVocabulary getVocabulary() {
 	return fieldVocabulary;
+    }
+
+    public boolean isAttributeField() {
+	return attributeField;
     }
 
     public ArbilField[] getSiblingField(String pathString) {
