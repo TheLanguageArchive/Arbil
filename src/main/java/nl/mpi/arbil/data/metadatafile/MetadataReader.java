@@ -688,9 +688,9 @@ public class MetadataReader {
 	    final String fieldValue = (childNodes.getLength() == 1) ? childNodes.item(0).getTextContent() : "";
 	    nodeOrderCounter = addEditableField(nodeOrderCounter, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter, fullSubNodePath, parentNode, childLinks, parentChildTree, childNodeAttributes, shouldAddCurrent);
 	} else {
-	    // for a branch, just check if there are referenced resources to add
+	    // for a branch, check if there are referenced resources to add
 	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
-
+	    // and add all editable component attributes as field
 	    if (childNodeAttributes != null) {
 		if (parentNode.isCmdiMetaDataNode()) {
 		    for (int i = 0; i < childNodeAttributes.getLength(); i++) {
@@ -711,7 +711,7 @@ public class MetadataReader {
 				    parentNode,
 				    childLinks,
 				    parentChildTree,
-				    childNodeAttributes,
+				    null, // don't pass childNodeAttributes as they're the parent's attributes 
 				    true);
 			}
 		    }
