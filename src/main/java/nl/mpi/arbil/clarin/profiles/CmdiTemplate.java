@@ -28,6 +28,7 @@ import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -250,18 +251,21 @@ public class CmdiTemplate extends ArbilTemplate {
 	    childTypes.removeAllElements();
 	    for (String[] currentChildType : childTypesArray) {
 		// filter out sub nodes that cannot be added at the current level because they require an intermediate node to be added, ie "actors language" requires an "actor"
-		boolean keepChildType = true;
+		boolean keepChildType = (!ArbilComponentBuilder.pathIsAttribute(currentChildType[1]) || pathIsEditableField(currentChildType[1]));
+
+		if (keepChildType) {
 //                System.out.println("currentChildType: " + currentChildType[1]);
-		for (String[] subChildType : childTypesArray) {
+		    for (String[] subChildType : childTypesArray) {
 //                    System.out.println("subChildType: " + subChildType[1]);
-		    if (currentChildType[1].startsWith(subChildType[1])) {
-			String remainderString = currentChildType[1].substring(subChildType[1].length());
-			//if (currentChildType[1].length() != subChildType[1].length()) {
-			if (remainderString.contains(".")) {
-			    keepChildType = false;
+			if (!ArbilComponentBuilder.pathIsAttribute(subChildType[1]) && currentChildType[1].startsWith(subChildType[1])) {
+			    String remainderString = currentChildType[1].substring(subChildType[1].length());
+			    //if (currentChildType[1].length() != subChildType[1].length()) {
+			    if (remainderString.contains(".")) {
+				keepChildType = false;
 //                            System.out.println("remainder of path: " + remainderString);
 //                            System.out.println("removing: " + currentChildType[1]);
 //                            System.out.println("based on: " + subChildType[1]);
+			    }
 			}
 		    }
 		}
@@ -649,15 +653,24 @@ public class CmdiTemplate extends ArbilTemplate {
     @Override
     public boolean pathIsEditableField(String nodePath) {
 	String[] pathTokens = nodePath.split("\\.");
-	if (pathIsAttribute(pathTokens)) {
-	    return pathIsEditableAttribute(pathTokens);
+	if (ArbilComponentBuilder.pathIsAttribute(pathTokens)) {
+	    return pathIsEditableAttribute(pathTokens)
+		    && !pathIsEditableField(nodePath.replaceAll("\\.[^.]*$", "")); // If parent is editable field then 
 	} else {
-	    return super.pathIsEditableField(nodePath);
+	    for (String[] pathString : childNodePaths) {
+		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
+			&& (pathString[0].startsWith(nodePath) || pathString[0].equals(nodePath))) {
+		    return false;
+		}
+	    }
+	    for (String[] pathString : templatesArray) { // some profiles do not have sub nodes hence this needs to be checked also
+		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
+			&& (pathString[0].startsWith(nodePath) && !pathString[0].equals(nodePath))) {
+		    return false;
+		}
+	    }
+	    return true;
 	}
-    }
-
-    private boolean pathIsAttribute(String[] pathTokens) {
-	return pathTokens.length > 0 && pathTokens[pathTokens.length - 1].startsWith("@");
     }
 
     /**
