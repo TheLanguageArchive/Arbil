@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import java.util.List;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
@@ -90,7 +91,7 @@ class JListToolTip extends JToolTip {
 	}
     }
 
-    private void addVocabularyType(ArbilField field) {
+    private void addFieldType(ArbilField field) {
 	if (field.hasVocabulary()) {
 	    StringBuilder sb = new StringBuilder();
 	    sb.append(field.isVocabularyOpen() ? "Open vocabulary" : "Closed vocabulary");
@@ -101,7 +102,17 @@ class JListToolTip extends JToolTip {
 	    }
 	    addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) field));
 	} else if (field.isAttributeField()) {
-	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeIcon);
+	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeValueIcon);
+	} else if (field.hasEditableFieldAttributes()) {
+	    final List<String[]> fieldAttributePaths = field.getAttributePaths();
+	    addDetailLabelIcon("Field has " + fieldAttributePaths.size() + " attribute(s)", ArbilIcons.getSingleInstance().attributeIcon);
+	    for (String[] path : fieldAttributePaths) {
+		final Object attributeValue = field.getAttributeValue(path[0]);
+		if (attributeValue != null) {
+		    addDetailLabelIcon(path[1] + ": " + attributeValue, ArbilIcons.getSingleInstance().attributeValueIcon);
+		}
+	    }
+	    addDetailLabel("Open in long field editor to set attributes");
 	}
     }
 
@@ -183,7 +194,7 @@ class JListToolTip extends JToolTip {
 	    } else if (targetObject instanceof ArbilField) {
 		addDetailLabel(targetObject.toString());
 		addDetailLabel(((ArbilField) targetObject).getParentDataNode().getNodeTemplate().getHelpStringForField(((ArbilField) targetObject).getFullXmlPath()));
-		addVocabularyType((ArbilField) targetObject);
+		addFieldType((ArbilField) targetObject);
 	    } else {
 		addDetailLabel(targetObject.toString());
 		//JTextField

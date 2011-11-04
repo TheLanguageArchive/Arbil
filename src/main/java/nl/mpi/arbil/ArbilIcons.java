@@ -103,6 +103,7 @@ public class ArbilIcons {
     public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
     public ImageIcon vocabularyClosedListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed_list.png"));
     public ImageIcon attributeIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/attribute.png"));
+    public ImageIcon attributeValueIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/attributevalue.png"));
 //
     private static BugCatcher bugCatcher;
 
@@ -208,6 +209,8 @@ public class ArbilIcons {
 	    return getIconForVocabulary(field);
 	} else if (field.getLanguageId() != null) {
 	    return languageIcon;
+	} else if (field.hasEditableFieldAttributes()) {
+	    return attributeIcon;
 	} else {
 	    return null;
 	}
