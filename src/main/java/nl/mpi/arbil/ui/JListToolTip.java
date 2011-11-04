@@ -90,16 +90,18 @@ class JListToolTip extends JToolTip {
 	}
     }
 
-    private void addVocabularyType(ArbilField tempObject) {
-	if (tempObject.hasVocabulary()) {
+    private void addVocabularyType(ArbilField field) {
+	if (field.hasVocabulary()) {
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(tempObject.isVocabularyOpen() ? "Open vocabulary" : "Closed vocabulary");
-	    if (tempObject.isVocabularyList()) {
+	    sb.append(field.isVocabularyOpen() ? "Open vocabulary" : "Closed vocabulary");
+	    if (field.isVocabularyList()) {
 		sb.append(" list. To enter multiple values, insert a comma (,) between separate entries.");
 	    } else {
 		sb.append(". Only one value can be entered.");
 	    }
-	    addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) tempObject));
+	    addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) field));
+	} else if (field.isAttributeField()) {
+	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeIcon);
 	}
     }
 
