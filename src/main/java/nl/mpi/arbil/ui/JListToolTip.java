@@ -102,14 +102,14 @@ class JListToolTip extends JToolTip {
 	    }
 	    addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) field));
 	} else if (field.isAttributeField()) {
-	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeValueIcon);
+	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeIcon);
 	} else if (field.hasEditableFieldAttributes()) {
 	    final List<String[]> fieldAttributePaths = field.getAttributePaths();
-	    addDetailLabelIcon("Field has " + fieldAttributePaths.size() + " attribute(s)", ArbilIcons.getSingleInstance().attributeIcon);
+	    addDetailLabel("Field has " + fieldAttributePaths.size() + " attribute(s)");
 	    for (String[] path : fieldAttributePaths) {
 		final Object attributeValue = field.getAttributeValue(path[0]);
 		if (attributeValue != null) {
-		    addDetailLabelIcon(path[1] + ": " + attributeValue, ArbilIcons.getSingleInstance().attributeValueIcon);
+		    addDetailLabelIcon(path[1] + ": " + attributeValue, ArbilIcons.getSingleInstance().attributeIcon);
 		}
 	    }
 	    addDetailLabel("Open in long field editor to set attributes");
