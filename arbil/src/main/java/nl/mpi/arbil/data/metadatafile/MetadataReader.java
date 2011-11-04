@@ -767,28 +767,40 @@ public class MetadataReader {
 	//                nodeCounter++;
 	//System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 	//            }
-	if (childNodeAttributes != null) {
-	    String cvType = getNamedAttributeValue(childNodeAttributes, "Type");
-	    String cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
-	    String languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
-	    if (languageId == null) {
-		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
-	    }
-	    String keyName = getNamedAttributeValue(childNodeAttributes, "Name");
-	    fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
-	    if (fieldToAdd.xmlPath.endsWith("Description")) {
-		if (cvUrlString != null && cvUrlString.length() > 0) {
-		    // TODO: this field sould be put in the link node not the parent node
-		    URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
-		    childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
-		    ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
-		    descriptionLinkNode.isInfoLink = true;
-		    descriptionLinkNode.setDataLoaded(true);
-		    parentChildTree.get(parentNode).add(descriptionLinkNode);
-		    descriptionLinkNode.addField(fieldToAdd);
+	if (destinationNode.isCmdiMetaDataNode()) {
+	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
+	    fieldToAdd.setAttributePaths(template.getAttributesForPath(siblingNodePath));
+	    if (childNodeAttributes != null) {
+		for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+		    final Node attrNode = childNodeAttributes.item(i);
+		    final String path = siblingNodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+		    fieldToAdd.setAttributeValue(path, attrNode.getNodeValue());
 		}
 	    }
-	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
+	} else { // IMDI
+	    if (childNodeAttributes != null) {
+		String cvType = getNamedAttributeValue(childNodeAttributes, "Type");
+		String cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
+		String languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
+		if (languageId == null) {
+		    languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
+		}
+		String keyName = getNamedAttributeValue(childNodeAttributes, "Name");
+		fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
+		if (fieldToAdd.xmlPath.endsWith("Description")) {
+		    if (cvUrlString != null && cvUrlString.length() > 0) {
+			// TODO: this field sould be put in the link node not the parent node
+			URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
+			childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
+			ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
+			descriptionLinkNode.isInfoLink = true;
+			descriptionLinkNode.setDataLoaded(true);
+			parentChildTree.get(parentNode).add(descriptionLinkNode);
+			descriptionLinkNode.addField(fieldToAdd);
+		    }
+		}
+		addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
+	    }
 	}
 	if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
 	    //                System.out.println("Adding: " + fieldToAdd);
