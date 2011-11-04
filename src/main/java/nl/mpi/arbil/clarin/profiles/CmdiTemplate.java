@@ -16,6 +16,8 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
@@ -59,34 +61,34 @@ import org.xml.sax.SAXException;
  * @author Peter.Withers@mpi.nl
  */
 public class CmdiTemplate extends ArbilTemplate {
-
+    
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
     /**
      * Attributes that are reserved by CMDI and should show up as editable. 
      * Namespace URI's should appear encoded in this list
      */
     public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
-	    RESOURCE_REFERENCE_ATTRIBUTE, // resource proxy ref attribute
-	    "componentId", // componentId
-	    "ComponentId", // componentId, alternate spelling in some profiles
-	    String.format("{%1$s}lang", encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")) // {http://www.w3.org/XML/1998/namespace}lang
+	    RESOURCE_REFERENCE_ATTRIBUTE // resource proxy ref attribute
+	    , "componentId" // componentId
+	    , "ComponentId" // componentId, alternate spelling in some profiles
+	    //,String.format("{%1$s}lang", encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")) // {http://www.w3.org/XML/1998/namespace}lang
 	    ));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
     public final static int DATCAT_CACHE_EXPIRY_DAYS = 100;
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
     private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
-
+    
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
     private static BugCatcher bugCatcher;
-
+    
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
 	bugCatcher = bugCatcherInstance;
     }
     private static SessionStorage sessionStorage;
-
+    
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
@@ -95,9 +97,9 @@ public class CmdiTemplate extends ArbilTemplate {
     private Document schemaDocument;
     private Map<String, String> dataCategoriesMap;
     private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
-
+    
     private static class ArrayListGroup {
-
+	
 	public ArrayList<String[]> childNodePathsList = new ArrayList<String[]>();
 	public ArrayList<String[]> addableComponentPathsList = new ArrayList<String[]>();
 	public ArrayList<String[]> resourceNodePathsList = new ArrayList<String[]>();
@@ -106,13 +108,13 @@ public class CmdiTemplate extends ArbilTemplate {
 	public ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
 	public Map<String, String> dataCategoriesMap = Collections.synchronizedMap(new HashMap<String, String>());
     }
-
+    
     private static class ElementCardinality {
-
+	
 	public int maxOccurs;
 	public boolean canHaveMultiple;
     }
-
+    
     public void loadTemplate(String nameSpaceStringLocal) {
 	vocabularyHashTable = new Hashtable<String, ArbilVocabulary>();
 	nameSpaceString = nameSpaceStringLocal;
@@ -125,7 +127,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    } else {
 		loadedTemplateName = nameSpaceString.substring(nameSpaceString.lastIndexOf("/") + 1);
 	    }
-
+	    
 	    ArrayListGroup arrayListGroup = new ArrayListGroup();
 	    URI xsdUri = new URI(nameSpaceString);
 	    readSchema(xsdUri, arrayListGroup);
@@ -140,7 +142,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    // sort and construct the preferredNameFields array
 	    String[][] tempSortableArray = arrayListGroup.displayNamePreferenceList.toArray(new String[][]{});
 	    Arrays.sort(tempSortableArray, new Comparator<String[]>() {
-
+		
 		public int compare(String[] o1, String[] o2) {
 		    return Integer.valueOf(o1[1]) - Integer.valueOf(o2[1]);
 		}
@@ -161,7 +163,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	autoFieldsArray = new String[][]{};
 	genreSubgenreArray = new String[][]{};
     }
-
+    
     private void makeGuiNamesUnique() {
 	// template array is the super set while childnodes array is shorter
 	boolean allGuiNamesUnique = false;
@@ -205,7 +207,20 @@ public class CmdiTemplate extends ArbilTemplate {
 	    }
 	}
     }
-
+    
+    public List<String[]> getAttributesForPath(String path) {
+	LinkedList<String[]> attributePaths = new LinkedList<String[]>();
+	for (String[] templatePath : templatesArray) {
+	    if (ArbilComponentBuilder.pathIsAttribute(templatePath[0]) // should be an attribute
+		    && templatePath[0].startsWith(path) // should be a child of path
+		    && templatePath[0].length() > path.length()) // should not be equal to path
+	    {
+		attributePaths.add(templatePath);
+	    }
+	}
+	return attributePaths;
+    }
+    
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
 	// get the xpath of the target node
@@ -252,7 +267,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    for (String[] currentChildType : childTypesArray) {
 		// filter out sub nodes that cannot be added at the current level because they require an intermediate node to be added, ie "actors language" requires an "actor"
 		boolean keepChildType = (!ArbilComponentBuilder.pathIsAttribute(currentChildType[1]) || pathIsEditableField(currentChildType[1]));
-
+		
 		if (keepChildType) {
 //                System.out.println("currentChildType: " + currentChildType[1]);
 		    for (String[] subChildType : childTypesArray) {
@@ -275,7 +290,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		}
 	    }
 	    Collections.sort(childTypes, new Comparator() {
-
+		
 		public int compare(Object o1, Object o2) {
 		    String value1 = ((String[]) o1)[0];
 		    String value2 = ((String[]) o2)[0];
@@ -285,7 +300,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
 	return childTypes.elements();
     }
-
+    
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
 	File schemaFile;
 	if (xsdFile.getScheme().equals("file")) {
@@ -318,7 +333,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    messageDialogHandler.addMessageDialogToQueue("Could not read the required template file: " + templateFile.getName(), "Load Clarin Template");
 	}
     }
-
+    
     private int constructXml(final SchemaType schemaType, ArrayListGroup arrayListGroup, final String pathString) {
 	int childCount = 0;
 //        boolean hasMultipleElementsInOneNode = false;
@@ -358,7 +373,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	subNodeCount = subNodeCount + currentNodeChildCount;
 	return subNodeCount;
     }
-
+    
     private ElementCardinality determineElementCardinality(SchemaProperty schemaProperty) {
 	ElementCardinality cardinality = new ElementCardinality();
 	if (schemaProperty.getMaxOccurs() == null) {
@@ -380,7 +395,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
 	return cardinality;
     }
-
+    
     private void readElementAttributes(SchemaType currentSchemaType, ArrayListGroup arrayListGroup, String currentPathString, String currentNodeMenuName, String localName) {
 	boolean hasResourceAttribute = false;
 	for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
@@ -399,7 +414,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
 	}
     }
-
+    
     public static String getAttributePathSection(String nsURI, String localPart) {
 	if (nsURI != null && nsURI.length() > 0) {
 	    nsURI = encodeNsUriForAttributePath(nsURI);
@@ -408,7 +423,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    attributeNameSb.append("}");
 	    return attributeNameSb.append(localPart).toString();
 	}
-
+	
 	return localPart;
     }
 
@@ -450,7 +465,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    }
 	}
     }
-
+    
     private void saveAnnotationData(SchemaLocalElement schemaLocalElement, String nodePath, ArrayListGroup arrayListGroup) {
 	SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
 	if (schemaAnnotation != null) {
@@ -472,7 +487,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    }
 	}
     }
-
+    
     private void readFieldConstrains(SchemaType schemaType, String nodePath, ArrayList<String[]> fieldConstraintList) {
 	switch (schemaType.getBuiltinTypeCode()) {
 	    case SchemaType.BTC_STRING:
@@ -503,7 +518,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		break;
 	}
     }
-
+    
     private synchronized Document getSchemaDocument() {
 	if (schemaDocument == null) {
 	    try {
@@ -560,13 +575,13 @@ public class CmdiTemplate extends ArbilTemplate {
 	    return descriptions;
 	}
     }
-
+    
     private void readControlledVocabularies(SchemaType schemaType, String nodePath) {
 	XmlAnySimpleType[] enumerationValues = schemaType.getEnumerationValues();
-
+	
 	if (enumerationValues != null && enumerationValues.length > 0) {
 	    ArbilVocabulary vocabulary = ArbilVocabularies.getSingleInstance().getEmptyVocabulary(nameSpaceString + "#" + schemaType.getName());
-
+	    
 	    HashMap<String, String> descriptions = null;
 	    try {
 		// Get descriptions (ann:label attributes on vocabulary enumeration elements)
@@ -575,11 +590,11 @@ public class CmdiTemplate extends ArbilTemplate {
 		// Fall back to using just the values, no descriptions
 		bugCatcher.logError(ex);
 	    }
-
+	    
 	    for (XmlAnySimpleType anySimpleType : schemaType.getEnumerationValues()) {
 		String entryCode = anySimpleType.getStringValue();
 		String description = descriptions == null ? null : descriptions.get(entryCode);
-
+		
 		if (description == null || description.length() == 0) {
 		    vocabulary.addEntry(entryCode, null);
 		} else {
@@ -590,7 +605,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    vocabularyHashTable.put(nodePath, vocabulary);
 	}
     }
-
+    
     @Override
     public String getHelpStringForField(String fieldName) {
 	fieldName = fieldName.replaceAll("\\([0-9]+\\)\\.", ".");
@@ -609,7 +624,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    }
 	}
     }
-
+    
     private String getDescriptionForDataCategory(String dcUri) {
 	if (dataCategoryDescriptionMap.containsKey(dcUri)) {
 	    // Read description from DCIF only once per session
@@ -649,7 +664,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	parser.parse(datCatFile, handler);
 	return handler.getDescription();
     }
-
+    
     @Override
     public boolean pathIsEditableField(String nodePath) {
 	String[] pathTokens = nodePath.split("\\.");
@@ -683,15 +698,15 @@ public class CmdiTemplate extends ArbilTemplate {
 	    // Root level attributes are not editable. E.g. {"","CMD","@CMDVersion"}
 	    return false;
 	}
-
+	
 	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].substring(1)); // remove @
     }
-
+    
     public static void main(String args[]) {
 	ArbilDesktopInjector.injectHandlers();
 	CmdiTemplate template = new CmdiTemplate();
 	template.loadTemplate("file:///Users/twagoo/Downloads/imdi-profile-instance-attr.xsd");
-
+	
 	System.out.println(template.pathIsEditableField(".CMD.Components.imdi-profile-instance-attr.Session-attr.Name.elementAttribute"));
 
 	//new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");

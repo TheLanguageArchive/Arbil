@@ -2,6 +2,10 @@ package nl.mpi.arbil.data;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
@@ -33,6 +37,8 @@ public class ArbilField implements Serializable {
     private int canValidateField = -1;
     private int siblingCount;
     private static SessionStorage sessionStorage;
+    private List<String[]> attributePaths = null;
+    private Map<String, Object> attributeValuesMap;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -276,6 +282,51 @@ public class ArbilField implements Serializable {
 	loadVocabulary();
     }
 
+    /**
+     * Gets paths of editable field attributes
+     * @return List of template paths. Template path is string array with [path,description,...] 
+     * @see nl.mpi.arbil.templates.ArbilTemplate
+     */
+    public synchronized List<String[]> getAttributePaths() {
+	return Collections.unmodifiableList(attributePaths);
+    }
+
+    /**
+     * 
+     * @return Whether there schema support editable attributes on this field
+     */
+    public synchronized boolean hasEditableFieldAttributes() {
+	return attributePaths != null && attributePaths.size() > 0;
+    }
+
+    /**
+     * Gets the value of an editable field attribute
+     * @param attributePath Path to get value for
+     * @return Value for path (null if not set)
+     */
+    public synchronized Object getAttributeValue(String attributePath) {
+	if (attributeValuesMap != null) {
+	    return attributeValuesMap.get(attributePath);
+	}
+	return null;
+    }
+
+    /**
+     * Sets the value for an editable field attribute
+     * @param attributePath Path to set value on
+     * @param value Null to unset
+     */
+    public synchronized void setAttributeValue(String attributePath, Object value) {
+	if (attributeValuesMap == null) {
+	    attributeValuesMap = new HashMap<String, Object>();
+	}
+	if (value == null) {
+	    attributeValuesMap.remove(attributePath);
+	} else {
+	    attributeValuesMap.put(attributePath, value);
+	}
+    }
+
     public void loadVocabulary() {
 	if (hasVocabularyType) {
 	    if (cvUrlString != null && cvUrlString.length() > 0) {
@@ -431,5 +482,14 @@ public class ArbilField implements Serializable {
     public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
 	this.parentDataNode = parentDataNode;
 	this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
+    }
+
+    /**
+     * Set the value of attributePaths
+     *
+     * @param attributePaths new value of attributePaths
+     */
+    public void setAttributePaths(List<String[]> attributePaths) {
+	this.attributePaths = attributePaths;
     }
 }
