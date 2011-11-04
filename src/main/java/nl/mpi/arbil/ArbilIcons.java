@@ -209,6 +209,8 @@ public class ArbilIcons {
 	    return getIconForVocabulary(field);
 	} else if (field.getLanguageId() != null) {
 	    return languageIcon;
+	} else if(field.isAttributeField()){
+	    return attributeValueIcon;
 	} else if (field.hasEditableFieldAttributes()) {
 	    return attributeIcon;
 	} else {
