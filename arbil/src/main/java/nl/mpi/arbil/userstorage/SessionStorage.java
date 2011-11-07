@@ -100,7 +100,7 @@ public interface SessionStorage {
      * @param destinationPath The local path where the file should be saved
      * @return boolean true only if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the download failed
      */
-    boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel);
+    boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel);
 
     void saveString(String filename, String storableValue);
 
@@ -113,7 +113,7 @@ public interface SessionStorage {
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
      */
-    File updateCache(String pathString, int expireCacheDays);
+    File updateCache(String pathString, int expireCacheDays, boolean followRedirect);
 
     /**
      * Fetch the file from the remote URL and save into the cache.
@@ -121,7 +121,7 @@ public interface SessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel);
+    File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel);
 
     public File getStorageDirectory();
 
@@ -144,7 +144,7 @@ public interface SessionStorage {
      * @param useLanguageIdInColumnName the useLanguageIdInColumnName to set
      */
     public void setUseLanguageIdInColumnName(boolean useLanguageIdInColumnName);
-    
+
     /**
      * @return Custom TypeChecker config file, or null if no such file exists
      */

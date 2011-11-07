@@ -111,7 +111,7 @@ public class MetadataBuilderTest {
         //                        targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(eniryFileURI), "Entity");
         //                        gedcomImdiObject = ImdiLoader.getSingleInstance().getImdiObject(null, targetFileURI);
         //                        gedcomImdiObject.waitTillLoaded();
-        targetFileURI = componentBuilder.createComponentFile(targetFileURI, ArbilSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7).toURI(), false);
+        targetFileURI = componentBuilder.createComponentFile(targetFileURI, ArbilSessionStorage.getSingleInstance().updateCache(currentTestTemplate, 7, false).toURI(), false);
         //            } catch (URISyntaxException ex) {
         //                GuiHelper.linorgBugCatcher.logError(ex);
         //                return;

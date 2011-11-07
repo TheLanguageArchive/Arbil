@@ -1315,7 +1315,7 @@ public class ArbilComponentBuilder {
 	    // do not cache local xsd files
 	    schemaFile = new File(xsdFile);
 	} else {
-	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), 5);
+	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), 5, false);
 	}
 	SchemaType schemaType = getFirstSchemaType(schemaFile);
 	constructXml(schemaType.getElementProperties()[0], "documentTypes", workingDocument, xsdFile.toString(), null, addDummyData);

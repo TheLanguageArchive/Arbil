@@ -58,7 +58,7 @@ public class ApplicationVersionManager {
 	BufferedReader bufferedReader = null;
 	try {
 	    int daysTillExpire = 1;
-	    File cachePath = sessionStorage.updateCache(applicationVersion.currentVersionFile, daysTillExpire);
+	    File cachePath = sessionStorage.updateCache(applicationVersion.currentVersionFile, daysTillExpire, false);
 	    bufferedReader = new BufferedReader(new FileReader(cachePath));
 	    String serverVersionString = bufferedReader.readLine();
 //            String localVersionString = "linorg" + linorgVersion.currentRevision + ".jar"; // the server string has the full jar file name
