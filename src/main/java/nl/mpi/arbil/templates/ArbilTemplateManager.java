@@ -73,7 +73,7 @@ public class ArbilTemplateManager {
 	    // Make example-components directory
 	    File examplesDirectory = new File(selectedTemplateFile.getParentFile(), "example-components");
 	    if (!examplesDirectory.mkdir()) { // create the example components directory
-	        bugCatcher.logError(new IOException("Could not create example components directory: " + examplesDirectory));
+		bugCatcher.logError(new IOException("Could not create example components directory: " + examplesDirectory));
 	    }
 	    // copy example components from the jar file
 	    for (String[] pathString : ArbilTemplateManager.getSingleInstance().getTemplate(builtInTemplates2[0]).templatesArray) {
@@ -321,7 +321,7 @@ public class ArbilTemplateManager {
 	File templatesDir = getTemplateDirectory();
 	if (!templatesDir.exists()) {
 	    if (!templatesDir.mkdir()) {
-	        bugCatcher.logError(new IOException("Could not create template directory: " + templatesDir));
+		bugCatcher.logError(new IOException("Could not create template directory: " + templatesDir));
 	    }
 	}
 	ArrayList<String> templateList = new ArrayList<String>();
@@ -360,6 +360,7 @@ public class ArbilTemplateManager {
 	    if (cmdiTemplate == null) {
 		cmdiTemplate = new CmdiTemplate();
 		cmdiTemplate.loadTemplate(nameSpaceString);
+		cmdiTemplate.startLoadingDatacategoryDescriptions();
 		templatesHashTable.put(nameSpaceString, cmdiTemplate);
 	    }
 	    return cmdiTemplate;

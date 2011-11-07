@@ -612,6 +612,23 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
+    /**
+     * Creates a thread that downloads all descriptions that are not in cache or require refresh and reads data category descriptions
+     */
+    public synchronized void startLoadingDatacategoryDescriptions() {
+	Runnable descriptionLoader = new Runnable() {
+
+	    public void run() {
+		for (String dcUri : dataCategoriesMap.values()) {
+		    getDescriptionForDataCategory(dcUri);
+		}
+	    }
+	};
+	Thread descriptionLoaderThread = new Thread(descriptionLoader);
+	descriptionLoaderThread.setPriority(Thread.MIN_PRIORITY);
+	descriptionLoaderThread.start();
+    }
+
     private String getDescriptionForDataCategory(String dcUri) {
 	if (dataCategoryDescriptionMap.containsKey(dcUri)) {
 	    // Read description from DCIF only once per session
