@@ -11,14 +11,22 @@ package nl.mpi.arbil.util;
  */
 public abstract class ArbilActionBuffer {
 
+    private final Object actionLock;
+    private String title;
+    private int threadPriority;
+    private int delay;
+    private int maxDelay;
+    private boolean actionRequested;
+    private Thread workerThread;
+
     /**
      *
      * @param title Title of the thread that will be created
      * @param delay Amount of time that is waited after a request before action is executed
-     * @param maxDelay Maximum amount of time that will be waited before action is executed
+     * @param threadPriority Priority of thread that will execute actions
      */
-    public ArbilActionBuffer(String title, int delay, int maxDelay) {
-        this(title, delay, maxDelay, new Object());
+    public ArbilActionBuffer(String title, int delay, int threadPriority) {
+	this(title, delay, 0, new Object(), threadPriority);
     }
 
     /**
@@ -27,7 +35,11 @@ public abstract class ArbilActionBuffer {
      * @param delay Amount of time that is waited after a request before action is executed
      */
     public ArbilActionBuffer(String title, int delay) {
-        this(title, delay, 0, new Object());
+	this(title, delay, Thread.NORM_PRIORITY);
+    }
+
+    public ArbilActionBuffer(String title, int delay, int maxDelay, final Object lock) {
+	this(title, delay, maxDelay, lock, Thread.NORM_PRIORITY);
     }
 
     /**
@@ -35,78 +47,75 @@ public abstract class ArbilActionBuffer {
      * @param title Title of the thread that will be created
      * @param delay Amount of time that is waited after a request before action is executed
      * @param lock External lock to use
+     * @param threadPriority Priority of thread that will execute actions
      */
-    public ArbilActionBuffer(String title, int delay, int maxDelay, final Object lock) {
-        this.actionLock = lock;
-        this.delay = delay;
-        this.title = title;
-        this.maxDelay = maxDelay;
+    public ArbilActionBuffer(String title, int delay, int maxDelay, final Object lock, int threadPriority) {
+	this.actionLock = lock;
+	this.delay = delay;
+	this.title = title;
+	this.maxDelay = maxDelay;
+	this.threadPriority = threadPriority;
     }
 
     public void requestAction() {
-        synchronized (actionLock) {
-            actionRequested = true;
+	synchronized (actionLock) {
+	    actionRequested = true;
 
-            if (workerThread == null || !workerThread.isAlive()) {
-                workerThread = new Thread(new ArbilBufferedWorkerRunnable(), title);
-                workerThread.start();
-            }
-        }
+	    if (workerThread == null || !workerThread.isAlive()) {
+		workerThread = new Thread(new ArbilBufferedWorkerRunnable(), title);
+		workerThread.setPriority(threadPriority);
+		workerThread.start();
+	    }
+	}
     }
 
     public void requestActionAndNotify() {
-        synchronized (actionLock) {
-            requestAction();
-            actionLock.notifyAll();
-        }
+	synchronized (actionLock) {
+	    requestAction();
+	    actionLock.notifyAll();
+	}
     }
-
-    protected abstract void executeAction();
-    private final Object actionLock;
-    private String title;
-    private int delay;
-    private int maxDelay;
-    private boolean actionRequested;
-    private Thread workerThread;
 
     private class ArbilBufferedWorkerRunnable implements Runnable {
 
-        @Override
-        public void run() {
-            // There may be new requests. If so, keep in the loop
-            while (actionRequested) {
-                try {
-                    // Go into wait for some short time while more actions are requested
-                    waitForIncomingRequests();
-                    // No requests have been added for some time, so execute the action
-                    executeAction();
-                } catch (InterruptedException ex) {
-                    return;
-                }
-            }
-        }
+	@Override
+	public void run() {
+	    // There may be new requests. If so, keep in the loop
+	    while (actionRequested) {
+		try {
+		    // Go into wait for some short time while more actions are requested
+		    waitForIncomingRequests();
+		    // No requests have been added for some time, so execute the action
+		    executeAction();
+		} catch (InterruptedException ex) {
+		    return;
+		}
+	    }
+	}
 
-        private void waitForIncomingRequests() throws InterruptedException {
-            long waitStartTime = System.currentTimeMillis();
-            synchronized (actionLock) {
-                if (!actionRequested) {
-                    // No action has been requested. Wait for one to be requested.
-                    actionLock.wait();
-                }
+	private void waitForIncomingRequests() throws InterruptedException {
+	    long waitStartTime = System.currentTimeMillis();
+	    synchronized (actionLock) {
+		if (!actionRequested) {
+		    // No action has been requested. Wait for one to be requested.
+		    actionLock.wait();
+		}
 
-                while (actionRequested) {
-                    // Action requested. Invalidate request.
-                    actionRequested = false;
+		while (actionRequested) {
+		    // Action requested. Invalidate request.
+		    actionRequested = false;
 
-                    if (maxDelay > 0 && (System.currentTimeMillis() - waitStartTime) > maxDelay) {
-                        // Total waiting time exceeds maximum. Return in any case.
-                        return;
-                    } else {
-                        // Give some time for another reload to be requested
-                        actionLock.wait(delay);
-                    }
-                }
-            }
-        }
+		    if (maxDelay > 0 && (System.currentTimeMillis() - waitStartTime) > maxDelay) {
+			// Total waiting time exceeds maximum. Return in any case.
+			return;
+		    } else {
+			// Give some time for another reload to be requested
+			actionLock.wait(delay);
+		    }
+		}
+	    }
+	}
     }
+
+    protected abstract void executeAction();
 }
