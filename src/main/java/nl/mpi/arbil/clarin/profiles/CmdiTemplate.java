@@ -18,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -305,7 +307,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	if (xsdFile.getScheme().equals("file")) {
 	    schemaFile = new File(xsdFile);
 	} else {
-	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS);
+	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS, false);
 	}
 	templateFile = schemaFile; // store the template file for later use such as adding child nodes
 	try {
@@ -620,7 +622,14 @@ public class CmdiTemplate extends ArbilTemplate {
 
 	    public void run() {
 		for (String dcUri : dataCategoriesMap.values()) {
-		    getDescriptionForDataCategory(dcUri);
+		    synchronized (CmdiTemplate.this) {
+			try {
+			    getDescriptionForDataCategory(dcUri);
+			    // Wait some time
+			    CmdiTemplate.this.wait(100);
+			} catch (InterruptedException ex) {
+			}
+		    }
 		}
 	    }
 	};
@@ -662,11 +671,16 @@ public class CmdiTemplate extends ArbilTemplate {
      */
     private String readDescriptionForDataCategory(String dcUri) throws ParserConfigurationException, SAXException, IOException {
 	String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
-	File datCatFile = sessionStorage.updateCache(datCatURI, DATCAT_CACHE_EXPIRY_DAYS);
-	SAXParser parser = parserFactory.newSAXParser();
-	DataCategoryDescriptionHandler handler = new DataCategoryDescriptionHandler();
-	parser.parse(datCatFile, handler);
-	return handler.getDescription();
+	File datCatFile = sessionStorage.updateCache(datCatURI, DATCAT_CACHE_EXPIRY_DAYS, true); // follow redirects for datCatFiles
+	if (datCatFile == null) {
+	    bugCatcher.logError("File not found for data category URI " + dcUri, null);
+	    return null;
+	} else {
+	    SAXParser parser = parserFactory.newSAXParser();
+	    DataCategoryDescriptionHandler handler = new DataCategoryDescriptionHandler();
+	    parser.parse(datCatFile, handler);
+	    return handler.getDescription();
+	}
     }
 
     @Override

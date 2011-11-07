@@ -136,7 +136,7 @@ public class XsdChecker extends JSplitPane {
 	int daysTillExpire = 15;
 	File schemaFile = null;
 	if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("http:/")) {
-	    schemaFile = sessionStorage.updateCache(nameSpaceURI, daysTillExpire);
+	    schemaFile = sessionStorage.updateCache(nameSpaceURI, daysTillExpire, false);
 	}
 	if (nameSpaceURI != null && nameSpaceURI.toLowerCase().startsWith("file:/")) {
 	    try {
@@ -158,7 +158,7 @@ public class XsdChecker extends JSplitPane {
 	} else {
 	    if (schemaFile == null || !schemaFile.exists()) {
 		// try getting the imdi schema if the name space has failed
-		schemaFile = sessionStorage.updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire);
+		schemaFile = sessionStorage.updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", daysTillExpire, false);
 	    }
 	    if (schemaFile.exists()) {
 		try {

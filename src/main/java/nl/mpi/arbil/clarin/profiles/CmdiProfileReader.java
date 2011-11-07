@@ -79,7 +79,7 @@ private static SessionStorage sessionStorage;
         } else {
             updateDays = 100;
         }
-        sessionStorage.updateCache(profilesUrlString, updateDays);
+        sessionStorage.updateCache(profilesUrlString, updateDays, false);
         loadProfiles();
         progressBar.setIndeterminate(false);
         progressBar.setMinimum(0);
@@ -89,7 +89,7 @@ private static SessionStorage sessionStorage;
         for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
             progressBar.setString(currentCmdiProfile.name);
             System.out.println("resaving profile to disk: " + currentCmdiProfile.getXsdHref());
-            sessionStorage.updateCache(currentCmdiProfile.getXsdHref(), updateDays);
+            sessionStorage.updateCache(currentCmdiProfile.getXsdHref(), updateDays, false);
             progressBar.setValue(progressBar.getValue() + 1);
         }
         progressBar.setString("");
@@ -97,7 +97,7 @@ private static SessionStorage sessionStorage;
     }
 
     public final void loadProfiles() {
-        File profileXmlFile = sessionStorage.updateCache(profilesUrlString, 10);
+        File profileXmlFile = sessionStorage.updateCache(profilesUrlString, 10, false);
         try {
             Digester digester = new Digester();
             // This method pushes this (SampleDigester) class to the Digesters
