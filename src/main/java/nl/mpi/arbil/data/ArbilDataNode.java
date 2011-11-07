@@ -385,7 +385,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	typeCheckerMessage = typeCheckerMessageArray[1];
 	if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
 	    // add the mime type for loose files
-	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0);
+	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0, null, null);
 	    //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
 	    addField(mimeTypeField);
 	}
@@ -1138,6 +1138,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
 			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
 			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+			currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
 			fieldUpdateRequests.add(currentFieldUpdateRequest);
 		    }
 		}
