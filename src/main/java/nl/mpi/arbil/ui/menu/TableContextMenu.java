@@ -56,7 +56,12 @@ public class TableContextMenu extends ArbilContextMenu {
 		}
 	    }
 	    if (canDeleteSelectedFields && currentSelection.length > 0) {
-		String menuText = "Delete " + currentSelection[0].getTranslateFieldName();
+		String menuText;
+		if (currentSelection[0].isAttributeField()) {
+		    menuText = "Delete attribute " + currentSelection[0].getTranslateFieldName();
+		} else {
+		    menuText = "Delete " + currentSelection[0].getTranslateFieldName();
+		}
 		if (currentSelection.length > 1) {
 		    menuText = menuText + " X " + currentSelection.length;
 		}
@@ -85,7 +90,7 @@ public class TableContextMenu extends ArbilContextMenu {
 		// show the cell only menu items
 		matchingCellsMenuItem.setVisible(true);
 	    }
-	    
+
 	    jumpToNodeInTreeMenuItem.setVisible(false);// to enable for local: setVisible(leadSelectedTreeNode.isLocal());
 	    clearCellColoursMenuItem.setVisible(true);
 	}
@@ -160,7 +165,9 @@ public class TableContextMenu extends ArbilContextMenu {
 	    }
 	});
 
-	deleteFieldMenuItem.setText("Delete MultiField");
+	if (deleteFieldMenuItem.getText() == null || deleteFieldMenuItem.getText().length() == 0) {
+	    deleteFieldMenuItem.setText("Delete MultiField");
+	}
 	deleteFieldMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {

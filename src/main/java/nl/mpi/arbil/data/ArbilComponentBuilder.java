@@ -390,9 +390,16 @@ public class ArbilComponentBuilder {
 		// delete all the nodes now that the xpath is no longer relevant
 		System.out.println(selectedNodes.size());
 		for (Node currentNode : selectedNodes) {
-		    Node parentNode = currentNode.getParentNode();
-		    if (parentNode != null) {
-			parentNode.removeChild(currentNode);
+		    if (currentNode instanceof Attr) {
+			Element parent = ((Attr) currentNode).getOwnerElement();
+			if (parent != null) {
+			    parent.removeAttributeNode((Attr) currentNode);
+			}
+		    } else {
+			Node parentNode = currentNode.getParentNode();
+			if (parentNode != null) {
+			    parentNode.removeChild(currentNode);
+			}
 		    }
 		}
 		// bump the history
