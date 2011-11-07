@@ -37,8 +37,9 @@ public class ArbilField implements Serializable {
     private int canValidateField = -1;
     private int siblingCount;
     private static SessionStorage sessionStorage;
-    private List<String[]> attributePaths = null;
+    private List<String[]> attributePaths;
     private Map<String, Object> attributeValuesMap;
+    private Map<String, Object> originalAttributeValuesMap;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -49,14 +50,45 @@ public class ArbilField implements Serializable {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
 
+    /**
+     * Creates arbil field with no field attributes from the schema
+     * @param fieldOrderLocal
+     * @param localParentDataNode
+     * @param tempPath
+     * @param tempValue
+     * @param tempSiblingCount 
+     */
     public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount) {
+	this(fieldOrderLocal, localParentDataNode, tempPath, tempValue, tempSiblingCount, null, null);
+    }
+
+    /**
+     * 
+     * @param fieldOrderLocal
+     * @param localParentDataNode
+     * @param tempPath
+     * @param tempValue
+     * @param tempSiblingCount
+     * @param attributePaths Paths of attribute fields allowed by the schema
+     * @param attributeValuesMap Values of field attributes
+     */
+    public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount, List<String[]> attributePaths, Map<String, Object> attributeValuesMap) {
 	fieldOrder = fieldOrderLocal;
 	setParentDataNode(localParentDataNode);
 	fieldValue = tempValue;
 	originalFieldValue = fieldValue;
 	xmlPath = tempPath;
 	siblingCount = tempSiblingCount;
+
+	// Is field an attribute field?
 	attributeField = tempPath.matches("^.*\\.@[^.]*$"); // last section should start with .@
+
+	// Set field attributes paths and values
+	this.attributePaths = attributePaths;
+	if (attributeValuesMap != null) {
+	    this.attributeValuesMap = new HashMap<String, Object>(attributeValuesMap);
+	    originalAttributeValuesMap = Collections.unmodifiableMap(new HashMap<String, Object>(attributeValuesMap));
+	}
     }
 
 //private String originalValue = null;
@@ -110,11 +142,38 @@ public class ArbilField implements Serializable {
 	return isValidValue;
     }
 
-    private boolean valuesDiffer(String leftString, String rightString) {
+    private static boolean valuesDiffer(Object leftString, Object rightString) {
 	if (leftString == null) {
 	    return rightString != null;
 	}
 	return (!leftString.equals(rightString));
+    }
+
+    private static boolean valuesDiffer(final Map<String, Object> originalMap, final Map<String, Object> currentMap) {
+	if (originalMap == null) {
+	    return currentMap != null;
+	} else {
+	    // Original map is set
+	    if (currentMap == null) {
+		return true;
+	    }
+	    // Both maps are set, see if they are equal
+	    if (originalMap.size() != currentMap.size()) {
+		return true;
+	    } else {
+		// We now know both key sets are of the same size. Check for each key in the original set if it exists and is equal in the 
+		// current set. If they all are, there are now differences
+		for (Map.Entry<String, Object> originalEntry : originalMap.entrySet()) {
+		    final Object currentValue = currentMap.get(originalEntry.getKey());
+		    if (currentValue == null) {
+			return originalEntry.getValue() != null;
+		    } else {
+			return !currentValue.equals(originalEntry.getValue());
+		    }
+		}
+	    }
+	}
+	return false;
     }
 
     public boolean fieldNeedsSaveToDisk() {
@@ -125,6 +184,9 @@ public class ArbilField implements Serializable {
 	    return true;
 	}
 	if (valuesDiffer(originalKeyName, keyName)) {
+	    return true;
+	}
+	if (valuesDiffer(originalAttributeValuesMap, attributeValuesMap)) {
 	    return true;
 	}
 	return false;
@@ -299,6 +361,14 @@ public class ArbilField implements Serializable {
 	return attributePaths != null && attributePaths.size() > 0;
     }
 
+    public synchronized Map<String, Object> getAttributeValuesMap() {
+	if (attributeValuesMap == null) {
+	    return null;
+	} else {
+	    return Collections.unmodifiableMap(attributeValuesMap);
+	}
+    }
+
     /**
      * Gets the value of an editable field attribute
      * @param attributePath Path to get value for
@@ -316,14 +386,18 @@ public class ArbilField implements Serializable {
      * @param attributePath Path to set value on
      * @param value Null to unset
      */
-    public synchronized void setAttributeValue(String attributePath, Object value) {
-	if (attributeValuesMap == null) {
-	    attributeValuesMap = new HashMap<String, Object>();
-	}
-	if (value == null) {
-	    attributeValuesMap.remove(attributePath);
-	} else {
-	    attributeValuesMap.put(attributePath, value);
+    public synchronized void setAttributeValue(String attributePath, Object value, boolean updateUI) {
+	if (valuesDiffer(value, getAttributeValue(attributePath))) {
+	    if (attributeValuesMap == null) {
+		attributeValuesMap = new HashMap<String, Object>();
+	    }
+
+	    if (value == null) {
+		attributeValuesMap.remove(attributePath);
+	    } else {
+		attributeValuesMap.put(attributePath, value);
+	    }
+	    getParentDataNode().setDataNodeNeedsSaveToDisk(this, updateUI);
 	}
     }
 
@@ -482,14 +556,5 @@ public class ArbilField implements Serializable {
     public final synchronized void setParentDataNode(ArbilDataNode parentDataNode) {
 	this.parentDataNode = parentDataNode;
 	this.parentDataNodeURI = parentDataNode != null ? parentDataNode.getURI() : null;
-    }
-
-    /**
-     * Set the value of attributePaths
-     *
-     * @param attributePaths new value of attributePaths
-     */
-    public void setAttributePaths(List<String[]> attributePaths) {
-	this.attributePaths = attributePaths;
     }
 }

@@ -17,8 +17,11 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -756,9 +759,24 @@ public class MetadataReader {
     }
 
     private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
+	List<String[]> attributePaths = null;
+	Map<String, Object> attributesValueMap = null;
+	// For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
+	if (destinationNode.isCmdiMetaDataNode()) {
+	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
+	    attributePaths = template.getEditableAttributesForPath(siblingNodePath);
+	    attributesValueMap = new HashMap<String, Object>();
+	    if (childNodeAttributes != null) {
+		for (int i = 0; i < childNodeAttributes.getLength(); i++) {
+		    final Node attrNode = childNodeAttributes.item(i);
+		    final String path = siblingNodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+		    attributesValueMap.put(path, attrNode.getNodeValue());
+		}
+	    }
+	}
 	// is a leaf not a branch
 	//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath));
+	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), attributePaths, attributesValueMap);
 	// TODO: about to write this function
 	//GuiHelper.imdiSchema.convertXmlPathToUiPath();
 	// TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
@@ -767,41 +785,30 @@ public class MetadataReader {
 	//                nodeCounter++;
 	//System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 	//            }
-	if (destinationNode.isCmdiMetaDataNode()) {
-	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
-	    fieldToAdd.setAttributePaths(template.getAttributesForPath(siblingNodePath));
-	    if (childNodeAttributes != null) {
-		for (int i = 0; i < childNodeAttributes.getLength(); i++) {
-		    final Node attrNode = childNodeAttributes.item(i);
-		    final String path = siblingNodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
-		    fieldToAdd.setAttributeValue(path, attrNode.getNodeValue());
+	if (childNodeAttributes != null) {
+	    String cvType = getNamedAttributeValue(childNodeAttributes, "Type");
+	    String cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
+	    String languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
+	    if (languageId == null) {
+		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
+	    }
+	    String keyName = getNamedAttributeValue(childNodeAttributes, "Name");
+	    fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
+	    if (fieldToAdd.xmlPath.endsWith("Description")) {
+		if (cvUrlString != null && cvUrlString.length() > 0) {
+		    // TODO: this field sould be put in the link node not the parent node
+		    URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
+		    childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
+		    ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
+		    descriptionLinkNode.isInfoLink = true;
+		    descriptionLinkNode.setDataLoaded(true);
+		    parentChildTree.get(parentNode).add(descriptionLinkNode);
+		    descriptionLinkNode.addField(fieldToAdd);
 		}
 	    }
-	} else { // IMDI
-	    if (childNodeAttributes != null) {
-		String cvType = getNamedAttributeValue(childNodeAttributes, "Type");
-		String cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
-		String languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
-		if (languageId == null) {
-		    languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
-		}
-		String keyName = getNamedAttributeValue(childNodeAttributes, "Name");
-		fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
-		if (fieldToAdd.xmlPath.endsWith("Description")) {
-		    if (cvUrlString != null && cvUrlString.length() > 0) {
-			// TODO: this field sould be put in the link node not the parent node
-			URI correcteLink = correctLinkPath(parentNode.getURI(), cvUrlString);
-			childLinks.add(new String[]{correcteLink.toString(), "Info Link"});
-			ArbilDataNode descriptionLinkNode = dataNodeLoader.getArbilDataNodeWithoutLoading(correcteLink);
-			descriptionLinkNode.isInfoLink = true;
-			descriptionLinkNode.setDataLoaded(true);
-			parentChildTree.get(parentNode).add(descriptionLinkNode);
-			descriptionLinkNode.addField(fieldToAdd);
-		    }
-		}
-		addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
-	    }
+	    addReferencedResources(parentNode, parentChildTree, childNodeAttributes, childLinks, destinationNode);
 	}
+
 	if (shouldAddCurrent && fieldToAdd.isDisplayable()) {
 	    //                System.out.println("Adding: " + fieldToAdd);
 	    //                debugOut("nextChild: " + fieldToAdd.xmlPath + siblingSpacer + " : " + fieldToAdd.fieldValue);
