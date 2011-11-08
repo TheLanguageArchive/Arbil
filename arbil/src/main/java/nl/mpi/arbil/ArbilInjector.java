@@ -131,6 +131,7 @@ public abstract class ArbilInjector {
 	ArbilVocabularies.setBugCatcher(bugCatcher);
 	BinaryMetadataReader.setBugCatcher(bugCatcher);
 	CmdiComponentLinkReader.setBugCatcher(bugCatcher);
+	CmdiProfileReader.setBugCatcher(bugCatcher);
 	CmdiTemplate.setBugCatcher(bugCatcher);
 	CmdiUtils.setBugCatcher(bugCatcher);
 	DocumentationLanguages.setBugCatcher(bugCatcher);
