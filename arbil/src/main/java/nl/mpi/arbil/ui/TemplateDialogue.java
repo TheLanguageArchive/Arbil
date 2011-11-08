@@ -1,5 +1,6 @@
 package nl.mpi.arbil.ui;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -12,9 +13,10 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import nl.mpi.arbil.ui.GuiHelper;
-import nl.mpi.arbil.ui.ArbilWindowManager;
+import javax.swing.SwingConstants;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.ProfileSelection;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 
 /*
@@ -28,8 +30,8 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
 
     /** Creates new form TemplateDialogue */
     public TemplateDialogue(JDialog parentFrameLocal) {
-        parentFrame = parentFrameLocal;
-        initComponents();
+	parentFrame = parentFrameLocal;
+	initComponents();
     }
 
     /** This method is called from within the constructor to
@@ -39,279 +41,296 @@ public class TemplateDialogue extends javax.swing.JPanel implements ActionListen
      */
     private void initComponents() {
 
-        internalTemplatesPanel = new javax.swing.JPanel();
-        internalTemplatesButtonPanel = new javax.swing.JPanel();
-        jButton3 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        templatesPanel = new javax.swing.JPanel();
-        clarinProfilesPanel = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        clarinPanel = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+	internalTemplatesPanel = new javax.swing.JPanel();
+	internalTemplatesButtonPanel = new javax.swing.JPanel();
+	newTemplateButton = new javax.swing.JButton();
+	jScrollPane2 = new javax.swing.JScrollPane();
+	templatesPanel = new javax.swing.JPanel();
+	clarinProfilesPanel = new javax.swing.JPanel();
+	profileReloadPanel = new javax.swing.JPanel();
+	reloadButton = new javax.swing.JButton();
+	profileReloadProgressBar = new javax.swing.JProgressBar();
+	jScrollPane1 = new javax.swing.JScrollPane();
+	clarinPanel = new javax.swing.JPanel();
+	jTextField1 = new javax.swing.JTextField();
+	profileSelectionCheckBox = new JCheckBox();
+	JPanel profileReloadTopPanel = new JPanel();
 
-        internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Internal Templates"));
-        internalTemplatesPanel.setLayout(new java.awt.BorderLayout());
+	internalTemplatesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("IMDI Templates"));
+	internalTemplatesPanel.setLayout(new java.awt.BorderLayout());
 
-        internalTemplatesButtonPanel.setLayout(new javax.swing.BoxLayout(internalTemplatesButtonPanel, javax.swing.BoxLayout.LINE_AXIS));
+	internalTemplatesButtonPanel.setLayout(new javax.swing.BoxLayout(internalTemplatesButtonPanel, javax.swing.BoxLayout.LINE_AXIS));
 
-        jButton3.setText("New Template");
-        jButton3.setToolTipText("Create a new editable template");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+	newTemplateButton.setText("New Template");
+	newTemplateButton.setToolTipText("Create a new editable template");
+	newTemplateButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-        internalTemplatesButtonPanel.add(jButton3);
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		newTemplateButtonActionPerformed(evt);
+	    }
+	});
+	internalTemplatesButtonPanel.add(newTemplateButton);
 
-        internalTemplatesPanel.add(internalTemplatesButtonPanel, java.awt.BorderLayout.PAGE_END);
+	internalTemplatesPanel.add(internalTemplatesButtonPanel, java.awt.BorderLayout.PAGE_END);
 
-        jScrollPane2.setViewportView(templatesPanel);
+	jScrollPane2.setViewportView(templatesPanel);
 
-        internalTemplatesPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+	internalTemplatesPanel.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
 
-        clarinProfilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
-        clarinProfilesPanel.setLayout(new java.awt.BorderLayout());
+	clarinProfilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
+	clarinProfilesPanel.setLayout(new java.awt.BorderLayout());
 
-        jPanel4.setLayout(new javax.swing.BoxLayout(jPanel4, javax.swing.BoxLayout.LINE_AXIS));
+//	profileReloadPanel.setLayout(new javax.swing.BoxLayout(profileReloadPanel, javax.swing.BoxLayout.PAGE_AXIS));
+	profileReloadPanel.setLayout(new BorderLayout());
+	profileReloadPanel.setAlignmentX(SwingConstants.LEFT);
+	profileReloadTopPanel.setLayout(new javax.swing.BoxLayout(profileReloadTopPanel, javax.swing.BoxLayout.LINE_AXIS));
 
-        jButton1.setText("Reload Clarin Profiles");
-        jButton1.setToolTipText("Download the latest clarin profiles");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+	reloadButton.setText("Reload Clarin Profiles");
+	reloadButton.setToolTipText("Download the latest clarin profiles");
+	reloadButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-        jPanel4.add(jButton1);
-        jPanel4.add(jProgressBar1);
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		reloadButtonActionPerformed(evt);
+	    }
+	});
 
-        clarinProfilesPanel.add(jPanel4, java.awt.BorderLayout.PAGE_END);
+	profileSelectionCheckBox.setText("Only load profiles selected for manual editing");
+	profileSelectionCheckBox.setSelected(CmdiProfileReader.getSingleInstance().getSelection() == ProfileSelection.SELECTED);
 
-        jScrollPane1.setViewportView(clarinPanel);
+	profileReloadTopPanel.add(reloadButton);
+	profileReloadTopPanel.add(profileReloadProgressBar);
+	profileReloadPanel.add(profileReloadTopPanel, BorderLayout.CENTER);
+	profileReloadPanel.add(profileSelectionCheckBox, BorderLayout.SOUTH);
 
-        clarinProfilesPanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+	clarinProfilesPanel.add(profileReloadPanel, java.awt.BorderLayout.PAGE_END);
 
-        JPanel profilesTopPanel = new JPanel();
-        profilesTopPanel.setLayout(new javax.swing.BoxLayout(profilesTopPanel, javax.swing.BoxLayout.LINE_AXIS));
+	jScrollPane1.setViewportView(clarinPanel);
+
+	clarinProfilesPanel.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+	JPanel profilesTopPanel = new JPanel();
+	profilesTopPanel.setLayout(new javax.swing.BoxLayout(profilesTopPanel, javax.swing.BoxLayout.LINE_AXIS));
 
 //        jTextField1.setText("<profile url>"); //todo: complete this
 //        profilesTopPanel.add(jTextField1);
 
-        JButton addButton = new JButton();
-        addButton.setText("Add URL");
-        addButton.setToolTipText("Add a profile URL to the list");
-        addButton.addActionListener(new java.awt.event.ActionListener() {
+	JButton addButton = new JButton();
+	addButton.setText("Add URL");
+	addButton.setToolTipText("Add a profile URL to the list");
+	addButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
-                ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
-                populateLists();
-            }
-        });
-        profilesTopPanel.add(addButton);
-        JButton browseButton = new JButton();
-        browseButton.setText("Add File");
-        browseButton.setToolTipText("Browse for local profiles");
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the profile URL", "Add Profile", JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+		ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + newDirectoryName);
+		populateLists();
+	    }
+	});
+	profilesTopPanel.add(addButton);
+	JButton browseButton = new JButton();
+	browseButton.setText("Add File");
+	browseButton.setToolTipText("Browse for local profiles");
+	browseButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                for (File selectedFile : ArbilWindowManager.getSingleInstance().showFileSelectBox("Select Profile", false, true, false)) {
-                    ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
-                }
-                populateLists();
-            }
-        });
-        profilesTopPanel.add(browseButton);
-        clarinProfilesPanel.add(profilesTopPanel, java.awt.BorderLayout.PAGE_START);
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		for (File selectedFile : ArbilWindowManager.getSingleInstance().showFileSelectBox("Select Profile", false, true, false)) {
+		    ArbilTemplateManager.getSingleInstance().addSelectedTemplates("custom:" + selectedFile.toURI().toString());
+		}
+		populateLists();
+	    }
+	});
+	profilesTopPanel.add(browseButton);
+	clarinProfilesPanel.add(profilesTopPanel, java.awt.BorderLayout.PAGE_START);
 
-        // todo: this should probably have a cancel button also
-        JPanel outerPanel = new JPanel();
-        outerPanel.setLayout(new java.awt.GridLayout(1, 0));
-        outerPanel.add(internalTemplatesPanel);
-        outerPanel.add(clarinProfilesPanel);
-        this.setLayout(new java.awt.BorderLayout());
-        this.add(outerPanel, java.awt.BorderLayout.CENTER);
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
+	// todo: this should probably have a cancel button also
+	JPanel outerPanel = new JPanel();
+	outerPanel.setLayout(new java.awt.GridLayout(1, 0));
+	outerPanel.add(internalTemplatesPanel);
+	outerPanel.add(clarinProfilesPanel);
+	this.setLayout(new java.awt.BorderLayout());
+	this.add(outerPanel, java.awt.BorderLayout.CENTER);
+	JButton closeButton = new JButton("Close");
+	closeButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parentFrame.setVisible(false);
-            }
-        });
-        JPanel closeButtonPanel = new JPanel();
-        closeButtonPanel.setLayout(new java.awt.BorderLayout());
-        closeButtonPanel.add(closeButton, java.awt.BorderLayout.LINE_END);
-        this.add(outerPanel, java.awt.BorderLayout.CENTER);
-        this.add(closeButtonPanel, java.awt.BorderLayout.PAGE_END);
+	    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		parentFrame.setVisible(false);
+	    }
+	});
+	JPanel closeButtonPanel = new JPanel();
+	closeButtonPanel.setLayout(new java.awt.BorderLayout());
+	closeButtonPanel.add(closeButton, java.awt.BorderLayout.LINE_END);
+	this.add(outerPanel, java.awt.BorderLayout.CENTER);
+	this.add(closeButtonPanel, java.awt.BorderLayout.PAGE_END);
     }
 
     public void loadProfiles(final boolean forceUpdate) {
-        clarinPanel.removeAll();
-        clarinPanel.add(new JTextField("Loading..."));
-        jButton1.setVisible(false);
-        jProgressBar1.setVisible(true);
-        this.doLayout();
-        new Thread("loadProfiles") {
+	CmdiProfileReader.getSingleInstance().setSelection(
+		profileSelectionCheckBox.isSelected() ? ProfileSelection.SELECTED : ProfileSelection.ALL);
+	clarinPanel.removeAll();
+	clarinPanel.add(new JTextField("Loading..."));
+	reloadButton.setVisible(false);
+	profileSelectionCheckBox.setEnabled(false);
+	profileReloadProgressBar.setVisible(true);
+	this.doLayout();
+	new Thread("loadProfiles") {
 
-            @Override
-            public void run() {
-                CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
-                cmdiProfileReader.refreshProfiles(jProgressBar1, forceUpdate);
-                jProgressBar1.setVisible(false);
-                jButton1.setVisible(true);
-                populateLists();
-                doLayout();
-            }
-        }.start();
+	    @Override
+	    public void run() {
+		CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
+		cmdiProfileReader.refreshProfiles(profileReloadProgressBar, forceUpdate);
+		profileReloadProgressBar.setVisible(false);
+		reloadButton.setVisible(true);
+		profileSelectionCheckBox.setEnabled(true);
+		populateLists();
+		doLayout();
+	    }
+	}.start();
     }
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
-        loadProfiles(true);
+    private void reloadButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	loadProfiles(true);
     }
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
-        try {
-            String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", ArbilWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
-            // if the user cancels the directory string will be a empty string.
-            if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
-            }
-            File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
-            if (freshTemplateFile != null) {
-                GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
-                GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
-            } else {
-                ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
-            }
+    private void newTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	try {
+	    String newDirectoryName = JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the name for the new template", ArbilWindowManager.getSingleInstance().linorgFrame.getTitle(), JOptionPane.PLAIN_MESSAGE, null, null, null).toString();
+	    // if the user cancels the directory string will be a empty string.
+	    if (ArbilTemplateManager.getSingleInstance().getTemplateFile(newDirectoryName).exists()) {
+		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" already exists.", "Templates");
+	    }
+	    File freshTemplateFile = ArbilTemplateManager.getSingleInstance().createTemplate(newDirectoryName);
+	    if (freshTemplateFile != null) {
+		GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.toURI());
+		GuiHelper.getSingleInstance().openFileInExternalApplication(freshTemplateFile.getParentFile().toURI());
+	    } else {
+		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The template \"" + newDirectoryName + "\" could not be created.", "Templates");
+	    }
 //                    LinorgWindowManager.getSingleInstance().addMessageDialogToQueue("This action is not yet available.", "Templates");
-            //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
+	    //GuiHelper.linorgWindowManager.openUrlWindow(evt.getActionCommand() + templateList.get(evt.getActionCommand()).toString(), new File(templateList.get(evt.getActionCommand()).toString()).toURL());
 //                    System.out.println("setting template: " + evt.getActionCommand());
 //                    ArbilTemplateManager.getSingleInstance().setCurrentTemplate(evt.getActionCommand());
-        } catch (Exception e) {
-            GuiHelper.linorgBugCatcher.logError(e);
-        }
-        populateLists();
+	} catch (Exception e) {
+	    GuiHelper.linorgBugCatcher.logError(e);
+	}
+	populateLists();
     }
 
     protected void addSorted(JPanel targetPanel, ArrayList<JCheckBox> checkBoxArray) {
-        targetPanel.removeAll();
-        targetPanel.setLayout(new javax.swing.BoxLayout(targetPanel, javax.swing.BoxLayout.PAGE_AXIS));
-        Collections.sort(checkBoxArray, new Comparator() {
+	targetPanel.removeAll();
+	targetPanel.setLayout(new javax.swing.BoxLayout(targetPanel, javax.swing.BoxLayout.PAGE_AXIS));
+	Collections.sort(checkBoxArray, new Comparator() {
 
-            public int compare(Object firstItem, Object secondItem) {
-                return (((JCheckBox) firstItem).getText().compareToIgnoreCase(((JCheckBox) secondItem).getText()));
-            }
-        });
-        for (JCheckBox checkBox : checkBoxArray) {
-            targetPanel.add(checkBox);
-        }
-        parentFrame.pack();
+	    public int compare(Object firstItem, Object secondItem) {
+		return (((JCheckBox) firstItem).getText().compareToIgnoreCase(((JCheckBox) secondItem).getText()));
+	    }
+	});
+	for (JCheckBox checkBox : checkBoxArray) {
+	    targetPanel.add(checkBox);
+	}
+	parentFrame.pack();
     }
 
     protected void populateLists() {
-        ArrayList<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
-        ArrayList<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
-        // add built in types
-        for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
-            JCheckBox templateCheckBox;
-            templateCheckBox = new JCheckBox();
-            templateCheckBox.setText(currentTemplateName[1] + " (internal)");
-            templateCheckBox.setName(currentTemplateName[1]);
-            templateCheckBox.setActionCommand("builtin:" + currentTemplateName[0]);
-            templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
-            templateCheckBox.setToolTipText(currentTemplateName[1]);
-            templateCheckBox.addActionListener(this);
-            checkBoxArray.add(templateCheckBox);
-        }
-        // add custom templates
-        for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
-            JCheckBox templateCheckBox;
-            templateCheckBox = new JCheckBox();
-            templateCheckBox.setText(currentTemplateName);
-            templateCheckBox.setName(currentTemplateName);
-            templateCheckBox.setActionCommand("template:" + currentTemplateName);
-            templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
-            templateCheckBox.setToolTipText(currentTemplateName);
-            templateCheckBox.addActionListener(this);
-            checkBoxArray.add(templateCheckBox);
-        }
-        addSorted(templatesPanel, checkBoxArray);
+	ArrayList<String> selectedTamplates = ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList();
+	ArrayList<JCheckBox> checkBoxArray = new ArrayList<JCheckBox>();
+	// add built in types
+	for (String currentTemplateName[] : ArbilTemplateManager.getSingleInstance().getTemplate(null).getRootTemplatesArray()) {
+	    JCheckBox templateCheckBox;
+	    templateCheckBox = new JCheckBox();
+	    templateCheckBox.setText(currentTemplateName[1] + " (internal)");
+	    templateCheckBox.setName(currentTemplateName[1]);
+	    templateCheckBox.setActionCommand("builtin:" + currentTemplateName[0]);
+	    templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
+	    templateCheckBox.setToolTipText(currentTemplateName[1]);
+	    templateCheckBox.addActionListener(this);
+	    checkBoxArray.add(templateCheckBox);
+	}
+	// add custom templates
+	for (String currentTemplateName : ArbilTemplateManager.getSingleInstance().getAvailableTemplates()) {
+	    JCheckBox templateCheckBox;
+	    templateCheckBox = new JCheckBox();
+	    templateCheckBox.setText(currentTemplateName);
+	    templateCheckBox.setName(currentTemplateName);
+	    templateCheckBox.setActionCommand("template:" + currentTemplateName);
+	    templateCheckBox.setSelected(selectedTamplates.contains(templateCheckBox.getActionCommand()));
+	    templateCheckBox.setToolTipText(currentTemplateName);
+	    templateCheckBox.addActionListener(this);
+	    checkBoxArray.add(templateCheckBox);
+	}
+	addSorted(templatesPanel, checkBoxArray);
 
-        // add clarin types
-        checkBoxArray.clear();
-        CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
-        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
-            JCheckBox clarinProfileCheckBox;
-            clarinProfileCheckBox = new JCheckBox();
-            clarinProfileCheckBox.setText(currentCmdiProfile.name);
-            clarinProfileCheckBox.setName(currentCmdiProfile.name);
-            clarinProfileCheckBox.setActionCommand("clarin:" + currentCmdiProfile.getXsdHref());
-            clarinProfileCheckBox.setSelected(selectedTamplates.contains(clarinProfileCheckBox.getActionCommand()));
-            clarinProfileCheckBox.setToolTipText(currentCmdiProfile.description);
-            clarinProfileCheckBox.addActionListener(this);
-            checkBoxArray.add(clarinProfileCheckBox);
-        }
-        for (String currentSepectedProfile : selectedTamplates) {
-            if (currentSepectedProfile.startsWith("custom:")) {
-                String customUrlString = currentSepectedProfile.substring("custom:".length());
-                String customName = currentSepectedProfile.substring(currentSepectedProfile.lastIndexOf("/") + 1);
-                JCheckBox clarinProfileCheckBox;
-                clarinProfileCheckBox = new JCheckBox();
-                clarinProfileCheckBox.setText(customName);
-                clarinProfileCheckBox.setName(customName);
-                clarinProfileCheckBox.setActionCommand(currentSepectedProfile);
-                clarinProfileCheckBox.setSelected(true);
-                clarinProfileCheckBox.setToolTipText("custom profile, uncheck to remove");
-                clarinProfileCheckBox.addActionListener(this);
-                checkBoxArray.add(clarinProfileCheckBox);
-            }
-        }
-        addSorted(clarinPanel, checkBoxArray);
+	// add clarin types
+	checkBoxArray.clear();
+	CmdiProfileReader cmdiProfileReader = CmdiProfileReader.getSingleInstance();
+	for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileReader.cmdiProfileArray) {
+	    JCheckBox clarinProfileCheckBox;
+	    clarinProfileCheckBox = new JCheckBox();
+	    clarinProfileCheckBox.setText(currentCmdiProfile.name);
+	    clarinProfileCheckBox.setName(currentCmdiProfile.name);
+	    clarinProfileCheckBox.setActionCommand("clarin:" + currentCmdiProfile.getXsdHref());
+	    clarinProfileCheckBox.setSelected(selectedTamplates.contains(clarinProfileCheckBox.getActionCommand()));
+	    clarinProfileCheckBox.setToolTipText(currentCmdiProfile.description);
+	    clarinProfileCheckBox.addActionListener(this);
+	    checkBoxArray.add(clarinProfileCheckBox);
+	}
+	for (String currentSepectedProfile : selectedTamplates) {
+	    if (currentSepectedProfile.startsWith("custom:")) {
+		String customUrlString = currentSepectedProfile.substring("custom:".length());
+		String customName = currentSepectedProfile.substring(currentSepectedProfile.lastIndexOf("/") + 1);
+		JCheckBox clarinProfileCheckBox;
+		clarinProfileCheckBox = new JCheckBox();
+		clarinProfileCheckBox.setText(customName);
+		clarinProfileCheckBox.setName(customName);
+		clarinProfileCheckBox.setActionCommand(currentSepectedProfile);
+		clarinProfileCheckBox.setSelected(true);
+		clarinProfileCheckBox.setToolTipText("custom profile, uncheck to remove");
+		clarinProfileCheckBox.addActionListener(this);
+		checkBoxArray.add(clarinProfileCheckBox);
+	    }
+	}
+	addSorted(clarinPanel, checkBoxArray);
     }
 
     public void actionPerformed(ActionEvent e) {
-        if (((JCheckBox) e.getSource()).isSelected()) {
-            ArbilTemplateManager.getSingleInstance().addSelectedTemplates(e.getActionCommand());
-        } else {
-            ArbilTemplateManager.getSingleInstance().removeSelectedTemplates(e.getActionCommand());
-        }
+	if (((JCheckBox) e.getSource()).isSelected()) {
+	    ArbilTemplateManager.getSingleInstance().addSelectedTemplates(e.getActionCommand());
+	} else {
+	    ArbilTemplateManager.getSingleInstance().removeSelectedTemplates(e.getActionCommand());
+	}
     }
 
     public static void showTemplatesDialogue() {
-        showDialogue("Available Templates & Profiles");
+	showDialogue("Available Templates & Profiles");
     }
 
     protected static void showDialogue(String titleStirng) {
-        JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().linorgFrame, titleStirng, true);
-        TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
-        dialog.setContentPane(templateDialogue);
-        templateDialogue.populateLists();
-        templateDialogue.loadProfiles(false);
-        dialog.pack();
-        dialog.setVisible(true);
+	JDialog dialog = new JDialog(ArbilWindowManager.getSingleInstance().linorgFrame, titleStirng, true);
+	TemplateDialogue templateDialogue = new TemplateDialogue(dialog);
+	dialog.setContentPane(templateDialogue);
+	templateDialogue.populateLists();
+	templateDialogue.loadProfiles(false);
+	dialog.pack();
+	dialog.setVisible(true);
     }
 
     public static void main(String[] args) {
-        TemplateDialogue.showTemplatesDialogue();
-        System.exit(0);
+	ArbilDesktopInjector.injectHandlers();
+	TemplateDialogue.showTemplatesDialogue();
+	System.exit(0);
     }
     // Variables declaration
     private javax.swing.JPanel clarinPanel;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
+    private javax.swing.JButton reloadButton;
+    private javax.swing.JButton newTemplateButton;
     protected javax.swing.JPanel internalTemplatesPanel;
     protected javax.swing.JPanel clarinProfilesPanel;
-    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel profileReloadPanel;
     protected javax.swing.JPanel internalTemplatesButtonPanel;
-    private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JProgressBar profileReloadProgressBar;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField jTextField1;
     protected javax.swing.JPanel templatesPanel;
+    protected javax.swing.JCheckBox profileSelectionCheckBox;
     // End of variables declaration
 }
