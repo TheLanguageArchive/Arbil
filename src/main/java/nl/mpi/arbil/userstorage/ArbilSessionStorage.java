@@ -614,12 +614,19 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     private void saveConfig(Properties configObject) {
+
+	boolean canUseUTFOutputStreamWriter; // Writing to an (encoding-specific) StreamWriter is not supported until 1.6
+	try {
+	    canUseUTFOutputStreamWriter = null != Properties.class.getMethod("store", Writer.class, String.class);
+	} catch (NoSuchMethodException ex) {
+	    canUseUTFOutputStreamWriter = false;
+	}
+
 	FileOutputStream propertiesOutputStream = null;
 	try {
 	    //new OutputStreamWriter
 	    propertiesOutputStream = new FileOutputStream(new File(storageDirectory, "arbil.config"));
-	    if (System.getProperty("java.version").startsWith("1.6")) { //TODO: should not break with 1.7 - better is check if method exists
-		// Writing to an (encoding-specific) StreamWriter is not supported until 1.6
+	    if (canUseUTFOutputStreamWriter) {
 		OutputStreamWriter propertiesOutputStreamWriter = new OutputStreamWriter(propertiesOutputStream, "UTF8");
 		configObject.store(propertiesOutputStreamWriter, null);
 		propertiesOutputStreamWriter.close();
