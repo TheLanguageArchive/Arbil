@@ -61,6 +61,7 @@ public class ArbilIcons {
     public ImageIcon dataCollectionIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/datacollection.png"));
     public ImageIcon fieldIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
+    private ImageIcon dataContainerIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/datacontainer.png"));
 //    private ImageIcon server16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
 //    private ImageIcon directory16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
 //    private ImageIcon sessionColorLocalIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-local.png"));
@@ -252,7 +253,10 @@ public class ArbilIcons {
 //                if (arbilNode.isContainerNode()) {
 //                    iconsVector.add(dataCollectionIcon);
 //                } else 
-		if (arbilNode.isEmptyMetaNode()) {
+		if(arbilNode.isContainerNode()){
+		    iconsVector.add(dataContainerIcon);
+		}
+		else if (arbilNode.isEmptyMetaNode()) {
 		    iconsVector.add(dataemptyIcon);
 		} else {
 		    iconsVector.add(dataIcon);
