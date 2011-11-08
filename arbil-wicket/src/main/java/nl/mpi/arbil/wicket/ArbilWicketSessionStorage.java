@@ -84,7 +84,7 @@ public class ArbilWicketSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -96,11 +96,11 @@ public class ArbilWicketSessionStorage implements SessionStorage {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File updateCache(String pathString, int expireCacheDays) {
+    public File updateCache(String pathString, int expireCacheDays, boolean followRedirects) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -127,5 +127,4 @@ public class ArbilWicketSessionStorage implements SessionStorage {
     public File getTypeCheckerConfig() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }

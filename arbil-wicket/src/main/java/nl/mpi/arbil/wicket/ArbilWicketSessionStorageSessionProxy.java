@@ -90,8 +90,8 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	getSessionStorage().saveObject(object, filename);
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
-	return getSessionStorage().saveRemoteResource(targetUrl, destinationFile, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+	return getSessionStorage().saveRemoteResource(targetUrl, destinationFile, shibbolethNegotiator, expireCacheCopy, followRedirects, abortFlag, progressLabel);
     }
 
     public void saveString(String filename, String storableValue) {
@@ -102,12 +102,12 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	getSessionStorage().saveStringArray(filename, storableValue);
     }
 
-    public File updateCache(String pathString, int expireCacheDays) {
-	return getSessionStorage().updateCache(pathString, expireCacheDays);
+    public File updateCache(String pathString, int expireCacheDays,boolean followRedirects) {
+	return getSessionStorage().updateCache(pathString, expireCacheDays, followRedirects);
     }
 
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
-	return getSessionStorage().updateCache(pathString, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirects, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+	return getSessionStorage().updateCache(pathString, shibbolethNegotiator, expireCacheCopy, followRedirects, abortFlag, progressLabel);
     }
 
     public File getStorageDirectory() {
