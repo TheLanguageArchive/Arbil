@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JProgressBar;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.BugCatcher;
 import org.apache.commons.digester.Digester;
 
 /**
@@ -13,8 +14,13 @@ import org.apache.commons.digester.Digester;
  */
 public class CmdiProfileReader {
 
-    private static final String PARAM_PROFILESELECTION = "profileSelection";
     private static SessionStorage sessionStorage;
+    private static BugCatcher bugCatcher;
+    public static final String PARAM_PROFILESELECTION = "profileSelection";
+    public static final String PARAM_PROFILES_URL = "profilesUrlAll";
+    public static final String PARAM_SELECTED_PROFILES_URL = "profilesUrlSelected";
+    public final static String DEFAULT_ALL_PROFILES_URL_STRING = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
+    public final static String DEFAULT_SELECTED_PROFILES_URL_STRING = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles?mdEditor=true";
     private ProfileSelection selection;
 
     public static enum ProfileSelection {
@@ -26,12 +32,11 @@ public class CmdiProfileReader {
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
     }
+
+    public static void setBugCatcher(BugCatcher bugCatcherInstance) {
+	bugCatcher = bugCatcherInstance;
+    }
     public ArrayList<CmdiProfile> cmdiProfileArray = null;
-    // todo: move this url into the config file
-    private final static String profilesUrlString = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles";
-    private final static String profilesUrlStringSelected = "http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles?mdEditor=true";
-//    private final static String profilesUrlString = "http://localhost:8080/ComponentRegistry/rest/registry/profiles";
-//    private final static String profilesUrlStringSelected = "http://localhost:8080/ComponentRegistry/rest/registry/profiles?mdEditor=true";
     static CmdiProfileReader singleInstance = null;
 
     static synchronized public CmdiProfileReader getSingleInstance() {
@@ -40,18 +45,6 @@ public class CmdiProfileReader {
 	    singleInstance = new CmdiProfileReader(getStoredProfileSelection());
 	}
 	return singleInstance;
-    }
-
-    private synchronized static ProfileSelection getStoredProfileSelection() {
-	String selectionString = sessionStorage.loadString(PARAM_PROFILESELECTION);
-	if (selectionString == null) {
-	    selectionString = ProfileSelection.SELECTED.toString();
-	}
-	return ProfileSelection.valueOf(selectionString);
-    }
-
-    private void storeProfileSelection(ProfileSelection selection) {
-	sessionStorage.saveString(PARAM_PROFILESELECTION, selection.toString());
     }
 
     public static boolean pathIsProfile(String pathString) {
@@ -84,7 +77,7 @@ public class CmdiProfileReader {
 
     private CmdiProfileReader(ProfileSelection selection) {
 	setSelection(selection);
-	loadProfiles(getProfilesUrlString(getSelection()));
+	loadProfiles(getProfilesUrlStringForSelection(getSelection()));
     }
 
     public void refreshProfiles(JProgressBar progressBar, boolean forceUpdate) {
@@ -96,8 +89,8 @@ public class CmdiProfileReader {
 	} else {
 	    updateDays = 100;
 	}
-	sessionStorage.updateCache(profilesUrlStringSelected, updateDays, false);
-	loadProfiles(getProfilesUrlString(getSelection()));
+	sessionStorage.updateCache(getProfilesUrlStringForSelection(getSelection()), updateDays, false);
+	loadProfiles(getProfilesUrlStringForSelection(getSelection()));
 	progressBar.setIndeterminate(false);
 	progressBar.setMinimum(0);
 	progressBar.setMaximum(cmdiProfileArray.size() + 1);
@@ -113,7 +106,7 @@ public class CmdiProfileReader {
 	progressBar.setValue(0);
     }
 
-    private final void loadProfiles(final String profilesUrl) {
+    private void loadProfiles(final String profilesUrl) {
 	File profileXmlFile = sessionStorage.updateCache(profilesUrl, 10, false);
 	try {
 	    Digester digester = new Digester();
@@ -133,7 +126,7 @@ public class CmdiProfileReader {
 	    cmdiProfileArray = new ArrayList<CmdiProfile>();
 	    digester.parse(profileXmlFile);
 	} catch (Exception e) {
-	    e.printStackTrace();
+	    bugCatcher.logError(e);
 	}
 	// get all the xsd files from the profile listing and store them on disk for offline use
 //        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
@@ -180,11 +173,43 @@ public class CmdiProfileReader {
 	storeProfileSelection(selection);
     }
 
-    protected static String getProfilesUrlString(ProfileSelection selection) {
-	return selection == ProfileSelection.SELECTED ? profilesUrlStringSelected : profilesUrlString;
+    protected final String getProfilesUrlStringForSelection(ProfileSelection selection) {
+	return selection == ProfileSelection.SELECTED ? getSelectedProfileUrlString() : getAllProfilesUrlString();
     }
 
     public static void main(String args[]) {
 	new CmdiProfileReader(ProfileSelection.SELECTED);
+    }
+
+    private synchronized static ProfileSelection getStoredProfileSelection() {
+	String selectionString = sessionStorage.loadString(PARAM_PROFILESELECTION);
+	if (selectionString == null) {
+	    selectionString = ProfileSelection.SELECTED.toString();
+	}
+	return ProfileSelection.valueOf(selectionString);
+    }
+
+    private void storeProfileSelection(ProfileSelection selection) {
+	sessionStorage.saveString(PARAM_PROFILESELECTION, selection.toString());
+    }
+
+    private String getAllProfilesUrlString() {
+	String savedProfilesUrlString = sessionStorage.loadString(PARAM_PROFILES_URL);
+	if (savedProfilesUrlString == null) {
+	    sessionStorage.saveString(PARAM_PROFILES_URL, DEFAULT_ALL_PROFILES_URL_STRING);
+	    return DEFAULT_ALL_PROFILES_URL_STRING;
+	} else {
+	    return savedProfilesUrlString;
+	}
+    }
+
+    private String getSelectedProfileUrlString() {
+	String savedProfilesUrlString = sessionStorage.loadString(PARAM_SELECTED_PROFILES_URL);
+	if (savedProfilesUrlString == null) {
+	    sessionStorage.saveString(PARAM_SELECTED_PROFILES_URL, DEFAULT_SELECTED_PROFILES_URL_STRING);
+	    return DEFAULT_SELECTED_PROFILES_URL_STRING;
+	} else {
+	    return savedProfilesUrlString;
+	}
     }
 }
