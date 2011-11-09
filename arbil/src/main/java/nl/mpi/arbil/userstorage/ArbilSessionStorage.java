@@ -649,8 +649,20 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Fetch the file from the remote URL and save into the cache.
+     * Does not check whether copy may have been expired
+     * @param pathString Path of the remote file.
+     * @param followRedirect Whether to follow redirects
+     * @return The path of the file in the cache.
+     */
+    public File getFromCache(String pathString, boolean followRedirect) {
+	return updateCache(pathString, null, false, followRedirect, new DownloadAbortFlag(), null);
+    }
+
+    /**
+     * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
      * @param pathString Path of the remote file.
+     * @param followRedirect Whether to follow redirects
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
      */
@@ -673,7 +685,11 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	}
 	System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
-	return updateCache(pathString, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+    }
+
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+	return updateCache(pathString, getSaveLocation(pathString), shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
     }
 
     /**
@@ -682,9 +698,8 @@ public class ArbilSessionStorage implements SessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    private File updateCache(String pathString, File cachePath, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	// to expire the files in the cache set the expireCacheCopy flag.
-	File cachePath = getSaveLocation(pathString);
 	try {
 	    saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
