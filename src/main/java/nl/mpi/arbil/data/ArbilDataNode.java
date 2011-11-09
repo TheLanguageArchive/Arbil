@@ -1276,7 +1276,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     ////                        resourceUrlString = resourceFile.getCanonicalPath();
     //                resourceUrlString = fieldToAdd.fieldValue;
     ////                if (useCache) {
-    ////                    linorgSessionStorage.updateCache(getFullResourceURI());
+    ////                    linorgSessionStorage.getFromCache(getFullResourceURI());
     ////                }
     //                mimeHashQueue.addToQueue(this);
     //            }

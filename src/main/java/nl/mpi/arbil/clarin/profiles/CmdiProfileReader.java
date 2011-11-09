@@ -131,7 +131,7 @@ public class CmdiProfileReader {
 	// get all the xsd files from the profile listing and store them on disk for offline use
 //        for (CmdiProfileReader.CmdiProfile currentCmdiProfile : cmdiProfileArray) {
 //            System.out.println("checking profile exists on disk: " + currentCmdiProfile.getXsdHref());
-//            LinorgSessionStorage.getSingleInstance().updateCache(currentCmdiProfile.getXsdHref(), 90);
+//            LinorgSessionStorage.getSingleInstance().getFromCache(currentCmdiProfile.getXsdHref(), 90);
 //        }
     }
 

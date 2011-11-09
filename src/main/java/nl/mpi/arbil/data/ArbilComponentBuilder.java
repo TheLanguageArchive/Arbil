@@ -1448,7 +1448,7 @@ public class ArbilComponentBuilder {
     public void testWalk() {
 	try {
 	    //new CmdiComponentBuilder().readSchema();
-	    //File xsdFile = LinorgSessionStorage.getSingleInstance().updateCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", 5);
+	    //File xsdFile = LinorgSessionStorage.getSingleInstance().getFromCache("http://www.mpi.nl/IMDI/Schema/IMDI_3.0.xsd", 5);
 	    Document workingDocument = getDocument(null);
 
 	    //Create instance of DocumentBuilderFactory

@@ -371,6 +371,10 @@ public class MockSessionStorage implements SessionStorage {
 	return updateCache(pathString, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
     }
 
+    public File getFromCache(String pathString, boolean followRedirect) {
+	return updateCache(pathString, Integer.MAX_VALUE, followRedirect);
+    }
+
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.

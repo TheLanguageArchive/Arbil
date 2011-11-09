@@ -18,8 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -75,7 +73,6 @@ public class CmdiTemplate extends ArbilTemplate {
 	    , String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")) // {http://www.w3.org/XML/1998/namespace}lang
 	    ));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
-    public final static int DATCAT_CACHE_EXPIRY_DAYS = 100;
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
     private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
@@ -671,7 +668,7 @@ public class CmdiTemplate extends ArbilTemplate {
      */
     private String readDescriptionForDataCategory(String dcUri) throws ParserConfigurationException, SAXException, IOException {
 	String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
-	File datCatFile = sessionStorage.updateCache(datCatURI, DATCAT_CACHE_EXPIRY_DAYS, true); // follow redirects for datCatFiles
+	File datCatFile = sessionStorage.getFromCache(datCatURI, true); // follow redirects for datCatFiles
 	if (datCatFile == null) {
 	    bugCatcher.logError("File not found for data category URI " + dcUri, null);
 	    return null;
