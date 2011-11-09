@@ -221,7 +221,7 @@ public class MetadataBuilder {
     private void addNonMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	String nodeTypeDisplayName = nodeTypeDisplayNameLocal;
 	ArbilDataNode[] sourceArbilNodeArray;
-	if (addableNode.isEmptyMetaNode()) {
+	if (addableNode.isContainerNode()) {
 	    sourceArbilNodeArray = addableNode.getChildArray();
 	} else {
 	    sourceArbilNodeArray = new ArbilDataNode[]{addableNode};

@@ -1558,6 +1558,39 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	return resourceUrlField != null;
     }
 
+    public boolean canHaveResource() {
+	if (hasResource()) {
+	    return true;
+	} else if (isCmdiMetaDataNode()) {
+	    return !isContainerNode();
+	}
+	return false;
+    }
+
+    /**
+     * Inserts/sets resource location. Behavior will depend on node type
+     * @param location Location to insert/set
+     */
+    public void insertResourceLocation(URI location) throws ArbilMetadataException {
+	if (isCmdiMetaDataNode()) {
+	    ArbilDataNode resourceNode = null;
+	    try {
+		resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
+	    } catch (Exception ex) {
+		throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
+	    }
+	    if (resourceNode == null) {
+		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
+	    }
+	    
+	    new MetadataBuilder().requestAddNode(this, null, resourceNode);
+	} else {
+	    if (hasResource()) {
+		resourceUrlField.setFieldValue(location.toString(), true, false);
+	    }
+	}
+    }
+
     /**
      * Tests if a local resource file is associated with this node.
      * @return boolean
