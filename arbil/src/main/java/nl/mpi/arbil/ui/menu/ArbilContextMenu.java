@@ -1,9 +1,11 @@
 package nl.mpi.arbil.ui.menu;
 
 import java.awt.Component;
-import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -12,6 +14,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.importexport.ArbilToHtmlConverter;
@@ -87,7 +90,33 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		}
 	    }
 	});
-	addItem(CATEGORY_NODE, PRIORITY_BOTTOM, browseForResourceFileMenuItem);
+	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM, browseForResourceFileMenuItem);
+
+	setManualResourceLocationMenuItem.setText("Inset Manual Resource Location");
+	setManualResourceLocationMenuItem.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		String initialValue;
+		if (leadSelectedTreeNode.hasLocalResource()) {
+		    initialValue = leadSelectedTreeNode.resourceUrlField.getFieldValue();
+		} else {
+		    initialValue = "";
+		}
+		String manualLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
+		if (manualLocation != null) { // Not canceled
+		    try {
+			URI locationURI = new URI(manualLocation);
+			leadSelectedTreeNode.insertResourceLocation(locationURI);
+		    } catch (URISyntaxException ex) {
+			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The URI entered as a resource location is invalid. Please check the location and try again.", "Invalid URI");
+		    } catch (ArbilMetadataException ex) {
+			GuiHelper.linorgBugCatcher.logError(ex);
+			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add resource to the metadata. Check the error log for details.", "Error adding resource");
+		    }
+		}
+	    }
+	});
+	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM + 1, setManualResourceLocationMenuItem);
 
 	saveMenuItem.setText("Save Changes to Disk");
 	saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -206,6 +235,10 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 	    //if (leadSelectedTreeNode.is)
 	    saveMenuItem.setVisible(leadSelectedTreeNode.getNeedsSaveToDisk(false));// save sould always be available if the node has been edited
 
+	    if (leadSelectedTreeNode.canHaveResource()) {
+		setManualResourceLocationMenuItem.setVisible(true);
+	    }
+
 	    if (leadSelectedTreeNode.hasResource()) {
 		browseForResourceFileMenuItem.setVisible(true);
 	    }
@@ -265,6 +298,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 	overrideTypeCheckerDecision.setVisible(false);
 	openInExternalApplicationMenuItem.setVisible(false);
 	browseForResourceFileMenuItem.setVisible(false);
+	setManualResourceLocationMenuItem.setVisible(false);
 	saveMenuItem.setVisible(false);
     }
 
@@ -275,6 +309,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
      */
     protected void prepareItemCategories() {
 	addItemCategory(CATEGORY_NODE);
+	addItemCategory(CATEGORY_RESOURCE);
 	addItemCategory(CATEGORY_EDIT);
 
 	addItemCategory(CATEGORY_REMOTE_CORPUS);
@@ -301,6 +336,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected ArbilDataNode[] selectedTreeNodes = null;
     protected ArbilDataNode leadSelectedTreeNode = null;
     private JMenuItem browseForResourceFileMenuItem = new JMenuItem();
+    private JMenuItem setManualResourceLocationMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItem = new JMenuItem();
     private JMenuItem viewXmlMenuItemFormatted = new JMenuItem();
     private JMenuItem openInExternalApplicationMenuItem = new JMenuItem();
@@ -315,6 +351,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected final static String CATEGORY_XML = "xml";
     protected final static String CATEGORY_DISK = "disk";
     protected final static String CATEGORY_REMOTE_CORPUS = "remote corpus";
+    protected final static String CATEGORY_RESOURCE = "resource";
     protected final static String CATEGORY_WORKING_DIR = "working dir";
     protected final static String CATEGORY_TABLE_CELL = "table cell";
     protected final static String CATEGORY_TABLE_ROW = "table row";

@@ -8,6 +8,10 @@ package nl.mpi.arbil;
 public class ArbilMetadataException extends Exception {
 
     public ArbilMetadataException(String messageString) {
-        super(messageString);
+	super(messageString);
+    }
+
+    public ArbilMetadataException(String messageString, Throwable cause) {
+	super(messageString, cause);
     }
 }
