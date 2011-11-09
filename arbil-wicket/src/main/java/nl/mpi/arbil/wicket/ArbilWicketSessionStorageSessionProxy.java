@@ -102,7 +102,11 @@ public class ArbilWicketSessionStorageSessionProxy implements SessionStorage {
 	getSessionStorage().saveStringArray(filename, storableValue);
     }
 
-    public File updateCache(String pathString, int expireCacheDays,boolean followRedirects) {
+    public File getFromCache(String pathString, boolean followRedirect) {
+	return getSessionStorage().getFromCache(pathString, followRedirect);
+    }
+
+    public File updateCache(String pathString, int expireCacheDays, boolean followRedirects) {
 	return getSessionStorage().updateCache(pathString, expireCacheDays, followRedirects);
     }
 

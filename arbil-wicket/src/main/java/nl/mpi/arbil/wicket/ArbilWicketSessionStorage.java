@@ -127,4 +127,8 @@ public class ArbilWicketSessionStorage implements SessionStorage {
     public File getTypeCheckerConfig() {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public File getFromCache(String pathString, boolean followRedirect) {
+	throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
