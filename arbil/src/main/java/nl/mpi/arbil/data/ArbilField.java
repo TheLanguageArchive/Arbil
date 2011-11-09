@@ -523,7 +523,11 @@ public class ArbilField implements Serializable {
 	}
 //        System.out.println("xmlPath: " + xmlPath);
 //        System.out.println("translatedPath: " + translatedPath);
-	return translatedPath;
+	if (isAttributeField()) {
+	    return translatedPath.replaceAll("^@", "");
+	} else {
+	    return translatedPath;
+	}
     }
 
     /**
