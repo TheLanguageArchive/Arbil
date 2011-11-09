@@ -176,12 +176,16 @@ public class ArbilSearch {
 	// Put unloaded data nodes back in the queue
 	if (dataNode != null && !currentNode.isChildNode() && (currentNode.isLoading() || !currentNode.isDataLoaded())) {
 	    System.out.println("searching: " + dataNode.getUrlString());
-	    System.out.println("still loading so putting back into the list: " + currentNode);
-	    if (!dataNode.fileNotFound) {
-		if (container != null) {
-		    dataNode.registerContainer(container); // this causes the node to be loaded
+	    if (dataNode.isMetaDataNode() || dataNode.isLocal()) {
+		System.out.println("still loading so putting back into the list: " + currentNode);
+		if (!dataNode.fileNotFound) {
+		    if (container != null) {
+			dataNode.registerContainer(container); // this causes the node to be loaded
+		    }
+		    localSearchNodes.add(currentNode);
 		}
-		localSearchNodes.add(currentNode);
+	    } else {
+		System.out.println("skipping unloaded remote resource: " + currentNode);
 	    }
 	} else {
 	    // perform the search
