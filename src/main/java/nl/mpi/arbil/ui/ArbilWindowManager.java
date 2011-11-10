@@ -28,8 +28,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
@@ -50,7 +52,6 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.util.ApplicationVersion;
@@ -79,6 +80,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     boolean showMessageThreadrunning = false;
     static private ArbilWindowManager singleInstance = null;
     private static ApplicationVersionManager versionManager;
+    private Map<String, FileFilter> fileFilterMap;
 
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
@@ -96,6 +98,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	desktopPane = new JDesktopPane();
 	desktopPane.setBackground(new java.awt.Color(204, 204, 204));
 	ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
+	initFileFilterMap();
     }
 
     public void setMessagesCanBeShown(boolean messagesCanBeShown) {
@@ -263,36 +266,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		returnFile = null;
 	    }
 	} else {
-	    JFileChooser fileChooser = new JFileChooser();
-	    if (requireMetadataFiles) {
-		FileFilter imdiFileFilter = new FileFilter() {
-
-		    public String getDescription() {
-			return "IMDI";
-		    }
-
-		    @Override
-		    public boolean accept(File selectedFile) {
-			// the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field
-			return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".imdi")));
-		    }
-		};
-		FileFilter cmdiFileFilter = new FileFilter() {
-
-		    public String getDescription() {
-			return "CMDI";
-		    }
-
-		    @Override
-		    public boolean accept(File selectedFile) {
-			// the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field
-			return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".cmdi")));
-		    }
-		};
-		fileChooser.addChoosableFileFilter(imdiFileFilter);
-		fileChooser.addChoosableFileFilter(cmdiFileFilter);
-		fileChooser.setFileFilter(imdiFileFilter);
-	    }
+	    JFileChooser fileChooser = createFileChooser(requireMetadataFiles);
 	    if (directorySelectOnly) {
 		// this filter is only cosmetic but gives the user an indication of what to select
 		FileFilter imdiFileFilter = new FileFilter() {
@@ -320,6 +294,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		if (returnFile.length == 0) {
 		    returnFile = new File[]{fileChooser.getSelectedFile()};
 		}
+		if (requireMetadataFiles) {
+		    storeSelectedMetadataFileFilter(fileChooser);
+		}
 	    } else {
 		returnFile = null;
 	    }
@@ -336,6 +313,34 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	// save last use working directory
 	ArbilSessionStorage.getSingleInstance().saveString("fileSelect." + titleText, lastUsedWorkingDirectory.getAbsolutePath());
 	return returnFile;
+    }
+
+    private JFileChooser createFileChooser(boolean requireMetadataFiles) {
+	JFileChooser fileChooser = new JFileChooser();
+	if (requireMetadataFiles) {
+	    for (FileFilter filter : fileFilterMap.values()) {
+		fileChooser.addChoosableFileFilter(filter);
+	    }
+	    String lastFileFilter = ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER);
+	    if (lastFileFilter != null && fileFilterMap.containsKey(lastFileFilter)) {
+		fileChooser.setFileFilter(fileFilterMap.get(lastFileFilter));
+	    }
+	}
+	return fileChooser;
+    }
+
+    private void storeSelectedMetadataFileFilter(JFileChooser fileChooser) {
+	// Store selected file filter
+	FileFilter selectedFilter = fileChooser.getFileFilter();
+	if (selectedFilter != null) {
+	    if(fileFilterMap.containsValue(selectedFilter))
+	    for (Map.Entry<String, FileFilter> filterEntry : fileFilterMap.entrySet()) {
+		if (filterEntry.getValue() == selectedFilter) {
+		    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, filterEntry.getKey());
+		    return;
+		}
+	    }
+	}
     }
 
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {
@@ -1224,5 +1229,27 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    location.move((int) location.getX(), Math.max(0, (int) location.getY()));
 	}
 	return location;
+    }
+
+    private void initFileFilterMap() {
+	fileFilterMap = new HashMap<String, FileFilter>(2);
+	addToFileFilterMap("IMDI", ".imdi");
+	addToFileFilterMap("CMDI", ".cmdi");
+    }
+
+    private void addToFileFilterMap(final String name, final String extension) {
+	fileFilterMap.put(name, new FileFilter() {
+
+	    @Override
+	    public boolean accept(File selectedFile) {
+		final String extensionLowerCase = extension.toLowerCase();
+		return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(extensionLowerCase)));
+	    }
+
+	    @Override
+	    public String getDescription() {
+		return name;
+	    }
+	});
     }
 }

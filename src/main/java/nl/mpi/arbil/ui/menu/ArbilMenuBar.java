@@ -774,6 +774,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    ImportExportDialog importExportDialog = new ImportExportDialog(ArbilTreeHelper.getSingleInstance().getArbilTreePanel().remoteCorpusTree);
 	    importExportDialog.importArbilBranch();
 	} catch (Exception e) {
+	    GuiHelper.linorgBugCatcher.logError(e);
 	    System.out.println(e.getMessage());
 	}
     }
