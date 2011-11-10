@@ -4,6 +4,8 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -145,7 +147,7 @@ public class ArbilIcons {
 	return new ImageIcon(bufferedImage);
     }
 
-    public ImageIcon compositIcons(Object[] iconArray) {
+    private ImageIcon compositIcons(List<Icon> iconArray) {
 	int widthTotal = 0;
 	int heightMax = 0;
 	for (Object currentIcon : iconArray) {
@@ -205,37 +207,50 @@ public class ArbilIcons {
     }
 
     public Icon getIconForField(ArbilField field) {
+
+
 	if (field.hasVocabulary()) {
 	    return getIconForVocabulary(field);
-	} else if (field.getLanguageId() != null) {
-	    return languageIcon;
-	} else if (field.hasEditableFieldAttributes()) {
-	    return attributeIcon;
 	} else {
-	    return null;
+	    List<Icon> iconsList = new LinkedList<Icon>();
+	    if (field.isAllowsLanguageId()) {
+		iconsList.add(languageIcon);
+	    }
+	    if (field.hasEditableFieldAttributes()) {
+		iconsList.add(attributeIcon);
+	    }
+
+	    switch (iconsList.size()) {
+		case 0:
+		    return null;
+		case 1:
+		    return iconsList.get(0);
+		default:
+		    return compositIcons(iconsList);
+	    }
 	}
     }
 
     public ImageIcon getIconForNode(ArbilDataNode arbilNode) {
-	Vector iconsVector = new Vector();
+	List<Icon> iconsList = new LinkedList<Icon>();
 
 	if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataLoaded())) {
-	    iconsVector.add(loadingIcon);
+	    iconsList.add(loadingIcon);
 	}
 	if (arbilNode.isLocal()) {
 	    if (arbilNode.isMetaDataNode()) {
 		if (arbilNode.matchesRemote == 0) {
 		    if (arbilNode.archiveHandle == null) {
-			iconsVector.add(localicon);
+			iconsList.add(localicon);
 		    } else {
-			iconsVector.add(localWithArchiveHandle);
+			iconsList.add(localWithArchiveHandle);
 		    }
 		} else {
-		    iconsVector.add(remoteicon);
+		    iconsList.add(remoteicon);
 		}
 	    }
 	} else {
-	    iconsVector.add(remoteicon);
+	    iconsList.add(remoteicon);
 	    // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
 //                            if (matchesLocal == 0) {
 //                            } else {
@@ -243,9 +258,9 @@ public class ArbilIcons {
 //                            }
 	}
 	if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_OK) {
-	    iconsVector.add(unLockedIcon);
+	    iconsList.add(unLockedIcon);
 	} else if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_MOVED_TEMP) {
-	    iconsVector.add(lockedIcon);
+	    iconsList.add(lockedIcon);
 	}
 	String mimeTypeForNode = arbilNode.getAnyMimeType();
 	if (arbilNode.isMetaDataNode()) {
@@ -253,95 +268,94 @@ public class ArbilIcons {
 //                if (arbilNode.isContainerNode()) {
 //                    iconsVector.add(dataCollectionIcon);
 //                } else 
-		if(arbilNode.isContainerNode()){
-		    iconsVector.add(dataContainerIcon);
-		}
-		else if (arbilNode.isEmptyMetaNode()) {
-		    iconsVector.add(dataemptyIcon);
+		if (arbilNode.isContainerNode()) {
+		    iconsList.add(dataContainerIcon);
+		} else if (arbilNode.isEmptyMetaNode()) {
+		    iconsList.add(dataemptyIcon);
 		} else {
-		    iconsVector.add(dataIcon);
+		    iconsList.add(dataIcon);
 		}
 	    } else if (arbilNode.isSession()) {
-		iconsVector.add(sessionColorIcon);
+		iconsList.add(sessionColorIcon);
 	    } else if (arbilNode.isCatalogue()) {
-		iconsVector.add(catalogueColorIcon);
+		iconsList.add(catalogueColorIcon);
 	    } else if (arbilNode.isCorpus()) {
-		iconsVector.add(corpusnodeColorIcon);
+		iconsList.add(corpusnodeColorIcon);
 	    } else if (arbilNode.isCmdiMetaDataNode()) {
-		iconsVector.add(MetadataFormat.getFormatIcon(arbilNode.getURI().getPath()));
+		iconsList.add(MetadataFormat.getFormatIcon(arbilNode.getURI().getPath()));
 	    } else {
 		// this icon might not be the best one to show in this case
 		if (arbilNode.isDataLoaded()) {
-		    iconsVector.add(fileIcon);
+		    iconsList.add(fileIcon);
 		}
 		//iconsVector.add(blankIcon);
 	    }
 	} else if (mimeTypeForNode != null) {
 	    mimeTypeForNode = mimeTypeForNode.toLowerCase();
 	    if (mimeTypeForNode.contains("audio")) {
-		iconsVector.add(audioIcon);
+		iconsList.add(audioIcon);
 	    } else if (mimeTypeForNode.contains("video")) {
-		iconsVector.add(videoIcon);
+		iconsList.add(videoIcon);
 	    } else if (mimeTypeForNode.contains("image")) {// ?????
-		iconsVector.add(picturesIcon);
+		iconsList.add(picturesIcon);
 	    } else if (mimeTypeForNode.contains("text")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("xml")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("chat")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("pdf")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("kml")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("manual/mediafile")) {
-		iconsVector.add(picturesIcon);
+		iconsList.add(picturesIcon);
 	    } else if (mimeTypeForNode.contains("manual/writtenresource")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
 		// no icon for this
-		iconsVector.add(fileIcon);
+		iconsList.add(fileIcon);
 	    } else if (mimeTypeForNode.contains("unknown")) {
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 	    } else if (mimeTypeForNode.length() > 0) {
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 		bugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
 	    }
 	} else if (arbilNode.isInfoLink) {
-	    iconsVector.add(infofileIcon);
+	    iconsList.add(infofileIcon);
 	} else if (arbilNode.hasResource()) {
 	    // the resource is not found so show a unknow resource icon
-	    iconsVector.add(fileIcon);
+	    iconsList.add(fileIcon);
 	} else if (arbilNode.isDirectory()) {
-	    iconsVector.add(UIManager.getIcon("FileView.directoryIcon"));
+	    iconsList.add(UIManager.getIcon("FileView.directoryIcon"));
 	} else {
-	    iconsVector.add(fileIcon);
+	    iconsList.add(fileIcon);
 	    if (!arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
 		// File has not been type checked, indicate with question mark icon
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 	    }
 	}
 	// add missing file icon
 	if ((arbilNode.fileNotFound || arbilNode.resourceFileNotFound())) {
 	    if (arbilNode.isResourceSet()) {
 		// Resource is set but file not found, this is an error
-		iconsVector.add(missingRedIcon);
+		iconsList.add(missingRedIcon);
 	    } else {
 		// Resource has not been set, therefore 'not found', this is a different case
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 	    }
 	}
 	// add a file attached to a session icon
 	if (!arbilNode.isMetaDataNode() && arbilNode.matchesInCache + arbilNode.matchesRemote > 0) {
 	    if (arbilNode.matchesRemote > 0) {
-		iconsVector.add(tickGreenIcon);
+		iconsList.add(tickGreenIcon);
 	    } else {
-		iconsVector.add(tickBlueIcon);
+		iconsList.add(tickBlueIcon);
 	    }
 	}
 	// add icons for favourites
 	if (arbilNode.isFavorite()) {
-	    iconsVector.add(favouriteIcon);
+	    iconsList.add(favouriteIcon);
 	}
 	// add icons for save state
 //        if (arbilNode.hasHistory()) {
@@ -350,6 +364,6 @@ public class ArbilIcons {
 //        if (arbilNode.getNeedsSaveToDisk()) {
 //            iconsVector.add(exclamationRedIcon);
 //        }
-	return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
+	return compositIcons(iconsList);// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
     }
 }

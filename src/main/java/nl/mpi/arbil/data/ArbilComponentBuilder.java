@@ -469,7 +469,8 @@ public class ArbilComponentBuilder {
 				    }
 				}
 			    }
-			    if (currentFieldUpdate.fieldLanguageId != null) {
+
+			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
 				Node languageNode = attributesMap.getNamedItem("LanguageId");
 				if (languageNode == null) {
 				    languageNode = attributesMap.getNamedItem("xml:lang");
@@ -477,7 +478,21 @@ public class ArbilComponentBuilder {
 				if (languageNode != null) {
 				    languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
 				}
+			    } else {
+				Node languageNode = attributesMap.getNamedItem("xml:lang");
+				if (languageNode == null) {
+				    if (currentFieldUpdate.fieldLanguageId != null) {
+					((Element) documentNode).setAttribute("xml:lang", currentFieldUpdate.fieldLanguageId);
+				    }
+				} else {
+				    if (currentFieldUpdate.fieldLanguageId == null) {
+					((Element) documentNode).removeAttribute("xml:lang");
+				    } else {
+					languageNode.setNodeValue(currentFieldUpdate.fieldLanguageId);
+				    }
+				}
 			    }
+
 
 			    if (!arbilDataNode.isCmdiMetaDataNode()) { // isImdiMetadataNode()
 				if (currentFieldUpdate.keyNameValue != null) {

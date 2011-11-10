@@ -759,8 +759,26 @@ public class MetadataReader {
     }
 
     private int addEditableField(int nodeOrderCounter, ArbilDataNode destinationNode, String siblingNodePath, String fieldValue, Hashtable<String, Integer> siblingNodePathCounter, String fullSubNodePath, ArbilDataNode parentNode, Vector<String[]> childLinks, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree, NamedNodeMap childNodeAttributes, boolean shouldAddCurrent) {
+
+	// Handle special attributes
+
+	String cvType = null;
+	String cvUrlString = null;
+	String keyName = null;
+	String languageId = null;
+	if (childNodeAttributes != null) {
+	    cvType = getNamedAttributeValue(childNodeAttributes, "Type");
+	    cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
+	    languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
+	    if (languageId == null) {
+		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
+	    }
+	    keyName = getNamedAttributeValue(childNodeAttributes, "Name");
+	}
+
 	List<String[]> attributePaths = null;
 	Map<String, Object> attributesValueMap = null;
+	boolean allowsLanguageId = false;
 	// For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
 	if (destinationNode.isCmdiMetaDataNode()) {
 	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
@@ -773,10 +791,14 @@ public class MetadataReader {
 		    attributesValueMap.put(path, attrNode.getNodeValue());
 		}
 	    }
+	    allowsLanguageId = template.pathAllowsLanguageId(siblingNodePath); //CMDI case where language id is optional as specified by schema
+	} else {
+	    allowsLanguageId = languageId != null; //IMDI case where language id comes from template	
 	}
+
 	// is a leaf not a branch
 	//            System.out.println("siblingNodePathCount: " + siblingNodePathCounter.get(siblingNodePath));
-	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), attributePaths, attributesValueMap);
+	ArbilField fieldToAdd = new ArbilField(nodeOrderCounter++, destinationNode, siblingNodePath, fieldValue, siblingNodePathCounter.get(fullSubNodePath), allowsLanguageId, attributePaths, attributesValueMap);
 	// TODO: about to write this function
 	//GuiHelper.imdiSchema.convertXmlPathToUiPath();
 	// TODO: keep track of actual valid values here and only add to siblingCounter if siblings really exist
@@ -786,13 +808,6 @@ public class MetadataReader {
 	//System.out.println("nodeCounter: " + nodeCounter + ":" + childNode.getLocalName());
 	//            }
 	if (childNodeAttributes != null) {
-	    String cvType = getNamedAttributeValue(childNodeAttributes, "Type");
-	    String cvUrlString = getNamedAttributeValue(childNodeAttributes, "Link");
-	    String languageId = getNamedAttributeValue(childNodeAttributes, "LanguageId");
-	    if (languageId == null) {
-		languageId = getNamedAttributeValue(childNodeAttributes, "xml:lang");
-	    }
-	    String keyName = getNamedAttributeValue(childNodeAttributes, "Name");
 	    fieldToAdd.setFieldAttribute(cvType, cvUrlString, languageId, keyName);
 	    if (fieldToAdd.xmlPath.endsWith("Description")) {
 		if (cvUrlString != null && cvUrlString.length() > 0) {

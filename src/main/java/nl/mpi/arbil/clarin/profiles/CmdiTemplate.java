@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,15 +63,16 @@ import org.xml.sax.SAXException;
 public class CmdiTemplate extends ArbilTemplate {
 
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
+    public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")); // {http://www.w3.org/XML/1998/namespace}lang
     /**
      * Attributes that are reserved by CMDI and should show up as editable. 
      * Namespace URI's should appear encoded in this list
      */
     public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
 	    RESOURCE_REFERENCE_ATTRIBUTE // resource proxy ref attribute
+	    , LANGUAGE_ATTRIBUTE
 	    , "componentId" // componentId
 	    , "ComponentId" // componentId, alternate spelling in some profiles
-	    , String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")) // {http://www.w3.org/XML/1998/namespace}lang
 	    ));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
     public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
@@ -95,6 +97,7 @@ public class CmdiTemplate extends ArbilTemplate {
     private Document schemaDocument;
     private Map<String, String> dataCategoriesMap;
     private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
+    protected HashSet<String> allowsLanguageIdPathList;
 
     private static class ArrayListGroup {
 
@@ -105,6 +108,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	public ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
 	public ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
 	public Map<String, String> dataCategoriesMap = Collections.synchronizedMap(new HashMap<String, String>());
+	public HashSet<String> allowsLanguageIdPathsList = new HashSet<String>();
     }
 
     private static class ElementCardinality {
@@ -134,6 +138,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    resourceNodePaths = arrayListGroup.resourceNodePathsList.toArray(new String[][]{});
 	    fieldConstraints = arrayListGroup.fieldConstraintList.toArray(new String[][]{});
 	    fieldUsageArray = arrayListGroup.fieldUsageDescriptionList.toArray(new String[][]{});
+	    allowsLanguageIdPathList = arrayListGroup.allowsLanguageIdPathsList;
 	    dataCategoriesMap = arrayListGroup.dataCategoriesMap;
 	    makeGuiNamesUnique();
 
@@ -400,6 +405,8 @@ public class CmdiTemplate extends ArbilTemplate {
 	    final String attributeName = getAttributePathSection(attributesProperty.getName().getNamespaceURI(), attributesProperty.getName().getLocalPart());
 	    if (attributeName.equals(RESOURCE_REFERENCE_ATTRIBUTE)) {
 		hasResourceAttribute = true;
+	    } else if (attributeName.equals(LANGUAGE_ATTRIBUTE)) {
+		arrayListGroup.allowsLanguageIdPathsList.add(currentPathString);
 	    }
 	    final String insertBefore = "";
 	    final String attributePath = currentPathString + ".@" + attributeName;
@@ -720,6 +727,10 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
 
 	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].substring(1)); // remove @
+    }
+
+    public boolean pathAllowsLanguageId(String path) {
+	return allowsLanguageIdPathList.contains(path);
     }
 
     public static void main(String args[]) {

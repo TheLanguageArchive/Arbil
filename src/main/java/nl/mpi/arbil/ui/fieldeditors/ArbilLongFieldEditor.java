@@ -170,7 +170,8 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	}
 
 	// If field has language attribute but no language has been chosen yet, request focus on the language select drop down
-	if (arbilFields[selectedField].getLanguageId() != null && arbilFields[selectedField].getLanguageId().length() == 0) {
+	if (arbilFields[selectedField].isAllowsLanguageId()
+		&& (arbilFields[selectedField].getLanguageId() == null || arbilFields[selectedField].getLanguageId().length() == 0)) {
 	    return fieldLanguageBoxs[selectedField];
 	} else {
 	    return focusComponent;
@@ -188,7 +189,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	initFieldEditor(cellFieldIndex, currentEditorText);
 
 	//fieldLanguageBoxs[cellFieldIndex] = null;
-	if (arbilFields[cellFieldIndex].getLanguageId() != null) {
+	if (arbilFields[cellFieldIndex].isAllowsLanguageId()) {
 	    tabTitlePanel.add(createLanguageBox(cellFieldIndex));
 	}
 

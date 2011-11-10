@@ -309,12 +309,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    try {
 //TODO: consider adding the mime type field here as a non mull value and updating it when available so that the field order is tidy
 			int currentFieldId = 1;
-			ArbilField sizeField = new ArbilField(currentFieldId++, currentDataNode, "Size", getFileSizeString(fileObject), 0);
+			ArbilField sizeField = new ArbilField(currentFieldId++, currentDataNode, "Size", getFileSizeString(fileObject), 0, false);
 			currentDataNode.addField(sizeField);
 			// add the modified date
 			Date mtime = new Date(fileObject.lastModified());
 			String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-			ArbilField dateField = new ArbilField(currentFieldId++, currentDataNode, "last modified", mTimeString, 0);
+			ArbilField dateField = new ArbilField(currentFieldId++, currentDataNode, "last modified", mTimeString, 0, false);
 			currentDataNode.addField(dateField);
 			// get exif tags
 //                System.out.println("get exif tags");
