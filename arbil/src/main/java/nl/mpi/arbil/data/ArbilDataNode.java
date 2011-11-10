@@ -1562,7 +1562,10 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	if (hasResource()) {
 	    return true;
 	} else if (isCmdiMetaDataNode()) {
-	    return !isContainerNode();
+	    final ArbilTemplate template = getNodeTemplate();
+	    if (template != null) {
+		return template.pathCanHaveResource(nodeUri.getFragment());
+	    }
 	}
 	return false;
     }
@@ -1582,7 +1585,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    if (resourceNode == null) {
 		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
 	    }
-	    
+
 	    new MetadataBuilder().requestAddNode(this, null, resourceNode);
 	} else {
 	    if (hasResource()) {

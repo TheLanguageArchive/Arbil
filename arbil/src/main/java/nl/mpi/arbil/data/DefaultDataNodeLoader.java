@@ -119,7 +119,7 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
 
     @Override
     public void requestReloadAllNodes() {
-	for (ArbilDataNode currentDataNode : arbilHashTable.values()) {
+	for (ArbilDataNode currentDataNode : arbilHashTable.values()) { // Should use copy of collection (e.g. toArray) to prevent concurrency exceptions?
 	    requestReload(currentDataNode);
 	}
     }
@@ -128,8 +128,8 @@ public class DefaultDataNodeLoader implements DataNodeLoader {
     public void startLoaderThreads() {
 	threadManager.startLoaderThreads();
     }
-    
-    public void stopLoaderThreads(){
+
+    public void stopLoaderThreads() {
 	threadManager.stopLoaderThreads();
     }
 
