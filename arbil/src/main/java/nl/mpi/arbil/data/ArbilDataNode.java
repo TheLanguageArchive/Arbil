@@ -385,7 +385,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	typeCheckerMessage = typeCheckerMessageArray[1];
 	if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
 	    // add the mime type for loose files
-	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0, null, null);
+	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0, false, null, null);
 	    //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
 	    addField(mimeTypeField);
 	}

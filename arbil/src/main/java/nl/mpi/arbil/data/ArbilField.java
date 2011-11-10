@@ -31,6 +31,7 @@ public class ArbilField implements Serializable {
     private boolean attributeField;
     private String keyName = null;
     private String originalKeyName = null;
+    protected boolean allowsLanguageId;
     private String languageId = null;
     private String originalLanguageId = null;
     private int isRequiredField = -1;
@@ -58,30 +59,31 @@ public class ArbilField implements Serializable {
      * @param tempValue
      * @param tempSiblingCount 
      */
-    public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount) {
-	this(fieldOrderLocal, localParentDataNode, tempPath, tempValue, tempSiblingCount, null, null);
+    public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount, boolean allowsLanguageId) {
+	this(fieldOrderLocal, localParentDataNode, tempPath, tempValue, tempSiblingCount, allowsLanguageId, null, null);
     }
 
     /**
      * 
      * @param fieldOrderLocal
-     * @param localParentDataNode
-     * @param tempPath
-     * @param tempValue
-     * @param tempSiblingCount
+     * @param parentDataNode
+     * @param xmlPath
+     * @param fieldValue
+     * @param siblingCount
      * @param attributePaths Paths of attribute fields allowed by the schema
      * @param attributeValuesMap Values of field attributes
      */
-    public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount, List<String[]> attributePaths, Map<String, Object> attributeValuesMap) {
-	fieldOrder = fieldOrderLocal;
-	setParentDataNode(localParentDataNode);
-	fieldValue = tempValue;
-	originalFieldValue = fieldValue;
-	xmlPath = tempPath;
-	siblingCount = tempSiblingCount;
+    public ArbilField(int fieldOrderLocal, ArbilDataNode parentDataNode, String xmlPath, String fieldValue, int siblingCount, boolean allowsLanguageId, List<String[]> attributePaths, Map<String, Object> attributeValuesMap) {
+	this.fieldOrder = fieldOrderLocal;
+	setParentDataNode(parentDataNode);
+	this.fieldValue = fieldValue;
+	this.originalFieldValue = fieldValue;
+	this.xmlPath = xmlPath;
+	this.siblingCount = siblingCount;
+	this.allowsLanguageId = allowsLanguageId;
 
 	// Is field an attribute field?
-	attributeField = tempPath.matches("^.*\\.@[^.]*$"); // last section should start with .@
+	this.attributeField = xmlPath.matches("^.*\\.@[^.]*$"); // last section should start with .@
 
 	// Set field attributes paths and values
 	this.attributePaths = attributePaths;
@@ -542,6 +544,10 @@ public class ArbilField implements Serializable {
      */
     public boolean isVocabularyList() {
 	return vocabularyIsList;
+    }
+
+    public boolean isAllowsLanguageId() {
+	return allowsLanguageId || languageId != null;
     }
 
     /**

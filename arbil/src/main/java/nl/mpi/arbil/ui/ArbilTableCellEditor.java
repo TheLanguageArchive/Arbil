@@ -175,7 +175,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	editorPanel.add(editorTextField);
 	addFocusListener(editorTextField);
 	if (cellValue[selectedField] instanceof ArbilField) {
-	    if (((ArbilField) cellValue[selectedField]).getLanguageId() != null) {
+	    if (((ArbilField) cellValue[selectedField]).isAllowsLanguageId()) {
 		// this is an ImdiField that has a fieldLanguageId
 		JComboBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
 		editorPanel.add(fieldLanguageBox);
@@ -209,8 +209,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 			break;
 		    } else {
 			int requiredWidth = fontMetrics.stringWidth(fieldValue);
-			String fieldLanguageId = currentField.getLanguageId();
-			if (fieldLanguageId != null) {
+			if (currentField.isAllowsLanguageId()) {
 			    requiredWidth += LanguageIdBox.languageSelectWidth;
 			}
 			if (requiredWidth > availableWidth) {
