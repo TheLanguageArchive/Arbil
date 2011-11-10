@@ -159,18 +159,7 @@ public class ArbilDragDrop {
 //                todo: look for error in field triggers when merging from favourite (suppress trtiggeres when merging)
 		if (ArbilTreeHelper.getSingleInstance().componentIsTheLocalCorpusTree(currentDropTarget)) {
 		    if (currentLeadSelection.isCmdiMetaDataNode()) {
-			if (currentLeadSelection.getParentDomNode().nodeTemplate == null) {
-			    System.out.println("no template for drop target node");
-			    return false;
-			}
-			System.out.println("Drop to CMDI: " + currentLeadSelection.getURI().getFragment());
-			String nodePath = currentLeadSelection.getURI().getFragment();
-			if (nodePath == null) {
-			    // todo: consider making sure that the dom parent node always has a path
-			    nodePath = ".CMD.Components." + currentLeadSelection.getParentDomNode().nodeTemplate.loadedTemplateName;
-			}
-			System.out.println("nodePath:" + nodePath);
-			return (currentLeadSelection.getParentDomNode().nodeTemplate.pathCanHaveResource(nodePath));
+			return currentLeadSelection.canHaveResource();
 		    } else if (currentLeadSelection.isDirectory) {
 			return false; // nothing can be dropped to a directory
 		    } else if (currentLeadSelection.isCorpus()) {

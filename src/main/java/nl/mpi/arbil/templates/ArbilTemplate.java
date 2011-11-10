@@ -98,6 +98,7 @@ public class ArbilTemplate {
     public boolean pathCanHaveResource(String nodePath) {
 	// so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
 	if (nodePath == null) {
+	    // Root can have resource
 	    if (resourceNodePaths.length > 0) {
 		return true;
 	    }

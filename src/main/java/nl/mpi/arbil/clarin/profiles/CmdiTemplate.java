@@ -70,8 +70,7 @@ public class CmdiTemplate extends ArbilTemplate {
      */
     public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
 	    RESOURCE_REFERENCE_ATTRIBUTE // resource proxy ref attribute
-	    , LANGUAGE_ATTRIBUTE
-	    , "componentId" // componentId
+	    , LANGUAGE_ATTRIBUTE, "componentId" // componentId
 	    , "ComponentId" // componentId, alternate spelling in some profiles
 	    ));
     public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
