@@ -39,18 +39,20 @@ public class CmdiUtils implements MetadataUtils {
 	    // Update all links that need updating in document
 	    CmdiComponentLinkReader cmdiComponentLinkReader = new CmdiComponentLinkReader();
 	    ArrayList<CmdiResourceLink> links = cmdiComponentLinkReader.readLinks(sourceURI);
-	    if (links != null) {
+	    if (links != null && updateLinks) {
 		for (CmdiResourceLink link : links) {
 		    String ref = link.resourceRef;
 		    // Compare to links to update
-		    for (URI[] updatableLink : linksToUpdate) {
-			if (updatableLink[0].toString().equals(ref)) {
-			    // Found: try to update. First relativize reference URI.
-			    URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
-			    if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
-				bugCatcher.logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+		    if (linksToUpdate != null) {
+			for (URI[] updatableLink : linksToUpdate) {
+			    if (updatableLink[0].toString().equals(ref)) {
+				// Found: try to update. First relativize reference URI.
+				URI newReferenceURi = destinationFile.getParentFile().toURI().relativize(updatableLink[1]);
+				if (!componentBuilder.updateResourceProxyReference(document, link.resourceProxyId, newReferenceURi)) {
+				    bugCatcher.logError("Could not update resource proxy with id" + link.resourceProxyId + " in " + sourceURI.toString(), null);
+				}
+				break;
 			    }
-			    break;
 			}
 		    }
 		}
