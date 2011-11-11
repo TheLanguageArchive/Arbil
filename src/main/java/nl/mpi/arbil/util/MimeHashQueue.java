@@ -38,4 +38,48 @@ public interface MimeHashQueue {
     void stopMimeHashQueueThread();
 
     String[] getMimeType(URI fileUri);
+    
+    /**
+     * Terminates and cleans the queue, saves all to disk. Should only be called when quitting application
+     */
+    void terminateQueue();
+
+    public enum TypeCheckerState {
+
+	UNCHECKED {
+
+	    @Override
+	    public String toString() {
+		return "Unchecked";
+	    }
+	},
+	IN_QUEUE {
+
+	    @Override
+	    public String toString() {
+		return "In queue";
+	    }
+	},
+	IN_PROCESS {
+
+	    @Override
+	    public String toString() {
+		return "In process";
+	    }
+	},
+	CHECKED {
+
+	    @Override
+	    public String toString() {
+		return "Checked";
+	    }
+	},
+	ERROR {
+
+	    @Override
+	    public String toString() {
+		return "Error";
+	    }
+	}
+    };
 }

@@ -826,6 +826,8 @@ public class ArbilMenuBar extends JMenuBar {
 		    return false;
 	    }
 	}
+	ArbilMimeHashQueue.getSingleInstance().terminateQueue();
+	
 	GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
 	ArbilSessionStorage.getSingleInstance().saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
 	ArbilSessionStorage.getSingleInstance().saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());

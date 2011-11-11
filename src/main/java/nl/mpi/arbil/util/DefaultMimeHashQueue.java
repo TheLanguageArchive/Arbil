@@ -134,6 +134,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    }
 	}
     }
+    private MimeHashQueueRunner runner;
 
     /**
      * Makes sure the mime hash queue thread is started
@@ -165,7 +166,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    };
 		}
 	    };
-	    mimeHashQueueThreadExecutor.submit(new MimeHashQueueRunner());
+
+	    runner = new MimeHashQueueRunner();
+	    mimeHashQueueThreadExecutor.submit(runner);
 	}
     }
 
@@ -177,6 +180,14 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
     public void stopMimeHashQueueThread() {
 	mimeHashQueueThreadExecutor.shutdownNow();
+    }
+
+    public synchronized void terminateQueue() {
+	if (runner != null) {
+	    stopMimeHashQueueThread();
+	    runner.checkSaveChanges();
+	    runner = null;
+	}
     }
 
     /**
@@ -222,21 +233,20 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 			}
 		    }
 		} catch (InterruptedException ie) {
-		    bugCatcher.logError(ie);
 		    continueThread = false;
 		}
 	    }
 	}
 
-	private void checkSaveChanges() {
-	    if (changedSinceLastSave) {
+	public synchronized void checkSaveChanges() {
+	    if (isChangedSinceLastSave()) {
 		saveMd5sumIndex();
-		changedSinceLastSave = false;
+		setChangedSinceLastSave(false);
 	    }
 	}
 
 	private void processQueue() {
-	    while (!dataNodeQueue.isEmpty()) {
+	    while (!dataNodeQueue.isEmpty() && continueThread) {
 		// Fetch node from queue
 		synchronized (dataNodeQueue) {
 		    currentDataNode = dataNodeQueue.remove(0);
@@ -257,7 +267,15 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    }
 	}
 
-	private void checkMimeTypeForCurrentNode() {
+	private synchronized void setChangedSinceLastSave(boolean changed) {
+	    changedSinceLastSave = changed;
+	}
+
+	private synchronized boolean isChangedSinceLastSave() {
+	    return changedSinceLastSave;
+	}
+
+	private synchronized void checkMimeTypeForCurrentNode() {
 
 	    System.out.println("checking mime type etc");
 	    URI currentPathURI = getNodeURI(currentDataNode);
@@ -281,7 +299,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 			    currentDataNode.setMimeType(getMimeType(currentPathURI));
 			    currentDataNode.hashString = getHash(currentPathURI, currentDataNode.getURI());
 			    processedFilesMTimes.put(currentPathURI.toString(), currentMTime); // avoid issues of the file being modified between here and the last mtime check
-			    changedSinceLastSave = true;
+			    setChangedSinceLastSave(true);
 			} else {
 			    currentDataNode.hashString = pathToMd5Sums.get(currentPathURI.toString());
 			    currentDataNode.setMimeType(lastCheckedMimeArray);
