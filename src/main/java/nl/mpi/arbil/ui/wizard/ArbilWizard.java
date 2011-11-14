@@ -115,11 +115,9 @@ public abstract class ArbilWizard {
 
 	public void actionPerformed(ActionEvent e) {
 	    if (e.getActionCommand().equals(PREVIOUS_ACTION)) {
-		model.previous();
-		refreshContent();
+		doPrevious();
 	    } else if (e.getActionCommand().equals(NEXT_ACTION)) {
-		model.next();
-		refreshContent();
+		doNext();
 	    } else if (e.getActionCommand().equals(FINISH_ACTION)) {
 		doFinish();
 	    } else if (e.getActionCommand().equals(CANCEL_ACTION)) {
@@ -127,6 +125,22 @@ public abstract class ArbilWizard {
 	    }
 	}
     };
+
+    protected void doNext() {
+	if (model.getCurrent() != null) {
+	    model.getCurrent().onNext();
+	}
+	model.next();
+	refreshContent();
+    }
+
+    protected void doPrevious() {
+	if (model.getCurrent() != null) {
+	    model.getCurrent().onPrevious();
+	}
+	model.previous();
+	refreshContent();
+    }
 
     protected boolean doFinish() {
 	if (onFinish()) {

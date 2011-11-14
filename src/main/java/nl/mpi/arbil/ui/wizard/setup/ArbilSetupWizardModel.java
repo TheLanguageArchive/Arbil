@@ -1,4 +1,4 @@
-package nl.mpi.arbil.ui.wizard;
+package nl.mpi.arbil.ui.wizard.setup;
 
 /**
  * Model for storing the user's selected options and entered values in an ArbilWizard session
