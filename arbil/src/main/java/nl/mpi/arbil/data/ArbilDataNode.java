@@ -1435,19 +1435,21 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	//        }
 	boolean foundPreferredNameField = false;
 	boolean preferredNameFieldExists = false;
+
+	//final String nodePath = getNodePath();
 	getLabelString:
 	for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
-	    //System.out.println("currentField: " + currentPreferredName);
 	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
-		//                System.out.println(currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "") + " : " + currentPreferredName);
-		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
-		    preferredNameFieldExists = true;
-		    for (ArbilField currentField : currentFieldArray) {
-			if (currentField != null) {
-			    if (currentField.toString().trim().length() > 0) {
-				nodeText = currentField.toString();
-				foundPreferredNameField = true;
-				break getLabelString;
+		if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
+		    if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+			preferredNameFieldExists = true;
+			for (ArbilField currentField : currentFieldArray) {
+			    if (currentField != null) {
+				if (currentField.toString().trim().length() > 0) {
+				    nodeText = currentField.toString();
+				    foundPreferredNameField = true;
+				    break getLabelString;
+				}
 			    }
 			}
 		    }
