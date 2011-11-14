@@ -15,6 +15,8 @@ public interface ArbilWizardContent {
 
     Object getPrevious();
     
+    void refresh();
+    
     void onNext();
     
     void onPrevious();
