@@ -735,9 +735,8 @@ public class CmdiTemplate extends ArbilTemplate {
     public static void main(String args[]) {
 	ArbilDesktopInjector.injectHandlers();
 	CmdiTemplate template = new CmdiTemplate();
-	template.loadTemplate("file:///Users/twagoo/Downloads/imdi-profile-instance-attr.xsd");
+	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd");
 
-	System.out.println(template.pathIsEditableField(".CMD.Components.imdi-profile-instance-attr.Session-attr.Name.elementAttribute"));
 
 	//new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");
 //        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
