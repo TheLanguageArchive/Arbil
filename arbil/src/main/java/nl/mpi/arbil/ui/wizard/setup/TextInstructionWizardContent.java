@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.Color;
@@ -51,5 +47,8 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
     }
     
     public void onPrevious() {
+    }
+    
+    public void refresh(){	
     }
 }

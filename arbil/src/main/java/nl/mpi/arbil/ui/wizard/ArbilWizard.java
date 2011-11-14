@@ -48,11 +48,12 @@ public abstract class ArbilWizard {
     public void refreshContent() {
 	Object id = model.getCurrentId();
 	if (id != null) {
-	    wizardContentPanelLayout.show(wizardContentPanel, id.toString());
 	    final ArbilWizardContent content = model.getCurrent();
 	    previousButton.setEnabled(content.getPrevious() != null);
 	    nextButton.setVisible(content.getNext() != null);
 	    finishButton.setVisible(content.getNext() == null);
+	    content.refresh();
+	    wizardContentPanelLayout.show(wizardContentPanel, id.toString());
 	}
 	wizardDialog.pack();
     }
