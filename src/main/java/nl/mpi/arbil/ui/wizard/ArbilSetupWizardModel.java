@@ -5,7 +5,7 @@ package nl.mpi.arbil.ui.wizard;
  * @see ArbilWizard
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilWizardConfigurationModel {
+public class ArbilSetupWizardModel {
     public boolean imdi;
     public boolean cmdi;
 }

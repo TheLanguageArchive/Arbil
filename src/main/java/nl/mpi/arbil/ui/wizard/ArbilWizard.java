@@ -6,17 +6,20 @@ import java.awt.Dialog.ModalityType;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 
 /**
  * Wizard to be shown on first run to guide user through initial setup, mainly configuring for either
  * IMDI or CMDI (or both) and selecting profiles and remote locations.
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilWizard {
+public abstract class ArbilWizard {
 
     private JDialog wizardDialog;
     private JPanel wizardContentPanel;
@@ -26,10 +29,10 @@ public class ArbilWizard {
     private JButton cancelButton;
     private JButton finishButton;
     private final ArbilWizardModel model;
-    private final static String NEXT_ACTION = "next";
-    private final static String PREVIOUS_ACTION = "previous";
-    private final static String CANCEL_ACTION = "cancel";
-    private final static String FINISH_ACTION = "finish";
+    private final static String NEXT_ACTION = "wizard_action_next";
+    private final static String PREVIOUS_ACTION = "wizard_action_previous";
+    private final static String CANCEL_ACTION = "wizard_action_cancel";
+    private final static String FINISH_ACTION = "wizard_action_finish";
 
     public ArbilWizard() {
 	initDialog();
@@ -54,12 +57,12 @@ public class ArbilWizard {
 	wizardDialog.pack();
     }
 
-    private void addContent(Object id, ArbilWizardContent content) {
+    public void addContent(Object id, ArbilWizardContent content) {
 	wizardContentPanel.add(content.getContent(), id.toString());
 	model.addContent(id, content);
     }
 
-    private void setCurrent(Object id) {
+    public void setCurrent(Object id) {
 	model.setCurrent(id);
 	refreshContent();
     }
@@ -96,6 +99,17 @@ public class ArbilWizard {
 	wizardDialog.getContentPane().setLayout(new BorderLayout());
 	wizardDialog.getContentPane().add(wizardContentPanel, BorderLayout.CENTER);
 	wizardDialog.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+
+	wizardDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+	wizardDialog.addWindowListener(new WindowAdapter() {
+
+	    @Override
+	    public void windowClosing(WindowEvent e) {
+		if (doCancel()) {
+		    e.getWindow().dispose();
+		}
+	    }
+	});
     }
     private ActionListener buttonListener = new ActionListener() {
 
@@ -107,17 +121,32 @@ public class ArbilWizard {
 		model.next();
 		refreshContent();
 	    } else if (e.getActionCommand().equals(FINISH_ACTION)) {
-		// TODO: finish
-		wizardDialog.setVisible(false);
+		doFinish();
 	    } else if (e.getActionCommand().equals(CANCEL_ACTION)) {
-		// TODO: cancel
-		wizardDialog.setVisible(false);
+		doCancel();
 	    }
 	}
     };
 
-    public static void main(String args[]) {
-	ArbilWizard wizard = new ArbilWizard();
-	wizard.showDialog(ModalityType.APPLICATION_MODAL);
+    protected boolean doFinish() {
+	if (onFinish()) {
+	    wizardDialog.setVisible(false);
+	    return true;
+	} else {
+	    return false;
+	}
     }
+
+    protected boolean doCancel() {
+	if (onCancel()) {
+	    wizardDialog.setVisible(false);
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
+    abstract protected boolean onFinish();
+
+    abstract protected boolean onCancel();
 }
