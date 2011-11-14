@@ -105,9 +105,7 @@ public abstract class ArbilWizard {
 
 	    @Override
 	    public void windowClosing(WindowEvent e) {
-		if (doCancel()) {
-		    e.getWindow().dispose();
-		}
+		doCancel();
 	    }
 	});
     }
@@ -144,7 +142,7 @@ public abstract class ArbilWizard {
 
     protected boolean doFinish() {
 	if (onFinish()) {
-	    wizardDialog.setVisible(false);
+	    wizardDialog.dispose();
 	    return true;
 	} else {
 	    return false;
@@ -153,7 +151,7 @@ public abstract class ArbilWizard {
 
     protected boolean doCancel() {
 	if (onCancel()) {
-	    wizardDialog.setVisible(false);
+	    wizardDialog.dispose();
 	    return true;
 	} else {
 	    return false;
