@@ -2,9 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.mpi.arbil.ui.wizard;
+package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.Dialog.ModalityType;
+import nl.mpi.arbil.ui.wizard.ArbilWizard;
 
 /**
  *
@@ -12,14 +13,15 @@ import java.awt.Dialog.ModalityType;
  */
 public class ArbilSetupWizard extends ArbilWizard {
 
-    public final static Object INTRODUCTION = "Introduction";
-    public final static Object METADATA_FORMAT_SELECT = "MDFormatSelect";
+    public final static Object INTRODUCTION = IntroductionContent.class;
+    public final static Object METADATA_FORMAT_SELECT = MetadataFormatSelectContent.class;
     private ArbilSetupWizardModel model;
 
     public ArbilSetupWizard() {
 	super();
 	model = new ArbilSetupWizardModel();
 	addContent(INTRODUCTION, new IntroductionContent());
+	addContent(METADATA_FORMAT_SELECT, new MetadataFormatSelectContent(model));
 	setCurrent(INTRODUCTION);
     }
 

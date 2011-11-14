@@ -60,7 +60,6 @@ public class ArbilIcons {
 //    private ImageIcon corpusserverlocal16x16cIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/corpusserverlocal16x16c.png"));
     private ImageIcon questionRedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/question-red.png"));
     public ImageIcon dataIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
-    public ImageIcon dataCollectionIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/datacollection.png"));
     public ImageIcon fieldIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
     private ImageIcon dataContainerIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/datacontainer.png"));
