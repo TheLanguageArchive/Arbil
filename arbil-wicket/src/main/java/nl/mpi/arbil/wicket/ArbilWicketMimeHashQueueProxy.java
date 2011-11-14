@@ -37,5 +37,9 @@ public class ArbilWicketMimeHashQueueProxy implements MimeHashQueue{
     public String[] getMimeType(URI fileUri) {
 	return getMimeHashQueue().getMimeType(fileUri);
     }
+
+    public void terminateQueue() {
+	getMimeHashQueue().terminateQueue();
+    }
     
 }
