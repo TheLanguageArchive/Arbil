@@ -127,7 +127,9 @@ public abstract class ArbilWizard {
 
     protected void doNext() {
 	if (model.getCurrent() != null) {
-	    model.getCurrent().onNext();
+	    if (!model.getCurrent().beforeNext()) {
+		return;
+	    }
 	}
 	model.next();
 	refreshContent();
@@ -135,7 +137,9 @@ public abstract class ArbilWizard {
 
     protected void doPrevious() {
 	if (model.getCurrent() != null) {
-	    model.getCurrent().onPrevious();
+	    if (!model.getCurrent().beforePrevious()) {
+		return;
+	    }
 	}
 	model.previous();
 	refreshContent();
@@ -157,6 +161,10 @@ public abstract class ArbilWizard {
 	} else {
 	    return false;
 	}
+    }
+    
+    protected JDialog getWizardDialog(){
+	return wizardDialog;
     }
 
     abstract protected boolean onFinish();
