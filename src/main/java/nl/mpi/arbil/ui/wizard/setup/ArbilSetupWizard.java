@@ -28,10 +28,10 @@ public class ArbilSetupWizard extends ArbilWizard {
 	getWizardDialog().getContentPane().setBackground(Color.WHITE);
 
 	model = new ArbilSetupWizardModel();
-	addContent(INTRODUCTION, new IntroductionContent());
-	addContent(METADATA_FORMAT_SELECT, new MetadataFormatSelectContent(model));
-	addContent(CMDI_PROFILE_SELECT, new CmdiProfileSelectContent(model));
-	addContent(CONFIRMATION, new ConfirmationContent(model));
+	addContent(INTRODUCTION, new ArbilIconContentDecorator(new IntroductionContent()));
+	addContent(METADATA_FORMAT_SELECT, new ArbilIconContentDecorator(new MetadataFormatSelectContent(model)));
+	addContent(CMDI_PROFILE_SELECT, new ArbilIconContentDecorator(new CmdiProfileSelectContent(model)));
+	addContent(CONFIRMATION, new ArbilIconContentDecorator(new ConfirmationContent(model)));
 	setCurrent(INTRODUCTION);
     }
 
