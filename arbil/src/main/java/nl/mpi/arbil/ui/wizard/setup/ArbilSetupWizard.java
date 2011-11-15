@@ -2,6 +2,7 @@ package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.Color;
 import java.awt.Dialog.ModalityType;
+import java.awt.Frame;
 import javax.swing.JOptionPane;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 
@@ -18,10 +19,14 @@ public class ArbilSetupWizard extends ArbilWizard {
     private ArbilSetupWizardModel model;
 
     public ArbilSetupWizard() {
-	super();
-	getWizardDialog().setBackground(Color.WHITE);	
+	this(null);
+    }
+
+    public ArbilSetupWizard(Frame owner) {
+	super(owner);
+	getWizardDialog().setBackground(Color.WHITE);
 	getWizardDialog().getContentPane().setBackground(Color.WHITE);
-	
+
 	model = new ArbilSetupWizardModel();
 	addContent(INTRODUCTION, new IntroductionContent());
 	addContent(METADATA_FORMAT_SELECT, new MetadataFormatSelectContent(model));
@@ -39,10 +44,10 @@ public class ArbilSetupWizard extends ArbilWizard {
     @Override
     protected boolean onCancel() {
 	return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-		getWizardDialog(), 
+		getWizardDialog(),
 		"Do you really want to cancel the wizard?",
-		"Cancel wizard", 
-		JOptionPane.YES_NO_OPTION, 
+		"Cancel wizard",
+		JOptionPane.YES_NO_OPTION,
 		JOptionPane.QUESTION_MESSAGE);
     }
 

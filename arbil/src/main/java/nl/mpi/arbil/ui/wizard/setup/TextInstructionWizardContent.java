@@ -23,8 +23,7 @@ import nl.mpi.arbil.ui.wizard.ArbilWizardContent;
 public abstract class TextInstructionWizardContent extends JPanel implements ArbilWizardContent {
 
     /**
-     * Location of text (optionally HTML) resource to show as introduction
-     * @param resourceLocation 
+     * @param resourceLocation Location of text (optionally HTML) resource to show as introduction
      */
     public TextInstructionWizardContent(String resourceLocation) {
 	super();
