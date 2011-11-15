@@ -39,14 +39,14 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
     @Override
     public final void refresh() {
 	super.refresh();
-	imdiCheckBox.setSelected(model.imdi);
-	cmdiCheckBox.setSelected(model.cmdi);
+	imdiCheckBox.setSelected(model.isImdiSelected());
+	cmdiCheckBox.setSelected(model.isCmdiSelected());
     }
 
     @Override
     public boolean beforeNext() {
 	updateModel();
-	if (model.imdi || model.cmdi) {
+	if (model.isImdiSelected() || model.isCmdiSelected()) {
 	    return true;
 	} else {
 	    JOptionPane.showMessageDialog(this, "Select at least one of the options before continuing", "Select a metadata format", JOptionPane.WARNING_MESSAGE);
@@ -61,7 +61,7 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
     }
 
     public Object getNext() {
-	if (model.cmdi) {
+	if (model.isCmdiSelected()) {
 	    return CmdiProfileSelectContent.class;
 	} else {
 	    return ConfirmationContent.class;
@@ -73,7 +73,7 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
     }
 
     private void updateModel() {
-	model.imdi = imdiCheckBox.isSelected();
-	model.cmdi = cmdiCheckBox.isSelected();
+	model.setImdiSelected(imdiCheckBox.isSelected());
+	model.setCmdiSelected(cmdiCheckBox.isSelected());
     }
 }

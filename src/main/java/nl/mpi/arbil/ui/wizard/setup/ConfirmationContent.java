@@ -22,7 +22,7 @@ public class ConfirmationContent extends TextInstructionWizardContent {
     }
 
     public Object getPrevious() {
-	if (model.cmdi) {
+	if (model.isCmdiSelected()) {
 	    return CmdiProfileSelectContent.class;
 	} else {
 	    return MetadataFormatSelectContent.class;
