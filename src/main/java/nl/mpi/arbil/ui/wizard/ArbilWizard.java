@@ -2,12 +2,15 @@ package nl.mpi.arbil.ui.wizard;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Dialog.ModalityType;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -28,6 +31,7 @@ public abstract class ArbilWizard {
     private JButton nextButton;
     private JButton cancelButton;
     private JButton finishButton;
+    private final Frame owner;
     private final ArbilWizardModel model;
     private final static String NEXT_ACTION = "wizard_action_next";
     private final static String PREVIOUS_ACTION = "wizard_action_previous";
@@ -35,6 +39,15 @@ public abstract class ArbilWizard {
     private final static String FINISH_ACTION = "wizard_action_finish";
 
     public ArbilWizard() {
+	this(null);
+    }
+
+    /**
+     * 
+     * @param owner Owner frame of dialog. Pass null (or use default constructor) to use Swing defaults
+     */
+    public ArbilWizard(Frame owner) {
+	this.owner = owner;
 	initDialog();
 	model = new ArbilWizardModel();
     }
@@ -42,6 +55,9 @@ public abstract class ArbilWizard {
     public void showDialog(ModalityType modalityType) {
 	wizardDialog.setModalityType(modalityType);
 	refreshContent();
+	if (owner != null) {
+	    wizardDialog.setLocationRelativeTo(owner);
+	}
 	wizardDialog.setVisible(true);
     }
 
@@ -74,6 +90,10 @@ public abstract class ArbilWizard {
 	wizardContentPanel.setLayout(wizardContentPanelLayout);
 
 	JPanel buttonsPanel = new JPanel(new FlowLayout(SwingConstants.RIGHT));
+	buttonsPanel.setBorder(
+		BorderFactory.createCompoundBorder(
+		BorderFactory.createEmptyBorder(5, 2, 0, 2), // outside empty border (sides and top)
+		BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY))); // inside top line
 
 	previousButton = new JButton("Previous");
 	previousButton.setActionCommand(PREVIOUS_ACTION);
@@ -95,7 +115,11 @@ public abstract class ArbilWizard {
 	cancelButton.addActionListener(buttonListener);
 	buttonsPanel.add(cancelButton);
 
-	wizardDialog = new JDialog();
+	if (owner != null) {
+	    wizardDialog = new JDialog(owner);
+	} else {
+	    wizardDialog = new JDialog();
+	}
 	wizardDialog.setTitle("Arbil wizard");
 	wizardDialog.getContentPane().setLayout(new BorderLayout());
 	wizardDialog.getContentPane().add(wizardContentPanel, BorderLayout.CENTER);
@@ -124,7 +148,7 @@ public abstract class ArbilWizard {
 	    }
 	}
     };
-
+    
     protected void doNext() {
 	if (model.getCurrent() != null) {
 	    if (!model.getCurrent().beforeNext()) {
@@ -162,8 +186,8 @@ public abstract class ArbilWizard {
 	    return false;
 	}
     }
-    
-    protected JDialog getWizardDialog(){
+
+    protected JDialog getWizardDialog() {
 	return wizardDialog;
     }
 
