@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
@@ -33,7 +29,7 @@ public class ArbilIconContentDecorator extends JPanel implements ArbilWizardCont
 	iconPanel.setBorder(BorderFactory.createEmptyBorder(15, 10, 2, 2));
 	iconPanel.add(new JLabel(new ImageIcon(getClass().getResource("/nl/mpi/arbil/resources/icons/arbil-stable128x128.png"))));
 	add(iconPanel, BorderLayout.WEST);
-
+	
 	add(innerContent.getContent(), BorderLayout.CENTER);
     }
 

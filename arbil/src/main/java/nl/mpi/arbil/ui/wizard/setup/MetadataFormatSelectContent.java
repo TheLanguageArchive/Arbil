@@ -62,9 +62,9 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
 
     public Object getNext() {
 	if (model.isCmdiSelected()) {
-	    return CmdiProfileSelectContent.class;
+	    return ArbilSetupWizard.CMDI_PROFILE_SELECT;
 	} else {
-	    return ConfirmationContent.class;
+	    return ArbilSetupWizard.REMOTE_LOCATIONS;
 	}
     }
 

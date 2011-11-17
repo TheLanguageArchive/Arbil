@@ -1,39 +1,39 @@
 package nl.mpi.arbil.ui.wizard.setup;
 
+import java.io.Serializable;
+
 /**
- * Model for storing the user's selected options and entered values in an ArbilWizard session
+ * Model for storing the user's selected options and entered values in an ArbilSetupWizard session
  * @see ArbilWizard
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
-public class ArbilSetupWizardModel {
+public class ArbilSetupWizardModel implements Serializable {
+
     private boolean imdiSelected;
     private boolean cmdiSelected;
+    private transient String remoteLocations;
 
-    /**
-     * @return the imdiSelected
-     */
     public boolean isImdiSelected() {
 	return imdiSelected;
     }
 
-    /**
-     * @param imdiSelected the imdiSelected to set
-     */
     public void setImdiSelected(boolean imdiSelected) {
 	this.imdiSelected = imdiSelected;
     }
 
-    /**
-     * @return the cmdiSelected
-     */
     public boolean isCmdiSelected() {
 	return cmdiSelected;
     }
 
-    /**
-     * @param cmdiSelected the cmdiSelected to set
-     */
     public void setCmdiSelected(boolean cmdiSelected) {
 	this.cmdiSelected = cmdiSelected;
+    }
+
+    public String getRemoteLocations() {
+	return remoteLocations;
+    }
+
+    public void setRemoteLocations(String remoteLocations) {
+	this.remoteLocations = remoteLocations;
     }
 }
