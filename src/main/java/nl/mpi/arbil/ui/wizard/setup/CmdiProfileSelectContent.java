@@ -4,12 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.CmdiProfilesPanel;
 
 /**
- *
+ * ArbilWizard content that lets the user select CMDI profiles
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class CmdiProfileSelectContent extends TextInstructionWizardContent {
@@ -62,11 +61,11 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
     }
 
     public Object getNext() {
-	return ConfirmationContent.class;
+	return ArbilSetupWizard.REMOTE_LOCATIONS;
     }
 
     public Object getPrevious() {
-	return MetadataFormatSelectContent.class;
+	return ArbilSetupWizard.METADATA_FORMAT_SELECT;
     }
 
     /**

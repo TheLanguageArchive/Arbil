@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nl.mpi.arbil.ui.wizard.setup;
 
 /**
@@ -10,11 +6,8 @@ package nl.mpi.arbil.ui.wizard.setup;
  */
 public class ConfirmationContent extends TextInstructionWizardContent {
 
-    private final ArbilSetupWizardModel model;
-
-    public ConfirmationContent(ArbilSetupWizardModel model) {
+    public ConfirmationContent() {
 	super("/nl/mpi/arbil/resources/html/wizard/Confirmation.html");
-	this.model = model;
     }
 
     public Object getNext() {
@@ -22,10 +15,6 @@ public class ConfirmationContent extends TextInstructionWizardContent {
     }
 
     public Object getPrevious() {
-	if (model.isCmdiSelected()) {
-	    return CmdiProfileSelectContent.class;
-	} else {
-	    return MetadataFormatSelectContent.class;
-	}
+	return ArbilSetupWizard.REMOTE_LOCATIONS;
     }
 }
