@@ -22,8 +22,8 @@ import nl.mpi.arbil.util.BugCatcher;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
-    public static final String CLARIN_PREFIX = "clarin:";
 
+    public static final String CLARIN_PREFIX = "clarin:";
     private static BugCatcher bugCatcher;
 
     public static void setBugCatcher(BugCatcher bugCatcherInstance) {
@@ -118,15 +118,17 @@ public class ArbilTemplateManager {
     }
 
     public void addSelectedTemplates(String templateString) {
-	ArrayList<String> selectedTamplates = new ArrayList<String>();
+	ArrayList<String> selectedTemplates = new ArrayList<String>();
 	try {
-	    selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
+	    selectedTemplates.addAll(Arrays.asList(loadSelectedTemplates()));
 	} catch (Exception e) {
 	    bugCatcher.logError("No selectedTemplates file, will create one now.", e);
 	}
-	selectedTamplates.add(templateString);
+	if (!selectedTemplates.contains(templateString)) {
+	    selectedTemplates.add(templateString);
+	}
 	try {
-	    saveSelectedTemplates(selectedTamplates);
+	    saveSelectedTemplates(selectedTemplates);
 	} catch (IOException ex) {
 	    bugCatcher.logError("Could not crate new selectedTemplates file.", ex);
 	}
@@ -159,7 +161,7 @@ public class ArbilTemplateManager {
 	    selectedTamplates.addAll(Arrays.asList(loadSelectedTemplates()));
 	} catch (Exception e) {
 	    bugCatcher.logError("No selectedTemplates file, will create one now.", e);
-	    addDefaultTemplates();
+	    addDefaultImdiTemplates();
 	}
 	return selectedTamplates;
     }
@@ -172,10 +174,16 @@ public class ArbilTemplateManager {
 	public ImageIcon menuIcon;
     }
 
-    private void addDefaultTemplates() {
+    public void addDefaultImdiTemplates() {
 	addSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
 	addSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
 	addSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
+    }
+
+    public void removeDefaultImdiTemplates() {
+	removeSelectedTemplates("builtin:METATRANSCRIPT.Corpus.xml");
+	removeSelectedTemplates("builtin:METATRANSCRIPT.Catalogue.xml");
+	removeSelectedTemplates("builtin:METATRANSCRIPT.Session.xml");
     }
 
     private MenuItemData createMenuItemForTemplate(String location) {
@@ -236,7 +244,7 @@ public class ArbilTemplateManager {
 	}
 	if (locationsArray == null || locationsArray.length == 0) {
 	    try {
-		addDefaultTemplates();
+		addDefaultImdiTemplates();
 		locationsArray = loadSelectedTemplates();
 	    } catch (IOException ex) {
 		bugCatcher.logError(ex);
