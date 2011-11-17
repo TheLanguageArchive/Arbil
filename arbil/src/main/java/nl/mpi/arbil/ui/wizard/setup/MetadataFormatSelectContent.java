@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -23,12 +24,14 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
 	
 	JPanel checkBoxPanel = new JPanel();
 	checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.PAGE_AXIS));
-	checkBoxPanel.setOpaque(true);
+	checkBoxPanel.setBackground(Color.WHITE);
 	
 	imdiCheckBox = new JCheckBox("IMDI");
+        imdiCheckBox.setBackground(Color.WHITE);
 	imdiCheckBox.setHorizontalAlignment(SwingConstants.LEFT);
 	checkBoxPanel.add(imdiCheckBox);
 	cmdiCheckBox = new JCheckBox("CMDI");
+        cmdiCheckBox.setBackground(Color.WHITE);
 	cmdiCheckBox.setHorizontalAlignment(SwingConstants.LEFT);
 	checkBoxPanel.add(cmdiCheckBox);
 	add(checkBoxPanel, BorderLayout.WEST);

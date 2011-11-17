@@ -223,10 +223,12 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
         <jar destfile="${OUTPUTDIR}/${ArbilJarName}">
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/**/*.class"/>
             <fileset dir="${RESOURCESDIR}" includes="*"/>
+            <fileset dir="${RESOURCESDIR}" includes="defaults/*"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/icons/*.png"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/images/*.png"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/*.html"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/help/**/*.*"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/wizard/*.html"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>

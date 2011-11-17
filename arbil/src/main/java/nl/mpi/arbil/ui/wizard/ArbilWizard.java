@@ -88,13 +88,16 @@ public abstract class ArbilWizard {
     private void initDialog() {
 	wizardContentPanel = new JPanel();
 	wizardContentPanelLayout = new CardLayout();
+        
 	wizardContentPanel.setLayout(wizardContentPanelLayout);
+        wizardContentPanel.setBackground(Color.WHITE);
 
 	JPanel buttonsPanel = new JPanel(new FlowLayout(SwingConstants.RIGHT));
 	buttonsPanel.setBorder(
 		BorderFactory.createCompoundBorder(
 		BorderFactory.createEmptyBorder(5, 2, 0, 2), // outside empty border (sides and top)
 		BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY))); // inside top line
+        buttonsPanel.setBackground(Color.WHITE);
 
 	previousButton = new JButton("Previous");
 	previousButton.setActionCommand(PREVIOUS_ACTION);
@@ -123,6 +126,7 @@ public abstract class ArbilWizard {
 	}
 	wizardDialog.setTitle("Arbil wizard");
 	wizardDialog.getContentPane().setLayout(new BorderLayout());
+        wizardDialog.getContentPane().setBackground(Color.WHITE);
 	wizardDialog.getContentPane().add(wizardContentPanel, BorderLayout.CENTER);
 	wizardDialog.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 

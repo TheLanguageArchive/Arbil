@@ -36,8 +36,6 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     public ArbilSetupWizard(Frame owner) {
 	super(owner);
-	getWizardDialog().setBackground(Color.WHITE);
-	getWizardDialog().getContentPane().setBackground(Color.WHITE);
 
 	getModel();
 	addContent(INTRODUCTION, new ArbilIconContentDecorator(new IntroductionContent()));
