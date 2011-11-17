@@ -1,7 +1,10 @@
 package nl.mpi.arbil.data;
 
+import java.io.BufferedReader;
 import nl.mpi.arbil.util.TreeHelper;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -11,6 +14,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -97,20 +101,22 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 
     @Override
     public int addDefaultCorpusLocations() {
+	try {
+	    addLocations(getClass().getResourceAsStream("/defaults/imdiLocations"));
+	    return remoteCorpusNodes.length;
+	} catch (IOException ex) {
+	    bugCatcher.logError(ex);
+	    return 0;
+	}
+    }
+
+    public int addDefaultCorpusLocationsOld() {
 	HashSet<ArbilDataNode> remoteCorpusNodesSet = new HashSet<ArbilDataNode>();
 	remoteCorpusNodesSet.addAll(Arrays.asList(remoteCorpusNodes));
 	for (String currentUrlString : new String[]{
 		    "http://corpus1.mpi.nl/IMDI/metadata/IMDI.imdi",
 		    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/MPI.imdi",
-		    //                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1.imdi",
 		    "http://corpus1.mpi.nl/qfs1/media-archive/Corpusstructure/sign_language.imdi"
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ChintangPuma/Chintang/Conversation/Metadata/phidang_talk.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/silang_data/Corpusstructure/1-03.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/ECLING/Corpusstructure/ECLING.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Center/Corpusstructure/center.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Teop/Corpusstructure/1.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Waimaa/Corpusstructure/1.imdi",
-//                    "http://corpus1.mpi.nl/qfs1/media-archive/dobes_data/Beaver/Corpusstructure/Beaver.imdi"
 		}) {
 	    try {
 		remoteCorpusNodesSet.add(dataNodeLoader.getArbilDataNode(null, new URI(currentUrlString)));
@@ -133,7 +139,9 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    }
 	    if (nodesToAdd != null) {
 		for (ArbilDataNode currentAddable : nodesToAdd) {
-		    locationsSet.add(currentAddable.getUrlString());
+		    if (currentAddable != null) {
+			locationsSet.add(currentAddable.getUrlString());
+		    }
 		}
 	    }
 	    if (nodesToRemove != null) {
@@ -164,9 +172,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    bugCatcher.logError(ex);
 	    messageDialogHandler.addMessageDialogToQueue("Could not find or load locations. Adding default locations.", "Error");
 	}
-	if (locationsArray == null) {
-	    addDefaultCorpusLocations();
-	} else {
+	if (locationsArray != null) {
 	    ArrayList<ArbilDataNode> remoteCorpusNodesList = new ArrayList<ArbilDataNode>();
 	    ArrayList<ArbilDataNode> localCorpusNodesList = new ArrayList<ArbilDataNode>();
 	    ArrayList<ArbilDataNode> localFileNodesList = new ArrayList<ArbilDataNode>();
@@ -222,6 +228,41 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	    getSessionStorage().saveBoolean("showHiddenFilesInTree", showHiddenFilesInTree);
 	} catch (Exception ex) {
 	    System.out.println("save showHiddenFilesInTree failed");
+	}
+    }
+
+    public void addLocations(List<URI> locations) {
+	ArbilDataNode[] addedNodes = new ArbilDataNode[locations.size()];
+	for (int i = 0; i < locations.size(); i++) {
+	    URI addedLocation = locations.get(i);
+	    System.out.println("addLocation: " + addedLocation.toString());
+	    // make sure the added location url matches that of the imdi node format
+	    addedNodes[i] = dataNodeLoader.getArbilDataNode(null, addedLocation);
+	}
+
+	saveLocations(addedNodes, null);
+	loadLocationsList();
+    }
+
+    public void addLocations(InputStream inputStream) throws IOException {
+	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+	List<URI> locationsList = new LinkedList<URI>();
+	String location = reader.readLine();
+	while (location != null) {
+	    try {
+		URI uri = new URI(location);
+		locationsList.add(uri);
+	    } catch (URISyntaxException ex) {
+		bugCatcher.logError(ex);
+	    }
+	    location = reader.readLine();
+	}
+	addLocations(locationsList);
+    }
+
+    public void clearRemoteLocations() {
+	for (ArbilDataNode removeNode : remoteCorpusNodes) {
+	    removeLocation(removeNode.getURI());
 	}
     }
 
@@ -405,7 +446,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 	// TODO: Now does not work for nodes that have not been exposed in the tree. This is because the tree
 	// is not registered as container for those nodes. This needs to be detected and worked around, or if that is too messy
 	// the jump to tree item should be disabled for those nodes.
-	
+
 	for (ArbilDataNodeContainer container : cellDataNode.getRegisteredContainers()) {
 	    if (container instanceof ArbilTrackingTree) {
 		boolean found = false;
@@ -413,7 +454,7 @@ public abstract class AbstractTreeHelper implements TreeHelper {
 		    // Try from parent first
 		    found = ((ArbilTrackingTree) container).jumpToNode(cellDataNode.getParentDomNode(), cellDataNode);
 		}
-		if(!found){
+		if (!found) {
 		    // Try from tree root
 		    ((ArbilTrackingTree) container).jumpToNode(null, cellDataNode);
 		}
