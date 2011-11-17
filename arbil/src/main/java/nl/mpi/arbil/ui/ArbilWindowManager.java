@@ -11,6 +11,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -54,6 +55,7 @@ import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 
@@ -432,6 +434,13 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		    showMessageThreadrunning = false;
 		}
 	    }.start();
+	}
+    }
+    
+    public void showSetupWizardIfFirstRun(){
+	if(!"yes".equals(ArbilSessionStorage.getSingleInstance().loadString("wizardHasRun"))){
+	    ArbilSessionStorage.getSingleInstance().saveString("wizardHasRun", "yes");
+	    new ArbilSetupWizard().showDialog(ModalityType.APPLICATION_MODAL);
 	}
     }
 
