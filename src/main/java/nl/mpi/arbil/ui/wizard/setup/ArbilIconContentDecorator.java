@@ -1,6 +1,7 @@
 package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -27,6 +28,7 @@ public class ArbilIconContentDecorator extends JPanel implements ArbilWizardCont
 	JPanel iconPanel = new JPanel();
 	iconPanel.setLayout(new BoxLayout(iconPanel, BoxLayout.PAGE_AXIS));
 	iconPanel.setBorder(BorderFactory.createEmptyBorder(15, 10, 2, 2));
+        iconPanel.setBackground(Color.WHITE);
 	iconPanel.add(new JLabel(new ImageIcon(getClass().getResource("/nl/mpi/arbil/resources/icons/arbil-stable128x128.png"))));
 	add(iconPanel, BorderLayout.WEST);
 	
