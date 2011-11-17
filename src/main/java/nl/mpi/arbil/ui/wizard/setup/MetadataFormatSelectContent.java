@@ -25,10 +25,10 @@ public class MetadataFormatSelectContent extends TextInstructionWizardContent {
 	checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.PAGE_AXIS));
 	checkBoxPanel.setOpaque(true);
 	
-	imdiCheckBox = new JCheckBox("IDMI");
+	imdiCheckBox = new JCheckBox("IMDI");
 	imdiCheckBox.setHorizontalAlignment(SwingConstants.LEFT);
 	checkBoxPanel.add(imdiCheckBox);
-	cmdiCheckBox = new JCheckBox("CDMI");
+	cmdiCheckBox = new JCheckBox("CMDI");
 	cmdiCheckBox.setHorizontalAlignment(SwingConstants.LEFT);
 	checkBoxPanel.add(cmdiCheckBox);
 	add(checkBoxPanel, BorderLayout.WEST);

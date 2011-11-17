@@ -68,6 +68,7 @@ public abstract class ArbilWizard {
 	    previousButton.setEnabled(content.getPrevious() != null);
 	    nextButton.setVisible(content.getNext() != null);
 	    finishButton.setVisible(content.getNext() == null);
+	    content.beforeShow();
 	    content.refresh();
 	    wizardContentPanelLayout.show(wizardContentPanel, id.toString());
 	}

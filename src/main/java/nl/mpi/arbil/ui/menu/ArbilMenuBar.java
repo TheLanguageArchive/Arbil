@@ -10,6 +10,7 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.Dialog.ModalityType;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -40,6 +41,8 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
+import nl.mpi.arbil.ui.wizard.ArbilWizard;
+import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
@@ -87,6 +90,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenu fileMenu = new JMenu();
     private JMenu helpMenu = new JMenu();
     private JMenuItem helpMenuItem = new JMenuItem();
+    private JMenuItem setupWizardMenuItem = new JMenuItem();
     private JMenuItem importMenuItem = new JMenuItem();
     private PreviewSplitPanel previewSplitPanel;
     private JApplet containerApplet = null;
@@ -104,13 +108,12 @@ public class ArbilMenuBar extends JMenuBar {
 	    return !isMacOsMenu();
 	}
     };
-    
     private static ApplicationVersionManager versionManager;
 
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
-    
+
     public ArbilMenuBar(PreviewSplitPanel previewSplitPanelLocal, JApplet containerAppletLocal) {
 	containerApplet = containerAppletLocal;
 	previewSplitPanel = previewSplitPanelLocal;
@@ -630,6 +633,15 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	helpMenu.add(helpMenuItem);
+	setupWizardMenuItem.setText("Run setup wizard");
+	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		ArbilWizard wizard = new ArbilSetupWizard(ArbilWindowManager.getSingleInstance().getMainFrame());
+		wizard.showDialog(ModalityType.APPLICATION_MODAL);
+	    }
+	});
+	helpMenu.add(setupWizardMenuItem);
 	arbilForumMenuItem.setText("Arbil Forum (Website)");
 	arbilForumMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
@@ -834,7 +846,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	}
 	ArbilMimeHashQueue.getSingleInstance().terminateQueue();
-	
+
 	GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
 	ArbilSessionStorage.getSingleInstance().saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
 	ArbilSessionStorage.getSingleInstance().saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());

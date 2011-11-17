@@ -47,6 +47,9 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
     public JComponent getContent() {
 	return this;
     }
+    
+    public void beforeShow(){
+    }
 
     public boolean beforeNext() {
 	return true;
