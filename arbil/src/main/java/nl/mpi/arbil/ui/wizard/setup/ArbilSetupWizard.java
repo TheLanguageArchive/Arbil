@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dialog.ModalityType;
 import java.awt.Frame;
 import javax.swing.JOptionPane;
+import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 
 /**
@@ -30,7 +31,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 	model = new ArbilSetupWizardModel();
 	addContent(INTRODUCTION, new ArbilIconContentDecorator(new IntroductionContent()));
 	addContent(METADATA_FORMAT_SELECT, new ArbilIconContentDecorator(new MetadataFormatSelectContent(model)));
-	addContent(CMDI_PROFILE_SELECT, new ArbilIconContentDecorator(new CmdiProfileSelectContent(model)));
+	addContent(CMDI_PROFILE_SELECT, new ArbilIconContentDecorator(new CmdiProfileSelectContent(model, getWizardDialog())));
 	addContent(CONFIRMATION, new ArbilIconContentDecorator(new ConfirmationContent(model)));
 	setCurrent(INTRODUCTION);
     }
@@ -52,6 +53,7 @@ public class ArbilSetupWizard extends ArbilWizard {
     }
 
     public static void main(String args[]) {
+	ArbilDesktopInjector.injectHandlers();
 	ArbilWizard wizard = new ArbilSetupWizard();
 	wizard.showDialog(ModalityType.APPLICATION_MODAL);
     }

@@ -17,6 +17,8 @@ public interface ArbilWizardContent {
     
     void refresh();
     
+    void beforeShow();
+    
     boolean beforeNext();
     
     boolean beforePrevious();

@@ -55,6 +55,10 @@ public class ArbilIconContentDecorator extends JPanel implements ArbilWizardCont
 	add(innerContent.getContent(), BorderLayout.CENTER);
     }
 
+    public void beforeShow() {
+	innerContent.beforeShow();
+    }
+
     public boolean beforeNext() {
 	return innerContent.beforeNext();
     }

@@ -1,13 +1,12 @@
 package nl.mpi.arbil.ui.wizard.setup;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
+import java.awt.Dimension;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import nl.mpi.arbil.ui.TemplateDialogue;
+import nl.mpi.arbil.clarin.profiles.CmdiProfileReader;
+import nl.mpi.arbil.templates.ArbilTemplateManager;
+import nl.mpi.arbil.ui.CmdiProfilesPanel;
 
 /**
  *
@@ -16,37 +15,50 @@ import nl.mpi.arbil.ui.TemplateDialogue;
 public class CmdiProfileSelectContent extends TextInstructionWizardContent {
 
     private final ArbilSetupWizardModel model;
-    private boolean dialogShown = false;
+    private CmdiProfilesPanel profilesPanel;
 
-    public CmdiProfileSelectContent(ArbilSetupWizardModel model) {
+    public CmdiProfileSelectContent(ArbilSetupWizardModel model, JDialog wizardDialog) {
 	super("/nl/mpi/arbil/resources/html/wizard/CmdiProfileSelect.html");
 	this.model = model;
 
-	JPanel buttonPanel = new JPanel();
-	buttonPanel.setBackground(Color.WHITE);
-	JButton profileDialogButton = new JButton("Select profiles");
-	profileDialogButton.addActionListener(new ActionListener() {
+	profilesPanel = new CmdiProfilesPanel(wizardDialog);
+	profilesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Clarin Profiles"));
+	profilesPanel.setPreferredSize(new Dimension(200, 300));
+	profilesPanel.setVisible(false); // do not show until content panel is visible
 
-	    public void actionPerformed(ActionEvent e) {
-		dialogShown = true;
-		TemplateDialogue.showTemplatesDialogue();
-	    }
-	});
-	buttonPanel.add(profileDialogButton);
-	add(buttonPanel, BorderLayout.CENTER);
+	add(profilesPanel, BorderLayout.CENTER);
+
+    }
+
+    @Override
+    public void beforeShow() {
+	profilesPanel.setVisible(true);
+	profilesPanel.populateList();
+	profilesPanel.loadProfiles(false);
     }
 
     @Override
     public boolean beforeNext() {
-	if (dialogShown) {
-	    return true;
+	boolean doNext;
+	if (profilesSelected()) {
+	    doNext = true;
 	} else {
-	    return JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,
+	    doNext = JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(this,
 		    "You have not yet selected profiles to use. Are you sure you want to continue?",
 		    "No profiles selected",
 		    JOptionPane.OK_CANCEL_OPTION,
 		    JOptionPane.WARNING_MESSAGE);
 	}
+	if (doNext) {
+	    profilesPanel.setVisible(false);
+	}
+	return doNext;
+    }
+
+    @Override
+    public boolean beforePrevious() {
+	profilesPanel.setVisible(false);
+	return true;
     }
 
     public Object getNext() {
@@ -55,5 +67,18 @@ public class CmdiProfileSelectContent extends TextInstructionWizardContent {
 
     public Object getPrevious() {
 	return MetadataFormatSelectContent.class;
+    }
+
+    /**
+     * 
+     * @return Whether at least one CMDI profile has been selected
+     */
+    private boolean profilesSelected() {
+	for (String template : ArbilTemplateManager.getSingleInstance().getSelectedTemplateArrayList()) {
+	    if (template.startsWith(ArbilTemplateManager.CLARIN_PREFIX)) {
+		return true;
+	    }
+	}
+	return false;
     }
 }
