@@ -22,6 +22,7 @@ import nl.mpi.arbil.util.BugCatcher;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilTemplateManager {
+    public static final String CLARIN_PREFIX = "clarin:";
 
     private static BugCatcher bugCatcher;
 
@@ -209,8 +210,8 @@ public class ArbilTemplateManager {
 	    menuItem.menuAction = currentString;
 	    menuItem.menuToolTip = currentString;
 	    menuItem.menuIcon = arbilIcons.sessionColorIcon;
-	} else if (location.startsWith("clarin:")) {
-	    String currentString = location.substring("clarin:".length());
+	} else if (location.startsWith(CLARIN_PREFIX)) {
+	    String currentString = location.substring(CLARIN_PREFIX.length());
 	    CmdiProfile cmdiProfile = CmdiProfileReader.getSingleInstance().getProfile(currentString);
 	    if (cmdiProfile == null) {
 		menuItem.menuText = "<unknown>";
