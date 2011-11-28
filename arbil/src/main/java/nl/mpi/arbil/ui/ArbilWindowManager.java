@@ -440,7 +440,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public void showSetupWizardIfFirstRun(){
 	if(!"yes".equals(ArbilSessionStorage.getSingleInstance().loadString("wizardHasRun"))){
 	    ArbilSessionStorage.getSingleInstance().saveString("wizardHasRun", "yes");
-	    new ArbilSetupWizard().showDialog(ModalityType.APPLICATION_MODAL);
+	    new ArbilSetupWizard(linorgFrame).showDialog(ModalityType.APPLICATION_MODAL);
 	}
     }
 
