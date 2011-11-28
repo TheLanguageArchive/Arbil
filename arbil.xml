@@ -231,6 +231,7 @@ http://www.lat-mpi.eu/tools/imdi/Arbil/
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/html/wizard/*.html"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/templates/*.xml"/>
             <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/xsl/*.*"/>
+            <fileset dir="${RESOURCESDIR}" includes="nl/mpi/arbil/resources/xsd/**/*.*"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xsd"/>
             <fileset dir="${BUILDDIR}" includes="nl/mpi/arbil/resources/IMDI/FallBack/*.xml"/>
             <fileset dir="${BUILDDIR}" includes="JNLP-INF/application.jnlp"/>

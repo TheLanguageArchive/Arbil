@@ -72,14 +72,15 @@ public class ArbilMain extends javax.swing.JFrame {
 	setIconImage(ArbilIcons.getSingleInstance().linorgIcon.getImage());
 	// load the templates and populate the templates menu
 	setVisible(true);
-	ArbilWindowManager.getSingleInstance().showSetupWizardIfFirstRun();
-	ArbilWindowManager.getSingleInstance().openIntroductionPage();
 
 	if (arbilMenuBar.checkNewVersionAtStartCheckBoxMenuItem.isSelected()) {
 	    versionManager.checkForUpdate();
 	}
 
 	initMacApplicationHandlers();
+
+    	ArbilWindowManager.getSingleInstance().showSetupWizardIfFirstRun();
+	ArbilWindowManager.getSingleInstance().openIntroductionPage();
     }
 
     private void initComponents() {
