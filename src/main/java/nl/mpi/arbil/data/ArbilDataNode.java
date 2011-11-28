@@ -1440,16 +1440,19 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	getLabelString:
 	for (String currentPreferredName : this.getNodeTemplate().preferredNameFields) {
 	    for (ArbilField[] currentFieldArray : fieldHashtable.values().toArray(new ArbilField[][]{})) {
-		if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
-		    if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
-			preferredNameFieldExists = true;
-			for (ArbilField currentField : currentFieldArray) {
-			    if (currentField != null) {
-				if (currentField.toString().trim().length() > 0) {
-				    nodeText = currentField.toString();
-				    foundPreferredNameField = true;
-				    break getLabelString;
-				}
+		
+		// TODO: Field of child nodes should not give name to node. Line below will acomplish this but also ignores preferred names on
+		// nodes that get ALL their fields from child elements in the XML (in case of 1:1 truncation)
+		// if (!currentFieldArray[0].getTranslateFieldName().contains(".")) { // Field of child nodes should not give name to node
+		
+		if (currentFieldArray[0].getFullXmlPath().replaceAll("\\(\\d+\\)", "").equals(currentPreferredName)) {
+		    preferredNameFieldExists = true;
+		    for (ArbilField currentField : currentFieldArray) {
+			if (currentField != null) {
+			    if (currentField.toString().trim().length() > 0) {
+				nodeText = currentField.toString();
+				foundPreferredNameField = true;
+				break getLabelString;
 			    }
 			}
 		    }
