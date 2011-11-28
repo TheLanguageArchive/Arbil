@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -687,6 +688,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	}
 	System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+//	}
     }
 
     public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
@@ -702,7 +704,19 @@ public class ArbilSessionStorage implements SessionStorage {
     private File updateCache(String pathString, File cachePath, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	// to expire the files in the cache set the expireCacheCopy flag.
 	try {
-	    saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
+	    URL pathUrl = null;
+	    if (expireCacheCopy) {
+		// Try getting from resource first
+		URL resourceURL = getFromResources(pathString);
+		if (resourceURL != null) {
+		    pathUrl = resourceURL;
+		}
+	    }
+	    if (pathUrl == null) {
+		pathUrl = new URL(pathString);
+	    }
+
+	    saveRemoteResource(pathUrl, cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
 	    logError(new Exception(pathString, mul));
 	}
@@ -763,24 +777,58 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     /**
+     * Tries to find a match ('mirror') for the requested path string in the resources. 
+     * The method may depend on the type of the requested file
+     * @param pathString Requested file
+     * @return Resource URL if available in resources, otherwise null
+     */
+    public URL getFromResources(String pathString) {
+	if (pathString.endsWith(".xsd")) {
+	    pathString = fixCachePath("/nl/mpi/arbil/resources/xsd/" + preProcessPathString(pathString));
+	    URL resourceURL = getClass().getResource(pathString);
+	    if (resourceURL != null) {
+		return resourceURL;
+	    }
+	}
+	return null;
+    }
+
+    /**
      * Converts a String path from the remote location to the respective location in the cache.
      * Then tests for and creates the directory structure in the cache if requred.
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
     public File getSaveLocation(String pathString) {
-	try {
-	    pathString = URLDecoder.decode(pathString, "UTF-8");
-	} catch (UnsupportedEncodingException uee) {
-	    logError(uee);
-	}
-	pathString = pathString.replace("//", "/");
+	pathString = preProcessPathString(pathString);
 	for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", "ArbilWorkingFiles"}) {
 	    if (pathString.indexOf(searchString) > -1) {
 		logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
 		pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
 	    }
 	}
+	String cachePath = fixCachePath(pathString);
+	File returnFile = new File(getCacheDirectory(), cachePath);
+	if (!returnFile.getParentFile().exists()) {
+	    if (!returnFile.getParentFile().mkdirs()) {
+		logError(new Exception("Could not ccrate directory structure for saving " + pathString));
+		return null;
+	    }
+	}
+	return returnFile;
+    }
+
+    private String preProcessPathString(String pathString) {
+	try {
+	    pathString = URLDecoder.decode(pathString, "UTF-8");
+	} catch (UnsupportedEncodingException uee) {
+	    logError(uee);
+	}
+	pathString = pathString.replace("//", "/");
+	return pathString;
+    }
+
+    private String fixCachePath(String pathString) {
 	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/');
 	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
 	    cachePath = cachePath.replace(":", "_");
@@ -791,14 +839,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    // rest paths will create files and then require directories of the same name and this must be avoided
 	    cachePath = cachePath + ".dat";
 	}
-	File returnFile = new File(getCacheDirectory(), cachePath);
-	if (!returnFile.getParentFile().exists()) {
-	    if (!returnFile.getParentFile().mkdirs()) {
-		logError(new Exception("Could not ccrate directory structure for saving " + pathString));
-		return null;
-	    }
-	}
-	return returnFile;
+	return cachePath;
     }
 
     /**
@@ -892,6 +933,9 @@ public class ArbilSessionStorage implements SessionStorage {
      */
     private URLConnection openResourceConnection(URL resourceUrl, ShibbolethNegotiator shibbolethNegotiator, boolean followRedirects) throws IOException {
 	URLConnection urlConnection = resourceUrl.openConnection();
+	if (urlConnection instanceof JarURLConnection) {
+	    return urlConnection;
+	}
 	HttpURLConnection httpConnection = null;
 	if (urlConnection instanceof HttpURLConnection) {
 	    httpConnection = (HttpURLConnection) urlConnection;
