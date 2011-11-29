@@ -637,6 +637,7 @@ public class ArbilMenuBar extends JMenuBar {
 	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
+		ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
 		ArbilWizard wizard = new ArbilSetupWizard(ArbilWindowManager.getSingleInstance().getMainFrame());
 		wizard.showDialog(ModalityType.APPLICATION_MODAL);
 	    }
