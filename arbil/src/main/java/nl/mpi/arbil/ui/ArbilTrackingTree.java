@@ -122,6 +122,7 @@ public class ArbilTrackingTree extends ArbilTree {
 	    synchronized (sortRunnerLock) {
 		try {
 		    sortRunnerLock.wait(250);
+		    // TODO: better wait until node has actually been added
 		} catch (InterruptedException ex) {
 		}
 	    }
