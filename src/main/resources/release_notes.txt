@@ -34,18 +34,39 @@ selected node all of its subnodes in an hierarchical view. (#603)
 
 - TYPECHECKER CONFIGURATION: A custom typechecker filetypes configuration can be used by putting a
 filetypes.txt file in the Arbil working directory. It will then automatically be used instead of the
-internal default configuration (#905).
+internal default configuration. (#905)
 
 - RESOURCE MIME TYPES: If the mime type of a file is unknown, and Arbil can therefore not determine
 the type of the resource (in case of IMDI), the user is prestented with a dialog to determine 
-whether the resource is a MediaFile or WrittenResource (#1031)
+whether the resource is a MediaFile or WrittenResource. (#1031)
 
 - WINDOWS: A new option 'Close all windows' in the Windows menu on the menu bar closes all floating
 windows on the application workspace at once. (#570)
 
 - FAVOURITES: Applicable favourites can now added to the local corpus root node, either by drag and
-drop or through the 'Add from Favourites' submenu in the context menu of the local corpus root node
-(#1159).
+drop or through the 'Add from Favourites' submenu in the context menu of the local corpus root node.
+(#1159)
+
+- CMDI PROFILES: A checkbox has been added that toggles filtering all available CMDI profiles
+so that only the ones selected for metadata editing in the Component Registry are displayed. (#1186)
+
+- ATTRIBUTES: It is now possible to edit attributes on elements in the XML using the table (in the
+case of attributes on nodes) or the long field editor (for attributes on fields). An new icon in the
+table indicates whether a field has attributes that can be edited in the long field editor. (#551)
+
+- DESCRIPTIONS/DATA CATEGORIES: CMDI allows data category references to be specified in the schema
+(profile). The descriptions contained in the data category definitions are now used by Arbil as 
+field descriptions in case no explicit field documentation is provided. (#595)
+
+- MANUAL RESOURCE LOCATIONS: It is now possible to enter a manual resource location by clicking any
+node that supports a resource location (IMDI MediaFile or WrittenResource, or CMDI resource proxy
+reference) by right clicking that node in the tree and selecting 'insert manual resource location'.
+(#1166)
+
+- INITIAL SETUP WIZARD: When running Arbil for the first time, a wizard appears that helps the user
+with the initial setup of the application: configurating for imdi and/or cmdi usage, selecting
+profiles to use and initializing remote locations. The wizard is also accessible through the Help
+menu. (#1026)
 
 ** CHANGES **
 
@@ -134,9 +155,6 @@ fields.
 
 Among others, the following issues have been described and will be addressed in future version of
 Arbil:
-
-- CMDI: DATA CATEGORIES: Field descriptions should be retrieved from ISOcat but currently are not.
-(#595)
 
 - IMPORT RESOURCES: Resources that are protected and require authentication can currently not be
 imported into the local corpus since the authentication mechanism is broken. (#679)
