@@ -54,6 +54,7 @@ public class ArbilSessionStorage implements SessionStorage {
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     private static MessageDialogHandler messageDialogHandler;
     public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
+    public static final String PARAM_WIZARD_RUN = "wizardHasRun";
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;

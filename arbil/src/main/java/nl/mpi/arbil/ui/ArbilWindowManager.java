@@ -335,11 +335,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	// Store selected file filter
 	FileFilter selectedFilter = fileChooser.getFileFilter();
 	if (selectedFilter != null) {
-	    if(fileFilterMap.containsValue(selectedFilter))
-	    for (Map.Entry<String, FileFilter> filterEntry : fileFilterMap.entrySet()) {
-		if (filterEntry.getValue() == selectedFilter) {
-		    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, filterEntry.getKey());
-		    return;
+	    if (fileFilterMap.containsValue(selectedFilter)) {
+		for (Map.Entry<String, FileFilter> filterEntry : fileFilterMap.entrySet()) {
+		    if (filterEntry.getValue() == selectedFilter) {
+			ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, filterEntry.getKey());
+			return;
+		    }
 		}
 	    }
 	}
@@ -436,10 +437,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    }.start();
 	}
     }
-    
-    public void showSetupWizardIfFirstRun(){
-	if(!"yes".equals(ArbilSessionStorage.getSingleInstance().loadString("wizardHasRun"))){
-	    ArbilSessionStorage.getSingleInstance().saveString("wizardHasRun", "yes");
+
+    public void showSetupWizardIfFirstRun() {
+	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()
+		&& !"yes".equals(ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_WIZARD_RUN))) {
+	    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
 	    new ArbilSetupWizard(linorgFrame).showDialog(ModalityType.APPLICATION_MODAL);
 	}
     }
