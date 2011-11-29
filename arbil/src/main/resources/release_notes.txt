@@ -151,6 +151,12 @@ now shown. (#6)
 - IMDI: MULTIPLE VALUES: Multiple values are now possible for Location.Region and all Description
 fields.
 
+- SEARCH RESULTS TABLE: It is now longer possible to drag arbitrary nodes to the search results
+table, which used to be the case though confusing. (#1014)
+
+- LOCAL CORPUS: It used to be impossible to drag nodes onto the local corpus (root) node that could 
+be imported into it. Now this is possible. (#1019)
+
 ** KNOWN ISSUES **
 
 Among others, the following issues have been described and will be addressed in future version of
