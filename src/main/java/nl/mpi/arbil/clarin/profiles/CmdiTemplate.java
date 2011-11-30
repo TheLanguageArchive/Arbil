@@ -243,15 +243,14 @@ public class CmdiTemplate extends ArbilTemplate {
 //                System.out.println("Testing: " + childPathString[1] + childPathString[0]);
 //                System.out.println(childPathString[0] + " : " + targetNodeXpath);
 		boolean allowEntry = false;
+		// allowing due to null path
 		if (targetNodeXpath == null) {
-//                    System.out.println("allowing due to null path: " + childPathString[0]);
 		    allowEntry = true;
 		} else if (childPathString[0].startsWith(targetNodeXpath)) {
-//                    System.out.println("allowing: " + childPathString[0]);
 		    allowEntry = true;
 		}
+		//disallowing addint to itself
 		if (childPathString[0].equals(targetNodeXpath) && isComponentPath) {
-//                    System.out.println("disallowing addint to itself: " + childPathString[0]);
 		    allowEntry = false;
 		}
 		for (String currentFilter : filterString) {
