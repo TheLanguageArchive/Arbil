@@ -96,19 +96,22 @@ public class ArbilTemplate {
     protected String[][] resourceNodePaths; // this could be initialised for IMDI templates but at this stage it will not be used in IMDI nodes
 
     public boolean pathCanHaveResource(String nodePath) {
-	// so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
-	if (nodePath == null) {
-	    if (resourceNodePaths.length > 0) {
-		return true;
-	    }
-	} else {
-	    // todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
-	    nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
-	    //System.out.println("pathThatCanHaveResource: " + nodePath);
-	    for (String[] currentPath : resourceNodePaths) {
-		//System.out.println("pathCanHaveResource: " + currentPath[0]);
-		if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
+	if (resourceNodePaths != null) {
+	    // so far this is only used by cmdi but should probably replace the methods used by the equivalent imdi code
+	    if (nodePath == null) {
+		// Root can have resource
+		if (resourceNodePaths.length > 0) {
 		    return true;
+		}
+	    } else {
+		// todo: consider allowing add to sub nodes that require adding in the way that IMDI resourceses are added
+		nodePath = nodePath.replaceAll("\\(\\d+\\)", "");
+		//System.out.println("pathThatCanHaveResource: " + nodePath);
+		for (String[] currentPath : resourceNodePaths) {
+		    //System.out.println("pathCanHaveResource: " + currentPath[0]);
+		    if (currentPath[0].equals(nodePath)) { // todo: at the moment we are limiting the add of a resource to only the existing nodes and not adding sub nodes to suit
+			return true;
+		    }
 		}
 	    }
 	}
@@ -420,14 +423,22 @@ public class ArbilTemplate {
 	return returnArrayList;
     }
 
-    public String getHelpStringForField(String fieldName) {
-	fieldName = fieldName.replaceAll("\\([0-9]+\\)\\.", ".");
+    protected String getFieldUsageStringForField(String normalizedFieldName) {
 	for (String[] currentUsageArray : fieldUsageArray) {
-	    if (currentUsageArray[0].equals(fieldName)) {
+	    if (currentUsageArray[0].equals(normalizedFieldName)) {
 		return currentUsageArray[1];
 	    }
 	}
-	return "No usage description found in this template for: " + fieldName;
+	return null;
+    }
+
+    public String getHelpStringForField(String fieldName) {
+	String helpString = getFieldUsageStringForField(fieldName.replaceAll("\\([0-9]+\\)\\.", "."));
+	if (helpString != null) {
+	    return helpString;
+	} else {
+	    return "No usage description found in this template for: " + fieldName;
+	}
     }
 
     public ArbilVocabulary getFieldVocabulary(String nodePath) {

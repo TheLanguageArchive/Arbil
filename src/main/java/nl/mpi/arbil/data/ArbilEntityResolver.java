@@ -52,7 +52,7 @@ public class ArbilEntityResolver implements EntityResolver {
 	} else {
 	    targetString = systemId;
 	}
-	final File cachedfile = sessionStorage.updateCache(targetString, EXPIRE_CACHE_DAYS);
+	final File cachedfile = sessionStorage.updateCache(targetString, EXPIRE_CACHE_DAYS, false);
 	if (!cachedfile.exists()) {
 	    // todo: pull the file out of the jar
 	    bugCatcher.logError(new Exception("dependant xsd not stored in the jar for offline first time use: " + cachedfile));

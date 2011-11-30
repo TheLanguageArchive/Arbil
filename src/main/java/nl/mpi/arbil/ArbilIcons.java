@@ -4,12 +4,17 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 import nl.mpi.arbil.data.ArbilField;
+import nl.mpi.arbil.data.MetadataFormat;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BugCatcher;
+import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 
 /**
  * Document   : ArbilIcons
@@ -18,7 +23,13 @@ import nl.mpi.arbil.util.BugCatcher;
  */
 public class ArbilIcons {
 
-    public ImageIcon linorgIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/" + new ArbilVersion().applicationIconName));
+    private static ApplicationVersionManager versionManager;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
+    }
+    // the applicationIconName is set by the build script and will be in the jar file of the main class which might not be the arbil jar, so we use the ApplicationVersion class to access the correct jar file for the application icon.
+    public ImageIcon linorgIcon = new ImageIcon(versionManager.getApplicationVersion().getClass().getResource(versionManager.getApplicationVersion().applicationIconName));
     // basic icons used in the gui
     public ImageIcon serverIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
     public ImageIcon directoryIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
@@ -51,12 +62,14 @@ public class ArbilIcons {
     public ImageIcon dataIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/data.png"));
     public ImageIcon fieldIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/field.png"));
     private ImageIcon dataemptyIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/dataempty.png"));
+    private ImageIcon dataContainerIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/datacontainer.png"));
 //    private ImageIcon server16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/server16x16.png"));
 //    private ImageIcon directory16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directory16x16.png"));
 //    private ImageIcon sessionColorLocalIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-local.png"));
 //    private ImageIcon directoryclosed16x16Icon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/directoryclosed16x16.png"));
     public ImageIcon sessionColorIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color.png"));
     public ImageIcon clarinIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/clarinE.png"));
+    public ImageIcon kinOathIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/KinOath-16.png"));
     public ImageIcon catalogueColorIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/catalogue.png"));
     private ImageIcon exclamationBlueIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/exclamation-blue.png"));
 //    private ImageIcon sessionColorServerlocalIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/session_color-serverlocal.png"));
@@ -91,6 +104,7 @@ public class ArbilIcons {
     public ImageIcon vocabularyOpenListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_open_list.png"));
     public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
     public ImageIcon vocabularyClosedListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed_list.png"));
+    public ImageIcon attributeIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/attribute.png"));
 //
     private static BugCatcher bugCatcher;
 
@@ -132,7 +146,7 @@ public class ArbilIcons {
 	return new ImageIcon(bufferedImage);
     }
 
-    public ImageIcon compositIcons(Object[] iconArray) {
+    private ImageIcon compositIcons(List<Icon> iconArray) {
 	int widthTotal = 0;
 	int heightMax = 0;
 	for (Object currentIcon : iconArray) {
@@ -192,35 +206,50 @@ public class ArbilIcons {
     }
 
     public Icon getIconForField(ArbilField field) {
+
+
 	if (field.hasVocabulary()) {
 	    return getIconForVocabulary(field);
-	} else if (field.getLanguageId() != null) {
-	    return languageIcon;
 	} else {
-	    return null;
+	    List<Icon> iconsList = new LinkedList<Icon>();
+	    if (field.isAllowsLanguageId()) {
+		iconsList.add(languageIcon);
+	    }
+	    if (field.hasEditableFieldAttributes()) {
+		iconsList.add(attributeIcon);
+	    }
+
+	    switch (iconsList.size()) {
+		case 0:
+		    return null;
+		case 1:
+		    return iconsList.get(0);
+		default:
+		    return compositIcons(iconsList);
+	    }
 	}
     }
 
     public ImageIcon getIconForNode(ArbilDataNode arbilNode) {
-	Vector iconsVector = new Vector();
+	List<Icon> iconsList = new LinkedList<Icon>();
 
 	if (arbilNode.isLoading() || (arbilNode.getParentDomNode().isMetaDataNode() && !arbilNode.getParentDomNode().isDataLoaded())) {
-	    iconsVector.add(loadingIcon);
+	    iconsList.add(loadingIcon);
 	}
 	if (arbilNode.isLocal()) {
 	    if (arbilNode.isMetaDataNode()) {
 		if (arbilNode.matchesRemote == 0) {
 		    if (arbilNode.archiveHandle == null) {
-			iconsVector.add(localicon);
+			iconsList.add(localicon);
 		    } else {
-			iconsVector.add(localWithArchiveHandle);
+			iconsList.add(localWithArchiveHandle);
 		    }
 		} else {
-		    iconsVector.add(remoteicon);
+		    iconsList.add(remoteicon);
 		}
 	    }
 	} else {
-	    iconsVector.add(remoteicon);
+	    iconsList.add(remoteicon);
 	    // don't show the corpuslocalservericon until the serverside is done, otherwise the icon will show only after copying a branch but not after a restart
 //                            if (matchesLocal == 0) {
 //                            } else {
@@ -228,95 +257,104 @@ public class ArbilIcons {
 //                            }
 	}
 	if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_OK) {
-	    iconsVector.add(unLockedIcon);
+	    iconsList.add(unLockedIcon);
 	} else if (arbilNode.resourceFileServerResponse == HttpURLConnection.HTTP_MOVED_TEMP) {
-	    iconsVector.add(lockedIcon);
+	    iconsList.add(lockedIcon);
 	}
 	String mimeTypeForNode = arbilNode.getAnyMimeType();
 	if (arbilNode.isMetaDataNode()) {
 	    if (arbilNode.isChildNode()) {
-		if (arbilNode.isEmptyMetaNode()) {
-		    iconsVector.add(dataemptyIcon);
+//                if (arbilNode.isContainerNode()) {
+//                    iconsVector.add(dataCollectionIcon);
+//                } else 
+		if (arbilNode.isContainerNode()) {
+		    iconsList.add(dataContainerIcon);
+		} else if (arbilNode.isEmptyMetaNode()) {
+		    iconsList.add(dataemptyIcon);
 		} else {
-		    iconsVector.add(dataIcon);
+		    iconsList.add(dataIcon);
 		}
 	    } else if (arbilNode.isSession()) {
-		iconsVector.add(sessionColorIcon);
+		iconsList.add(sessionColorIcon);
 	    } else if (arbilNode.isCatalogue()) {
-		iconsVector.add(catalogueColorIcon);
+		iconsList.add(catalogueColorIcon);
 	    } else if (arbilNode.isCorpus()) {
-		iconsVector.add(corpusnodeColorIcon);
+		iconsList.add(corpusnodeColorIcon);
 	    } else if (arbilNode.isCmdiMetaDataNode()) {
-		iconsVector.add(clarinIcon);
+		iconsList.add(MetadataFormat.getFormatIcon(arbilNode.getURI().getPath()));
 	    } else {
 		// this icon might not be the best one to show in this case
 		if (arbilNode.isDataLoaded()) {
-		    iconsVector.add(fileIcon);
+		    iconsList.add(fileIcon);
 		}
 		//iconsVector.add(blankIcon);
 	    }
 	} else if (mimeTypeForNode != null) {
 	    mimeTypeForNode = mimeTypeForNode.toLowerCase();
 	    if (mimeTypeForNode.contains("audio")) {
-		iconsVector.add(audioIcon);
+		iconsList.add(audioIcon);
 	    } else if (mimeTypeForNode.contains("video")) {
-		iconsVector.add(videoIcon);
+		iconsList.add(videoIcon);
 	    } else if (mimeTypeForNode.contains("image")) {// ?????
-		iconsVector.add(picturesIcon);
+		iconsList.add(picturesIcon);
 	    } else if (mimeTypeForNode.contains("text")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("xml")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("chat")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("pdf")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("kml")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("manual/mediafile")) {
-		iconsVector.add(picturesIcon);
+		iconsList.add(picturesIcon);
 	    } else if (mimeTypeForNode.contains("manual/writtenresource")) {
-		iconsVector.add(writtenresourceIcon);
+		iconsList.add(writtenresourceIcon);
 	    } else if (mimeTypeForNode.contains("unspecified") || mimeTypeForNode.length() == 0) {
 		// no icon for this
-		iconsVector.add(fileIcon);
+		iconsList.add(fileIcon);
 	    } else if (mimeTypeForNode.contains("unknown")) {
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 	    } else if (mimeTypeForNode.length() > 0) {
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 		bugCatcher.logError(mimeTypeForNode, new Exception("Icon not found for file type: " + mimeTypeForNode));
 	    }
 	} else if (arbilNode.isInfoLink) {
-	    iconsVector.add(infofileIcon);
+	    iconsList.add(infofileIcon);
 	} else if (arbilNode.hasResource()) {
 	    // the resource is not found so show a unknow resource icon
-	    iconsVector.add(fileIcon);
+	    iconsList.add(fileIcon);
 	} else if (arbilNode.isDirectory()) {
-	    iconsVector.add(UIManager.getIcon("FileView.directoryIcon"));
+	    iconsList.add(UIManager.getIcon("FileView.directoryIcon"));
 	} else {
-	    iconsVector.add(fileIcon);
+	    iconsList.add(fileIcon);
+	    if (!arbilNode.getTypeCheckerState().equals(TypeCheckerState.CHECKED)) {
+		// File has not been type checked, indicate with question mark icon
+		iconsList.add(questionRedIcon);
+	    }
 	}
 	// add missing file icon
 	if ((arbilNode.fileNotFound || arbilNode.resourceFileNotFound())) {
 	    if (arbilNode.isResourceSet()) {
 		// Resource is set but file not found, this is an error
-		iconsVector.add(missingRedIcon);
+		iconsList.add(missingRedIcon);
 	    } else {
 		// Resource has not been set, therefore 'not found', this is a different case
-		iconsVector.add(questionRedIcon);
+		iconsList.add(questionRedIcon);
 	    }
 	}
 	// add a file attached to a session icon
 	if (!arbilNode.isMetaDataNode() && arbilNode.matchesInCache + arbilNode.matchesRemote > 0) {
 	    if (arbilNode.matchesRemote > 0) {
-		iconsVector.add(tickGreenIcon);
+		iconsList.add(tickGreenIcon);
 	    } else {
-		iconsVector.add(tickBlueIcon);
+		iconsList.add(tickBlueIcon);
 	    }
 	}
 	// add icons for favourites
 	if (arbilNode.isFavorite()) {
-	    iconsVector.add(favouriteIcon);
+	    iconsList.add(favouriteIcon);
 	}
 	// add icons for save state
 //        if (arbilNode.hasHistory()) {
@@ -325,6 +363,6 @@ public class ArbilIcons {
 //        if (arbilNode.getNeedsSaveToDisk()) {
 //            iconsVector.add(exclamationRedIcon);
 //        }
-	return compositIcons(iconsVector.toArray());// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
+	return compositIcons(iconsList);// TODO: here we could construct a string describing the icon and only create if it does not alread exist in a hashtable
     }
 }

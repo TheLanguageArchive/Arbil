@@ -8,6 +8,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -24,40 +25,46 @@ import nl.mpi.arbil.util.WindowManager;
  */
 public class ArbilDesktopInjector extends ArbilInjector {
 
+    public static synchronized void injectHandlers() {
+	injectHandlers(new ApplicationVersionManager(new ArbilVersion()));
+    }
+
     /**
      * Does initial injection into static classes. Needs to be called only once.
      */
-    public static synchronized void injectHandlers() {
+    public static synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
+	injectVersionManager(versionManager);
+
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilMimeHashQueue.setBugCatcher(bugCatcher);
 	injectBugCatcher(bugCatcher);
-	
+
 	final MessageDialogHandler messageDialogHandler = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilMimeHashQueue.setMessageDialogHandler(messageDialogHandler);
 	injectDialogHandler(messageDialogHandler);
-	
-	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();	
+
+	final WindowManager windowManager = ArbilWindowManager.getSingleInstance();
 	ArbilSessionStorage.setWindowManager(windowManager);
 	injectWindowManager(windowManager);
-	
+
 	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
 	injectClipboardOwner(clipboardOwner);
-	
+
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
 	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
 	ArbilMimeHashQueue.setSessionStorage(sessionStorage);
 	injectSessionStorage(sessionStorage);
-	
+
 	final MimeHashQueue mimeHashQueue = ArbilMimeHashQueue.getSingleInstance();
 	injectMimeHashQueue(mimeHashQueue);
-	
+
 	final DataNodeLoader dataNodeLoader = ArbilDataNodeLoader.getSingleInstance();
 	ArbilMimeHashQueue.setDataNodeLoader(dataNodeLoader);
 	injectDataNodeLoader(dataNodeLoader);
-	
+
 	final TreeHelper treeHelper = ArbilTreeHelper.getSingleInstance();
 	injectTreeHelper(treeHelper);
     }

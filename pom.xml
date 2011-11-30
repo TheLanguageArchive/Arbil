@@ -13,8 +13,8 @@
 	<url>http://www.lat-mpi.eu/</url>
     </organization>
     <scm>
-	<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
-    	<url>https://trac.mpi.nl/wiki/Arbil</url>
+		<developerConnection>scm:svn:https://svn.mpi.nl/LAT/Arbil/trunk/arbil</developerConnection>
+    	 <url>https://trac.mpi.nl/wiki/Arbil</url>
     </scm>
     <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

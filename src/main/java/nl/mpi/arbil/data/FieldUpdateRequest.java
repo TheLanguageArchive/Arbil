@@ -1,5 +1,7 @@
 package nl.mpi.arbil.data;
 
+import java.util.Map;
+
 /**
  *  Document   : FieldUpdateRequest
  *  Created on : May 21, 2010, 11:52:47 AM
@@ -12,4 +14,5 @@ public class FieldUpdateRequest {
     public String fieldNewValue;
     public String keyNameValue;
     public String fieldLanguageId;
+    public Map<String, Object> attributeValuesMap;
 }

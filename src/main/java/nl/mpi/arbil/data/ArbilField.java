@@ -2,6 +2,10 @@ package nl.mpi.arbil.data;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.userstorage.SessionStorage;
 
@@ -24,14 +28,19 @@ public class ArbilField implements Serializable {
     private boolean hasVocabularyType = false;
     private boolean vocabularyIsOpen;
     private boolean vocabularyIsList;
+    private boolean attributeField;
     private String keyName = null;
     private String originalKeyName = null;
+    protected boolean allowsLanguageId;
     private String languageId = null;
     private String originalLanguageId = null;
     private int isRequiredField = -1;
     private int canValidateField = -1;
     private int siblingCount;
     private static SessionStorage sessionStorage;
+    private List<String[]> attributePaths;
+    private Map<String, Object> attributeValuesMap;
+    private Map<String, Object> originalAttributeValuesMap;
 
     public static void setSessionStorage(SessionStorage sessionStorageInstance) {
 	sessionStorage = sessionStorageInstance;
@@ -42,13 +51,46 @@ public class ArbilField implements Serializable {
 	dataNodeLoader = dataNodeLoaderInstance;
     }
 
-    public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount) {
-	fieldOrder = fieldOrderLocal;
-	setParentDataNode(localParentDataNode);
-	fieldValue = tempValue;
-	originalFieldValue = fieldValue;
-	xmlPath = tempPath;
-	siblingCount = tempSiblingCount;
+    /**
+     * Creates arbil field with no field attributes from the schema
+     * @param fieldOrderLocal
+     * @param localParentDataNode
+     * @param tempPath
+     * @param tempValue
+     * @param tempSiblingCount 
+     */
+    public ArbilField(int fieldOrderLocal, ArbilDataNode localParentDataNode, String tempPath, String tempValue, int tempSiblingCount, boolean allowsLanguageId) {
+	this(fieldOrderLocal, localParentDataNode, tempPath, tempValue, tempSiblingCount, allowsLanguageId, null, null);
+    }
+
+    /**
+     * 
+     * @param fieldOrderLocal
+     * @param parentDataNode
+     * @param xmlPath
+     * @param fieldValue
+     * @param siblingCount
+     * @param attributePaths Paths of attribute fields allowed by the schema
+     * @param attributeValuesMap Values of field attributes
+     */
+    public ArbilField(int fieldOrderLocal, ArbilDataNode parentDataNode, String xmlPath, String fieldValue, int siblingCount, boolean allowsLanguageId, List<String[]> attributePaths, Map<String, Object> attributeValuesMap) {
+	this.fieldOrder = fieldOrderLocal;
+	setParentDataNode(parentDataNode);
+	this.fieldValue = fieldValue;
+	this.originalFieldValue = fieldValue;
+	this.xmlPath = xmlPath;
+	this.siblingCount = siblingCount;
+	this.allowsLanguageId = allowsLanguageId;
+
+	// Is field an attribute field?
+	this.attributeField = xmlPath.matches("^.*\\.@[^.]*$"); // last section should start with .@
+
+	// Set field attributes paths and values
+	this.attributePaths = attributePaths;
+	if (attributeValuesMap != null) {
+	    this.attributeValuesMap = new HashMap<String, Object>(attributeValuesMap);
+	    originalAttributeValuesMap = Collections.unmodifiableMap(new HashMap<String, Object>(attributeValuesMap));
+	}
     }
 
 //private String originalValue = null;
@@ -102,11 +144,38 @@ public class ArbilField implements Serializable {
 	return isValidValue;
     }
 
-    private boolean valuesDiffer(String leftString, String rightString) {
+    private static boolean valuesDiffer(Object leftString, Object rightString) {
 	if (leftString == null) {
 	    return rightString != null;
 	}
 	return (!leftString.equals(rightString));
+    }
+
+    private static boolean valuesDiffer(final Map<String, Object> originalMap, final Map<String, Object> currentMap) {
+	if (originalMap == null) {
+	    return currentMap != null;
+	} else {
+	    // Original map is set
+	    if (currentMap == null) {
+		return true;
+	    }
+	    // Both maps are set, see if they are equal
+	    if (originalMap.size() != currentMap.size()) {
+		return true;
+	    } else {
+		// We now know both key sets are of the same size. Check for each key in the original set if it exists and is equal in the 
+		// current set. If they all are, there are now differences
+		for (Map.Entry<String, Object> originalEntry : originalMap.entrySet()) {
+		    final Object currentValue = currentMap.get(originalEntry.getKey());
+		    if (currentValue == null) {
+			return originalEntry.getValue() != null;
+		    } else {
+			return !currentValue.equals(originalEntry.getValue());
+		    }
+		}
+	    }
+	}
+	return false;
     }
 
     public boolean fieldNeedsSaveToDisk() {
@@ -117,6 +186,9 @@ public class ArbilField implements Serializable {
 	    return true;
 	}
 	if (valuesDiffer(originalKeyName, keyName)) {
+	    return true;
+	}
+	if (valuesDiffer(originalAttributeValuesMap, attributeValuesMap)) {
 	    return true;
 	}
 	return false;
@@ -212,6 +284,10 @@ public class ArbilField implements Serializable {
 	return fieldVocabulary;
     }
 
+    public boolean isAttributeField() {
+	return attributeField;
+    }
+
     public ArbilField[] getSiblingField(String pathString) {
 //        System.out.println("getSiblingField: " + pathString);
 	for (ArbilField[] tempField : getParentDataNode().getFields().values().toArray(new ArbilField[][]{})) {
@@ -268,6 +344,63 @@ public class ArbilField implements Serializable {
 	    }
 	}
 	loadVocabulary();
+    }
+
+    /**
+     * Gets paths of editable field attributes
+     * @return List of template paths. Template path is string array with [path,description,...] 
+     * @see nl.mpi.arbil.templates.ArbilTemplate
+     */
+    public synchronized List<String[]> getAttributePaths() {
+	return Collections.unmodifiableList(attributePaths);
+    }
+
+    /**
+     * 
+     * @return Whether there schema support editable attributes on this field
+     */
+    public synchronized boolean hasEditableFieldAttributes() {
+	return attributePaths != null && attributePaths.size() > 0;
+    }
+
+    public synchronized Map<String, Object> getAttributeValuesMap() {
+	if (attributeValuesMap == null) {
+	    return null;
+	} else {
+	    return Collections.unmodifiableMap(attributeValuesMap);
+	}
+    }
+
+    /**
+     * Gets the value of an editable field attribute
+     * @param attributePath Path to get value for
+     * @return Value for path (null if not set)
+     */
+    public synchronized Object getAttributeValue(String attributePath) {
+	if (attributeValuesMap != null) {
+	    return attributeValuesMap.get(attributePath);
+	}
+	return null;
+    }
+
+    /**
+     * Sets the value for an editable field attribute
+     * @param attributePath Path to set value on
+     * @param value Null to unset
+     */
+    public synchronized void setAttributeValue(String attributePath, Object value, boolean updateUI) {
+	if (valuesDiffer(value, getAttributeValue(attributePath))) {
+	    if (attributeValuesMap == null) {
+		attributeValuesMap = new HashMap<String, Object>();
+	    }
+
+	    if (value == null) {
+		attributeValuesMap.remove(attributePath);
+	    } else {
+		attributeValuesMap.put(attributePath, value);
+	    }
+	    getParentDataNode().setDataNodeNeedsSaveToDisk(this, updateUI);
+	}
     }
 
     public void loadVocabulary() {
@@ -392,7 +525,11 @@ public class ArbilField implements Serializable {
 	}
 //        System.out.println("xmlPath: " + xmlPath);
 //        System.out.println("translatedPath: " + translatedPath);
-	return translatedPath;
+	if (isAttributeField()) {
+	    return translatedPath.replaceAll("^@", "");
+	} else {
+	    return translatedPath;
+	}
     }
 
     /**
@@ -407,6 +544,10 @@ public class ArbilField implements Serializable {
      */
     public boolean isVocabularyList() {
 	return vocabularyIsList;
+    }
+
+    public boolean isAllowsLanguageId() {
+	return allowsLanguageId || languageId != null;
     }
 
     /**

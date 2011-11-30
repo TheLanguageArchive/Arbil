@@ -33,6 +33,8 @@ public class CmdiComponentLinkReader {
 
     public static class CmdiResourceLink {
 
+	public static final String HANDLE_SERVER_URI = "http://hdl.handle.net/";
+
 	// NOTE: should the fields be final?
 	public CmdiResourceLink(String proxyId, String type, String ref) {
 	    resourceProxyId = proxyId;
@@ -53,7 +55,7 @@ public class CmdiComponentLinkReader {
 
 	/**
 	 * To be called whenever a reference of this resource link is removed (without reloading)
-	 */ 
+	 */
 	public synchronized void removeReferencingNode() {
 	    referencingNodes--;
 	}
@@ -68,8 +70,10 @@ public class CmdiComponentLinkReader {
 
 	public URI getLinkUri() throws URISyntaxException {
 	    if (resourceRef != null && resourceRef.length() > 0) {
-		if (resourceRef.startsWith("hdl://")) {
-		    return new URI(resourceRef.replace("hdl://", "http://hdl.handle.net/"));
+		if (resourceRef.startsWith("hdl://")) { // IS THIS VALID? TG 4/10/2011
+		    return new URI(resourceRef.replace("hdl://", HANDLE_SERVER_URI));
+		} else if (resourceRef.startsWith("hdl:")) {
+		    return new URI(resourceRef.replace("hdl:", HANDLE_SERVER_URI));
 		} else {
 		    return new URI(resourceRef);
 		}

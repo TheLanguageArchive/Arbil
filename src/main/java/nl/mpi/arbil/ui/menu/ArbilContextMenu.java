@@ -1,7 +1,6 @@
 package nl.mpi.arbil.ui.menu;
 
 import java.awt.Component;
-import java.awt.HeadlessException;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -87,7 +85,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
 		}
 	    }
 	});
-	addItem(CATEGORY_NODE, PRIORITY_BOTTOM, browseForResourceFileMenuItem);
+	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM, browseForResourceFileMenuItem);
 
 	saveMenuItem.setText("Save Changes to Disk");
 	saveMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -275,6 +273,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
      */
     protected void prepareItemCategories() {
 	addItemCategory(CATEGORY_NODE);
+	addItemCategory(CATEGORY_RESOURCE);
 	addItemCategory(CATEGORY_EDIT);
 
 	addItemCategory(CATEGORY_REMOTE_CORPUS);
@@ -315,6 +314,7 @@ public abstract class ArbilContextMenu extends JPopupMenu {
     protected final static String CATEGORY_XML = "xml";
     protected final static String CATEGORY_DISK = "disk";
     protected final static String CATEGORY_REMOTE_CORPUS = "remote corpus";
+    protected final static String CATEGORY_RESOURCE = "resource";
     protected final static String CATEGORY_WORKING_DIR = "working dir";
     protected final static String CATEGORY_TABLE_CELL = "table cell";
     protected final static String CATEGORY_TABLE_ROW = "table row";

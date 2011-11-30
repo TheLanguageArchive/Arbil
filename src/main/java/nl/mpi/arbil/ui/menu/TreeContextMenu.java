@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -14,6 +15,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
@@ -117,7 +119,14 @@ public class TreeContextMenu extends ArbilContextMenu {
 		}
 	    }
 	}
+
+
 	if (leadSelectedTreeNode != null) {
+
+	    if (leadSelectedTreeNode.canHaveResource()) {
+		setManualResourceLocationMenuItem.setVisible(true);
+	    }
+	    
 	    if (leadSelectedTreeNode.isFavorite()) {
 		boolean isFavouriteTopLevel = ArbilTreeHelper.getSingleInstance().isInFavouritesNodes(leadSelectedTreeNode);
 		addToFavouritesMenuItem.setVisible(false);
@@ -561,6 +570,32 @@ public class TreeContextMenu extends ArbilContextMenu {
 	    }
 	});
 	addItem(CATEGORY_IMPORT, PRIORITY_MIDDLE, reImportBranchMenuItem);
+
+	setManualResourceLocationMenuItem.setText("Insert Manual Resource Location");
+	setManualResourceLocationMenuItem.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		String initialValue;
+		if (leadSelectedTreeNode.hasLocalResource()) {
+		    initialValue = leadSelectedTreeNode.resourceUrlField.getFieldValue();
+		} else {
+		    initialValue = "";
+		}
+		String manualLocation = (String) JOptionPane.showInputDialog(ArbilWindowManager.getSingleInstance().linorgFrame, "Enter the resource URI:", "Manual resource location", JOptionPane.PLAIN_MESSAGE, null, null, initialValue);
+		if (manualLocation != null) { // Not canceled
+		    try {
+			URI locationURI = new URI(manualLocation);
+			leadSelectedTreeNode.insertResourceLocation(locationURI);
+		    } catch (URISyntaxException ex) {
+			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The URI entered as a resource location is invalid. Please check the location and try again.", "Invalid URI");
+		    } catch (ArbilMetadataException ex) {
+			GuiHelper.linorgBugCatcher.logError(ex);
+			ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("Could not add resource to the metadata. Check the error log for details.", "Error adding resource");
+		    }
+		}
+	    }
+	});
+	addItem(CATEGORY_RESOURCE, PRIORITY_BOTTOM + 1, setManualResourceLocationMenuItem);
     }
 
     private void copyBranchMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
@@ -892,6 +927,8 @@ public class TreeContextMenu extends ArbilContextMenu {
 	removeFromFavouritesMenuItem.setVisible(false);
 	viewSelectedSubnodesMenuItem.setVisible(false);
 	editInLongFieldEditor.setVisible(false);
+	
+	setManualResourceLocationMenuItem.setVisible(false);
     }
     private ArbilTree tree;
     private JMenu addFromFavouritesMenu = new JMenu();
@@ -924,4 +961,5 @@ public class TreeContextMenu extends ArbilContextMenu {
     private JMenuItem viewSelectedNodesMenuItem = new JMenuItem();
     private JMenuItem viewSelectedSubnodesMenuItem = new JMenuItem();
     private JMenuItem editInLongFieldEditor = new JMenuItem();
+    private JMenuItem setManualResourceLocationMenuItem = new JMenuItem();
 }

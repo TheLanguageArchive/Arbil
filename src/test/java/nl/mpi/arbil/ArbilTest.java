@@ -16,6 +16,7 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -118,6 +119,7 @@ public abstract class ArbilTest {
     }
 
     protected void inject() throws Exception {
+	ArbilTestInjector.injectVersionManager(new ApplicationVersionManager(new ArbilVersion()));
         ArbilTestInjector.injectBugCatcher(getBugCatcher());
         ArbilTestInjector.injectDialogHandler(getDialogHandler());
         ArbilTestInjector.injectSessionStorage(getSessionStorage());

@@ -11,6 +11,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BoxLayout;
@@ -53,6 +54,28 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
     int selectedField = -1;
     Vector<Component> componentsWithFocusListners = new Vector();
     private static ArbilBugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
+    private final MouseListener fieldMouseAdapter = new java.awt.event.MouseAdapter() {
+
+	@Override
+	public void mouseReleased(MouseEvent evt) {
+	    parentTable.checkPopup(evt, false);
+	}
+
+	@Override
+	public void mousePressed(MouseEvent evt) {
+	    parentTable.checkPopup(evt, false);
+	}
+
+	@Override
+	public void mouseClicked(java.awt.event.MouseEvent evt) {
+	    if (evt.getButton() == MouseEvent.BUTTON1) {
+		startEditorMode(isStartLongFieldModifier(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
+	    } else {
+		parentTable.checkPopup(evt, false);
+		//super.mousePressed(evt);
+	    }
+	}
+    };
 
     public ArbilTableCellEditor() {
 	button = new JLabel("...");
@@ -83,28 +106,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 		}
 	    }
 	});
-	button.addMouseListener(new java.awt.event.MouseAdapter() {
-
-	    @Override
-	    public void mouseReleased(MouseEvent evt) {
-		parentTable.checkPopup(evt, false);
-	    }
-
-	    @Override
-	    public void mousePressed(MouseEvent evt) {
-		parentTable.checkPopup(evt, false);
-	    }
-
-	    @Override
-	    public void mouseClicked(java.awt.event.MouseEvent evt) {
-		if (evt.getButton() == MouseEvent.BUTTON1) {
-		    startEditorMode(isStartLongFieldModifier(evt), KeyEvent.CHAR_UNDEFINED, KeyEvent.CHAR_UNDEFINED);
-		} else {
-		    parentTable.checkPopup(evt, false);
-		    //super.mousePressed(evt);
-		}
-	    }
-	});
+	button.addMouseListener(fieldMouseAdapter);
     }
 
     private void initControlledVocabularyEditor(int lastKeyInt, char lastKeyChar) {
@@ -173,7 +175,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	editorPanel.add(editorTextField);
 	addFocusListener(editorTextField);
 	if (cellValue[selectedField] instanceof ArbilField) {
-	    if (((ArbilField) cellValue[selectedField]).getLanguageId() != null) {
+	    if (((ArbilField) cellValue[selectedField]).isAllowsLanguageId()) {
 		// this is an ImdiField that has a fieldLanguageId
 		JComboBox fieldLanguageBox = new LanguageIdBox((ArbilField) cellValue[selectedField], parentCellRect);
 		editorPanel.add(fieldLanguageBox);
@@ -207,8 +209,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 			break;
 		    } else {
 			int requiredWidth = fontMetrics.stringWidth(fieldValue);
-			String fieldLanguageId = currentField.getLanguageId();
-			if (fieldLanguageId != null) {
+			if (currentField.isAllowsLanguageId()) {
 			    requiredWidth += LanguageIdBox.languageSelectWidth;
 			}
 			if (requiredWidth > availableWidth) {
@@ -357,7 +358,6 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 //            final ArbilDataNode dataNode = ((ArbilFieldPlaceHolder) cellValue[0]).getArbilDataNode();
 //            final boolean canContainField = dataNode.getNodeTemplate().nodeCanContainType(dataNode, xmlPath);
 	    // Todo: check if field can be added to node
-
 	} else {
 	    GuiHelper.linorgBugCatcher.logError("Edit cell type not supported", null);
 	}
@@ -418,7 +418,7 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    int column) {
 //         TODO: something in this area is preventing the table selection change listener firing ergo the tree selection does not get updated (this symptom can also be caused by a node not being loaded into the tree)
 //        receivedKeyDown = true;
-	ArbilTableCell value = (ArbilTableCell)valueObject;
+	ArbilTableCell value = (ArbilTableCell) valueObject;
 
 	parentTable = (ArbilTable) table;
 	parentCellRect = parentTable.getCellRect(row, column, false);
@@ -450,7 +450,9 @@ public class ArbilTableCellEditor extends AbstractCellEditor implements TableCel
 	    Icon icon = (selectedField < 0) ? null : ArbilIcons.getSingleInstance().getIconForField((ArbilField) cellValue[selectedField]);
 	    if (icon != null) {
 		// Icon is available for field. Wrap editor panel with icon panel
-		return new ArbilIconCellPanel(editorPanel, icon);
+		ArbilIconCellPanel panel = new ArbilIconCellPanel(editorPanel, icon);
+		panel.addIconMouseListener(fieldMouseAdapter);
+		return panel;
 	    } else {
 		return editorPanel;
 	    }

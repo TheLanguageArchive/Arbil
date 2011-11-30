@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -52,6 +53,8 @@ public class ArbilSessionStorage implements SessionStorage {
 
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     private static MessageDialogHandler messageDialogHandler;
+    public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
+    public static final String PARAM_WIZARD_RUN = "wizardHasRun";
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -649,12 +652,24 @@ public class ArbilSessionStorage implements SessionStorage {
 
     /**
      * Fetch the file from the remote URL and save into the cache.
+     * Does not check whether copy may have been expired
+     * @param pathString Path of the remote file.
+     * @param followRedirect Whether to follow redirects
+     * @return The path of the file in the cache.
+     */
+    public File getFromCache(String pathString, boolean followRedirect) {
+	return updateCache(pathString, null, false, followRedirect, new DownloadAbortFlag(), null);
+    }
+
+    /**
+     * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
      * @param pathString Path of the remote file.
+     * @param followRedirect Whether to follow redirects
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
+    public File updateCache(String pathString, int expireCacheDays, boolean followRedirect) { // update if older than the date - x
 	File targetFile = getSaveLocation(pathString);
 	boolean fileNeedsUpdate = !targetFile.exists();
 	if (!fileNeedsUpdate) {
@@ -673,7 +688,12 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	}
 	System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
-	return updateCache(pathString, null, fileNeedsUpdate, new DownloadAbortFlag(), null);
+	return updateCache(pathString, targetFile, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+//	}
+    }
+
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+	return updateCache(pathString, getSaveLocation(pathString), shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
     }
 
     /**
@@ -682,11 +702,22 @@ public class ArbilSessionStorage implements SessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    private File updateCache(String pathString, File cachePath, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	// to expire the files in the cache set the expireCacheCopy flag.
-	File cachePath = getSaveLocation(pathString);
 	try {
-	    saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
+	    URL pathUrl = null;
+	    if (expireCacheCopy) {
+		// Try getting from resource first
+		URL resourceURL = getFromResources(pathString);
+		if (resourceURL != null) {
+		    pathUrl = resourceURL;
+		}
+	    }
+	    if (pathUrl == null) {
+		pathUrl = new URL(pathString);
+	    }
+
+	    saveRemoteResource(pathUrl, cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
 	    logError(new Exception(pathString, mul));
 	}
@@ -697,7 +728,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	File cachePath = getSaveLocation(pathString);
 	boolean fileDownloadedBoolean = false;
 	try {
-	    fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, new DownloadAbortFlag(), null);
+	    fileDownloadedBoolean = saveRemoteResource(new URL(pathString), cachePath, null, true, false, new DownloadAbortFlag(), null);
 	} catch (MalformedURLException mul) {
 	    logError(mul);
 	}
@@ -747,34 +778,37 @@ public class ArbilSessionStorage implements SessionStorage {
     }
 
     /**
+     * Tries to find a match ('mirror') for the requested path string in the resources. 
+     * The method may depend on the type of the requested file
+     * @param pathString Requested file
+     * @return Resource URL if available in resources, otherwise null
+     */
+    public URL getFromResources(String pathString) {
+	if (pathString.endsWith(".xsd")) {
+	    pathString = fixCachePath("/nl/mpi/arbil/resources/xsd/" + preProcessPathString(pathString));
+	    URL resourceURL = getClass().getResource(pathString);
+	    if (resourceURL != null) {
+		return resourceURL;
+	    }
+	}
+	return null;
+    }
+
+    /**
      * Converts a String path from the remote location to the respective location in the cache.
      * Then tests for and creates the directory structure in the cache if requred.
      * @param pathString Path of the remote file.
      * @return The path in the cache for the file.
      */
     public File getSaveLocation(String pathString) {
-	try {
-	    pathString = URLDecoder.decode(pathString, "UTF-8");
-	} catch (UnsupportedEncodingException uee) {
-	    logError(uee);
-	}
-	pathString = pathString.replace("//", "/");
+	pathString = preProcessPathString(pathString);
 	for (String searchString : new String[]{".linorg/imdicache", ".arbil/imdicache", ".linorg\\imdicache", ".arbil\\imdicache", "ArbilWorkingFiles"}) {
 	    if (pathString.indexOf(searchString) > -1) {
 		logError(new Exception("Recursive path error (about to be corrected) in: " + pathString));
 		pathString = pathString.substring(pathString.lastIndexOf(searchString) + searchString.length());
 	    }
 	}
-	String cachePath = pathString.replace(":/", "/").replace("//", "/");
-	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
-	    cachePath = cachePath.replace(":", "_");
-	}
-	// make the xsd path tidy for viewing in an editor durring testing
-	cachePath = cachePath.replaceAll("/xsd$", ".xsd");
-	if (cachePath.matches(".*/[^.]*$")) {
-	    // rest paths will create files and then require directories of the same name and this must be avoided
-	    cachePath = cachePath + ".dat";
-	}
+	String cachePath = fixCachePath(pathString);
 	File returnFile = new File(getCacheDirectory(), cachePath);
 	if (!returnFile.getParentFile().exists()) {
 	    if (!returnFile.getParentFile().mkdirs()) {
@@ -785,13 +819,37 @@ public class ArbilSessionStorage implements SessionStorage {
 	return returnFile;
     }
 
+    private String preProcessPathString(String pathString) {
+	try {
+	    pathString = URLDecoder.decode(pathString, "UTF-8");
+	} catch (UnsupportedEncodingException uee) {
+	    logError(uee);
+	}
+	pathString = pathString.replace("//", "/");
+	return pathString;
+    }
+
+    private String fixCachePath(String pathString) {
+	String cachePath = pathString.replace(":/", "/").replace("//", "/").replace('?', '/').replace('&', '/');
+	while (cachePath.contains(":")) { // todo: this may not be the only char that is bad on file systems and this will cause issues reconstructing the url later
+	    cachePath = cachePath.replace(":", "_");
+	}
+	// make the xsd path tidy for viewing in an editor durring testing
+	cachePath = cachePath.replaceAll("/xsd$", ".xsd");
+	if (cachePath.matches(".*/[^.]*$")) {
+	    // rest paths will create files and then require directories of the same name and this must be avoided
+	    cachePath = cachePath + ".dat";
+	}
+	return cachePath;
+    }
+
     /**
      * Copies a remote file over http and saves it into the cache.
      * @param targetUrlString The URL of the remote file as a string
      * @param destinationPath The local path where the file should be saved
      * @return boolean true only if the file was downloaded, this will be false if the file exists but was not re-downloaded or if the download failed
      */
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
@@ -811,29 +869,9 @@ public class ArbilSessionStorage implements SessionStorage {
 	} else {
 	    FileOutputStream outFile = null;
 	    try {
-		URLConnection urlConnection = targetUrl.openConnection();
-		HttpURLConnection httpConnection = null;
-		if (urlConnection instanceof HttpURLConnection) {
-		    httpConnection = (HttpURLConnection) urlConnection;
-//                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
-		    if (shibbolethNegotiator != null) {
-			httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
-//                            // work around for resources being https when under shiboleth
-//                            // try https after http failed
-//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-//                            System.out.println("trying https");
-//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
-//                            urlConnection = targetUrl.openConnection();
-//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
-//                        }
-		    }
-		    //h.setFollowRedirects(false);
-		    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
-		}
-		if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
-		    System.out.println("non 200 response, skipping file");
-		} else {
+		URLConnection urlConnection = openResourceConnection(targetUrl, shibbolethNegotiator, followRedirect);
+
+		if (urlConnection != null) {
 		    File tempFile = File.createTempFile(destinationFile.getName(), "tmp", destinationFile.getParentFile());
 		    tempFile.deleteOnExit();
 		    int bufferLength = 1024 * 3;
@@ -885,6 +923,60 @@ public class ArbilSessionStorage implements SessionStorage {
 	    }
 	}
 	return downloadSucceeded;
+    }
+
+    /**
+     * Opens connection to resource at target url. Follows redirects if required
+     * @param resourceUrl
+     * @param shibbolethNegotiator
+     * @return Connection to resource. Null if response code not ok (not 200 after optional redirects)
+     * @throws IOException 
+     */
+    private URLConnection openResourceConnection(URL resourceUrl, ShibbolethNegotiator shibbolethNegotiator, boolean followRedirects) throws IOException {
+	URLConnection urlConnection = resourceUrl.openConnection();
+	if (urlConnection instanceof JarURLConnection) {
+	    return urlConnection;
+	}
+	HttpURLConnection httpConnection = null;
+	if (urlConnection instanceof HttpURLConnection) {
+	    httpConnection = (HttpURLConnection) urlConnection;
+//                    httpConnection.setFollowRedirects(false); // this is done when this class is created because it is a static call
+	    if (shibbolethNegotiator != null) {
+		httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
+//                        if (httpConnection.getResponseCode() != 200 && targetUrl.getProtocol().equals("http")) {
+//                            // work around for resources being https when under shiboleth
+//                            // try https after http failed
+//                            System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+//                            System.out.println("trying https");
+//                            targetUrl = new URL(targetUrl.toString().replace("http://", "https://"));
+//                            urlConnection = targetUrl.openConnection();
+//                            httpConnection = shibbolethNegotiator.getShibbolethConnection((HttpURLConnection) urlConnection);
+//                        }
+	    }
+	    //h.setFollowRedirects(false);
+	    System.out.println("Code: " + httpConnection.getResponseCode() + ", Message: " + httpConnection.getResponseMessage());
+	}
+
+	if (httpConnection != null && httpConnection.getResponseCode() != 200) { // if the url points to a file on disk then the httpconnection will be null, hence the response code is only relevant if the connection is not null
+	    final int responseCode = httpConnection.getResponseCode();
+	    if (responseCode == 301 || responseCode == 302 || responseCode == 303 || responseCode == 307) { // Redirect codes
+		String redirectLocation = httpConnection.getHeaderField("Location");
+		System.out.println(String.format("%1$d, redirect to %2$s", responseCode, redirectLocation));
+		if (followRedirects) {
+		    // Redirect. Get new location.
+		    if (redirectLocation != null && redirectLocation.length() > 0) {
+			return openResourceConnection(new URL(redirectLocation), shibbolethNegotiator, true);
+		    }
+		} else {
+		    System.out.println("Not following redirect. Skipping file");
+		}
+	    } else {
+		System.out.println("non 200 response, skipping file");
+	    }
+	    return null;
+	} else {
+	    return urlConnection;
+	}
     }
 
     /**

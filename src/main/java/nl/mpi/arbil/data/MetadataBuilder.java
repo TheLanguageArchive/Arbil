@@ -137,11 +137,12 @@ public class MetadataBuilder {
 
 	    @Override
 	    public void run() {
+		ArbilNode addedNode = null;
 		destinationNode.updateLoadingState(1);
 		synchronized (destinationNode.getParentDomLockObject()) {
 		    try {
 			System.out.println("requestAddNode: " + nodeType + " : " + nodeTypeDisplayName);
-			processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
+			addedNode = processAddNodes(destinationNode, nodeType, destinationNode.getURI().getFragment(), nodeTypeDisplayName, null, null, null);
 
 			// CODE REMOVED: previously, imdiLoaders was requested to reload destinationNode
 		    } catch (ArbilMetadataException exception) {
@@ -149,6 +150,9 @@ public class MetadataBuilder {
 		    }
 		}
 		destinationNode.updateLoadingState(-1);
+		if (addedNode != null) {
+		    destinationNode.triggerNodeAdded(addedNode);
+		}
 	    }
 	}.start();
     }
@@ -221,7 +225,7 @@ public class MetadataBuilder {
     private void addNonMetaDataNode(final ArbilDataNode destinationNode, final String nodeTypeDisplayNameLocal, final ArbilDataNode addableNode) throws ArbilMetadataException {
 	String nodeTypeDisplayName = nodeTypeDisplayNameLocal;
 	ArbilDataNode[] sourceArbilNodeArray;
-	if (addableNode.isEmptyMetaNode()) {
+	if (addableNode.isContainerNode()) {
 	    sourceArbilNodeArray = addableNode.getChildArray();
 	} else {
 	    sourceArbilNodeArray = new ArbilDataNode[]{addableNode};
@@ -318,7 +322,7 @@ public class MetadataBuilder {
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
     }
 
-    private void processAddNodes(ArbilDataNode currentArbilNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
+    private ArbilDataNode processAddNodes(ArbilDataNode currentArbilNode, String nodeType, String targetXmlPath, String nodeTypeDisplayName, String favouriteUrlString, String mimeType, URI resourceUri) throws ArbilMetadataException {
 
 	// make title for imdi table
 	String newTableTitleString = "new " + nodeTypeDisplayName;
@@ -347,12 +351,10 @@ public class MetadataBuilder {
 		}
 	    } finally {
 		addedArbilNode.getParentDomNode().updateLoadingState(-1);
-		if (destinationNode != null) {
-		    destinationNode.triggerNodeAdded(addedArbilNode);
-		}
 	    }
 	}
 	windowManager.openFloatingTableOnce(new URI[]{addedNodeUri}, newTableTitleString);
+	return addedArbilNode;
     }
 
     /**

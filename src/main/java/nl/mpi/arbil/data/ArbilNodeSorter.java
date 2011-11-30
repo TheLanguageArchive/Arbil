@@ -9,7 +9,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * Created on Aug 11, 2009, 11:08:48 AM
  * @author Peter.Withers@mpi.nl
  */
-public class ArbilNodeSorter extends NumberedStringComparator implements  Serializable {
+public class ArbilNodeSorter extends NumberedStringComparator implements Serializable {
 
     public int compare(Object object1, Object object2) {
 	Object userObject1;

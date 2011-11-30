@@ -250,7 +250,7 @@ public class MockSessionStorage implements SessionStorage {
 	saveMap.put(filename, object);
     }
 
-    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public boolean saveRemoteResource(URL targetUrl, File destinationFile, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 	boolean downloadSucceeded = false;
 //        String targetUrlString = getFullResourceURI();
 //        String destinationPath = GuiHelper.linorgSessionStorage.getSaveLocation(targetUrlString);
@@ -349,7 +349,7 @@ public class MockSessionStorage implements SessionStorage {
      * @param expireCacheDays Number of days old that a file can be before it is replaced.
      * @return The path of the file in the cache.
      */
-    public synchronized File updateCache(String pathString, int expireCacheDays) { // update if older than the date - x
+    public synchronized File updateCache(String pathString, int expireCacheDays, boolean followRedirect) { // update if older than the date - x
 	File targetFile = getSaveLocation(pathString);
 	boolean fileNeedsUpdate = !targetFile.exists();
 	if (!fileNeedsUpdate) {
@@ -368,7 +368,11 @@ public class MockSessionStorage implements SessionStorage {
 	    System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
 	}
 	System.out.println("fileNeedsUpdate: " + fileNeedsUpdate);
-	return updateCache(pathString, null, fileNeedsUpdate, new DownloadAbortFlag(), null);
+	return updateCache(pathString, null, fileNeedsUpdate, followRedirect, new DownloadAbortFlag(), null);
+    }
+
+    public File getFromCache(String pathString, boolean followRedirect) {
+	return updateCache(pathString, Integer.MAX_VALUE, followRedirect);
     }
 
     /**
@@ -377,7 +381,7 @@ public class MockSessionStorage implements SessionStorage {
      * @param pathString Path of the remote file.
      * @return The path of the file in the cache.
      */
-    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, DownloadAbortFlag abortFlag, JLabel progressLabel) {
+    public File updateCache(String pathString, ShibbolethNegotiator shibbolethNegotiator, boolean expireCacheCopy, boolean followRedirect, DownloadAbortFlag abortFlag, JLabel progressLabel) {
 
 	if (pathString.equals("http://www.w3.org/2001/xml.xsd")) {
 	    try {
@@ -390,7 +394,7 @@ public class MockSessionStorage implements SessionStorage {
 	// to expire the files in the cache set the expireCacheCopy flag.
 	File cachePath = getSaveLocation(pathString);
 	try {
-	    saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, abortFlag, progressLabel);
+	    saveRemoteResource(new URL(pathString), cachePath, shibbolethNegotiator, expireCacheCopy, followRedirect, abortFlag, progressLabel);
 	} catch (MalformedURLException mul) {
 	    log.log(Level.SEVERE, null, new Exception(pathString, mul));
 	}

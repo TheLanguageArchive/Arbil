@@ -19,6 +19,7 @@ import static org.junit.Assert.assertTrue;
  * @author Twan Goosen <twan.goosen@mpi.nl>
  */
 public class ArbilSearchTest extends ArbilTest {
+
     public static final String NAME_TEST_SESSION_1 = "Test session 1";
     public static final String NAME_TEST_SESSION_2 = "Test session 2";
     public static final String NON_MATCHING_STRING = "alw;nr5aij2423mm";
@@ -78,7 +79,6 @@ public class ArbilSearchTest extends ArbilTest {
 	assertEquals(1, search.getFoundNodes().size());
     }
 
-
     /**
      * Tests adding results to table model
      * @throws Exception 
@@ -87,12 +87,12 @@ public class ArbilSearchTest extends ArbilTest {
     public void testSearchToTableModel() throws Exception {
 	AbstractArbilTableModel model = createTableModel();
 	addToLocalTreeFromResource("/nl/mpi/arbil/data/testfiles/test_session_1.imdi");
-	
+
 	// Search with no results, nothing should be added to table model
 	ArbilSearch search = searchLocalTree(model, ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", NON_MATCHING_STRING);
 	assertEquals(0, search.getFoundNodes().size());
 	assertEquals(0, model.getArbilDataNodeCount());
-	
+
 	// Search with one result, should show in table model!
 	search = searchLocalTree(model, ArbilNodeSearchTerm.NODE_TYPE_SESSION, "", NAME_TEST_SESSION_1);
 	assertEquals(1, search.getFoundNodes().size());

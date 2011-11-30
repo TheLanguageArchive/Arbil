@@ -30,7 +30,10 @@ import java.util.Map.Entry;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilIcons;
+import nl.mpi.arbil.ArbilMetadataException;
 import nl.mpi.arbil.clarin.CmdiComponentLinkReader;
 import nl.mpi.arbil.data.metadatafile.CmdiUtils;
 import nl.mpi.arbil.data.metadatafile.ImdiUtils;
@@ -43,8 +46,11 @@ import nl.mpi.arbil.util.ArrayComparator;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.util.MimeHashQueue;
+import nl.mpi.arbil.util.MimeHashQueue.TypeCheckerState;
 import nl.mpi.arbil.util.TreeHelper;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * Document   : ArbilDataNode formerly known as ImdiTreeObject
@@ -63,6 +69,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     public String hashString;
     public String mpiMimeType = null;
     public String typeCheckerMessage;
+    private TypeCheckerState typeCheckerState = TypeCheckerState.UNCHECKED;
     public int matchesInCache;
     public int matchesRemote;
     public int matchesLocalFileSystem;
@@ -98,7 +105,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     //public String xmlNodeId = null; // only set for imdi child nodes and is the xml node id relating to this imdi tree object
     public File thumbnailFile = null;
     private final Object domLockObjectPrivate = new Object();
-    private static String NODE_LOADING_TEXT = "loading node...";
+    private final static String NODE_LOADING_TEXT = "loading node...";
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -255,11 +262,11 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     static public boolean isStringLocal(String urlString) {
-	return (!urlString.startsWith("http"));
+	return (!urlString.startsWith("http")); // todo: should this test for "file" instead, in the case of ftp this will fail and cause a null pointer in pathIsInFavourites
     }
 
     static public boolean isPathHistoryFile(String urlString) {
-	return isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
+	return MetadataFormat.isPathMetadata(urlString.replaceAll("mdi.[0-9]*$", "mdi"));
     }
 
     static public boolean isPathMetadata(String urlString) {
@@ -279,9 +286,9 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     }
 
     static public MetadataUtils getMetadataUtils(String urlString) {
-	if (ArbilDataNode.isPathCmdi(urlString)) {
+	if (MetadataFormat.isPathCmdi(urlString)) {
 	    return new CmdiUtils();
-	} else if (ArbilDataNode.isPathImdi(urlString)) {
+	} else if (MetadataFormat.isPathImdi(urlString)) {
 	    return new ImdiUtils();
 	}
 	return null;
@@ -378,7 +385,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	typeCheckerMessage = typeCheckerMessageArray[1];
 	if (!isMetaDataNode() && isLocal() && mpiMimeType != null) {
 	    // add the mime type for loose files
-	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0);
+	    ArbilField mimeTypeField = new ArbilField(fieldHashtable.size(), this, "Format", this.mpiMimeType, 0, false, null, null);
 	    //            mimeTypeField.fieldID = "x" + fieldHashtable.size();
 	    addField(mimeTypeField);
 	}
@@ -426,6 +433,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	isDirectory = false;
 	icon = null;
 	nodeEnabled = true;
+	singletonMetadataNode = false;
+	containerNode = false;
 	//        isLoadingCount = true;
 	if (nodeUri != null) {
 	    if (!isMetaDataNode() && isLocal()) {
@@ -482,98 +491,103 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 		    //            clearIcon();
 		}
 		if (isMetaDataNode()) {
-		    Document nodDom = null;
-		    // cacheLocation will be null if useCache = false hence no file has been saved
-		    //        String cacheLocation = null;
-		    if (this.isLocal() && !this.getFile().exists() && new File(this.getFile().getAbsolutePath() + ".0").exists()) {
-			// if the file is missing then try to find a valid history file
-			copyLastHistoryToCurrent();
-			messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
-		    }
-		    try {
-			//System.out.println("tempUrlString: " + tempUrlString);
-			nodDom = ArbilComponentBuilder.getDocument(this.getURI());
-			// only read the fields into imdi tree objects if it is not going to be saved to the cache
-			//            if (!useCache) {
-			//set the string name to unknown, it will be updated in the tostring function
-			nodeText = "unknown";
-			if (this.isCmdiMetaDataNode()) {
-			    // load the links from the cmdi file
-			    // the links will be hooked to the relevent nodes when the rest of the xml is read
-			    cmdiComponentLinkReader = new CmdiComponentLinkReader();
-			    cmdiComponentLinkReader.readLinks(this.getURI());
-			} else {
-			    cmdiComponentLinkReader = null;
-			}
-			Vector<String[]> childLinksTemp = new Vector<String[]>();
-			Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new Hashtable<ArbilDataNode, HashSet<ArbilDataNode>>();
-			Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
-			// load the fields from the imdi file
-			MetadataReader.getSingleInstance().iterateChildNodes(this, childLinksTemp, nodDom.getFirstChild(), "", "", parentChildTree, siblingNodePathCounter, 0);
-			if (isCmdiMetaDataNode()) {
-			    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
-			    MetadataReader.getSingleInstance().addUnreferencedResources(this, parentChildTree, childLinksTemp);
-			}
-			childLinks = childLinksTemp.toArray(new String[][]{});
-			//ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
-			for (Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
-			    ArbilDataNode currentNode = entry.getKey();
-			    // System.out.println("setting childArray on: " + currentNode.getUrlString());
-			    // save the old child array
-			    ArbilDataNode[] oldChildArray = currentNode.childArray;
-			    // set the new child array
-			    currentNode.childArray = parentChildTree.get(currentNode).toArray(new ArbilDataNode[]{});
-			    // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
-			    List currentChildList = Arrays.asList(currentNode.childArray);
-			    for (ArbilDataNode currentOldChild : oldChildArray) {
-				if (currentChildList.indexOf(currentOldChild) == -1) {
-				    // remove from any containers that its found in
-				    for (ArbilDataNodeContainer currentContainer : currentOldChild.getRegisteredContainers()) {
-					currentContainer.dataNodeRemoved(currentOldChild);
-				    }
-				}
-			    }
-			}
-			//            }
-			// save this to the cache before deleting the dom
-			//            if (useCache) {
-			//                // get the links from the imdi before we dispose of the dom
-			//                getImdiLinks(nodDom);
-			////                cacheLocation = saveNodeToCache(nodDom);
-			//            }
-		    } catch (Exception mue) {
-			bugCatcher.logError(this.getUrlString(), mue);
-			//            System.out.println("Invalid input URL: " + mue);
-			File nodeFile = this.getFile();
-			if (nodeFile != null && nodeFile.exists()) {
-			    nodeText = "Could not load data";
-			} else {
-			    nodeText = "File not found";
-			    fileNotFound = true;
-			}
-		    }
-		    //we are now done with the dom so free the memory
-		    nodDom = null;
-		    //        return cacheLocation;
+		    loadMetadataDom();
 		    dataLoaded = true;
-		    //            clearChildIcons();
 		}
 	    }
 	}
     }
 
-    //        private String getField(String fieldName) {
-    //            Document itemDom = this.getNodeDom();
-    //            if (itemDom == null) {
-    //                return null;
-    //            }
-    //            IMDIElement rowValue = api.getIMDIElement(itemDom, fieldName);
-    //            if (rowValue != null) {
-    //                return rowValue.getValue();
-    //            } else {
-    //                return null;
-    //            }
-    //        }
+    private void loadMetadataDom() {
+	if (this.isLocal() && !this.getFile().exists() && new File(this.getFile().getAbsolutePath() + ".0").exists()) {
+	    // if the file is missing then try to find a valid history file
+	    copyLastHistoryToCurrent();
+	    messageDialogHandler.addMessageDialogToQueue("Missing file has been recovered from the last history item.", "Recover History");
+	}
+	try {
+	    //set the string name to unknown, it will be updated in the tostring function
+	    nodeText = "unknown";
+	    initComponentLinkReader();
+	    updateMetadataChildNodes();
+	} catch (Exception mue) {
+	    bugCatcher.logError(this.getUrlString(), mue);
+	    //            System.out.println("Invalid input URL: " + mue);
+	    File nodeFile = this.getFile();
+	    if (nodeFile != null && nodeFile.exists()) {
+		nodeText = "Could not load data";
+	    } else {
+		nodeText = "File not found";
+		fileNotFound = true;
+	    }
+	}
+    }
+
+    private void initComponentLinkReader() {
+	if (this.isCmdiMetaDataNode()) {
+	    // load the links from the cmdi file
+	    // the links will be hooked to the relevent nodes when the rest of the xml is read
+	    cmdiComponentLinkReader = new CmdiComponentLinkReader();
+	    cmdiComponentLinkReader.readLinks(this.getURI());
+	} else {
+	    cmdiComponentLinkReader = null;
+	}
+    }
+
+    private void updateMetadataChildNodes() throws ParserConfigurationException, SAXException, IOException, TransformerException, ArbilMetadataException {
+	Document nodDom = ArbilComponentBuilder.getDocument(this.getURI());
+	Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree = new Hashtable<ArbilDataNode, HashSet<ArbilDataNode>>();
+	childLinks = loadMetadataChildNodes(nodDom, parentChildTree);
+	checkRemovedChildNodes(parentChildTree);
+    }
+
+    private String[][] loadMetadataChildNodes(Document nodDom, Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) throws TransformerException, ArbilMetadataException {
+	Vector<String[]> childLinks = new Vector<String[]>();
+	Hashtable<String, Integer> siblingNodePathCounter = new Hashtable<String, Integer>();
+	// get the metadata format information required to read this nodes metadata
+	final String metadataStartPath = MetadataFormat.getMetadataStartPath(nodeUri.getPath());
+	String fullNodePath = "";
+	Node startNode = nodDom.getFirstChild();
+	if (metadataStartPath.length() > 0) {
+	    fullNodePath = metadataStartPath.substring(0, metadataStartPath.lastIndexOf("."));
+	    final String metadataXpath = metadataStartPath.replaceAll("\\.", "/:"); //"/:Kinnate/:Entity";
+	    final Node metadataNode = org.apache.xpath.XPathAPI.selectSingleNode(startNode, metadataXpath);
+	    // if this fails then we probably want to fail the reading of the node
+	    if (metadataNode == null) {
+		throw new ArbilMetadataException("Failed to find the start node for the metadata to read: " + fullNodePath);
+	    }
+	    startNode = metadataNode;
+	}
+	// load the fields from the imdi file
+	MetadataReader.getSingleInstance().iterateChildNodes(this, childLinks, startNode, fullNodePath, fullNodePath, parentChildTree, siblingNodePathCounter, 0);
+	if (isCmdiMetaDataNode()) {
+	    // Add all links that have no references to the root node (might confuse users but at least it will show what's going on)
+	    MetadataReader.getSingleInstance().addUnreferencedResources(this, parentChildTree, childLinks);
+	}
+	return childLinks.toArray(new String[][]{});
+    }
+
+    private void checkRemovedChildNodes(Hashtable<ArbilDataNode, HashSet<ArbilDataNode>> parentChildTree) {
+	//ImdiTreeObject[] childArrayTemp = new ImdiTreeObject[childLinks.length];
+	for (Entry<ArbilDataNode, HashSet<ArbilDataNode>> entry : parentChildTree.entrySet()) {
+	    ArbilDataNode currentNode = entry.getKey();
+	    // System.out.println("setting childArray on: " + currentNode.getUrlString());
+	    // save the old child array
+	    ArbilDataNode[] oldChildArray = currentNode.childArray;
+	    // set the new child array
+	    currentNode.childArray = parentChildTree.get(currentNode).toArray(new ArbilDataNode[]{});
+	    // check the old child array and for each that is no longer in the child array make sure they are removed from any containers (tables or trees)
+	    List currentChildList = Arrays.asList(currentNode.childArray);
+	    for (ArbilDataNode currentOldChild : oldChildArray) {
+		if (currentChildList.indexOf(currentOldChild) == -1) {
+		    // remove from any containers that its found in
+		    for (ArbilDataNodeContainer currentContainer : currentOldChild.getRegisteredContainers()) {
+			currentContainer.dataNodeRemoved(currentOldChild);
+		    }
+		}
+	    }
+	}
+    }
+
     private void getDirectoryLinks() {
 	File[] dirLinkArray = null;
 	File nodeFile = this.getFile();
@@ -760,7 +774,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public File getSubDirectory() {
 	String currentFileName = this.getFile().getParent();
-	if (ArbilDataNode.isPathImdi(nodeUri.getPath()) || ArbilDataNode.isPathCmdi(nodeUri.getPath())) {
+	if (MetadataFormat.isPathImdi(nodeUri.getPath()) || MetadataFormat.isPathCmdi(nodeUri.getPath())) {
 	    currentFileName = currentFileName + File.separatorChar + this.getFile().getName().substring(0, this.getFile().getName().length() - 5);
 	    File destinationDir = new File(currentFileName);
 	    if (!destinationDir.exists()) {
@@ -1046,7 +1060,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	boolean ignoreSaveChanges = false;
 	for (String clipBoardString : clipBoardStrings) {
 	    if (this.isCorpus()) {
-		if (ArbilDataNode.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
+		if (MetadataFormat.isPathMetadata(clipBoardString) || ArbilDataNode.isStringChildNode(clipBoardString)) {
 		    ArbilDataNode clipboardNode = dataNodeLoader.getArbilDataNode(null, conformStringToUrl(clipBoardString));
 		    if (sessionStorage.pathIsInsideCache(clipboardNode.getFile())) {
 			if (!(ArbilDataNode.isStringChildNode(clipBoardString) && (!this.isSession() && !this.isChildNode()))) {
@@ -1124,6 +1138,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 			currentFieldUpdateRequest.fieldNewValue = currentField.getFieldValueForXml();
 			currentFieldUpdateRequest.fieldPath = currentField.getFullXmlPath();
 			currentFieldUpdateRequest.fieldLanguageId = currentField.getLanguageId();
+			currentFieldUpdateRequest.attributeValuesMap = currentField.getAttributeValuesMap();
 			fieldUpdateRequests.add(currentFieldUpdateRequest);
 		    }
 		}
@@ -1261,7 +1276,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
     ////                        resourceUrlString = resourceFile.getCanonicalPath();
     //                resourceUrlString = fieldToAdd.fieldValue;
     ////                if (useCache) {
-    ////                    linorgSessionStorage.updateCache(getFullResourceURI());
+    ////                    linorgSessionStorage.getFromCache(getFullResourceURI());
     ////                }
     //                mimeHashQueue.addToQueue(this);
     //            }
@@ -1398,8 +1413,8 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    return "unknown";
 	}
     }
-    
-    public boolean isNodeTextDetermined(){
+
+    public boolean isNodeTextDetermined() {
 	return lastNodeText != null && !lastNodeText.equals(NODE_LOADING_TEXT);
     }
 
@@ -1515,7 +1530,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	}
 
 	if (isContainerNode()) {
-	    lastNodeText = "[" + lastNodeText + "]";
+	    lastNodeText = String.format("%1$s (%2$d)", lastNodeText, getChildCount());
 	} else if (isSingletonMetadataNode()) {
 	    StringBuilder nodeTextSB = new StringBuilder(getNodeTypeNameFromUriFragment(getURI().getFragment()));
 	    if (nodeText != null && nodeText.length() > 0) {
@@ -1546,6 +1561,42 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public boolean hasResource() {
 	return resourceUrlField != null;
+    }
+
+    public boolean canHaveResource() {
+	if (hasResource()) {
+	    return true;
+	} else if (isCmdiMetaDataNode()) {
+	    final ArbilTemplate template = getNodeTemplate();
+	    if (template != null) {
+		return template.pathCanHaveResource(nodeUri.getFragment());
+	    }
+	}
+	return false;
+    }
+
+    /**
+     * Inserts/sets resource location. Behavior will depend on node type
+     * @param location Location to insert/set
+     */
+    public void insertResourceLocation(URI location) throws ArbilMetadataException {
+	if (isCmdiMetaDataNode()) {
+	    ArbilDataNode resourceNode = null;
+	    try {
+		resourceNode = dataNodeLoader.getArbilDataNodeWithoutLoading(location);
+	    } catch (Exception ex) {
+		throw new ArbilMetadataException("Error creating resource node for URI: " + location.toString(), ex);
+	    }
+	    if (resourceNode == null) {
+		throw new ArbilMetadataException("Unknown error creating resource node for URI: " + location.toString());
+	    }
+
+	    new MetadataBuilder().requestAddNode(this, null, resourceNode);
+	} else {
+	    if (hasResource()) {
+		resourceUrlField.setFieldValue(location.toString(), true, false);
+	    }
+	}
     }
 
     /**
@@ -1857,7 +1908,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    if (isChildNode()) {
 		return true;
 	    } else {
-		return ArbilDataNode.isPathMetadata(nodeUri.getPath());
+		return MetadataFormat.isPathMetadata(nodeUri.getPath());
 	    }
 	}
 	return false;
@@ -1868,7 +1919,7 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
 	    if (isChildNode()) {
 		return getParentDomNode().isCmdiMetaDataNode();
 	    } else {
-		return ArbilDataNode.isPathCmdi(nodeUri.getPath());
+		return MetadataFormat.isPathCmdi(nodeUri.getPath());
 	    }
 	}
 	return false;
@@ -2154,5 +2205,19 @@ public class ArbilDataNode extends ArbilNode implements Comparable {
      */
     public CmdiComponentLinkReader getCmdiComponentLinkReader() {
 	return getParentDomNode().cmdiComponentLinkReader;
+    }
+
+    /**
+     * @return the typeCheckerState
+     */
+    public TypeCheckerState getTypeCheckerState() {
+	return typeCheckerState;
+    }
+
+    /**
+     * @param typeCheckerState the typeCheckerState to set
+     */
+    public void setTypeCheckerState(TypeCheckerState typeCheckerState) {
+	this.typeCheckerState = typeCheckerState;
     }
 }

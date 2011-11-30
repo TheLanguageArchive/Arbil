@@ -11,11 +11,12 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
-import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.ArbilTableCell;
+import nl.mpi.arbil.util.ApplicationVersion;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilActionBuffer;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
@@ -46,6 +47,11 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     public static void setClipboardOwner(ClipboardOwner clipboardOwnerInstance) {
 	clipboardOwner = clipboardOwnerInstance;
+    }
+    private static ApplicationVersionManager versionManager;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
     }
     // End handlers
 
@@ -107,9 +113,9 @@ public class ArbilTableModel extends AbstractArbilTableModel {
 
     public void copyHtmlEmbedTagToClipboard(int tableHeight, int tableWidth) {
 	try {
-	    ArbilVersion arbilVersion = new ArbilVersion();
+	    ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	    // TODO: the clas path specified here needs to be dynamically generated
-	    String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" CODE=\"nl.mpi.arbil.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + arbilVersion.currentMajor + "-" + arbilVersion.currentMinor + "-" + arbilVersion.currentRevision + ".jar,lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/typecheck-1.5.16185.jar,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar\"";
+	    String embedTagString = "<APPLET CODEBASE=\"http://www.mpi.nl/tg/j2se/jnlp/arbil/\" CODE=\"nl.mpi.arbil.ArbilTableApplet.class\" ARCHIVE=\"arbil-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".jar,lib/corpusstructure-1.6.1.jar,lib/imdiapi-1.0.6.jar,lib/log4j-1.2.14.jar,lib/saxon8.jar,lib/saxon8-dom.jar,lib/typecheck-1.5.16185.jar,lib/xalan-2.6.0.jar,lib/xercesImpl-2.9.0.jar\"";
 	    embedTagString = embedTagString + " WIDTH=" + tableWidth + " HEIGHT=" + tableHeight + " >\n";
 	    embedTagString = embedTagString + "  <PARAM NAME=\"ImdiFileList\" VALUE=\"" + joinArray(this.getArbilDataNodesURLs()) + "\">\n";
 	    embedTagString = embedTagString + "  <PARAM NAME=\"ShowOnlyColumns\" VALUE=\"" + joinArray(getColumnNames()) + "\">\n";

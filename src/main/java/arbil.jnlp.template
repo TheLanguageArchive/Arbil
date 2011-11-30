@@ -43,7 +43,7 @@
         <!-- these prperties are now set in the main class<property name="apple.laf.useScreenMenuBar" value="true"/>
         <property name="apple.awt.graphics.UseQuartz" value="true"/>
         <property name="sun.swing.enableImprovedDragGesture" value="true"/>-->
-        <property name="nl.mpi.arbil.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil@FilenameIdentifier@.jnlp"/>
+        <property name="nl.mpi.webstartUpdateUrl" value="http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil@FilenameIdentifier@.jnlp"/>
     </resources>
     <!--<resources os="windows">
         <nativelib href="lib/ImageMagick-6.5.9-Win32.jar"/>

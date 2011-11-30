@@ -10,8 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.imageio.ImageIO;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
-import nl.mpi.arbil.ArbilVersion;
-//import org.apache.log4j.Logger;
 
 /**
  * Document   : ArbilBugCatcher
@@ -31,6 +29,11 @@ public class ArbilBugCatcher implements BugCatcher {
     public static void setWindowManager(WindowManager windowManagerInstance) {
 	windowManager = windowManagerInstance;
     }
+    private static ApplicationVersionManager versionManager;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
+    }
 
     public ArbilBugCatcher() {
 	// remove all previous error logs for this version other than the one for this build number
@@ -39,9 +42,9 @@ public class ArbilBugCatcher implements BugCatcher {
 	    errorLogFile.delete();
 	}
 	// look for previous error logs for this version only
-	ArbilVersion linorgVersion = new ArbilVersion();
-	String currentApplicationVersionMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-";
-	String currentLogFileMatch = "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log";
+	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+	String currentApplicationVersionMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
+	String currentLogFileMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log";
 	for (String currentFile : ArbilSessionStorage.getSingleInstance().getStorageDirectory().list()) {
 	    if (currentFile.startsWith(currentApplicationVersionMatch)) {
 		if (currentFile.startsWith(currentLogFileMatch)) {
@@ -50,7 +53,7 @@ public class ArbilBugCatcher implements BugCatcher {
 		} else {
 		    System.out.println("deleting old log file: " + currentFile);
 		    if (!new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), currentFile).delete()) {
-		        System.out.println("Did not delete old log file: " + currentFile);
+			System.out.println("Did not delete old log file: " + currentFile);
 		    }
 		}
 	    }
@@ -59,8 +62,8 @@ public class ArbilBugCatcher implements BugCatcher {
     private int captureCount = 0;
 
     public File getLogFile() {
-	ArbilVersion linorgVersion = new ArbilVersion();
-	File file = new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "error-" + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + ".log");
+	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+	File file = new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log");
 	if (!file.exists()) {
 	    startNewLogFile(file);
 	}
@@ -68,14 +71,14 @@ public class ArbilBugCatcher implements BugCatcher {
     }
 
     private static void startNewLogFile(File file) {
-	ArbilVersion arbilVersion = new ArbilVersion();
+	ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	try {
 	    FileWriter errorLogFile = new FileWriter(file, false);
-	    errorLogFile.append(arbilVersion.applicationTitle + " error log" + System.getProperty("line.separator")
-		    + "Version: " + arbilVersion.currentMajor + "." + arbilVersion.currentMinor + "." + arbilVersion.currentRevision + System.getProperty("line.separator")
-		    + arbilVersion.lastCommitDate + System.getProperty("line.separator")
-		    + "Compile Date: " + arbilVersion.compileDate + System.getProperty("line.separator")
-		    + "Operating System: " + System.getProperty("os.name")+ " (" + System.getProperty("os.arch") + ") version "+ System.getProperty("os.version") + System.getProperty("line.separator")
+	    errorLogFile.append(appVersion.applicationTitle + " error log" + System.getProperty("line.separator")
+		    + "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + System.getProperty("line.separator")
+		    + appVersion.lastCommitDate + System.getProperty("line.separator")
+		    + "Compile Date: " + appVersion.compileDate + System.getProperty("line.separator")
+		    + "Operating System: " + System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version") + System.getProperty("line.separator")
 		    + "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor") + System.getProperty("line.separator")
 		    + "User: " + System.getProperty("user.name") + System.getProperty("line.separator")
 		    + "Log started: " + new Date().toString() + System.getProperty("line.separator"));
@@ -121,7 +124,6 @@ public class ArbilBugCatcher implements BugCatcher {
 
     public void logError(String messageString, Exception exception) {
 	try {
-	    ArbilVersion linorgVersion = new ArbilVersion();
 	    System.err.println(messageString);
 	    if (exception != null) {
 		System.err.println("exception: " + exception.getMessage());
@@ -131,8 +133,7 @@ public class ArbilBugCatcher implements BugCatcher {
 //            System.out.println("logCatch: " + messageString);
 	    errorLogFile.append(messageString + System.getProperty("line.separator"));
 	    errorLogFile.append("Error Date: " + new Date().toString() + System.getProperty("line.separator"));
-	    errorLogFile.append("Compile Date: " + linorgVersion.compileDate + System.getProperty("line.separator"));
-	    errorLogFile.append("Current Revision: " + linorgVersion.currentMajor + "-" + linorgVersion.currentMinor + "-" + linorgVersion.currentRevision + System.getProperty("line.separator"));
+	    appendVersionInformation(errorLogFile);
 	    if (exception != null) {
 		errorLogFile.append("Exception Message: " + exception.getMessage() + System.getProperty("line.separator"));
 		StackTraceElement[] stackTraceElements = exception.getStackTrace();
@@ -145,5 +146,11 @@ public class ArbilBugCatcher implements BugCatcher {
 	} catch (Exception ex) {
 	    System.err.println("failed to write to the error log: " + ex.getMessage());
 	}
+    }
+
+    protected void appendVersionInformation(FileWriter errorLogFile) throws IOException {
+	ApplicationVersion appVersion = versionManager.getApplicationVersion();
+	errorLogFile.append("Compile Date: " + appVersion.compileDate + System.getProperty("line.separator"));
+	errorLogFile.append("Current Revision: " + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + System.getProperty("line.separator"));
     }
 }

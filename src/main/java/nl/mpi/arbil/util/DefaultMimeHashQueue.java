@@ -127,6 +127,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
 	    synchronized (dataNodeQueue) {
 		if (!dataNodeQueue.contains(dataNode)) {
+		    dataNode.setTypeCheckerState(TypeCheckerState.IN_QUEUE);
 //                imdiObject.updateLoadingState(+1); // Loading state change dissabled due to performance issues when offline
 		    dataNodeQueue.add(dataNode);
 		    dataNodeQueue.notifyAll();
@@ -251,6 +252,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		synchronized (dataNodeQueue) {
 		    currentDataNode = dataNodeQueue.remove(0);
 		}
+		currentDataNode.setTypeCheckerState(TypeCheckerState.IN_PROCESS);
 		//System.out.println("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
 		if (!currentDataNode.isMetaDataNode()) {
 		    System.out.println("checking file and exif");
@@ -263,6 +265,9 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    checkMimeTypeForCurrentNode();
 		}
 //                        currentImdiObject.updateLoadingState(-1); // Loading state change dissabled due to performance issues when offline
+		if (!currentDataNode.getTypeCheckerState().equals(TypeCheckerState.ERROR)) {
+		    currentDataNode.setTypeCheckerState(TypeCheckerState.CHECKED);
+		}
 		currentDataNode.clearIcon();
 	    }
 	}
@@ -322,12 +327,12 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 		    try {
 //TODO: consider adding the mime type field here as a non mull value and updating it when available so that the field order is tidy
 			int currentFieldId = 1;
-			ArbilField sizeField = new ArbilField(currentFieldId++, currentDataNode, "Size", getFileSizeString(fileObject), 0);
+			ArbilField sizeField = new ArbilField(currentFieldId++, currentDataNode, "Size", getFileSizeString(fileObject), 0, false);
 			currentDataNode.addField(sizeField);
 			// add the modified date
 			Date mtime = new Date(fileObject.lastModified());
 			String mTimeString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mtime);
-			ArbilField dateField = new ArbilField(currentFieldId++, currentDataNode, "last modified", mTimeString, 0);
+			ArbilField dateField = new ArbilField(currentFieldId++, currentDataNode, "last modified", mTimeString, 0, false);
 			currentDataNode.addField(dateField);
 			// get exif tags
 //                System.out.println("get exif tags");

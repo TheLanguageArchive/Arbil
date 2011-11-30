@@ -2,6 +2,7 @@ package nl.mpi.arbil.ui.fieldeditors;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -24,12 +25,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableModel;
 import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilField;
 import nl.mpi.arbil.ui.ArbilTable;
@@ -56,6 +61,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
     JComponent fieldEditors[] = null;
     JComboBox fieldLanguageBoxs[] = null;
     JInternalFrame editorFrame = null;
+    private FieldAttributesTableModel[] attributeTables;
     private JPanel contentPanel;
     private List<ArbilField[]> parentFieldList;
     private JButton prevButton;
@@ -143,6 +149,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	fieldEditors = new JComponent[arbilFields.length];
 	keyEditorFields = new JTextField[arbilFields.length];
 	fieldLanguageBoxs = new JComboBox[arbilFields.length];
+	attributeTables = new FieldAttributesTableModel[arbilFields.length];
 
 	for (int cellFieldIndex = 0; cellFieldIndex < arbilFields.length; cellFieldIndex++) {
 	    if (arbilFields[cellFieldIndex].hasVocabulary()) {
@@ -154,13 +161,17 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 		// set the selected field as the first one or in the case of a single node being selected tab to its pane
 		focusComponent = fieldEditors[cellFieldIndex];
 	    }
+	    if (arbilFields[cellFieldIndex].hasEditableFieldAttributes()) {
+		attributeTables[cellFieldIndex] = new FieldAttributesTableModel(cellFieldIndex);
+	    }
 
 	    JPanel tabPanel = createTabPanel(cellFieldIndex, currentEditorText, createFieldDescription(cellFieldIndex));
 	    tabPane.add(fieldName + ((arbilFields.length <= 1) ? "" : " " + (cellFieldIndex + 1)), tabPanel);
 	}
 
 	// If field has language attribute but no language has been chosen yet, request focus on the language select drop down
-	if (arbilFields[selectedField].getLanguageId() != null && arbilFields[selectedField].getLanguageId().length() == 0) {
+	if (arbilFields[selectedField].isAllowsLanguageId()
+		&& (arbilFields[selectedField].getLanguageId() == null || arbilFields[selectedField].getLanguageId().length() == 0)) {
 	    return fieldLanguageBoxs[selectedField];
 	} else {
 	    return focusComponent;
@@ -178,7 +189,7 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	initFieldEditor(cellFieldIndex, currentEditorText);
 
 	//fieldLanguageBoxs[cellFieldIndex] = null;
-	if (arbilFields[cellFieldIndex].getLanguageId() != null) {
+	if (arbilFields[cellFieldIndex].isAllowsLanguageId()) {
 	    tabTitlePanel.add(createLanguageBox(cellFieldIndex));
 	}
 
@@ -195,17 +206,40 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    editorPanel.add(fieldEditors[cellFieldIndex], BorderLayout.PAGE_START);
 	}
 	tabPanel.add(editorPanel, BorderLayout.CENTER);
+
+	if (arbilFields[cellFieldIndex].hasEditableFieldAttributes()) {
+	    JScrollPane tablePane = new JScrollPane(new JTable(attributeTables[cellFieldIndex]));
+	    tablePane.setPreferredSize(new Dimension(this.getWidth(), 100));
+	    tabPanel.add(tablePane, BorderLayout.SOUTH);
+	}
+
 	return tabPanel;
     }
 
     private JComponent createFieldDescription(int cellFieldIndex) {
 	// Create actual description textarea
-	JTextArea fieldDescription = null;
-	fieldDescription = new JTextArea();
+	final JTextArea fieldDescription = new JTextArea();
 	fieldDescription.setLineWrap(true);
 	fieldDescription.setEditable(false);
 	fieldDescription.setOpaque(false);
-	fieldDescription.setText(parentArbilDataNode.getNodeTemplate().getHelpStringForField(arbilFields[cellFieldIndex].getFullXmlPath()));
+
+	final String fullXmlPath = arbilFields[cellFieldIndex].getFullXmlPath();
+
+	// Start separate thread to get the help string as this may involve a http request and parsing, don't want to wait for that...
+	new Thread() {
+
+	    @Override
+	    public void run() {
+		final String helpString = parentArbilDataNode.getNodeTemplate().getHelpStringForField(fullXmlPath);
+		// Set field description on event dispatching thread
+		SwingUtilities.invokeLater(new Runnable() {
+
+		    public void run() {
+			fieldDescription.setText(helpString);
+		    }
+		});
+	    }
+	}.start();
 
 	JComponent component = fieldDescription;
 	// Try to find an icon for the field
@@ -532,6 +566,66 @@ public class ArbilLongFieldEditor extends JPanel implements ArbilDataNodeContain
 	    storeChanges();
 	}
     };
+    private final static int ATTR_NAME_COLUMN = 0;
+    private final static int ATTR_VALUE_COLUMN = 1;
+    private final static String[] ATTR_COLUMN_NAMES = new String[]{"Attribute", "Value"};
+    private final static Class[] ATTR_COLUMN_TYPES = new Class[]{String.class, Object.class};
+
+    private class FieldAttributesTableModel implements TableModel {
+
+	private List<String[]> attributePaths;
+	private int cellFieldIndex;
+
+	public FieldAttributesTableModel(int cellFieldIndex) {
+	    this.cellFieldIndex = cellFieldIndex;
+	    attributePaths = arbilFields[cellFieldIndex].getAttributePaths();
+	}
+
+	public int getRowCount() {
+	    return attributePaths.size();
+	}
+
+	public int getColumnCount() {
+	    return 2;
+	}
+
+	public String getColumnName(int columnIndex) {
+	    return ATTR_COLUMN_NAMES[columnIndex];
+	}
+
+	public Class<?> getColumnClass(int columnIndex) {
+	    return ATTR_COLUMN_TYPES[columnIndex];
+	}
+
+	public boolean isCellEditable(int rowIndex, int columnIndex) {
+	    return columnIndex == ATTR_VALUE_COLUMN; // Values are editable
+	}
+
+	public Object getValueAt(int rowIndex, int columnIndex) {
+	    final String path[] = attributePaths.get(rowIndex);
+	    switch (columnIndex) {
+		case ATTR_NAME_COLUMN:
+		    return path[1]; // description
+		case ATTR_VALUE_COLUMN:
+		    return arbilFields[cellFieldIndex].getAttributeValue(path[0]);
+		default:
+		    return null;
+	    }
+	}
+
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+	    if (columnIndex == ATTR_VALUE_COLUMN) {
+		final String path[] = attributePaths.get(rowIndex);
+		arbilFields[cellFieldIndex].setAttributeValue(path[0], aValue, true);
+	    }
+	}
+
+	public void addTableModelListener(TableModelListener l) {
+	}
+
+	public void removeTableModelListener(TableModelListener l) {
+	}
+    }
 
     /**
      * Panel for showing/editing the key name for fields with a custom key name

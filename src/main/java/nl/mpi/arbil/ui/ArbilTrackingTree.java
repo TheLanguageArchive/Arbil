@@ -52,19 +52,39 @@ public class ArbilTrackingTree extends ArbilTree {
      */
     @Override
     public void dataNodeChildAdded(final ArbilNode destination, final ArbilNode newNode) {
+	jumpToNode(destination, newNode);
+    }
+
+    /**
+     * 
+     * @param startingNode Leave null to search from root
+     * @param targetNode Node to jump to
+     * @return Whether node was found
+     */
+    public boolean jumpToNode(ArbilNode startingNode, final ArbilNode targetNode) {
 	// Find treeNode for destination ArbilNode
-	final TreeNode destinationNode = treeNodeMap.get(destination);
-	if (destinationNode != null) {
+	TreeNode startingTreeNode = null;
+	if (startingNode == null) {
+	    if (getModel().getRoot() instanceof TreeNode) {
+		startingTreeNode = (TreeNode) getModel().getRoot();
+		startingNode = getRootNodeObject();
+	    }
+	} else {
+	    startingTreeNode = treeNodeMap.get(startingNode);
+	}
+	if (startingTreeNode != null) {
 	    // Find path from destination node to the newly added node
-	    List<ArbilNode> nodePath = createArbilNodePath(destination, newNode);
+	    List<ArbilNode> nodePath = createArbilNodePath(startingNode, targetNode);
 	    if (nodePath != null) {
 		// Create a tree path from this node path
-		TreePath newNodePath = findTreePathForNodePath(destinationNode, nodePath);
+		TreePath newNodePath = findTreePathForNodePath(startingTreeNode, nodePath);
 		// Select the new node
 		setSelectionPath(newNodePath);
 		scrollPathToVisible(newNodePath);
+		return true;
 	    }
 	}
+	return false;
     }
 
     @Override
@@ -102,6 +122,7 @@ public class ArbilTrackingTree extends ArbilTree {
 	    synchronized (sortRunnerLock) {
 		try {
 		    sortRunnerLock.wait(250);
+		    // TODO: better wait until node has actually been added
 		} catch (InterruptedException ex) {
 		}
 	    }
@@ -174,6 +195,21 @@ public class ArbilTrackingTree extends ArbilTree {
 		    list.addAll(childList);
 		    return list;
 		}
+	    }
+	}
+	return null;
+    }
+
+    /**
+     * 
+     * @return ArbilNode that is object of tree root. If tree root object not an ArbilNode, null.
+     */
+    private ArbilNode getRootNodeObject() {
+	Object localTreeRoot = getModel().getRoot();
+	if (localTreeRoot instanceof DefaultMutableTreeNode) {
+	    Object userObject = ((DefaultMutableTreeNode) localTreeRoot).getUserObject();
+	    if (userObject instanceof ArbilNode) {
+		return (ArbilNode) userObject;
 	    }
 	}
 	return null;

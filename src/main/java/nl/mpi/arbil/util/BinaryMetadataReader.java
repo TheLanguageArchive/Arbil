@@ -70,7 +70,7 @@ public class BinaryMetadataReader {
             for (int attributeCounter = 0; attributeCounter < namedNodeMap.getLength(); attributeCounter++) {
                 String attributeName = namedNodeMap.item(attributeCounter).getNodeName();
                 String attributeValue = namedNodeMap.item(attributeCounter).getNodeValue();
-                exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, prefixString + MetadataReader.imdiPathSeparator + attributeName, attributeValue, 0));
+                exifTagFields.add(new ArbilField(currentFieldId++, resourceNode, prefixString + MetadataReader.imdiPathSeparator + attributeName, attributeValue, 0, false));
             }
         }
         if (node.hasChildNodes()) {

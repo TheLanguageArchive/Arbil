@@ -11,6 +11,7 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -28,8 +29,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 import javax.swing.JDesktopPane;
 import javax.swing.JEditorPane;
@@ -50,9 +53,11 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.FontUIResource;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
-import nl.mpi.arbil.ArbilVersion;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
+import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
+import nl.mpi.arbil.util.ApplicationVersion;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 
 /**
  * Document   : ArbilWindowManager
@@ -76,6 +81,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private boolean messagesCanBeShown = false;
     boolean showMessageThreadrunning = false;
     static private ArbilWindowManager singleInstance = null;
+    private static ApplicationVersionManager versionManager;
+    private Map<String, FileFilter> fileFilterMap;
+
+    public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
+	versionManager = versionManagerInstance;
+    }
 
     static synchronized public ArbilWindowManager getSingleInstance() {
 //        System.out.println("LinorgWindowManager getSingleInstance");
@@ -89,6 +100,12 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	desktopPane = new JDesktopPane();
 	desktopPane.setBackground(new java.awt.Color(204, 204, 204));
 	ArbilDragDrop.getSingleInstance().setTransferHandlerOnComponent(desktopPane);
+	initFileFilterMap();
+    }
+
+    public void setMessagesCanBeShown(boolean messagesCanBeShown) {
+	// this should be set to true whent the main window has been shown, before this stage of loading messages should not be shown
+	this.messagesCanBeShown = messagesCanBeShown;
     }
 
     public void loadGuiState(JFrame linorgFrameLocal) {
@@ -137,17 +154,17 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     }
 
     public void openAboutPage() {
-	ArbilVersion arbilVersion = new ArbilVersion();
+	ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	String messageString = "Archive Builder\n"
 		+ "A local tool for organising linguistic data.\n"
 		+ "Max Planck Institute for Psycholinguistics\n\n"
 		+ "Application design and programming by Peter Withers\n"
 		+ "Arbil also uses components of the IMDI API and Lamus Type Checker\n\n"
-		+ "Version: " + arbilVersion.currentMajor + "." + arbilVersion.currentMinor + "." + arbilVersion.currentRevision + "\n"
-		+ arbilVersion.lastCommitDate + "\n"
-		+ "Compile Date: " + arbilVersion.compileDate + "\n\n"
+		+ "Version: " + appVersion.currentMajor + "." + appVersion.currentMinor + "." + appVersion.currentRevision + "\n"
+		+ appVersion.lastCommitDate + "\n"
+		+ "Compile Date: " + appVersion.compileDate + "\n\n"
 		+ "Java version: " + System.getProperty("java.version") + " by " + System.getProperty("java.vendor");
-	JOptionPane.showMessageDialog(linorgFrame, messageString, "About " + arbilVersion.applicationTitle, JOptionPane.PLAIN_MESSAGE);
+	JOptionPane.showMessageDialog(linorgFrame, messageString, "About " + appVersion.applicationTitle, JOptionPane.PLAIN_MESSAGE);
     }
 
     public void offerUserToSaveChanges() throws Exception {
@@ -251,36 +268,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		returnFile = null;
 	    }
 	} else {
-	    JFileChooser fileChooser = new JFileChooser();
-	    if (requireMetadataFiles) {
-		FileFilter imdiFileFilter = new FileFilter() {
-
-		    public String getDescription() {
-			return "IMDI";
-		    }
-
-		    @Override
-		    public boolean accept(File selectedFile) {
-			// the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field
-			return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".imdi")));
-		    }
-		};
-		FileFilter cmdiFileFilter = new FileFilter() {
-
-		    public String getDescription() {
-			return "CMDI";
-		    }
-
-		    @Override
-		    public boolean accept(File selectedFile) {
-			// the test for exists is unlikey to do anything here, paricularly regarding the Mac dialogues text entry field 
-			return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(".cmdi")));
-		    }
-		};
-		fileChooser.addChoosableFileFilter(imdiFileFilter);
-		fileChooser.addChoosableFileFilter(cmdiFileFilter);
-		fileChooser.setFileFilter(imdiFileFilter);
-	    }
+	    JFileChooser fileChooser = createFileChooser(requireMetadataFiles);
 	    if (directorySelectOnly) {
 		// this filter is only cosmetic but gives the user an indication of what to select
 		FileFilter imdiFileFilter = new FileFilter() {
@@ -308,6 +296,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		if (returnFile.length == 0) {
 		    returnFile = new File[]{fileChooser.getSelectedFile()};
 		}
+		if (requireMetadataFiles) {
+		    storeSelectedMetadataFileFilter(fileChooser);
+		}
 	    } else {
 		returnFile = null;
 	    }
@@ -326,6 +317,35 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	return returnFile;
     }
 
+    private JFileChooser createFileChooser(boolean requireMetadataFiles) {
+	JFileChooser fileChooser = new JFileChooser();
+	if (requireMetadataFiles) {
+	    for (FileFilter filter : fileFilterMap.values()) {
+		fileChooser.addChoosableFileFilter(filter);
+	    }
+	    String lastFileFilter = ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER);
+	    if (lastFileFilter != null && fileFilterMap.containsKey(lastFileFilter)) {
+		fileChooser.setFileFilter(fileFilterMap.get(lastFileFilter));
+	    }
+	}
+	return fileChooser;
+    }
+
+    private void storeSelectedMetadataFileFilter(JFileChooser fileChooser) {
+	// Store selected file filter
+	FileFilter selectedFilter = fileChooser.getFileFilter();
+	if (selectedFilter != null) {
+	    if (fileFilterMap.containsValue(selectedFilter)) {
+		for (Map.Entry<String, FileFilter> filterEntry : fileFilterMap.entrySet()) {
+		    if (filterEntry.getValue() == selectedFilter) {
+			ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, filterEntry.getKey());
+			return;
+		    }
+		}
+	    }
+	}
+    }
+
     public boolean showConfirmDialogBox(String messageString, String messageTitle) {
 	if (messageTitle == null) {
 	    messageTitle = "Arbil";
@@ -341,7 +361,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public void addMessageDialogToQueue(String messageString, String messageTitle) {
 	if (messageTitle == null) {
-	    messageTitle = "Arbil";
+	    messageTitle = versionManager.getApplicationVersion().applicationTitle;
 	}
 	String currentMessage = messageDialogQueue.get(messageTitle);
 	if (currentMessage != null) {
@@ -418,6 +438,14 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	}
     }
 
+    public void showSetupWizardIfFirstRun() {
+	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()
+		&& !"yes".equals(ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_WIZARD_RUN))) {
+	    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
+	    new ArbilSetupWizard(linorgFrame).showModalDialog();
+	}
+    }
+
     public void openIntroductionPage() {
 	// open the introduction page
 	// TODO: always get this page from the server if available, but also save it for off line use
@@ -456,7 +484,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    helpComponent.setCurrentPage(ArbilHelp.INTRODUCTION_PAGE);
 	}
 	startKeyListener();
-	messagesCanBeShown = true;
+	setMessagesCanBeShown(true);
 	showMessageDialogQueue();
     }
 
@@ -784,7 +812,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 			if (nextPress != null) {
 			    // the next key event is at the same time as this event
 			    if ((nextPress.getWhen() == ((KeyEvent) e).getWhen())) {
-				// the next key code is the same as this event                                
+				// the next key code is the same as this event
 				if (((nextPress.getKeyCode() == ((KeyEvent) e).getKeyCode()))) {
 				    isKeybordRepeat = true;
 				}
@@ -1178,7 +1206,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public int showDialogBox(String message, String title, int optionType, int messageType) {
 	return JOptionPane.showConfirmDialog(linorgFrame, message, title, optionType, messageType);
     }
-    
+
     /**
      *
      * @param message Message of the dialog
@@ -1192,7 +1220,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
      * @see javax.swing.JOptionPane
      */
     public int showDialogBox(String message, String title, int optionType, int messageType, Object[] options, Object initialValue) {
-        return JOptionPane.showOptionDialog(linorgFrame, message, title, optionType, messageType, null, options, initialValue);
+	return JOptionPane.showOptionDialog(linorgFrame, message, title, optionType, messageType, null, options, initialValue);
     }
 
     public ProgressMonitor newProgressMonitor(Object message, String note, int min, int max) {
@@ -1212,5 +1240,27 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    location.move((int) location.getX(), Math.max(0, (int) location.getY()));
 	}
 	return location;
+    }
+
+    private void initFileFilterMap() {
+	fileFilterMap = new HashMap<String, FileFilter>(2);
+	addToFileFilterMap("IMDI", ".imdi");
+	addToFileFilterMap("CMDI", ".cmdi");
+    }
+
+    private void addToFileFilterMap(final String name, final String extension) {
+	fileFilterMap.put(name, new FileFilter() {
+
+	    @Override
+	    public boolean accept(File selectedFile) {
+		final String extensionLowerCase = extension.toLowerCase();
+		return (selectedFile.exists() && (selectedFile.isDirectory() || selectedFile.getName().toLowerCase().endsWith(extensionLowerCase)));
+	    }
+
+	    @Override
+	    public String getDescription() {
+		return name;
+	    }
+	});
     }
 }

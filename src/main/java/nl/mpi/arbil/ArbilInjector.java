@@ -34,10 +34,12 @@ import nl.mpi.arbil.ui.ArbilFieldPlaceHolder;
 import nl.mpi.arbil.ui.ArbilFieldViews;
 import nl.mpi.arbil.ui.ArbilTableModel;
 import nl.mpi.arbil.ui.ArbilTree;
+import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.ImportExportDialog;
+import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ArbilBugCatcher;
-import nl.mpi.arbil.util.ArbilVersionChecker;
+import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.BinaryMetadataReader;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -62,7 +64,9 @@ public abstract class ArbilInjector {
 	    TreeHelper treeHelper,
 	    DataNodeLoader dataNodeLoader,
 	    BugCatcher bugCatcher,
+	    ApplicationVersionManager versionManager,
 	    ClipboardOwner clipboardOwner) {
+	injectVersionManager(versionManager);
 	injectDataNodeLoader(dataNodeLoader);
 	injectSessionStorage(sessionStorage);
 	injectWindowManager(windowManager);
@@ -70,6 +74,15 @@ public abstract class ArbilInjector {
 	injectTreeHelper(treeHelper);
 	injectBugCatcher(bugCatcher);
 	injectClipboardOwner(clipboardOwner);
+    }
+    
+    public static void injectVersionManager(ApplicationVersionManager versionManager){
+	ArbilBugCatcher.setVersionManager(versionManager);
+	ArbilWindowManager.setVersionManager(versionManager);
+	ArbilIcons.setVersionManager(versionManager);
+	ArbilMenuBar.setVersionManager(versionManager);
+	ArbilTableModel.setVersionManager(versionManager);
+	MetadataReader.setVersionManager(versionManager);
     }
     
     public static void injectDataNodeLoader(DataNodeLoader dataNodeLoader){
@@ -114,10 +127,11 @@ public abstract class ArbilInjector {
 	ArbilToHtmlConverter.setBugCatcher(bugCatcher);
 	ArbilTree.setBugCatcher(bugCatcher);
 	AbstractTreeHelper.setBugCatcher(bugCatcher);
-	ArbilVersionChecker.setBugCatcher(bugCatcher);
+	ApplicationVersionManager.setBugCatcher(bugCatcher);
 	ArbilVocabularies.setBugCatcher(bugCatcher);
 	BinaryMetadataReader.setBugCatcher(bugCatcher);
 	CmdiComponentLinkReader.setBugCatcher(bugCatcher);
+	CmdiProfileReader.setBugCatcher(bugCatcher);
 	CmdiTemplate.setBugCatcher(bugCatcher);
 	CmdiUtils.setBugCatcher(bugCatcher);
 	DocumentationLanguages.setBugCatcher(bugCatcher);
@@ -149,7 +163,7 @@ public abstract class ArbilInjector {
 	ArbilToHtmlConverter.setMessageDialogHandler(messageDialogHandler);
 	AbstractTreeHelper.setMessageDialogHandler(messageDialogHandler);
 	ArbilTreeHelper.setMessageDialogHandler(messageDialogHandler);
-	ArbilVersionChecker.setMessageDialogHandler(messageDialogHandler);
+	ApplicationVersionManager.setMessageDialogHandler(messageDialogHandler);
 	ArbilVocabularies.setMessageDialogHandler(messageDialogHandler);
 	CmdiTemplate.setMessageDialogHandler(messageDialogHandler);
 	FieldChangeTriggers.setMessageDialogHandler(messageDialogHandler);
@@ -182,7 +196,7 @@ public abstract class ArbilInjector {
 	CmdiTemplate.setSessionStorage(sessionStorage);
 	ArbilFavourites.setSessionStorage(sessionStorage);
 	XsdChecker.setSessionStorage(sessionStorage);
-	ArbilVersionChecker.setSessionStorage(sessionStorage);
+	ApplicationVersionManager.setSessionStorage(sessionStorage);
 	ArbilTemplateManager.setSessionStorage(sessionStorage);
     }
 }

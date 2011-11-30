@@ -8,20 +8,29 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerException;
 import nl.mpi.arbil.ArbilDesktopInjector;
 import nl.mpi.arbil.data.ArbilEntityResolver;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.clarin.profiles.CmdiProfileReader.CmdiProfile;
+import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilVocabulary;
 import nl.mpi.arbil.templates.ArbilTemplate;
@@ -54,6 +63,19 @@ import org.xml.sax.SAXException;
 public class CmdiTemplate extends ArbilTemplate {
 
     public static final String RESOURCE_REFERENCE_ATTRIBUTE = "ref";
+    public static final String LANGUAGE_ATTRIBUTE = String.format("{%1$s}lang", ArbilComponentBuilder.encodeNsUriForAttributePath("http://www.w3.org/XML/1998/namespace")); // {http://www.w3.org/XML/1998/namespace}lang
+    /**
+     * Attributes that are reserved by CMDI and should show up as editable. 
+     * Namespace URI's should appear encoded in this list
+     */
+    public final static Collection<String> RESERVED_ATTRIBUTES = Collections.unmodifiableCollection(Arrays.asList(
+	    RESOURCE_REFERENCE_ATTRIBUTE // resource proxy ref attribute
+	    , LANGUAGE_ATTRIBUTE, "componentId" // componentId
+	    , "ComponentId" // componentId, alternate spelling in some profiles
+	    ));
+    public final static String DATCAT_URI_DESCRIPTION_POSTFIX = ".dcif?workingLanguage=en";
+    public static final int SCHEMA_CACHE_EXPIRY_DAYS = 100;
+    private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
     private static MessageDialogHandler messageDialogHandler;
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
@@ -71,8 +93,10 @@ public class CmdiTemplate extends ArbilTemplate {
     }
     private String nameSpaceString;
     private String filterString[] = {".CMD.Resources.", ".CMD.Header."};
-    private File schemaFile = null;
     private Document schemaDocument;
+    private Map<String, String> dataCategoriesMap;
+    private final Map<String, String> dataCategoryDescriptionMap = Collections.synchronizedMap(new HashMap<String, String>());
+    protected HashSet<String> allowsLanguageIdPathList;
 
     private static class ArrayListGroup {
 
@@ -82,6 +106,14 @@ public class CmdiTemplate extends ArbilTemplate {
 	public ArrayList<String[]> fieldConstraintList = new ArrayList<String[]>();
 	public ArrayList<String[]> displayNamePreferenceList = new ArrayList<String[]>();
 	public ArrayList<String[]> fieldUsageDescriptionList = new ArrayList<String[]>();
+	public Map<String, String> dataCategoriesMap = Collections.synchronizedMap(new HashMap<String, String>());
+	public HashSet<String> allowsLanguageIdPathsList = new HashSet<String>();
+    }
+
+    private static class ElementCardinality {
+
+	public int maxOccurs;
+	public boolean canHaveMultiple;
     }
 
     public void loadTemplate(String nameSpaceStringLocal) {
@@ -105,6 +137,8 @@ public class CmdiTemplate extends ArbilTemplate {
 	    resourceNodePaths = arrayListGroup.resourceNodePathsList.toArray(new String[][]{});
 	    fieldConstraints = arrayListGroup.fieldConstraintList.toArray(new String[][]{});
 	    fieldUsageArray = arrayListGroup.fieldUsageDescriptionList.toArray(new String[][]{});
+	    allowsLanguageIdPathList = arrayListGroup.allowsLanguageIdPathsList;
+	    dataCategoriesMap = arrayListGroup.dataCategoriesMap;
 	    makeGuiNamesUnique();
 
 	    // sort and construct the preferredNameFields array
@@ -176,6 +210,19 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
+    public List<String[]> getEditableAttributesForPath(String path) {
+	LinkedList<String[]> attributePaths = new LinkedList<String[]>();
+	for (String[] templatePath : templatesArray) {
+	    if (ArbilComponentBuilder.pathIsAttribute(templatePath[0]) // should be an attribute
+		    && templatePath[0].startsWith(path) // should be a child of path
+		    && templatePath[0].length() > path.length() // should not be equal to path
+		    && pathIsEditableAttribute(templatePath[0])) { // should be editable
+		attributePaths.add(templatePath);
+	    }
+	}
+	return attributePaths;
+    }
+
     @Override
     public Enumeration listTypesFor(Object targetNodeUserObject) {
 	// get the xpath of the target node
@@ -196,15 +243,14 @@ public class CmdiTemplate extends ArbilTemplate {
 //                System.out.println("Testing: " + childPathString[1] + childPathString[0]);
 //                System.out.println(childPathString[0] + " : " + targetNodeXpath);
 		boolean allowEntry = false;
+		// allowing due to null path
 		if (targetNodeXpath == null) {
-//                    System.out.println("allowing due to null path: " + childPathString[0]);
 		    allowEntry = true;
 		} else if (childPathString[0].startsWith(targetNodeXpath)) {
-//                    System.out.println("allowing: " + childPathString[0]);
 		    allowEntry = true;
 		}
+		//disallowing addint to itself
 		if (childPathString[0].equals(targetNodeXpath) && isComponentPath) {
-//                    System.out.println("disallowing addint to itself: " + childPathString[0]);
 		    allowEntry = false;
 		}
 		for (String currentFilter : filterString) {
@@ -221,18 +267,21 @@ public class CmdiTemplate extends ArbilTemplate {
 	    childTypes.removeAllElements();
 	    for (String[] currentChildType : childTypesArray) {
 		// filter out sub nodes that cannot be added at the current level because they require an intermediate node to be added, ie "actors language" requires an "actor"
-		boolean keepChildType = true;
+		boolean keepChildType = (!ArbilComponentBuilder.pathIsAttribute(currentChildType[1]) || pathIsEditableField(currentChildType[1]));
+
+		if (keepChildType) {
 //                System.out.println("currentChildType: " + currentChildType[1]);
-		for (String[] subChildType : childTypesArray) {
+		    for (String[] subChildType : childTypesArray) {
 //                    System.out.println("subChildType: " + subChildType[1]);
-		    if (currentChildType[1].startsWith(subChildType[1])) {
-			String remainderString = currentChildType[1].substring(subChildType[1].length());
-			//if (currentChildType[1].length() != subChildType[1].length()) {
-			if (remainderString.contains(".")) {
-			    keepChildType = false;
+			if (!ArbilComponentBuilder.pathIsAttribute(subChildType[1]) && currentChildType[1].startsWith(subChildType[1])) {
+			    String remainderString = currentChildType[1].substring(subChildType[1].length());
+			    //if (currentChildType[1].length() != subChildType[1].length()) {
+			    if (remainderString.contains(".")) {
+				keepChildType = false;
 //                            System.out.println("remainder of path: " + remainderString);
 //                            System.out.println("removing: " + currentChildType[1]);
 //                            System.out.println("based on: " + subChildType[1]);
+			    }
 			}
 		    }
 		}
@@ -254,10 +303,11 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     private void readSchema(URI xsdFile, ArrayListGroup arrayListGroup) {
+	File schemaFile;
 	if (xsdFile.getScheme().equals("file")) {
 	    schemaFile = new File(xsdFile);
 	} else {
-	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), 100);
+	    schemaFile = sessionStorage.updateCache(xsdFile.toString(), SCHEMA_CACHE_EXPIRY_DAYS, false);
 	}
 	templateFile = schemaFile; // store the template file for later use such as adding child nodes
 	try {
@@ -297,7 +347,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	searchForAnnotations(topParticle, pathString, arrayListGroup);
 	// end search for annotations
 	SchemaProperty[] schemaPropertyArray = schemaType.getElementProperties();
-//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
+	//        boolean currentHasMultipleNodes = schemaPropertyArray.length > 1;
 	int currentNodeChildCount = 0;
 	for (SchemaProperty schemaProperty : schemaPropertyArray) {
 	    childCount++;
@@ -306,98 +356,80 @@ public class CmdiTemplate extends ArbilTemplate {
 	    String currentNodeMenuName;
 	    if (localName != null) {
 		currentNodeChildCount++;
-
-		// while keeping the .cmd.components part filter out all unrequired path component for use in the menus
-//            if (currentHasMultipleNodes || filterString.startsWith(currentPathString)) {
-//                currentNodeMenuName = nodeMenuName + "." + localName;
-//            } else {
-//                currentNodeMenuName = nodeMenuName;
-//            }
-//                  currentNodeMenuName = localName;
-//            currentNodeMenuName = currentNodeMenuName.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-		int maxOccurs;
-		boolean canHaveMultiple = true;
-		if (schemaProperty.getMaxOccurs() == null) {
-		    // absence of the max occurs also means multiple
-		    maxOccurs = -1;
-		    canHaveMultiple = true;
-		    // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
-		} else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
-		    maxOccurs = -1;
-		    canHaveMultiple = true;
-		} else {
-		    // store the max occurs for use in the add menu etc
-		    maxOccurs = schemaProperty.getMaxOccurs().intValue();
-		    canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
-		}
-		if (!canHaveMultiple) {
-		    // todo: limit the number of instances that can be added to a xml file basedon the max bounds
-		    canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
-		}
-//            boolean hasSubNodes = false;
-		// start: temp code for extracting all field names
-//                System.out.println("Found template element: " + currentPathString);
-//                boolean foundEntry = false;
-//                for (String[] currentEntry : arrayListGroup.fieldUsageDescriptionList) {
-//                    if (currentPathString.startsWith(currentEntry[0])) {
-//                        currentEntry[0] = currentPathString;
-//                        foundEntry = true;
-//                        break;
-//                    }
-//                }
-//                if (!foundEntry) {
-//                    arrayListGroup.fieldUsageDescriptionList.add(new String[]{currentPathString, ""});
-//                }
-		// end: temp code for extracting all field names
+		ElementCardinality cardinality = determineElementCardinality(schemaProperty);
 		SchemaType currentSchemaType = schemaProperty.getType();
-//            String nodeMenuNameForChild;
-//            if (canHaveMultiple) {
-//                // reset the node menu name when traversing through into a subnode
-//                nodeMenuNameForChild = localName;
-////                nodeMenuName = nodeMenuName + "." + localName;
-//            } else {
-//                nodeMenuName = nodeMenuName + "." + localName;
-//                nodeMenuNameForChild = nodeMenuName;
-//            }
-//            nodeMenuNameForChild = "";
 		currentNodeMenuName = localName;
-		// boolean childHasMultipleElementsInOneNode =
 		subNodeCount = constructXml(currentSchemaType, arrayListGroup, currentPathString);
-//            if (!hasMultipleElementsInOneNode) {
-//                hasMultipleElementsInOneNode = childHasMultipleElementsInOneNode;
-//            }
-
-//            System.out.println("childNodeChildCount: " + childCount + " : " + hasMultipleElementsInOneNode + " : " + currentPathString);
-
-//            nodeMenuNameForChild = nodeMenuNameForChild.replaceFirst("^\\.CMD\\.Components\\.[^\\.]+\\.", "");
-//            boolean hasMultipleSubNodes = childCount < childNodeChildCount - 1; // todo: complete or remove this hasSubNodes case
-		if (canHaveMultiple && subNodeCount > 0) {
+		if (cardinality.canHaveMultiple) {
+		    if (subNodeCount > 0) {
 //                todo check for case of one or only single sub element and when found do not add as a child path
-		    arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
-		}// else if (canHaveMultiple) {
-//                    System.out.println("Skipping sub node path: " + currentPathString + " : " + currentNodeMenuName);
-//                }
-		if (canHaveMultiple) {
-		    String insertBefore = "";
-		    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(maxOccurs)});
-		}
-		boolean hasResourceAttribute = false;
-		for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
-		    if (attributesProperty.getName().getLocalPart().equals("ref")) {
-			hasResourceAttribute = true;
-			break;
+			arrayListGroup.childNodePathsList.add(new String[]{currentPathString, pathString.substring(pathString.lastIndexOf(".") + 1)});
 		    }
+		    String insertBefore = "";
+		    arrayListGroup.addableComponentPathsList.add(new String[]{currentPathString, currentNodeMenuName, insertBefore, Integer.toString(cardinality.maxOccurs)});
 		}
-		if (hasResourceAttribute) {
-		    arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
-		}
+		readElementAttributes(currentSchemaType, arrayListGroup, currentPathString, currentNodeMenuName, localName);
 	    }
 	}
-//        if (childCount > 1) {
-//            hasMultipleElementsInOneNode = true;
-//        }
 	subNodeCount = subNodeCount + currentNodeChildCount;
 	return subNodeCount;
+    }
+
+    private ElementCardinality determineElementCardinality(SchemaProperty schemaProperty) {
+	ElementCardinality cardinality = new ElementCardinality();
+	if (schemaProperty.getMaxOccurs() == null) {
+	    // absence of the max occurs also means multiple
+	    cardinality.maxOccurs = -1;
+	    cardinality.canHaveMultiple = true;
+	    // todo: also check that min and max are the same because there may be cases of zero required but only one can be added
+	} else if (schemaProperty.getMaxOccurs().toString().equals("unbounded")) {
+	    cardinality.maxOccurs = -1;
+	    cardinality.canHaveMultiple = true;
+	} else {
+	    // store the max occurs for use in the add menu etc
+	    cardinality.maxOccurs = schemaProperty.getMaxOccurs().intValue();
+	    cardinality.canHaveMultiple = schemaProperty.getMaxOccurs().intValue() > 1;
+	}
+	if (!cardinality.canHaveMultiple) {
+	    // todo: limit the number of instances that can be added to a xml file basedon the max bounds
+	    cardinality.canHaveMultiple = schemaProperty.getMinOccurs().intValue() != schemaProperty.getMaxOccurs().intValue();
+	}
+	return cardinality;
+    }
+
+    private void readElementAttributes(SchemaType currentSchemaType, ArrayListGroup arrayListGroup, String currentPathString, String currentNodeMenuName, String localName) {
+	boolean hasResourceAttribute = false;
+	for (SchemaProperty attributesProperty : currentSchemaType.getAttributeProperties()) {
+	    final String attributeName = getAttributePathSection(attributesProperty.getName().getNamespaceURI(), attributesProperty.getName().getLocalPart());
+	    if (attributeName.equals(RESOURCE_REFERENCE_ATTRIBUTE)) {
+		hasResourceAttribute = true;
+	    } else if (attributeName.equals(LANGUAGE_ATTRIBUTE)) {
+		arrayListGroup.allowsLanguageIdPathsList.add(currentPathString);
+	    }
+	    final String insertBefore = "";
+	    final String attributePath = currentPathString + ".@" + attributeName;
+	    final String displayName = currentNodeMenuName + "." + attributeName.replaceAll("\\{.*\\}", "");
+	    arrayListGroup.addableComponentPathsList.add(new String[]{attributePath, displayName, insertBefore, "1"});
+	}
+	if (hasResourceAttribute) {
+	    arrayListGroup.resourceNodePathsList.add(new String[]{currentPathString, localName});
+	}
+    }
+
+    public static String getAttributePathSection(QName qName) {
+	return getAttributePathSection(qName.getNamespaceURI(), qName.getLocalPart());
+    }
+
+    public static String getAttributePathSection(String nsURI, String localPart) {
+	if (nsURI != null && nsURI.length() > 0) {
+	    nsURI = ArbilComponentBuilder.encodeNsUriForAttributePath(nsURI);
+	    StringBuilder attributeNameSb = new StringBuilder("{");
+	    attributeNameSb.append(nsURI);
+	    attributeNameSb.append("}");
+	    return attributeNameSb.append(localPart).toString();
+	}
+
+	return localPart;
     }
 
 //    SchemaParticle topParticle = schemaType.getContentModel();
@@ -430,14 +462,18 @@ public class CmdiTemplate extends ArbilTemplate {
 	if (schemaAnnotation != null) {
 	    for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
 		System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+		final String annotationName = annotationAttribute.getName().toString();
 		//Annotation: {ann}documentation : the title of the book
 		//Annotation: {ann}displaypriority : 1
 		// todo: the url here could be removed provided that it does not make it to unspecific
-		if ("{http://www.clarin.eu}displaypriority".equals(annotationAttribute.getName().toString())) {
+		if ("{http://www.clarin.eu}displaypriority".equals(annotationName)) {
 		    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
 		}
-		if ("{http://www.clarin.eu}documentation".equals(annotationAttribute.getName().toString())) {
+		if ("{http://www.clarin.eu}documentation".equals(annotationName)) {
 		    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
+		}
+		if ("{http://www.isocat.org/ns/dcr}datcat".equals(annotationName)) {
+		    arrayListGroup.dataCategoriesMap.put(nodePath, annotationAttribute.getValue());
 		}
 	    }
 	}
@@ -482,7 +518,7 @@ public class CmdiTemplate extends ArbilTemplate {
 		documentBuilderFactory.setValidating(false);
 		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-		schemaDocument = documentBuilder.parse(schemaFile);
+		schemaDocument = documentBuilder.parse(templateFile);
 	    } catch (IOException ex) {
 		bugCatcher.logError("Error while parsing schema", ex);
 	    } catch (ParserConfigurationException ex) {
@@ -561,6 +597,141 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
+    @Override
+    public String getHelpStringForField(String fieldName) {
+	fieldName = fieldName.replaceAll("\\([0-9]+\\)\\.", ".");
+	// First try using documentation from CMDI. This is stored in fieldUsageArray, super implementation gets this
+	String fieldUsageString = getFieldUsageStringForField(fieldName);
+	if (fieldUsageString != null) {
+	    return fieldUsageString;
+	} else {
+	    // Get description from data category definition
+	    String datCat = dataCategoriesMap.get(fieldName);
+	    if (datCat != null) {
+		// Create description request URI for datcat URI
+		return getDescriptionForDataCategory(datCat);
+	    } else {
+		return "No usage description found in this template for: " + fieldName;
+	    }
+	}
+    }
+
+    /**
+     * Creates a thread that downloads all descriptions that are not in cache or require refresh and reads data category descriptions
+     */
+    public synchronized void startLoadingDatacategoryDescriptions() {
+	Runnable descriptionLoader = new Runnable() {
+
+	    public void run() {
+		for (String dcUri : dataCategoriesMap.values()) {
+		    synchronized (CmdiTemplate.this) {
+			try {
+			    getDescriptionForDataCategory(dcUri);
+			    // Wait some time
+			    CmdiTemplate.this.wait(100);
+			} catch (InterruptedException ex) {
+			}
+		    }
+		}
+	    }
+	};
+	Thread descriptionLoaderThread = new Thread(descriptionLoader);
+	descriptionLoaderThread.setPriority(Thread.MIN_PRIORITY);
+	descriptionLoaderThread.start();
+    }
+
+    private String getDescriptionForDataCategory(String dcUri) {
+	if (dataCategoryDescriptionMap.containsKey(dcUri)) {
+	    // Read description from DCIF only once per session
+	    return dataCategoryDescriptionMap.get(dcUri);
+	} else {
+	    // Read description from DCIF
+	    try {
+		String description = readDescriptionForDataCategory(dcUri);
+		if (description != null) {
+		    dataCategoryDescriptionMap.put(dcUri, description);
+		    return description;
+		}
+	    } catch (ParserConfigurationException ex) {
+		bugCatcher.logError(ex);
+	    } catch (SAXException ex) {
+		bugCatcher.logError(ex);
+	    } catch (IOException ex) {
+		bugCatcher.logError(ex);
+	    }
+	    return "Data category: <" + dcUri + ">. No description available. See error log for details.";
+	}
+    }
+
+    /**
+     * Reads the description for a given data category (identified by dcUri) from its DCIF
+     * @param dcUri URI that identifies the data category
+     * @return Description string found in DCIF. Null if none found.
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException 
+     */
+    private String readDescriptionForDataCategory(String dcUri) throws ParserConfigurationException, SAXException, IOException {
+	String datCatURI = dcUri.concat(DATCAT_URI_DESCRIPTION_POSTFIX);
+	File datCatFile = sessionStorage.getFromCache(datCatURI, true); // follow redirects for datCatFiles
+	if (datCatFile == null) {
+	    bugCatcher.logError("File not found for data category URI " + dcUri, null);
+	    return null;
+	} else {
+	    SAXParser parser = parserFactory.newSAXParser();
+	    DataCategoryDescriptionHandler handler = new DataCategoryDescriptionHandler();
+	    parser.parse(datCatFile, handler);
+	    return handler.getDescription();
+	}
+    }
+
+    @Override
+    public boolean pathIsEditableField(final String nodePath) {
+	final String nodePathAsParent = nodePath + ".";
+	String[] pathTokens = nodePath.split("\\.");
+	if (ArbilComponentBuilder.pathIsAttribute(pathTokens)) {
+	    return pathIsEditableAttribute(pathTokens)
+		    && !pathIsEditableField(nodePath.replaceAll("\\.[^.]*$", "")); // If parent is editable field then 
+	} else {
+	    for (String[] pathString : childNodePaths) {
+		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
+			&& (pathString[0].startsWith(nodePathAsParent) || pathString[0].equals(nodePath))) {
+		    return false;
+		}
+	    }
+	    for (String[] pathString : templatesArray) { // some profiles do not have sub nodes hence this needs to be checked also
+		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
+			&& (pathString[0].startsWith(nodePathAsParent) && !pathString[0].equals(nodePath))) {
+		    return false;
+		}
+	    }
+	    return true;
+	}
+    }
+
+    public static boolean pathIsEditableAttribute(String path) {
+	// Could do some regex matching here, would be more efficient...
+	return pathIsEditableAttribute(path.split("\\."));
+    }
+
+    /**
+     * 
+     * @param pathTokens Path tokens, assuming that pathIsAttribute(pathTokens)
+     * @return Whether this is an editable attribute
+     */
+    public static boolean pathIsEditableAttribute(String[] pathTokens) {
+	if (pathTokens.length <= 3) {
+	    // Root level attributes are not editable. E.g. {"","CMD","@CMDVersion"}
+	    return false;
+	}
+
+	return !RESERVED_ATTRIBUTES.contains(pathTokens[pathTokens.length - 1].substring(1)); // remove @
+    }
+
+    public boolean pathAllowsLanguageId(String path) {
+	return allowsLanguageIdPathList.contains(path);
+    }
+
     public static void main(String args[]) {
 	ArbilDesktopInjector.injectHandlers();
 	CmdiTemplate template = new CmdiTemplate();
@@ -570,5 +741,6 @@ public class CmdiTemplate extends ArbilTemplate {
 	//new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");
 //        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
 //	new CmdiTemplate().loadTemplate("file:/Users/petwit/Desktop/LocalProfiles/clarin.eu_annotation-test_1272022528355.xsd");
+
     }
 }
