@@ -39,7 +39,7 @@ public abstract class TextInstructionWizardContent extends JPanel implements Arb
 	    textPane.setPage(JTextPane.class.getResource(resourceLocation));
 	} catch (IOException ex) {
 	    textPane.setText("Error while getting wizard text. Please check the error log.");
-	    GuiHelper.linorgBugCatcher.logError("I/O exception while getting wizard text", ex);
+	    GuiHelper.linorgBugCatcher.logError("I/O exception while getting wizard text from " + JTextPane.class.getResource(resourceLocation), ex);
 	}
 	add(textPane, BorderLayout.NORTH);
     }
