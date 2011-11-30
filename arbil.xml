@@ -11,7 +11,7 @@
         <property name="arbil.current.major" value="2"/>
         <property name="arbil.current.minor" value="3"/>
         <property name="arbil.filenameidentifier" value="-testing"/>
-        <property name="arbil.application-title" value="Arbil (pretesting)"/>
+        <property name="arbil.application-title" value="Arbil (testing)"/>
         <property name="arbil.icon-file-name" value="arbil${arbil.filenameidentifier}128x128"/>
         <property name="SRCDIR" value="src/main/java/"/>
         <property name="RESOURCESDIR" value="src/main/resources/"/>
