@@ -122,7 +122,7 @@ public class ArbilSetupWizard extends ArbilWizard {
     public static void main(String args[]) {
 	ArbilDesktopInjector.injectHandlers();
 	ArbilWizard wizard = new ArbilSetupWizard();
-	wizard.showDialog(ModalityType.APPLICATION_MODAL);
+	wizard.showModalDialog();
     }
 
     private void applyRemoteLocationsConfiguration() {

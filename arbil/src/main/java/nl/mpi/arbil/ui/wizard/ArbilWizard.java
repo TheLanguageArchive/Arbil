@@ -51,13 +51,21 @@ public abstract class ArbilWizard {
 	initDialog();
 	model = new ArbilWizardModel();
     }
+    
+    public void showDialog(){
+	showDialog(false);
+    }
+    
+    public void showModalDialog(){
+	showDialog(true);
+    }
 
-    public void showDialog(ModalityType modalityType) {
-	wizardDialog.setModalityType(modalityType);
+    private void showDialog(boolean modal) {
 	refreshContent();
 	if (owner != null) {
 	    wizardDialog.setLocationRelativeTo(owner);
 	}
+	wizardDialog.setModal(modal);
 	wizardDialog.setVisible(true);
     }
 

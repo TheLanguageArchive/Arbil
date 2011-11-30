@@ -442,7 +442,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()
 		&& !"yes".equals(ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_WIZARD_RUN))) {
 	    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
-	    new ArbilSetupWizard(linorgFrame).showDialog(ModalityType.APPLICATION_MODAL);
+	    new ArbilSetupWizard(linorgFrame).showModalDialog();
 	}
     }
 

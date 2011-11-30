@@ -639,7 +639,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    public void actionPerformed(ActionEvent e) {
 		ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
 		ArbilWizard wizard = new ArbilSetupWizard(ArbilWindowManager.getSingleInstance().getMainFrame());
-		wizard.showDialog(ModalityType.APPLICATION_MODAL);
+		wizard.showModalDialog();
 	    }
 	});
 	helpMenu.add(setupWizardMenuItem);
