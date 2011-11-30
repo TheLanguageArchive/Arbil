@@ -687,7 +687,8 @@ public class CmdiTemplate extends ArbilTemplate {
     }
 
     @Override
-    public boolean pathIsEditableField(String nodePath) {
+    public boolean pathIsEditableField(final String nodePath) {
+	final String nodePathAsParent = nodePath + ".";
 	String[] pathTokens = nodePath.split("\\.");
 	if (ArbilComponentBuilder.pathIsAttribute(pathTokens)) {
 	    return pathIsEditableAttribute(pathTokens)
@@ -695,13 +696,13 @@ public class CmdiTemplate extends ArbilTemplate {
 	} else {
 	    for (String[] pathString : childNodePaths) {
 		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
-			&& (pathString[0].startsWith(nodePath) || pathString[0].equals(nodePath))) {
+			&& (pathString[0].startsWith(nodePathAsParent) || pathString[0].equals(nodePath))) {
 		    return false;
 		}
 	    }
 	    for (String[] pathString : templatesArray) { // some profiles do not have sub nodes hence this needs to be checked also
 		if (!ArbilComponentBuilder.pathIsAttribute(pathString[0]) // fields can have attributes, so ignore these
-			&& (pathString[0].startsWith(nodePath) && !pathString[0].equals(nodePath))) {
+			&& (pathString[0].startsWith(nodePathAsParent) && !pathString[0].equals(nodePath))) {
 		    return false;
 		}
 	    }
