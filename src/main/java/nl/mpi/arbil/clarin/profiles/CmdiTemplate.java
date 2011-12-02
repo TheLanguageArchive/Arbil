@@ -432,9 +432,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	return localPart;
     }
 
-//    SchemaParticle topParticle = schemaType.getContentModel();
     private void searchForAnnotations(SchemaParticle schemaParticle, String nodePathBase, ArrayListGroup arrayListGroup) {
-//        System.out.println("searchForAnnotations" + nodePath);
 	if (schemaParticle != null) {
 	    switch (schemaParticle.getParticleType()) {
 		case SchemaParticle.SEQUENCE:
@@ -454,6 +452,30 @@ public class CmdiTemplate extends ArbilTemplate {
 		    saveAnnotationData(schemaLocalElement, nodePathBase, arrayListGroup);
 		    break;
 	    }
+	} else {
+	    // In case of complex type, try on element specification (xs:element)
+	    Document schemaDoc = getSchemaDocument();
+	    if (schemaDoc != null) {
+		// Path to element specification in schema file
+		String elementPath = nodePathBase.replaceFirst("\\.", "//*[@name='").replaceAll("\\.", "']//*[@name='") + "']";
+		try {
+		    // Get element specification
+		    Node elementSpecNode = XPathAPI.selectSingleNode(schemaDoc, elementPath);
+		    if (elementSpecNode != null) {
+			// Get all attributes on the xs:element and look for annotation data
+			NamedNodeMap attributes = elementSpecNode.getAttributes();
+			for (int i = 0; i < attributes.getLength(); i++) {
+			    final Node attrNode = attributes.item(i);
+			    // Convert to {nsUri}localname format
+			    final String nodeName = new QName(attrNode.getNamespaceURI(), attrNode.getLocalName()).toString();
+			    // Check for annotation data and if so save to data structure
+			    saveAnnotationData(nodePathBase, nodeName, attrNode.getNodeValue(), arrayListGroup);
+			}
+		    }
+		} catch (TransformerException ex) {
+		    // Failure to get element, so nothing can be found
+		}
+	    }
 	}
     }
 
@@ -461,21 +483,27 @@ public class CmdiTemplate extends ArbilTemplate {
 	SchemaAnnotation schemaAnnotation = schemaLocalElement.getAnnotation();
 	if (schemaAnnotation != null) {
 	    for (SchemaAnnotation.Attribute annotationAttribute : schemaAnnotation.getAttributes()) {
-		System.out.println("  Annotation: " + annotationAttribute.getName() + " : " + annotationAttribute.getValue());
+		final String annotationValue = annotationAttribute.getValue();
 		final String annotationName = annotationAttribute.getName().toString();
-		//Annotation: {ann}documentation : the title of the book
-		//Annotation: {ann}displaypriority : 1
-		// todo: the url here could be removed provided that it does not make it to unspecific
-		if ("{http://www.clarin.eu}displaypriority".equals(annotationName)) {
-		    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationAttribute.getValue()});
-		}
-		if ("{http://www.clarin.eu}documentation".equals(annotationName)) {
-		    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationAttribute.getValue()});
-		}
-		if ("{http://www.isocat.org/ns/dcr}datcat".equals(annotationName)) {
-		    arrayListGroup.dataCategoriesMap.put(nodePath, annotationAttribute.getValue());
-		}
+		saveAnnotationData(nodePath, annotationName, annotationValue, arrayListGroup);
 	    }
+	}
+    }
+
+    private void saveAnnotationData(String nodePath, final String annotationName, final String annotationValue, ArrayListGroup arrayListGroup) {
+	//Annotation: {ann}documentation : the title of the book
+	//Annotation: {ann}displaypriority : 1
+	// todo: the url here could be removed provided that it does not make it to unspecific
+	System.out.println("  Annotation: " + annotationName + " : " + annotationValue);
+
+	if ("{http://www.clarin.eu}displaypriority".equals(annotationName)) {
+	    arrayListGroup.displayNamePreferenceList.add(new String[]{nodePath, annotationValue});
+	}
+	if ("{http://www.clarin.eu}documentation".equals(annotationName)) {
+	    arrayListGroup.fieldUsageDescriptionList.add(new String[]{nodePath, annotationValue});
+	}
+	if ("{http://www.isocat.org/ns/dcr}datcat".equals(annotationName)) {
+	    arrayListGroup.dataCategoriesMap.put(nodePath, annotationValue);
 	}
     }
 
@@ -549,7 +577,7 @@ public class CmdiTemplate extends ArbilTemplate {
 	    return null;
 	} else {
 	    // Find all enumeration values within the vocabulary
-	    NodeList enumNodes = XPathAPI.selectNodeList(getSchemaDocument(), "//*[@name='" + vocabularyName + "']//xs:restriction/xs:enumeration");
+	    NodeList enumNodes = XPathAPI.selectNodeList(schemaDoc, "//*[@name='" + vocabularyName + "']//xs:restriction/xs:enumeration");
 	    HashMap<String, String> descriptions = new HashMap<String, String>(enumNodes.getLength());
 	    for (int i = 0; i < enumNodes.getLength(); i++) {
 		NamedNodeMap attMap = enumNodes.item(i).getAttributes();
@@ -736,11 +764,5 @@ public class CmdiTemplate extends ArbilTemplate {
 	ArbilDesktopInjector.injectHandlers();
 	CmdiTemplate template = new CmdiTemplate();
 	template.loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1289827960126/xsd");
-
-
-	//new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1271859438164/xsd");
-//        new CmdiTemplate().loadTemplate("http://catalog.clarin.eu/ds/ComponentRegistry/rest/registry/profiles/clarin.eu:cr1:p_1272022528355/xsd");
-//	new CmdiTemplate().loadTemplate("file:/Users/petwit/Desktop/LocalProfiles/clarin.eu_annotation-test_1272022528355.xsd");
-
     }
 }

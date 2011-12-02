@@ -2,6 +2,7 @@ package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.Component;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.search.ArbilNodeSearchTerm;
@@ -218,7 +220,7 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
 
 	private void initSearchService() {
-	    ArrayList searchTerms = new ArrayList<ArbilNodeSearchTerm>(getComponentCount());
+	    ArrayList<ArbilNodeSearchTerm> searchTerms = new ArrayList<ArbilNodeSearchTerm>(getComponentCount());
 	    for (Component component : searchTermsPanel.getComponents()) {
 		if (component instanceof ArbilNodeSearchTermPanel) {
 		    searchTerms.add((ArbilNodeSearchTermPanel) component);
@@ -228,8 +230,17 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
 
 	private void populateSearchTerms() {
-	    for (Component currentTermComp : searchTermsPanel.getComponents()) {
-		((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
+	    try {
+		SwingUtilities.invokeAndWait(new Runnable() {
+
+		    public void run() {
+			for (Component currentTermComp : searchTermsPanel.getComponents()) {
+			    ((ArbilNodeSearchTermPanel) currentTermComp).populateSearchTerm();
+			}
+		    }
+		});
+	    } catch (InterruptedException ex) {
+	    } catch (InvocationTargetException ex) {
 	    }
 	}
 
@@ -266,18 +277,35 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	}
 
 	private void finishUI() {
-	    searchProgressBar.setIndeterminate(false);
-	    searchProgressBar.setValue(0);
-	    searchProgressBar.setMaximum(1000);
-	    searchButton.setEnabled(true);
-	    stopButton.setEnabled(false);
+	    try {
+		SwingUtilities.invokeAndWait(new Runnable() {
+
+		    public void run() {
+			searchProgressBar.setIndeterminate(false);
+			searchProgressBar.setValue(0);
+			searchProgressBar.setMaximum(1000);
+			searchButton.setEnabled(true);
+			stopButton.setEnabled(false);
+		    }
+		});
+	    } catch (InterruptedException ex) {
+	    } catch (InvocationTargetException ex) {
+	    }
 	}
 
 	private void prepareUI() {
-	    searchProgressBar.setIndeterminate(false);
-	    searchProgressBar.setMinimum(0);
-	    searchProgressBar.setMaximum(searchService.getTotalNodesToSearch());
-	    searchProgressBar.setValue(0);
+	    try {
+		SwingUtilities.invokeAndWait(new Runnable() {
+
+		    public void run() {
+			searchProgressBar.setIndeterminate(true);
+			searchProgressBar.setMinimum(0);
+			searchProgressBar.setMaximum(searchService.getTotalNodesToSearch());
+		    }
+		});
+	    } catch (InterruptedException ex) {
+	    } catch (InvocationTargetException ex) {
+	    }
 	}
 
 	/**
@@ -286,8 +314,6 @@ public class ArbilNodeSearchPanel extends JPanel implements ArbilDataNodeContain
 	 */
 	public void searchProgress(Object currentElement) {
 	    if (currentElement instanceof ArbilNode) {
-		searchProgressBar.setMaximum(searchService.getTotalNodesToSearch());
-		searchProgressBar.setValue(searchService.getTotalSearched());
 		// todo: indicate how many metadata files searched rather than sub nodes
 		searchProgressBar.setString("searched: " + searchService.getTotalSearched() + "/" + searchService.getTotalNodesToSearch() + " found: " + searchService.getFoundNodes().size());
 	    }

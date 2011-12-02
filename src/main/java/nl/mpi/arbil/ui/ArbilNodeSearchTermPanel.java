@@ -23,13 +23,13 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
     private javax.swing.JButton removeButton;
     private javax.swing.JTextField searchField;
     private ArbilNodeSearchColumnComboBox searchColumn;
-    
+
     public ArbilNodeSearchTermPanel(ArbilNodeSearchPanel parentPanelLocal) {
 	parentPanel = parentPanelLocal;
 	nodeTypeComboBox = new javax.swing.JComboBox();
 	searchField = new javax.swing.JTextField(VALUE_FIELD_MESSAGE);
 	searchField.setForeground(Color.lightGray);
-	searchColumn = new ArbilNodeSearchColumnComboBox(COLUMN_FIELD_MESSAGE,"");
+	searchColumn = new ArbilNodeSearchColumnComboBox(COLUMN_FIELD_MESSAGE, "");
 	searchColumn.getTextField().setForeground(Color.lightGray);
 	notComboBox = new javax.swing.JComboBox();
 	booleanComboBox = new javax.swing.JComboBox();
@@ -82,16 +82,15 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		}
 	    }
 	});
-	
+
 	searchField.addKeyListener(new KeyAdapter() {
 
 	    @Override
 	    public void keyReleased(KeyEvent e) {
-		if(e.getKeyCode() == KeyEvent.VK_ENTER){
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 		    parentPanel.startSearch();
 		}
 	    }
-	
 	});
 
 	searchColumn.getTextField().addFocusListener(new FocusListener() {
@@ -118,6 +117,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		parentPanel.stopSearch();
 	    }
 	});
+	searchColumn.getTextField().setColumns(10);
 	this.add(searchColumn);
 
 	searchField.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -127,6 +127,7 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 		parentPanel.stopSearch();
 	    }
 	});
+	searchField.setColumns(20);
 	this.add(searchField);
 
 	notComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"==", "!="}));
@@ -177,17 +178,16 @@ public class ArbilNodeSearchTermPanel extends JPanel implements ArbilNodeSearchT
 	}
 	setNotEqual(notComboBox.getSelectedItem().toString().equals("!="));
     }
-    
-    public void addCurrentSearchColumnOption(){
-	if(searchFieldName != null && !"".equals(searchFieldName)){
+
+    public void addCurrentSearchColumnOption() {
+	if (searchFieldName != null && !"".equals(searchFieldName)) {
 	    searchColumn.addOption(searchFieldName);
 	}
     }
 
     public void setBooleanVisible(boolean visibleValue) {
 	booleanComboBox.setVisible(visibleValue);
-    }    
-    
+    }
     protected boolean notEqual = false;
     protected boolean booleanAnd = false;
     protected String nodeType = "";

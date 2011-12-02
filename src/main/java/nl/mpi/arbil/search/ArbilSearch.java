@@ -3,6 +3,7 @@ package nl.mpi.arbil.search;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeContainer;
 import nl.mpi.arbil.data.ArbilNode;
@@ -47,7 +48,7 @@ public class ArbilSearch {
      * @param remoteServerSearchTerm Can be null for no remote search term
      * @param resultsTableModel
      */
-    public ArbilSearch(Collection<? extends ArbilNode> selectedNodes, Collection<? extends ArbilNodeSearchTerm> nodeSearchTerms, RemoteServerSearchTerm remoteServerSearchTerm, AbstractArbilTableModel resultsTableModel) {
+    public ArbilSearch(Collection<? extends ArbilNode> selectedNodes, List<? extends ArbilNodeSearchTerm> nodeSearchTerms, RemoteServerSearchTerm remoteServerSearchTerm, AbstractArbilTableModel resultsTableModel) {
 	this(selectedNodes, nodeSearchTerms, remoteServerSearchTerm, resultsTableModel, null, null);
     }
 
@@ -60,7 +61,7 @@ public class ArbilSearch {
      * @param container
      * @param listener 
      */
-    public ArbilSearch(Collection<? extends ArbilNode> selectedNodes, Collection<? extends ArbilNodeSearchTerm> nodeSearchTerms, RemoteServerSearchTerm remoteServerSearchTerm, AbstractArbilTableModel resultsTableModel, ArbilDataNodeContainer container, ArbilSearchListener listener) {
+    public ArbilSearch(Collection<? extends ArbilNode> selectedNodes, List<? extends ArbilNodeSearchTerm> nodeSearchTerms, RemoteServerSearchTerm remoteServerSearchTerm, AbstractArbilTableModel resultsTableModel, ArbilDataNodeContainer container, ArbilSearchListener listener) {
 	this.remoteServerSearchTerm = remoteServerSearchTerm;
 	this.selectedNodes = selectedNodes;
 	this.nodeSearchTerms = nodeSearchTerms;

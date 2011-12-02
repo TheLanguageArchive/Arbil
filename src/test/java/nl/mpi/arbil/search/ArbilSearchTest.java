@@ -1,8 +1,8 @@
 package nl.mpi.arbil.search;
 
+import java.util.List;
 import nl.mpi.arbil.data.ArbilNode;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 import nl.mpi.arbil.ArbilTest;
@@ -114,7 +114,7 @@ public class ArbilSearchTest extends ArbilTest {
 	nodeSearchTerm.setSearchFieldName(field);
 	nodeSearchTerm.setSearchString(searchString);
 
-	Collection<ArbilNodeSearchTerm> terms = Collections.singleton(nodeSearchTerm);
+	List<ArbilNodeSearchTerm> terms = Collections.singletonList(nodeSearchTerm);
 
 	ArbilSearch search = new ArbilSearch(Arrays.asList(getTreeHelper().getLocalCorpusNodes()), terms, null, model);
 	executeLocalSearch(search);
