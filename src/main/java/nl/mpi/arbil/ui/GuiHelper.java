@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import javax.swing.ButtonGroup;
@@ -198,9 +199,7 @@ public class GuiHelper {
                 // TODO: verify that removing this helps and that it does not cause issues on other OSs
                 // removing this breaks launching directories on mac
                 if (targetUri.getScheme().toLowerCase().equals("file")) {
-                    File targetFile = new File(targetUri);
-                    // a path with white space will fail as a uri and as a file so it must be url decoded first.
-                    targetFile = new File(URLDecoder.decode(targetFile.getAbsolutePath(), "UTF-8"));
+                    final File targetFile = new File(targetUri);
                     Desktop.getDesktop().open(targetFile);
                 } else {
                     Desktop.getDesktop().browse(targetUri);
