@@ -21,7 +21,7 @@ public abstract class NumberedStringComparator implements Comparator {
      * @return 
      */
     protected Integer compareNumberedStrings(String string1, String string2) {
-	// If both strings end in an integer, check if prefix is identical, then compare on basis of int values
+	// If both strings contain an integer, check if prefix is identical, then compare on basis of int values
 	final Matcher match1 = getPattern().matcher(string1);
 	if (match1.find()) {
 	    // See if prefix matches same area in string 2
@@ -29,22 +29,48 @@ public abstract class NumberedStringComparator implements Comparator {
 		// See if string 2 ends in integer as well, and check whether prefixes match completely
 		final Matcher match2 = getPattern().matcher(string2);
 		if (match2.find() && match1.start() == match2.start()) {
+		    Integer comparison;
 		    if (match1.end() == match2.end()) {
 			// Matches are of same length, so we can do an ordinary string comparison 
 			// (I suppose this is cheaper than parsing integers)
-			return match1.group().compareToIgnoreCase(match2.group());
+			comparison = match1.group().compareToIgnoreCase(match2.group());
 		    } else {
 			// Get integer values and compare
 			try {
-			    return Integer.parseInt(match1.group()) - Integer.parseInt(match2.group());
+			    comparison = Integer.parseInt(match1.group()) - Integer.parseInt(match2.group());
 			} catch (NumberFormatException ex) {
 			    // something gone wrong with the regex, revert to caller's method of comparison
+			    return null;
 			}
+		    }
+		    if (comparison.equals(0) // Numerical parts are equal?
+			    && string1.length() > match1.end() // There's more for both strings?
+			    && string2.length() > match2.end()) {
+			// Compare remaining parts
+			return compareSub(string1.substring(match1.end()), string2.substring(match2.end()));
+		    } else {
+			return comparison;
 		    }
 		}
 	    }
 	}
 	return null;
+    }
+
+    /**
+     * Called to compare remainder of string with equal numerical part. Will try to do numerical compare on
+     * remainder; if this is not possible, reverts to string comparison.
+     * @param string1 Remainder of first string
+     * @param string2 Remainder of second string
+     * @return Comparison value
+     */
+    protected Integer compareSub(String string1, String string2) {
+	Integer numberComp = compareNumberedStrings(string1, string2);
+	if (numberComp == null) {
+	    return Integer.valueOf(string1.compareToIgnoreCase(string2));
+	} else {
+	    return numberComp;
+	}
     }
 
     protected Pattern getPattern() {
