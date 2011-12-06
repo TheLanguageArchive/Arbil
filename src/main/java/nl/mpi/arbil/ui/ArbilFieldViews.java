@@ -11,8 +11,8 @@ import nl.mpi.arbil.util.BugCatcher;
  * @author Peter.Withers@mpi.nl
  */
 public class ArbilFieldViews {
-    protected static final String SAVED_FIELDVIEWS_FILE = "savedFieldViewsV3";
 
+    protected static final String SAVED_FIELDVIEWS_FILE = "savedFieldViewsV3";
     private Hashtable<String, ArbilFieldView> savedFieldViews;
     private String currentGlobalViewName = "";
     static private ArbilFieldViews singleInstance = null;
@@ -41,7 +41,13 @@ public class ArbilFieldViews {
 
     public ArbilFieldView getCurrentGlobalView() {
 //        System.out.println("getCurrentGlobalView: " + savedFieldViews.get(currentGlobalViewName));
-	return ((ArbilFieldView) savedFieldViews.get(currentGlobalViewName));
+	ArbilFieldView fieldView = ((ArbilFieldView) savedFieldViews.get(currentGlobalViewName));
+	if (fieldView == null) {
+	    // Unknown field view, return new view as fallback
+	    return new ArbilFieldView();
+	} else {
+	    return fieldView;
+	}
     }
 
     public String getCurrentGlobalViewName() {
