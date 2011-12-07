@@ -105,6 +105,9 @@ public class ArbilIcons {
     public ImageIcon vocabularyClosedIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed.png"));
     public ImageIcon vocabularyClosedListIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/vocabulary_closed_list.png"));
     public ImageIcon attributeIcon = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/attribute.png"));
+    
+    public final ImageIcon orderAsc = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/order-asc.png"));
+    public final ImageIcon orderDesc = new ImageIcon(ArbilIcons.class.getResource("/nl/mpi/arbil/resources/icons/order-desc.png"));
 //
     private static BugCatcher bugCatcher;
 

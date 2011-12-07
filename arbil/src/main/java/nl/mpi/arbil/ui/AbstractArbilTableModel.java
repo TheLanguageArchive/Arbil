@@ -7,6 +7,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.ArbilDataNodeArrayTableCell;
@@ -410,7 +411,6 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    sortReverse = false;
 	}
 	System.out.println("sortByColumn: " + sortColumn);
-	//fireTableStructureChanged();
 	requestReloadTableData();
     }
 
@@ -770,6 +770,20 @@ public abstract class AbstractArbilTableModel extends AbstractTableModel impleme
 	    return ((ArbilField) content).originalFieldValue;
 	}
 	return getRenderedText(data);
+    }
+
+    /**
+     * @return the sortReverse
+     */
+    protected boolean isSortReverse() {
+	return sortReverse;
+    }
+
+    /**
+     * @return the sortColumn
+     */
+    protected int getSortColumn() {
+	return sortColumn;
     }
 
 //    private class TableRowComparator implements Comparator<ImdiField[]> {
