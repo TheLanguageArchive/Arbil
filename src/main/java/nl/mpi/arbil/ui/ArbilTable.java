@@ -24,6 +24,7 @@ import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -33,9 +34,12 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import nl.mpi.arbil.ArbilIcons;
 import nl.mpi.arbil.data.ArbilTableCell;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 
@@ -69,6 +73,27 @@ public class ArbilTable extends JTable {
 
 	initHeaderMouseListener();
 	initTableMouseListener();
+    }
+
+    @Override
+    public void setTableHeader(JTableHeader tableHeader) {
+	super.setTableHeader(tableHeader);
+	final TableCellRenderer defaultRenderer = tableHeader.getDefaultRenderer();
+	tableHeader.setDefaultRenderer(new TableCellRenderer() {
+
+	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		if (component instanceof JLabel) {
+		    if (arbilTableModel.getSortColumn() == column) {
+			//String text = ((JLabel) component).getText();
+			//((JLabel) component).setText((arbilTableModel.isSortReverse() ? "[z-a] " : "[a-z] ") + text);
+			((JLabel) component).setHorizontalTextPosition(SwingConstants.TRAILING);
+			((JLabel) component).setIcon(arbilTableModel.isSortReverse() ? ArbilIcons.getSingleInstance().orderDesc : ArbilIcons.getSingleInstance().orderAsc);
+		    }
+		}
+		return component;
+	    }
+	});
     }
 
     private void initTableMouseListener() {
@@ -117,6 +142,7 @@ public class ArbilTable extends JTable {
 		//targetTable = ((JTableHeader) evt.getComponent()).getTable();
 		if (evt.getButton() == MouseEvent.BUTTON1) {
 		    arbilTableModel.sortByColumn(convertColumnIndexToModel(((JTableHeader) evt.getComponent()).columnAtPoint(new Point(evt.getX(), evt.getY()))));
+		    getTableHeader().revalidate();
 		}
 		checkTableHeaderPopup(evt);
 	    }
