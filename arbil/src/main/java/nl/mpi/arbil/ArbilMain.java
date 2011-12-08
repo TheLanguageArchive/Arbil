@@ -1,5 +1,6 @@
 package nl.mpi.arbil;
 
+import java.awt.BorderLayout;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
@@ -9,6 +10,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import nl.mpi.arbil.ui.ArbilTaskStatusBar;
 import nl.mpi.arbil.ui.ArbilTreePanels;
 import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
@@ -24,6 +26,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
     private javax.swing.JSplitPane mainSplitPane;
     private ArbilMenuBar arbilMenuBar;
+    private ArbilTaskStatusBar statusBar;
 
     /**
      * @param args the command line arguments
@@ -58,6 +61,7 @@ public class ArbilMain extends javax.swing.JFrame {
 	});
 
 	initComponents();
+	ArbilWindowManager.getSingleInstance().addTaskListener(statusBar);
 	PreviewSplitPanel previewSplitPanel = PreviewSplitPanel.getInstance();
 	mainSplitPane.setRightComponent(previewSplitPanel);
 	ArbilTreePanels arbilTreePanels = new ArbilTreePanels();
@@ -67,7 +71,7 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	mainSplitPane.setDividerLocation(0.25);
 
-	ArbilWindowManager.getSingleInstance().loadGuiState(this);
+	ArbilWindowManager.getSingleInstance().loadGuiState(this, statusBar);
 	setTitle(versionManager.getApplicationVersion().applicationTitle + " " + versionManager.getApplicationVersion().compileDate);
 	setIconImage(ArbilIcons.getSingleInstance().linorgIcon.getImage());
 	// load the templates and populate the templates menu
@@ -79,13 +83,14 @@ public class ArbilMain extends javax.swing.JFrame {
 
 	initMacApplicationHandlers();
 
-    	ArbilWindowManager.getSingleInstance().showSetupWizardIfFirstRun();
+	ArbilWindowManager.getSingleInstance().showSetupWizardIfFirstRun();
 	ArbilWindowManager.getSingleInstance().openIntroductionPage();
     }
 
     private void initComponents() {
 
 	mainSplitPane = new javax.swing.JSplitPane();
+	statusBar = new ArbilTaskStatusBar();
 
 	setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 	setTitle("Arbil");
@@ -93,7 +98,9 @@ public class ArbilMain extends javax.swing.JFrame {
 	mainSplitPane.setDividerLocation(100);
 	mainSplitPane.setDividerSize(5);
 	mainSplitPane.setName("mainSplitPane");
+	getContentPane().setLayout(new BorderLayout());
 	getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
+	getContentPane().add(statusBar, BorderLayout.SOUTH);
 
 	pack();
     }

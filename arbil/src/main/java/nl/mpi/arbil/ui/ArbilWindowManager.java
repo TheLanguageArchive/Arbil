@@ -11,7 +11,6 @@ import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -28,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +58,7 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
  * Document   : ArbilWindowManager
@@ -70,6 +71,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private Hashtable windowStatesHashtable;
     public JDesktopPane desktopPane; //TODO: this is public for the dialog boxes to use, but will change when the strings are loaded from the resources
     public JFrame linorgFrame;
+    private ArbilTaskStatusBar statusBar;
     private final static int defaultWindowX = 50;
     private final static int defaultWindowY = 50;
     private final static int nextWindowWidth = 800;
@@ -83,6 +85,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     static private ArbilWindowManager singleInstance = null;
     private static ApplicationVersionManager versionManager;
     private Map<String, FileFilter> fileFilterMap;
+    private Collection<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
 
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
@@ -108,9 +111,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	this.messagesCanBeShown = messagesCanBeShown;
     }
 
-    public void loadGuiState(JFrame linorgFrameLocal) {
+    public void loadGuiState(JFrame linorgFrameLocal, ArbilTaskStatusBar statusBar) {
 	linorgFrame = linorgFrameLocal;
+	this.statusBar = statusBar;
 	try {
+	    setStatusBarVisible(ArbilSessionStorage.getSingleInstance().loadBoolean("showStatusBar", true));
 	    // load the saved states
 	    windowStatesHashtable = (Hashtable) ArbilSessionStorage.getSingleInstance().loadObject("windowStates");
 
@@ -1262,5 +1267,21 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		return name;
 	    }
 	});
+    }
+
+    public void setStatusBarVisible(boolean visible) {
+	statusBar.setVisible(visible);
+    }
+    
+    public boolean getStatusBarVisible(){
+	return statusBar.isVisible();
+    }
+
+    public synchronized Collection<ArbilTaskListener> getTaskListeners() {
+	return taskListeners;
+    }
+
+    public synchronized void addTaskListener(ArbilTaskListener taskListener) {
+	taskListeners.add(taskListener);
     }
 }
