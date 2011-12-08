@@ -1,6 +1,9 @@
 package nl.mpi.arbil.util;
 
 import java.net.CookieHandler;
+import java.util.Collection;
+import nl.mpi.arbil.ui.ArbilWindowManager;
+import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
  *
@@ -25,15 +28,20 @@ public class ArbilMimeHashQueue extends DefaultMimeHashQueue {
 	}
 	return singleInstance;
     }
-    
-    private ArbilMimeHashQueue(){
+
+    private ArbilMimeHashQueue() {
 	super();
     }
-    
+
     /**
      * @param aAllowCookies the allowCookies to set
      */
     public static void setAllowCookies(boolean aAllowCookies) {
 	allowCookies = aAllowCookies;
+    }
+
+    @Override
+    protected Collection<ArbilTaskListener> getTaskListeners() {
+	return ArbilWindowManager.getSingleInstance().getTaskListeners();
     }
 }
