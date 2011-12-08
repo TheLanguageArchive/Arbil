@@ -92,6 +92,7 @@ public class ArbilMenuBar extends JMenuBar {
     private JMenuItem helpMenuItem = new JMenuItem();
     private JMenuItem setupWizardMenuItem = new JMenuItem();
     private JMenuItem importMenuItem = new JMenuItem();
+    private JCheckBoxMenuItem showStatusBarMenuItem = new JCheckBoxMenuItem();
     private PreviewSplitPanel previewSplitPanel;
     private JApplet containerApplet = null;
     private JMenuItem exitMenuItem = new JMenuItem() {
@@ -459,6 +460,18 @@ public class ArbilMenuBar extends JMenuBar {
 	    }
 	});
 	optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
+
+	showStatusBarMenuItem.setText("Show Status Bar");
+	showStatusBarMenuItem.setState(ArbilSessionStorage.getSingleInstance().loadBoolean("showStatusBar", false));
+	showStatusBarMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
+	showStatusBarMenuItem.addActionListener(new ActionListener() {
+
+	    public void actionPerformed(ActionEvent e) {
+		ArbilWindowManager.getSingleInstance().setStatusBarVisible(showStatusBarMenuItem.getState());
+		ArbilSessionStorage.getSingleInstance().saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
+	    }
+	});
+	optionsMenu.add(showStatusBarMenuItem);
 
 	checkNewVersionAtStartCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
 	checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
