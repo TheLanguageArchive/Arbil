@@ -12,6 +12,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -19,6 +21,8 @@ import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.userstorage.SessionStorage;
+import nl.mpi.arbil.util.task.ArbilTaskListener;
+import nl.mpi.arbil.util.task.DefaultArbilTask;
 import nl.mpi.bcarchive.typecheck.DeepFileType;
 import nl.mpi.bcarchive.typecheck.FileType;
 
@@ -38,6 +42,10 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
+    }
+
+    protected Collection<ArbilTaskListener> getTaskListeners() {
+	return Collections.emptySet();
     }
 
     /**
@@ -199,6 +207,7 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	private boolean changedSinceLastSave = false;
 	private ArbilDataNode currentDataNode;
 	private int serverPermissionsChecked = 0;
+	private int processed;
 
 	public void run() {
 	    System.out.println("MimeHashQueue run");
@@ -208,7 +217,8 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    while (continueThread) {
 		waitForNode();
 		try {
-		    processQueue();
+		    processQueueWithTask();
+
 		} catch (Exception ex) {
 		    bugCatcher.logError(ex);
 		}
@@ -246,12 +256,32 @@ public class DefaultMimeHashQueue implements MimeHashQueue {
 	    }
 	}
 
-	private void processQueue() {
+	private void processQueueWithTask() throws InterruptedException {
+	    final DefaultArbilTask task = new DefaultArbilTask("Checking filetypes", "Checking filetypes", "%1$d/%2$d files", getTaskListeners());
+	    task.setIndeterminate(false);
+	    processed = 0;
+	    task.start();
+
+	    try {
+		processQueue(task);
+	    } finally {
+		task.finish();
+	    }
+	}
+
+	private void processQueue(final DefaultArbilTask task) {
 	    while (!dataNodeQueue.isEmpty() && continueThread) {
 		// Fetch node from queue
 		synchronized (dataNodeQueue) {
 		    currentDataNode = dataNodeQueue.remove(0);
 		}
+
+		if (task != null) {
+		    task.setProgressValue(++processed);
+		    task.setTargetValue(processed + dataNodeQueue.size());
+		    task.setStatus("Checking file " + currentDataNode.toString());
+		}
+
 		currentDataNode.setTypeCheckerState(TypeCheckerState.IN_PROCESS);
 		//System.out.println("DefaultMimeHashQueue checking: " + currentImdiObject.getUrlString());
 		if (!currentDataNode.isMetaDataNode()) {
