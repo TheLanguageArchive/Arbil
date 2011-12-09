@@ -210,12 +210,12 @@ public class CmdiTemplate extends ArbilTemplate {
 	}
     }
 
-    public List<String[]> getEditableAttributesForPath(String path) {
+    public List<String[]> getEditableAttributesForPath(final String path) {
 	LinkedList<String[]> attributePaths = new LinkedList<String[]>();
+	final String pathAsPrefix = path + ".";
 	for (String[] templatePath : templatesArray) {
 	    if (ArbilComponentBuilder.pathIsAttribute(templatePath[0]) // should be an attribute
-		    && templatePath[0].startsWith(path) // should be a child of path
-		    && templatePath[0].length() > path.length() // should not be equal to path
+		    && templatePath[0].startsWith(pathAsPrefix) // should be a child of path
 		    && pathIsEditableAttribute(templatePath[0])) { // should be editable
 		attributePaths.add(templatePath);
 	    }
