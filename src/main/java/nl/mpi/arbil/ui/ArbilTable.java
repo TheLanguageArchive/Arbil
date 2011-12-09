@@ -298,24 +298,24 @@ public class ArbilTable extends JTable {
 	    });
 
 
-	    final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName) + ")");
-	    thisColumnMenu.add(setFixedColumnSize);
-	    thisColumnMenu.add(setColumnSizeAuto);
-	    if (targetColumn != 0) {
-		thisColumnMenu.add(new JSeparator());
-		thisColumnMenu.add(createHideColumnMenuItem(targetColumn));
-	    }
-	    final JMenu allColumnsMenu = new JMenu("All columns");
-	    allColumnsMenu.add(setAllColumnsSizeFromColumn);
-	    allColumnsMenu.add(setAllColumnsSizeAuto);
-
-	    popupMenu.add(thisColumnMenu);
-	    popupMenu.add(allColumnsMenu);
 	    if (arbilTableModel.isHorizontalView()) {
+		final JMenu thisColumnMenu = new JMenu("This column" + " (" + (targetColumnName.trim().length() == 0 ? "nameless" : targetColumnName) + ")");
+		thisColumnMenu.add(setFixedColumnSize);
+		thisColumnMenu.add(setColumnSizeAuto);
+		if (targetColumn != 0) {
+		    thisColumnMenu.add(new JSeparator());
+		    thisColumnMenu.add(createHideColumnMenuItem(targetColumn));
+		}
+		final JMenu allColumnsMenu = new JMenu("All columns");
+		allColumnsMenu.add(setAllColumnsSizeFromColumn);
+		allColumnsMenu.add(setAllColumnsSizeAuto);
+
+		popupMenu.add(thisColumnMenu);
+		popupMenu.add(allColumnsMenu);
 		popupMenu.add(createShowChildNodesMenuItem(targetColumn));
+		popupMenu.add(new JSeparator());
 	    }
 
-	    popupMenu.add(new JSeparator());
 	    popupMenu.add(fieldViewsMenuItem);
 	    popupMenu.add(saveViewMenuItem);
 	    popupMenu.add(editViewMenuItem);
