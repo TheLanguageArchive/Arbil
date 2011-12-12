@@ -1,9 +1,13 @@
 package nl.mpi.arbil.data;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import nl.mpi.arbil.util.XsdChecker;
+import nl.mpi.arbil.util.task.ArbilTask;
+import nl.mpi.arbil.util.task.ArbilTaskListener;
 
 /**
  * Manages the loader threads and queues for loading ArbilDataNodes. 
@@ -197,7 +201,6 @@ public class DataNodeLoaderThreadManager {
 
 	protected abstract Vector<ArbilDataNode> getNodesToInit();
 
-	@SuppressWarnings(value = "SleepWhileHoldingLock")
 	public void run() {
 	    ArbilDataNode currentArbilDataNode = null;
 	    while (isContinueThread() && !Thread.currentThread().isInterrupted()) {
@@ -220,6 +223,16 @@ public class DataNodeLoaderThreadManager {
 		}
 		return getNodeFromQueue(queue);
 	    }
+	}
+    }
+    private Set<ArbilTaskListener> taskListeners = new HashSet<ArbilTaskListener>();
+    private int loadingNodesCount = 0;
+    private ArbilTask loadingTask = null;
+
+    private synchronized void addToLoadingTask(int count) {
+	loadingNodesCount += count;
+	if (loadingNodesCount == 0) {
+	    // TODO
 	}
     }
 

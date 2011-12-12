@@ -12,10 +12,10 @@ public class ArbilVersion extends ApplicationVersion {
     	applicationIconName = "/nl/mpi/arbil/resources/icons/arbil-pretesting128x128.png";
     	currentMajor = "2";
     	currentMinor = "4";
-    	currentRevision = "26497";
-	lastCommitDate = "Last Changed Date: 2011-09-26 15:40:02 +0200 (Mon, 26 Sep 2011)";
-	compileDate = "Mon Sep 26 16:30:48 CEST 2011";
-	fullInfo = "\nPath: src/main/java/nl/mpi/arbil\nURL: svn+ssh://svn.mpi.nl/srv/svn/LAT/Arbil/trunk/arbil/src/main/java/nl/mpi/arbil\nRepository Root: svn+ssh://svn.mpi.nl/srv/svn/LAT\nRepository UUID: d4234c5b-7c33-0410-a85d-91bdcf7faf44\nRevision: 26496\nNode Kind: directory\nSchedule: normal\nLast Changed Author: petwit\nLast Changed Rev: 26496\nLast Changed Date: 2011-09-26 15:40:02 +0200 (Mon, 26 Sep 2011)\n";
+    	currentRevision = "27903";
+	lastCommitDate = "Last Changed Date: 2011-12-05 09:30:25 +0100 (Mon, 05 Dec 2011)";
+	compileDate = "Tue Dec  6 20:28:55 CET 2011";
+	fullInfo = "\nPath: src/main/java/nl/mpi/arbil\nURL: https://svn.mpi.nl/LAT/Arbil/trunk/arbil/src/main/java/nl/mpi/arbil\nRepository Root: https://svn.mpi.nl/LAT\nRepository UUID: d4234c5b-7c33-0410-a85d-91bdcf7faf44\nRevision: 27874\nNode Kind: directory\nSchedule: normal\nLast Changed Author: twagoo\nLast Changed Rev: 27838\nLast Changed Date: 2011-12-05 09:30:25 +0100 (Mon, 05 Dec 2011)\n";
     	currentVersionFile = "http://www.mpi.nl/tg/j2se/jnlp/arbil/arbil-pretesting-current.txt";
     }
 }

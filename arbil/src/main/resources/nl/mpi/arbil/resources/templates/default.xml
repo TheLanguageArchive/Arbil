@@ -7,7 +7,9 @@
     Description:
         Purpose of the document is only a place holder and should be replaced by the user after creating a new template.
 -->
-<demonstration>
-  <name>demonstration template</name>
-  <description>this must be replaced with valid metadata xml</description>
-</demonstration>
+<METATRANSCRIPT>
+    <demonstration>
+      <name>demonstration template</name>
+      <description>this must be replaced with valid metadata xml</description>
+    </demonstration>
+</METATRANSCRIPT>
