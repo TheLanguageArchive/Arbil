@@ -781,17 +781,18 @@ public class MetadataReader {
 	boolean allowsLanguageId = false;
 	// For CMDI nodes, get field attribute paths from schema and values from document before creating arbil field
 	if (destinationNode.isCmdiMetaDataNode()) {
+	    final String nodePath = fullSubNodePath.replaceAll("\\(\\d+\\)", "");
 	    CmdiTemplate template = (CmdiTemplate) destinationNode.getNodeTemplate();
-	    attributePaths = template.getEditableAttributesForPath(siblingNodePath);
+	    attributePaths = template.getEditableAttributesForPath(nodePath);
 	    attributesValueMap = new HashMap<String, Object>();
 	    if (childNodeAttributes != null) {
 		for (int i = 0; i < childNodeAttributes.getLength(); i++) {
 		    final Node attrNode = childNodeAttributes.item(i);
-		    final String path = siblingNodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
+		    final String path = nodePath + ".@" + CmdiTemplate.getAttributePathSection(attrNode.getNamespaceURI(), attrNode.getLocalName());
 		    attributesValueMap.put(path, attrNode.getNodeValue());
 		}
 	    }
-	    allowsLanguageId = template.pathAllowsLanguageId(siblingNodePath); //CMDI case where language id is optional as specified by schema
+	    allowsLanguageId = template.pathAllowsLanguageId(nodePath); //CMDI case where language id is optional as specified by schema
 	} else {
 	    allowsLanguageId = languageId != null; //IMDI case where language id comes from template	
 	}
