@@ -3,7 +3,6 @@ package nl.mpi.arbil.ui;
 import nl.mpi.arbil.util.XsdChecker;
 import nl.mpi.arbil.data.ArbilJournal;
 import nl.mpi.arbil.util.DownloadAbortFlag;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -47,6 +46,7 @@ import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.DataNodeLoader;
 import nl.mpi.arbil.data.MetadataFormat;
 import nl.mpi.arbil.data.importexport.ShibbolethNegotiator;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.TreeHelper;
 
 /**
@@ -114,6 +114,11 @@ public class ImportExportDialog {
 
     public static void setDataNodeLoader(DataNodeLoader dataNodeLoaderInstance) {
 	dataNodeLoader = dataNodeLoaderInstance;
+    }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
     }
 
     private void setNodesPanel(ArbilDataNode selectedNode, JPanel nodePanel) {
@@ -644,7 +649,7 @@ public class ImportExportDialog {
 
 		directoryForSizeTest = exportDestinationDirectory != null
 			? exportDestinationDirectory
-			: ArbilSessionStorage.getSingleInstance().getCacheDirectory();
+			: sessionStorage.getCacheDirectory();
 
 
 		// Append message about copying resource files to the copy output
@@ -744,7 +749,7 @@ public class ImportExportDialog {
 		    copyFile(currentRetrievableFile, seenFiles, doneList, getList, xsdChecker);
 		}
 		if (exportDestinationDirectory == null) {
-		    File newNodeLocation = ArbilSessionStorage.getSingleInstance().getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
+		    File newNodeLocation = sessionStorage.getSaveLocation(((ArbilDataNode) currentElement).getParentDomNode().getUrlString());
 		    finishedTopNodes.add(dataNodeLoader.getArbilDataNodeWithoutLoading(newNodeLocation.toURI()));
 		}
 	    }
@@ -868,7 +873,7 @@ public class ImportExportDialog {
 			} else {
 			    File downloadFileLocation;
 			    if (exportDestinationDirectory == null) {
-				downloadFileLocation = ArbilSessionStorage.getSingleInstance().updateCache(currentLink, shibbolethNegotiator, false, false, downloadAbortFlag, resourceProgressLabel);
+				downloadFileLocation = sessionStorage.updateCache(currentLink, shibbolethNegotiator, false, false, downloadAbortFlag, resourceProgressLabel);
 			    } else {
 				if (renameFileToNodeName.isSelected() && exportDestinationDirectory != null) {
 				    retrievableLink.calculateTreeFileName(renameFileToLamusFriendlyName.isSelected());
@@ -882,7 +887,7 @@ public class ImportExportDialog {
 				}
 				downloadFileLocation = retrievableLink.destinationFile;
 				resourceProgressLabel.setText(" ");
-				ArbilSessionStorage.getSingleInstance().saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, false, downloadAbortFlag, resourceProgressLabel);
+				sessionStorage.saveRemoteResource(new URL(currentLink), downloadFileLocation, shibbolethNegotiator, true, false, downloadAbortFlag, resourceProgressLabel);
 				resourceProgressLabel.setText(" ");
 			    }
 			    if (downloadFileLocation != null && downloadFileLocation.exists()) {
@@ -939,9 +944,9 @@ public class ImportExportDialog {
 
 	public void calculateUriFileName() {
 	    if (destinationDirectory != null) {
-		destinationFile = ArbilSessionStorage.getSingleInstance().getExportPath(sourceURI.toString(), destinationDirectory.getPath());
+		destinationFile = sessionStorage.getExportPath(sourceURI.toString(), destinationDirectory.getPath());
 	    } else {
-		destinationFile = ArbilSessionStorage.getSingleInstance().getSaveLocation(sourceURI.toString());
+		destinationFile = sessionStorage.getSaveLocation(sourceURI.toString());
 	    }
 	    childDestinationDirectory = destinationDirectory;
 	}

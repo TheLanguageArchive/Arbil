@@ -10,7 +10,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import nl.mpi.arbil.ui.ArbilTree;
 import nl.mpi.arbil.ui.ArbilTreePanels;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.MessageDialogHandler;
 
@@ -35,6 +34,11 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
     }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     private ArbilTreePanels arbilTreePanel;
 
     protected ArbilTreeHelper() {
@@ -47,8 +51,7 @@ public class ArbilTreeHelper extends AbstractTreeHelper {
 
     @Override
     protected SessionStorage getSessionStorage() {
-	// Hardwired to work with ArbilSessionStorage (as is the other way around)
-	return ArbilSessionStorage.getSingleInstance();
+	return sessionStorage;
     }
 
     public void setTrees(ArbilTreePanels arbilTreePanelLocal) {

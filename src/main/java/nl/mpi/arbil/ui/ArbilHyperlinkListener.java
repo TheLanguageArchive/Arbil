@@ -1,6 +1,5 @@
 package nl.mpi.arbil.ui;
 
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilField;
 import java.awt.Component;
@@ -17,6 +16,7 @@ import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.ArbilDataNode;
 import nl.mpi.arbil.data.MetadataBuilder;
+import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  * Document   : ArbilHyperlinkListener
@@ -25,6 +25,11 @@ import nl.mpi.arbil.data.MetadataBuilder;
  */
 public class ArbilHyperlinkListener implements HyperlinkListener {
 
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     public void hyperlinkUpdate(HyperlinkEvent evt) {
 //        System.out.println("hyperlinkUpdate");
         if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
@@ -113,7 +118,7 @@ public class ArbilHyperlinkListener implements HyperlinkListener {
         System.out.println("adding into: " + parentNode);
         ArbilDataNode addedImdiObject;
         if (parentNode == null) {
-            URI targetFileURI = ArbilSessionStorage.getSingleInstance().getNewArbilFileName(ArbilSessionStorage.getSingleInstance().getCacheDirectory(), nodeType);
+            URI targetFileURI = sessionStorage.getNewArbilFileName(sessionStorage.getCacheDirectory(), nodeType);
             targetFileURI = MetadataReader.getSingleInstance().addFromTemplate(new File(targetFileURI), nodeType);
             addedImdiObject = ArbilDataNodeLoader.getSingleInstance().getArbilDataNode(null, targetFileURI);
             ArbilTreeHelper.getSingleInstance().addLocation(targetFileURI);

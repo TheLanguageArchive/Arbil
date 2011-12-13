@@ -5,7 +5,6 @@ import java.util.Arrays;
 import nl.mpi.arbil.util.WindowManager;
 import nl.mpi.arbil.util.MessageDialogHandler;
 import nl.mpi.arbil.ui.menu.ArbilMenuBar;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
 import java.awt.AWTEvent;
@@ -56,6 +55,7 @@ import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.data.ArbilDataNodeLoader;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.task.ArbilTaskListener;
@@ -90,6 +90,11 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
 
     static synchronized public ArbilWindowManager getSingleInstance() {
 //        System.out.println("LinorgWindowManager getSingleInstance");
@@ -115,9 +120,9 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	linorgFrame = linorgFrameLocal;
 	this.statusBar = statusBar;
 	try {
-	    setStatusBarVisible(ArbilSessionStorage.getSingleInstance().loadBoolean("showStatusBar", true));
+	    setStatusBarVisible(sessionStorage.loadBoolean("showStatusBar", true));
 	    // load the saved states
-	    windowStatesHashtable = (Hashtable) ArbilSessionStorage.getSingleInstance().loadObject("windowStates");
+	    windowStatesHashtable = (Hashtable) sessionStorage.loadObject("windowStates");
 
 	    // set the main window position and size. Also puts window on the correct screen (relevant for maximization)
 	    Object linorgFrameBounds = windowStatesHashtable.get("linorgFrameBounds");
@@ -236,7 +241,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	// save/load last directory accoring to the title of the dialogue
 	//Hashtable<String, File> fileSelectLocationsHashtable;
 	File workingDirectory = null;
-	String workingDirectoryPathString = ArbilSessionStorage.getSingleInstance().loadString("fileSelect." + titleText);
+	String workingDirectoryPathString = sessionStorage.loadString("fileSelect." + titleText);
 	if (workingDirectoryPathString == null) {
 	    workingDirectory = new File(System.getProperty("user.home"));
 	} else {
@@ -318,7 +323,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    lastUsedWorkingDirectory = fileChooser.getCurrentDirectory();
 	}
 	// save last use working directory
-	ArbilSessionStorage.getSingleInstance().saveString("fileSelect." + titleText, lastUsedWorkingDirectory.getAbsolutePath());
+	sessionStorage.saveString("fileSelect." + titleText, lastUsedWorkingDirectory.getAbsolutePath());
 	return returnFile;
     }
 
@@ -328,7 +333,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    for (FileFilter filter : fileFilterMap.values()) {
 		fileChooser.addChoosableFileFilter(filter);
 	    }
-	    String lastFileFilter = ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER);
+	    String lastFileFilter = sessionStorage.loadString(SessionStorage.PARAM_LAST_FILE_FILTER);
 	    if (lastFileFilter != null && fileFilterMap.containsKey(lastFileFilter)) {
 		fileChooser.setFileFilter(fileFilterMap.get(lastFileFilter));
 	    }
@@ -343,7 +348,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    if (fileFilterMap.containsValue(selectedFilter)) {
 		for (Map.Entry<String, FileFilter> filterEntry : fileFilterMap.entrySet()) {
 		    if (filterEntry.getValue() == selectedFilter) {
-			ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, filterEntry.getKey());
+			sessionStorage.saveString(SessionStorage.PARAM_LAST_FILE_FILTER, filterEntry.getKey());
 			return;
 		    }
 		}
@@ -445,8 +450,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 
     public void showSetupWizardIfFirstRun() {
 	if (!ArbilTreeHelper.getSingleInstance().locationsHaveBeenAdded()
-		&& !"yes".equals(ArbilSessionStorage.getSingleInstance().loadString(ArbilSessionStorage.PARAM_WIZARD_RUN))) {
-	    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
+		&& !"yes".equals(sessionStorage.loadString(SessionStorage.PARAM_WIZARD_RUN))) {
+	    sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, "yes");
 	    new ArbilSetupWizard(linorgFrame).showModalDialog();
 	}
     }
@@ -499,7 +504,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     private void initWindows() {
 	try {
 	    // load the saved windows
-	    Hashtable windowListHashtable = (Hashtable) ArbilSessionStorage.getSingleInstance().loadObject("openWindows");
+	    Hashtable windowListHashtable = (Hashtable) sessionStorage.loadObject("openWindows");
 	    for (Enumeration windowNamesEnum = windowListHashtable.keys(); windowNamesEnum.hasMoreElements();) {
 		String currentWindowName = windowNamesEnum.nextElement().toString();
 		System.out.println("currentWindowName: " + currentWindowName);
@@ -632,7 +637,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 	    // collect the split pane positions for saving
 	    saveSplitPlanes(linorgFrame.getContentPane().getComponent(0));
 	    // save the collected states
-	    ArbilSessionStorage.getSingleInstance().saveObject(windowStatesHashtable, "windowStates");
+	    sessionStorage.saveObject(windowStatesHashtable, "windowStates");
 	    // save the windows
 	    Hashtable windowListHashtable = new Hashtable();
 	    //Hashtable windowDimensions = new Hashtable();
@@ -686,7 +691,7 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
 		}
 	    }
 	    // save the windows
-	    ArbilSessionStorage.getSingleInstance().saveObject(windowListHashtable, "openWindows");
+	    sessionStorage.saveObject(windowListHashtable, "openWindows");
 
 	    System.out.println("saved windowStates");
 	} catch (Exception ex) {
@@ -1272,8 +1277,8 @@ public class ArbilWindowManager implements MessageDialogHandler, WindowManager {
     public void setStatusBarVisible(boolean visible) {
 	statusBar.setVisible(visible);
     }
-    
-    public boolean getStatusBarVisible(){
+
+    public boolean getStatusBarVisible() {
 	return statusBar.isVisible();
     }
 

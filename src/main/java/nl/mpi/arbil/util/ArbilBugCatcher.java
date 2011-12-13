@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.imageio.ImageIO;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  * Document   : ArbilBugCatcher
@@ -34,10 +34,15 @@ public class ArbilBugCatcher implements BugCatcher {
     public static void setVersionManager(ApplicationVersionManager versionManagerInstance) {
 	versionManager = versionManagerInstance;
     }
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
 
     public ArbilBugCatcher() {
 	// remove all previous error logs for this version other than the one for this build number
-	File errorLogFile = new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "linorgerror.log");
+	File errorLogFile = new File(sessionStorage.getStorageDirectory(), "linorgerror.log");
 	if (errorLogFile.exists()) {
 	    errorLogFile.delete();
 	}
@@ -45,14 +50,14 @@ public class ArbilBugCatcher implements BugCatcher {
 	ApplicationVersion appVersion = versionManager.getApplicationVersion();
 	String currentApplicationVersionMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-";
 	String currentLogFileMatch = "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log";
-	for (String currentFile : ArbilSessionStorage.getSingleInstance().getStorageDirectory().list()) {
+	for (String currentFile : sessionStorage.getStorageDirectory().list()) {
 	    if (currentFile.startsWith(currentApplicationVersionMatch)) {
 		if (currentFile.startsWith(currentLogFileMatch)) {
 		    // keeping this builds log file
 		    System.out.println("currentLogFileMatch: " + currentFile);
 		} else {
 		    System.out.println("deleting old log file: " + currentFile);
-		    if (!new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), currentFile).delete()) {
+		    if (!new File(sessionStorage.getStorageDirectory(), currentFile).delete()) {
 			System.out.println("Did not delete old log file: " + currentFile);
 		    }
 		}
@@ -63,7 +68,7 @@ public class ArbilBugCatcher implements BugCatcher {
 
     public File getLogFile() {
 	ApplicationVersion appVersion = versionManager.getApplicationVersion();
-	File file = new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log");
+	File file = new File(sessionStorage.getStorageDirectory(), "error-" + appVersion.currentMajor + "-" + appVersion.currentMinor + "-" + appVersion.currentRevision + ".log");
 	if (!file.exists()) {
 	    startNewLogFile(file);
 	}
@@ -97,7 +102,7 @@ public class ArbilBugCatcher implements BugCatcher {
 	    SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 	    String formattedDate = formatter.format(new Date());
 	    String formattedCount = myFormat.format(Integer.valueOf(captureCount));
-	    ImageIO.write(screenShot, "JPG", new File(ArbilSessionStorage.getSingleInstance().getStorageDirectory(), "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
+	    ImageIO.write(screenShot, "JPG", new File(sessionStorage.getStorageDirectory(), "screenshots" + File.separatorChar + formattedDate + "-" + formattedCount + ".jpg"));
 	    captureCount++;
 	} catch (Exception e) {
 	    System.err.println("Exception when creating screenshot: " + e);

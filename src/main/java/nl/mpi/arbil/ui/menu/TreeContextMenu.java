@@ -32,7 +32,7 @@ import nl.mpi.arbil.ui.ArbilWindowManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.fieldeditors.ArbilLongFieldEditor;
 import nl.mpi.arbil.util.XsdChecker;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  * Context menu for tree UI components
@@ -41,6 +41,11 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
  */
 public class TreeContextMenu extends ArbilContextMenu {
 
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     public TreeContextMenu(ArbilTree tree) {
 	super();
 	this.tree = tree;
@@ -860,7 +865,7 @@ public class TreeContextMenu extends ArbilContextMenu {
 
     private void reImportBranch() {
 	try {
-	    URI remoteDataFile = ArbilSessionStorage.getSingleInstance().getOriginatingUri(leadSelectedTreeNode.getURI());
+	    URI remoteDataFile = sessionStorage.getOriginatingUri(leadSelectedTreeNode.getURI());
 	    if (remoteDataFile != null) {
 		ArbilDataNode originatingNode = ArbilDataNodeLoader.getSingleInstance().getArbilDataNodeWithoutLoading(remoteDataFile);
 		if (originatingNode.isLocal() && !originatingNode.getFile().exists()) {

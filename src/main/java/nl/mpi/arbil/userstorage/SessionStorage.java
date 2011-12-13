@@ -19,6 +19,9 @@ import nl.mpi.arbil.util.DownloadAbortFlag;
  */
 public interface SessionStorage {
 
+    public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
+    public static final String PARAM_WIZARD_RUN = "wizardHasRun";
+
     void changeCacheDirectory(File preferedCacheDirectory, boolean moveFiles);
 
     /**
@@ -107,7 +110,7 @@ public interface SessionStorage {
     void saveStringArray(String filename, String[] storableValue) throws IOException;
 
     File getFromCache(String pathString, boolean followRedirect);
-    
+
     /**
      * Fetch the file from the remote URL and save into the cache.
      * Currently this does not expire the objects in the cache, however that will be required in the future.
