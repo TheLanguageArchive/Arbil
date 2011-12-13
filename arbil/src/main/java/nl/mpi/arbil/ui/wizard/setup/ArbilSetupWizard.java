@@ -120,7 +120,7 @@ public class ArbilSetupWizard extends ArbilWizard {
     }
 
     public static void main(String args[]) {
-	ArbilDesktopInjector.injectHandlers();
+	new ArbilDesktopInjector().injectHandlers();
 	ArbilWizard wizard = new ArbilSetupWizard();
 	wizard.showModalDialog();
     }

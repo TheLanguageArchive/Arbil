@@ -60,7 +60,7 @@ public class ArbilApplet2 extends JApplet {
 
 		public void run() {
 		    final ApplicationVersionManager versionManager = new ApplicationVersionManager(new ArbilVersion());
-		    ArbilDesktopInjector.injectHandlers();
+		    new ArbilDesktopInjector().injectHandlers();
 		    System.setProperty("sun.swing.enableImprovedDragGesture", "true");
 		    System.setProperty("apple.awt.graphics.UseQuartz", "true");
 		    System.setProperty("apple.laf.useScreenMenuBar", "true");

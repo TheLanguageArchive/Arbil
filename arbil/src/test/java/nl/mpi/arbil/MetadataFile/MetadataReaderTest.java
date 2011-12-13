@@ -33,10 +33,11 @@ public class MetadataReaderTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-	ArbilTestInjector.injectHandlers();
+	ArbilTestInjector injector = new ArbilTestInjector();
+	injector.injectHandlers();
 
 	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
-	ArbilTestInjector.injectSessionStorage(sessionStorage);
+	injector.injectSessionStorage(sessionStorage);
     }
 
     @AfterClass

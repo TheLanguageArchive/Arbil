@@ -21,7 +21,7 @@ public class ArbilWicketApplication extends WebApplication {
      * Constructor
      */
     public ArbilWicketApplication() {
-	ArbilWicketInjector.injectHandlers();
+	new ArbilWicketInjector().injectHandlers();
     }
 
     /**

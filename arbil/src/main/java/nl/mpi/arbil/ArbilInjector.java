@@ -57,7 +57,7 @@ import nl.mpi.arbil.util.XsdChecker;
  */
 public abstract class ArbilInjector {
 
-    protected static synchronized void injectHandlers(
+    protected synchronized void injectHandlers(
 	    MessageDialogHandler messageDialogHandler,
 	    WindowManager windowManager,
 	    SessionStorage sessionStorage,
@@ -76,7 +76,7 @@ public abstract class ArbilInjector {
 	injectClipboardOwner(clipboardOwner);
     }
     
-    public static void injectVersionManager(ApplicationVersionManager versionManager){
+    public void injectVersionManager(ApplicationVersionManager versionManager){
 	ArbilBugCatcher.setVersionManager(versionManager);
 	ArbilWindowManager.setVersionManager(versionManager);
 	ArbilIcons.setVersionManager(versionManager);
@@ -85,7 +85,7 @@ public abstract class ArbilInjector {
 	MetadataReader.setVersionManager(versionManager);
     }
     
-    public static void injectDataNodeLoader(DataNodeLoader dataNodeLoader){
+    public void injectDataNodeLoader(DataNodeLoader dataNodeLoader){
 	AbstractTreeHelper.setDataNodeLoader(dataNodeLoader);
 	ArbilComponentBuilder.setDataNodeLoader(dataNodeLoader);
 	ArbilCsvImporter.setDataNodeLoader(dataNodeLoader);
@@ -101,17 +101,17 @@ public abstract class ArbilInjector {
 	ProfilePreview.setDataNodeLoader(dataNodeLoader);
     }
     
-    public static void injectMimeHashQueue(MimeHashQueue mimeHashQueue){
+    public void injectMimeHashQueue(MimeHashQueue mimeHashQueue){
 	ArbilDataNode.setMimeHashQueue(mimeHashQueue);
     }
 
-    public static void injectClipboardOwner(ClipboardOwner clipboardOwner) {
+    public void injectClipboardOwner(ClipboardOwner clipboardOwner) {
 	// Clipboard owner
 	ArbilTree.setClipboardOwner(clipboardOwner);
 	ArbilTableModel.setClipboardOwner(clipboardOwner);
     }
 
-    public static void injectBugCatcher(BugCatcher bugCatcher) {
+    public void injectBugCatcher(BugCatcher bugCatcher) {
 	// Inject bug catcher
 	ArbilComponentBuilder.setBugCatcher(bugCatcher);
 	ArbilCsvImporter.setBugCatcher(bugCatcher);
@@ -142,7 +142,7 @@ public abstract class ArbilInjector {
 	XsdChecker.setBugCatcher(bugCatcher);
     }
 
-    public static void injectTreeHelper(TreeHelper treeHelper) {
+    public void injectTreeHelper(TreeHelper treeHelper) {
 	//Inject tree helper
 	ArbilDataNode.setTreeHelper(treeHelper);
 	ArbilFavourites.setTreeHelper(treeHelper);
@@ -151,7 +151,7 @@ public abstract class ArbilInjector {
 	MetadataBuilder.setTreeHelper(treeHelper);
     }
 
-    public static void injectDialogHandler(MessageDialogHandler messageDialogHandler) {
+    public void injectDialogHandler(MessageDialogHandler messageDialogHandler) {
 	// Inject message dialog handler
 	ArbilComponentBuilder.setMessageDialogHandler(messageDialogHandler);
 	ArbilCsvImporter.setMessageDialogHandler(messageDialogHandler);
@@ -173,7 +173,7 @@ public abstract class ArbilInjector {
 	ShibbolethNegotiator.setMessageDialogHandler(messageDialogHandler);
     }
 
-    public static void injectWindowManager(WindowManager windowManager) {
+    public void injectWindowManager(WindowManager windowManager) {
 	// Inject window manager
 	ArbilBugCatcher.setWindowManager(windowManager);
 	ArbilTree.setWindowManager(windowManager);
@@ -181,7 +181,7 @@ public abstract class ArbilInjector {
 	MetadataBuilder.setWindowManager(windowManager);
     }
 
-    public static void injectSessionStorage(SessionStorage sessionStorage) {
+    public void injectSessionStorage(SessionStorage sessionStorage) {
 	ArbilComponentBuilder.setSessionStorage(sessionStorage);
 	ArbilDataNode.setSessionStorage(sessionStorage);
 	ArbilEntityResolver.setSessionStorage(sessionStorage);

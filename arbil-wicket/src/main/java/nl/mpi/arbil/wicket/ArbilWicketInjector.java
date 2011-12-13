@@ -32,7 +32,7 @@ public class ArbilWicketInjector extends ArbilInjector {
     private final static DataNodeLoader dataNodeLoader = new ArbilWicketDataNodeLoaderProxy();
     private final static MimeHashQueue mimeHashQueue = new ArbilWicketMimeHashQueueProxy();
 
-    public static void injectHandlers() {	
+    public void injectHandlers() {	
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilSessionStorage.setMessageDialogHandler(messageDialogHandler);
 	ArbilSessionStorage.setWindowManager(windowManager);
