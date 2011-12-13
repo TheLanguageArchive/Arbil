@@ -1,7 +1,6 @@
 package nl.mpi.arbil.ui;
 
 import nl.mpi.arbil.ArbilMetadataException;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.templates.ArbilFavourites;
 import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.data.ArbilDataNode;
@@ -28,7 +27,7 @@ import nl.mpi.arbil.data.ArbilComponentBuilder;
 import nl.mpi.arbil.data.ArbilNode;
 import nl.mpi.arbil.data.metadatafile.MetadataReader;
 import nl.mpi.arbil.data.MetadataBuilder;
-import nl.mpi.arbil.util.TreeHelper;
+import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  * Document   :  ArbilDragDrop
@@ -37,6 +36,11 @@ import nl.mpi.arbil.util.TreeHelper;
  */
 public class ArbilDragDrop {
 
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     private static ArbilDragDrop singleInstance = null;
 
     static synchronized public ArbilDragDrop getSingleInstance() {
@@ -375,7 +379,7 @@ public class ArbilDragDrop {
 		    }
 		    if (currentDraggedObject.isMetaDataNode()) {
 			// TG 2011/3/2: selectionContainsArbilInCache member has been removed since it wasn't used
-//                        if (currentDraggedObject.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentDraggedObject.getFile())) {
+//                        if (currentDraggedObject.isLocal() && sessionStorage.pathIsInsideCache(currentDraggedObject.getFile())) {
 //                            selectionContainsArbilInCache = true;
 //                            System.out.println("selectionContainsImdiInCache");
 //                        }
@@ -557,7 +561,7 @@ public class ArbilDragDrop {
 				} else {
 				    new MetadataBuilder().requestAddNode(dropTargetDataNode, ((ArbilDataNode) currentNode).toString(), ((ArbilDataNode) currentNode));
 				}
-			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && ArbilSessionStorage.getSingleInstance().pathIsInsideCache(currentNode.getFile()))) {
+			    } else if (!draggedFromLocalCorpus() && !(currentNode.isLocal() && sessionStorage.pathIsInsideCache(currentNode.getFile()))) {
 				// External file dropped on local tree; import file(s)
 				importNodeList.add(currentNode);
 			    } else {

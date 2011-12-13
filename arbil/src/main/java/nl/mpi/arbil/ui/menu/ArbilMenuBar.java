@@ -2,7 +2,6 @@ package nl.mpi.arbil.ui.menu;
 
 import java.awt.event.ActionEvent;
 import nl.mpi.arbil.data.ArbilJournal;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.data.ArbilVocabularies;
 import nl.mpi.arbil.util.ApplicationVersionManager;
 import nl.mpi.arbil.util.ArbilBugCatcher;
@@ -10,7 +9,6 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.ui.ImportExportDialog;
 import java.awt.AWTEvent;
 import java.awt.Component;
-import java.awt.Dialog.ModalityType;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
@@ -43,6 +41,7 @@ import nl.mpi.arbil.ui.LanguageListDialogue;
 import nl.mpi.arbil.ui.PreviewSplitPanel;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
 import nl.mpi.arbil.ui.wizard.setup.ArbilSetupWizard;
+import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersion;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 
@@ -53,6 +52,11 @@ import nl.mpi.arbil.util.ArbilMimeHashQueue;
  */
 public class ArbilMenuBar extends JMenuBar {
 
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     final static public JMenu windowMenu = new JMenu();
     private boolean macOsMenu = false;
     private JMenuItem saveFileMenuItem = new JMenuItem();
@@ -377,7 +381,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    public void menuSelected(javax.swing.event.MenuEvent evt) {
 		setCacheDirectoryMenu.removeAll();
 		JMenuItem cacheDirectoryMenuItem = new JMenuItem();
-		cacheDirectoryMenuItem.setText(ArbilSessionStorage.getSingleInstance().getCacheDirectory().getAbsolutePath());
+		cacheDirectoryMenuItem.setText(sessionStorage.getCacheDirectory().getAbsolutePath());
 		cacheDirectoryMenuItem.setEnabled(false);
 		JMenuItem changeCacheDirectoryMenuItem = new JMenuItem();
 		changeCacheDirectoryMenuItem.setText("Move Local Corpus Storage Directory...");
@@ -389,7 +393,7 @@ public class ArbilMenuBar extends JMenuBar {
 			    File[] selectedFiles = ArbilWindowManager.getSingleInstance().showFileSelectBox("Move Local Corpus Storage Directory", true, false, false);
 			    if (selectedFiles != null && selectedFiles.length > 0) {
 				//fileChooser.setCurrentDirectory(LinorgSessionStorage.getSingleInstance().getCacheDirectory());
-				ArbilSessionStorage.getSingleInstance().changeCacheDirectory(selectedFiles[0], true);
+				sessionStorage.changeCacheDirectory(selectedFiles[0], true);
 			    }
 			} catch (Exception ex) {
 			    GuiHelper.linorgBugCatcher.logError(ex);
@@ -439,11 +443,11 @@ public class ArbilMenuBar extends JMenuBar {
 	});
 	optionsMenu.add(updateAllLoadedVocabulariesMenuItem);
 
-	saveWindowsCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().loadBoolean("saveWindows", true));
+	saveWindowsCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("saveWindows", true));
 	saveWindowsCheckBoxMenuItem.setText("Save Windows on Exit");
 	optionsMenu.add(saveWindowsCheckBoxMenuItem);
 
-	showSelectionPreviewCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().loadBoolean("showSelectionPreview", true));
+	showSelectionPreviewCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("showSelectionPreview", true));
 	previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
 	showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
 //        showSelectionPreviewCheckBoxMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.META_MASK));
@@ -453,7 +457,7 @@ public class ArbilMenuBar extends JMenuBar {
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    previewSplitPanel.setPreviewPanel(showSelectionPreviewCheckBoxMenuItem.getState());
-		    ArbilSessionStorage.getSingleInstance().saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
+		    sessionStorage.saveBoolean("showSelectionPreview", showSelectionPreviewCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
 		}
@@ -462,18 +466,18 @@ public class ArbilMenuBar extends JMenuBar {
 	optionsMenu.add(showSelectionPreviewCheckBoxMenuItem);
 
 	showStatusBarMenuItem.setText("Show Status Bar");
-	showStatusBarMenuItem.setState(ArbilSessionStorage.getSingleInstance().loadBoolean("showStatusBar", false));
+	showStatusBarMenuItem.setState(sessionStorage.loadBoolean("showStatusBar", false));
 	showStatusBarMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_B, java.awt.event.InputEvent.CTRL_MASK));
 	showStatusBarMenuItem.addActionListener(new ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
 		ArbilWindowManager.getSingleInstance().setStatusBarVisible(showStatusBarMenuItem.getState());
-		ArbilSessionStorage.getSingleInstance().saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
+		sessionStorage.saveBoolean("showStatusBar", showStatusBarMenuItem.getState());
 	    }
 	});
 	optionsMenu.add(showStatusBarMenuItem);
 
-	checkNewVersionAtStartCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().loadBoolean("checkNewVersionAtStart", true));
+	checkNewVersionAtStartCheckBoxMenuItem.setSelected(sessionStorage.loadBoolean("checkNewVersionAtStart", true));
 	checkNewVersionAtStartCheckBoxMenuItem.setText("Check for new version on start");
 	optionsMenu.add(checkNewVersionAtStartCheckBoxMenuItem);
 
@@ -484,7 +488,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		MetadataReader.getSingleInstance().copyNewResourcesToCache = copyNewResourcesCheckBoxMenuItem.isSelected();
-		ArbilSessionStorage.getSingleInstance().saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
+		sessionStorage.saveBoolean("copyNewResources", copyNewResourcesCheckBoxMenuItem.isSelected());
 	    }
 	});
 	optionsMenu.add(copyNewResourcesCheckBoxMenuItem);
@@ -496,7 +500,7 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		ArbilMimeHashQueue.getSingleInstance().setCheckResourcePermissions(checkResourcePermissionsCheckBoxMenuItem.isSelected());
-		ArbilSessionStorage.getSingleInstance().saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
+		sessionStorage.saveBoolean("checkResourcePermissions", checkResourcePermissionsCheckBoxMenuItem.isSelected());
 		ArbilWindowManager.getSingleInstance().addMessageDialogToQueue("The setting change will be effective when Arbil is restarted.", "Check permissions for remote resources");
 	    }
 	});
@@ -509,19 +513,19 @@ public class ArbilMenuBar extends JMenuBar {
 
 	    public void itemStateChanged(java.awt.event.ItemEvent evt) {
 		ArbilDataNodeLoader.getSingleInstance().setSchemaCheckLocalFiles(schemaCheckLocalFiles.isSelected());
-		ArbilSessionStorage.getSingleInstance().saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
+		sessionStorage.saveBoolean("schemaCheckLocalFiles", schemaCheckLocalFiles.isSelected());
 	    }
 	});
 	optionsMenu.add(schemaCheckLocalFiles);
 
-	trackTableSelectionCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().isTrackTableSelection());
+	trackTableSelectionCheckBoxMenuItem.setSelected(sessionStorage.isTrackTableSelection());
 	trackTableSelectionCheckBoxMenuItem.setText("Track Table Selection in Tree");
 	trackTableSelectionCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
-		    ArbilSessionStorage.getSingleInstance().setTrackTableSelection(trackTableSelectionCheckBoxMenuItem.getState());
-		    ArbilSessionStorage.getSingleInstance().saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
+		    sessionStorage.setTrackTableSelection(trackTableSelectionCheckBoxMenuItem.getState());
+		    sessionStorage.saveBoolean("trackTableSelection", trackTableSelectionCheckBoxMenuItem.isSelected());
 		} catch (Exception ex) {
 		    GuiHelper.linorgBugCatcher.logError(ex);
 		}
@@ -530,18 +534,18 @@ public class ArbilMenuBar extends JMenuBar {
 	trackTableSelectionCheckBoxMenuItem.setEnabled(false);
 	optionsMenu.add(trackTableSelectionCheckBoxMenuItem);
 
-	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().isUseLanguageIdInColumnName());
+	useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.isUseLanguageIdInColumnName());
 	useLanguageIdInColumnNameCheckBoxMenuItem.setText("Show Language in Column Name");
 	useLanguageIdInColumnNameCheckBoxMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		try {
 		    ArbilWindowManager.getSingleInstance().offerUserToSaveChanges();
-		    ArbilSessionStorage.getSingleInstance().setUseLanguageIdInColumnName(useLanguageIdInColumnNameCheckBoxMenuItem.getState());
-		    ArbilSessionStorage.getSingleInstance().saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
+		    sessionStorage.setUseLanguageIdInColumnName(useLanguageIdInColumnNameCheckBoxMenuItem.getState());
+		    sessionStorage.saveBoolean("useLanguageIdInColumnName", useLanguageIdInColumnNameCheckBoxMenuItem.isSelected());
 		    ArbilDataNodeLoader.getSingleInstance().requestReloadAllNodes();
 		} catch (Exception ex) {
-		    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(ArbilSessionStorage.getSingleInstance().isUseLanguageIdInColumnName());
+		    useLanguageIdInColumnNameCheckBoxMenuItem.setSelected(sessionStorage.isUseLanguageIdInColumnName());
 		}
 	    }
 	});
@@ -650,7 +654,7 @@ public class ArbilMenuBar extends JMenuBar {
 	setupWizardMenuItem.addActionListener(new java.awt.event.ActionListener() {
 
 	    public void actionPerformed(ActionEvent e) {
-		ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_WIZARD_RUN, "yes");
+		sessionStorage.saveString(SessionStorage.PARAM_WIZARD_RUN, "yes");
 		ArbilWizard wizard = new ArbilSetupWizard(ArbilWindowManager.getSingleInstance().getMainFrame());
 		wizard.showModalDialog();
 	    }
@@ -862,8 +866,8 @@ public class ArbilMenuBar extends JMenuBar {
 	ArbilMimeHashQueue.getSingleInstance().terminateQueue();
 
 	GuiHelper.getSingleInstance().saveState(saveWindowsCheckBoxMenuItem.isSelected());
-	ArbilSessionStorage.getSingleInstance().saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
-	ArbilSessionStorage.getSingleInstance().saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
+	sessionStorage.saveBoolean("saveWindows", saveWindowsCheckBoxMenuItem.isSelected());
+	sessionStorage.saveBoolean("checkNewVersionAtStart", checkNewVersionAtStartCheckBoxMenuItem.isSelected());
 	return true;
     }
 

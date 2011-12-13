@@ -1,7 +1,5 @@
 package nl.mpi.arbil.ui.wizard.setup;
 
-import java.awt.Color;
-import java.awt.Dialog.ModalityType;
 import java.awt.Frame;
 import java.io.IOException;
 import java.net.URI;
@@ -14,7 +12,7 @@ import nl.mpi.arbil.data.ArbilTreeHelper;
 import nl.mpi.arbil.templates.ArbilTemplateManager;
 import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.ui.wizard.ArbilWizard;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  *
@@ -22,6 +20,11 @@ import nl.mpi.arbil.userstorage.ArbilSessionStorage;
  */
 public class ArbilSetupWizard extends ArbilWizard {
 
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
     protected static final String WIZARDSTATE_PROPERTY = "wizardState";
     public final static Object INTRODUCTION = IntroductionContent.class;
     public final static Object METADATA_FORMAT_SELECT = MetadataFormatSelectContent.class;
@@ -65,7 +68,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     private void getModel() {
 	try {
-	    Object wizardState = ArbilSessionStorage.getSingleInstance().loadObject(WIZARDSTATE_PROPERTY);
+	    Object wizardState = sessionStorage.loadObject(WIZARDSTATE_PROPERTY);
 	    if (wizardState instanceof ArbilSetupWizardModel) {
 		model = (ArbilSetupWizardModel) wizardState;
 		return;
@@ -78,7 +81,7 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     private void saveWizardState() {
 	try {
-	    ArbilSessionStorage.getSingleInstance().saveObject(model, WIZARDSTATE_PROPERTY);
+	    sessionStorage.saveObject(model, WIZARDSTATE_PROPERTY);
 	} catch (IOException ex) {
 	    GuiHelper.linorgBugCatcher.logError("Could not save wizard state", ex);
 	}
@@ -111,10 +114,10 @@ public class ArbilSetupWizard extends ArbilWizard {
 
     private void applyFileFilterConfiguration() {
 	if (model.isImdiSelected()) {
-	    ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, "IMDI");
+	    sessionStorage.saveString(SessionStorage.PARAM_LAST_FILE_FILTER, "IMDI");
 	} else {
 	    if (model.isCmdiSelected()) {
-		ArbilSessionStorage.getSingleInstance().saveString(ArbilSessionStorage.PARAM_LAST_FILE_FILTER, "CMDI");
+		sessionStorage.saveString(SessionStorage.PARAM_LAST_FILE_FILTER, "CMDI");
 	    }
 	}
     }

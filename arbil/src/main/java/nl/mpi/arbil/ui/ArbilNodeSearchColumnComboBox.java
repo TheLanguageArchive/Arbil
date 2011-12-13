@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
-import nl.mpi.arbil.userstorage.ArbilSessionStorage;
+import nl.mpi.arbil.userstorage.SessionStorage;
 
 /**
  *
@@ -19,6 +19,11 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
     private List<String> options;
     private TypeAheadComboBoxEditor typeAheadEditor;
     private final static String[] defaultOptions = new String[]{"Name", "Title", "Description", "Genre", "Subject", "Task"};
+    private static SessionStorage sessionStorage;
+
+    public static void setSessionStorage(SessionStorage sessionStorageInstance) {
+	sessionStorage = sessionStorageInstance;
+    }
 
     public ArbilNodeSearchColumnComboBox() {
 	this("", "");
@@ -28,7 +33,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 	super();
 
 	try {
-	    String[] optionsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("searchFieldOptions");
+	    String[] optionsArray = sessionStorage.loadStringArray("searchFieldOptions");
 	    if (optionsArray != null) {
 		options = new ArrayList(Arrays.asList(optionsArray));
 	    }
@@ -62,7 +67,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
     public static synchronized void addOptions(Collection<String> options) {
 	try {
 	    Collection<String> existingOptions;
-	    String[] optionsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("searchFieldOptions");
+	    String[] optionsArray = sessionStorage.loadStringArray("searchFieldOptions");
 	    if (optionsArray != null) {
 		existingOptions = Arrays.asList(optionsArray);
 	    } else {
@@ -74,7 +79,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 		    newOptions.add(option);
 		}
 	    }
-	    ArbilSessionStorage.getSingleInstance().saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
+	    sessionStorage.saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
 	} catch (IOException ex) {
 	    GuiHelper.linorgBugCatcher.logError("Could not save search options", ex);
 	}
@@ -83,7 +88,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
     public static synchronized void removeOptions(Collection<String> options) {
 	try {
 	    Collection<String> existingOptions;
-	    String[] optionsArray = ArbilSessionStorage.getSingleInstance().loadStringArray("searchFieldOptions");
+	    String[] optionsArray = sessionStorage.loadStringArray("searchFieldOptions");
 	    if (optionsArray != null) {
 		existingOptions = Arrays.asList(optionsArray);
 	    } else {
@@ -95,7 +100,7 @@ public class ArbilNodeSearchColumnComboBox extends JComboBox {
 		    newOptions.remove(option);
 		}
 	    }
-	    ArbilSessionStorage.getSingleInstance().saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
+	    sessionStorage.saveStringArray("searchFieldOptions", newOptions.toArray(new String[]{}));
 	} catch (IOException ex) {
 	    GuiHelper.linorgBugCatcher.logError("Could not save search options", ex);
 	}

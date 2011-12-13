@@ -9,6 +9,7 @@ import nl.mpi.arbil.ui.GuiHelper;
 import nl.mpi.arbil.userstorage.ArbilSessionStorage;
 import nl.mpi.arbil.userstorage.SessionStorage;
 import nl.mpi.arbil.util.ApplicationVersionManager;
+import nl.mpi.arbil.util.ArbilBugCatcher;
 import nl.mpi.arbil.util.ArbilMimeHashQueue;
 import nl.mpi.arbil.util.BugCatcher;
 import nl.mpi.arbil.util.MessageDialogHandler;
@@ -35,6 +36,13 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
     public synchronized void injectHandlers(final ApplicationVersionManager versionManager) {
 	injectVersionManager(versionManager);
 
+	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
+	ArbilBugCatcher.setSessionStorage(sessionStorage);
+	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
+	ArbilMimeHashQueue.setSessionStorage(sessionStorage);
+	ArbilWindowManager.setSessionStorage(sessionStorage);
+	injectSessionStorage(sessionStorage);
+	
 	final BugCatcher bugCatcher = GuiHelper.linorgBugCatcher;
 	ArbilSessionStorage.setBugCatcher(bugCatcher);
 	ArbilMimeHashQueue.setBugCatcher(bugCatcher);
@@ -51,12 +59,6 @@ public class ArbilDesktopInjector extends ArbilSwingInjector {
 
 	final ClipboardOwner clipboardOwner = GuiHelper.getClipboardOwner();
 	injectClipboardOwner(clipboardOwner);
-
-	ArbilSessionStorage.setBugCatcher(bugCatcher);
-	final SessionStorage sessionStorage = ArbilSessionStorage.getSingleInstance();
-	ArbilDataNodeLoader.setSessionStorage(sessionStorage);
-	ArbilMimeHashQueue.setSessionStorage(sessionStorage);
-	injectSessionStorage(sessionStorage);
 
 	final MimeHashQueue mimeHashQueue = ArbilMimeHashQueue.getSingleInstance();
 	injectMimeHashQueue(mimeHashQueue);

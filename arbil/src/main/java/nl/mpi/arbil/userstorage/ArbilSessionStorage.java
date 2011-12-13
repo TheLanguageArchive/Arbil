@@ -53,8 +53,6 @@ public class ArbilSessionStorage implements SessionStorage {
 
     private final static String TYPECHECKER_CONFIG_FILENAME = "filetypes.txt";
     private static MessageDialogHandler messageDialogHandler;
-    public static final String PARAM_LAST_FILE_FILTER = "metadataFileFilter";
-    public static final String PARAM_WIZARD_RUN = "wizardHasRun";
 
     public static void setMessageDialogHandler(MessageDialogHandler handler) {
 	messageDialogHandler = handler;
@@ -77,6 +75,16 @@ public class ArbilSessionStorage implements SessionStorage {
 	    System.out.println("BUGCATCHER: " + exception.getMessage());
 	}
     }
+    
+    private static void logError(String message, Exception exception) {
+	if (bugCatcher != null) {
+	    bugCatcher.logError(message, exception);
+	} else {
+	    System.out.println("BUGCATCHER: " + message + "\nException: " + exception.getMessage());
+	}
+    }
+    
+    
     private File storageDirectory = null;
     private File localCacheDirectory = null;
     static private ArbilSessionStorage singleInstance = null;
@@ -147,7 +155,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		}
 	    } catch (IOException exception) {
 		System.out.println(exception);
-		bugCatcher.logError(exception);
+		logError(exception);
 		messageDialogHandler.addMessageDialogToQueue("Could not create a test file in the working directory.", "Arbil Critical Error");
 		throw new RuntimeException("Exception while testing working directory writability", exception);
 	    }
@@ -245,7 +253,7 @@ public class ArbilSessionStorage implements SessionStorage {
 		    }
 		}
 		//LinorgSessionStorage.getSingleInstance().saveObject(locationsList, "locationsList");
-		ArbilSessionStorage.getSingleInstance().saveStringArray("locationsList", locationsList.toArray(new String[]{}));
+		saveStringArray("locationsList", locationsList.toArray(new String[]{}));
 		saveString("cacheDirectory", toDirectory.getAbsolutePath());
 		localCacheDirectory = null;
 		getCacheDirectory();
@@ -412,7 +420,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	boolean favDirExists = favDirectory.exists();
 	if (!favDirExists) {
 	    if (!favDirectory.mkdir()) {
-		bugCatcher.logError("Could not create favourites directory", null);
+		logError("Could not create favourites directory", null);
 		return null;
 	    }
 	}
@@ -446,7 +454,7 @@ public class ArbilSessionStorage implements SessionStorage {
 	    boolean cacheDirExists = localCacheDirectory.exists();
 	    if (!cacheDirExists) {
 		if (!localCacheDirectory.mkdirs()) {
-		    bugCatcher.logError("Could not create cache directory", null);
+		    logError("Could not create cache directory", null);
 		    return null;
 		}
 	    }
