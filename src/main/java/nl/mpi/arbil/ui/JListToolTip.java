@@ -101,9 +101,11 @@ class JListToolTip extends JToolTip {
 		sb.append(". Only one value can be entered.");
 	    }
 	    addDetailLabelIcon(sb.toString(), ArbilIcons.getSingleInstance().getIconForVocabulary((ArbilField) field));
-	} else if (field.isAttributeField()) {
+	}
+	if (field.isAttributeField()) {
 	    addDetailLabelIcon("Attribute of " + field.getParentDataNode().toString(), ArbilIcons.getSingleInstance().attributeIcon);
-	} else if (field.hasEditableFieldAttributes()) {
+	}
+	if (field.hasEditableFieldAttributes()) {
 	    final List<String[]> fieldAttributePaths = field.getAttributePaths();
 	    addDetailLabel("Field has " + fieldAttributePaths.size() + " attribute(s)");
 	    for (String[] path : fieldAttributePaths) {

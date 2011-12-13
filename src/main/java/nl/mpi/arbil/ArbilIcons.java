@@ -209,27 +209,24 @@ public class ArbilIcons {
     }
 
     public Icon getIconForField(ArbilField field) {
-
-
+	List<Icon> iconsList = new LinkedList<Icon>();
 	if (field.hasVocabulary()) {
-	    return getIconForVocabulary(field);
-	} else {
-	    List<Icon> iconsList = new LinkedList<Icon>();
-	    if (field.isAllowsLanguageId()) {
-		iconsList.add(languageIcon);
-	    }
-	    if (field.hasEditableFieldAttributes()) {
-		iconsList.add(attributeIcon);
-	    }
+	    iconsList.add(getIconForVocabulary(field));
+	}
+	if (field.isAllowsLanguageId()) {
+	    iconsList.add(languageIcon);
+	}
+	if (field.hasEditableFieldAttributes()) {
+	    iconsList.add(attributeIcon);
+	}
 
-	    switch (iconsList.size()) {
-		case 0:
-		    return null;
-		case 1:
-		    return iconsList.get(0);
-		default:
-		    return compositIcons(iconsList);
-	    }
+	switch (iconsList.size()) {
+	    case 0:
+		return null;
+	    case 1:
+		return iconsList.get(0);
+	    default:
+		return compositIcons(iconsList);
 	}
     }
 
