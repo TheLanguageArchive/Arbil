@@ -29,7 +29,8 @@ public class MetadataFormat {
     }
     private final static Collection<FormatType> knownFormats = new CopyOnWriteArraySet<FormatType>(Arrays.asList(new FormatType[]{
 		new FormatType(".imdi", "", null, true),
-		new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
+                // todo: the filter strings used by the cmdi templates and metadata loading process should be reading the metadataStartXpath from here instead
+		new FormatType(".cmdi", ".CMD.Components", ArbilIcons.getSingleInstance().clarinIcon, false),
 		// Generic XML
 		new FormatType(".xml", "", ArbilIcons.getSingleInstance().clarinIcon, false), // Clarin icon is not really appropriate
 		// KMDI, Kinship metadata
