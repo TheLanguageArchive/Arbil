@@ -30,7 +30,12 @@ public class MetadataFormat {
     private final static Collection<FormatType> knownFormats = new CopyOnWriteArraySet<FormatType>(Arrays.asList(new FormatType[]{
 		new FormatType(".imdi", "", null, true),
 		new FormatType(".cmdi", "", ArbilIcons.getSingleInstance().clarinIcon, false),
-		new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().kinOathIcon, false)}));
+		// Generic XML
+		new FormatType(".xml", "", ArbilIcons.getSingleInstance().clarinIcon, false), // Clarin icon is not really appropriate
+		// KMDI, Kinship metadata
+		new FormatType(".kmdi", ".Kinnate.Metadata", ArbilIcons.getSingleInstance().kinOathIcon, false),
+		// TLA test results
+		new FormatType(".trx", "", ArbilIcons.getSingleInstance().clarinIcon, false)})); // Clarin icon is not really appropriate
 
 //    private static MetadataFormat singleInstance = null;
 //    static synchronized public MetadataFormat getSingleInstance() {
